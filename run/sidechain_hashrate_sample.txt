@@ -1,0 +1,1 @@
+Side chain hashrate       = 12.291 MH/s

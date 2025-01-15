@@ -1,0 +1,16 @@
++ systemctl stop monerod
+Warning: Stopping monerod.service, but it can still be activated by:
+  monerod.socket
++ sleep 1
++ systemctl start monerod
++ sleep 1
++ systemctl stop p2pool
+Warning: Stopping p2pool.service, but it can still be activated by:
+  p2pool.socket
++ sleep 1
++ rm -f /opt/prod/p2pool/p2pool.cache
++ systemctl start p2pool
++ sleep 60
++ systemctl stop db4e_monitor_p2pool_log
++ sleep 1
++ systemctl start db4e_monitor_p2pool_log

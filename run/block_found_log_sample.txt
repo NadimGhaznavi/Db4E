@@ -1,0 +1,1 @@
+2024-11-11 00:31:17.4820 P2Pool BLOCK FOUND: main chain block at height 3278684 was mined by someone else in this p2pool

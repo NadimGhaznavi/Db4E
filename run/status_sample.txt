@@ -1,0 +1,26 @@
+NOTICE  2024-12-12 20:55:01.7446 SideChain status
+Monero node               = 192.168.0.176:20081:ZMQ:20083
+Main chain height         = 3301613
+Main chain hashrate       = 3.999 GH/s
+Side chain ID             = mini
+Side chain height         = 9419412
+Side chain hashrate       = 13.999 MH/s
+PPLNS window              = 2160 blocks (+55 uncles, 0 orphans)
+PPLNS window duration     = 6h 10m 6s
+Your wallet address       = 48wY7nYBsQNSw7v4LjoNnvCtk1Y6GLNVmePGrW82gVhYhQtWJFHi6U6G3X5d7JN2ucajU9SeBcijET8ZzKWYwC3z3Y6fDEG
+Your shares               = 0 blocks (+0 uncles, 0 orphans)
+Block reward share        = 0.000% (0.000000000000 XMR)
+NOTICE  2024-12-12 20:55:01.7446 StratumServer status
+Hashrate (15m est) = 6.230 KH/s
+Hashrate (1h  est) = 6.999 KH/s
+Hashrate (24h est) = 6.914 KH/s
+Total hashes       = 396122828
+Shares found       = 2
+Average effort     = 34.298%
+Current effort     = 225.808%
+Connections        = 7 (7 incoming)
+NOTICE  2024-12-12 20:55:01.7446 P2PServer status
+Connections    = 32 (16 incoming)
+Peer list size = 963
+Uptime         = 15h 54m 53s
+NOTICE  2024-12-12 20:55:01.7446 Util no background jobs running
