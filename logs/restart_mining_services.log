@@ -10,7 +10,7 @@ Warning: Stopping p2pool.service, but it can still be activated by:
 + sleep 1
 + rm -f /opt/prod/p2pool/p2pool.cache
 + systemctl start p2pool
-+ sleep 60
++ sleep 120
 + systemctl stop db4e_monitor_p2pool_log
 + sleep 1
 + systemctl start db4e_monitor_p2pool_log

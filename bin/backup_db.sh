@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 ENV=$1
 
@@ -9,10 +9,10 @@ fi
 
 if [ "${ENV}" == "prod" ]; then
   DB_NAME=db4e
-  BACKUP_DIR=/opt/prod/xmr/data
+  BACKUP_DIR=/opt/prod/db4e/db
 elif [ "${ENV}" == "qa" ]; then
   DB_NAME=db4e_qa
-  BACKUP_DIR=/opt/prod/xmr/data
+  BACKUP_DIR=/opt/prod/db4e/db
 elif [ "${ENV}" == "dev" ]; then
   DB_NAME=db4e_dev
   BACKUP_DIR=/home/sally/xmr/data
@@ -38,7 +38,9 @@ for COUNT in 6 5 4 3 2 1 0; do
 done
 
 cd ${BACKUP_DIR}
-git add .
+git add dump/${DB_NAME}/mining.bson
+git add dump/${DB_NAME}/mining.metadata.json
+git add dump/${DB_NAME}/prelude.json
 git commit -m "New backup"
 git push
 
