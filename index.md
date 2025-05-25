@@ -10,6 +10,7 @@ title: The Database 4 Everything - db4e
   * [backup-db.sh](#backup-db.sh)
   * [gitpush.sh](#gitpush.sh)
   * [restart_mining_services.sh](#restart-mining-services.sh)
+* [Historical Data on the Web](#historical-data-on-the-web)
 * [Links](#links)
 
 # Introduction and Scope
@@ -47,6 +48,20 @@ The `restart_mining_services.sh` script executed once a day from a cron job. It 
 1. Restart the Monero XMR daemon which is responsible for running the full blockchain node. The node is part of the larger, distributed Monero XMR ecosystem.
 2. Restart my Mining Farm's P2Pool daemon.
 3. Restart the *db4e* P2Pool log file monitoring daemon.
+
+# Historical Data on the Web
+
+When the `db4e` P2Pool daemon log file monitoring daemon watches for events and creates MongoDb records for them. When one of the following events is found:
+
+* XMR payment made to my mining farm
+* Share found by my mining farm
+* Block found on the Monero XMR mini sidechain
+
+The the application aggregates the daily totals for those events, generates a CSV File and pushes the file to GitHub where it is rendered using some Javascript code based around ApexCharts.
+
+  * [P2Pool Payouts Visualization](https://xmr.osoyalce.com/pages/P2Pool-Payouts.html)
+  * [Blocks Found Visualization](https://xmr.osoyalce.com/pages/Blocks-Found.html)
+  * [Shares Found Visualization](https://xmr.osoyalce.com/pages/Shares-Found.html)
 
 # Links
 
