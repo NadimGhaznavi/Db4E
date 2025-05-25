@@ -2,7 +2,7 @@
 title: db4e-gui.py Console Application
 ---
 
-The `db4e-gui.py` provides a realtime console based GUI to display health and performance information about my Monero XMR Mining farm. I run the application continuously to keep an eye on things.
+The `db4e-gui.py` provides a realtime console based GUI to display health and performance information about my Monero XMR Mining farm. I typically run the application continuously to keep an eye on things.
 
 The application displays the following timestamped information:
 

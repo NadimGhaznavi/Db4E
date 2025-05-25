@@ -28,7 +28,7 @@ The `db4e-gui.py` application provides a console based monitoring solution for m
 
 ## backup-db.sh
 
-Utility to backup the backend MongoDB database.
+The `backup-db.sh` utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/db4e.py.html) application collects. See the [backup-db.sh page](/pages/backup-db.sh.html) for more information.
 
 ## gitpush.sh
 
