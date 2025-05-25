@@ -6,6 +6,10 @@ title: The Database 4 Everything - db4e
 * [Introduction and Scope](#introduction-and-scope)
 * [Command Line Utilities](#command-line-utilities)
   * [db4e.py](#db4e.py)
+  * [db4e-gui.py](#db4e-gui.py)
+  * [backup-db.sh](#backup-db.sh)
+  * [gitpush.sh](#gitpush.sh)
+  * [restart_mining_services.sh](#restart-mining-services.sh)
 * [Links](#links)
 
 # Introduction and Scope
@@ -18,11 +22,21 @@ This site documents my **db4e** project. The db4e application is used to provide
 
 This utility monitors the Mining Farm's P2Pool daemon logs, creates records in the backend database and triggers updates to the web front end. See the [db4e.py page](/pages/db4e.py.html) for more information.
 
+## db4e-gui.py
 
-db4e-gui.py                | A console application to monitor the health of the mining farm in real-time.
-backup-db.sh               | Utility to backup the backend MongoDB database.
-gitpush.sh                 | Utility to push files up to Github.
-restart_mining_services.sh | Utility to restart all of the Mining Farm's services
+The `db4e-gui.py` application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/db4e-gui.py.html) for more information.
+
+## backup-db.sh
+
+Utility to backup the backend MongoDB database.
+
+## gitpush.sh
+
+Utility to push files up to Github.
+
+## restart_mining_services.sh
+
+Utility to restart all of the Mining Farm's services
 
 # Links
 
