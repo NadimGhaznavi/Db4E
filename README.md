@@ -1,2 +1,1 @@
-# db4e
-Database 4 Everything project
+The [Database 4 Everything](https://db4e.osoyalce.com/) project.
