@@ -11,6 +11,9 @@ title: The Database 4 Everything - db4e
   * [gitpush.sh](#gitpush.sh)
   * [restart_mining_services.sh](#restart-mining-services.sh)
 * [Historical Data on the Web](#historical-data-on-the-web)
+* [Backend Components](#backend-components)
+  * [Infrastructure Modules](#infrastructure-modules)
+  * [Mining Modules](#mining-modules)
 * [Links](#links)
 
 # Introduction and Scope
@@ -66,6 +69,34 @@ The the application aggregates the daily totals for those events, generates a CS
   * [P2Pool Payouts Visualization](https://xmr.osoyalce.com/pages/P2Pool-Payouts.html)
   * [Blocks Found Visualization](https://xmr.osoyalce.com/pages/Blocks-Found.html)
   * [Shares Found Visualization](https://xmr.osoyalce.com/pages/Shares-Found.html)
+
+# Backend Components
+
+I designed the application to be modular and have a clear data abstraction layer. While the *Database 4 Everything* application is currently only being used to house data on my Monero XMR Mining farm, I designed it to be easily extended to house other data (e.g. system update, disk usage, CPU utilization and memory metrics).
+
+## Infrastructure Modules
+
+Module      | Description
+------------|--------------------
+Db4eDb      | This module is responsible for all MongoDb operations.
+Db4eLog     | This module is responsible for managing logging of the application.
+Db4eStartup | This module is responsible for loading *db4e* settings from an INI file.
+
+## Mining Modules
+
+Module               | Description
+---------------------|--------------------------------------
+MiningDb             | Accepts mining specific DB commands and then uses the Db4eDb module to execute them.
+P2Pool               | Monitors the P2Pool daemon log file and creates corresponding events in MongoDb using the MiningDb module.
+
+The modules below are called by the P2Pool module when the corresponding event is detected. These modules extract all historical data for the event, aggregate it into daily totals, writes that data to a CSV file and pushes the file to GitHub where it is rendered by Javascript Apexcharts code.
+
+Module               | Description
+---------------------|--------------------------------------
+BlocksFoundCsv       | Monero mini sidechain block found events.
+SharesFoundCsv       | Share found events in my mining farm.
+SharesFoundByHostCsv | Share found events, by host, in my mining farm.
+P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 # Links
 
