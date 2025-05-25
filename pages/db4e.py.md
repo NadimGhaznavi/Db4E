@@ -15,4 +15,4 @@ The `db4e.py` utility monitors the Monero XMR P2Pool daemon log. This log contai
 * The `db4e.py` utility also creates MongoDb records that include miner performance metrics, share found events, XMR payment events and the hashrate for the Monero XMR mainchain, the sidechain hashrate and my mining farm pool's hashrate.
   * This data is pulled from MongoDB by the db4e-gui.py monitoring application and displayed in realtime.
 
-* [Back](/)
+[Back](/)

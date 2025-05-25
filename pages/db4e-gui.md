@@ -17,4 +17,4 @@ The application displays the following timestamped information:
 
 ![Screenshot of db4e-gui.py](/assets/img/db4e-gui.png)
 
-* [Back](/)
+[Back](/)
