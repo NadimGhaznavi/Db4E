@@ -1,8 +1,29 @@
 ---
 title: The Database 4 Everything - db4e
 ---
-## Introduction and Scope
+# Table of Contents
 
-This site documents my **db4e** project. The db4e application is used to provide a console based dashbaord and near real-time visualizations into my Monero XMR cryptocurrency mining farm. The code for this project is on [GitHub](https://github.com/NadimGhaznavi/db4e).
+* [Introduction and Scope](#introduction-and-scope)
+* [Command Line Utilities](#command-line-utilities)
+* [Links](#links)
 
+# Introduction and Scope
+
+This site documents my **db4e** project. The db4e application is used to provide a console based dashbaord and near real-time visualizations into my [Monero XMR cryptocurrency mining farm](https://xmr.osoyzlce.com/). 
+
+# Command Line Utilities
+
+## db4e.py
+
+This utility monitors the Mining Farm's P2Pool daemon logs. See [db4e.py page](/pages/db4e.py.html) for more information.
+
+
+db4e-gui.py                | A console application to monitor the health of the mining farm in real-time.
+backup-db.sh               | Utility to backup the backend MongoDB database.
+gitpush.sh                 | Utility to push files up to Github.
+restart_mining_services.sh | Utility to restart all of the Mining Farm's services
+
+# Links
+
+* The *db4e* code on [GitHub](https://github.com/NadimGhaznavi/db4e).
 

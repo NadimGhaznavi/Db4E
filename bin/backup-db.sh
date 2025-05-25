@@ -38,9 +38,7 @@ for COUNT in 6 5 4 3 2 1 0; do
 done
 
 cd ${BACKUP_DIR}
-git add dump/${DB_NAME}/mining.bson
-git add dump/${DB_NAME}/mining.metadata.json
-git add dump/${DB_NAME}/prelude.json
+git add .
 git commit -m "New backup"
 git push
 

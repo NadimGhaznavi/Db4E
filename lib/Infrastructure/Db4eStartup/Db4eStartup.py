@@ -20,8 +20,8 @@ class Db4eStartup():
 
   def __init__(self):
     # Setup the expected script arguments
-    action_help = '[backup_db|monitor_p2pool_log|new_blocks_found_csv|' + \
-      'new_p2pool_payment_csv|new_shares_found_csv|new_shares_found_by_host]'
+    action_help = '[monitor_p2pool_log|new_blocks_found_csv|' + \
+      'new_p2pool_payment_csv|new_shares_found_csv|new_shares_found_by_host|get_wallet_balance]'
     parser = argparse.ArgumentParser(description='DB4E Application')
     parser.add_argument('-a', '--action', type=str, default=None, help=action_help)
     parser.add_argument('-d', '--debug', type=int, default=0, help='debug level')

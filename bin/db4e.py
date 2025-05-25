@@ -39,16 +39,10 @@ logger = Db4eLog()
 log_func = logger.log_msg
 
 if action:
-  if action == 'backup_db':
-    db = Db4eDb()
-    db.backup_db()
-  elif action == 'get_wallet_balance':
+  if action == 'get_wallet_balance':
     db = MiningDb()
     balance = db.get_wallet_balance()
     print(f"Wallet balance: {balance} XMR")
-  elif action == 'get_workers':
-    p2pool = P2Pool()
-    p2pool.get_workers()
   elif action == 'monitor_p2pool_log':
     p2pool = P2Pool()
     p2pool.monitor_log()
