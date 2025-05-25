@@ -277,10 +277,13 @@ class MiningDb():
       worker_name = worker['worker_name']
       hashrate = worker['hashrate']
       timestamp = worker['timestamp']
+      active = worker['active']
+
       workers_dict[worker_name] = {
         'worker_name': worker_name,
         'hashrate': hashrate,
-        'timestamp': timestamp  
+        'timestamp': timestamp,
+        'active': active,
       }     
     return workers_dict
   

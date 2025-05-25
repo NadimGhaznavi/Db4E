@@ -122,6 +122,10 @@ def get_worker_data():
     worker_name = workers[aHost]['worker_name']
     hashrate = workers[aHost]['hashrate']
     timestamp = workers[aHost]['timestamp']
+    active = workers[aHost]['active']
+    # If the worker is not active, skip it
+    if not active:
+      continue
     new_data = new_data + \
       str(count) + '. ' + \
       "{:<7}".format(worker_name) + \
