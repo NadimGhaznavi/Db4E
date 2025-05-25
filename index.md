@@ -49,6 +49,10 @@ The `restart_mining_services.sh` script executed once a day from a cron job. It 
 2. Restart my Mining Farm's P2Pool daemon.
 3. Restart the *db4e* P2Pool log file monitoring daemon.
 
+Additionally, each miner also has a cron job to restart the `xmrig` mining software.
+
+Basically, I restart all of my Mining farm's services on a daily basis.
+
 # Historical Data on the Web
 
 When the `db4e` P2Pool daemon log file monitoring daemon watches for events and creates MongoDb records for them. When one of the following events is found:
