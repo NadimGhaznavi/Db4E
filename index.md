@@ -32,11 +32,21 @@ The `backup-db.sh` utility is used to backup the backend MongoDB database. The d
 
 ## gitpush.sh
 
-Utility to push files up to Github.
+the `gitpush.sh` utility accepts the following arguments:
+
+* Source directory.
+* Filename.
+* Comment.
+
+It uses these args to execute a `git push` command to push files up to Github.
 
 ## restart_mining_services.sh
 
-Utility to restart all of the Mining Farm's services
+The `restart_mining_services.sh` script executed once a day from a cron job. It performs the following sequenced actions:
+
+1. Restart the Monero XMR daemon which is responsible for running the full blockchain node. The node is part of the larger, distributed Monero XMR ecosystem.
+2. Restart my Mining Farm's P2Pool daemon.
+3. Restart the *db4e* P2Pool log file monitoring daemon.
 
 # Links
 
