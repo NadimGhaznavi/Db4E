@@ -34,7 +34,7 @@ class SharesFoundCsv():
     
     shares_found_dict = {}
     for event in shares_found:
-      timestamp = event['timestamp'].strftime("%Y-%m-%d")
+      timestamp = event['timestamp']
       if timestamp not in shares_found_dict:
         shares_found_dict[timestamp] = 1
       else:

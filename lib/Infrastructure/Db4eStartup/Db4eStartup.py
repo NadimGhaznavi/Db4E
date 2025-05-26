@@ -62,6 +62,7 @@ class Db4eStartup():
     self._p2pool_payouts_csv = config[environ]['p2pool_payouts_csv']
     self._shares_found_csv = config[environ]['shares_found_csv']
     self._shares_found_by_host_csv = config[environ]['shares_found_by_host_csv']
+    self._pool_hashrates_csv = config[environ]['pool_hashrates_csv']
     self._git_push_script = config[environ]['git_push_script']
     self._backup_db_script = config[environ]['backup_db_script']
     self._db4e_log = config[environ]['db4e_log']
@@ -101,6 +102,9 @@ class Db4eStartup():
   
   def p2pool_payouts_csv(self):
     return self._p2pool_payouts_csv
+  
+  def pool_hashrates_csv(self):
+    return self._pool_hashrates_csv
   
   def shares_found_csv(self):
     return self._shares_found_csv
