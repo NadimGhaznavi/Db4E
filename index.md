@@ -100,5 +100,6 @@ P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 # Links
 
-* The *db4e* code on [GitHub](https://github.com/NadimGhaznavi/db4e).
+* Addtional realtime, [Web based visualizations](https://xmr.osoyalce.com/) of the *db4e* data.
+* The *db4e* source code on [GitHub](https://github.com/NadimGhaznavi/db4e).
 
