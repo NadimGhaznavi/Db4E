@@ -42,7 +42,8 @@ except:
   print(f"Error opening CSV file ({csv_filename}) for writing")
   sys.exit(1)
 
-csv_handle.write("Datetime,Hashrate\n")
+csv_header = "Datetime,Hashrate\n"
+csv_handle.write(csv_header)
 # Loop through the hashrate data and populate the dictionary
 for data in mainchain_hashrates:
   # Get the timestamp and convert it to a date string
