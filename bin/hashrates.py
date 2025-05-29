@@ -24,28 +24,30 @@ from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
 from Db4eStartup.Db4eStartup import Db4eStartup
 
-def write_csv_file(hashrates, csv_filename):
-  try:
-    csv_handle = open(csv_filename, 'w')
-    # print(f"Preparing to write to CSV file ({csv_filename})")
-  except:
-    print(f"Error opening CSV file ({csv_filename}) for writing")
+def write_csv_file(hashrates, csv_filename, short=False, debug=False):
 
-  # Create a dictionary to hold the hashrate data
-  pool_hashrates_dict = {}
+  if debug:
+    print(f"CSV filename {csv_filename}, Hashrates {hashrates}")
 
+  csv_handle = open(csv_filename, 'w')
   csv_header = "Datetime,Hashrate\n"
   csv_handle.write(csv_header)
+
   # Loop through the hashrate data and populate the dictionary
   for data in hashrates:
     # Get the timestamp and convert it to a date string
     timestamp = data['timestamp'] + ':00:00'
     # The hashrate data is in KH/s (e.g. "6.889 KH/s")
     hashrate = data['hashrate'].split(' ')[0]
-    pool_hashrates_dict[timestamp] = data['hashrate']
-    csv_handle.write(f"{timestamp},{hashrate}\n")
+    value = f"{timestamp},{hashrate}\n"
+    if debug:
+      print(value)
+    csv_handle.write(value)
+
   # Close the CSV file
   csv_handle.close()
+
+  # Upload to Github
   db4e_git = Db4eGit()
   db4e_git.push(csv_filename, 'Updated hashrate data')
 
@@ -68,12 +70,6 @@ write_csv_file(sidechain_hashrates, sidechain_filename)
 # Mainchain hashrate data
 mainchain_hashrates = db.get_docs('mainchain_hashrate')
 mainchain_filename = db4e_startup.mainchain_hashrates_csv()
+short_mainchain_filename = db4e_startup.short_mainchain_hashrates_csv()
 write_csv_file(mainchain_hashrates, mainchain_filename)
-
-
-
-
-
-
-
 

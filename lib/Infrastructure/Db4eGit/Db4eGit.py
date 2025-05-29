@@ -29,7 +29,7 @@ class Db4eGit():
     base_file = os.path.basename(fully_qualified_file)
     base_dir = os.path.dirname(fully_qualified_file)
     push_script = self._push_script
-    if self._debug == 0:
+    if self._debug == 1:
       subprocess.run([push_script, base_dir, base_file, comment])
     else:
       subprocess.run([push_script, base_dir, base_file, comment, "1"])

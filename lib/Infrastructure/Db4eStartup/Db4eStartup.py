@@ -63,8 +63,11 @@ class Db4eStartup():
     self._shares_found_csv = config[environ]['shares_found_csv']
     self._shares_found_by_host_csv = config[environ]['shares_found_by_host_csv']
     self._pool_hashrates_csv = config[environ]['pool_hashrates_csv']
+    self._short_pool_hashrates_csv = config[environ]['short_pool_hashrates_csv']
     self._sidechain_hashrates_csv = config[environ]['sidechain_hashrates_csv']
+    self._short_sidechain_hashrates_csv = config[environ]['short_sidechain_hashrates_csv']
     self._mainchain_hashrates_csv = config[environ]['mainchain_hashrates_csv']
+    self._short_mainchain_hashrates_csv = config[environ]['short_mainchain_hashrates_csv']
     self._git_push_script = config[environ]['git_push_script']
     self._backup_db_script = config[environ]['backup_db_script']
     self._db4e_log = config[environ]['db4e_log']
@@ -108,11 +111,20 @@ class Db4eStartup():
   def pool_hashrates_csv(self):
     return self._pool_hashrates_csv
   
+  def short_pool_hashrates_csv(self):
+    return self._short_pool_hashrates_csv
+  
   def sidechain_hashrates_csv(self):
     return self._sidechain_hashrates_csv
   
+  def short_sidechain_hashrates_csv(self):
+    return self._short_sidechain_hashrates_csv
+  
   def mainchain_hashrates_csv(self):
     return self._mainchain_hashrates_csv
+  
+  def short_mainchain_hashrates_csv(self):
+    return self._short_mainchain_hashrates_csv
   
   def shares_found_csv(self):
     return self._shares_found_csv
