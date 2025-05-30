@@ -17,15 +17,18 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
 
 class P2PoolPaymentCsv():
 
   def __init__(self, log_function):
-    startup = Db4eStartup()
-    self._debug = startup.debug()
+    config = Db4eConfig()
+    self._debug = config.config['db4e']['debug']
+    export_dir = config.config['export']['export_dir']
+    p2pool_payouts_csv = config.config['export']['p2pool_payouts_csv']
+    self._csv_filename = os.path.join(export_dir, p2pool_payouts_csv)
     self.log = log_function
 
   def new_p2pool_payment_csv(self):
@@ -88,26 +91,45 @@ class P2PoolPaymentCsv():
 
     dates.sort()
 
-    startup = Db4eStartup()
-    csv_filename = startup.p2pool_payouts_csv()
+    # Create the P2Pool Payouts CSV file
+    csv_filename = self._csv_filename
     try:
       csv_handle = open(csv_filename, 'w')
-      # print(f"Preparing to write to CSV file ({csv_filename})")
     except:
       self.log(f"ERROR: Unable to open P2Pool Payouts CSV ({csv_filename})")
 
-    csv_handle.write("Date,Total\n")
-    # print("Date,Total") 
+    csv_header = "Date,Total\n"
+    csv_handle.write(csv_header)
     total = Decimal128("0").to_decimal()
     for day in dates:
       total = total + new_dict[day]
       rounded_total = round(total, 4)
-      # print(f"rounded_total: {rounded_total}")
-      # print(f"{str(day)},{str(rounded_total)}")
       csv_handle.write(str(day) + "," + str(rounded_total) + "\n")
-    
     csv_handle.close()
+
+    # Create a shorter version of the CSV file, last 30 days
+    short_csv_filename = csv_filename.replace('.csv', '_short.csv')
+    csv_short_handle = open(short_csv_filename, 'w')
+    csv_short_handle.write(csv_header)
+    # Get the last 30 days of data
+    csv_handle = open(csv_filename, 'r')
+    lines = csv_handle.readlines()
+    datapoints = 30  # 30 days of data
+    for line in lines[-datapoints:]:
+      csv_short_handle.write(line)
+    csv_short_handle.close()
+    csv_handle.close()
+
+    if self._debug == 9:
+      self.log("P2PoolPaymentCsv.new_p2pool_payment_csv()")
+      self.log(f"  Payouts CSV     : {csv_filename}")
+
+    # Push the CSV file to the git repository
     db4e_git = Db4eGit()
     db4e_git.push(csv_filename, 'Updated P2Pool Payouts')
+    db4e_git.push(short_csv_filename, 'Updated P2Pool Payouts')
+
+    # Log the CSV file paths
     self.log(f"  Payouts CSV      : {csv_filename}")
+    self.log(f"  Payouts CSV      : {short_csv_filename}")
     

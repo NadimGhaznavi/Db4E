@@ -24,6 +24,9 @@ class SharesFoundCsv():
   def __init__(self, log_function):
     config = Db4eConfig()
     self._debug = config.config['db4e']['debug']
+    export_dir = config.config['export']['export_dir']
+    shares_found_csv = config.config['export']['shares_found_csv']
+    self._csv_filename = os.path.join(export_dir, shares_found_csv)
     self.log = log_function
 
   def new_shares_found_csv(self):
@@ -48,14 +51,12 @@ class SharesFoundCsv():
     key_list.sort()
 
     # Create the Shares Found CSV file
-    config = Db4eConfig()
-    export_dir = config.config['export']['export_dir']
-    shares_found_csv = config.config['export']['shares_found_csv']
-    csv_filename = os.path.join(export_dir, shares_found_csv)
+    csv_filename = self._csv_filename
     try:
       csv_handle = open(csv_filename, 'w')
     except:
       self.log(f"ERROR: Unable to open Shares Found CSV ({csv_filename})")
+
     csv_header = "Date,Shares Found\n"
     csv_handle.write(csv_header)
     for key in key_list:
@@ -69,14 +70,17 @@ class SharesFoundCsv():
     # Get the last 30 days of data
     csv_handle = open(csv_filename, 'r')
     lines = csv_handle.readlines()
-    datapoints = 30  # hourly data for 30 days
+    datapoints = 30  # 30 days of data
     for line in lines[-datapoints:]:
       csv_short_handle.write(line)
     csv_short_handle.close()
     csv_handle.close()
+
+    # Push the CSV files to the git repository
     db4e_git = Db4eGit()
     db4e_git.push(csv_filename, 'Updated Shares Found')
     db4e_git.push(short_csv_filename, 'Updated Shares Found')
 
+    # Log the CSV file paths
     self.log(f"  Shares Found CSV : {csv_filename}")
     self.log(f"  Shares Found CSV : {short_csv_filename}")
