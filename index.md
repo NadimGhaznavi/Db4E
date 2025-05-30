@@ -47,6 +47,8 @@ The *db4d* application is currently running on Debian Linux and is made up of a 
 
 At it's core, *db4e* monitors the P2Pool server for events. I also use cronjobs to send the running P2Pool daemon commands so I can collect realtime data. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published a GitHub hosted website (like this one). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
 
+---
+
 # Backend Components
 
 The application to be modular and have a clear data abstraction layer. While the *Database 4 Everything* application is currently only being used to house data on my Monero XMR Mining farm, I designed it to be easily extended to house other data (e.g. system update, disk usage, CPU utilization and memory metrics, web traffic etc).
@@ -55,27 +57,31 @@ The application to be modular and have a clear data abstraction layer. While the
 
 ## Command Line Utilities
 
+---
+
 ### db4e.py
 
 This utility monitors the Mining Farm's P2Pool daemon logs, creates records in the backend database and triggers updates to the web front end. See the [db4e.py page](/pages/ops/db4e.py.html) for more information.
+
+---
 
 ### db4e-gui.py
 
 The `db4e-gui.py` application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/ops/db4e-gui.py.html) for more information.
 
+---
+
 ### backup-db.sh
 
 The `backup-db.sh` utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
 
+---
+
 ### gitpush.sh
 
-the `gitpush.sh` utility accepts the following arguments:
+the `gitpush.sh` utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
 
-* Source directory.
-* Filename.
-* Comment.
-
-It uses these args to execute a `git push` command to push files up to Github.
+---
 
 ### restart_mining_services.sh
 
@@ -95,9 +101,12 @@ Basically, I restart all of my Mining farm's services on a daily basis.
 
 Module      | Description
 ------------|--------------------
+Db4eConfig  | This module is responsible for loading *db4e* application settings from an YAML file.
 Db4eDb      | This module is responsible for all MongoDb operations.
+Db4eGit     | This module is responsible for pushing files up to GitHub.
 Db4eLog     | This module is responsible for managing logging of the application.
-Db4eStartup | This module is responsible for loading *db4e* settings from an INI file.
+
+---
 
 ## Mining Modules
 
@@ -107,6 +116,12 @@ MiningDb             | Accepts mining specific DB commands and then uses the Db4
 P2Pool               | Monitors the P2Pool daemon log file and creates corresponding events in MongoDb using the MiningDb module.
 
 The modules below are called by the P2Pool module when the corresponding event is detected. These modules extract all historical data for the event, aggregate it into daily totals, writes that data to a CSV file and pushes the file to GitHub where it is rendered by Javascript Apexcharts code.
+
+---
+
+### Export Modules
+
+These modules extract data from MongoDB and transform it. They produce CSV files and use the Db4eGit module to push the files to GitHub.
 
 Module               | Description
 ---------------------|--------------------------------------
