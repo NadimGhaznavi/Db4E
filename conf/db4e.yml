@@ -19,7 +19,7 @@ monerod:
   stdin_pipe: monerod.stdin
 
 export:
-  export_dir: /opt/prod/xmr/data
+  export_dir: /opt/prod/db4e/data
   p2pool_payouts_csv: p2pool_payouts.csv
   blocks_found_csv: blocks_found.csv
   shares_found_csv: shares_found.csv
