@@ -1,0 +1,43 @@
+db4e:
+  install_dir: /opt/prod/db4e
+  backup_dir: backups
+  log_dir: logs
+  log_file: db4e.log
+  monitor_p2pool_pid_file: /opt/prod/db4e/run/db4e_monitor_p2pool_log.pid
+  debug: 0
+
+p2pool:
+  install_dir: /opt/prod/p2pool
+  log_dir: logs     
+  log_file: p2pool.log
+
+monerod:
+  install_dir: /opt/prod/monerod
+  log_dir: logs
+  log_file: monerod.log
+  run_dir: run
+  stdin_pipe: monerod.stdin
+
+export:
+  export_dir: /opt/prod/xmr/data
+  p2pool_payouts_csv: p2pool_payouts.csv
+  blocks_found_csv: blocks_found.csv
+  shares_found_csv: shares_found.csv
+  shares_found_by_host_csv: shares_found_by_host.csv
+  pool_hashrates_csv: pool_hashrates.csv
+  sidechain_hashrates_csv: sidechain_hashrates.csv
+  mainchain_hashrates_csv: mainchain_hashrates.csv
+  short_pool_hashrates_csv: short_pool_hashrates.csv
+  short_sidechain_hashrates_csv: short_sidechain_hashrates.csv
+  short_mainchain_hashrates_csv: short_mainchain_hashrates.csv
+
+db:
+  server: localhost
+  port: 27017
+  name: monero
+  backup_db_script: bin/backup_db.sh
+  backup_monero_db_script: bin/backup_monero_db.sh
+
+git:
+  push_script: bin/gitpush.sh
+

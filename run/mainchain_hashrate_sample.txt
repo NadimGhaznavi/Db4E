@@ -1,1 +1,0 @@
-Main chain hashrate       = 3.105 GH/s

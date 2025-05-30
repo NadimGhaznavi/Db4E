@@ -15,15 +15,15 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
 
 class SharesFoundCsv():
 
   def __init__(self, log_function):
-    startup = Db4eStartup()
-    self._debug = startup.debug()
+    config = Db4eConfig()
+    self._debug = config.config['db4e']['debug']
     self.log = log_function
 
   def new_shares_found_csv(self):
@@ -35,6 +35,7 @@ class SharesFoundCsv():
     shares_found_dict = {}
     for event in shares_found:
       timestamp = event['timestamp']
+      timestamp = timestamp.split('T')[0]  # Get just the date part (YYYY-MM-DD)
       if timestamp not in shares_found_dict:
         shares_found_dict[timestamp] = 1
       else:
@@ -46,8 +47,11 @@ class SharesFoundCsv():
 
     key_list.sort()
 
-    startup = Db4eStartup()
-    csv_filename = startup.shares_found_csv()
+    # Create the Shares Found CSV file
+    config = Db4eConfig()
+    export_dir = config.config['export']['export_dir']
+    shares_found_csv = config.config['export']['shares_found_csv']
+    csv_filename = os.path.join(export_dir, shares_found_csv)
     try:
       csv_handle = open(csv_filename, 'w')
     except:

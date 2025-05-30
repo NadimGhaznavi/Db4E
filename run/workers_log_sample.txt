@@ -1,9 +1,0 @@
-2024-11-09 19:35:01.4220 StratumServer IP:port                    TLS    uptime              difficulty          hashrate       name
-2024-11-09 19:35:01.4220 StratumServer 192.168.0.27:57888         no     14h 29m 51s         20358               222 H/s        paris
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.176:57000        no     14h 29m 52s         48222               1.222 KH/s     kermit
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.169:43842        no     14h 29m 53s         40188               1.222 KH/s     maia
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.244:48924        no     14h 29m 53s         8102                222 H/s        bingo
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.220:34704        no     14h 29m 53s         37254               1.222 KH/s     phoebe
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.86:37294         no     14h 29m 54s         50452               1.222 KH/s     sally
-2024-11-09 19:35:01.4221 StratumServer 192.168.0.192:47850        no     14h 29m 54s         14120               222 H/s        brat
-2024-11-09 19:35:01.4221 StratumServer Total: 7 workers

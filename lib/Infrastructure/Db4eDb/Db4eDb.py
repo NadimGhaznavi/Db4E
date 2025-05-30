@@ -16,24 +16,25 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 
 class Db4eDb():
 
   def __init__(self):
-    startup = Db4eStartup()
-    self._db_server = startup.db_server()
-    self._db_port = startup.db_port()
-    self._db_name = startup.db_name()
-    self._debug = startup.debug()
-    self._backup_db_script = startup.backup_db_script()
-    self._environ = startup.environ()
+    config = Db4eConfig()
+    self._db_server = config.config['db']['server']
+    self._db_port = config.config['db']['port']
+    self._db_name = config.config['db']['name']
+    self._debug = config.config['db4e']['debug']
+    db4e_dir = config.config['db4e']['install_dir']
+    self._backup_db_script = os.path.join(db4e_dir, config.config['db']['backup_monero_db_script'])
     self.init_db()
 
   def backup_db(self):
     backup_script = self._backup_db_script
-    environ = self._environ
-    subprocess.run([backup_script, environ])
+    backup_dir = self._backup_dir
+    db_name = self._db_name
+    subprocess.run([backup_script, db_name, backup_dir])
 
   def db(self):
     db_server = self._db_server

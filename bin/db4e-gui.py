@@ -22,7 +22,6 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
 from P2Pool.P2Pool import P2Pool
 from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
@@ -184,9 +183,6 @@ def refresh(_loop, _data):
   mainchain_hashrate_widget.set_text(get_mainchain_hashrate())
   pool_hashrate_widget.set_text(get_pool_hashrate())
   main_loop.set_alarm_in(60, refresh)
-
-### Handle db4e.py command line switches
-startup = Db4eStartup()
 
 ### Palette
 palette = [

@@ -20,7 +20,7 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eLog.Db4eLog import Db4eLog
 from MiningDb.MiningDb import MiningDb
 from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
@@ -30,9 +30,9 @@ from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 class P2Pool():
 
   def __init__(self):
-    startup = Db4eStartup()
-    self._p2pool_log = startup.p2pool_log()
-    self._debug = startup.debug()
+    config = Db4eConfig()
+    self._p2pool_log = os.path.join(config.config['p2pool']['install_dir'], os.path.join(config.config['p2pool']['log_dir'], config.config['p2pool']['log_file']))
+    self._debug = config.config['db4e']['debug']
     logger = Db4eLog()
     self.log_msg = logger.log_msg
     self._db = MiningDb()
@@ -218,8 +218,6 @@ class P2Pool():
     p2p_log = open(log_filename, 'r')
     self._loglines = self.watch_log(p2p_log)
     loglines = self.watch_log(p2p_log)
-
-    hour = int(datetime.now().strftime("%H"))
                                            
     try:
       for log_line in loglines:

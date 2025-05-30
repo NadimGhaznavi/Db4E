@@ -19,15 +19,15 @@ for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
 from Db4eDb.Db4eDb import Db4eDb 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 
 class MiningDb():
 
   def __init__(self):
     self._db = Db4eDb()
-    startup = Db4eStartup()
-    self._debug = startup.debug()
-
+    config = Db4eConfig()
+    self._debug = config.config['db4e']['debug']
+    
   def add_block_found(self, timestamp):
     """
     Create a JSON document and pass it to the Db4eDb to be added to the backend database
