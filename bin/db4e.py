@@ -20,7 +20,7 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 from P2Pool.P2Pool import P2Pool
 from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
@@ -33,8 +33,8 @@ from Db4eLog.Db4eLog import Db4eLog
 print("Database 4 Everything")
 
 # See if the user passed in an action
-startup = Db4eStartup()
-action = startup.action()
+config = Db4eConfig()
+action = config.config['db4e']['action']
 logger = Db4eLog()
 log_func = logger.log_msg
 
@@ -58,6 +58,9 @@ if action:
   elif action == 'new_shares_found_by_host_csv':
     sharesfoundcsv = SharesFoundByHostCsv(log_func)
     sharesfoundcsv.new_shares_found_by_host_csv()
+  elif action == 'backup_db':
+    db = Db4eDb()
+    db.backup_db()
   else:
     print(f"ERROR: Invalid action ({action}), valid actions are:")
     print("  backup_db                     # Backup the MongoDB database")

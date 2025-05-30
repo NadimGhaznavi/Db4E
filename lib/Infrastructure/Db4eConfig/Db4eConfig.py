@@ -16,10 +16,12 @@ class Db4eConfig():
 
         # Setup the command line parser
         parser = argparse.ArgumentParser(description='DB4E Configuration')
-        parser.add_argument('-e', '--environ', default='prod', type=str, help='Environment to use [prod|qa|dev], default prod.')
+        help_msg = 'Valid actions are [backup_db|monitor_p2pool_log|new_blocks_found_csv|new_p2pool_payment_csv|new_shares_found_csv|new_shares_found_by_host|get_wallet_balance]'
+        parser.add_argument('-a', '--action', default='None', type=str, help=help_msg)
+
         args = parser.parse_args()
         # Parse any command line args
-        self.set('environment', args.environ)
+        self.config['db4e']['action'] = args.action
 
     def get(self, key):
         """

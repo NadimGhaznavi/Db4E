@@ -34,10 +34,10 @@ export:
 db:
   server: localhost
   port: 27017
-  name: monero
-  backup_db_script: bin/backup_db.sh
-  backup_monero_db_script: bin/backup_monero_db.sh
-
+  name: db4e
+  backup_dir: backups
+  backup_script: bin/backup-db.sh
+  
 git:
   push_script: bin/gitpush.sh
 

@@ -12,31 +12,19 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eStartup.Db4eStartup import Db4eStartup
+from Db4eConfig.Db4eConfig import Db4eConfig
 
 class Db4eLog():
 
   def __init__(self):
-    startup = Db4eStartup()
-    self._db4e_log = startup.db4e_log()
-    self._db4e_log_handle = None
+    config = Db4eConfig()
 
-    if startup.debug() == 9:
-      # stack = inspect.stack()
-      #
-      ### ERROR: "self" doesn't exit.
-      #
-      #the_class = stack[1][0].f_locals["self"].__class__.__name__
-      #the_class = stack[1][0].f_locals
-      #the_method = stack[1][0].f_code.co_name
-      #
-      # See:
-      # for x in the_class:
-      #   print(x)
-      # -to find the class name
-      handle = open(self._db4e_log, 'a')
-      handle.write("Db4eLog.__init__()\n")
-      handle.close()
+    install_dir = config.config['db4e']['install_dir']
+    log_dir = config.config['db4e']['log_dir']
+    log_file = config.config['db4e']['log_file']
+
+    self._db4e_log = os.path.join(install_dir, log_dir, log_file)
+    self._db4e_log_handle = None
 
   def __del__(self):
     if self._db4e_log_handle:

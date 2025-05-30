@@ -1,24 +1,10 @@
-#!/bin/bash -x
+#!/bin/bash
 
-ENV=$1
+DB_NAME=$1
+BACKUP_DIR=$2
 
-if [ -z ${ENV} ]; then
-  echo "Usage: $0 [dev|qa|prod]"
-  exit 1
-fi
-
-if [ "${ENV}" == "prod" ]; then
-  DB_NAME=db4e
-  BACKUP_DIR=/opt/prod/db4e/db
-elif [ "${ENV}" == "qa" ]; then
-  DB_NAME=db4e_qa
-  BACKUP_DIR=/opt/prod/db4e/db
-elif [ "${ENV}" == "dev" ]; then
-  DB_NAME=db4e_dev
-  BACKUP_DIR=/home/sally/xmr/data
-else
-  echo "Usage: $0 [dev|qa|prod]"
-  exit 1
+if [ ! -d ${BACKUP_DIR} ]; then
+  mkdir -p ${BACKUP_DIR}
 fi
 
 ARCHIVE=${BACKUP_DIR}/${DB_NAME}

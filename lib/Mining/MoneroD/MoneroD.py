@@ -29,13 +29,9 @@ class MoneroD():
         self._log_file    = config.config['monerod']['log_file']
         self._run_dir     = config.config['monerod']['run_dir']
         self._stdin_pipe  = config.config['monerod']['stdin_pipe']
-        
-        self._exit_now = False # Flag to let this process know when to stop
-
-
 
     def log_file(self):
-        return os.path.join(self._install_dir, os.path.join(self._log_dir, self._log_file))
+        return os.path.join(self._install_dir, self._log_dir, self._log_file)
 
     def get_height(self):
         log_file = self.log_file()
@@ -54,7 +50,7 @@ class MoneroD():
             print("Monitoring stopped by user.")
 
     def stdin_pipe(self):
-        return os.path.join(self._install_dir, os.path.join(self._run_dir, self._stdin_pipe))
+        return os.path.join(self._install_dir, self._run_dir, self._stdin_pipe)
 
     def _found_height(self, log_line):
         """

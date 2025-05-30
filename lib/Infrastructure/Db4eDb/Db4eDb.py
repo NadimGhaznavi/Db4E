@@ -26,12 +26,19 @@ class Db4eDb():
     self._db_port = config.config['db']['port']
     self._db_name = config.config['db']['name']
     self._debug = config.config['db4e']['debug']
-    db4e_dir = config.config['db4e']['install_dir']
-    self._backup_db_script = os.path.join(db4e_dir, config.config['db']['backup_monero_db_script'])
+    self._backup_dir = config.config['db']['backup_dir']
+    
+    install_dir = config.config['db4e']['install_dir']
+    backup_dir = config.config['db']['backup_dir']
+    backup_script = config.config['db']['backup_script']
+    
+    self._backup_script = os.path.join(install_dir, backup_script)
+    self._backup_dir = os.path.join(install_dir, backup_dir)
+    self._db_name = config.config['db']['name']
     self.init_db()
 
   def backup_db(self):
-    backup_script = self._backup_db_script
+    backup_script = self._backup_script
     backup_dir = self._backup_dir
     db_name = self._db_name
     subprocess.run([backup_script, db_name, backup_dir])

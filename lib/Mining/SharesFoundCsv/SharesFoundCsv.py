@@ -35,7 +35,7 @@ class SharesFoundCsv():
     shares_found_dict = {}
     for event in shares_found:
       timestamp = event['timestamp']
-      timestamp = timestamp.split('T')[0]  # Get just the date part (YYYY-MM-DD)
+      timestamp = timestamp.replace(hour=0, minute=0, second=0)  # Get just the date part (YYYY-MM-DD) from the datetime object
       if timestamp not in shares_found_dict:
         shares_found_dict[timestamp] = 1
       else:
@@ -56,13 +56,27 @@ class SharesFoundCsv():
       csv_handle = open(csv_filename, 'w')
     except:
       self.log(f"ERROR: Unable to open Shares Found CSV ({csv_filename})")
-
-    csv_handle.write("Date,Shares Found\n")
+    csv_header = "Date,Shares Found\n"
+    csv_handle.write(csv_header)
     for key in key_list:
       csv_handle.write(str(key) + "," + str(shares_found_dict[key]) + "\n")
-    
     csv_handle.close()
-      
+
+    # Create a shorter version of the CSV file, last 30 days
+    short_csv_filename = csv_filename.replace('.csv', '_short.csv')
+    csv_short_handle = open(short_csv_filename, 'w')
+    csv_short_handle.write(csv_header)
+    # Get the last 30 days of data
+    csv_handle = open(csv_filename, 'r')
+    lines = csv_handle.readlines()
+    datapoints = 30  # hourly data for 30 days
+    for line in lines[-datapoints:]:
+      csv_short_handle.write(line)
+    csv_short_handle.close()
+    csv_handle.close()
     db4e_git = Db4eGit()
     db4e_git.push(csv_filename, 'Updated Shares Found')
+    db4e_git.push(short_csv_filename, 'Updated Shares Found')
+
     self.log(f"  Shares Found CSV : {csv_filename}")
+    self.log(f"  Shares Found CSV : {short_csv_filename}")

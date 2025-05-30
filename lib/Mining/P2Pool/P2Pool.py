@@ -31,9 +31,13 @@ class P2Pool():
 
   def __init__(self):
     config = Db4eConfig()
-    self._p2pool_log = os.path.join(config.config['p2pool']['install_dir'], os.path.join(config.config['p2pool']['log_dir'], config.config['p2pool']['log_file']))
+    install_dir = config.config['p2pool']['install_dir']
+    log_dir = config.config['p2pool']['log_dir']
+    log_file = config.config['p2pool']['log_file']
+    self._p2pool_log = os.path.join(install_dir, log_dir, log_file)
     self._debug = config.config['db4e']['debug']
     logger = Db4eLog()
+    # Assign the logger's log_msg method to self.log_msg
     self.log_msg = logger.log_msg
     self._db = MiningDb()
     
