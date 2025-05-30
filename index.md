@@ -17,7 +17,7 @@ title: The Database 4 Everything - db4e
 
 # Introduction and Scope
 
-This is the home of the **db4e**, **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and near real-time [visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
+This is the home of the **db4e**, **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and [realtime web based visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
 
 ---
 
