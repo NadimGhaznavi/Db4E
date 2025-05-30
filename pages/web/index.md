@@ -23,24 +23,3 @@ This visualatization is from a manual export of the Mining Farm's XMR wallet tra
 
 * [XMR Received Visualization](/pages/XMR-Received.html)
 
----
-
-# Mining Farm Technical Operating Documents
-
-Some low-level technical docs to document my farm's software and hardware configuration.
-
-## Systems Configuration
-
-* [Configuring the Monero Daemon as a Service](/pages/Configuring-the-Monero-Daemon-as-a-Service.html)
-* [Configuring the P2Pool Daemon as a Service](/pages/Configuring-the-P2Pool-Daemon-as-a-Service.html)
-* [Secondary Monero Daemon Configuration](/pages/Secondary-Monero-Daemon-Configuration.html)
-* [Port Forwarding with upnpc](/pages/Port-Forwarding-With-upnpc.html)
-
-## Build Documentation
-
-* [Building P2Pool from Source](/pages/Building-P2Pool-from-Source.html)
-* [Building Monerod from Source](/pages/Building-Monerod-from-Source.html)
-
-## Hardware
-
-* [Miner CPU and Memory Specs](/pages/Miner-Specs.html)
