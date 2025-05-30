@@ -25,7 +25,7 @@ This is the home of the **db4e**, **Database 4 Everything**  project. The **db4e
 
 # Realtime Data on the Web
 
-The *db4e* application is event driven. When a new event is received it generates new data which is displayed by the [db4e console GUI](/pages/ops/db4e-gui.py.html) and [this site](/pages/web/index.html).
+The *db4e* application is event driven. When a new event is received it generates new data which is displayed by the [db4e console](/pages/ops/db4e-gui.py.html) and/or the [db4e web interface](/pages/web/index.html).
 
 The following events are captured:
 
