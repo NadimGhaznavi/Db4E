@@ -30,8 +30,16 @@ The following events are captured:
 * [XMR payments](/pages/web/P2Pool-Payouts-Short.html) made to the mining farm
 * [Shares found](/pages/web/Shares-Found-Short.html) by my mining farm
 * [Blocks found](/pages/web/Blocks-Found-Short.html) on the Monero XMR mini sidechain
-* Hashrates of [my pool](/pages/web/Pool-Hashrate-Short.html), the [mini sidechain](/pages/web/Sidechain-Hashrate-Short.html) and the [mainchain](/pages/web/Mainchain-Hashrate-Short.html)
+* [Hashrate of my pool](/pages/web/Pool-Hashrate-Short.html), the [mini sidechain](/pages/web/Sidechain-Hashrate-Short.html) and the [mainchain](/pages/web/Mainchain-Hashrate-Short.html) over time
+
 ---
+
+# Systems Architecture
+
+The *db4d* application is made up of a number of components:
+
+* The core *db4e* Python code
+* A running 
 
 # Command Line Utilities
 
@@ -101,31 +109,28 @@ P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 ---
 
-# Links
-
-* Addtional realtime, [Web based visualizations](https://xmr.osoyalce.com/) of the *db4e* data.
-* The *db4e* source code on [GitHub](https://github.com/NadimGhaznavi/db4e).
-
-
----
-
 # Systems Configuration
 
-* [Configuring the Monero Daemon as a Service](/pages/Configuring-the-Monero-Daemon-as-a-Service.html)
-* [Configuring the P2Pool Daemon as a Service](/pages/Configuring-the-P2Pool-Daemon-as-a-Service.html)
-* [Secondary Monero Daemon Configuration](/pages/Secondary-Monero-Daemon-Configuration.html)
-* [Port Forwarding with upnpc](/pages/Port-Forwarding-With-upnpc.html)
+* [Configuring the Monero Daemon as a Service](/pages/ops/Configuring-the-Monero-Daemon-as-a-Service.html)
+* [Configuring the P2Pool Daemon as a Service](/pages/ops/Configuring-the-P2Pool-Daemon-as-a-Service.html)
+* [Secondary Monero Daemon Configuration](/pages/ops/Secondary-Monero-Daemon-Configuration.html)
+* [Port Forwarding with upnpc](/pages/ops/Port-Forwarding-With-upnpc.html)
 
 ---
 
 # Software Build Documentation
 
-* [Building P2Pool from Source](/pages/Building-P2Pool-from-Source.html)
-* [Building Monerod from Source](/pages/Building-Monerod-from-Source.html)
+* [Building P2Pool from Source](/pages/ops/Building-P2Pool-from-Source.html)
+* [Building Monerod from Source](/pages/ops/Building-Monerod-from-Source.html)
 
 ---
 
 # Hardware
 
-* [Miner CPU and Memory Specs](/pages/Miner-Specs.html)
+* [Miner CPU and Memory Specs](/pages/ops/Miner-Specs.html)
 
+---
+
+# Links
+
+* The *db4e* source code for this site [GitHub](https://github.com/NadimGhaznavi/db4e).
