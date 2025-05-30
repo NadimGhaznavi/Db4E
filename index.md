@@ -36,10 +36,14 @@ The following events are captured:
 
 # Systems Architecture
 
-The *db4d* application is made up of a number of components:
+The *db4d* application is currently running on Debian Linux and is made up of a number of components:
 
-* The core *db4e* Python code
-* A running 
+* The core db4e code
+* A P2Pool daemon
+* A GitHub account and repository
+* A MongoDB server
+
+At it's core, *db4e* monitors the P2Pool server for events. I also use cronjobs to send the running P2Pool daemon commands so I can collect realtime data. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published a GitHub hosted website (like this one). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
 
 # Command Line Utilities
 
