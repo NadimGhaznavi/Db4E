@@ -43,4 +43,4 @@ The graph shows a direct relationship between hash rate and profitability and al
 
 Finally, for anyone thinking about mining in the cloud: It's not worth it. In fact it's only because my rent includes electricity that I'm able to mine at home and make a profit.
 
-
+[Back](/pages/web/index.html)

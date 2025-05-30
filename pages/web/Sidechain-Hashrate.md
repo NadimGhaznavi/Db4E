@@ -15,3 +15,5 @@ date: 2025-05-25
  </div>
 
 The *Sidechain Hashrate* is the hashrate of Monero XMR Mini Sidechain. The hashrate data is taken from the P2Pool daemon log that I monitor in realtime. Data is added once an hour. The data goes back to the beginning of 2025, so there's a lot of it. Please be patient while it loads. Click and drag on the bottom bar chart to display a subset of the data.
+
+[Back](/pages/web/index.html)

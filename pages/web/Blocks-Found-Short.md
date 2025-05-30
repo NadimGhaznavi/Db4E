@@ -23,5 +23,5 @@ The chart above shows a visualization of the Monero XMR blocks that were found o
 * Finally, this *GitHub Formatted Markdown* page displays the information using a JavaScript library, ApexChart, to do the actual chart rendering.
 * The most recent 30 days of data are shown.
 
-
+[Back](/pages/web/index.html)
 

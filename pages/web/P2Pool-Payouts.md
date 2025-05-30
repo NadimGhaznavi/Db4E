@@ -22,4 +22,5 @@ The chart below shows a visualization of the Monero XMR that the mining farm has
   </div>
  </div>
 
+[Back](/pages/web/index.html)
 

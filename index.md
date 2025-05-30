@@ -4,18 +4,12 @@ title: The Database 4 Everything - db4e
 # Table of Contents
 
 * [Introduction and Scope](#introduction-and-scope)
+* [Realtime Data on the Web](#realtime-data-on-the-web)
+* [Systems Architecture](#systems-architecture)
 * [Command Line Utilities](#command-line-utilities)
-  * [db4e.py](#db4e.py)
-  * [db4e-gui.py](#db4e-gui.py)
-  * [backup-db.sh](#backup-db.sh)
-  * [gitpush.sh](#gitpush.sh)
-  * [restart_mining_services.sh](#restart-mining-services.sh)
-* [Historical Data on the Web](#historical-data-on-the-web)
 * [Backend Components](#backend-components)
-  * [Infrastructure Modules](#infrastructure-modules)
-  * [Mining Modules](#mining-modules)
 * [Systems Configuration](#systems-configuration)
-* [Software Builds](#software-builds)
+* [Software Build Documentation](#software-build-documentation)
 * [Hardware](#hardware)
 * [Links](#links)
 
@@ -23,8 +17,20 @@ title: The Database 4 Everything - db4e
 
 # Introduction and Scope
 
-This site documents my **db4e** project. The db4e application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and near real-time [visualizations](/pages/web/index.html) to monitor a Monero XMR Mining farm that uses a local P2Pool node.
+This is the home of the **db4e**, **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and near real-time [visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
 
+---
+
+# Realtime Data on the Web
+
+The *db4e* application is event driven. When a new event is received it generates new data which is displayed by the [db4e console GUI](/pages/ops/db4e-gui.py.html) and [this site](/pages/web/index.html).
+
+The following events are captured:
+
+* [XMR payments](/pages/web/P2Pool-Payouts-Short.html) made to the mining farm
+* [Shares found](/pages/web/Shares-Found-Short.html) by my mining farm
+* [Blocks found](/pages/web/Blocks-Found-Short.html) on the Monero XMR mini sidechain
+* Hashrates of [my pool](/pages/web/Pool-Hashrate-Short.html), the [mini sidechain](/pages/web/Sidechain-Hashrate-Short.html) and the [mainchain](/pages/web/Mainchain-Hashrate-Short.html)
 ---
 
 # Command Line Utilities
@@ -62,19 +68,6 @@ The `restart_mining_services.sh` script executed once a day from a cron job. It 
 Additionally, each miner also has a cron job to restart the `xmrig` mining software.
 
 Basically, I restart all of my Mining farm's services on a daily basis.
-
----
-
-# Historical Data on the Web
-
-When the `db4e` P2Pool daemon log file monitoring daemon watches for events and creates MongoDb records for them. When one of the following events is found:
-
-* XMR payment made to my mining farm
-* Share found by my mining farm
-* Block found on the Monero XMR mini sidechain
-* Hashrates of my pool, the mini sidechain and the mainchain
-
-The the application aggregates the daily totals for those events, generates a CSV File and pushes the file to GitHub where it is rendered using some Javascript code based around ApexCharts. See [this page](/pages/web/index.html) for a live data feed.
 
 ---
 
@@ -125,7 +118,7 @@ P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 ---
 
-# Build Documentation
+# Software Build Documentation
 
 * [Building P2Pool from Source](/pages/Building-P2Pool-from-Source.html)
 * [Building Monerod from Source](/pages/Building-Monerod-from-Source.html)

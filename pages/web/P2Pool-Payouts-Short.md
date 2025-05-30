@@ -24,3 +24,4 @@ The chart above shows a visualization of the Monero XMR that the mining farm has
 * Finally, this *GitHub Formatted Markdown* page displays the information using a JavaScript library, ApexChart, to do the actual chart rendering.
 * This chart holds 30 days of data.
 
+[Back](/pages/web/index.html)
