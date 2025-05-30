@@ -14,11 +14,18 @@ title: The Database 4 Everything - db4e
 * [Backend Components](#backend-components)
   * [Infrastructure Modules](#infrastructure-modules)
   * [Mining Modules](#mining-modules)
+* [Systems Configuration](#systems-configuration)
+* [Software Builds](#software-builds)
+* [Hardware](#hardware)
 * [Links](#links)
+
+---
 
 # Introduction and Scope
 
-This site documents my **db4e** project. The db4e application is used to provide a console based dashbaord and near real-time visualizations into my [Monero XMR cryptocurrency mining farm](https://xmr.osoyzlce.com/). 
+This site documents my **db4e** project. The db4e application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and near real-time [visualizations](/pages/web/index.html) to monitor a Monero XMR Mining farm that uses a local P2Pool node.
+
+---
 
 # Command Line Utilities
 
@@ -56,6 +63,8 @@ Additionally, each miner also has a cron job to restart the `xmrig` mining softw
 
 Basically, I restart all of my Mining farm's services on a daily basis.
 
+---
+
 # Historical Data on the Web
 
 When the `db4e` P2Pool daemon log file monitoring daemon watches for events and creates MongoDb records for them. When one of the following events is found:
@@ -63,12 +72,11 @@ When the `db4e` P2Pool daemon log file monitoring daemon watches for events and 
 * XMR payment made to my mining farm
 * Share found by my mining farm
 * Block found on the Monero XMR mini sidechain
+* Hashrates of my pool, the mini sidechain and the mainchain
 
-The the application aggregates the daily totals for those events, generates a CSV File and pushes the file to GitHub where it is rendered using some Javascript code based around ApexCharts.
+The the application aggregates the daily totals for those events, generates a CSV File and pushes the file to GitHub where it is rendered using some Javascript code based around ApexCharts. See [this page](/pages/web/index.html) for a live data feed.
 
-  * [P2Pool Payouts Visualization](https://xmr.osoyalce.com/pages/P2Pool-Payouts.html)
-  * [Blocks Found Visualization](https://xmr.osoyalce.com/pages/Blocks-Found.html)
-  * [Shares Found Visualization](https://xmr.osoyalce.com/pages/Shares-Found.html)
+---
 
 # Backend Components
 
@@ -98,8 +106,33 @@ SharesFoundCsv       | Share found events in my mining farm.
 SharesFoundByHostCsv | Share found events, by host, in my mining farm.
 P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
+---
+
 # Links
 
 * Addtional realtime, [Web based visualizations](https://xmr.osoyalce.com/) of the *db4e* data.
 * The *db4e* source code on [GitHub](https://github.com/NadimGhaznavi/db4e).
+
+
+---
+
+# Systems Configuration
+
+* [Configuring the Monero Daemon as a Service](/pages/Configuring-the-Monero-Daemon-as-a-Service.html)
+* [Configuring the P2Pool Daemon as a Service](/pages/Configuring-the-P2Pool-Daemon-as-a-Service.html)
+* [Secondary Monero Daemon Configuration](/pages/Secondary-Monero-Daemon-Configuration.html)
+* [Port Forwarding with upnpc](/pages/Port-Forwarding-With-upnpc.html)
+
+---
+
+# Build Documentation
+
+* [Building P2Pool from Source](/pages/Building-P2Pool-from-Source.html)
+* [Building Monerod from Source](/pages/Building-Monerod-from-Source.html)
+
+---
+
+# Hardware
+
+* [Miner CPU and Memory Specs](/pages/Miner-Specs.html)
 
