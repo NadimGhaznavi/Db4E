@@ -21,8 +21,8 @@ The stacked barchart above is a real-time visualization of the shares found on t
 # Table of Contents
 
 * [Realtime Data on the Web](#realtime-data-on-the-web)
-* [Systems Architecture](#systems-architecture)
-* [Backend Components](#backend-components)
+* [Technology Stack](#technology-stack)
+* [Codebase Architecture](#codebase-architecture)
 * [Systems Configuration](#systems-configuration)
 * [Software Build Documentation](#software-build-documentation)
 * [Hardware](#hardware)
@@ -36,29 +36,32 @@ The *db4e* application is event driven. When a new event is received it generate
 
 The following events are captured:
 
-* [Daily](/pages/web/P2Pool-Payouts-Daily-Short.html) and [cummulative](/pages/web/P2Pool-Payouts-Short.html) XMR payment smade to the mining farm
+* [Daily](/pages/web/P2Pool-Payouts-Daily-Short.html) and [cumulative](/pages/web/P2Pool-Payouts-Short.html) XMR payments made to the mining farm
 * [Shares found](/pages/web/Shares-Found-Short.html) by the mining farm
 * [Blocks found](/pages/web/Blocks-Found-Short.html) on the Monero XMR mini sidechain
 * [Hashrates of my pool](/pages/web/Pool-Hashrate-Short.html), the current [sidechain](/pages/web/Sidechain-Hashrate-Short.html) and the [mainchain](/pages/web/Mainchain-Hashrate-Short.html) over time
 
 ---
 
-# Systems Architecture
+# Technology Stack
 
 The *db4e* application is currently running on [Debian Linux](https://www.debian.org/) and is made up of a number of components:
 
-* The core db4e code
-* A P2Pool daemon
-* A GitHub account and repository
-* A MongoDB server
+* The [core db4e code](https://github.com/NadimGhaznavi/db4e)
+* A [P2Pool daemon](/pages/ops/Building-P2Pool-from-Source.html)
+* A [GitHub](https://github.com/) account and repository
+* A [MongoDB server](/pages/ops/Installing-MongoDB.html)
 
-At it's core, *db4e* monitors the P2Pool server for events. I also use cronjobs to send the running P2Pool daemon commands so I can collect realtime data. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published a GitHub hosted website (like this one). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
+At it's core, *db4e* monitors the P2Pool server for events. Scheduled commands are also sent to the running P2Pool daemon to trigger log output. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published to a GitHub hosted website (this site). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
 
 ---
 
-# Backend Components
+# Codebase Architecture
 
-The application to be modular and have a clear data abstraction layer. While the *Database 4 Everything* application is currently only being used to house data on my Monero XMR Mining farm, I designed it to be easily extended to house other data (e.g. system update, disk usage, CPU utilization and memory metrics, web traffic etc).
+The application is designed to be modular and have a clear data abstraction layer. Mining database operations go though a *mining
+database class* which sends those to a *db4e mining class* which interacts with MongoDB.
+
+For example, mining data exports to CSV are performed by connecting to the *MiningDb* class which connects to the *Db4eDb* class which connects to MongoDb and fetches the data.
 
 ---
 
@@ -132,10 +135,11 @@ These modules extract data from MongoDB and transform it. They produce CSV files
 
 Module               | Description
 ---------------------|--------------------------------------
-BlocksFoundCsv       | Monero mini sidechain block found events.
+BlocksFoundCsv       | Monero sidechain block found events.
 SharesFoundCsv       | Share found events in my mining farm.
 SharesFoundByHostCsv | Share found events, by host, in my mining farm.
 P2PoolPaymentCsv     | XMR payments made to my mining farm.
+Hashrates            | Pool, sidechain and mainchain hashrate data.           | 
 
 ---
 

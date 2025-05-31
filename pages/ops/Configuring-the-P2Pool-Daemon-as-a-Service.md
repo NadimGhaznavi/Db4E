@@ -46,31 +46,24 @@ I use a shell script to start the P2Pool Daemon. A few points about the startup 
 This file should be created in the `conf` directory where you installed P2Pool (e.g. `/opt/prod/p2pool-v4.6/conf`). A complete listing is shown below.
 
 ```
+# Where the mining payouts should be sent
+WALLET="48wY7nYBsQNSw7v4LjoNnvCtk1Y6GLNVmePGrW82gVhYhQtWJFHi6U6G3X5d7JN2ucajU9SeBcijET8ZzKWYwC3z3Y6fDEG"
+
 # Set the P2Pool base directory.
 P2P_DIR=/opt/prod/p2pool
-API_DIR=${P2P_DIR}/api
-RUN_DIR=${P2P_DIR}/run
-LOG_DIR=${P2P_DIR}/logs
-
-# A named pipe used by the P2Pool socket service.
-STDIN=${RUN_DIR}/p2pool.stdin
 
 # Configure access to the Monero Daemon that hosts the blockchain
 MONERO_NODE="192.168.0.176"
-ZMQ_PORT=20083
-RPC_PORT=20081
+ZMQ_PORT=20083  # NOTE: The standard port is 18083
+RPC_PORT=20081  # NOTE: The standard port is 18081
 
 # P2Pool settings
 ANY_IP="0.0.0.0"
 STRATUM_PORT=3335
 P2P_PORT=38890
-WALLET="48wY7nYBsQNSw7v4LjoNnvCtk1Y6GLNVmePGrW82gVhYhQtWJFHi6U6G3X5d7JN2ucajU9SeBcijET8ZzKWYwC3z3Y6fDEG"
 LOG_LEVEL=1
 IN_PEERS=16
 OUT_PEERS=16
-DATA_API_DIR="${P2P_DIR}/api"
-P2P_LOG="${LOG_DIR}/p2pool.log"
-P2POOL="${P2P_DIR}/p2pool"
 ```
 
 ---
@@ -84,6 +77,17 @@ This script is called by *systemd* to start P2Pool as a service. A complete list
 
 # Read in the P2Pool settings
 source /opt/prod/p2pool/conf/p2pool.ini
+
+# Setup sub-directories
+API_DIR=${P2P_DIR}/api
+RUN_DIR=${P2P_DIR}/run
+LOG_DIR=${P2P_DIR}/logs
+BIN_DIR=${P2P_DIR}/bin
+
+# P2Pool daemon log file
+P2P_LOG="${LOG_DIR}/p2pool.log"
+# The P2Pool daemon
+P2POOL="${BIN_DIR}/p2pool"
 
 # Create the API directory if it doesn't already exist
 if [ ! -d $API_DIR ]; then
