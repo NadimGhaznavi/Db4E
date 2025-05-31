@@ -113,9 +113,9 @@ class P2PoolPaymentCsv():
     for day in dates:
       total = total + new_dict[day]
       rounded_total = round(total, 4)
-      rounded_daily = round(new_dict[day], 4)
+      daily = new_dict[day]
       csv_handle.write(str(day) + "," + str(rounded_total) + "\n")
-      csv_daily_handle.write(str(day) + "," + str(rounded_daily) + "\n")
+      csv_daily_handle.write(str(day) + "," + str(daily) + "\n")
     csv_handle.close()
     csv_daily_handle.close()
     
