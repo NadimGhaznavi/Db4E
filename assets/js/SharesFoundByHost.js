@@ -1,4 +1,4 @@
-const csvUrl = '/data/shares_found_by_host';
+const csvUrl = '/data/shares_found_by_host.csv';
 const dateData = [];
 const totalKermitData = [];
 const totalSallyData = [];
