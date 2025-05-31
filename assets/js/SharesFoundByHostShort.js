@@ -1,4 +1,4 @@
-const csvUrl = '/data/stacked_shares_found.csv';
+const csvUrl = '/data/shares_found_by_host_short.csv';
 const dateData = [];
 const totalKermitData = [];
 const totalSallyData = [];
@@ -7,6 +7,7 @@ const totalMaiaData = [];
 const totalBingoData = [];
 const totalBratData = [];
 const totalPhoebeData = [];
+const totalIslandsData = [];
 
 Papa.parse(csvUrl, {
   download: true,
@@ -15,14 +16,14 @@ Papa.parse(csvUrl, {
   complete: data => {
     data.data.forEach(row => {
       const dateString = row['Date'];
-      const kermit = row['Kermit'];
-      const sally = row['Sally'];
-      const paris = row['Paris'];
-      const maia = row['Maia'];
-      const bingo = row['Bingo'];
-      const brat = row['Brat'];
-      const phoebe = row['Phoebe'];
-
+      const kermit = row['kermit'];
+      const sally = row['sally'];
+      const paris = row['paris'];
+      const maia = row['maia'];
+      const bingo = row['bingo'];
+      const brat = row['brat'];
+      const phoebe = row['phoebe'];
+      const islands = row['islands'];
 
       // Check for missing or invalid data
       //if (!dateString || isNaN(value)) {
@@ -42,6 +43,7 @@ Papa.parse(csvUrl, {
       totalBingoData.push({ x: date, y: bingo });
       totalBratData.push({ x: date, y: brat });
       totalPhoebeData.push({ x: date, y: phoebe });
+      totalIslandsData.push({ x: date, y: islands });
     });
     
     const areaOptions = {
@@ -56,7 +58,7 @@ Papa.parse(csvUrl, {
           show: false
         }
       },
-      colors: ["#00baec","#ffbaec","#01f9c6","#808000","#ffffcc","#fef250","#644117"],
+      colors: ["#00baec","#ffbaec","#01f9c6","#808000","#ffffcc","#fef250","#644117", "#6683ac"],
       stroke: {
 	    curve: 'stepline',
         width: 3
@@ -114,6 +116,10 @@ Papa.parse(csvUrl, {
         {
           name: "Phoebe",
           data: totalPhoebeData
+        },
+        {
+          name: "Islands",
+          data: totalIslandsData
         },
       ],
       tooltip: {
