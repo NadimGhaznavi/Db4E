@@ -103,10 +103,6 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-          xaxis: {
-            min: new Date("06 May 2024 00:00:00").getTime(),
-            max: new Date("23 May 2024 23:59:59").getTime()
-          }
         }
       },
       colors: ["#FF0080"],
