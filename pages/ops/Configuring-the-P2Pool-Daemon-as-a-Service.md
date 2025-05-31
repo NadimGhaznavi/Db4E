@@ -11,7 +11,7 @@ date: 2025-05-30
 * [Introduction and Scope](#introduction-and-scope)
 * [The P2Pool Daemon Startup Script](#the-p2pool-daemon-startup-script)
   * [The p2pool.ini File](#the-p2pool.ini-file)
-  * [The start-p2pool-mini.sh Script](#the-start-p2pool-mini.sh-script)
+  * [The start-p2pool.sh Script](#the-start-p2pool.sh-script)
 * [The systemd p2pool.socket definition](#the-systemd-p2pool.socket-definition)
 * [The systemd p2pool.service Definition](#the-systemd-p2pool.service-definition)
 * [Activing and Enabling the P2Pool Services](#Activing-and-enabling-the-p2pool-services)
@@ -68,7 +68,7 @@ OUT_PEERS=16
 
 ---
 
-## The start-p2pool-mini.sh Script
+## The start-p2pool.sh Script
 
 This script is called by *systemd* to start P2Pool as a service. A complete listing is shown below. It should be installed in the `bin` directory that's within the P2Pool installation directory (e.g. `/opt/prod/p2pool-v4.6/bin`).
 
@@ -160,7 +160,7 @@ WorkingDirectory=/opt/prod/p2pool/
 Type=simple
 Restart=always
 ExecStartPre=sysctl vm.nr_hugepages=3072
-ExecStart=/opt/prod/p2pool/bin/start-p2pool-mini.sh
+ExecStart=/opt/prod/p2pool/bin/start-p2pool.sh
 TimeoutStopSec=60
 StandardOutput=file:/opt/prod/p2pool/logs/p2pool.log
 StandardError=file:/opt/prod/p2pool/logs/p2pool.err
