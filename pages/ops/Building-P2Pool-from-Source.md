@@ -101,7 +101,7 @@ SChernykh's Monero XMR wallet address for donations:
 
 # Links
 
-* [Configuring the P2Pool Daemon as a Service](https://xmr.osoyalce.com/pages/Configuring-the-P2Pool-Daemon-as-a-Service.html)
+* [Configuring the P2Pool Daemon as a Service](https://xmr.osoyalce.com/pages/ops/Configuring-the-P2Pool-Daemon-as-a-Service.html)
 * [P2Pool on Github](https://github.com/SChernykh/p2pool)
   * [Build Instructions](https://github.com/SChernykh/p2pool/blob/master/README.md#build-instructions)
   * [Disable Auto Donation](https://github.com/SChernykh/p2pool/blob/v4.6/README.md?utm_source=substack&utm_medium=email#donations)
