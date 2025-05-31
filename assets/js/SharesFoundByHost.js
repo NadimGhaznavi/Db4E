@@ -21,15 +21,17 @@ Papa.parse(csvUrl, {
       const date = new Date(dateString).getTime();
 
       dateData.push(date);
+      totalData.push(row)
       //totalData.push(Number(total));
-      totalData.push({ x: date, y: value });
+      //totalData.push({ x: date, y: value });
 
     });
     
     const areaOptions = {
       chart: {
         id: "barChart",
-        type: "bar",
+	//type: "bar",
+	stacked: true,
         height: 275,
         foreColor: "#ccc",
         toolbar: {
