@@ -92,7 +92,7 @@ class P2PoolPaymentCsv():
 
     dates.sort()
 
-    # Create the P2Pool Payouts CSV files
+    # Create the Cumulative and Daily P2Pool Payouts CSV files
     csv_filename = self._csv_filename
     csv_daily_filename = self._csv_daily_filename
     
@@ -100,17 +100,15 @@ class P2PoolPaymentCsv():
       csv_handle = open(csv_filename, 'w')
     except:
       self.log(f"ERROR: Unable to open P2Pool Payouts CSV ({csv_filename})")
-    
     try:
       csv_daily_handle = open(csv_daily_filename, 'w')
     except:
       self.log(f"ERROR: Unable to open P2Pool Payouts CSV ({csv_daily_filename})")
 
-
+    
     csv_header = "Date,Total\n"
-    csv_daily_header = "Data, Daily Total"
     csv_handle.write(csv_header)
-    csv_daily_handle.write(csv_daily_header)
+    csv_daily_handle.write(csv_header)
     total = Decimal128("0").to_decimal()
     for day in dates:
       total = total + new_dict[day]
@@ -121,7 +119,7 @@ class P2PoolPaymentCsv():
     csv_handle.close()
     csv_daily_handle.close()
     
-    # Create a shorter version of the CSV files, last 30 days
+    # Create a shorter version of the Cumulative CSV files, last 30 days
     short_csv_filename = csv_filename.replace('.csv', '_short.csv')
     csv_short_handle = open(short_csv_filename, 'w')
     csv_short_handle.write(csv_header)
@@ -134,12 +132,12 @@ class P2PoolPaymentCsv():
     csv_short_handle.close()
     csv_handle.close()
 
-    # Create a shorter version of the CSV files, last 30 days
+    # Create a shorter version of the Daily CSV files, last 30 days
     short_csv_daily_filename = csv_daily_filename.replace('.csv', '_short.csv')
     csv_short_handle = open(short_csv_daily_filename, 'w')
     csv_short_handle.write(csv_header)
     # Get the last 30 days of data
-    csv_handle = open(csv_filename, 'r')
+    csv_handle = open(csv_daily_filename, 'r')
     lines = csv_handle.readlines()
     datapoints = 30  # 30 days of data
     for line in lines[-datapoints:]:
