@@ -69,7 +69,7 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Blocks Found",
+          name: "Blocks Found (MH/s)",
           data: totalData
         }
       ],
