@@ -231,6 +231,7 @@ class P2Pool():
       for log_line in loglines:
         #while True:
         #log_line = self.get_next_logline()
+        #print(log_line)
 
         if self._debug == 9:
           self.log_msg("P2Pool.monitor_log()")
