@@ -4,6 +4,8 @@ title: Configuring the P2Pool Daemon as a Service
 date: 2025-05-27
 ---
 
+---
+
 # Table of Contents
 
 * [Introduction and Scope](#introduction-and-scope)
@@ -11,6 +13,8 @@ date: 2025-05-27
 * [The systemd p2pool.service Definition](#the-systemd-p2pool.service-definition)
 * [Activing and Enabling the P2Pool Services](#Activing-and-enabling-the-p2pool-services)
 * [The P2Pool Daemon Startup Script](#the-p2pool-daemon-startup-script)
+  * [The p2pool.ini File](#the-p2pool.ini-file)
+  * [The start-p2pool-mini.sh Script](#the-start-p2pool-mini.sh-script)
 * [Credits](#credits)
 
 ---
@@ -20,6 +24,8 @@ date: 2025-05-27
 This page documents the configuration of the P2Pool software used by my Monero mining farm. I have configured P2Pool to connect my collection of machines running XMRig to the Monero Mini Sidechain.
 
 The socket service creates a named pipe that connects the the P2Pool daemon's standard input. This pipe is used to interact with the daemon once it's running. By using this architecture, you can run processes (e.g. a cron script) to send commands to the P2Pool daemon while still running it as a service. The actual P2Pool service definition calls a shell script (shown below) that passes in all the options used to start the P2Pool daemon.
+
+---
 
 # The systemd p2pool.socket definition
 
@@ -36,6 +42,8 @@ RemoveOnStop=true
 [Install]
 WantedBy=sockets.target
 ```
+
+---
 
 # The systemd p2pool.service Definition
 
@@ -84,6 +92,8 @@ WantedBy=multi-user.target
 WantedBy=multi-user.target
 ```
 
+---
+
 # Activing and Enabling the P2Pool Services
 
 To refresh systemd's configuration after creating the service and socket definitions use the command below:
@@ -104,63 +114,98 @@ To actually start the service without rebooting use the command below:
 sudo systemd start p2pool.service
 ```
 
+---
+
 # The P2Pool Daemon Startup Script
 
 I use a shell script to start the P2Pool Daemon. A few points about the startup script:
 
 * The script is not run directly, it's used by a systemd service
 * P2Pool is configured to mine on the mini sidechain (the `--mini` switch)
-* Be sure to substitute your own Monero wallet address for the WALLET variable
+* The script reads it's settings from a `p2pool.ini` file.
+* Be sure to substitute your own Monero wallet address for the WALLET variable in the `p2pool.ini` file.
 * The `MONERO_NODE` is the IP of a machine that hosts the Monero Blockchain i.e. runs the monerod daemon
-* The `ZMQ_PORT` and `RPC_PORT` need to match what the monerod daemon's configuration
+  * The `ZMQ_PORT` and `RPC_PORT` need to match what the monerod daemon's configuration
 * The `P2P_DIR` is the directory where you have the P2Pool software installed
 
-This section shows the start script used to launch P2Pool daemon.
+---
+
+## The p2pool.ini File
+
+This file should be created in the directory where you installed P2Pool (e.g. `/opt/prod/p2pool-v4.6`). A complete listing is shown below.
+
+```
+# Set the P2Pool base directory.
+P2P_DIR=/opt/prod/p2pool
+API_DIR=${P2P_DIR}/api
+RUN_DIR=${P2P_DIR}/run
+LOG_DIR=${P2P_DIR}/logs
+STDIN=${RUN_DIR}/p2pool.stdin
+
+# Configure access to the Monero Daemon that hosts the blockchain
+MONERO_NODE="192.168.0.176"
+ZMQ_PORT=20083
+RPC_PORT=20081
+
+# P2Pool settings
+ANY_IP="0.0.0.0"
+STRATUM_PORT=3335
+P2P_PORT=38890
+WALLET="48wY7nYBsQNSw7v4LjoNnvCtk1Y6GLNVmePGrW82gVhYhQtWJFHi6U6G3X5d7JN2ucajU9SeBcijET8ZzKWYwC3z3Y6fDEG"
+LOG_LEVEL=1
+IN_PEERS=16
+OUT_PEERS=16
+DATA_API_DIR="${P2P_DIR}/api"
+P2P_LOG="${LOG_DIR}/p2pool.log"
+P2POOL="${P2P_DIR}/p2pool"
+```
+
+---
+
+## The start-p2pool-mini.sh Script
+
+This script is called by *systemd* to start P2Pool as a service. A complete listing is shown below. It should be installed in the same directory as the `p2pool.ini` file (e.g. `/opt/prod/p2pool-v4.6`).
 
 ```
 #!/bin/bash
 
-# kermit
-MONERO_NODE="192.168.0.176"
+# Read in the P2Pool settings
+source /opt/prod/p2pool/p2pool.ini
 
-ANY_IP="0.0.0.0"
-STRATUM_PORT=3333
-P2P_PORT=38889
-ZMQ_PORT=20083
-RPC_PORT=20081
-P2P_DIR="/opt/prod/p2pool"
-WALLET="******************************************************************"
-LOG_LEVEL=0
-IN_PEERS=10
-OUT_PEERS=10
-DATA_API_DIR="${P2P_DIR}/json"
-P2P_LOG="${P2P_DIR}/p2pool.log"
-
-USER=$(whoami)
-if [ "$USER" != "root" ]; then
-        echo "ERROR: Run the p2pool daemon as root, exiting.."
-        exit 1
+# Create the API directory if it doesn't already exist
+if [ ! -d $API_DIR ]; then
+  mkdir ${API_DIR}
 fi
 
-./p2pool \
-        --host ${MONERO_NODE} \
-        --wallet ${WALLET} \
-        --mini \
-        --stratum ${ANY_IP}:${STRATUM_PORT} \
-        --p2p ${ANY_IP}:${P2P_PORT} \
-        --rpc-port ${RPC_PORT} \
-        --zmq-port ${ZMQ_PORT} \
-        --loglevel ${LOG_LEVEL} \
-        --in-peers ${IN_PEERS} \
-        --out-peers ${OUT_PEERS} \
-         | tee -a ${P2P_LOG}
+# Create the run directory if it doesn't already exist
+if [ ! -d ${RUN_DIR} ]; then
+	mkdir -p ${RUN_DIR}
+fi
+
+# Create the logs directory if it doesn't already exist
+if [ ! -d ${LOG_DIR} ]; then
+	mkdir -p ${LOG_DIR}
+fi
+
+# Actually start P2Pool
+$P2POOL \
+	--host ${MONERO_NODE} \
+	--wallet ${WALLET} \
+	--mini \
+	--no-color \
+	--stratum ${ANY_IP}:${STRATUM_PORT} \
+	--p2p ${ANY_IP}:${P2P_PORT} \
+	--rpc-port ${RPC_PORT} \
+	--zmq-port ${ZMQ_PORT} \
+	--loglevel ${LOG_LEVEL} \
+	--in-peers ${IN_PEERS} \
+	--out-peers ${OUT_PEERS} \
+	--data-api ${API_DIR}
 ```
+
+---
 
 # Credits
 
 I authored the wrapper script to actually start P2Pool, but I found the solution to using a named pipe and P2Pool service definition in this [Reddit post](https://www.reddit.com/r/MoneroMining/comments/12w28m6/comment/jhffnn8/?utm_source=share&utm_medium=web2x&context=3&rdt=38081) by [Krewlar](https://www.reddit.com/user/krewlar/). Kudos to [Krewlar](https://www.reddit.com/user/krewlar/) for doing the heavy lifting for this solution.
-
-# Conclusion
-
-That's it! Happy mining!!! :)
 
