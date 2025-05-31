@@ -13,6 +13,7 @@ title: The Database 4 Everything
  </div>
 
 Realtime visualization of the shares found on the Monero mini sidchain over the last 30 days.
+
 ---
 
 # Table of Contents
