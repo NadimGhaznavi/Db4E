@@ -35,6 +35,7 @@ db:
   server: localhost
   port: 27017
   name: db4e
+  collection: mining
   backup_dir: backups
   backup_script: bin/backup-db.sh
   

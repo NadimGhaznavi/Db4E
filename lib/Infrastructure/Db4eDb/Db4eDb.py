@@ -25,6 +25,7 @@ class Db4eDb():
     self._db_server = config.config['db']['server']
     self._db_port = config.config['db']['port']
     self._db_name = config.config['db']['name']
+    self._db_collection = config.config['db']['collection']
     self._debug = config.config['db4e']['debug']
     self._backup_dir = config.config['db']['backup_dir']
     
@@ -69,8 +70,9 @@ class Db4eDb():
 
   def init_db(self):
     db = self.db()
-    if 'mining' not in db.list_collection_names():
-      db['mining']
+    db_col = self._db_collection
+    if db_col not in db.list_collection_names():
+      db[db_col]
 
   def insert_uniq_one(self, collection, jdoc):
     db = self.db()
