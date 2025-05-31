@@ -7,6 +7,7 @@ const totalMaiaData = [];
 const totalBingoData = [];
 const totalBratData = [];
 const totalPhoebeData = [];
+const totalIslandsData = [];
 
 Papa.parse(csvUrl, {
   download: true,
