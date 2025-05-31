@@ -26,6 +26,7 @@ from MiningDb.MiningDb import MiningDb
 from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
+from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
 
 class P2Pool():
 
@@ -122,6 +123,9 @@ class P2Pool():
       db.add_share_found(timestamp, worker, ip_addr, effort)
       sharesfoundcsv = SharesFoundCsv(self.log_msg)
       sharesfoundcsv.new_shares_found_csv()
+      sharesfoundbyhostcsv = SharesFoundByHostCsv(self.log_msg)
+      sharesfoundbyhostcsv.new_shares_found_by_host_csv()
+      
 
   def is_share_position(self, log_line):
     """
