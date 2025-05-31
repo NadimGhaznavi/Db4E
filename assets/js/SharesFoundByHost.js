@@ -1,6 +1,12 @@
-const csvUrl = '/data/shares_found_by_host.csv';
+const csvUrl = '/data/stacked_shares_found.csv';
 const dateData = [];
-const totalData = [];
+const totalKermitData = [];
+const totalSallyData = [];
+const totalParisData = [];
+const totalMaiaData = [];
+const totalBingoData = [];
+const totalBratData = [];
+const totalPhoebeData = [];
 
 Papa.parse(csvUrl, {
   download: true,
@@ -9,29 +15,41 @@ Papa.parse(csvUrl, {
   complete: data => {
     data.data.forEach(row => {
       const dateString = row['Date'];
-      const value = row['Shares Found'];
+      const kermit = row['kermit'];
+      const sally = row['sally'];
+      const paris = row['paris'];
+      const maia = row['maia'];
+      const bingo = row['bingo'];
+      const brat = row['brat'];
+      const phoebe = row['phoebe'];
+      const islands = row['islands'];
 
       // Check for missing or invalid data
-      if (!dateString || isNaN(value)) {
-        console.log('Invalid or missing data found. Skipping this row.');
-        return;
-      }
+      //if (!dateString || isNaN(value)) {
+      //  console.log('Invalid or missing data found. Skipping this row.');
+      //  return;
+      //}
 
       // Parse the date string and convert it to a timestamp
       const date = new Date(dateString).getTime();
 
       dateData.push(date);
-      totalData.push(row)
       //totalData.push(Number(total));
-      //totalData.push({ x: date, y: value });
-
+      totalKermitData.push({ x: date, y: kermit });
+      totalSallyData.push({ x: date, y: sally });
+      totalParisData.push({ x: date, y: paris });
+      totalMaiaData.push({ x: date, y: maia });
+      totalBingoData.push({ x: date, y: bingo });
+      totalBratData.push({ x: date, y: brat });
+      totalPhoebeData.push({ x: date, y: phoebe });
+      totalIslandsData.push({ x: date, y: islands });
     });
     
     const areaOptions = {
       chart: {
         id: "barChart",
-	//type: "bar",
-	stacked: true,
+        stacked: true,
+        type: "bar",
         height: 275,
         foreColor: "#ccc",
         toolbar: {
@@ -39,9 +57,9 @@ Papa.parse(csvUrl, {
           show: false
         }
       },
-      colors: ["#00baec"],
+      colors: ["#00baec","#ffbaec","#01f9c6","#808000","#ffffcc","#fef250","#644117", "#6683ac"],
       stroke: {
-	curve: 'stepline',
+	    curve: 'stepline',
         width: 3
       },
       grid: {
@@ -71,16 +89,44 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Shares Found",
-          data: totalData
-        }
+          name: "Kermit",
+          data: totalKermitData
+        },
+        {
+          name: "Sally",
+          data: totalSallyData
+        },
+        {
+          name: "Paris",
+          data: totalParisData
+        },
+        {
+          name: "Maia",
+          data: totalMaiaData
+        },
+        {
+          name: "Bingo",
+          data: totalBingoData
+        },
+        {
+          name: "Brat",
+          data: totalBratData
+        },
+        {
+          name: "Phoebe",
+          data: totalPhoebeData
+        },
+        {
+          name: "Islands",
+          data: totalIslandsData
+        },
       ],
       tooltip: {
         theme: "dark"
       },
       title: {
-	text: 'Shares Found',
-	align: 'left'
+	    text: 'Shares Found',
+	    align: 'left'
       },
       xaxis: {
         type: "datetime"
@@ -92,54 +138,6 @@ Papa.parse(csvUrl, {
 
     var areaChart = new ApexCharts(document.querySelector("#areaChart"), areaOptions);
     areaChart.render();
-
-    var barOptions = {
-      chart: {
-        id: "areaChart",
-        height: 100,
-        type: "bar",
-        foreColor: "#ccc",
-        brush: {
-          target: "barChart",
-          enabled: true
-        },
-        selection: {
-          enabled: true,
-          fill: {
-            color: "#fff",
-            opacity: 0.4
-          },
-          xaxis: {
-            min: new Date("06 November 2024 00:00:00").getTime(),
-            max: new Date("16 November 2024 23:59:59").getTime()
-          }
-        }
-      },
-      colors: ["#FF0080"],
-      series: [
-        {
-          data: totalData
-        }
-      ],
-      stroke: {
-        width: 2
-      },
-      grid: {
-        borderColor: "#444"
-      },
-      markers: {
-        size: 0
-      },
-      xaxis: {
-        type: "datetime",
-        tooltip: {
-          enabled: false
-        }
-      },
-    };
-
-    var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
-    barChart.render();
 
   }});
 
