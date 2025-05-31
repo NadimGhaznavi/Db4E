@@ -24,12 +24,6 @@ export:
   blocks_found_csv: blocks_found.csv
   shares_found_csv: shares_found.csv
   shares_found_by_host_csv: shares_found_by_host.csv
-  pool_hashrates_csv: pool_hashrates.csv
-  sidechain_hashrates_csv: sidechain_hashrates.csv
-  mainchain_hashrates_csv: mainchain_hashrates.csv
-  short_pool_hashrates_csv: short_pool_hashrates.csv
-  short_sidechain_hashrates_csv: short_sidechain_hashrates.csv
-  short_mainchain_hashrates_csv: short_mainchain_hashrates.csv
 
 db:
   server: localhost

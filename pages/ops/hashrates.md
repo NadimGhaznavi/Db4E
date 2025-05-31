@@ -1,6 +1,0 @@
----
-title: hashrates.py Application
----
-
-
-
