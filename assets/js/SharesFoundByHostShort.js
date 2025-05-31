@@ -126,7 +126,7 @@ Papa.parse(csvUrl, {
         theme: "dark"
       },
       title: {
-	    text: 'Shares Found',
+	    text: 'Shares Found by Worker',
 	    align: 'left'
       },
       xaxis: {
