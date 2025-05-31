@@ -76,7 +76,7 @@ Papa.parse(csvUrl, {
         theme: "dark"
       },
       title: {
-	text: 'P2Pool XMR Payouts',
+	text: 'Cumulative P2Pool XMR Earnings',
 	align: 'left'
       },
       xaxis: {

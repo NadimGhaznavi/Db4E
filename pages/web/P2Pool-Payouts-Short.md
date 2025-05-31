@@ -1,6 +1,6 @@
 ---
 layout: post
-title: P2Pool Payouts
+title: Cumulative P2Pool XMR Earnings
 date: 2025-05-30
 ---
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
