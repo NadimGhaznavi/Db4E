@@ -1,11 +1,10 @@
 ---
 title: The Database 4 Everything
 ---
-<!--
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/assets/js/SharesFoundByHostShort.js"></script>
--->
+
 
 <div id="wrapper">
   <div id="areaChart">
