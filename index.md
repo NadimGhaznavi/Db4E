@@ -1,5 +1,5 @@
 ---
-title: The Database 4 Everything - db4e
+title: The Database 4 Everything
 ---
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -12,6 +12,7 @@ title: The Database 4 Everything - db4e
   </div>
  </div>
 
+Realtime visualization of the shares found on the Monero mini sidchain over the last 30 days.
 ---
 
 # Table of Contents
@@ -29,7 +30,7 @@ title: The Database 4 Everything - db4e
 
 # Introduction and Scope
 
-This is the home of the **db4e**, **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and [realtime web based visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
+This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and [realtime web based visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
 
 ---
 
