@@ -50,7 +50,7 @@ The following events are captured:
 
 # Systems Architecture
 
-The *db4d* application is currently running on Debian Linux and is made up of a number of components:
+The *db4d* application is currently running on [Debian Linux](https://www.debian.org/) and is made up of a number of components:
 
 * The core db4e code
 * A P2Pool daemon
@@ -168,4 +168,11 @@ P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 # Links
 
-* The *db4e* source code for this site [GitHub](https://github.com/NadimGhaznavi/db4e).
+* [db4e on GitHub](https://github.com/NadimGhaznavi/db4e)
+* [Debian Linux](https://www.debian.org/)
+* [P2Pool on GitHub](https://github.com/SChernykh/p2pool)
+* [Monero on GitHub](https://github.com/monero-project/monero-gui)
+* [MongoDB](https://www.mongodb.com/)
+* [ApexCharts](https://apexcharts.com/)
+* [GitHub](https://github.com/)
+
