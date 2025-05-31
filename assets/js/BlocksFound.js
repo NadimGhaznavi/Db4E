@@ -107,10 +107,6 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-          xaxis: {
-            min: new Date("06 November 2024 00:00:00").getTime(),
-            max: new Date("16 November 2024 23:59:59").getTime()
-          }
         }
       },
       colors: ["#FF0080"],
@@ -133,7 +129,7 @@ Papa.parse(csvUrl, {
         tooltip: {
           enabled: false
         }
-      },
+      }
     };
 
     var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);

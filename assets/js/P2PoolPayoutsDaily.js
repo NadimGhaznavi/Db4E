@@ -35,7 +35,7 @@ Papa.parse(csvUrl, {
         toolbar: {
           autoSelected: "pan",
           show: false
-        }
+        },
       },
       colors: ["#00baec"],
       stroke: {
@@ -47,8 +47,8 @@ Papa.parse(csvUrl, {
         yaxis: {
           lines: {
             show: false
-          }
-        }
+          },
+        },
       },
       dataLabels: {
         enabled: false
@@ -58,7 +58,7 @@ Papa.parse(csvUrl, {
           enabled: true,
           opacityFrom: 0.55,
           opacityTo: 0,
-        }
+        },
       },
       markers: {
         size: 0,
@@ -70,7 +70,7 @@ Papa.parse(csvUrl, {
         {
           name: "Daily Earnings",
           data: totalData
-        }
+        },
       ],
       tooltip: {
         theme: "dark"
@@ -107,11 +107,7 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-          xaxis: {
-            min: new Date("06 November 2024 00:00:00").getTime(),
-            max: new Date("16 November 2024 23:59:59").getTime()
-          }
-        }
+        },
       },
       colors: ["#FF0080"],
       series: [
