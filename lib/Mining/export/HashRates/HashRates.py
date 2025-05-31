@@ -63,8 +63,8 @@ class Hashrates():
     # Generate 30, 60 and 90 day short versions of the CSV file
     export_utils = Db4eExport(self.log)
     export_utils.in_file(hash_filename)
-    export_utils.units('days')
-    for num_days in [30, 60, 90]:
+    export_utils.units('hours')
+    for num_days in [30*24, 60*24, 90*24]:
       export_utils.datapoints(num_days)
       # Generate the short version of the CSV file
       export_utils.export_short()
