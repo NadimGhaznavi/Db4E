@@ -23,6 +23,22 @@ category:
 
 This page documents the process of building [SChernykh's P2Pool Software](https://github.com/SChernykh/p2pool).
 
+
+## Build and Deployment Architecture
+
+I put source code in `/opt/src` and installed software in `/opt/prod`. For example:
+
+* /opt/src/p2pool-v4.6  - Source code
+* /opt/prod/p2pool-v4.6 - Installed code
+* /opt/prod/p2pool      - Symlink to installed code directory
+
+Within the installed software directories I use the following convention:
+
+* bin   - Directory to house executibles 
+* logs  - Directory to house logs
+* conf  - Directory to house configuration files
+* run   - Directory to contain temporary runtime files
+
 ---
 
 # Install Pre-Requisites
@@ -84,7 +100,9 @@ cd /opt/prod
 sudo mkdir p2pool-v4.6
 sudo rm -f p2pool
 sudo ln -s p2pool-v4.6 p2pool
-sudo cp /opt/src/p2pool-v4.6/build/p2pool /opt/prod/p2pool
+cd p2pool
+sudo mkdir conf bin logs run
+sudo cp /opt/src/p2pool-v4.6/build/p2pool /opt/prod/p2pool/bin
 ```
 
 ---

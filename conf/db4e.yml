@@ -8,6 +8,7 @@ db4e:
 
 p2pool:
   install_dir: /opt/prod/p2pool
+  api_dir: api
   log_dir: logs     
   log_file: p2pool.log
 
