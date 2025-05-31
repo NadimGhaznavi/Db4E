@@ -12,7 +12,7 @@ title: The Database 4 Everything
   </div>
  </div>
 
-Realtime visualization of the shares found on the Monero mini sidchain over the last 30 days.
+Realtime visualization of the shares found on the Monero mini sidechain by the miners in the local P2Pool.
 
 ---
 
