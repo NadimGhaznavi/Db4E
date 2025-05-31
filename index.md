@@ -157,6 +157,7 @@ P2PoolPaymentCsv     | XMR payments made to my mining farm.
 
 * [Building P2Pool from Source](/pages/ops/Building-P2Pool-from-Source.html)
 * [Building Monerod from Source](/pages/ops/Building-Monerod-from-Source.html)
+* [Installing MongoDB on Debian Linux](/pages/ops/Installing-MongoDB.html)
 
 ---
 
