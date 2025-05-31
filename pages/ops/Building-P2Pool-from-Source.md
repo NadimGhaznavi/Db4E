@@ -84,7 +84,7 @@ cd /opt/prod
 sudo mkdir p2pool-v4.6
 sudo rm -f p2pool
 sudo ln -s p2pool-v4.6 p2pool
-sudo cp /opt/src/p2pool/build-v4.6/build/p2pool /opt/prod/p2pool
+sudo cp /opt/src/p2pool-v4.6/build/p2pool /opt/prod/p2pool
 ```
 
 ---
