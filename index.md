@@ -12,13 +12,13 @@ title: The Database 4 Everything
   </div>
  </div>
 
-Realtime visualization of the shares found on the Monero mini sidechain by the miners in the local P2Pool.
+This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and [realtime web based visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
+The stacked barchart above is a real-time visualization of the shares found on the Monero mini sidechain by the miners in the local P2Pool.
 
 ---
 
 # Table of Contents
 
-* [Introduction and Scope](#introduction-and-scope)
 * [Realtime Data on the Web](#realtime-data-on-the-web)
 * [Systems Architecture](#systems-architecture)
 * [Backend Components](#backend-components)
@@ -26,12 +26,6 @@ Realtime visualization of the shares found on the Monero mini sidechain by the m
 * [Software Build Documentation](#software-build-documentation)
 * [Hardware](#hardware)
 * [Links](#links)
-
----
-
-# Introduction and Scope
-
-This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html) and [realtime web based visualizations](/pages/web/index.html) to monitor a local Monero XMR Mining farm that uses a local P2Pool node.
 
 ---
 
