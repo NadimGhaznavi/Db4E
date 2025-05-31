@@ -1,9 +1,11 @@
 ---
 title: The Database 4 Everything
 ---
+<!--
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/assets/js/SharesFoundByHostShort.js"></script>
+-->
 
 <div id="wrapper">
   <div id="areaChart">
@@ -35,7 +37,7 @@ The *db4e* application is event driven. When a new event is received it generate
 
 The following events are captured:
 
-* [XMR payments](/pages/web/P2Pool-Payouts-Short.html) made to the mining farm
+* [Daily](/pages/web/P2Pool-Payouts-Daily-Short.html) and [cummulative](/pages/web/P2Pool-Payouts-Short.html) XMR payment smade to the mining farm
 * [Shares found](/pages/web/Shares-Found-Short.html) by the mining farm
 * [Blocks found](/pages/web/Blocks-Found-Short.html) on the Monero XMR mini sidechain
 * [Hashrate of my pool](/pages/web/Pool-Hashrate-Short.html), the [mini sidechain](/pages/web/Sidechain-Hashrate-Short.html) and the [mainchain](/pages/web/Mainchain-Hashrate-Short.html) over time
@@ -44,7 +46,7 @@ The following events are captured:
 
 # Systems Architecture
 
-The *db4d* application is currently running on [Debian Linux](https://www.debian.org/) and is made up of a number of components:
+The *db4e* application is currently running on [Debian Linux](https://www.debian.org/) and is made up of a number of components:
 
 * The core db4e code
 * A P2Pool daemon
