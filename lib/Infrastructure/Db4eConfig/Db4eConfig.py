@@ -23,13 +23,13 @@ class Db4eConfig():
         args = parser.parse_args()
         if args.list_actions:
             print("Available actions:")
-            print("  new_blocks_found_csv     : Generate the 'Blocks Found' CSV files and push them to GitHub.")
-            print("  new_p2pool_payment_csv   : Generate the 'P2Pool Payments' CSV files and push them to GitHub.")
-            print("  new_shares_found_csv     : Generate the 'Shares Found' CSV files and push it them GitHub.")
-            print("  new_shares_found_by_host : Generate the 'Shares Found by Host' CSV files and push them to GitHub.")
-            print("  backup_db                : Backup MongoDB and push the backup to GitHub.")
-            print("  monitor_p2pool_log       : Start monitoring the P2Pool daemon log.")
-            print("  get_wallet_balance       : Get the wallet balance from MongoDb.")
+            print("  new_blocks_found_csv         : Generate the 'Blocks Found' CSV files and push them to GitHub.")
+            print("  new_p2pool_payment_csv       : Generate the 'P2Pool Payments' CSV files and push them to GitHub.")
+            print("  new_shares_found_csv         : Generate the 'Shares Found' CSV files and push it them GitHub.")
+            print("  new_shares_found_by_host_csv : Generate the 'Shares Found by Host' CSV files and push them to GitHub.")
+            print("  backup_db                    : Backup MongoDB and push the backup to GitHub.")
+            print("  monitor_p2pool_log           : Start monitoring the P2Pool daemon log.")
+            print("  get_wallet_balance           : Get the wallet balance from MongoDb.")
             exit(0)
 
         # Parse any command line args
