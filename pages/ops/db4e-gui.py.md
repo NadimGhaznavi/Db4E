@@ -2,6 +2,8 @@
 title: db4e-gui.py Console Application
 ---
 
+# Introduction
+
 The `db4e-gui.py` provides a realtime console based GUI to display health and performance information about my Monero XMR Mining farm. I typically run the application continuously to keep an eye on things.
 
 The application displays the following timestamped information:
@@ -16,5 +18,16 @@ The application displays the following timestamped information:
 * The hashrate of my Mining farm pool.
 
 ![Screenshot of db4e-gui.py](/assets/img/db4e-gui.png)
+
+# Pre-Requisites
+
+See the [Pre-Requisites](/pages/ops/Pre-Requisites.html) page for instructions on installing support for the console graphics libraries ([urwid](https://urwid.org/))
+
+# Running the db4e-gui.py Application
+
+```
+. ~/db4e_python
+(db4e_python) $ db4e-gui.py
+```
 
 [Back](/)

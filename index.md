@@ -54,6 +54,8 @@ The *db4e* application is currently running on [Debian Linux](https://www.debian
 
 At it's core, *db4e* monitors the P2Pool server for events. Scheduled commands are also sent to the running P2Pool daemon to trigger log output. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published to a GitHub hosted website (this site). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
 
+See the [Pre-Requisites page](/pages/ops/Pre-Requisites.md)
+
 ---
 
 # Codebase Architecture

@@ -13,26 +13,48 @@ tags:
 
 See [Installing MongoDB on Debian Linux](/pages/ops/Installing-MongoDB.html).
 
-# Support for db4e-os.py 
+# P2Pool
 
-The db4e-os.py program relies on additional standard Python libraries. These must be installed in a sandboxed Python environment for enhanced security.
+* [Building P2Pool from Source](/pages/ops/Building-P2Pool-from-Source.html)
+* [Configuring the P2Pool Daemon as a Service](/pages/ops/Configuring-the-P2Pool-Daemon-as-a-Service.html)
+
+# Monero Blockchain Daemon
+
+This is optional in case you already have a node with the blockchain.
+
+* [Building Monerod from Source](/pages/ops/Building-Monerod-from-Source.html)
+* [Configuring the Monero Daemon as a Service](/pages/ops/Configuring-the-Monero-Daemon-as-a-Service.html)
+
+# Console Graphics Support
 
 ## Python3 Sandbox Support
 
-This is to provide support for installing a sandboxed version of Python which is used to run the application. This allows for the installation of additional Python libraries without polluting the host system.
+The sandbox lets you install additional Python libraries without polluting your host system's Python installation.
 
 ```
 apt install python3.11-venv
 apt install python3-pip
-cd /opt/prod/db4e
-python3 -m venv db4e_python
+python3 -m venv ~/db4e_python
 ```
 
-## Installing additional Python Libraries
+This will install db4e python into your home directory in the `db4e_python` directory.
+
+## Console Graphics Libary Installation
+
+Urwid is used for the graphical console support framework.
 ```
-. /opt/prod/db4e/db4e_python/bin/activate
-pip install install pygame
+. ~/db4e_python/bin/activate
+(db4e_python) $ pip install install urwid
 ```
+
+## Running Console Graphics Programs
+
+```
+. ~/db4e_python/bin/activate
+(db4e_python) $ db4e-gui.py
+```
+
+
 
 
 
