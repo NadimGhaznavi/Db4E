@@ -152,7 +152,7 @@ Hashrates            | Pool, sidechain and mainchain hashrate data.           |
 
 ---
 
-# Software Build Documentation
+# Software Build and Install Documentation
 
 * [Building P2Pool from Source](/pages/ops/Building-P2Pool-from-Source.html)
 * [Building Monerod from Source](/pages/ops/Building-Monerod-from-Source.html)

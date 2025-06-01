@@ -27,7 +27,7 @@ from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
-from HashRates.HashRates import Hashrates
+from Hashrates.Hashrates import Hashrates
 from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
 from Db4eLog.Db4eLog import Db4eLog

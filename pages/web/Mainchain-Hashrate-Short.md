@@ -14,6 +14,6 @@ date: 2025-05-29
   </div>
  </div>
 
-The *Mainchain Hashrate* is the hashrate of Monero XMR Blockchain. The hashrate data is taken from the P2Pool daemon log that I monitor in realtime. Data is added once an hour. The data goes back 30 days. Click and drag on the bottom bar chart to display a subset of the data.
+The *Mainchain Hashrate* is the hashrate of Monero XMR Blockchain. Data is added once an hour. The data goes back 30 days. Click and drag on the bottom bar chart to display a subset of the data.
 
 [Back](/pages/web/index.html)
