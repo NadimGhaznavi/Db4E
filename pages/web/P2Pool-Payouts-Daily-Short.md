@@ -10,8 +10,6 @@ date: 2025-05-30
 <div id="wrapper">
   <div id="areaChart">
   </div>
-  <div id="barChart">
-  </div>
  </div>
 
 

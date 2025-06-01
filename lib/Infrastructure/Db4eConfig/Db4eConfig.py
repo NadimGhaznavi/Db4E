@@ -21,6 +21,7 @@ class Db4eConfig():
         parser.add_argument('-la', '--list_actions', action='store_true', help='List all available actions.')
 
         args = parser.parse_args()
+
         if args.list_actions:
             print("Available actions:")
             print("  new_blocks_found_csv         : Generate the 'Blocks Found' CSV files and push them to GitHub.")
