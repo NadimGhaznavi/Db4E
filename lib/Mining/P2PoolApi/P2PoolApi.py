@@ -5,6 +5,7 @@ This module provides an interface to interact with the P2Pool API.
 """
 
 import os, sys
+import json
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -21,8 +22,8 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 # P2Pool Daemon API names
 P2POOL_STATS_MOD = 'stats_mod'
 P2POOL_NETWORK = 'network'
-P2POOL_POOL = 'pool'
-P2POOL_BLOCKS = 'blocks'
+P2POOL_POOL_STATS = 'pool/stats'
+P2POOL_NETWORK_STATS = 'network/stats'
 
 class P2PoolApi():
     """
@@ -38,10 +39,23 @@ class P2PoolApi():
         api_dir = config.config['p2pool']['api_dir']
         self._api_dir = os.path.join(p2pool_dir, api_dir)
 
-        self._stats_mod = None
-        self._port = None
+        self._height = None
+        self._miners = None
+        self._hashrate = None # In MH/s
 
-    def get_stats_mod(self):
+    def _get_network_stats(self):
+        """
+        Fetch network statistics from the P2Pool API.
+        """
+        api_file = os.path.join(self._api_dir, P2POOL_NETWORK_STATS)
+        if not os.path.exists(api_file):
+            raise FileNotFoundError(f"P2Pool API file not found: {api_file}")
+        with open(api_file, 'r') as file:
+            data = file.read()
+        network_stats = json.loads(data)
+        print(network_stats)
+
+    def _get_stats_mod(self):
         """
         Fetch information from the P2Pool API.
         """
@@ -50,15 +64,68 @@ class P2PoolApi():
             raise FileNotFoundError(f"P2Pool API file not found: {api_file}")
         with open(api_file, 'r') as file:
             data = file.read()
-        self._stats_mod = data
-        print(type(data))
-        #print(data['config']['ports']['port'])
-       
-        return data
+        stats_mod = json.loads(data)
+        self._height = stats_mod['network']['height']
+        self._miners = stats_mod['pool']['miners']
+        self._hashrate = round(stats_mod['pool']['hashrate']/1000000, 3)
+        
+        self._stats_mod = stats_mod
     
+
+    def hashrate(self):
+        """
+        Get the current hashrate of the P2Pool network in MH/s.
+        """
+        if self._hashrate is None:
+            self.refresh()
+        return self._hashrate
+
+    def height(self):
+        """
+        Get the current height of the P2Pool network.
+        """
+        if self._height is None:
+            self.refresh()
+        return self._height
+    
+    def miners(self):
+        """
+        Get the list of miners in the P2Pool network.
+        """
+        if self._miners is None:
+            self.refresh()
+        return self._miners
+
+    def refresh(self):
+        """
+        Refresh the P2Pool API data.
+        """
+        try:
+            self._get_stats_mod()
+        except FileNotFoundError as e:
+            print(f"Error refreshing P2Pool API: {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error parsing P2Pool API data: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+        try:
+            self._get_network_stats()
+        except FileNotFoundError as e:
+            print(f"Error refreshing P2Pool API: {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error parsing P2Pool API data: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
 if __name__ == "__main__":
     # Example usage
     p2pool_api = P2PoolApi()
-    stats = p2pool_api.get_stats_mod()
-    print("P2Pool Stats Mod:", stats)
-        
+    print("P2Pool API Data:")
+    print("-" * 40)
+    print(f"Height: {p2pool_api.height()}")
+    print(f"Miners: {p2pool_api.miners()}")
+    print(f"Hashrate: {p2pool_api.hashrate()} MH/s")
+    print("-" * 40)
+    print(f"Stats Mod:")
+    print(p2pool_api._stats_mod)
