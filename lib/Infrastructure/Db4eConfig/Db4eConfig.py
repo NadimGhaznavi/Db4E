@@ -34,7 +34,8 @@ class Db4eConfig():
             exit(0)
 
         # Parse any command line args
-        self.config['db4e']['action'] = args.action
+        if args.action != 'None':
+            self.config['db4e']['action'] = args.action
 
     def get(self, key):
         """
