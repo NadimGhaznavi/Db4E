@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Blocks Found on the Mini Sidechain
+title: Blocks Found on the Sidechain
 date: 2025-05-30
 ---
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -14,7 +14,7 @@ date: 2025-05-30
   </div>
  </div>
 
-The chart above shows a visualization of the Monero XMR blocks that were found on the mini sidechain.
+The chart above shows a visualization of the Monero XMR blocks that were found on the current sidechain.
 
 * My code monitors the P2Pool log continuously looking for *Block Found* events.
 * When it detects a *Block Found* event it loads the timestamp of the event into a MongoDB backend database.

@@ -21,6 +21,8 @@ monerod:
 
 export:
   export_dir: /opt/prod/db4e/data
+  template_dir: /opt/prod/db4e/pages/tmpl
+  web_dir: /opt/prod/db4e/pages/web
   p2pool_payouts_csv: p2pool_payouts.csv
   blocks_found_csv: blocks_found.csv
   shares_found_csv: shares_found.csv

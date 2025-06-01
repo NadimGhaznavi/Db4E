@@ -36,9 +36,10 @@ class Hashrates():
     # The hashrate data has been loaded with self.refresh_data()`
     hash_data = self._hashrate_data[hashrate]
 
+    # Create a filename for the CSV file to be exported
+    hash_filename = f"{hashrate}_hashrates.csv"
     # Open the CSV file for writing
-    hash_filename = f"{self._export_dir}/{hashrate}_hashrates.csv"
-    hash_handle = open(hash_filename, 'w')
+    hash_handle = open(os.path.join(self._export_dir, hash_filename), 'w')
     
     # Write the header to the CSV file
     hash_handle.write(self._header)
@@ -61,12 +62,11 @@ class Hashrates():
     self.log(f"  New export file: {hash_filename}")
 
     # Generate 30, 60 and 90 day short versions of the CSV file
-    export_utils = Db4eExport(self.log)
-    export_utils.in_file(hash_filename)
-    export_utils.units('hours')
-    for num_days in [30*24, 60*24, 90*24]:
-      export_utils.datapoints(num_days)
-      # Generate the short version of the CSV file
+    for num_hours in [30*24, 60*24, 90*24]:
+      export_utils = Db4eExport(self.log, 
+                                in_file=hash_filename,
+                                datapoints=num_hours,
+                                units='hours')
       export_utils.export_short()
 
   def new_hashrates_csv(self):
