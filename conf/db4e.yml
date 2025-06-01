@@ -1,9 +1,10 @@
 db4e:
   install_dir: /opt/prod/db4e
   backup_dir: backups
+  conf_dir: conf
   log_dir: logs
   log_file: db4e.log
-  monitor_p2pool_pid_file: /opt/prod/db4e/run/db4e_monitor_p2pool_log.pid
+  reports: reports.yml
   debug: 0
 
 p2pool:
