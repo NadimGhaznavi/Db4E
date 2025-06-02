@@ -6,16 +6,15 @@ title: Data Visualizations
 
 The visualizations here are created and updated automatically, zero manual steps.
 
-Description                    | Short Range                                           | Historical
--------------------------------|-------------------------------------------------------|---------------------------------------
-Cumulative P2Pool XMR Earnings | [30 days](/pages/web/P2Pool-Payouts-Short.html)       | [back to November 2024](/pages/web/P2Pool-Payouts.html)
-Daily P2Pool XMR Earnings      | [30 days](/pages/web/P2Pool-Payouts-Daily-Short.html) | [back to November 2024](/pages/web/P2Pool-Payouts-Daily.html)
-My Shares Found                | [30 days](/pages/web/Shares-Found-Short.html)         | [back to November 2024](/pages/web/Shares-Found.html)
-My Shares Found by Worker      | [30 days](/pages/web/Shares-Found-by-Host-Short.html) | [back to November 2024](/pages/web/Shares-Found-by-Host.html)
-My Pool Hashrate               | [30 days](/pages/web/Pool-Hashrate-Short.html)        | [back to January 2025](/pages/web/Pool-Hashrate.html)
-Monero XMR Sidechain Hashrate  | [30 days](/pages/web/Sidechain-Hashrate-Short.html)   | [back to January 2025](/pages/web/Sidechain-Hashrate.html)
-Monero XMR Mainchain Hashrate  | [30 days](/pages/web/Mainchain-Hashrate-Short.html)   | [back to January 2025](/pages/web/Mainchain-Hashrate.html)
-Mini Sidechain's Blocks Found  | [30 days](/pages/web/Blocks-Found-Short.html)         | [back to November 2024](/pages/web/Blocks-Found.html)
+* [Hashrate reports](/pages/reports/hashrate/index.html)
+  * Run hourly with a cronjob
+  * Generates hashrate reports on the local pool, sidechain and mainchain
+  * [Report definition file](/conf/reports/hashrates.yml)
+
+* [Payment reports](/pages/reports/payment/index.html)
+  * Updated whenever a mining payment is received
+  * Daily and cummulative totals
+  * [Report definition file](/conf/reports/payments.yml)
 
 ---
 
