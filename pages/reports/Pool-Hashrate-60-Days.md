@@ -16,4 +16,5 @@ date: 2025-06-02
   </div>
  </div>
 
-*Days of data: 60* Last updated: 2025-06-02 07:39
+* Days of data: 60
+* Last updated: 2025-06-02 07:40
