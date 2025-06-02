@@ -56,6 +56,7 @@ A [summary page](/pages/reports/hashrate/index.html) of all reports is also gene
 
 Report generation can be easily scheduled as a cronjob or triggered by an event.
 
+
 ---
 
 # Technology Stack
