@@ -67,7 +67,7 @@ if action:
   elif action == 'backup_db':
     db = Db4eDb()
     db.backup_db()
-  elif action == 'gen_reports':
+  elif action == 'run_reports':
     reports = MiningReports(log_func)
     reports.run()
   else:

@@ -78,10 +78,10 @@ class MiningReports():
 
             if length != 'all':
                 # Create a shorter version of the CSV file, last 'length' days
-                in_file = f"{sub_type}_{report_type}.csv"
+                in_file = f"{sub_type}-{report_type}.csv"
                 num_days = length.split(' ')[0]
                 rows = int(num_days) * 24 # The data contains one row per hour
-                out_file = f"{sub_type}_{report_type}_{num_days}days.csv"
+                out_file = f"{sub_type}-{report_type}-{num_days}days.csv"
                 out_handle = open(os.path.join(install_dir, csv_dir, out_file), 'w')
                 in_handle = open(os.path.join(install_dir, csv_dir, in_file), 'r')
                 in_lines = in_handle.readlines()
@@ -100,8 +100,8 @@ class MiningReports():
                 in_handle = open(os.path.join(install_dir, js_dir, in_file), 'r')
                 out_handle = open(os.path.join(install_dir, js_dir, out_file), 'w')
                 in_lines = in_handle.readlines()
-                old_csv = f"{csv_dir}/{sub_type}-{report_type}.csv"
-                new_csv = f"{csv_dir}/{sub_type}-{report_type}-{num_days}days.csv"
+                old_csv = f"{sub_type}-{report_type}.csv"
+                new_csv = f"{sub_type}-{report_type}-{num_days}days.csv"
                 for line in in_lines:
                     line = line.replace(old_csv, new_csv)
                     out_handle.write(line)
@@ -142,7 +142,12 @@ class MiningReports():
             # Read in the template file
             in_lines = in_handle.readlines()
             # Write it to the new output file
+            if length != 'all':
+                # We need to replace the Javascript target
+                old_js = f"{sub_type}-{report_type}.js"
+                new_js = f"{sub_type}-{report_type}-{num_days}days.js"
             for line in in_lines:
+                line = line.replace(old_js, new_js)
                 out_handle.write(line)
             # Clean exit....
             out_handle.close()
@@ -158,11 +163,12 @@ class MiningReports():
 
 
     def _gen_csv(self, report_type, sub_type, columns):
+        print(f"  Generating historical report: {report_type} - {sub_type}")
         # Create a filename for the CSV file to be exported
         install_dir = self._install_dir
         csv_dir = self._csv_dir
 
-        csv_filename = f"{sub_type}_{report_type}.csv"
+        csv_filename = f"{sub_type}-{report_type}.csv"
         if not os.path.exists(os.path.join(install_dir,csv_dir)):
             os.mkdir(os.path.join(install_dir, csv_dir))
             
