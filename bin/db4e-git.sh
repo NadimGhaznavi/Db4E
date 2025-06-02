@@ -8,11 +8,14 @@
 REPO_DIR=$1
 OP=$2
 
-DEBUG=True
+#DEBUG=True
 #DEBUG=False
 
-echo "Repo is ($REPO_DIR)"
-echo "Op is ($OP)"
+if [ $DEBUG == "True" ]; then
+    echo "db4e-git.sh"
+    echo "- Repo is : $REPO_DIR"
+    echo "- Op is   : $OP"
+fi
 
 if [ -z $OP ];then
     echo "Usage: $0 /path/to/repo [add|commit|push]"
@@ -24,6 +27,9 @@ if [ "$OP" == "add" ]; then
     if [ -z $FILE ]; then
         echo "Usage: $0 /path/to/repo add /path/to/repo/file"
         exit 1
+    fi
+    if [ $DEBUG == "True" ]; then
+        echo "- File is : $FILE"
     fi
     cd $REPO_DIR
     if [ $DEBUG == "True" ]; then
@@ -37,6 +43,9 @@ elif [ "$OP" == "commit" ]; then
     if [ -z "$MSG" ]; then
         echo "Usage: $0 commit \"Log message\""
         exit 1
+    fi
+    if [ $DEBUG == "True" ]; then
+        echo "- Log msg : $MSG"
     fi
     cd $REPO_DIR
     if [ $DEBUG == "True" ]; then 

@@ -108,7 +108,7 @@ class MiningReports():
                 out_handle.close()
                 in_handle.close()
                 print(f"  Exported: {os.path.join(install_dir, js_dir,out_file)}")
-                self.git.add(os.path.join(csv_dir, out_file))
+                self.git.add(os.path.join(js_dir, out_file))
 
             # Create a GitHub MD file using a template
             in_file = f"{sub_type}_{report_type}.tmpl"
