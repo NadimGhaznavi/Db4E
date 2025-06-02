@@ -24,7 +24,7 @@ export:
   reports: reports.yml
   export_dir: /opt/prod/db4e/data
   csv_dir: csv
-  template_dir: pages/tmpl
+  template_dir: tmpl
   reports_dir: pages/reports
   p2pool_payouts_csv: p2pool_payouts.csv
   blocks_found_csv: blocks_found.csv
