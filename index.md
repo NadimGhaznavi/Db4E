@@ -13,14 +13,14 @@ title: The Database 4 Everything
   </div>
  </div>
 
-This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html), [realtime web based visualizations](/pages/web/index.html) and [custom scheduled reports](/pages/reports/index.html) to monitor a local Monero XMR Mining farm using a local P2Pool node. 
+This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html), [realtime web based visualizations](/pages/web/index.html) and [custom scheduled reports](#custom-scheduled-reports) to monitor a local Monero XMR Mining farm using a local P2Pool node. 
 
 ---
 
 # Table of Contents
 
 * [Realtime Data on the Web](#realtime-data-on-the-web)
-* [Custom Scheduled Reports](#scheduled-reports)
+* [Custom Scheduled Reports](#custom-scheduled-reports)
 * [Technology Stack](#technology-stack)
 * [Codebase Architecture](#codebase-architecture)
 * [Systems Configuration](#systems-configuration)
