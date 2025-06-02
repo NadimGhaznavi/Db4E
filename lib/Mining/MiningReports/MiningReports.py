@@ -173,7 +173,7 @@ class MiningReports():
         # Loop through the hashrate data and populate the CSV file
         report_data = self._get_data(report_type, sub_type)
 
-        if report_type == 'hashrates':
+        if report_type == 'hashrate':
             for row in report_data:
                 # Get the timestamp and convert it to a date string
                 timestamp = row['timestamp'] + ':00:00'

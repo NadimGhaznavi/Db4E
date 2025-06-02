@@ -4,7 +4,7 @@
 # Each report has a type, a title, and a length.
 
 # Pool Hashrate - 30 days
-- report_type: hashrates
+- report_type: hashrate
   sub_type: pool
   title: Hashrate of the Local Pool in KH/s
   units: KH/s
@@ -12,7 +12,7 @@
   length: 30 days
 
 # Sidechain Hashrate - 60 days
-- report_type: hashrates
+- report_type: hashrate
   sub_type: sidechain
   title: Hashrate of the Sidechain in MH/s
   units: MH/s
@@ -20,7 +20,7 @@
   length: 60 days
 
 # Mainchain - All
-- report_type: hashrates
+- report_type: hashrate
   sub_type: mainchain
   title: Hashrate of the Mainchain in GH/s
   units: GH/s
