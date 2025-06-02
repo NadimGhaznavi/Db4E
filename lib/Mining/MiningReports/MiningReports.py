@@ -5,6 +5,7 @@ Mining/MiningReports/MiningReports.py
 import yaml
 import os, sys
 from datetime import datetime
+import shutil
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -25,6 +26,7 @@ class MiningReports():
     def __init__(self, log_func=None):
         # Set up the logger function
         self.log = log_func
+
         # Load the configuration 
         config = Db4eConfig()
         self._install_dir = config.config['db4e']['install_dir']
@@ -49,6 +51,10 @@ class MiningReports():
 
         # We'll create a reports summary page as well
         self._report_links = []
+
+        # Clean out any old CSV files, reports and the old table of contents
+        shutil.rmtree(self._csv_dir)
+        shutil.rmtree(self._reports_dir)
 
     def run(self):
         """
@@ -214,14 +220,15 @@ class MiningReports():
         date_str = datetime.now().strftime("%Y-%m-%d")
         toc_handle.write(f'date: {date_str}\n')
         toc_handle.write('---\n\n')
-        toc_handle.write('# Reports\n\n')
         for link in self._report_links:
             toc_handle.write(f'* {link}\n')
         self.git.add(os.path.join(install_dir, reports_dir, toc_file))
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         toc_handle.write(f'\nLast updated: {datetime_str}\n')
         toc_handle.close()
+        self.git.add(os.path.join(install_dir, reports_dir, toc_file))
         print(f"  Exported: {os.path.join(install_dir, reports_dir, toc_file)}")
+
 
     def _load_reports(self):
         yaml_file = os.path.join(self._install_dir, self._conf_dir, self._yaml_file)
