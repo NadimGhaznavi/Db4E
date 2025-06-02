@@ -24,7 +24,7 @@ This is the home of the **db4e**, the **Database 4 Everything**  project. The **
 * [Technology Stack](#technology-stack)
 * [Codebase Architecture](#codebase-architecture)
 * [Systems Configuration](#systems-configuration)
-* [Software Build Documentation](#software-build-documentation)
+* [Software Build and Install Documentation](#software-build-and-install-documentation)
 * [Hardware](#hardware)
 * [Links](#links)
 
