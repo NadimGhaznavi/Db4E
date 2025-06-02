@@ -1,13 +1,19 @@
 ---
 layout: post
-title: Pool Hashrate in KH/s
-date: 2025-06-02
+title: Hashrate of the Local Pool
+date: 2025-06-02---
+
+Last updated: 2025-06-02 02:02
 ---
-Last updated: 2025-06-02 01:51
+layout: post
+title: Pool Hashrate in KH/s
+date: [[DATE]]
+---
+Last updated: [[DATETIME]]
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="/assets/js/pool_hashrates_30days.js"></script>
+<script src="/assets/js/[[JSFILE]]"></script>
  
 <div id="wrapper">
   <div id="areaChart">
