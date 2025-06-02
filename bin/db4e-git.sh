@@ -9,7 +9,7 @@ REPO_DIR=$1
 OP=$2
 
 #DEBUG=True
-#DEBUG=False
+DEBUG=False
 
 if [ $DEBUG == "True" ]; then
     echo "db4e-git.sh"

@@ -141,8 +141,11 @@ class MiningReports():
             print(f"  Exported: {os.path.join(install_dir, reports_dir, out_file)}")
             self.git.add(os.path.join(reports_dir, out_file))
             print("-" * 40)
+
+        print("Pushing reports to GitHub: ", end='')
         self.git.commit("New reports")
         self.git.push()
+        print("Done")
 
 
     def _gen_csv(self, report_type, sub_type, columns):
