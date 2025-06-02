@@ -18,6 +18,7 @@ for db4e_dir in db4e_dirs:
 
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
+from Db4eGit.Db4eGit import Db4eGit
 
 class MiningReports():
   
@@ -43,8 +44,8 @@ class MiningReports():
         self._fresh['sidechain'] = False
         self._fresh['mainchain'] = False
 
-        # Track which files have been created
-        self._report_files = []
+        # Get a db4e Git object
+        self.git = Db4eGit(self._install_dir)
 
     def run(self):
         """
@@ -91,8 +92,7 @@ class MiningReports():
                 out_handle.close()
                 in_handle.close()
                 print(f"  Exported: {os.path.join(install_dir, csv_dir, out_file)}")
-                self._report_files.append(os.path.join(install_dir, csv_dir, out_file))
-
+                self.git.add(os.path.join(csv_dir, out_file))
 
                 # Create a copy of the Javascript file with the updated filename
                 in_file = f"{sub_type}_{report_type}.js"
@@ -108,7 +108,7 @@ class MiningReports():
                 out_handle.close()
                 in_handle.close()
                 print(f"  Exported: {os.path.join(install_dir, js_dir,out_file)}")
-                self._report_files.append(os.path.join(install_dir, csv_dir, out_file))
+                self.git.add(os.path.join(csv_dir, out_file))
 
             # Create a GitHub MD file using a template
             in_file = f"{sub_type}_{report_type}.tmpl"
@@ -139,9 +139,11 @@ class MiningReports():
             out_handle.close()
             in_handle.close()
             print(f"  Exported: {os.path.join(install_dir, reports_dir, out_file)}")
-            self._report_files.append(os.path.join(install_dir, reports_dir, out_file))
-            
+            self.git.add(os.path.join(reports_dir, out_file))
             print("-" * 40)
+        self.git.commit("New reports")
+        self.git.push()
+
 
     def _gen_csv(self, report_type, sub_type, columns):
         # Create a filename for the CSV file to be exported
@@ -169,7 +171,7 @@ class MiningReports():
                 csv_handle.write(csv_row)
             csv_handle.close()
             print(f"  Exported: {os.path.join(install_dir, csv_dir, csv_filename)}")
-            self._report_files.append(os.path.join(install_dir, csv_dir, csv_filename))
+            self.git.add(os.path.join(csv_dir, csv_filename))
 
     def _load_reports(self):
         yaml_file = os.path.join(self._install_dir, self._conf_dir, self._yaml_file)
@@ -182,9 +184,4 @@ class MiningReports():
         doc_name = f"{sub_type}_{report_type}"
         return db.get_docs(doc_name)
 
-if __name__ == "__main__":
-    # Create an instance of MiningReports to test loading the configuration
-    reports = MiningReports()
-
-    reports.run()
     
