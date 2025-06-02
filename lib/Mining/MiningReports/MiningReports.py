@@ -234,7 +234,7 @@ class MiningReports():
         sub_type    = report['sub_type']
         length      = report['length']
         install_dir = self._install_dir
-        js_dir = self._js_dir
+        js_dir      = self._js_dir
 
         num_days = length.split(' ')[0]
 
@@ -302,7 +302,7 @@ class MiningReports():
         in_lines = in_handle.readlines()
         # Write it to the new output file
         old_js = f'{sub_type}-{report_type}.js'
-        new_js = f'{report_type}/{sub_type}-{report_type}-{num_days}days.js'
+        new_js = f'{sub_type}-{report_type}-{num_days}days.js'
         for line in in_lines:
             if length != 'all':
                 line = line.replace(old_js, new_js)
