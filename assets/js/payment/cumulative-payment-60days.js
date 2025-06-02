@@ -1,4 +1,4 @@
-const csvUrl = '/csv/payment/cumulative_payment.csv';
+const csvUrl = '/csv/payment/cumulative-payment-60days.csv';
 const dateData = [];
 const totalData = [];
 
