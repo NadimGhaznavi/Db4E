@@ -22,7 +22,7 @@ for db4e_dir in db4e_dirs:
 
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
-from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
+from MiningReports.MiningReports import MiningReports
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
@@ -240,8 +240,9 @@ class P2Pool():
       self.log(f"  Wallet Balance   : {wallet_balance} XMR")
       db = self.db()
       db.add_xmr_payment(timestamp, payout)
-      p2poolcsv = P2PoolPaymentCsv(self.log)
-      p2poolcsv.new_p2pool_payment_csv()
+      reports = MiningReports(self.log, 'payment')
+      reports.run()
+      
 
   def monitor_log(self):
     log_filename = self._p2pool_log

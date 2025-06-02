@@ -25,6 +25,8 @@ Note that the graph is remarkably linear with a few exceptions:
   * 2024-05-17 10:03:26	Bonus: 7798.6kH/s	Round: vip
 * The slight increase from mid June, 2024 till the end of the month is when I burned through about $750 free credits of cloud resources and I setup various container configurations (1 CPU up to 8 CPU with 8 Gb up to 32 Gb) to mine in the cloud.
 * I added two miners with a modest hash rate of about 750 H/s and 215 H/a in early October, 2024 and you can see the slight increase in the slope of the graph.
+* In May of 2025 I added islands.osoyalce.com to the mining farm 
+* Also in May of 2025 brat.osoyalce.com finally died, it was an old micro-mini
 
 Here's a snapshot (taken on November 11, 2024) showing the hashrates of the workers in the mining farm:
 ```

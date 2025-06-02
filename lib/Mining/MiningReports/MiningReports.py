@@ -25,7 +25,7 @@ from Db4eGit.Db4eGit import Db4eGit
 
 class MiningReports():
   
-    def __init__(self, log_func=None):
+    def __init__(self, log_func=None, report_type=None):
         # Set up the logger function
         self.log = log_func
 
@@ -37,7 +37,11 @@ class MiningReports():
         self._csv_dir = config.config['export']['csv_dir']
         self._templates_dir = config.config['export']['template_dir']
         self._reports_dir = config.config['export']['reports_dir']
-        self._yaml_file = config.config['export']['reports']
+
+        if report_type:
+            self._yaml_file = report_type
+        else:
+            self._yaml_file = config.config['export']['reports']
         
         # Load the report definitions from the YAML file
         self._load_reports()
