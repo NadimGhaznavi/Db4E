@@ -1,5 +1,6 @@
-# Report definitions for payments received for mining
+# Report definitions for XMR payments received for mining
 #
+# Use `db4e.py -r payments` to generate these reports manually.
 
 # Daily Payments - 30 days
 - report_type: payment

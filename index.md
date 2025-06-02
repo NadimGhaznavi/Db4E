@@ -51,7 +51,7 @@ The *db4e* application supports defining custom reports using a simple YAML file
   * Generates hashrate reports on the local pool, sidechain and mainchain
   * [Report definition file](/conf/reports/hashrates.yml)
 
-* [Payment reports](/pages/reports/payments/index.html)
+* [Payment reports](/pages/reports/payment/index.html)
   * Updated whenever a mining payment is received
   * Daily and cummulative totals
   * [Report definition file](/conf/reports/payments.yml)

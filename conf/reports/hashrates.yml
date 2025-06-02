@@ -1,6 +1,6 @@
-# Report definitions for db4e
+# Hashrate report definitions for db4e
 #
-# This file defines db4e reports. Use 'db4e.py -a run_reports' to generate these reports.
+# Use 'db4e.py -r hashrates' to generate these reports.
 
 # Pool Hashrate - 30 days
 - report_type: hashrate
