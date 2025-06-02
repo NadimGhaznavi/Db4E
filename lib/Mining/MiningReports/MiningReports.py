@@ -341,7 +341,7 @@ class MiningReports():
         in_file = f"{sub_type}-{report_type}.tmpl"
 
         if Sub_type == None:
-            # blockfound reports do not have a sub_type
+            # blocksfound reports do not have a sub_type
             in_file = f'{report_type}.tmpl'
             if length == 'all':
                 out_file = f'{Report_type}.md'
