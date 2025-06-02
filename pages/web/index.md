@@ -1,10 +1,10 @@
 ---
-title: Data Visualizations
+title: Reports
 ---
 
-# Realtime Data Visualizations
+# Automated Reports
 
-The visualizations here are created and updated automatically, zero manual steps.
+The reports here are created and updated automatically, zero manual steps.
 
 * [Hashrate reports](/pages/reports/hashrate/index.html)
   * Run hourly with a cronjob
