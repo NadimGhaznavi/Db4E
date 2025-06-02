@@ -149,9 +149,7 @@ class MiningReports():
             date_str = datetime.now().strftime("%Y-%m-%d")
             out_handle.write(f'date: {date_str}\n')
             out_handle.write('---\n\n')
-            datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-            out_handle.write(f'Last updated: {datetime_str}\n')
-
+            
             # Read in the template file
             in_lines = in_handle.readlines()
             # Write it to the new output file
@@ -162,6 +160,13 @@ class MiningReports():
             for line in in_lines:
                 line = line.replace(old_js, new_js)
                 out_handle.write(line)
+            if length == 'all':
+                out_handle.write(f'* Days of data: all available\n')
+            else:
+                out_handle.write(f'* Days of data: {num_days}\n')
+            datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+            out_handle.write(f'* Last updated: {datetime_str}\n')
+
             # Clean exit....
             out_handle.close()
             in_handle.close()

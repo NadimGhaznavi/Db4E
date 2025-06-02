@@ -152,6 +152,28 @@ class MiningDb():
       }
       mining_col.insert_one(hourly_doc)  
 
+  def add_sidechain_miners(self, num_miners):
+    """
+    Store the sidechain hashrate
+    """
+    db = self.db().db()
+    mining_col = db['mining']
+    # Add an hourly "historical" JSON doc
+    timestamp = datetime.now().strftime("%Y-%m-%d %H")
+    hourly_doc = mining_col.find_one({'doc_type': 'sidechain_miners', 'timestamp': timestamp})
+    if hourly_doc:
+      # Update the existing hourly doc
+      new_values = { "$set": {'num_miners': num_miners}}
+      mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
+    else:
+      # Create a new hourly doc
+      hourly_doc = {
+        'doc_type': 'sidechain_miners',
+        'timestamp': timestamp,
+        'sidechain_miners': num_miners
+      }
+      mining_col.insert_one(hourly_doc)  
+
   def add_to_wallet(self, amount):
     db = self.db().db()
     mining_col = db['mining']

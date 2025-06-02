@@ -47,7 +47,7 @@ if action:
     balance = db.get_wallet_balance()
     print(f"Wallet balance: {balance} XMR")
   elif action == 'monitor_p2pool_log':
-    p2pool = P2Pool()
+    p2pool = P2Pool(log_func)
     p2pool.monitor_log()
   elif action == 'new_p2pool_payment_csv':
     csv = P2PoolPaymentCsv(log_func)
