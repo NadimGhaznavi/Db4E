@@ -1,4 +1,4 @@
-const csvUrl = '/csv/pool-hashrate-90days.csv';
+const csvUrl = '/csv/hashrate/pool-hashrate-90days.csv';
 const dateData = [];
 const hashData = [];
 
