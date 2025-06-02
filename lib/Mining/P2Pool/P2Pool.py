@@ -89,8 +89,9 @@ class P2Pool():
     Sample log message to watch for:
 
     Main chain hashrate       = 3.105 GH/s
+    Main chain hashrate       = 5.079 GH/s
     """
-    pattern = r"Mainchain hashrate .* = (?P<hashrate>.*H/s)"
+    pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
     match = re.search(pattern, log_line)
     localtime = datetime.now().strftime("%H:%M")
     if match:
@@ -103,9 +104,10 @@ class P2Pool():
     """
     Sample log message to watch for:
 
-    Hashrate (1h  est) = 6.610 KH/s
+    Your hashrate (pool-side) = 13.137 KH/s
+    Hashrate (1h  est)   = 7.384 KH/s
     """
-    pattern = r"Hashrate .*1h.* = (?P<hashrate>.*H/s)"
+    pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>.*H/s)"
     match = re.search(pattern, log_line)
     localtime = datetime.now().strftime("%H:%M")
     if match:
@@ -179,7 +181,7 @@ class P2Pool():
 
     Side chain hashrate       = 12.291 MH/s
     """
-    pattern = r"Sidechain hashrate .* = (?P<hashrate>.*H/s)"
+    pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
     match = re.search(pattern, log_line)
     localtime = datetime.now().strftime("%H:%M")
     if match:
@@ -242,7 +244,6 @@ class P2Pool():
       db.add_xmr_payment(timestamp, payout)
       reports = MiningReports(self.log, 'payment')
       reports.run()
-      
 
   def monitor_log(self):
     log_filename = self._p2pool_log

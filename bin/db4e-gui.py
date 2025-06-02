@@ -23,7 +23,6 @@ for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
 from P2Pool.P2Pool import P2Pool
-from P2PoolPaymentCsv.P2PoolPaymentCsv import P2PoolPaymentCsv
 from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
