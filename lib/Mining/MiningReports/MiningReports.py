@@ -6,6 +6,8 @@ import yaml
 import os, sys
 from datetime import datetime
 import shutil
+from bson.decimal128 import Decimal128
+from decimal import Decimal
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -135,18 +137,64 @@ class MiningReports():
         # Loop through the hashrate data and populate the CSV file
         report_data = self._get_data(report_type, sub_type)
 
-        if report_type == 'hashrate' or report_type == 'payment':
+        if report_type == 'hashrate':
             for row in report_data:
                 # Get the timestamp and convert it to a date string
                 timestamp = row['timestamp'] + ':00:00'
-                # The hashrate data is in KH/s (e.g. "6.889 KH/s")
+                # The hashrate data includes units (e.g. "6.889 KH/s")
                 hashrate_value = row['hashrate'].split(' ')[0]
                 csv_row = f"{timestamp},{hashrate_value}\n"
                 csv_handle.write(csv_row)
-            csv_handle.close()
-            export_file = os.path.join(install_dir, csv_dir, report_type, csv_filename)
-            print(f"  Exported: {export_file}")
-            self.git.add(export_file)
+
+        elif report_type == 'payment' and sub_type == 'daily':
+            daily_payments = {}
+            timestamps = []
+            for row in report_data:
+                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                payment = Decimal(row['payment'].to_decimal())
+                # Aggregate the daily payouts
+                if timestamp not in daily_payments:
+                    daily_payments[timestamp] = payment
+                else:
+                    daily_payments[timestamp] += payment
+                # Get a list of unique timestamps
+                if timestamp not in timestamps:
+                    timestamps.append(timestamp)
+            timestamps.sort()
+            for timestamp in timestamps:
+                csv_row = f'{timestamp},{daily_payments[timestamp]}\n'
+                csv_handle.write(csv_row)
+
+        elif report_type == 'payment' and sub_type == 'cumulative':
+            daily_payments = {}
+            timestamps = []
+            for row in report_data:
+                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                payment = Decimal(row['payment'].to_decimal())
+                # Aggregate the daily payouts
+                if timestamp not in daily_payments:
+                    daily_payments[timestamp] = payment
+                else:
+                    daily_payments[timestamp] += payment
+                # Get a list of unique timestamps
+                if timestamp not in timestamps:
+                    timestamps.append(timestamp)
+            timestamps.sort()
+            first_total = True
+            for timestamp in timestamps:
+                cur_pay = daily_payments[timestamp]
+                if first_total == True:
+                    first_total = False
+                    cur_total = 0
+                cur_total += cur_pay
+                csv_row = f'{timestamp},{cur_total}\n'
+                csv_handle.write(csv_row)
+               
+            
+        csv_handle.close()
+        export_file = os.path.join(install_dir, csv_dir, report_type, csv_filename)
+        print(f"  Exported: {export_file}")
+        self.git.add(export_file)
 
     def _gen_csv_short(self, report):
         # Create a shorter version of the CSV file, last 'length' days
@@ -165,7 +213,10 @@ class MiningReports():
 
         # Read and Write
         in_lines = in_handle.readlines()
-        rows = int(num_days) * 24 # The data contains one row per hour
+        if report_type == 'hashrate':
+            rows = int(num_days) * 24 # The data contains one row per hour
+        elif report_type == 'payment':
+            rows = int(num_days)
         out_handle.write(in_lines[0])  # Write the header line
         # Get the last 'rows' rows from the long file
         for line in in_lines[-rows:]:
@@ -296,7 +347,10 @@ class MiningReports():
     def _get_data(self, report_type, sub_type):
         # Get the latest data from the MiningDb
         db = MiningDb()
-        doc_name = f"{sub_type}_{report_type}"
+        if report_type == 'hashrate':
+            doc_name = f"{sub_type}_{report_type}"
+        elif report_type == 'payment':
+            doc_name = 'xmr_payment'
         return db.get_docs(doc_name)
 
     def _load_reports(self):
