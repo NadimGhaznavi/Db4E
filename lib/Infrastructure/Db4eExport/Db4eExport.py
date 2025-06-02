@@ -67,7 +67,7 @@ class Db4eExport():
     self.log(f"  Exported file: {out_file}")
 
     # Generate a new markdown file
-    self.gen_md()
+    #self.gen_md()
 
   def gen_md(self):
     # Template filename

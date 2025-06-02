@@ -120,9 +120,6 @@ class MiningReports():
             if not os.path.exists(os.path.join(install_dir, reports_dir)):
                 os.mkdir(os.path.join(install_dir, reports_dir))
             out_handle = open(os.path.join(install_dir, reports_dir, out_file), 'w')
-            in_lines = in_handle.readlines()
-            date_str = datetime.now().strftime("%Y-%m-%d")
-            datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             # Generate a JavaScript filename
             if length == 'all':
@@ -130,12 +127,22 @@ class MiningReports():
             else:
                 js_file = f"{sub_type}_{report_type}_{num_days}days.js"
                 
+            # Generate the GitHub Markdown header
+            out_handle.write('---\n')
+            out_handle.write('layout: post\n')
+            out_handle.write(f'title: {title}\n')
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            out_handle.write(f'date: {date_str}')
+            out_handle.write('---\n\n')
+            datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+            out_handle.write(f'Last updated: {datetime_str}\n')
+
+            # Read in the template file
+            in_lines = in_handle.readlines()
+            # Write it to the new output file
             for line in in_lines:
-                # Replace placeholders in the template with actual values
-                line = line.replace('[[DATE]]', date_str)
-                line = line.replace('[[DATETIME]]', datetime_str)
-                line = line.replace('[[JSFILE]]', js_file)
                 out_handle.write(line)
+            # Clean exit....
             out_handle.close()
             in_handle.close()
             print(f"  Exported: {os.path.join(install_dir, reports_dir, out_file)}")
