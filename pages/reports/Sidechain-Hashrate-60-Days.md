@@ -4,11 +4,11 @@ title: Hashrate of the Sidechain in MH/s
 date: 2025-06-02
 ---
 
-Last updated: 2025-06-02 03:51
+Last updated: 2025-06-02 03:53
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="/assets/js/sidechain-hashrate.js"></script>
+<script src="/assets/js/sidechain-hashrate-60days.js"></script>
 
 <div id="wrapper">
   <div id="areaChart">
