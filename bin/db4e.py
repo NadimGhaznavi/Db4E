@@ -70,7 +70,8 @@ if 'action' in config.config['db4e']:
     print(f"ERROR: Unknown action ({action}), use '-la' to get a list of valid actions.")
 
 elif 'reports' in config.config['export']:
-  reports = MiningReports(log_func)
+  report = config.config['export']['reports']
+  reports = MiningReports(log_func, report)
   reports.run()
 
   

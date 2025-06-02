@@ -4,7 +4,6 @@ Infrastructure/Db4eConfig/Db4eConfig.py
 
 import yaml
 import argparse
-import os
 
 YAML_FILE = '/imports/disk1/github/db4e/conf/db4e.yml'
 

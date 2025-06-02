@@ -16,6 +16,10 @@ The reports here are created and updated automatically, zero manual steps.
   * Daily and cummulative totals
   * [Report definition file](/conf/reports/payments.yml)
 
+* [Blocks found on the sidechain reports](/pages/reports/blocksfound/index.html) 
+  * Generates blocks found on the sidechain
+  * [Report definition file](/conf/reports/blocksfound.yml)
+
 ---
 
 # Manual Data Load Visualization
