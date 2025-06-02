@@ -21,16 +21,20 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
 
+DB_DOC_TYPE = 'xmr_payment'
+
 class P2PoolPaymentCsv():
 
   def __init__(self, log_function):
+    self.log = log_function
     config = Db4eConfig()
-    self._debug = config.config['db4e']['debug']
-    export_dir = config.config['export']['export_dir']
+    self._debug        = config.config['db4e']['debug']
+    install_dir        = config.config['db4e']['install']
+    export_dir         = config.config['export']['export_dir']
     p2pool_payouts_csv = config.config['export']['p2pool_payouts_csv']
     self._csv_filename = os.path.join(export_dir, p2pool_payouts_csv)
     self._csv_daily_filename = os.path.join(export_dir, p2pool_payouts_csv.replace('.csv', '_daily.csv'))
-    self.log = log_function
+    self.git = Db4eGit(install_dir)
 
   def new_p2pool_payment_csv(self):
     if self._debug == 9:

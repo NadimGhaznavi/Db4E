@@ -37,7 +37,9 @@ print("Database 4 Everything")
 
 # See if the user passed in an action
 config = Db4eConfig()
-action = config.config['db4e']['action']
+action = None
+if 'action' in config.config['db4e']:
+  action = config.config['db4e']['action']
 logger = Db4eLog()
 log_func = logger.log_msg
 
