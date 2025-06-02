@@ -18,6 +18,8 @@ class Db4eConfig():
         parser = argparse.ArgumentParser(description='DB4E Configuration')
         
         parser.add_argument('-a', '--action', default='None', type=str, help='Do -la to list all actions. ')
+        parser.add_argument('-r', '--reports', default='None', type=str, help='Run a set of reports.')
+        parser.add_argument('-bs', '--block_size', default=0, type=int, help='Game board square size.')
         parser.add_argument('-la', '--list_actions', action='store_true', help='List all available actions.')
 
         args = parser.parse_args()
@@ -32,12 +34,14 @@ class Db4eConfig():
             print("  backup_db                    : Backup MongoDB and push the backup to GitHub.")
             print("  monitor_p2pool_log           : Start monitoring the P2Pool daemon log.")
             print("  get_wallet_balance           : Get the wallet balance from MongoDb.")
-            print("  run_reports                  : Generate new reports.")
             exit(0)
 
         # Parse any command line args
         if args.action != 'None':
             self.config['db4e']['action'] = args.action
+        
+        if args.reports != 'None':
+            self.config['export']['reports'] = args.reports
 
     def get(self, key):
         """

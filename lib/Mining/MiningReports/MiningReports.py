@@ -33,29 +33,21 @@ class MiningReports():
         self._conf_dir = config.config['db4e']['conf_dir']
         self._js_dir = config.config['db4e']['js_dir']
         self._csv_dir = config.config['export']['csv_dir']
-        self._yaml_file = config.config['export']['reports']
         self._templates_dir = config.config['export']['template_dir']
         self._reports_dir = config.config['export']['reports_dir']
+        self._yaml_file = config.config['export']['reports']
         
         # Load the report definitions from the YAML file
         self._load_reports()
 
-        # Define some state information
+        # Keep track of the data we've extracted
         self._fresh = {}
-        self._fresh['pool'] = False
-        self._fresh['sidechain'] = False
-        self._fresh['mainchain'] = False
-        self._fresh['payments'] = False
 
         # Get a db4e Git object
         self.git = Db4eGit(self._install_dir)
 
         # We'll create a reports summary page as well
         self._report_links = []
-
-        # Clean out any old CSV files, reports and the old table of contents
-        shutil.rmtree(self._csv_dir)
-        shutil.rmtree(self._reports_dir)
 
     def run(self):
         """
@@ -65,11 +57,13 @@ class MiningReports():
 
         self._load_reports()
 
+        report_type = None
         for report in self._reports:
+            report_type = report['report_type']
             self.run_report(report)
 
         # Generate a list of reports on a Github MD page
-        self._gen_toc()
+        self._gen_toc(report_type)
 
         print("Pushing reports to GitHub: ", end='')
         self.git.commit("New reports")
@@ -78,76 +72,166 @@ class MiningReports():
 
 
     def run_report(self, report):
-        install_dir = self._install_dir
-        csv_dir = self._csv_dir
-        js_dir = self._js_dir
-        templates_dir = self._templates_dir
+        report_type = report['report_type']
+        sub_type    = report['sub_type']
+        length      = report['length']
+        columns     = report.get('columns', None)
         reports_dir = self._reports_dir
 
-        report_type = report['report_type']
         Report_type = report_type.capitalize()
-        sub_type = report['sub_type']
         Sub_type = sub_type.capitalize()
-        title = report['title']
-        length = report['length']
-        columns = report.get('columns', None)
+        num_days = length.split(' ')[0]
 
-        print(f"Generating report: {report_type} - {sub_type} - {length}")
-        url_link =  f"[{Sub_type} {Report_type}](/{reports_dir}/{Sub_type}-{Report_type}.html)"
+        # A link to the doc for the TOC
+        url_link =  f"[{Sub_type} {Report_type}](/{reports_dir}/{report_type}/{Sub_type}-{Report_type}.html)"
 
-
-        if not self._fresh[sub_type]:
+        if sub_type not in self._fresh:
             # If the complete chain CSV data file has not been created, then create it
             self._fresh[sub_type] = True
             # This CSV file is used if the length of the report is 'all'
             self._gen_csv(report_type, sub_type, columns)
+
+            # Generate a Github MD file for this data source
+            original_length = report['length']
+            report['length'] = 'all'
+            self._gen_md(report)
+            report['length'] = original_length
+
+            # A link to the new document for the TOC
             self._report_links.append(url_link)
 
         if length != 'all':
-            num_days = length.split(' ')[0]
-            url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
+            print(f"Generating {sub_type} {report_type} report with {length} of data")
+            # A link to the doc for the TOC
+            url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{report_type}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
             # Create a shorter version of the CSV file, last 'length' days
-            in_file = f"{sub_type}-{report_type}.csv"
-            rows = int(num_days) * 24 # The data contains one row per hour
-            out_file = f"{sub_type}-{report_type}-{num_days}days.csv"
-            out_handle = open(os.path.join(install_dir, csv_dir, out_file), 'w')
-            in_handle = open(os.path.join(install_dir, csv_dir, in_file), 'r')
-            in_lines = in_handle.readlines()
-            out_handle.write(in_lines[0])  # Write the header line
-            # Get the last 'rows' rows from the long file
-            for line in in_lines[-rows:]:
-                out_handle.write(line)
-            out_handle.close()
-            in_handle.close()
-            print(f"  Exported: {os.path.join(install_dir, csv_dir, out_file)}")
-            self.git.add(os.path.join(csv_dir, out_file))
-            
+            self._gen_csv_short(report)
             # Create a copy of the Javascript file with the updated filename
-            in_file = f"{sub_type}-{report_type}.js"
-            out_file = f"{sub_type}-{report_type}-{num_days}days.js"
-            in_handle = open(os.path.join(install_dir, js_dir, in_file), 'r')
-            out_handle = open(os.path.join(install_dir, js_dir, out_file), 'w')
-            in_lines = in_handle.readlines()
-            old_csv = f"{sub_type}-{report_type}.csv"
-            new_csv = f"{sub_type}-{report_type}-{num_days}days.csv"
-            for line in in_lines:
-                line = line.replace(old_csv, new_csv)
-                out_handle.write(line)
-            out_handle.close()
-            in_handle.close()
-            print(f"  Exported: {os.path.join(install_dir, js_dir,out_file)}")
-            self.git.add(os.path.join(js_dir, out_file))
-
+            self._gen_js(report)
+            
         # Create a GitHub MD file using a template
+        self._gen_md(report)
+        # Create a link to the report for the TOC
+        self._report_links.append(url_link)
+        print("-" * 40)
+
+
+    def _gen_csv(self, report_type, sub_type, columns):
+        print(f'Generating historical {sub_type} {report_type} report')
+        # Create a filename for the CSV file to be exported
+        install_dir = self._install_dir
+        csv_dir = self._csv_dir
+
+        csv_filename = f"{sub_type}-{report_type}.csv"
+        if not os.path.exists(os.path.join(install_dir,csv_dir)):
+            os.mkdir(os.path.join(install_dir, csv_dir))
+        if not os.path.exists(os.path.join(install_dir,csv_dir, report_type)):
+            os.mkdir(os.path.join(install_dir, csv_dir, report_type))
+            
+        csv_handle = open(os.path.join(install_dir, csv_dir, report_type, csv_filename), 'w')
+
+        # Write the header to the CSV file
+        csv_handle.write(columns + '\n')
+        # Loop through the hashrate data and populate the CSV file
+        report_data = self._get_data(report_type, sub_type)
+
+        if report_type == 'hashrate' or report_type == 'payment':
+            for row in report_data:
+                # Get the timestamp and convert it to a date string
+                timestamp = row['timestamp'] + ':00:00'
+                # The hashrate data is in KH/s (e.g. "6.889 KH/s")
+                hashrate_value = row['hashrate'].split(' ')[0]
+                csv_row = f"{timestamp},{hashrate_value}\n"
+                csv_handle.write(csv_row)
+            csv_handle.close()
+            export_file = os.path.join(install_dir, csv_dir, report_type, csv_filename)
+            print(f"  Exported: {export_file}")
+            self.git.add(export_file)
+
+    def _gen_csv_short(self, report):
+        # Create a shorter version of the CSV file, last 'length' days
+        report_type = report['report_type']
+        sub_type    = report['sub_type']
+        length      = report['length']
+        install_dir = self._install_dir
+        csv_dir     = self._csv_dir
+
+        num_days = length.split(' ')[0]
+
+        in_file = f"{sub_type}-{report_type}.csv"
+        out_file = f"{sub_type}-{report_type}-{num_days}days.csv"
+        in_handle = open(os.path.join(install_dir, csv_dir, report_type, in_file), 'r')
+        out_handle = open(os.path.join(install_dir, csv_dir, report_type, out_file), 'w')
+
+        # Read and Write
+        in_lines = in_handle.readlines()
+        rows = int(num_days) * 24 # The data contains one row per hour
+        out_handle.write(in_lines[0])  # Write the header line
+        # Get the last 'rows' rows from the long file
+        for line in in_lines[-rows:]:
+            out_handle.write(line)
+        # Close the files, print some output and issue a 'git add <file>'
+        out_handle.close()
+        in_handle.close()
+        export_file = os.path.join(install_dir, csv_dir, report_type, out_file)
+        print(f"  Exported: {export_file}")
+        self.git.add(export_file)
+        
+    def _gen_js(self, report):
+        # Create a copy of the Javascript file with the updated filename
+        report_type = report['report_type']
+        sub_type    = report['sub_type']
+        length      = report['length']
+        install_dir = self._install_dir
+        js_dir = self._js_dir
+
+        num_days = length.split(' ')[0]
+
+        in_file = f"{sub_type}-{report_type}.js"
+        out_file = f"{sub_type}-{report_type}-{num_days}days.js"
+        in_handle = open(os.path.join(install_dir, js_dir, report_type, in_file), 'r')
+        out_handle = open(os.path.join(install_dir, js_dir, report_type, out_file), 'w')
+
+        # Read and Write
+        in_lines = in_handle.readlines()
+        old_csv = f"{sub_type}-{report_type}.csv"
+        new_csv = f"{sub_type}-{report_type}-{num_days}days.csv"
+        for line in in_lines:
+            line = line.replace(old_csv, new_csv)
+            out_handle.write(line)
+        # Close out nicely
+        out_handle.close()
+        in_handle.close()
+        export_file = os.path.join(install_dir, js_dir, report_type, out_file)
+        print(f"  Exported: {export_file}")
+        self.git.add(export_file)
+
+    def _gen_md(self, report):
+        # Generate a Github MD file for the new report
+        report_type   = report['report_type']
+        sub_type      = report['sub_type']
+        title         = report['title']
+        length        = report['length']
+        install_dir   = self._install_dir
+        templates_dir = self._templates_dir
+        reports_dir   = self._reports_dir
+
+        Report_type = report_type.capitalize()
+        Sub_type = sub_type.capitalize()
+        num_days = length.split(' ')[0]
+
         in_file = f"{sub_type}-{report_type}.tmpl"
         if length == 'all':
             out_file = f"{Sub_type}-{Report_type}.md"
         else:
             out_file = f"{Sub_type}-{Report_type}-{num_days}-Days.md"
-        in_handle = open(os.path.join(install_dir, templates_dir, in_file), 'r')
+
+        in_handle = open(os.path.join(install_dir, templates_dir, report_type, in_file), 'r')
         if not os.path.exists(os.path.join(install_dir, reports_dir)):
             os.mkdir(os.path.join(install_dir, reports_dir))
-        out_handle = open(os.path.join(install_dir, reports_dir, out_file), 'w')
+        if not os.path.exists(os.path.join(install_dir, reports_dir, report_type)):
+            os.mkdir(os.path.join(install_dir, reports_dir, report_type))
+        out_handle = open(os.path.join(install_dir, reports_dir, report_type, out_file), 'w')
 
         # Generate a JavaScript filename
         if length == 'all':
@@ -166,12 +250,11 @@ class MiningReports():
         # Read in the template file
         in_lines = in_handle.readlines()
         # Write it to the new output file
-        if length != 'all':
-            # We need to replace the Javascript target
-            old_js = f"{sub_type}-{report_type}.js"
-            new_js = f"{sub_type}-{report_type}-{num_days}days.js"
+        old_js = f'{sub_type}-{report_type}.js'
+        new_js = f'{report_type}/{sub_type}-{report_type}-{num_days}days.js'
         for line in in_lines:
-            line = line.replace(old_js, new_js)
+            if length != 'all':
+                line = line.replace(old_js, new_js)
             out_handle.write(line)
         if length == 'all':
             out_handle.write(f'* Days of data: all available\n')
@@ -183,50 +266,20 @@ class MiningReports():
         # Clean exit....
         out_handle.close()
         in_handle.close()
-        print(f"  Exported: {os.path.join(install_dir, reports_dir, out_file)}")
-        self.git.add(os.path.join(reports_dir, out_file))
-        self._report_links.append(url_link)
-        print("-" * 40)
+        export_file = os.path.join(install_dir, reports_dir, report_type, out_file)
+        print(f"  Exported: {export_file}")
+        self.git.add(export_file)
 
-
-    def _gen_csv(self, report_type, sub_type, columns):
-        print(f"  Generating historical report: {report_type} - {sub_type}")
-        # Create a filename for the CSV file to be exported
-        install_dir = self._install_dir
-        csv_dir = self._csv_dir
-
-        csv_filename = f"{sub_type}-{report_type}.csv"
-        if not os.path.exists(os.path.join(install_dir,csv_dir)):
-            os.mkdir(os.path.join(install_dir, csv_dir))
-            
-        csv_handle = open(os.path.join(install_dir, csv_dir, csv_filename), 'w')
-
-        # Write the header to the CSV file
-        csv_handle.write(columns + '\n')
-        # Loop through the hashrate data and populate the CSV file
-        report_data = self._get_data(report_type, sub_type)
-
-        if report_type == 'hashrate':
-            for row in report_data:
-                # Get the timestamp and convert it to a date string
-                timestamp = row['timestamp'] + ':00:00'
-                # The hashrate data is in KH/s (e.g. "6.889 KH/s")
-                hashrate_value = row['hashrate'].split(' ')[0]
-                csv_row = f"{timestamp},{hashrate_value}\n"
-                csv_handle.write(csv_row)
-            csv_handle.close()
-            print(f"  Exported: {os.path.join(install_dir, csv_dir, csv_filename)}")
-            self.git.add(os.path.join(csv_dir, csv_filename))
-
-    def _gen_toc(self):
+    def _gen_toc(self, report_type):
+        Report_type = report_type.capitalize()
         install_dir = self._install_dir
         reports_dir = self._reports_dir
         toc_file = 'index.md'
-        toc_handle = open(os.path.join(install_dir, reports_dir, toc_file), 'w')
+        toc_handle = open(os.path.join(install_dir, reports_dir, report_type, toc_file), 'w')
         # Generate the GitHub Markdown header
         toc_handle.write('---\n')
         toc_handle.write('layout: post\n')
-        toc_handle.write(f'title: Reports\n')
+        toc_handle.write(f'title: {Report_type} Reports\n')
         date_str = datetime.now().strftime("%Y-%m-%d")
         toc_handle.write(f'date: {date_str}\n')
         toc_handle.write('---\n\n')
@@ -236,19 +289,24 @@ class MiningReports():
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         toc_handle.write(f'\nLast updated: {datetime_str}\n')
         toc_handle.close()
-        self.git.add(os.path.join(install_dir, reports_dir, toc_file))
-        print(f"  Exported: {os.path.join(install_dir, reports_dir, toc_file)}")
-
-
-    def _load_reports(self):
-        yaml_file = os.path.join(self._install_dir, self._conf_dir, self._yaml_file)
-        with open(yaml_file, 'r') as file:
-            self._reports = yaml.safe_load(file)
-
+        export_file = os.path.join(install_dir, reports_dir, report_type, toc_file)
+        print(f"  Exported: {export_file}")
+        self.git.add(export_file)
+        
     def _get_data(self, report_type, sub_type):
         # Get the latest data from the MiningDb
         db = MiningDb()
         doc_name = f"{sub_type}_{report_type}"
         return db.get_docs(doc_name)
+
+    def _load_reports(self):
+        # Report files are in conf/reports
+        install_dir = self._install_dir
+        conf_dir = os.path.join(self._conf_dir, 'reports')
+        yaml_file = f'{self._yaml_file}.yml'
+        
+        with open(os.path.join(install_dir, conf_dir, yaml_file), 'r') as file:
+            self._reports = yaml.safe_load(file)
+
 
     

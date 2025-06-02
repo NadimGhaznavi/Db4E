@@ -21,7 +21,6 @@ monerod:
   stdin_pipe: monerod.stdin
 
 export:
-  reports: reports.yml
   export_dir: /opt/prod/db4e/data
   csv_dir: csv
   template_dir: tmpl
