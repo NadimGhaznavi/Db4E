@@ -90,12 +90,12 @@ class P2Pool():
 
     Main chain hashrate       = 3.105 GH/s
     """
-    pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
+    pattern = r"Mainchain hashrate .* = (?P<hashrate>.*H/s)"
     match = re.search(pattern, log_line)
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Main chain hashrate: {hashrate}")
+      self.log(f"---------- ({localtime}) Mainchain hashrate : {hashrate}")
       db = self.db()
       db.add_mainchain_hashrate(hashrate)
 
@@ -110,7 +110,7 @@ class P2Pool():
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Pool hashrate: {hashrate}")
+      self.log(f"---------- ({localtime}) Pool hashrate      : {hashrate}")
       db = self.db()
       db.add_pool_hashrate(hashrate)
 
@@ -179,19 +179,19 @@ class P2Pool():
 
     Side chain hashrate       = 12.291 MH/s
     """
-    pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
+    pattern = r"Sidechain hashrate .* = (?P<hashrate>.*H/s)"
     match = re.search(pattern, log_line)
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Side chain hashrate: {hashrate}")
+      self.log(f"---------- ({localtime}) Sidechain hashrate : {hashrate}")
       db = self.db()
       db.add_sidechain_hashrate(hashrate)
 
       # While we're at it, let's also collect the number of miners 
       # on the sidechain at this time.
       sidechain_miners = self.get_sidechain_miners()
-      self.log(f"---------- ({localtime}) Side miners: {sidechain_miners}")
+      self.log(f"---------- ({localtime}) Sidechain miners   : {sidechain_miners}")
       db.add_sidechain_miners(sidechain_miners)
 
 
