@@ -47,6 +47,9 @@ class MiningReports():
         # Get a db4e Git object
         self.git = Db4eGit(self._install_dir)
 
+        # We'll create a reports summary page as well
+        self._report_links = []
+
     def run(self):
         """
         Run the mining reports based on the loaded configuration.
@@ -62,24 +65,30 @@ class MiningReports():
 
         for report in self._reports:
             report_type = report['report_type']
+            Report_type = report_type.capitalize()
             sub_type = report['sub_type']
+            Sub_type = sub_type.capitalize()
             title = report['title']
             units = report['units']
             length = report['length']
             columns = report.get('columns', None)
 
             print(f"Generating report: {report_type} - {sub_type} - {length}")
+            url_link =  f"[{Sub_type} {Report_type}](/{reports_dir}/{Sub_type}-{Report_type}.html)"
+
 
             if not self._fresh[sub_type]:
                 # If the complete chain CSV data file has not been created, then create it
                 self._fresh[sub_type] = True
                 # This CSV file is used if the length of the report is 'all'
-                self._gen_csv(report_type, sub_type, columns) 
+                self._gen_csv(report_type, sub_type, columns)
+                self._report_links.append(url_link)
 
             if length != 'all':
+                num_days = length.split(' ')[0]
+                url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
                 # Create a shorter version of the CSV file, last 'length' days
                 in_file = f"{sub_type}-{report_type}.csv"
-                num_days = length.split(' ')[0]
                 rows = int(num_days) * 24 # The data contains one row per hour
                 out_file = f"{sub_type}-{report_type}-{num_days}days.csv"
                 out_handle = open(os.path.join(install_dir, csv_dir, out_file), 'w')
@@ -93,7 +102,7 @@ class MiningReports():
                 in_handle.close()
                 print(f"  Exported: {os.path.join(install_dir, csv_dir, out_file)}")
                 self.git.add(os.path.join(csv_dir, out_file))
-
+                
                 # Create a copy of the Javascript file with the updated filename
                 in_file = f"{sub_type}-{report_type}.js"
                 out_file = f"{sub_type}-{report_type}-{num_days}days.js"
@@ -112,8 +121,6 @@ class MiningReports():
 
             # Create a GitHub MD file using a template
             in_file = f"{sub_type}-{report_type}.tmpl"
-            Sub_type = sub_type.capitalize()
-            Report_type = report_type.capitalize()
             if length == 'all':
                 out_file = f"{Sub_type}-{Report_type}.md"
             else:
@@ -154,7 +161,11 @@ class MiningReports():
             in_handle.close()
             print(f"  Exported: {os.path.join(install_dir, reports_dir, out_file)}")
             self.git.add(os.path.join(reports_dir, out_file))
+            self._report_links.append(url_link)
             print("-" * 40)
+
+        # Generate a list of reports on a Github MD page
+        self._gen_toc()
 
         print("Pushing reports to GitHub: ", end='')
         self.git.commit("New reports")
@@ -190,6 +201,27 @@ class MiningReports():
             csv_handle.close()
             print(f"  Exported: {os.path.join(install_dir, csv_dir, csv_filename)}")
             self.git.add(os.path.join(csv_dir, csv_filename))
+
+    def _gen_toc(self):
+        install_dir = self._install_dir
+        reports_dir = self._reports_dir
+        toc_file = 'index.md'
+        toc_handle = open(os.path.join(install_dir, reports_dir, toc_file), 'w')
+        # Generate the GitHub Markdown header
+        toc_handle.write('---\n')
+        toc_handle.write('layout: post\n')
+        toc_handle.write(f'title: Reports\n')
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        toc_handle.write(f'date: {date_str}\n')
+        toc_handle.write('---\n\n')
+        toc_handle.write('# Reports\n\n')
+        for link in self._report_links:
+            toc_handle.write(f'* {link}\n')
+        self.git.add(os.path.join(install_dir, reports_dir, toc_file))
+        datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+        toc_handle.write(f'\nLast updated: {datetime_str}\n')
+        toc_handle.close()
+        print(f"  Exported: {os.path.join(install_dir, reports_dir, toc_file)}")
 
     def _load_reports(self):
         yaml_file = os.path.join(self._install_dir, self._conf_dir, self._yaml_file)
