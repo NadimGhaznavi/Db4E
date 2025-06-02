@@ -95,13 +95,13 @@ class MiningReports():
                 self.git.add(os.path.join(csv_dir, out_file))
 
                 # Create a copy of the Javascript file with the updated filename
-                in_file = f"{sub_type}_{report_type}.js"
-                out_file = f"{sub_type}_{report_type}_{num_days}days.js"
+                in_file = f"{sub_type}-{report_type}.js"
+                out_file = f"{sub_type}-{report_type}-{num_days}days.js"
                 in_handle = open(os.path.join(install_dir, js_dir, in_file), 'r')
                 out_handle = open(os.path.join(install_dir, js_dir, out_file), 'w')
                 in_lines = in_handle.readlines()
-                old_csv = f"{csv_dir}/{sub_type}_{report_type}.csv"
-                new_csv = f"{csv_dir}/{sub_type}_{report_type}_{num_days}days.csv"
+                old_csv = f"{csv_dir}/{sub_type}-{report_type}.csv"
+                new_csv = f"{csv_dir}/{sub_type}-{report_type}-{num_days}days.csv"
                 for line in in_lines:
                     line = line.replace(old_csv, new_csv)
                     out_handle.write(line)
@@ -111,11 +111,13 @@ class MiningReports():
                 self.git.add(os.path.join(js_dir, out_file))
 
             # Create a GitHub MD file using a template
-            in_file = f"{sub_type}_{report_type}.tmpl"
+            in_file = f"{sub_type}-{report_type}.tmpl"
+            Sub_type = sub_type.capitalize()
+            Report_type = report_type.capitalize()
             if length == 'all':
-                out_file = f"{sub_type}_{report_type}.md"
+                out_file = f"{Sub_type}-{Report_type}.md"
             else:
-                out_file = f"{sub_type}_{report_type}_{num_days}days.md"
+                out_file = f"{Sub_type}-{Report_type}-{num_days}-Days.md"
             in_handle = open(os.path.join(install_dir, templates_dir, in_file), 'r')
             if not os.path.exists(os.path.join(install_dir, reports_dir)):
                 os.mkdir(os.path.join(install_dir, reports_dir))
@@ -123,16 +125,16 @@ class MiningReports():
 
             # Generate a JavaScript filename
             if length == 'all':
-                js_file = f"{sub_type}_{report_type}.js"
+                js_file = f"{sub_type}-{report_type}.js"
             else:
-                js_file = f"{sub_type}_{report_type}_{num_days}days.js"
+                js_file = f"{sub_type}-{report_type}-{num_days}days.js"
                 
             # Generate the GitHub Markdown header
             out_handle.write('---\n')
             out_handle.write('layout: post\n')
             out_handle.write(f'title: {title}\n')
             date_str = datetime.now().strftime("%Y-%m-%d")
-            out_handle.write(f'date: {date_str}')
+            out_handle.write(f'date: {date_str}\n')
             out_handle.write('---\n\n')
             datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
             out_handle.write(f'Last updated: {datetime_str}\n')

@@ -6,7 +6,7 @@
 # Pool Hashrate - 30 days
 - report_type: hashrates
   sub_type: pool
-  title: Hashrate of the Local Pool
+  title: Hashrate of the Local Pool in KH/s
   units: KH/s
   columns: Datetime,Hashrate
   length: 30 days
@@ -14,7 +14,7 @@
 # Sidechain Hashrate - 60 days
 - report_type: hashrates
   sub_type: sidechain
-  title: Hashrate of the Sidechain
+  title: Hashrate of the Sidechain in MH/s
   units: MH/s
   columns: Datetime,Hashrate
   length: 60 days
@@ -22,7 +22,7 @@
 # Mainchain - All
 - report_type: hashrates
   sub_type: mainchain
-  title: Hashrate of the Sidechain
+  title: Hashrate of the Mainchain in GH/s
   units: GH/s
   columns: Datetime,Hashrate
   length: all
