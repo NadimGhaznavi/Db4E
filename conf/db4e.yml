@@ -1,10 +1,10 @@
 db4e:
   install_dir: /opt/prod/db4e
+  js_dir: assets/js
   backup_dir: backups
   conf_dir: conf
   log_dir: logs
   log_file: db4e.log
-  reports: reports.yml
   debug: 0
 
 p2pool:
@@ -21,9 +21,11 @@ monerod:
   stdin_pipe: monerod.stdin
 
 export:
+  reports: reports.yml
   export_dir: /opt/prod/db4e/data
-  template_dir: /opt/prod/db4e/pages/tmpl
-  web_dir: /opt/prod/db4e/pages/web
+  csv_dir: csv
+  template_dir: pages/tmpl
+  reports_dir: pages/reports
   p2pool_payouts_csv: p2pool_payouts.csv
   blocks_found_csv: blocks_found.csv
   shares_found_csv: shares_found.csv

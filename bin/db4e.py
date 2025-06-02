@@ -31,6 +31,7 @@ from Hashrates.Hashrates import Hashrates
 from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
 from Db4eLog.Db4eLog import Db4eLog
+from MiningReports.MiningReports import MiningReports
 
 print("Database 4 Everything")
 
@@ -66,5 +67,8 @@ if action:
   elif action == 'backup_db':
     db = Db4eDb()
     db.backup_db()
+  elif action == 'gen_reports':
+    reports = MiningReports(log_func)
+    reports.run()
   else:
     print(f"ERROR: Unknown action ({action}), use '-la' to get a list of valid actions.")

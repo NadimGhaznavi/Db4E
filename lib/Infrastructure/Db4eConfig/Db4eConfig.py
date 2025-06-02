@@ -32,6 +32,7 @@ class Db4eConfig():
             print("  backup_db                    : Backup MongoDB and push the backup to GitHub.")
             print("  monitor_p2pool_log           : Start monitoring the P2Pool daemon log.")
             print("  get_wallet_balance           : Get the wallet balance from MongoDb.")
+            print("  gen_reports                  : Generate new reports.")
             exit(0)
 
         # Parse any command line args
