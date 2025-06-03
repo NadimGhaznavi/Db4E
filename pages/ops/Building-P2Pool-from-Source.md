@@ -145,3 +145,4 @@ SChernykh's Monero XMR wallet address for donations:
   * [Disable Auto Donation](https://github.com/SChernykh/p2pool/blob/v4.6/README.md?utm_source=substack&utm_medium=email#donations)
 
 
+

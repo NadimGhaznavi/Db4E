@@ -29,3 +29,4 @@ This page provides some information about the hardware of the computers that are
 | Memory      | 16 Gb           | 8 Gb             | 16 Gb     | 16 Gb   | 8 Gb      | 8 Gb     | 8 Gb  |
 
 
+
