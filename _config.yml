@@ -15,5 +15,8 @@ include:
   - ISSUE_TEMPLATE.md
   - PULL_REQUEST_TEMPLATE.md
 
+sidebar:
+  - nav_bar
+  
 minima:
   skin: dark
