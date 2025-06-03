@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Blocks Found on the Mini Sidechain
 date: 2025-06-03
 ---
@@ -16,6 +15,4 @@ date: 2025-06-03
  </div>
 
 * Days of data: 60
-* Last updated: 2025-06-03 11:28
-
-
+* Last updated: 2025-06-03 18:12
