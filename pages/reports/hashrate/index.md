@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Hashrate Reports
 date: 2025-06-03
 ---
@@ -17,4 +16,4 @@ date: 2025-06-03
 * [Mainchain Hashrate - 60 days](/pages/reports/hashrate/Mainchain-Hashrate-60-Days.html)
 * [Mainchain Hashrate - 90 days](/pages/reports/hashrate/Mainchain-Hashrate-90-Days.html)
 
-Last updated: 2025-06-03 17:30
+Last updated: 2025-06-03 18:14

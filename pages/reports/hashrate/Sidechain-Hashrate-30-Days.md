@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Hashrate of the Sidechain in MH/s
 date: 2025-06-03
 ---
@@ -16,4 +15,4 @@ date: 2025-06-03
  </div>
 
 * Days of data: 30
-* Last updated: 2025-06-03 17:30
+* Last updated: 2025-06-03 18:14
