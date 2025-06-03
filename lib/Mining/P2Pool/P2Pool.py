@@ -24,7 +24,6 @@ for db4e_dir in db4e_dirs:
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from MiningReports.MiningReports import MiningReports
-from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
 

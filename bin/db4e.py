@@ -23,7 +23,6 @@ for db4e_dir in db4e_dirs:
 
 from Db4eConfig.Db4eConfig import Db4eConfig
 from P2Pool.P2Pool import P2Pool
-from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
 from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
 from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
 from MiningDb.MiningDb import MiningDb
@@ -49,10 +48,6 @@ if 'action' in config.config['db4e']:
   elif action == 'monitor_p2pool_log':
     p2pool = P2Pool(log_func)
     p2pool.monitor_log()
-
-  elif action == 'new_blocks_found_csv':
-    csv = BlocksFoundCsv(log_func)
-    csv.new_blocks_found_csv()
 
   elif action == 'new_shares_found_csv':
     csv = SharesFoundCsv(log_func)
