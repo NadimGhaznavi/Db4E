@@ -1,5 +1,5 @@
 title: The Database 4 Everything
-remote_theme: mmistakes/minimal-mistakes
+remote_theme: NadimGhaznavi/minimax
 
 plugins:
   - jekyll-relative-links
