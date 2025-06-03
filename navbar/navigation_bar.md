@@ -1,5 +1,0 @@
----
-id: navigation-bar
----
-
-Navigation
