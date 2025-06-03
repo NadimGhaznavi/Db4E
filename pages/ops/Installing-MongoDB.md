@@ -1,10 +1,5 @@
 ---
 title: Installing MongoDB on Debian
-date: 2025-05-31
-markdown: GFM
-category:
-  - db4e
-  - MongoDB
 ---
 
 ---

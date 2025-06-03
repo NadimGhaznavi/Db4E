@@ -1,13 +1,7 @@
 ---
 title: "Monero XMR Miner Hardware Specifications"
-date: 2025-05-20
-markdown: GFM
-category:
-  - Monero XMR 
-  - Miner
-tags:
-  - Hardware specs
 ---
+
 # Introduction and Scope
 
 This page provides some information about the hardware of the computers that are engaged in Monero XMR Mining.

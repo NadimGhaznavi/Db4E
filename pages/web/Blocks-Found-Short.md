@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Blocks Found on the Sidechain
 date: 2025-05-30
 ---

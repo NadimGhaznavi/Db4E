@@ -1,12 +1,5 @@
-
 ---
 title: "Pre-Requisites for db4e Installation"
-date: 2025-06-01
-markdown: GFM
-category:
-  - db4e
-tags:
-  - installation
 ---
 
 # MongoDB

@@ -1,8 +1,7 @@
 ---
-layout: post
 title: Secondary Monero Daemon Configuration 
-date: 2025-05-22
 ---
+
 # Table of Contents
 
 * [Introduction and Scope](#introduction-andscope)

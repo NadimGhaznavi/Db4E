@@ -377,7 +377,6 @@ class MiningReports():
             
         # Generate the GitHub Markdown header
         out_handle.write('---\n')
-        out_handle.write('layout: post\n')
         out_handle.write(f'title: {title}\n')
         date_str = datetime.now().strftime("%Y-%m-%d")
         out_handle.write(f'date: {date_str}\n')
@@ -420,7 +419,6 @@ class MiningReports():
         toc_handle = open(os.path.join(install_dir, reports_dir, report_type, toc_file), 'w')
         # Generate the GitHub Markdown header
         toc_handle.write('---\n')
-        toc_handle.write('layout: post\n')
         toc_handle.write(f'title: {Report_type} Reports\n')
         date_str = datetime.now().strftime("%Y-%m-%d")
         toc_handle.write(f'date: {date_str}\n')

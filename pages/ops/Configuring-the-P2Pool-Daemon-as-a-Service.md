@@ -1,7 +1,5 @@
 ---
-layout: post
 title: Configuring the P2Pool Daemon as a Service
-date: 2025-05-30
 ---
 
 ---

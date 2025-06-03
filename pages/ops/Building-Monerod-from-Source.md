@@ -1,11 +1,7 @@
 ---
 title: "Building Monerod from Source"
-date: 2025-05-27
-markdown: GFM
-category:
-  - Monero XMR 
-  - Monero Blockchain Daemon
 ---
+
 # Table of Contents
 
 * [Introduction and Scope](#introduction-and-scope)

@@ -1,11 +1,7 @@
 ---
 title: "Building P2Pool from Source"
-date: 2025-05-22
-markdown: GFM
-category:
-  - Monero XMR 
-  - P2Pool
 ---
+
 # Table of Contents
 
 * [Introduction and Scope](#introduction-and-scope)

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Blocks Found on the Current Sidechain in MH/s
 date: 2025-06-01
 ---

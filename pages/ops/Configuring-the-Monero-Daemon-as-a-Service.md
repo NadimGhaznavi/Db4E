@@ -1,7 +1,5 @@
 ---
-layout: post
 title: Configuring the Monero Daemon to Run as a Service
-date: 2025-05-27
 ---
 
 ---

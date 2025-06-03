@@ -1,8 +1,7 @@
 ---
-layout: post
 title: Port Forwarding with upnpc
-date: 2025-05-25
 ---
+
 # Table of Contents
 
 [Introduction and Scope](#introduction-and-scope)
