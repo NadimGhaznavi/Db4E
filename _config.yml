@@ -1,4 +1,17 @@
+title: The Database 4 Everything
+description: The db4e site manages the operation of a Monero XMR Mining farm
 remote_theme: NadimGhaznavi/minimo
+
+permalink: pretty
+
+search_enabled: true
+auto_page_title: true
+
+mermaid_enabled: true
+mermaid_theme: dark
+
+sidebar:
+  - Reports
 
 plugins:
   - jekyll-relative-links
@@ -15,8 +28,6 @@ include:
   - ISSUE_TEMPLATE.md
   - PULL_REQUEST_TEMPLATE.md
 
-sidebar:
-  - navigation-bar
   
 minimo:
   skin: dark
