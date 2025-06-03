@@ -1,7 +1,6 @@
 ---
-layout: post
 title: Payment Reports
-date: 2025-06-02
+date: 2025-06-03
 ---
 
 * [Daily Payment](/pages/reports/payment/Daily-Payment.html)
@@ -13,6 +12,4 @@ date: 2025-06-02
 * [Cumulative Payment - 60 days](/pages/reports/payment/Cumulative-Payment-60-Days.html)
 * [Cumulative Payment - 90 days](/pages/reports/payment/Cumulative-Payment-90-Days.html)
 
-Last updated: 2025-06-02 17:58
-
-
+Last updated: 2025-06-03 18:15

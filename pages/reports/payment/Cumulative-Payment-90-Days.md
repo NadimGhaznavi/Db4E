@@ -1,7 +1,6 @@
 ---
-layout: post
 title: Cumulative XMR Earnings from P2Pool Mining
-date: 2025-06-02
+date: 2025-06-03
 ---
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -16,6 +15,4 @@ date: 2025-06-02
  </div>
 
 * Days of data: 90
-* Last updated: 2025-06-02 17:58
-
-
+* Last updated: 2025-06-03 18:15
