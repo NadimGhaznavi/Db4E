@@ -24,3 +24,4 @@ The chart shows a visualization of the Monero XMR shares that were found on the 
 * The most recent 30 days of data is shown.
 
 [Back](/pages/web/index.html)
+

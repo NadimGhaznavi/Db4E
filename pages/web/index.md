@@ -30,3 +30,4 @@ This report is from a manual export of the Mining Farm's XMR wallet transactions
 
 * [XMR Received Visualization](/pages/XMR-Received.html)
 
+

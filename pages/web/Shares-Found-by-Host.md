@@ -23,3 +23,4 @@ The chart shows a visualization of the Monero XMR shares that were found on the 
 * Finally, this *GitHub Formatted Markdown* page displays the information using a JavaScript library, ApexChart, to do the actual chart rendering.
 
 [Back](/pages/web/index.html)
+

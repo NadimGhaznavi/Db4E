@@ -16,7 +16,7 @@ include:
   - PULL_REQUEST_TEMPLATE.md
 
 sidebar:
-  - nav_bar
+  - welcome
   
 minima:
   skin: dark

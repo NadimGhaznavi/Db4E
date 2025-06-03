@@ -196,3 +196,4 @@ Hashrates            | Pool, sidechain and mainchain hashrate data.           |
 * [ApexCharts](https://apexcharts.com/)
 * [GitHub](https://github.com/)
 
+

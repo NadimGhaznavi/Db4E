@@ -64,3 +64,4 @@ dan@maia:/exports/maia$ while sleep 1; do ls -lh *raw; sleep 60; done
 
 TBD
 
+

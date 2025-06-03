@@ -11,3 +11,4 @@ The `backup-db.sh` script is responsible for backing up the MongoDb database.
 Because the MongoDB backups are in BSON format and are further gzipped, the size is very, very small. The size of a full daily backup of the entire DB is only about 50K. 
 
 [Back](/)
+
