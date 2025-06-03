@@ -22,11 +22,6 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from P2Pool.P2Pool import P2Pool
-from BlocksFoundCsv.BlocksFoundCsv import BlocksFoundCsv
-from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
-from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
-from Db4eDb.Db4eDb import Db4eDb
 from MiningDb.MiningDb import MiningDb
 from Db4eLog.Db4eLog import Db4eLog
 

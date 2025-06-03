@@ -2,6 +2,8 @@
 title: Reports
 ---
 
+---
+
 # Automated Reports
 
 The reports here are created and updated automatically, zero manual steps. The *report definition files* the type of report and how much data the report shows.
