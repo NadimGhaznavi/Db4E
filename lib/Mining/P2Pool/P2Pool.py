@@ -9,6 +9,7 @@ import re
 from datetime import datetime
 from decimal import Decimal
 import json
+from bson.decimal128 import Decimal128
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -81,8 +82,8 @@ class P2Pool():
       self.log(f"  Local Time       : {localtime}")
       db = self.db()
       db.add_block_found(timestamp)
-      blocksfoundcsv = BlocksFoundCsv(self.log)
-      blocksfoundcsv.new_blocks_found_csv()
+      reports = MiningReports(self.log, 'blocksfound')
+      reports.run()
 
   def is_main_chain_hashrate(self, log_line):
     """
@@ -223,8 +224,9 @@ class P2Pool():
     Sample log message to watch for:
 
     2024-11-09 19:52:19.1740 P2Pool Your wallet 48wY7nYBsQNSw7fDEG got a payout of 0.001080066485 XMR in block 3277801
+    2025-06-02 21:42:53.0727 P2Pool Your wallet 48wdY6fDEG got a payout of 0.000295115076 XMR in block 3425427
     """
-    pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .* got a payout of (?P<payout>0.\d+) XMR"
+    pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payout>0.\d+) XMR"
     match = re.search(pattern, log_line)
     if match:
       timestamp = match.group('timestamp')
@@ -242,7 +244,7 @@ class P2Pool():
       self.log(f"  Wallet Balance   : {wallet_balance} XMR")
       db = self.db()
       db.add_xmr_payment(timestamp, payout)
-      reports = MiningReports(self.log, 'payment')
+      reports = MiningReports(self.log, 'payments')
       reports.run()
 
   def monitor_log(self):

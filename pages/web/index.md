@@ -6,17 +6,17 @@ title: Reports
 
 The reports here are created and updated automatically, zero manual steps.
 
-* [Hashrate reports](/pages/reports/hashrate/index.html)
+* [Hashrates](/pages/reports/hashrate/index.html)
   * Run hourly with a cronjob
   * Generates hashrate reports on the local pool, sidechain and mainchain
   * [Report definition file](/conf/reports/hashrates.yml)
 
-* [Payment reports](/pages/reports/payment/index.html)
+* [Payments](/pages/reports/payment/index.html)
   * Updated whenever a mining payment is received
   * Daily and cummulative totals
   * [Report definition file](/conf/reports/payments.yml)
 
-* [Blocks found on the sidechain reports](/pages/reports/blocksfound/index.html) 
+* [Blocks found on the sidechain](/pages/reports/blocksfound/index.html) 
   * Generates blocks found on the sidechain
   * [Report definition file](/conf/reports/blocksfound.yml)
 
