@@ -1,6 +1,11 @@
 title: The Database 4 Everything
 remote_theme: NadimGhaznavi/minimax
 
+# Valid values for the skin are:
+#   "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+minimal_mistakes_skin: "dark" 
+
+
 plugins:
   - jekyll-relative-links
   - jekyll-remote-theme
