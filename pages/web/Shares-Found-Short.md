@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Shares Found
 date: 2025-05-30
 ---

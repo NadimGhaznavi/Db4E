@@ -1,5 +1,4 @@
 ---
-layout: post
 title: XMR Received
 date: 2024-10-29
 ---
