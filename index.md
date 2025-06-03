@@ -47,11 +47,11 @@ The console application gets the data from the [data warehouse](#data-warehouse)
 
 # Automated Web Reports
 
-Reports in *db4e* are event driven (e.g. a new block is found) or scheduled (e.g. the Sidechain hshrate for the last 30 days). Reports can also be run manually using the *db4e.py* tool (e.g. `db4e.py -r blocksfound`). The following [reports](/pages/web/index.html) are supported:
+Reports in *db4e* are event driven (e.g. a new block is found) or scheduled (e.g. the Sidechain hshrate for the last 30 days). Reports can also be run manually using the *db4e.py* tool (e.g. `db4e.py -r blocksfound`). The following [reports](/pages/web/Reports.html) are supported:
 
-* [Daily](/pages/web/P2Pool-Payouts-Daily-Short.html) and [cumulative](/pages/web/P2Pool-Payouts-Short.html) XMR payments made to the mining farm
-* [Shares found](/pages/web/Shares-Found-Short.html) by the mining farm
-* [Blocks found](/pages/web/Blocks-Found-Short.html) on the Monero XMR mini sidechain
+* [Daily](/pages/reports/payments/Daily-Payment-90-Days.html) and [cumulative](/pages/reports/payments/Cumulative-Payment-90-Days.html) XMR payments made to the mining farm
+* [Shares found](/pages/web/Shares-Found-Short.html) and the colorful [shares found by host](/pages/web/Shares-Found-by-Host-Short.md) by the mining farm
+* [Blocks found](/pages/reports/blocksfound/Blocksfound-90-Days.html) on the Monero XMR mini sidechain
 
 ---
 

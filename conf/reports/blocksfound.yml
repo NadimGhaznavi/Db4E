@@ -2,13 +2,6 @@
 #
 # Use 'db4e.py -r blocksfound' to manually generate these reports.
 
-# Blocks Found - 30 days
-- report_type: blocksfound
-  title: Blocks Found on the Mini Sidechain
-  units: blocks
-  columns: Date,BlocksFound
-  length: 30 days
-
 # Blocks Found - 60 days
 - report_type: blocksfound
   title: Blocks Found on the Mini Sidechain
@@ -22,5 +15,12 @@
   units: blocks
   columns: Date,BlocksFound
   length: 90 days
+
+# Blocks Found - 180 days
+- report_type: blocksfound
+  title: Blocks Found on the Mini Sidechain
+  units: blocks
+  columns: Date,BlocksFound
+  length: 180 days
 
 
