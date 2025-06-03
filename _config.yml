@@ -1,16 +1,11 @@
 title: The Database 4 Everything
 remote_theme: NadimGhaznavi/minimo
 
-permalink: pretty
-
-search_enabled: true
-auto_page_title: true
-
-sidebar:
-  - Reports
 
 plugins:
   - jekyll-relative-links
+  - jekyll-remote-theme
+
 relative_link:
   enabled: true
   collections: true
