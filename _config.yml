@@ -18,5 +18,5 @@ include:
 sidebar:
   - welcome
   
-minimo:
+minima:
   skin: dark
