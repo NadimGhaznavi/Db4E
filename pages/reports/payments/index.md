@@ -3,6 +3,10 @@ title: Payment Reports
 date: 2025-06-04
 ---
 
+# Reports
+
+Reports [definition file](/conf/reports/payments.yml).
+
 * [Daily Payment - all data](/pages/reports/payments/Daily-Payment.html)
 * [Daily Payment - 90 days](/pages/reports/payments/Daily-Payment-90-Days.html)
 * [Daily Payment - 180 days](/pages/reports/payments/Daily-Payment-180-Days.html)
@@ -10,4 +14,4 @@ date: 2025-06-04
 * [Cumulative Payment - 90 days](/pages/reports/payments/Cumulative-Payment-90-Days.html)
 * [Cumulative Payment - 90 days](/pages/reports/payments/Cumulative-Payment-90-Days.html)
 
-Last updated: 2025-06-04 17:29
+Last updated: 2025-06-04 17:54
