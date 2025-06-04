@@ -197,3 +197,4 @@ I authored the wrapper script to actually start P2Pool, but I found the solution
 
 
 
+
