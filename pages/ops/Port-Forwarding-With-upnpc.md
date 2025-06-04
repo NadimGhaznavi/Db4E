@@ -2,17 +2,9 @@
 title: Port Forwarding with upnpc
 ---
 
-# Table of Contents
-
-[Introduction and Scope](#introduction-and-scope)
-
 # Introduction and Scope
 
-You may need to configure your Internet router to forward inbound traffic to your Monero Daemon that hosts 
-the blockchain. You can maybe do this by logging into your router and configuring a rule. Alternatively,
-if your router supports *upnp port forwarding* you can trigger it to create a port forwarding rule using
-the `upnpc` utility. Note that not all routers support automatic upnp triggering. You may need to login
-to your router and enable this feature.
+You may need to configure your Internet router to forward inbound traffic to your Monero Daemon that hosts the blockchain. You can maybe do this by logging into your router and configuring a rule. Alternatively, if your router supports *upnp port forwarding* you can trigger it to create a port forwarding rule using the `upnpc` utility. Note that not all routers support automatic upnp triggering. You may need to login to your router and enable this feature.
 
 # Identifying the Problem in your Monero Daemon Logfile
 

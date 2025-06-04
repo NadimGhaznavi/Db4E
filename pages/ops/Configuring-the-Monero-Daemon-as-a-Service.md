@@ -2,28 +2,6 @@
 title: Configuring the Monero Daemon to Run as a Service
 ---
 
----
-
-# Table of Contents
-
-* [Introduction and Scope](#introduction-and-scope)
-* [Pre-Requisites](#pre-requisites)
-  * [Linux Operating System](#linux-operating-system)
-  * [Disk Space Requirements](#disk-space-requiements)
-  * [Monero Software is Installed](#monero-software-is-installed)
-* [The Blockchain Data Files](#The-blockchain-data-files)
-* [Configuring the Monero Daemon to Run as a Service](#configuring-the-monero-daemon-to-run-as-a-service)
-  * [The monerod.ini File](#the-monerod.ini-file)
-  * [The start-monerod.sh Script](#the-start-monerod.sh-script)
-  * [Configuring the Monero Daemon Service](#configuring-the-monero-daemon-service)
-  * [Configuring the Monero Socket Service](#configuring-the-monero-socket-service)
-  * [Refreshing systemd and Configuring systemd to run the Monero Daemon at Boot Time](#refreshing-systemd-and-configuring-systemd-to-run-the-monero-daemon-at-boot-time)
-  * [Manually Starting the Monero Daemon](#manually-starting-the-monero-daemon)
-  * [Manually Stopping the Monero Daemon](#manually-stopping-the-monero-daemon)
-  * [Checking the status of the Monero Daemon](#checking-the-status-of-the-monero-daemon)
-
----
-
 # Introduction and Scope
 
 This page documents the configuration of the Monero XMR Daemon (`monerod`) as a system service. Configuring 

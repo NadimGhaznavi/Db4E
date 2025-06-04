@@ -2,19 +2,6 @@
 title: "Building P2Pool from Source"
 ---
 
-# Table of Contents
-
-* [Introduction and Scope](#introduction-and-scope)
-* [Install Pre-Requisites](#install-pre-requisites)
-* [Download P2Pool from Github](#download-p2pool-from-github)
-* [Configure P2Pool](#configure-p2pool)
-* [Build P2Pool](#build-p2pool)
-* [Install P2Pool](#build-p2pool)
-* [Donations](#donations)
-* [Links](#links)
-
----
-
 # Introduction and Scope
 
 This page documents the process of building [SChernykh's P2Pool Software](https://github.com/SChernykh/p2pool).

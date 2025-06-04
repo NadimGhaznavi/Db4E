@@ -2,21 +2,6 @@
 title: Configuring the P2Pool Daemon as a Service
 ---
 
----
-
-# Table of Contents
-
-* [Introduction and Scope](#introduction-and-scope)
-* [The P2Pool Daemon Startup Script](#the-p2pool-daemon-startup-script)
-  * [The p2pool.ini File](#the-p2pool.ini-file)
-  * [The start-p2pool.sh Script](#the-start-p2pool.sh-script)
-* [The systemd p2pool.socket definition](#the-systemd-p2pool.socket-definition)
-* [The systemd p2pool.service Definition](#the-systemd-p2pool.service-definition)
-* [Activing and Enabling the P2Pool Services](#Activing-and-enabling-the-p2pool-services)
-* [Credits](#credits)
-
----
-
 # Introduction and Scope
 
 This page documents the configuration of the P2Pool software used by my Monero mining farm. I have configured P2Pool to connect my collection of machines running XMRig to the Monero Mini Sidechain.

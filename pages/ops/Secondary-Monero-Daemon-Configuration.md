@@ -2,15 +2,6 @@
 title: Secondary Monero Daemon Configuration 
 ---
 
-# Table of Contents
-
-* [Introduction and Scope](#introduction-andscope)
-* [Monero Daemon Configuration](#monero-daemon-configuration)
-* [Exporting the Blockchain from the Primary Node](#exporting-the-blockchain-from-the-primary-node)
-* [Transfer the Blockchain File to the Secondary Node](#transfer-the-blockchain-file-to-the-secondary-node)
-* [Elapsed time](#elapsed-time)
-* [Importing the Blockchain File on the Secondary Node](#importing-the-blockchain-file-on-the-secondary-node)
-
 # Introduction and Scope
 
 This page documents the configuration of a secondary or backup Monero XMR Service. The idea behind setting up a secondary full Monero node is to handle the case where the primary Monero daemon fails. I have a Monero mining farm that uses a local P2Pool pool which relies on my Monero daemon to be available and serving up the full Monero blockchain. A failure of the Monero daemon means my mining operation is down while I rebuild the monero daemon service. While I can rebuild the OS and rebuild the Monero daemon from source and deploy it in hours, it takes up to two weeks to download the full blockchain from the Internet.

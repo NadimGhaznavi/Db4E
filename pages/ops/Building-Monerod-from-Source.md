@@ -2,19 +2,6 @@
 title: "Building Monerod from Source"
 ---
 
-# Table of Contents
-
-* [Introduction and Scope](#introduction-and-scope)
-* [Install Pre-Requisites](#install-pre-requisites)
-* [System Architecture](#system-architecture)
-* [Download the Source Code from Github](#download-the-source-code-from-github)
-* [Configure and Build the Software](#configure-and-build-the-software)
-* [Install the Software](#install-the-software)
-* [Configuring the Monero Daemon as a Service](#configuring-the-monero-daemon-as-a-service)
-* [Links](#links)
-
----
-
 # Introduction and Scope
 
 This page documents the process of downloading, configuring and installing the core Monero software. The specific directories referenced here are consistent with the [system architecture](#system-architecture) outlined below.

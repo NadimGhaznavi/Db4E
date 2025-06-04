@@ -2,18 +2,7 @@
 title: Installing MongoDB on Debian
 ---
 
----
-
-# Table of Contents
-
-* [Import the Public Key](#import-the-public-key)
-* [Create the List File](#create-the-list-file)
-* [Reload the Package Database](#reload-the-package-database)
-* [Install MongoDB Community Server](install-mongodb-community-server)
-
----
-
-# Import the public key
+# Import the MongoDB Public Key
 
 Install gnupg and curl if they are not already available:
 
