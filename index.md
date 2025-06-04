@@ -6,7 +6,7 @@ layout: default
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/assets/js/SharesFoundByHostShort.js"></script>
 
-# Monero XMR Mining Farm Operations
+# Mining Monero XMR
 
 <div id="wrapper">
   <div id="areaChart">
@@ -33,7 +33,7 @@ The console application gets the data from the [data warehouse](#data-warehouse)
 
 ---
 
-# Automated Web Reports
+# Web Reports
 
 Reporting with *db4e* is easy:
 
@@ -71,7 +71,7 @@ See the [Pre-Requisites page](/pages/ops/Pre-Requisites.md)
 
 ---
 
-# Codebase Architecture
+# Architecture
 
 The application is designed to be modular and have a clear data abstraction layer. Mining database operations go though a *mining
 database class* which sends those to a *db4e mining class* which interacts with MongoDB.
@@ -80,7 +80,7 @@ For example, mining data exports to CSV are performed by connecting to the *Mini
 
 ---
 
-## Command Line Utilities
+## Utilities
 
 ---
 
@@ -102,23 +102,21 @@ The *backup-db.sh* utility is used to backup the backend MongoDB database. The d
 
 ---
 
-### db4e_git.sh
+### db4e-git.sh
 
-The *db4e_git.sh* utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
+The *db4e-git.sh* utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
 
 ---
 
-### restart_mining_services.sh
+### db4e-restart.sh
 
-The *restart_mining_services.sh* script executed once a day from a cron job. It performs the following sequenced actions:
+The *db4e-restart.sh* script executed once a day from a cron job. It performs the following sequenced actions:
 
 1. Restart the Monero XMR daemon which is responsible for running the full blockchain node. The node is part of the larger, distributed Monero XMR ecosystem.
 2. Restart my Mining Farm's P2Pool daemon.
 3. Restart the *db4e* P2Pool log file monitoring daemon.
 
-Additionally, each miner also has a cron job to restart the `xmrig` mining software.
-
-Basically, I restart all of my Mining farm's services on a daily basis.
+Additionally, each miner also has a cron job to restart the `xmrig` mining software. Best practice is to restart on a scheduled basis.
 
 ---
 
