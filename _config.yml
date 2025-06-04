@@ -1,30 +1,6 @@
-title: Database 4 Everything
-logo: /assets/img/logo.jp
-email: nghaznavi@gmail.com
-description: Monero XMR Mining Farm Operations
-favicon: true
-color-scheme: dark
-
-remote_theme: nadimghaznavi/minimax
+title: The Database 4 Everything
+remote_theme: NadimGhaznavi/minimax
 
 plugins:
-  - jekyll-sitemap
-  - jekyll-seo-tag
-  - jemoji
+  - jekyll-relative-links
   - jekyll-remote-theme
-
-platforms:
-  - name: GitHub
-    icon: <i class="fa-brands fa-github"></i>
-    link: https://github.com/nadimghaznavi
-  - name: LinkedIn
-    icon: <i class="fa-brands fa-linkedin"></i>
-    link: https://www.linkedin.com/in/nadimghaznavi
-
-navigation:
-  - name: Readme
-    link: ./index.html
-    sublist:
-      - name: Image
-        link: ./index.html#small-image
-  
