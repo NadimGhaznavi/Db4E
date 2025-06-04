@@ -6,21 +6,26 @@ title: "Building P2Pool from Source"
 
 This page documents the process of building [SChernykh's P2Pool Software](https://github.com/SChernykh/p2pool).
 
+---
 
-## Build and Deployment Architecture
+# Deployment Architecture
 
 I put source code in `/opt/src` and installed software in `/opt/prod`. For example:
 
-* /opt/src/p2pool-v4.6  - Source code
-* /opt/prod/p2pool-v4.6 - Installed code
-* /opt/prod/p2pool      - Symlink to installed code directory
+Directory               | Description
+------------------------|-------------------
+`/opt/src/p2pool-v4.6`  | Source code
+`/opt/prod/p2pool-v4.6` | Installed code
+`/opt/prod/p2pool`      | Symlink to installed code directory
 
 Within the installed software directories I use the following convention:
 
-* bin   - Directory to house executibles 
-* logs  - Directory to house logs
-* conf  - Directory to house configuration files
-* run   - Directory to contain temporary runtime files
+Directory   | Description
+------------|-------------------
+`bin`       | Directory to house executibles 
+`logs`      | Directory to house logs
+`conf`      | Directory to house configuration files
+`run`       | Directory to contain temporary runtime files
 
 ---
 
@@ -34,7 +39,7 @@ sudo apt install git build-essential cmake libuv1-dev libzmq3-dev libsodium-dev 
 
 ---
 
-# Download P2Pool from Github
+# Download the Source Code
 
 I keep source code in `/opt/src`. In the example below, the p2pool version is 4.6, be sure to update the directory name (`p2pool-v4.6`) if your version is more recent.
 
@@ -48,7 +53,7 @@ This clones the SChernykh P2Pool repository into the p2pool directory and rename
 
 ---
 
-# Configure P2Pool
+# Configure the Source Code
 
 Assuming you are building P2Pool version 4.6:
 
@@ -94,29 +99,6 @@ NOTE:
 -- Installing: /usr/local/share/pkgconfig/zlib.pc
 ```
 ---
-
-# Install P2Pool
-
-
-```
-cd /opt/prod
-sudo mkdir p2pool-v4.6
-sudo rm -f p2pool
-sudo ln -s p2pool-v4.6 p2pool
-cd p2pool
-sudo mkdir conf bin logs run
-sudo cp /opt/src/p2pool-v4.6/build/p2pool /opt/prod/p2pool/bin
-```
-
----
-
-# Donations
-
-SChernykh's Monero XMR wallet address for donations:
-
-```
-44MnN1f3Eto8DZYUWuE5XZNUtE3vcRzt2j6PzqWpPau34e6Cf4fAxt6X2MBmrm6F9YMEiMNjN6W4Shn4pLcfNAja621jwyg
-```
 
 ---
 

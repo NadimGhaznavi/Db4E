@@ -102,7 +102,7 @@ PRIORITY_NODE_2_PORT="18080"
 
 ## Startup Script
 
-The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. this script is not usually called directory. Instead it is called from *systemd*.
+The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. this script is not usually called directly. Instead it is called from *systemd*. This file should be created in `/opt/prod/monerod/bin`.
 
 A few things to note about this script.
 
@@ -121,7 +121,7 @@ Monero nodes on these machines. You can safely remove both of these lines if you
 #!/bin/bash
 
 # Read in the settings
-source /opt/prod/monerod/monerod.ini
+source /opt/prod/monerod/conf/monerod.ini
 
 # Don't allocate large pages
 export MONERO_RANDOMX_UMASK=1
@@ -205,7 +205,7 @@ Sockets=monerod.socket
 WorkingDirectory=/opt/prod/monerod/
 Type=simple
 Restart=always
-ExecStart=/opt/prod/monerod/start-monerod.sh
+ExecStart=/opt/prod/monerod/bin/start-monerod.sh
 TimeoutStopSec=60
 StandardOutput=file:/opt/prod/monerod/logs/monerod.log
 StandardError=file:/opt/prod/monerod/logs/monerod.err

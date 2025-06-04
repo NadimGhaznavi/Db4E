@@ -9,11 +9,9 @@ This page documents the process of downloading, configuring and installing the c
 This is the authoritative Monero core software which includes the following:
 
 ```
-monero-blockchain-ancestry	      monero-blockchain-prune			monero-gen-ssl-cert
-monero-blockchain-depth		      monero-blockchain-prune-known-spent-data	monero-gen-trusted-multisig
-monero-blockchain-export	      monero-blockchain-stats			monero-wallet-cli
-monero-blockchain-import	      monero-blockchain-usage			monero-wallet-gui
-monero-blockchain-mark-spent-outputs  monerod
+monero-blockchain-ancestry	    monero-blockchain-prune			monero-gen-ssl-cert
+monero-blockchain-depth		      monero-blockchain-prune-known-spent-data	monero-gen-trusted-multisig     monero-blockchain-export	  monero-blockchain-stats			monero-wallet-cli               monero-blockchain-import	  monero-blockchain-usage			monero-wallet-gui               monero-blockchain-mark-spent-outputs  
+monerod
 ```
 
 As well as the following static libraries:
@@ -39,33 +37,28 @@ sudo apt install qtbase5-dev qtdeclarative5-dev qml-module-qtqml-models2 qml-mod
 
 ---
 
-# System Architecture
+# Deployment Architecture
 
-Systems architectures vary dramatically, the architecture described here is just one example. This is Linux, so there's always more than one way to do it.
+I put source code in `/opt/src` and installed software in `/opt/prod`. For example:
 
----
+Directory                    | Description
+-----------------------------|-------------------
+`/opt/src/monerod-0.18.4.0`  | Source code
+`/opt/prod/monerod-0.18.4.0` | Installed code
+`/opt/prod/p2pool`           | Symlink to installed code directory
 
-## Source Code Management
+Within the installed software directories I use the following convention:
 
-I keep all source code in a custom `/opt/src` directory. The `/opt` directory is standard on UNIX and should exist on any Linux system.
-
-```
-sudo mkdir /opt/src
-```
-
----
-
-## Production Code Management
-
-I keep third party and code that I build myself in `/opt/prod`.
-
-```
-sudo mkdir /opt/prod
-```
+Directory   | Description
+------------|-------------------
+`bin`       | Directory to house executibles 
+`logs`      | Directory to house logs
+`conf`      | Directory to house configuration files
+`run`       | Directory to contain temporary runtime files
 
 ---
 
-# Download the Source Code from Github
+# Download the Source Code
 
 I am installing version **0.18.4.0** of the software. The directory name I use reflects that specific version. You may need to change this if you are working with a newer version.
 
@@ -77,7 +70,7 @@ sudo mv monero-gui monerod-0.18.4.0
 
 ---
 
-# Configure and Build the Software
+# Configure and Build
 
 Assuming you are using the directory names that were used in the section above:
 
@@ -96,20 +89,7 @@ As mentioned in the [production code management section](#production-code-manage
 
 Create a directory to house the software, note that the instuctions include the version number of the software. You may need to change this if you are compiling a later version.
 
-## Create the Target Install Directory
-
-```
-sudo mkdir /opt/prod/monerod-0.18.4.0
-sudo rm -f /opt/prod/monerod
-sudo rm -f /opt/prod/monero-gui
-cd /opt/prod
-sudo ln -s monerod-0.18.4.0 monerod
-sudo ln -s monerod-0.18.4.0 monero-gui
-```
-
-As you can see from the commands above, I have created two symlinks, `monerod` and `monero-gui` that point at the new installation directory. Using symlinks means I can reference them in start/stop scripts and in my Linux PATH environment environment. This means that I do **not** have to modify the start/stop scripts or my PATH when I upgrade the software.
-
-## Actually Install the Software
+# Actually Install the Software
 
 Assuming you are using the same paths as outlined in this document:
 
