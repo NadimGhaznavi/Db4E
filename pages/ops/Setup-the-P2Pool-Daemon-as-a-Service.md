@@ -1,5 +1,5 @@
 ---
-title: Configuring the P2Pool Daemon as a Service
+title: Setup the P2Pool Daemon as a Service
 ---
 
 # Introduction

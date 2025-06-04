@@ -1,5 +1,5 @@
 ---
-title: Configuring the Monero Daemon to Run as a Service
+title: Setup the Monero Daemon as a Service
 ---
 
 # Introduction
@@ -92,9 +92,6 @@ MONEROD_DIR=/opt/prod/monerod
 
 # Where the blockchain (lmdb directory) is stored
 DATA_DIR="/opt/prod/monero-blockchain"
-
-# Where RPC Micro payments go (unused)
-WALLET_KEY="48wY7nYBsQNSwsvs4LsjfoNn34v87kCtk1Y6GLNVmePGrW82gVhYhQtWJFHi6U6G3X5d7JN2ucajU9SeBijT8zKYwC3zfsfEG"
 
 # Trusted Monero nodes to sync off
 PRIORITY_NODE_1="kermit.osoyalce.com"
@@ -227,6 +224,18 @@ This file is installed in `/etc/systemd/system` and is named `monerod.socket`. A
 [Unit]
 Description=Monerod Stdin Socket
 
+
+
+
+
+
+
+
+
+
+
+
+
 [Socket]
 User=db4e
 ListenFIFO=/opt/prod/monerod/run/monerod.stdin
@@ -296,15 +305,3 @@ sudo systemctl stop monerod
 ```
 sudo systemctl status monerod
 ```
-
-
-
-
-
-
-
-
-
-
-
-
