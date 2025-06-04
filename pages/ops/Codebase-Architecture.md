@@ -12,8 +12,6 @@ Db4eDb      | This module is responsible for all MongoDb operations.
 Db4eGit     | This module is responsible for pushing files up to GitHub.
 Db4eLog     | This module is responsible for managing logging of the application.
 
----
-
 # Mining Modules
 
 Module               | Description
@@ -21,8 +19,6 @@ Module               | Description
 MiningDb             | Accepts mining specific DB commands and then uses the Db4eDb module to execute them.
 P2Pool               | Monitors the P2Pool log, queries the API and creates corresponding events in MongoDb using the MiningDb module.
 MiningReports        | Parses the reports definition files, generates CSV, Javascript and GitHub markdown files and publishes to GitHub Pages.
-
----
 
 # JavaScript
 

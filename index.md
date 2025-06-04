@@ -33,7 +33,7 @@ The console application gets the data from the [data warehouse](#data-warehouse)
 
 ---
 
-# Web Report
+# Web Reports
 
 Reporting with *db4e* is easy. A reports definition file tells *db4e* what kinds of reports to prepare.
 
