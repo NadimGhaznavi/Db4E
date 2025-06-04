@@ -5,7 +5,7 @@ description: Monero XMR Mining Farm Operations
 favicon: true
 color-scheme: dark
 
-remote_theme: NadimGhaznavi/minimax
+remote_theme: nadimghaznavi/minimax
 
 plugins:
   - jekyll-sitemap
