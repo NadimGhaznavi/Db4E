@@ -231,7 +231,7 @@ class MiningReports():
                     first_total = False
                     cur_total = 0
                 cur_total += cur_pay
-                csv_row = f'{timestamp},{cur_total}\n'
+                csv_row = f'{timestamp},{round(cur_total, 4)}\n'
                 csv_handle.write(csv_row)
 
         elif report_type == 'blocksfound':
