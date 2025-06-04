@@ -4,7 +4,7 @@ title: Configuring the Monero Daemon to Run as a Service
 
 # Introduction
 
-This page documents the configuration of the Monero XMR Daemon (`monerod`) as a system service. Configuring `monerod` as a service ensures that it starts automatically whenever the host computer boots up. The Monero daemon supports interactive commands and to take advantage of this interactive aspect of the daemon I have configured a named pipe or Unix socket that allows for this. With this configuration you can send commands to the Monero daemon by echoing commands into the named pipe.
+This page documents the configuration of the Monero XMR Daemon (*monerod*) as a system service. This ensures that it starts automatically whenever the host computer boots up. The Monero daemon supports interactive commands and to take advantage of this interactive aspect of the daemon I have configured a named pipe or Unix socket that allows for this. With this configuration you can send commands to the Monero daemon by echoing commands into the named pipe.
 
 ---
 
@@ -105,7 +105,7 @@ PRIORITY_NODE_2_PORT="18080"
 
 ## Startup Script
 
-The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. this script is not usually called directory. Instead it is called from `systemd`.
+The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. this script is not usually called directory. Instead it is called from *systemd*.
 
 A few things to note about this script.
 
@@ -113,13 +113,12 @@ A few things to note about this script.
 same router. The router supports upnp for routing inbound traffic. In order for the router to
 differentiate between the two nodes each node needs to use unique port numbers. The port numbers
 I use in the script below are non-standard, the standard port numbers start with *18* (e.g.
-ZMQ_PUB_PORT="18083"). This isn't really relevant, but is worth mentioning in case you encounter
+`ZMQ_PUB_PORT="18083"`). This isn't really relevant, but is worth mentioning in case you encounter
 documentation that talks about slightly different port numbers.
 * You'll note that I have *p2pmd.xmrvsbeast* and *nodes.hashvault.pro* configured with the
 `--add-priority-hosts` switch. I trust both of these machines and the people who run the 
 Monero nodes on these machines. You can safely remove both of these lines if you prefer. 
-* You may also notice that the `DATA_DIR` is set to `/opt/prod/monero-blockchain`, an
-explanation for this is covered in the next section.
+* You may also notice that the `DATA_DIR` is set to */opt/prod/monero-blockchain* see [The Blockchain Data File](#the-blockchain-data-files) for more info.
 
 ```
 #!/bin/bash
@@ -193,7 +192,7 @@ sudo chmod a+x /opt/prod/monerod/start-monerod.sh
 
 The *Monero Daemon Service* is configured as a standard systemd service. To do this 
 you need to create a systemd service description file in the `/etc/systemd/system` 
-directory. Name this file `monerod.service` and create it as the root user. A complete 
+directory. Name this file *monerod.service* and create it as the root user. A complete 
 listing of this file is shown below.
 
 ```
@@ -265,6 +264,7 @@ sudo systemd daemon-reload
 
 To have *systemd* automatically start the *Monero Daemon* whenever your system boots, simply
 execute the command below:
+
 ```
 sudo systemd enable monerod.service
 ```

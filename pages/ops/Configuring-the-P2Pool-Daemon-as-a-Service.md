@@ -4,7 +4,7 @@ title: Configuring the P2Pool Daemon as a Service
 
 # Introduction
 
-This page documents the configuration of the P2Pool software used by my Monero mining farm. I have configured P2Pool to connect my collection of machines running XMRig to the Monero Mini Sidechain.
+This page documents the configuration of the *P2Pool* software used by my Monero mining farm. I have configured *P2Pool* to connect my collection of machines running *XMRig* to the *Monero Mini Sidechain*.
 
 The socket service creates a named pipe that connects the the P2Pool daemon's standard input. This pipe is used to interact with the daemon once it's running. By using this architecture, you can run processes (e.g. a cron script) to send commands to the P2Pool daemon while still running it as a service. The actual P2Pool service definition calls a shell script (shown below) that passes in all the options used to start the P2Pool daemon.
 
@@ -16,8 +16,7 @@ The socket service creates a named pipe that connects the the P2Pool daemon's st
 
 ## Linux Operating System
 
-I am running [Debian](https://debian.org), but these instructions apply to basically any machine running
-Linux. 
+I am running [Debian](https://debian.org), but these instructions apply to basically any machine running Linux. 
 
 ---
 
@@ -72,7 +71,7 @@ I use a shell script to start the P2Pool Daemon. A few points about the startup 
 * The script is not run directly, it's used by a systemd service.
 * P2Pool is configured to mine on the mini sidechain (the `--mini` switch).
 * The script reads it's settings from a `p2pool.ini` file.
-* Be sure to substitute your own Monero wallet address for the WALLET variable in the `p2pool.ini` file.
+* Be sure to substitute your own Monero wallet address for the `WALLET` variable in the `p2pool.ini` file.
 * The `MONERO_NODE` is the IP of a machine that hosts the Monero Blockchain i.e. runs the monerod daemon
   * The `ZMQ_PORT` and `RPC_PORT` need to match what the monerod daemon's configuration
 * The `P2P_DIR` is the directory where you have the P2Pool software installed
@@ -192,7 +191,7 @@ To have the P2Pool daemon automatically start at boot time use the command below
 sudo systemd enable p2pool.service
 ```
 
-That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the */opt/prod/p2pool/logs/p2pool.log* file for logging information.
+That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the `/opt/prod/p2pool/logs/p2pool.log` file for logging information.
 
 ---
 
