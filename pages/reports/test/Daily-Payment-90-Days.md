@@ -5,7 +5,7 @@ date: 2025-06-04
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="/assets/js/daily-payment-90days.js"></script>
+<script src="/assets/js/test/daily-payment-90days.js"></script>
 
 <div id="wrapper">
   <div id="areaChart">
@@ -15,4 +15,4 @@ date: 2025-06-04
  </div>
 
 * Days of data: 90
-* Last updated: 2025-06-04 15:54
+* Last updated: 2025-06-04 15:58
