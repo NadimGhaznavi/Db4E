@@ -19,7 +19,7 @@ This is the home of the **db4e**, the **Database 4 Everything**  project. The **
 
 ---
 
-# Console Application
+# Monitoring
 
 The db4e [console application](/pages/ops/db4e-gui.py) is a command line utility that displays the following information:
 
@@ -47,7 +47,7 @@ The [Reports](/pages/web/Reports.md) page has links to currently configured repo
 
 ---
 
-# Data Warehouse
+# Historical Reporting
 
 The *db4e* stands out from other Monero XMR software in that it includes a **Data Warehouse**. The *db4e* application is setup as a system service. When running it monitors the local P2Pool software and creates records in the backend datastore. The data warehouse is used to genereate [reports](#automated-web-reports) and as a data source for the [db4e console application](/pages/ops/db4e-gui.py.html).
 
@@ -68,7 +68,7 @@ See the [Pre-Requisites page](/pages/ops/Pre-Requisites.md)
 
 ---
 
-# Architecture
+# Systems Architecture
 
 The application is designed to be modular and have a clear data abstraction layer. Mining database operations go though a *mining
 database class* which sends those to a *db4e mining class* which interacts with MongoDB.
@@ -77,17 +77,17 @@ For example, mining data exports to CSV are performed by connecting to the *Mini
 
 ---
 
+# Codebase Architecture
+
+See the [Codebase Architecture](/pages/ops/Codebase-Architecture.html) page for more information.
+
+---
+
 # Utilities
 
 Utilities include the core [db4e.py](/pages/ops/db4e.py.html) too, the [db4e-gui.py](/pages/ops/db4e-gui.py.html) console application, the [backup-db.sh](/pages/ops/backup-db.sh.html) and more.
 
 See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
-
----
-
-# Codebase
-
-See the [Codebase Architecture](/pages/ops/Codebase-Architecture.html) page for more information.
 
 ---
 
