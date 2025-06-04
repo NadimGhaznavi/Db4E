@@ -195,7 +195,7 @@ That's it! You're done! You can safely reboot the server to confirm that the Mon
 
 ---
 
-# Manually Starting the Daemon
+# Manual Starts
 
 You can also start the service without rebooting:
 
@@ -205,7 +205,7 @@ sudo systemd start p2pool
 
 ---
 
-# Manually Stopping the Daemon
+# Manual Stops
 
 ```
 sudo systemctl stop p2pool
@@ -213,11 +213,13 @@ sudo systemctl stop p2pool
 
 ---
 
-# Checking the status of the Daemon
+# Checking the Status
 
 ```
 sudo systemctl status p2pool
 ```
+
+---
 
 # Credits
 

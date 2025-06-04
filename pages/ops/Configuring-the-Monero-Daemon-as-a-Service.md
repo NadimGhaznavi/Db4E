@@ -273,7 +273,7 @@ That's it! You're done! You can safely reboot the server to confirm that the Mon
 
 ---
 
-# Manually Starting the Daemon
+# Manual Starts
 
 You can also start the service without rebooting:
 
@@ -283,7 +283,7 @@ sudo systemctl start monerod
 
 ---
 
-# Manually Stopping the Daemon
+# Manual Stops
 
 ```
 sudo systemctl stop monerod
@@ -291,7 +291,7 @@ sudo systemctl stop monerod
 
 ---
 
-# Checking the status of the Daemon
+# Checking the Status
 
 ```
 sudo systemctl status monerod
