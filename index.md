@@ -100,7 +100,7 @@ See the [Codebase Architecture](/pages/ops/Codebase-Architecture.html) page for 
 
 ---
 
-# Software Build and Install Documentation
+# 3rd Party Software 
 
 * [Building P2Pool from Source](/pages/ops/Building-P2Pool-from-Source.html)
 * [Building Monerod from Source](/pages/ops/Building-Monerod-from-Source.html)

@@ -35,5 +35,5 @@ The *db4e-restart.sh* script executed once a day from a cron job. It performs th
 2. Restart my Mining Farm's P2Pool daemon.
 3. Restart the *db4e* P2Pool log file monitoring daemon.
 
-Additionally, each miner also has a cron job to restart the `xmrig` mining software. Best practice is to restart on a scheduled basis.
+Additionally, each miner also has a cron job to restart the *xmrig* mining software. Best practice is to restart on a scheduled basis.
 
