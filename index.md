@@ -77,70 +77,17 @@ For example, mining data exports to CSV are performed by connecting to the *Mini
 
 ---
 
-## Utilities
+# Utilities
+
+Utilities include the core [db4e.py](/pages/ops/db4e.py.html) too, the [db4e-gui.py](/pages/ops/db4e-gui.py.html) console application, the [backup-db.sh](/pages/ops/backup-db.sh.html) and more.
+
+See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
 
 ---
 
-### db4e.py
+# Codebase
 
-This utility monitors the Mining Farm's P2Pool daemon logs, creates records in the backend database and triggers updates to the web front end. See the [db4e.py page](/pages/ops/db4e.py.html) for more information.
-
----
-
-### db4e-gui.py
-
-The *db4e-gui.py* application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/ops/db4e-gui.py.html) for more information.
-
----
-
-### backup-db.sh
-
-The *backup-db.sh* utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
-
----
-
-### db4e-git.sh
-
-The *db4e-git.sh* utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
-
----
-
-### db4e-restart.sh
-
-The *db4e-restart.sh* script executed once a day from a cron job. It performs the following sequenced actions:
-
-1. Restart the Monero XMR daemon which is responsible for running the full blockchain node. The node is part of the larger, distributed Monero XMR ecosystem.
-2. Restart my Mining Farm's P2Pool daemon.
-3. Restart the *db4e* P2Pool log file monitoring daemon.
-
-Additionally, each miner also has a cron job to restart the `xmrig` mining software. Best practice is to restart on a scheduled basis.
-
----
-
-## Infrastructure Modules
-
-Module      | Description
-------------|--------------------
-Db4eConfig  | This module is responsible for loading *db4e* application settings from an YAML file.
-Db4eDb      | This module is responsible for all MongoDb operations.
-Db4eGit     | This module is responsible for pushing files up to GitHub.
-Db4eLog     | This module is responsible for managing logging of the application.
-
----
-
-## Mining Modules
-
-Module               | Description
----------------------|--------------------------------------
-MiningDb             | Accepts mining specific DB commands and then uses the Db4eDb module to execute them.
-P2Pool               | Monitors the P2Pool log, queries the API and creates corresponding events in MongoDb using the MiningDb module.
-MiningReports        | Parses the reports definition files, generates CSV, Javascript and GitHub markdown files and publishes to GitHub Pages.
-
----
-
-## JavaScript
-
-Javascript files for the different report types have been written. These render the CSV data into plots such as bar charts and area graphs.
+See the [Codebase Architecture](/pages/ops/Codebase-Architecture.html) page for more information.
 
 ---
 
