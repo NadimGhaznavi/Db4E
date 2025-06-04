@@ -5,7 +5,9 @@ date: 2025-06-04
 
 # Reports
 
-Reports [definition file](/conf/reports/hashrates.yml).* [Pool Hashrate - all data](/pages/reports/hashrates/Pool-Hashrate.html)
+Reports [definition file](/conf/reports/hashrates.yml).
+
+* [Pool Hashrate - all data](/pages/reports/hashrates/Pool-Hashrate.html)
 * [Pool Hashrate - 30 days](/pages/reports/hashrates/Pool-Hashrate-30-Days.html)
 * [Pool Hashrate - 60 days](/pages/reports/hashrates/Pool-Hashrate-60-Days.html)
 * [Pool Hashrate - 90 days](/pages/reports/hashrates/Pool-Hashrate-90-Days.html)
@@ -18,4 +20,4 @@ Reports [definition file](/conf/reports/hashrates.yml).* [Pool Hashrate - all da
 * [Mainchain Hashrate - 60 days](/pages/reports/hashrates/Mainchain-Hashrate-60-Days.html)
 * [Mainchain Hashrate - 90 days](/pages/reports/hashrates/Mainchain-Hashrate-90-Days.html)
 
-Last updated: 2025-06-04 17:35
+Last updated: 2025-06-04 17:38
