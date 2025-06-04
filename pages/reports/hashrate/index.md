@@ -1,6 +1,6 @@
 ---
 title: Hashrate Reports
-date: 2025-06-03
+date: 2025-06-04
 ---
 
 * [Pool Hashrate](/pages/reports/hashrate/Pool-Hashrate.html)
@@ -16,5 +16,4 @@ date: 2025-06-03
 * [Mainchain Hashrate - 60 days](/pages/reports/hashrate/Mainchain-Hashrate-60-Days.html)
 * [Mainchain Hashrate - 90 days](/pages/reports/hashrate/Mainchain-Hashrate-90-Days.html)
 
-Last updated: 2025-06-03 23:30
-
+Last updated: 2025-06-04 00:12
