@@ -32,13 +32,13 @@ lrwxrwxrwx  1 root  root     11 May 22 22:58 p2pool -> p2pool-v4.6
 drwxr-xr-x  7 root  root   4096 May 31 17:33 p2pool-v4.6
 ```
 
-# Configure the P2Pool Service
+# Setup the Service
 
 The *P2Pool Daemon* is an interactive process that accepts commands. In order to take advantage of this feature while still running it as a service this implementation uses two distinct services. The primary service is the actual *P2Pool Daemon*. The secondary service sets up a named pipe which allows the user to send commands to the *P2Pool Daemon* by echoing commands into the named pipe.
 
 ---
 
-## The p2pool.ini File
+## Configuration File
 
 This file should be created in the `conf` directory where you installed P2Pool (e.g. `/opt/prod/p2pool-v4.6/conf`). A complete listing is shown below.
 
@@ -65,7 +65,7 @@ OUT_PEERS=16
 
 ---
 
-## The start-p2pool.sh Script
+## Startup Script
 
 I use a shell script to start the P2Pool Daemon. A few points about the startup script:
 
@@ -129,7 +129,7 @@ $P2POOL \
 
 ---
 
-## Configuring the Daemon Service
+## Setup the Daemon Service
 
 This file is installed in `/etc/systemd/system` and is named `p2pool.service`. A full listing of the file is shown below:
 
@@ -159,7 +159,7 @@ WantedBy=multi-user.target
 
 ---
 
-## Configuring the Socket Service
+## Setup the Socket Service
 
 This file is installed in `/etc/systemd/system` and is named `p2pool.socket`. A full listing of the file is shown below:
 
@@ -192,13 +192,33 @@ To have the P2Pool daemon automatically start at boot time use the command below
 sudo systemd enable p2pool.service
 ```
 
-To actually start the service without rebooting use the command below:
+That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the */opt/prod/p2pool/logs/p2pool.log* file for logging information.
+
+---
+
+# Manually Starting the Daemon
+
+You can also start the service without rebooting:
 
 ```
-sudo systemd start p2pool.service
+sudo systemd start p2pool
 ```
 
 ---
+
+# Manually Stopping the Daemon
+
+```
+sudo systemctl stop p2pool
+```
+
+---
+
+# Checking the status of the Daemon
+
+```
+sudo systemctl status p2pool
+```
 
 # Credits
 

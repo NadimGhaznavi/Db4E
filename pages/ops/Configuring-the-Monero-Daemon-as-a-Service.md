@@ -54,13 +54,13 @@ sudo mkdir /opt/prod/monero-blockchain
 
 ---
 
-# Configure the Monero Service
+# Setup the Service
 
 The *Monero Daemon* is an interactive process that accepts commands. In order to take advantage of this feature while still running it as a service this implementation uses two distinct services. The primary service is the actual *Monero Daemon*. The secondary service sets up a named pipe which allows the user to send commands to the *Monero Daemon* by echoing commands into the named pipe.
 
 ---
 
-## The monerod.ini File
+## Configuration File
 
 A custom `monerod.ini` file should be created in the `/opt/prod/monerod` directory. This file contains the deployment specific settings for the Monero Daemon. A complete listing is shown below:
 
@@ -103,7 +103,7 @@ PRIORITY_NODE_2="nodes.hashvault.pro"
 PRIORITY_NODE_2_PORT="18080"
 ```
 
-## The start-monerod.sh Script
+## Startup Script
 
 The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. this script is not usually called directory. Instead it is called from `systemd`.
 
@@ -189,7 +189,7 @@ sudo chmod a+x /opt/prod/monerod/start-monerod.sh
 
 ---
 
-## Configuring the Daemon Service
+## Setup the Daemon Service
 
 The *Monero Daemon Service* is configured as a standard systemd service. To do this 
 you need to create a systemd service description file in the `/etc/systemd/system` 
@@ -220,7 +220,7 @@ WantedBy=multi-user.target
 
 ---
 
-## Configuring the Socket Service
+## Setup the Socket Service
 
 This file is installed in `/etc/systemd/system` and is named `monerod.socket`. A full listing of the file is shown below:
 
@@ -261,7 +261,7 @@ sudo systemd daemon-reload
 
 ---
 
-## Starting the Daemon at Boot Time
+## Start when Booting
 
 To have *systemd* automatically start the *Monero Daemon* whenever your system boots, simply
 execute the command below:
@@ -269,11 +269,11 @@ execute the command below:
 sudo systemd enable monerod.service
 ```
 
-That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the `/opt/prod/monerod/monerod.log` file for logging information.
+That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the */opt/prod/monerod/logs/monerod.log* file for logging information.
 
 ---
 
-## Manually Starting the Daemon
+# Manually Starting the Daemon
 
 You can also start the service without rebooting:
 
@@ -283,15 +283,15 @@ sudo systemctl start monerod
 
 ---
 
-## Manually Stopping the Daemon
+# Manually Stopping the Daemon
 
 ```
-sudo systemctl start monerod
+sudo systemctl stop monerod
 ```
 
 ---
 
-## Checking the status of the Daemon
+# Checking the status of the Daemon
 
 ```
 sudo systemctl status monerod
