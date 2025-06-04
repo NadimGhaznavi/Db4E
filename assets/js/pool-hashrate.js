@@ -1,6 +1,6 @@
-const csvUrl = '/data/xmr-earnings.csv';
+const csvUrl = '/csv/pool-hashrate.csv';
 const dateData = [];
-const totalData = [];
+const hashData = [];
 
 Papa.parse(csvUrl, {
   download: true,
@@ -8,8 +8,8 @@ Papa.parse(csvUrl, {
   delimiter: ",",
   complete: data => {
     data.data.forEach(row => {
-      const dateString = row['Date'];
-      const value = row['Total'];
+      const dateString = row['Datetime'];
+      const value = row['Hashrate'];
 
       // Check for missing or invalid data
       if (!dateString || isNaN(value)) {
@@ -22,7 +22,7 @@ Papa.parse(csvUrl, {
 
       dateData.push(date);
       //totalData.push(Number(total));
-      totalData.push({ x: date, y: value });
+      hashData.push({ x: date, y: value });
 
     });
     
@@ -68,8 +68,8 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Wallet Ballance",
-          data: totalData
+          name: "Hashrate (KH/s)",
+          data: hashData
         }
       ],
       tooltip: {
@@ -103,16 +103,12 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-          xaxis: {
-            min: new Date("06 May 2024 00:00:00").getTime(),
-            max: new Date("23 May 2024 23:59:59").getTime()
-          }
         }
       },
       colors: ["#FF0080"],
       series: [
         {
-          data: totalData
+          data: hashData
         }
       ],
       stroke: {

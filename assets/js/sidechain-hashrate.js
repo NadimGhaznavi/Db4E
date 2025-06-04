@@ -1,6 +1,6 @@
-const csvUrl = '/csv/blocksfound/blocksfound.csv';
+const csvUrl = '/csv/sidechain-hashrate.csv';
 const dateData = [];
-const totalData = [];
+const hashData = [];
 
 Papa.parse(csvUrl, {
   download: true,
@@ -8,8 +8,8 @@ Papa.parse(csvUrl, {
   delimiter: ",",
   complete: data => {
     data.data.forEach(row => {
-      const dateString = row['Date'];
-      const value = row['BlocksFound'];
+      const dateString = row['Datetime'];
+      const value = row['Hashrate'];
 
       // Check for missing or invalid data
       if (!dateString || isNaN(value)) {
@@ -22,14 +22,14 @@ Papa.parse(csvUrl, {
 
       dateData.push(date);
       //totalData.push(Number(total));
-      totalData.push({ x: date, y: value });
+      hashData.push({ x: date, y: value });
 
     });
     
     const areaOptions = {
       chart: {
         id: "barChart",
-        type: "bar",
+        type: "area",
         height: 275,
         foreColor: "#ccc",
         toolbar: {
@@ -39,7 +39,6 @@ Papa.parse(csvUrl, {
       },
       colors: ["#00baec"],
       stroke: {
-	curve: 'stepline',
         width: 3
       },
       grid: {
@@ -69,22 +68,19 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Blocks Found (MH/s)",
-          data: totalData
+          name: "Hashrate (KH/s)",
+          data: hashData
         }
       ],
       tooltip: {
         theme: "dark"
       },
-      title: {
-	text: 'Blocks Found',
-	align: 'left'
-      },
       xaxis: {
         type: "datetime"
-      },
-      yaxis: {
-        min: 0
+      //},
+      //yaxis: {
+      //  min: 0,
+      //  tickAmount: 4
       }
     };
 
@@ -112,7 +108,7 @@ Papa.parse(csvUrl, {
       colors: ["#FF0080"],
       series: [
         {
-          data: totalData
+          data: hashData
         }
       ],
       stroke: {
@@ -129,7 +125,7 @@ Papa.parse(csvUrl, {
         tooltip: {
           enabled: false
         }
-      }
+      },
     };
 
     var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);

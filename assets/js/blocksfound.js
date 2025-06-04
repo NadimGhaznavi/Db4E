@@ -1,4 +1,4 @@
-const csvUrl = '/csv/payment/cumulative-payment.csv';
+const csvUrl = '/csv/blocksfound.csv';
 const dateData = [];
 const totalData = [];
 
@@ -9,7 +9,7 @@ Papa.parse(csvUrl, {
   complete: data => {
     data.data.forEach(row => {
       const dateString = row['Date'];
-      const value = row['Total'];
+      const value = row['BlocksFound'];
 
       // Check for missing or invalid data
       if (!dateString || isNaN(value)) {
@@ -29,16 +29,17 @@ Papa.parse(csvUrl, {
     const areaOptions = {
       chart: {
         id: "barChart",
-        type: "area",
+        type: "bar",
         height: 275,
         foreColor: "#ccc",
         toolbar: {
           autoSelected: "pan",
           show: false
-        },
+        }
       },
       colors: ["#00baec"],
       stroke: {
+	curve: 'stepline',
         width: 3
       },
       grid: {
@@ -47,8 +48,8 @@ Papa.parse(csvUrl, {
         yaxis: {
           lines: {
             show: false
-          },
-        },
+          }
+        }
       },
       dataLabels: {
         enabled: false
@@ -58,7 +59,7 @@ Papa.parse(csvUrl, {
           enabled: true,
           opacityFrom: 0.55,
           opacityTo: 0,
-        },
+        }
       },
       markers: {
         size: 0,
@@ -68,23 +69,22 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Daily Earnings",
+          name: "Blocks Found (MH/s)",
           data: totalData
-        },
+        }
       ],
       tooltip: {
         theme: "dark"
       },
       title: {
-	text: 'Daily P2Pool XMR Earnings',
+	text: 'Blocks Found',
 	align: 'left'
       },
       xaxis: {
         type: "datetime"
-      //},
-      //yaxis: {
-      //  min: 0,
-      //  tickAmount: 4
+      },
+      yaxis: {
+        min: 0
       }
     };
 
@@ -107,7 +107,7 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-        },
+        }
       },
       colors: ["#FF0080"],
       series: [
@@ -129,7 +129,7 @@ Papa.parse(csvUrl, {
         tooltip: {
           enabled: false
         }
-      },
+      }
     };
 
     var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);

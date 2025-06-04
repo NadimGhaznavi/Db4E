@@ -1,4 +1,4 @@
-const csvUrl = '/csv/hashrate/mainchain-hashrate.csv';
+const csvUrl = '/csv/mainchain-hashrate.csv';
 const dateData = [];
 const hashData = [];
 

@@ -1,6 +1,6 @@
-const csvUrl = '/csv/hashrate/pool-hashrate.csv';
+const csvUrl = '/csv/cumulative-payment.csv';
 const dateData = [];
-const hashData = [];
+const totalData = [];
 
 Papa.parse(csvUrl, {
   download: true,
@@ -8,8 +8,8 @@ Papa.parse(csvUrl, {
   delimiter: ",",
   complete: data => {
     data.data.forEach(row => {
-      const dateString = row['Datetime'];
-      const value = row['Hashrate'];
+      const dateString = row['Date'];
+      const value = row['Total'];
 
       // Check for missing or invalid data
       if (!dateString || isNaN(value)) {
@@ -22,7 +22,7 @@ Papa.parse(csvUrl, {
 
       dateData.push(date);
       //totalData.push(Number(total));
-      hashData.push({ x: date, y: value });
+      totalData.push({ x: date, y: value });
 
     });
     
@@ -35,7 +35,7 @@ Papa.parse(csvUrl, {
         toolbar: {
           autoSelected: "pan",
           show: false
-        }
+        },
       },
       colors: ["#00baec"],
       stroke: {
@@ -47,8 +47,8 @@ Papa.parse(csvUrl, {
         yaxis: {
           lines: {
             show: false
-          }
-        }
+          },
+        },
       },
       dataLabels: {
         enabled: false
@@ -58,7 +58,7 @@ Papa.parse(csvUrl, {
           enabled: true,
           opacityFrom: 0.55,
           opacityTo: 0,
-        }
+        },
       },
       markers: {
         size: 0,
@@ -68,12 +68,16 @@ Papa.parse(csvUrl, {
       },
       series: [
         {
-          name: "Hashrate (KH/s)",
-          data: hashData
-        }
+          name: "Daily Earnings",
+          data: totalData
+        },
       ],
       tooltip: {
         theme: "dark"
+      },
+      title: {
+	text: 'Daily P2Pool XMR Earnings',
+	align: 'left'
       },
       xaxis: {
         type: "datetime"
@@ -103,12 +107,12 @@ Papa.parse(csvUrl, {
             color: "#fff",
             opacity: 0.4
           },
-        }
+        },
       },
       colors: ["#FF0080"],
       series: [
         {
-          data: hashData
+          data: totalData
         }
       ],
       stroke: {

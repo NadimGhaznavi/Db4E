@@ -43,13 +43,13 @@ Reporting with *db4e* is easy. A reports definition file tells *db4e* what kinds
 * Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payment/Daily-Payment-30-Days.html) reports)
 * Reports can be run manually
 
-The [Reports](/pages/web/Reports.md) page has links to currently configured reports.
+The [Reports](/pages/web/Reports.html) page has links to currently configured reports.
 
 ---
 
-# Historical Reporting
+# Data Warehouse
 
-The *db4e* stands out from other Monero XMR software in that it includes a **Data Warehouse**. The *db4e* application is setup as a system service. When running it monitors the local P2Pool software and creates records in the backend datastore. The data warehouse is used to genereate [reports](#automated-web-reports) and as a data source for the [db4e console application](/pages/ops/db4e-gui.py.html).
+The *db4e* stands out from other Monero XMR software in that it includes a **Data Warehouse**. The *db4e* application is setup as a system service. When running it monitors the local P2Pool software and creates records in the backend datastore. The data warehouse is used to genereate [reports](/pages/web/Reports.html) and as a data source for the [db4e console application](/pages/ops/db4e-gui.py.html).
 
 ---
 
