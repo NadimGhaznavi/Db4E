@@ -39,8 +39,8 @@ Reporting with *db4e* is easy. A reports definition file tells *db4e* what kinds
 
 * Reports are published to the web
 * Reports are defined in a simple YAML file format
-* Reports can be scheduled (e.g. [pool hashrate](/pages/reports/hashrate/Pool-Hashrate-90-Days.html) reports)
-* Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payment/Daily-Payment-30-Days.html) reports)
+* Reports can be scheduled (e.g. [pool hashrate](/pages/reports/hashrates/Pool-Hashrate-90-Days.html) reports)
+* Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payments/Daily-Payment-30-Days.html) reports)
 * Reports can be run manually
 
 The [Reports](/pages/web/Reports.html) page has links to currently configured reports.

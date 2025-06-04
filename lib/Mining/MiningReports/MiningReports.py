@@ -450,6 +450,7 @@ class MiningReports():
         Report_type = report_type.capitalize()
         install_dir = self._install_dir
         reports_dir = self._reports_dir
+        conf_dir = self._conf_dir
         toc_file = 'index.md'
         toc_handle = open(os.path.join(install_dir, reports_dir, reports_name, toc_file), 'w')
         # Generate the GitHub Markdown header
@@ -458,11 +459,14 @@ class MiningReports():
         date_str = datetime.now().strftime("%Y-%m-%d")
         toc_handle.write(f'date: {date_str}\n')
         toc_handle.write('---\n\n')
+        toc_handle.write("# Reports\n\n")
+        toc_handle.write(f'Reports [definition file](/{conf_dir}/reports/{reports_name}.yml).\n\n')
         for link in self._report_links:
             toc_handle.write(f'* {link}\n')
         self.git.add(os.path.join(install_dir, reports_dir, reports_name, toc_file))
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         toc_handle.write(f'\nLast updated: {datetime_str}\n')
+
         toc_handle.close()
         export_file = os.path.join(install_dir, reports_dir, reports_name, toc_file)
         print(f"  Created GFM reports summary file : {export_file}")
