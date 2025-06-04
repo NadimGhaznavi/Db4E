@@ -1,4 +1,4 @@
-const csvUrl = '/csv/test/daily-payment-alldays.csv';
+const csvUrl = '/csv/test/daily-payment.csv';
 const dateData = [];
 const totalData = [];
 
