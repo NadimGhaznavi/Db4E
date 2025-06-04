@@ -72,7 +72,7 @@ class MiningReports():
         self._gen_toc(report_type)
 
         print("Pushing reports to GitHub: ", end='', flush=True)
-        self.git.commit("New reports")
+        self.git.commit("New db4e reports")
         self.git.push()
         print("Done")
 

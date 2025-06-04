@@ -1,6 +1,7 @@
 title: The Database 4 Everything
+description: Monero XMR Mining Operation
+
 remote_theme: NadimGhaznavi/minimax
 
 plugins:
-  - jekyll-relative-links
   - jekyll-remote-theme
