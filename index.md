@@ -92,25 +92,25 @@ This utility monitors the Mining Farm's P2Pool daemon logs, creates records in t
 
 ### db4e-gui.py
 
-The `db4e-gui.py` application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/ops/db4e-gui.py.html) for more information.
+The *db4e-gui.py* application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/ops/db4e-gui.py.html) for more information.
 
 ---
 
 ### backup-db.sh
 
-The `backup-db.sh` utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
+The *backup-db.sh* utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
 
 ---
 
-### gitpush.sh
+### db4e_git.sh
 
-the `gitpush.sh` utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
+The *db4e_git.sh* utility is responsible for pushing files to GitHub where they are picked up by the JavaScript code and rendered into graphs and bar charts.
 
 ---
 
 ### restart_mining_services.sh
 
-The `restart_mining_services.sh` script executed once a day from a cron job. It performs the following sequenced actions:
+The *restart_mining_services.sh* script executed once a day from a cron job. It performs the following sequenced actions:
 
 1. Restart the Monero XMR daemon which is responsible for running the full blockchain node. The node is part of the larger, distributed Monero XMR ecosystem.
 2. Restart my Mining Farm's P2Pool daemon.
