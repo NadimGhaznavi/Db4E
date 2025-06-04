@@ -2,6 +2,13 @@
 #
 # Use `db4e.py -r payments` to generate these reports manually.
 
+# Daily Payments - 60 days
+- report_type: payment
+  sub_type: daily
+  title: Daily XMR Payments from P2Pool Mining
+  columns: Date,Total
+  length: 60 days
+
 # Daily Payments - 90 days
 - report_type: payment
   sub_type: daily
@@ -16,6 +23,13 @@
   columns: Date,Total
   length: 180 days
 
+# Cumulative Earnings - 60 days
+- report_type: payment
+  sub_type: cumulative
+  title: Cumulative XMR Earnings from P2Pool Mining
+  columns: Date,Total
+  length: 60 days
+
 # Cumulative Earnings - 90 days
 - report_type: payment
   sub_type: cumulative
@@ -28,4 +42,4 @@
   sub_type: cumulative
   title: Cumulative XMR Earnings from P2Pool Mining
   columns: Date,Total
-  length: 90 days
+  length: 180 days
