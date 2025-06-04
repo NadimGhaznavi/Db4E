@@ -1,0 +1,11 @@
+# Report definitions for XMR payments received for mining
+#
+# Use `db4e.py -r payments` to generate these reports manually.
+
+# Daily Payments - 90 days
+- report_type: payment
+  sub_type: daily
+  title: Daily XMR Payments from P2Pool Mining
+  columns: Date,Total
+  length: 90 days
+
