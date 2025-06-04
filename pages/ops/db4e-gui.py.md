@@ -1,5 +1,5 @@
 ---
-title: db4e-gui.py Console Application
+title: Console Application
 ---
 
 # Console Application
