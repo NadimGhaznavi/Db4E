@@ -206,7 +206,7 @@ class MiningReports():
                     timestamps.append(timestamp)
             timestamps.sort()
             for timestamp in timestamps:
-                csv_row = f'{timestamp},{daily_payments[timestamp]}\n'
+                csv_row = f'{timestamp},{round(daily_payments[timestamp], 4)}\n'
                 csv_handle.write(csv_row)
 
         elif report_type == 'payment' and sub_type == 'cumulative':
