@@ -2,7 +2,7 @@
 title: "Building P2Pool from Source"
 ---
 
-# Introduction and Scope
+# Introduction
 
 This page documents the process of building [SChernykh's P2Pool Software](https://github.com/SChernykh/p2pool).
 

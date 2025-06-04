@@ -2,7 +2,7 @@
 title: Configuring the P2Pool Daemon as a Service
 ---
 
-# Introduction and Scope
+# Introduction
 
 This page documents the configuration of the P2Pool software used by my Monero mining farm. I have configured P2Pool to connect my collection of machines running XMRig to the Monero Mini Sidechain.
 
@@ -10,17 +10,31 @@ The socket service creates a named pipe that connects the the P2Pool daemon's st
 
 ---
 
-# The P2Pool Daemon Startup Script
+# Pre-Requisites
 
-I use a shell script to start the P2Pool Daemon. A few points about the startup script:
+---
 
-* The script is not run directly, it's used by a systemd service.
-* P2Pool is configured to mine on the mini sidechain (the `--mini` switch).
-* The script reads it's settings from a `p2pool.ini` file.
-* Be sure to substitute your own Monero wallet address for the WALLET variable in the `p2pool.ini` file.
-* The `MONERO_NODE` is the IP of a machine that hosts the Monero Blockchain i.e. runs the monerod daemon
-  * The `ZMQ_PORT` and `RPC_PORT` need to match what the monerod daemon's configuration
-* The `P2P_DIR` is the directory where you have the P2Pool software installed
+## Linux Operating System
+
+I am running [Debian](https://debian.org), but these instructions apply to basically any machine running
+Linux. 
+
+---
+
+## P2Pool Software is Installed
+
+The instructions here assume you have the P2Pool software installed on your system. I have a document on how to download, compile and install the software [here](/pages/ops/Building-P2Pool-from-Source.html). This procedure assumes you have the software installed in */opt/prod*:
+
+```
+ls -l /opt/prod
+total 12
+lrwxrwxrwx  1 root  root     11 May 22 22:58 p2pool -> p2pool-v4.6
+drwxr-xr-x  7 root  root   4096 May 31 17:33 p2pool-v4.6
+```
+
+# Configure the P2Pool Service
+
+The *P2Pool Daemon* is an interactive process that accepts commands. In order to take advantage of this feature while still running it as a service this implementation uses two distinct services. The primary service is the actual *P2Pool Daemon*. The secondary service sets up a named pipe which allows the user to send commands to the *P2Pool Daemon* by echoing commands into the named pipe.
 
 ---
 
@@ -53,13 +67,23 @@ OUT_PEERS=16
 
 ## The start-p2pool.sh Script
 
-This script is called by *systemd* to start P2Pool as a service. A complete listing is shown below. It should be installed in the `bin` directory that's within the P2Pool installation directory (e.g. `/opt/prod/p2pool-v4.6/bin`).
+I use a shell script to start the P2Pool Daemon. A few points about the startup script:
+
+* The script is not run directly, it's used by a systemd service.
+* P2Pool is configured to mine on the mini sidechain (the `--mini` switch).
+* The script reads it's settings from a `p2pool.ini` file.
+* Be sure to substitute your own Monero wallet address for the WALLET variable in the `p2pool.ini` file.
+* The `MONERO_NODE` is the IP of a machine that hosts the Monero Blockchain i.e. runs the monerod daemon
+  * The `ZMQ_PORT` and `RPC_PORT` need to match what the monerod daemon's configuration
+* The `P2P_DIR` is the directory where you have the P2Pool software installed
+
+A complete listing is shown below. It should be installed in the `bin` directory that's within the P2Pool installation directory (e.g. `/opt/prod/p2pool-v4.6/bin`).
 
 ```
 #!/bin/bash
 
 # Read in the P2Pool settings
-source /opt/prod/p2pool/conf/p2pool.ini
+source /opt/prod/p2pool/conf/p2pool.ini## The p2pool.ini File
 
 # Setup sub-directories
 API_DIR=${P2P_DIR}/api
@@ -105,26 +129,7 @@ $P2POOL \
 
 ---
 
-# The systemd p2pool.socket definition
-
-This file is installed in `/etc/systemd/system` and is named `p2pool.socket`. A full listing of the file is shown below:
-
-```
-[Unit]
-Description=P2Pool Socket
-
-[Socket]
-User=db4e
-ListenFIFO=/opt/prod/p2pool/run/p2pool.stdin
-RemoveOnStop=true
-
-[Install]
-WantedBy=sockets.target
-```
-
----
-
-# The systemd p2pool.service Definition
+## Configuring the Daemon Service
 
 This file is installed in `/etc/systemd/system` and is named `p2pool.service`. A full listing of the file is shown below:
 
@@ -154,7 +159,26 @@ WantedBy=multi-user.target
 
 ---
 
-# Activing and Enabling the P2Pool Services
+## Configuring the Socket Service
+
+This file is installed in `/etc/systemd/system` and is named `p2pool.socket`. A full listing of the file is shown below:
+
+```
+[Unit]
+Description=P2Pool Socket
+
+[Socket]
+User=db4e
+ListenFIFO=/opt/prod/p2pool/run/p2pool.stdin
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target
+```
+
+---
+
+## Refresh systemd
 
 To refresh systemd's configuration after creating the service and socket definitions use the command below:
 

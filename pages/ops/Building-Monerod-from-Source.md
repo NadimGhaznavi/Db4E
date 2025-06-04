@@ -2,7 +2,7 @@
 title: "Building Monerod from Source"
 ---
 
-# Introduction and Scope
+# Introduction
 
 This page documents the process of downloading, configuring and installing the core Monero software. The specific directories referenced here are consistent with the [system architecture](#system-architecture) outlined below.
 
