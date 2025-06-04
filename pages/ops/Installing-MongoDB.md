@@ -2,7 +2,7 @@
 title: Installing MongoDB on Debian
 ---
 
-# Import the MongoDB Public Key
+# Repository Public Key
 
 Install gnupg and curl if they are not already available:
 
@@ -10,7 +10,7 @@ Install gnupg and curl if they are not already available:
 sudo apt-get install gnupg curl
 ```
 
-To import the MongoDB public GPG key, run the following command:
+To import the MongoDB repository public GPG key, run the following command:
 
 ```
 curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
@@ -20,7 +20,7 @@ curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
 
 ---
 
-# Create the List File
+# Repository List File
 
 Create the list file for Debian 12 (Bookworm):
 
@@ -30,7 +30,7 @@ echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] http://repo.m
 
 ---
 
-# Reload the Package Database
+# Reload the Package DB
 
 Issue the following command to reload the local package database:
 
@@ -40,7 +40,7 @@ sudo apt-get update
 
 ---
 
-# Install MongoDB Community Server
+# Install MongoDB
 
 You can install either the latest stable version of MongoDB or a specific version of MongoDB.
 
@@ -50,7 +50,7 @@ sudo apt-get install -y mongodb-org
 
 ---
 
-# Run MongoDB Community Edition
+# Run MongoDB
 
 ---
 
@@ -83,19 +83,6 @@ Then run the start command above again.
 
 ---
 
-## Verify that MongoDB has tarted uccessfully
-
-```
-sudo systemctl status mongod
-```
-
-You can optionally ensure that MongoDB will start following a system reboot by issuing the following command:
-```
-sudo systemctl enable mongod
-```
-
----
-
 ## Stop MongoDB
 
 As needed, you can stop the mongod process by issuing the following command:
@@ -113,6 +100,19 @@ sudo systemctl restart mongod
 ```
 
 You can follow the state of the process for errors or important messages by watching the output in the /var/log/mongodb/mongod.log file.
+
+---
+
+## MongoDB Status
+
+```
+sudo systemctl status mongod
+```
+
+You can optionally ensure that MongoDB will start following a system reboot by issuing the following command:
+```
+sudo systemctl enable mongod
+```
 
 ---
 

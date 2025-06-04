@@ -15,7 +15,7 @@ layout: default
   </div>
  </div>
 
-This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html), [realtime web based visualizations](/pages/web/index.html) and [custom scheduled reports](#custom-scheduled-reports) to monitor a local Monero XMR Mining farm using a local P2Pool node. 
+This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application provides a [console based dashboard](/pages/ops/db4e-gui.py.html), and historical [web reports](#web-reports) to monitor your miners, your pool and the Monero ecosystem.
 
 ---
 
@@ -25,7 +25,7 @@ The db4e [console application](/pages/ops/db4e-gui.py) is a command line utility
 
  * Mining wallet balance
  * Worker hashrates
- * Hashrates of your local pool and the Monero mainchain and sidechain
+ * Hashrates of your local pool, the sidechain, and the Monero mainchain
  * Recent shares found in your local pool (inluding timestamp and miner who found the share)
  * Recent payments made to your mining operation
 
