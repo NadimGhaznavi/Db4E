@@ -6,6 +6,7 @@ layout: default
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="/assets/js/SharesFoundByHostShort.js"></script>
 
+# Monero XMR Mining Farm Operations
 
 <div id="wrapper">
   <div id="areaChart">
@@ -15,20 +16,6 @@ layout: default
  </div>
 
 This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application is used to provide a [console based dashboard](/pages/ops/db4e-gui.py.html), [realtime web based visualizations](/pages/web/index.html) and [custom scheduled reports](#custom-scheduled-reports) to monitor a local Monero XMR Mining farm using a local P2Pool node. 
-
----
-
-# Table of Contents
-
-* [Console Application](#console-application)
-* [Automated Web Reports](#reporting)
-* [Data Warehouse](#data-warehouse)
-* [Technology Stack](#technology-stack)
-* [Codebase Architecture](#codebase-architecture)
-* [Systems Configuration](#systems-configuration)
-* [Software Build and Install Documentation](#software-build-and-install-documentation)
-* [Hardware](#hardware)
-* [Links](#links)
 
 ---
 
@@ -48,11 +35,18 @@ The console application gets the data from the [data warehouse](#data-warehouse)
 
 # Automated Web Reports
 
-Reports in *db4e* are event driven (e.g. a new block is found) or scheduled (e.g. the Sidechain hshrate for the last 30 days). Reports can also be run manually using the *db4e.py* tool (e.g. `db4e.py -r blocksfound`). The following [reports](/pages/web/Reports.html) are supported:
+Reporting with *db4e* is easy:
+
+* Reports are defined in a simple YAML file format
+* Reports can be scheduled (e.g. [hashrate of the mini sidechain for the last 90 days](/pages/reports/hashrate/Sidechain-Hashrate-90-Days.html))
+* Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payment/Daily-Payment-30-Days.html) reports). 
+* Reports can be run manually
 
 * [Daily](/pages/reports/payments/Daily-Payment-90-Days.html) and [cumulative](/pages/reports/payments/Cumulative-Payment-90-Days.html) XMR payments made to the mining farm
-* [Shares found](/pages/web/Shares-Found-Short.html) and the colorful [shares found by host](/pages/web/Shares-Found-by-Host-Short.md) by the mining farm
+* [Shares found](/pages/web/Shares-Found-Short.html) and the colorful [shares found by host](/pages/web/Shares-Found-by-Host-Short.html) by the mining farm
 * [Blocks found](/pages/reports/blocksfound/Blocksfound-90-Days.html) on the Monero XMR mini sidechain
+
+The [Reports] page has links to configured reports.
 
 ---
 
@@ -144,23 +138,14 @@ Db4eLog     | This module is responsible for managing logging of the application
 Module               | Description
 ---------------------|--------------------------------------
 MiningDb             | Accepts mining specific DB commands and then uses the Db4eDb module to execute them.
-P2Pool               | Monitors the P2Pool daemon log file and creates corresponding events in MongoDb using the MiningDb module.
-
-The modules below are called by the P2Pool module when the corresponding event is detected. These modules extract all historical data for the event, aggregate it into daily totals, writes that data to a CSV file and pushes the file to GitHub where it is rendered by Javascript Apexcharts code.
+P2Pool               | Monitors the P2Pool log, queries the API and creates corresponding events in MongoDb using the MiningDb module.
+MiningReports        | Parses the reports definition files, generates CSV, Javascript and GitHub markdown files and publishes to GitHub Pages.
 
 ---
 
-### Export Modules
+## JavaScript
 
-These modules extract data from MongoDB and transform it. They produce CSV files and use the Db4eGit module to push the files to GitHub.
-
-Module               | Description
----------------------|--------------------------------------
-BlocksFoundCsv       | Monero sidechain block found events.
-SharesFoundCsv       | Share found events in my mining farm.
-SharesFoundByHostCsv | Share found events, by host, in my mining farm.
-P2PoolPaymentCsv     | XMR payments made to my mining farm.
-Hashrates            | Pool, sidechain and mainchain hashrate data.           | 
+Javascript files for the different report types have been written. These render the CSV data into plots such as bar charts and area graphs.
 
 ---
 
