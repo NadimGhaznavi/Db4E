@@ -1,11 +1,11 @@
 ---
-title: Daily XMR Payments from P2Pool Mining
+title: Cumulative XMR Earnings from P2Pool Mining
 date: 2025-06-04
 ---
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="/assets/js/payments/daily-payment-180days.js"></script>
+<script src="/assets/js/payments/cumulative-payment-180days.js"></script>
 
 <div id="wrapper">
   <div id="areaChart">
