@@ -33,20 +33,17 @@ The console application gets the data from the [data warehouse](#data-warehouse)
 
 ---
 
-# Web Reports
+# Web Report
 
-Reporting with *db4e* is easy:
+Reporting with *db4e* is easy. A reports definition file tells *db4e* what kinds of reports to prepare.
 
+* Reports are published to the web
 * Reports are defined in a simple YAML file format
-* Reports can be scheduled (e.g. [hashrate of the mini sidechain for the last 90 days](/pages/reports/hashrate/Sidechain-Hashrate-90-Days.html))
-* Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payment/Daily-Payment-30-Days.html) reports). 
+* Reports can be scheduled (e.g. [pool hashrate](/pages/reports/hashrate/Pool-Hashrate-90-Days.html) reports)
+* Some reports in *db4e* are event driven (e.g. [recent payments](/pages/reports/payment/Daily-Payment-30-Days.html) reports)
 * Reports can be run manually
 
-* [Daily](/pages/reports/payments/Daily-Payment-90-Days.html) and [cumulative](/pages/reports/payments/Cumulative-Payment-90-Days.html) XMR payments made to the mining farm
-* [Shares found](/pages/web/Shares-Found-Short.html) and the colorful [shares found by host](/pages/web/Shares-Found-by-Host-Short.html) by the mining farm
-* [Blocks found](/pages/reports/blocksfound/Blocksfound-90-Days.html) on the Monero XMR mini sidechain
-
-The [Reports] page has links to configured reports.
+The [Reports](/pages/web/Reports.md) page has links to currently configured reports.
 
 ---
 
