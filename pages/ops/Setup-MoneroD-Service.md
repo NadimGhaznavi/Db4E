@@ -14,8 +14,7 @@ This page documents the configuration of the Monero XMR Daemon (*monerod*) as a 
 
 ## Linux Operating System
 
-I am running [Debian](https://debian.org), but these instructions apply to basically any machine running
-Linux. 
+I am running [Debian](https://debian.org), but these instructions apply to basically any machine running Linux. 
 
 ---
 
@@ -106,15 +105,10 @@ The `start-monerod.sh` script reads it's settings from the `monerod.ini` file. t
 
 A few things to note about this script.
 
-* I run two full monero nodes on my network which are in the same subnet and are behind the
-same router. The router supports upnp for routing inbound traffic. In order for the router to
-differentiate between the two nodes each node needs to use unique port numbers. The port numbers
-I use in the script below are non-standard, the standard port numbers start with *18* (e.g.
-`ZMQ_PUB_PORT="18083"`). This isn't really relevant, but is worth mentioning in case you encounter
-documentation that talks about slightly different port numbers.
-* You'll note that I have *p2pmd.xmrvsbeast* and *nodes.hashvault.pro* configured with the
-`--add-priority-hosts` switch. I trust both of these machines and the people who run the 
-Monero nodes on these machines. You can safely remove both of these lines if you prefer. 
+* I run two full monero nodes on my network which are in the same subnet and are behind the same router. The router supports upnp for routing inbound traffic. In order for the router to
+differentiate between the two nodes each node needs to use unique port numbers. The port numbers I use in the script below are non-standard, the standard port numbers start with *18* (e.g.
+`ZMQ_PUB_PORT="18083"`). This isn't really relevant, but is worth mentioning in case you encounter documentation that talks about slightly different port numbers.
+* You'll note that I have *p2pmd.xmrvsbeast* and *nodes.hashvault.pro* configured with the `--add-priority-hosts` switch. I trust both of these machines and the people who run the Monero nodes on these machines. You can safely remove both of these lines if you prefer. 
 * You may also notice that the `DATA_DIR` is set to */opt/prod/monero-blockchain* see [The Blockchain Data File](#the-blockchain-data-files) for more info.
 
 ```
@@ -187,10 +181,7 @@ sudo chmod a+x /opt/prod/monerod/start-monerod.sh
 
 ## Setup the Daemon Service
 
-The *Monero Daemon Service* is configured as a standard systemd service. To do this 
-you need to create a systemd service description file in the `/etc/systemd/system` 
-directory. Name this file *monerod.service* and create it as the root user. A complete 
-listing of this file is shown below.
+The *Monero Daemon Service* is configured as a standard systemd service. To do this you need to create a systemd service description file in the `/etc/systemd/system` directory. Name this file `monerod.service` and create it as the root user. A complete listing of this file is shown below.
 
 ```
 [Unit]
@@ -224,18 +215,6 @@ This file is installed in `/etc/systemd/system` and is named `monerod.socket`. A
 [Unit]
 Description=Monerod Stdin Socket
 
-
-
-
-
-
-
-
-
-
-
-
-
 [Socket]
 User=db4e
 ListenFIFO=/opt/prod/monerod/run/monerod.stdin
@@ -245,26 +224,21 @@ RemoveOnStop=true
 WantedBy=sockets.target
 ```
 
-Note that the named pipe is called `/opt/prod/monerod/monerod.stdin`. To send commands to the
-*Monero Daemon* simply echo the command and direct the output into this named pipe. The 
-shell command below shows an example:
+Note that the named pipe is called `/opt/prod/monerod/monerod.stdin`. To send commands to the *Monero Daemon* simply echo the command and direct the output into this named pipe. The shell command below shows an example:
 
 ```
 echo status > /opt/prod/monerod/monerod.stdin
 ```
 
-If you look at the previous section where we defined the *Monero Daemon* service, you will
-see that it includes a `StandardOutput` directive. The results of the command (e.g. status)
-will show up in this file.
+If you look at the previous section where we defined the *Monero Daemon* service, you will see that it includes a `StandardOutput` directive. The results of the command (e.g. status) will show up in this file.
 
 ---
 
 ## Refresh systemd 
 
-In order to let *systemd* know about these newly created services i.e. monerod.service and
-monerod.socket you need to issue the command below:
+In order to let *systemd* know about these newly created services i.e. monerod.service and monerod.socket you need to issue the command below:
 ```
-sudo systemd daemon-reload
+sudo systemctl daemon-reload
 ```
 
 ---
@@ -275,14 +249,14 @@ To have *systemd* automatically start the *Monero Daemon* whenever your system b
 execute the command below:
 
 ```
-sudo systemd enable monerod.service
+sudo systemctl enable monerod
 ```
 
 That's it! You're done! You can safely reboot the server to confirm that the Monero daemon starts up automatically at boot time. Check the */opt/prod/monerod/logs/monerod.log* file for logging information.
 
 ---
 
-# Manual Starts
+# Manual Start
 
 You can also start the service without rebooting:
 
@@ -292,7 +266,7 @@ sudo systemctl start monerod
 
 ---
 
-# Manual Stops
+# Manual Stop
 
 ```
 sudo systemctl stop monerod
