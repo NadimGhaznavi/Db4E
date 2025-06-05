@@ -1,4 +1,4 @@
-const csvUrl = '/csv/sharesfound_by_miner.csv';
+const csvUrl = '/csv/sharesfound/by-miner-sharesfound-60days.csv';
 const dateData = [];
 
 [[CONST_TOTAL_MINER_DEFS]]
