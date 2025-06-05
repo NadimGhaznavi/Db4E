@@ -2,7 +2,9 @@
 title: Donations
 ---
 
-Donations are always welcome! The gnomes from the server room quit years ago, now it's just me! 
+Donations are always welcome! 
+
+The gnomes in the server room quit years ago, now it's just me! 
 
 # Donation Address
 
