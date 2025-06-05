@@ -89,8 +89,7 @@ const islands = row['islands'];
         strokeWidth: 1
       },
       series: [
-[[SERIES DEFS]]        
-
+[[SERIES_DEFS]]        
       ],
       tooltip: {
         theme: "dark"
