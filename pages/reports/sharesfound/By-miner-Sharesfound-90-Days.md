@@ -5,7 +5,7 @@ date: 2025-06-05
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="/assets/js/sharesfound/by-miner-sharesfound-60days.js"></script>
+<script src="/assets/js/sharesfound/by-miner-sharesfound-90days.js"></script>
 
 <div id="wrapper">
   <div id="areaChart">
@@ -13,5 +13,5 @@ date: 2025-06-05
   <div id="barChart">
   </div>
  </div>
-* Days of data: 60
+* Days of data: 90
 * Last updated: 2025-06-05 00:22
