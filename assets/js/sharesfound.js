@@ -9,7 +9,7 @@ Papa.parse(csvUrl, {
   complete: data => {
     data.data.forEach(row => {
       const dateString = row['Date'];
-      const value = row['Shares Found'];
+      const value = row['SharesFound'];
 
       // Check for missing or invalid data
       if (!dateString || isNaN(value)) {

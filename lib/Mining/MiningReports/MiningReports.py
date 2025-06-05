@@ -52,8 +52,11 @@ class MiningReports():
         # Get a db4e Git object
         self.git = Db4eGit(self._install_dir)
 
-        # We'll create a reports summary page as well
+        # We'll create a reports summary page with these links
         self._report_links = []
+
+        # We need a list of miners for the 'by miner' reports
+        self._workers = []
 
     def run(self):
         """
@@ -126,7 +129,7 @@ class MiningReports():
             self._fresh[sub_type] = True
             # This CSV file is used if the length of the report is 'all'
             self._gen_csv(report_type, sub_type, columns)
-
+            
             # Generate a Github MD file for this data source
             original_length = report['length']
             report['length'] = 'all'
@@ -177,13 +180,14 @@ class MiningReports():
         csv_handle = open(os.path.join(install_dir, csv_dir, reports_name, csv_filename), 'w')
 
         # For the sharesfound reports, the columns depend on the list of currently active miners
-        workers = None
+        self._workers = []
         if report_type == 'sharesfound' and sub_type == 'by-miner':
             columns = 'Date,'
             db = MiningDb()
             workers = db.get_workers()
             for aWorker in workers.keys():
                 if workers[aWorker]['active']:
+                    self._workers.append(aWorker)
                     columns = columns + aWorker + ','
             columns = columns[:-1] # Chop off the trailing comma
 
@@ -382,7 +386,6 @@ class MiningReports():
         in_handle = open(os.path.join(install_dir, js_dir, in_file), 'r')
         out_handle = open(os.path.join(install_dir, js_dir, reports_name, out_file), 'w')
 
-        # Read and Write
         in_lines = in_handle.readlines()
         if sub_type == None:
             old_csv = f"{report_type}.csv"
@@ -398,8 +401,32 @@ class MiningReports():
                 new_csv = f"{reports_name}/{sub_type}-{report_type}-{num_days}days.csv"
 
         for line in in_lines:
+            # Read and Write....
             line = line.replace(old_csv, new_csv)
-            out_handle.write(line)
+            if report_type == 'sharesfound' and sub_type == 'by-miner':
+                if line == '[[CONST_TOTAL_MINER_DEFS]]\n':
+                    for worker in self._workers:
+                        js_line = f'const total{worker.capitalize()}Data = [];\n'
+                        out_handle.write(js_line)
+                elif line == '[[CONST_MINER_DEFS]]\n':
+                    for worker in self._workers:
+                        js_line = f"const {worker} = row['{worker}'];\n"
+                        out_handle.write(js_line)
+                elif line == '[[TOTAL_MINER_PUSH]]\n':
+                    for worker in self._workers:
+                        js_line = f'total{worker.capitalize()}Data.push(' + '{ x:date, y: ' + worker + '});\n'
+                        out_handle.write('      ' + js_line)
+                elif line == '[[SERIES_DEFS]]\n':
+                    for worker in self._workers:
+                        out_handle.write('        {\n')
+                        out_handle.write(f'          name: "{worker.capitalize()}",\n')
+                        out_handle.write(f'          data: total{worker.capitalize()}Data\n')
+                        out_handle.write('        },\n')
+                else:
+                    out_handle.write(line)
+            else:
+                out_handle.write(line)
+                
         # Close out nicely
         out_handle.close()
         in_handle.close()

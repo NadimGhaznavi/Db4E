@@ -1,4 +1,4 @@
-const csvUrl = '/csv/sharesfound_by_miner.csv';
+const csvUrl = '/csv/by-miner-sharesfound.csv';
 const dateData = [];
 
 [[CONST_TOTAL_MINER_DEFS]]
@@ -71,8 +71,7 @@ Papa.parse(csvUrl, {
         strokeWidth: 1
       },
       series: [
-[[SERIES DEFS]]        
-
+[[SERIES_DEFS]]
       ],
       tooltip: {
         theme: "dark"
