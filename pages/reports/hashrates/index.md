@@ -20,4 +20,4 @@ Reports [definition file](/conf/reports/hashrates.yml).
 * [Mainchain Hashrate - 60 days](/pages/reports/hashrates/Mainchain-Hashrate-60-Days.html)
 * [Mainchain Hashrate - 90 days](/pages/reports/hashrates/Mainchain-Hashrate-90-Days.html)
 
-Last updated: 2025-06-04 22:30
+Last updated: 2025-06-04 23:30
