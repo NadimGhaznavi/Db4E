@@ -93,6 +93,7 @@ See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
 
 # Systems Configuration
 
+* [Setup db4e as a Service](/pages/ops/Setup-db4e-Service.html)
 * [Setup the Monero Daemon as a Service](/pages/ops/Setup-MoneroD-Service.html)
 * [Setup the P2Pool Daemon as a Service](/pages/ops/Setup-P2PoolD-Service.html)
 * [Secondary Monero Daemon Configuration](/pages/ops/Secondary-Monero-Daemon-Configuration.html)
