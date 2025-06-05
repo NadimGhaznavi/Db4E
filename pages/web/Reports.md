@@ -22,6 +22,11 @@ The reports here are created and updated automatically, zero manual steps. The *
   * Run whenever a new block is found
   * [Report definition file](/conf/reports/blocksfound.yml)
 
+* [Shares found on the sidechain](/pages/reports/sharesfound/index.html) 
+  * Run whenever a new share is found
+  * Pool totals and per worker totals
+  * [Report definition file](/conf/reports/sharesfound.yml)
+
 ---
 
 # Manual Data Load Reports
