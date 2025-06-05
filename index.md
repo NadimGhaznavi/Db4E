@@ -114,7 +114,14 @@ See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
 
 ---
 
+# Donations
+
+Please help keep this project alive and moving forward by [donating](/pages/web/Donations.html).
+
+---
+
 # Links
+
 
 * [db4e on GitHub](https://github.com/NadimGhaznavi/db4e)
 * [Debian Linux](https://www.debian.org/)
