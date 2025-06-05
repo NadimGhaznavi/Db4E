@@ -12,4 +12,4 @@ Reports [definition file](/conf/reports/blocksfound.yml).
 * [Blocksfound - 90 days](/pages/reports/blocksfound/Blocksfound-90-Days.html)
 * [Blocksfound - 180 days](/pages/reports/blocksfound/Blocksfound-180-Days.html)
 
-Last updated: 2025-06-05 07:42
+Last updated: 2025-06-05 09:15
