@@ -2,7 +2,7 @@
 title: Donations
 ---
 
-Donations are always welcome! 
+Donations are always welcome! The *address* and *QR code* are for a Monero Wallet.
 
 The gnomes in the server room quit years ago, now it's just me! 
 
