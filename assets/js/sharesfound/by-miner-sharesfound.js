@@ -8,7 +8,6 @@ const totalParisData = [];
 const totalSallyData = [];
 const totalPhoebeData = [];
 const totalIslandsData = [];
-[[CONST_TOTAL_MINER_DEFS]]
 
 Papa.parse(csvUrl, {
   download: true,
@@ -25,7 +24,6 @@ const paris = row['paris'];
 const sally = row['sally'];
 const phoebe = row['phoebe'];
 const islands = row['islands'];
-[[CONST_MINER_DEFS]]
 
       // Check for missing or invalid data
       //if (!dateString || isNaN(value)) {
@@ -46,7 +44,6 @@ const islands = row['islands'];
       totalSallyData.push({ x:date, y: sally});
       totalPhoebeData.push({ x:date, y: phoebe});
       totalIslandsData.push({ x:date, y: islands});
-[[TOTAL_MINER_PUSH]]
     });
     
     const areaOptions = {
