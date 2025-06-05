@@ -176,6 +176,17 @@ class MiningReports():
 
         csv_handle = open(os.path.join(install_dir, csv_dir, reports_name, csv_filename), 'w')
 
+        # For the sharesfound reports, the columns depend on the list of currently active miners
+        workers = None
+        if report_type == 'sharesfound' and sub_type == 'by-miner':
+            columns = 'Date,'
+            db = MiningDb()
+            workers = db.get_workers()
+            for aWorker in workers.keys():
+                if workers[aWorker]['active']:
+                    columns = columns + aWorker + ','
+            columns = columns[:-1] # Chop off the trailing comma
+
         # Write the header to the CSV file
         csv_handle.write(columns + '\n')
         # Loop through the hashrate data and populate the CSV file
@@ -194,7 +205,7 @@ class MiningReports():
             daily_payments = {}
             timestamps = []
             for row in report_data:
-                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                timestamp = row['timestamp'].replace(hour=0, minute=0, second=0)
                 payment = Decimal(row['payment'].to_decimal())
                 # Aggregate the daily payouts
                 if timestamp not in daily_payments:
@@ -213,7 +224,7 @@ class MiningReports():
             daily_payments = {}
             timestamps = []
             for row in report_data:
-                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                timestamp = row['timestamp'].replace(hour=0, minute=0, second=0)
                 payment = Decimal(row['payment'].to_decimal())
                 # Aggregate the daily payouts
                 if timestamp not in daily_payments:
@@ -238,7 +249,7 @@ class MiningReports():
             daily_blocks = {}
             timestamps = []
             for row in report_data:
-                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                timestamp = row['timestamp'].replace(hour=0, minute=0, second=0)
                 # Aggregate the daily payouts
                 if timestamp not in daily_blocks:
                     daily_blocks[timestamp] = 1
@@ -251,6 +262,52 @@ class MiningReports():
             for timestamp in timestamps:
                 csv_row = f'{timestamp},{daily_blocks[timestamp]}\n'
                 csv_handle.write(csv_row)
+
+        elif report_type == 'sharesfound' and sub_type == 'by-miner':
+            daily_shares = {}
+            timestamps = []
+            worker_list= workers.keys()
+            for row in report_data:
+                timestamp = str(row['timestamp'].replace(hour=0, minute=0, second=0))
+                # Aggregate the daily payouts
+                if timestamp not in daily_shares:
+                    daily_shares[timestamp] = {}
+                worker = row['worker']
+                if worker not in daily_shares[timestamp]:
+                    daily_shares[timestamp][worker] = 1
+                else:
+                    daily_shares[timestamp][worker] += 1
+                if timestamp not in timestamps:
+                    timestamps.append(timestamp)
+            timestamps.sort()
+            for timestamp in timestamps:
+                csv_row = timestamp + ','
+                for aMiner in worker_list:
+                    if aMiner in daily_shares[timestamp]:
+                        csv_row += str(daily_shares[timestamp][aMiner]) + ','
+                    else:
+                        csv_row += '0,'
+                csv_row = csv_row[:-1] + '\n' # Chop off trailing comma
+                csv_handle.write(csv_row)
+
+        elif report_type == 'sharesfound':
+            daily_shares = {}
+            timestamps = []
+            for row in report_data:
+                timestamp = row['timestamp'].replace(hour=0, minute=0)
+                # Aggregate the daily payouts
+                if timestamp not in daily_shares:
+                    daily_shares[timestamp] = 1
+                else:
+                    daily_shares[timestamp] += 1
+                # Get a list of unique timestamps
+                if timestamp not in timestamps:
+                    timestamps.append(timestamp)
+            timestamps.sort()
+            for timestamp in timestamps:
+                csv_row = f'{timestamp},{daily_shares[timestamp]}\n'
+                csv_handle.write(csv_row)
+
 
         csv_handle.close()
         export_file = os.path.join(install_dir, csv_dir, reports_name, csv_filename)
@@ -281,7 +338,7 @@ class MiningReports():
         if report_type == 'hashrate':
             # The hashrate data is hourly
             rows = int(num_days) * 24
-        elif report_type == 'payment' or report_type == 'blocksfound':
+        elif report_type == 'payment' or report_type == 'blocksfound' or report_type == 'sharesfound':
             # The payment and blocksfound data is daily
             rows = int(num_days)
 
@@ -482,6 +539,11 @@ class MiningReports():
             doc_name = 'xmr_payment'
         elif report_type == 'blocksfound':
             doc_name = 'block_found_event'
+        elif report_type == 'sharesfound':
+            doc_name = 'share_found_event'
+        else:
+            self.log.log(f'ERROR: Unknown report type {report_type}')
+            print(f'ERROR: Unknown report type {report_type}')
         return db.get_docs(doc_name)
 
     def _load_reports(self):

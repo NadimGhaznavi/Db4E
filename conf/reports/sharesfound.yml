@@ -1,0 +1,17 @@
+# Blocks found report definitions for db4e
+#
+# Use 'db4e.py -r sharesfound' to manually generate these reports.
+
+# Shares found - 60 days
+- report_type: sharesfound
+  title: Shares Found on the Mini Sidechain
+  columns: Date,SharesFound
+  length: 60 days
+
+# Shares found by worker - 60 days
+- report_type: sharesfound
+  sub_type: by-miner
+  title: Shares found by miner on the Mini Sidechain
+  # The columns contains the list of active miners. db4e generates this
+  # dynamically.
+  length: 60 days

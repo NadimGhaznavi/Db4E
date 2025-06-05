@@ -29,7 +29,7 @@ The db4e [console application](/pages/ops/db4e-gui.py) is a command line utility
  * Recent shares found in your local pool (inluding timestamp and miner who found the share)
  * Recent payments made to your mining operation
 
-The console application gets the data from the [data warehouse](#data-warehouse) and updates once a minute.
+The console application gets the data from the and updates once a minute.
 
 ---
 
