@@ -9,7 +9,7 @@ sleep 1
 rm -f /opt/prod/p2pool/p2pool.cache
 systemctl start p2pool
 sleep 120
-systemctl stop db4e_monitor_p2pool_log
+systemctl stop db4e
 sleep 1
-systemctl start db4e_monitor_p2pool_log
+systemctl start db4e
 
