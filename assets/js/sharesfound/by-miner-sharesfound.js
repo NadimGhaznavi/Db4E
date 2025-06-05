@@ -1,6 +1,13 @@
 const csvUrl = '/csv/sharesfound/by-miner-sharesfound.csv';
 const dateData = [];
 
+const totalBingoData = [];
+const totalKermitData = [];
+const totalMaiaData = [];
+const totalParisData = [];
+const totalSallyData = [];
+const totalPhoebeData = [];
+const totalIslandsData = [];
 [[CONST_TOTAL_MINER_DEFS]]
 
 Papa.parse(csvUrl, {
