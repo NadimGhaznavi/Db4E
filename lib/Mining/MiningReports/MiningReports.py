@@ -97,11 +97,10 @@ class MiningReports():
         # Generate a list of reports on a Github MD page
         self._gen_toc(report_type)
 
-        print("Pushing reports to GitHub: ", end='', flush=True)
         self.git.commit("New db4e reports")
         self.git.push()
-        print("Done")
-
+        self.log("Pushing reports to GitHub: Done")
+        
 
     def run_report(self, report):
         reports_name = self._yaml_file
@@ -142,9 +141,9 @@ class MiningReports():
 
         if length != 'all':
             if sub_type:
-                print(f"Generating {sub_type} {report_type} report with {length} of data:")
+                self.log(f"Generating {sub_type} {report_type} report with {length} of data:")
             else:
-                print(f"Generating {report_type} report with {length} of data:")
+                self.log(f"Generating {report_type} report with {length} of data:")
             # A link to the doc for the TOC
             if Sub_type:
                 url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{reports_name}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
@@ -168,9 +167,9 @@ class MiningReports():
         reports_name = self._yaml_file
 
         if sub_type:
-            print(f'Generating historical {sub_type} {report_type} report:')
+            self.log(f'Generating historical {sub_type} {report_type} report:')
         else:
-            print(f'Generating historical {report_type} report:')
+            self.log(f'Generating historical {report_type} report:')
 
         if sub_type == None:
             csv_filename = f"{report_type}.csv"
@@ -315,7 +314,7 @@ class MiningReports():
 
         csv_handle.close()
         export_file = os.path.join(install_dir, csv_dir, reports_name, csv_filename)
-        print(f"  Created CSV file                 : {export_file}")
+        self.log(f"  Created CSV file                 : {export_file}")
         self.git.add(export_file)
 
     def _gen_csv_short(self, report):
@@ -356,7 +355,7 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, csv_dir, reports_name, out_file)
-        print(f"  Created CSV file                 : {export_file}")
+        self.log(f"  Created CSV file                 : {export_file}")
         self.git.add(export_file)
         
     def _gen_js(self, report):
@@ -431,7 +430,7 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, js_dir, reports_name, out_file)
-        print(f"  Created Javascript file          : {export_file}")
+        self.log(f"  Created Javascript file          : {export_file}")
         self.git.add(export_file)
 
     def _gen_md(self, report):
@@ -526,7 +525,7 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, reports_dir, reports_name, out_file)
-        print(f"  Created GFM file                 : {export_file}")
+        self.log(f"  Created GFM file                 : {export_file}")
         self.git.add(export_file)
 
     def _gen_toc(self, report_type):
@@ -553,7 +552,7 @@ class MiningReports():
 
         toc_handle.close()
         export_file = os.path.join(install_dir, reports_dir, reports_name, toc_file)
-        print(f"  Created GFM reports summary file : {export_file}")
+        self.log(f"  Created GFM reports summary file : {export_file}")
         self.git.add(export_file)
         
     def _get_data(self, report_type, sub_type):
@@ -570,7 +569,7 @@ class MiningReports():
             doc_name = 'share_found_event'
         else:
             self.log.log(f'ERROR: Unknown report type {report_type}')
-            print(f'ERROR: Unknown report type {report_type}')
+            self.log(f'ERROR: Unknown report type {report_type}')
         return db.get_docs(doc_name)
 
     def _load_reports(self):
