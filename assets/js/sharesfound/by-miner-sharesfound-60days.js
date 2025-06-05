@@ -89,7 +89,34 @@ const islands = row['islands'];
         strokeWidth: 1
       },
       series: [
-[[SERIES_DEFS]]        
+        {
+          name: "Bingo",
+          data: totalBingoData
+        },
+        {
+          name: "Kermit",
+          data: totalKermitData
+        },
+        {
+          name: "Maia",
+          data: totalMaiaData
+        },
+        {
+          name: "Paris",
+          data: totalParisData
+        },
+        {
+          name: "Sally",
+          data: totalSallyData
+        },
+        {
+          name: "Phoebe",
+          data: totalPhoebeData
+        },
+        {
+          name: "Islands",
+          data: totalIslandsData
+        },
       ],
       tooltip: {
         theme: "dark"
