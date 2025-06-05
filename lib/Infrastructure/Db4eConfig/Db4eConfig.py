@@ -16,10 +16,11 @@ class Db4eConfig():
         # Setup the command line parser
         parser = argparse.ArgumentParser(description='DB4E Configuration')
         
-        parser.add_argument('-a', '--action', default='None', type=str, help='Do -la to list all actions. ')
-        parser.add_argument('-r', '--reports', default='None', type=str, help='Run a set of reports.')
-        parser.add_argument('-la', '--list_actions', action='store_true', help='List all available actions.')
-
+        parser.add_argument('-a', '--action', default='None', type=str, help='Do -la to list all actions.')
+        parser.add_argument('-b', '--backup', default='None', type=str, help='Perform a db4e backup.')
+        parser.add_argument('-m', '--monitor', default='None', type=str, help='Monitor the P2Pool log.')
+        parser.add_argument('-w', '--wallet', default='None', type=str, help='Get the mining wallet balance.')
+        
         args = parser.parse_args()
 
         if args.list_actions:
