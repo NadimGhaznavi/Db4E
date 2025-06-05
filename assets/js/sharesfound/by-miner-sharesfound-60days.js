@@ -18,6 +18,13 @@ Papa.parse(csvUrl, {
     data.data.forEach(row => {
       const dateString = row['Date'];
 
+const bingo = row['bingo'];
+const kermit = row['kermit'];
+const maia = row['maia'];
+const paris = row['paris'];
+const sally = row['sally'];
+const phoebe = row['phoebe'];
+const islands = row['islands'];
 [[CONST_MINER_DEFS]]
 
       // Check for missing or invalid data
@@ -32,6 +39,13 @@ Papa.parse(csvUrl, {
       dateData.push(date);
       //totalData.push(Number(total));
 
+      totalBingoData.push({ x:date, y: bingo});
+      totalKermitData.push({ x:date, y: kermit});
+      totalMaiaData.push({ x:date, y: maia});
+      totalParisData.push({ x:date, y: paris});
+      totalSallyData.push({ x:date, y: sally});
+      totalPhoebeData.push({ x:date, y: phoebe});
+      totalIslandsData.push({ x:date, y: islands});
 [[TOTAL_MINER_PUSH]]
     });
     
