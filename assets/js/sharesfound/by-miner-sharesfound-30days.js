@@ -58,7 +58,8 @@ const islands = row['islands'];
           show: false
         }
       },
-      colors: ["#00baec","#ffbaec","#01f9c6","#808000","#ffffcc","#fef250","#644117", "#ff5722"],
+      /* TODO Need to paramerize the next line based on the number of active miners */
+      colors: ["#C40C0C","#FF6500","#FF8A08","#FFC100","#B51B75","#4635B1","#B771E5"],
       stroke: {
 	    curve: 'stepline',
         width: 3
