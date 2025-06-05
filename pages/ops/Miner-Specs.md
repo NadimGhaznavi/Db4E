@@ -2,7 +2,7 @@
 title: "Monero XMR Miner Hardware Specifications"
 ---
 
-# Introduction and Scope
+# Introduction
 
 This page provides some information about the hardware of the computers that are engaged in Monero XMR Mining.
 
