@@ -20,20 +20,12 @@ class Db4eConfig():
         parser.add_argument('-b', '--backup', default='None', type=str, help='Perform a db4e backup.')
         parser.add_argument('-m', '--monitor', default='None', type=str, help='Monitor the P2Pool log.')
         parser.add_argument('-w', '--wallet', default='None', type=str, help='Get the mining wallet balance.')
+        parser.add_argument('-r', '--reports', default='None', type=str, help='Run a db4e report.')
+        
         
         args = parser.parse_args()
 
-        if args.list_actions:
-            print("Available actions:")
-            print("  backup_db                    : Backup MongoDB and push the backup to GitHub.")
-            print("  monitor_p2pool_log           : Start monitoring the P2Pool daemon log.")
-            print("  get_wallet_balance           : Get the wallet balance from MongoDb.")
-            exit(0)
-
         # Parse any command line args
-        if args.action != 'None':
-            self.config['db4e']['action'] = args.action
-        
         if args.reports != 'None':
             self.config['export']['reports'] = args.reports
 
