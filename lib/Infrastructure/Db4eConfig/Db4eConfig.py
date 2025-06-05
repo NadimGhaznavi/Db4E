@@ -24,8 +24,6 @@ class Db4eConfig():
 
         if args.list_actions:
             print("Available actions:")
-            print("  new_shares_found_csv         : Generate the 'Shares Found' CSV files and push it them GitHub.")
-            print("  new_shares_found_by_host_csv : Generate the 'Shares Found by Host' CSV files and push them to GitHub.")
             print("  backup_db                    : Backup MongoDB and push the backup to GitHub.")
             print("  monitor_p2pool_log           : Start monitoring the P2Pool daemon log.")
             print("  get_wallet_balance           : Get the wallet balance from MongoDb.")

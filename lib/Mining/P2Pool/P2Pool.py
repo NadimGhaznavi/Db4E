@@ -24,8 +24,6 @@ for db4e_dir in db4e_dirs:
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from MiningReports.MiningReports import MiningReports
-from SharesFoundCsv.SharesFoundCsv import SharesFoundCsv
-from SharesFoundByHostCsv.SharesFoundByHostCsv import SharesFoundByHostCsv
 
 # This is the name of the file where the P2Pool daemon stores info
 P2POOL_API_FILE = 'stats_mod'
@@ -142,11 +140,8 @@ class P2Pool():
       self.log(f"  Effort           : {effort}%")
       db = self.db()
       db.add_share_found(timestamp, worker, ip_addr, effort)
-      sharesfoundcsv = SharesFoundCsv(self.log)
-      sharesfoundcsv.new_shares_found_csv()
-      sharesfoundbyhostcsv = SharesFoundByHostCsv(self.log)
-      sharesfoundbyhostcsv.new_shares_found_by_host_csv()
-      
+      reports = MiningReports(self.log, 'blocksfound')
+      reports.run()
 
   def is_share_position(self, log_line):
     """
