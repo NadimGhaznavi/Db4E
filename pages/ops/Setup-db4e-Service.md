@@ -1,5 +1,5 @@
 ---
-tile: Setup db4e as a Service
+title: Setup db4e as a Service
 ---
 
 # Introduction
