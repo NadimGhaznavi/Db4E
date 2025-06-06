@@ -27,7 +27,6 @@ from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
 from MiningReports.MiningReports import MiningReports
 
-print("Database 4 Everything")
 
 ini = Db4eConfig()
 
@@ -48,5 +47,10 @@ elif 'wallet_balance' in ini.config['db4e']:
 elif 'backup_db' in ini.config['db']:
   db = Db4eDb()
   db.backup_db()
-  
+
+banner = 'Database 4 Everything'
+environ = ini.config['db4e']['environ']
+banner += f' [{environ.upper()}]'
+print(banner)
+
 

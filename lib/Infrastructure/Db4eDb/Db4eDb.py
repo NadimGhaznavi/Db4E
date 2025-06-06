@@ -26,18 +26,15 @@ class Db4eDb():
   def __init__(self):
     ini = Db4eConfig()
     # Setup the logger object
-    log_level_str = ini.config['db4e']['log_level']
-    log_level = getattr(logging, log_level_str.upper(), logging.INFO)
-    self.logger = logging.getLogger('db4e')
-    self.logger.setLevel(log_level)
-
-    self._db_server = ini.config['db']['server']
-    self._db_port = ini.config['db']['port']
-    self._db_name = ini.config['db']['name']
-    self._db_collection = ini.config['db']['collection']
+    log_level_str        = ini.config['db4e']['log_level']
+    self._retry_timeout  = ini.config['db']['retry_timeout']
+    self._db_server      = ini.config['db']['server']
+    self._db_port        = ini.config['db']['port']
+    self._db_name        = ini.config['db']['name']
+    self._db_collection  = ini.config['db']['collection']
     self._log_collection = ini.config['db']['log_collection']
-    self._debug = ini.config['db4e']['debug']
-    self._backup_dir = ini.config['db']['backup_dir']
+    self._backup_dir     = ini.config['db']['backup_dir']
+    self._debug          = ini.config['db4e']['debug']
     
     install_dir = ini.config['db4e']['install_dir']
     backup_dir = ini.config['db']['backup_dir']
@@ -47,6 +44,10 @@ class Db4eDb():
     self._backup_dir = os.path.join(install_dir, backup_dir)
     self._db_name = ini.config['db']['name']
 
+    log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+    self.logger = logging.getLogger('db4e')
+    self.logger.setLevel(log_level)
+
     self.connected = False
     self.init_db()
 
@@ -55,6 +56,7 @@ class Db4eDb():
     backup_dir = self._backup_dir
     db_name = self._db_name
     subprocess.run([backup_script, db_name, backup_dir])
+    self.log(logging.INFO, f'Created a new backup in {backup_dir}')
 
   def db(self):
     if not self.connected:
@@ -65,11 +67,12 @@ class Db4eDb():
     db_server = self._db_server
     db_port = self._db_port
     db_name = self._db_name
+    retry_timeout = self._retry_timeout
     try:
       client = MongoClient(f"mongodb://{db_server}:{db_port}/")
     except:
-      self.log(logging.CRITICAL, "Could not connect to DB ({db_server}:{db_port}), waiting 30 seconds")
-      time.sleep(30)
+      self.log(logging.CRITICAL, f'Could not connect to DB ({db_server}:{db_port}), waiting {retry_timeout} seconds')
+      time.sleep(retry_timeout)
     self.connected = True
     self._db = client[db_name]
 
@@ -96,13 +99,14 @@ class Db4eDb():
     timestamp = jdoc['timestamp']
     if not col.find_one({'doc_type': doc_type, 'timestamp': timestamp}):
       col.insert_one(jdoc)
+      self.log(logging.INFO, f'New DB record ({doc_type})')
 
   def log(self, level, message, extra):
     extra = dict(extra or {})
     if 'component' in extra:
       component = extra['component']
     else:
-      component = 'core'
+      component = 'Db4eDb'
 
     log_entry = {
       'timestamp': datetime.now(timezone.utc),

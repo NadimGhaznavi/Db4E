@@ -10,6 +10,7 @@ db4e:
   log_file: db4e.log
   os_log_file: db4e-os.log
   src_dir: /opt/src
+  environ: prod
   
 p2pool:
   install_dir: /opt/prod/p2pool
@@ -48,6 +49,7 @@ db:
   log_collection: logging
   backup_dir: backups
   backup_script: bin/backup-db.sh
+  retry_timeout: 15
   
 git:
   push_script: bin/gitpush.sh

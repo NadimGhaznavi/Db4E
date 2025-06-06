@@ -1,0 +1,25 @@
+# Blocks found report definitions for db4e
+#
+# Use 'db4e.py -r blocksfound' to manually generate these reports.
+
+# Blocks Found - 14 days
+- report_type: blocksfound
+  title: Blocks Found on the Mini Sidechain
+  units: blocks
+  columns: Date,BlocksFound
+  length: 14 days
+
+# Shares found - 14 days
+- report_type: blocksfound
+  title: Blocks Found on the Mini Sidechain
+  units: blocks
+  columns: Date,BlocksFound
+  length: 14 days
+
+# Sidechain Hashrate - 14 days
+- report_type: blocksfound
+  title: Blocks Found on the Mini Sidechain
+  units: blocks
+  columns: Date,BlocksFound
+  length: 14 days
+
