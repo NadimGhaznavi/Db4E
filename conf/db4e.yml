@@ -2,16 +2,21 @@ db4e:
   backup_dir: backups
   conf_dir: conf
   debug: 0
+  # Valid log_level's are debug, info, warning, error and critical
+  log_level: info
   install_dir: /opt/prod/db4e
   js_dir: assets/js
   log_dir: logs
   log_file: db4e.log
+  os_log_file: db4e-os.log
+  src_dir: /opt/src
   
 p2pool:
   install_dir: /opt/prod/p2pool
   api_dir: api
   log_dir: logs     
   log_file: p2pool.log
+  proc_name: p2pool
 
 monerod:
   install_dir: /opt/prod/monerod
@@ -19,6 +24,11 @@ monerod:
   log_file: monerod.log
   run_dir: run
   stdin_pipe: monerod.stdin
+  proc_name: monerod
+
+xmrig:
+  install_dir: /opt/prod/xmrig_test
+  proc_name: sleep
 
 export:
   export_dir: /opt/prod/db4e/data
@@ -35,6 +45,7 @@ db:
   port: 27017
   name: db4e
   collection: mining
+  log_collection: logging
   backup_dir: backups
   backup_script: bin/backup-db.sh
   

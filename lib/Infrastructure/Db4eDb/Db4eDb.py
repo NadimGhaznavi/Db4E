@@ -6,6 +6,9 @@ lib/Infrastructure/Db4eDb/Db4eDb.py
 from pymongo import MongoClient
 import os, sys
 import subprocess
+import logging
+from datetime import datetime, timezone
+import time
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -21,21 +24,30 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 class Db4eDb():
 
   def __init__(self):
-    config = Db4eConfig()
-    self._db_server = config.config['db']['server']
-    self._db_port = config.config['db']['port']
-    self._db_name = config.config['db']['name']
-    self._db_collection = config.config['db']['collection']
-    self._debug = config.config['db4e']['debug']
-    self._backup_dir = config.config['db']['backup_dir']
+    ini = Db4eConfig()
+    # Setup the logger object
+    log_level_str = ini.config['db4e']['log_level']
+    log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+    self.logger = logging.getLogger('db4e')
+    self.logger.setLevel(log_level)
+
+    self._db_server = ini.config['db']['server']
+    self._db_port = ini.config['db']['port']
+    self._db_name = ini.config['db']['name']
+    self._db_collection = ini.config['db']['collection']
+    self._log_collection = ini.config['db']['log_collection']
+    self._debug = ini.config['db4e']['debug']
+    self._backup_dir = ini.config['db']['backup_dir']
     
-    install_dir = config.config['db4e']['install_dir']
-    backup_dir = config.config['db']['backup_dir']
-    backup_script = config.config['db']['backup_script']
+    install_dir = ini.config['db4e']['install_dir']
+    backup_dir = ini.config['db']['backup_dir']
+    backup_script = ini.config['db']['backup_script']
     
     self._backup_script = os.path.join(install_dir, backup_script)
     self._backup_dir = os.path.join(install_dir, backup_dir)
-    self._db_name = config.config['db']['name']
+    self._db_name = ini.config['db']['name']
+
+    self.connected = False
     self.init_db()
 
   def backup_db(self):
@@ -45,43 +57,68 @@ class Db4eDb():
     subprocess.run([backup_script, db_name, backup_dir])
 
   def db(self):
+    if not self.connected:
+      self.connect()
+    return self._db
+  
+  def connect(self):
     db_server = self._db_server
     db_port = self._db_port
     db_name = self._db_name
     try:
-      db_client = MongoClient(f"mongodb://{db_server}:{db_port}/")
+      client = MongoClient(f"mongodb://{db_server}:{db_port}/")
     except:
-      print("FATAL ERROR: Could not connect to DB ({db_server}:{db_port}), exiting...")
-      sys.exit(1)
-    return db_client[db_name]
+      self.log(logging.CRITICAL, "Could not connect to DB ({db_server}:{db_port}), waiting 30 seconds")
+      time.sleep(30)
+    self.connected = True
+    self._db = client[db_name]
+
 
   def get_docs(self, collection_name, doc_type):
-    if self._debug == 9:
-      print("Db4eDb:get_docs(collection_name, doc_type)")
-      print(f"  collection_name : ({collection_name})")
-      print(f"  doc_type        : ({doc_type})\n")
     db = self.db()
     collection = db[collection_name]
     db_cursor = collection.find({'doc_type': doc_type})
-    if self._debug == 9:
-      print("Db4eDb:get_docs(collection_name, doc_type)")
-      print(f"  returns         ; ({db_cursor})\n")
     return db_cursor
 
   def init_db(self):
-    db = self.db()
     db_col = self._db_collection
-    if db_col not in db.list_collection_names():
+    log_col = self._log_collection
+    db = self.db()
+    db_col_names = db.list_collection_names()
+    if db_col not in db_col_names:
       db[db_col]
+    if log_col not in db_col_names:
+      db[log_col]
 
   def insert_uniq_one(self, collection, jdoc):
-    db = self.db()
-    col = db[collection]
+    col = self.db[collection]
     doc_type = jdoc['doc_type']
     timestamp = jdoc['timestamp']
     if not col.find_one({'doc_type': doc_type, 'timestamp': timestamp}):
       col.insert_one(jdoc)
 
+  def log(self, level, message, extra):
+    extra = dict(extra or {})
+    if 'component' in extra:
+      component = extra['component']
+    else:
+      component = 'core'
+
+    log_entry = {
+      'timestamp': datetime.now(timezone.utc),
+      'level': logging.getLevelName(level), 
+      'message': message,
+      'component': component
+    }
+
+    if 'new_file' in extra:
+      log_entry['new_file'] = extra['new_file']
+    if 'file_type' in extra:
+      log_entry['file_type'] = extra['file_type']
+      
+    db = self.db()
+    log_col = db[self._log_collection]
+    log_col.insert_one(log_entry)
 
 
 

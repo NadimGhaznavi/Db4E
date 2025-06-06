@@ -16,10 +16,9 @@ class Db4eConfig():
         # Setup the command line parser
         parser = argparse.ArgumentParser(description='DB4E Configuration')
         
-        parser.add_argument('-a', '--action', default='None', type=str, help='Do -la to list all actions.')
-        parser.add_argument('-b', '--backup', default='None', type=str, help='Perform a db4e backup.')
-        parser.add_argument('-m', '--monitor', default='None', type=str, help='Monitor the P2Pool log.')
-        parser.add_argument('-w', '--wallet', default='None', type=str, help='Get the mining wallet balance.')
+        parser.add_argument('-b', '--backup', action='store_true', help='Perform a db4e backup.')
+        parser.add_argument('-m', '--monitor', action='store_true', help='Monitor the P2Pool log.')
+        parser.add_argument('-w', '--wallet', action='store_true', help='Get the mining wallet balance.')
         parser.add_argument('-r', '--reports', default='None', type=str, help='Run a db4e report.')
         
         
@@ -28,6 +27,15 @@ class Db4eConfig():
         # Parse any command line args
         if args.reports != 'None':
             self.config['export']['reports'] = args.reports
+        
+        if args.monitor:
+            self.config['p2pool']['monitor_log'] = True
+
+        if args.wallet:
+            self.config['db4e']['wallet_balance'] = True
+
+        if args.backup:
+            self.config['db']['backup_db'] = True
 
     def get(self, key):
         """

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/prod/db4e/venv/bin/python3
 """
 bin/db4e-gui.py
 """
@@ -23,7 +23,6 @@ for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
 from MiningDb.MiningDb import MiningDb
-from Db4eLog.Db4eLog import Db4eLog
 
 def get_hashrates_header():
   hashrates_header = \

@@ -22,13 +22,11 @@ for db4e_dir in db4e_dirs:
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
+from Db4eLogger.Db4eLogger import Db4eLogger
 
 class MiningReports():
   
-    def __init__(self, log_func=None, report_type=None):
-        # Set up the logger function
-        self.log = log_func
-
+    def __init__(self, report_type=None):
         # Load the configuration 
         config = Db4eConfig()
         self._install_dir = config.config['db4e']['install_dir']
@@ -57,6 +55,9 @@ class MiningReports():
 
         # We need a list of miners for the 'by miner' reports
         self._workers = []
+
+        # And a backend logging object
+        self.log = Db4eLogger('MiningReports')
 
     def run(self):
         """
@@ -98,9 +99,7 @@ class MiningReports():
         self._gen_toc(report_type)
 
         self.git.commit("New db4e reports")
-        self.git.push()
-        self.log("Pushing reports to GitHub: Done")
-        
+        self.git.push()        
 
     def run_report(self, report):
         reports_name = self._yaml_file
@@ -141,9 +140,9 @@ class MiningReports():
 
         if length != 'all':
             if sub_type:
-                self.log(f"Generating {sub_type} {report_type} report with {length} of data:")
+                self.log.info(f"Generating {sub_type} {report_type} report with {length} of data")
             else:
-                self.log(f"Generating {report_type} report with {length} of data:")
+                self.log.info(f"Generating {report_type} report with {length} of data")
             # A link to the doc for the TOC
             if Sub_type:
                 url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{reports_name}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
@@ -167,9 +166,9 @@ class MiningReports():
         reports_name = self._yaml_file
 
         if sub_type:
-            self.log(f'Generating historical {sub_type} {report_type} report:')
+            self.log.info(f'Generating historical {sub_type} {report_type} report')
         else:
-            self.log(f'Generating historical {report_type} report:')
+            self.log.info(f'Generating historical {report_type} report')
 
         if sub_type == None:
             csv_filename = f"{report_type}.csv"
@@ -314,7 +313,8 @@ class MiningReports():
 
         csv_handle.close()
         export_file = os.path.join(install_dir, csv_dir, reports_name, csv_filename)
-        self.log(f"  Created CSV file                 : {export_file}")
+        self.log.info(f"Created CSV file ({export_file})", 
+                      {'new_file': export_file, 'file_type': 'csv'})
         self.git.add(export_file)
 
     def _gen_csv_short(self, report):
@@ -355,8 +355,9 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, csv_dir, reports_name, out_file)
-        self.log(f"  Created CSV file                 : {export_file}")
         self.git.add(export_file)
+        self.log.info(f"Created CSV file ({export_file})", 
+                      {'new_file': export_file, 'file_type': 'csv'})
         
     def _gen_js(self, report):
         # Create a copy of the Javascript file with the updated filename
@@ -430,8 +431,9 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, js_dir, reports_name, out_file)
-        self.log(f"  Created Javascript file          : {export_file}")
         self.git.add(export_file)
+        self.log.info(f"Created JavaScript file ({export_file})", 
+                      {'new_file': export_file, 'file_type': 'js'})
 
     def _gen_md(self, report):
         # Generate a Github MD file for the new report
@@ -525,8 +527,10 @@ class MiningReports():
         out_handle.close()
         in_handle.close()
         export_file = os.path.join(install_dir, reports_dir, reports_name, out_file)
-        self.log(f"  Created GFM file                 : {export_file}")
         self.git.add(export_file)
+        self.log.info(f"Created GitHub markdown file ({export_file})", 
+                      {'new_file': export_file, 'file_type': 'md'})
+
 
     def _gen_toc(self, report_type):
         reports_name = self._yaml_file
@@ -552,8 +556,9 @@ class MiningReports():
 
         toc_handle.close()
         export_file = os.path.join(install_dir, reports_dir, reports_name, toc_file)
-        self.log(f"  Created GFM reports summary file : {export_file}")
         self.git.add(export_file)
+        self.log.info(f"Created reports summary GitHub markdown file ({export_file})", 
+                      {'new_file': export_file, 'file_type': 'md'})
         
     def _get_data(self, report_type, sub_type):
         # Get the latest data from the MiningDb
@@ -568,8 +573,7 @@ class MiningReports():
         elif report_type == 'sharesfound':
             doc_name = 'share_found_event'
         else:
-            self.log.log(f'ERROR: Unknown report type {report_type}')
-            self.log(f'ERROR: Unknown report type {report_type}')
+            self.log.critical(f'ERROR: Unknown report type {report_type}')
         return db.get_docs(doc_name)
 
     def _load_reports(self):

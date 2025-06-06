@@ -23,6 +23,7 @@ for db4e_dir in db4e_dirs:
 
 from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
+from Db4eLogger.Db4eLogger import Db4eLogger
 from MiningReports.MiningReports import MiningReports
 
 # This is the name of the file where the P2Pool daemon stores info
@@ -30,21 +31,20 @@ P2POOL_API_FILE = 'stats_mod'
 
 class P2Pool():
 
-  def __init__(self, log_func):
-    # Setup access to centralized logging
-    self.log = log_func
+  def __init__(self):
     # Get configuration values
     config = Db4eConfig()
     self._install_dir = config.config['p2pool']['install_dir']
-    self._api_dir = config.config['p2pool']['api_dir']
-    self._debug = config.config['db4e']['debug']
-
-    log_dir = config.config['p2pool']['log_dir']
-    log_file = config.config['p2pool']['log_file']
-    self._p2pool_log = os.path.join(self._install_dir, log_dir, log_file)
+    self._api_dir     = config.config['p2pool']['api_dir']
+    self._debug       = config.config['db4e']['debug']
+    log_dir           = config.config['p2pool']['log_dir']
+    log_file          = config.config['p2pool']['log_file']
+    self._p2pool_log  = os.path.join(self._install_dir, log_dir, log_file)
     
-    # Get a backend DB object
+    # Get a backend Mining DB object
     self._db = MiningDb()
+    # Get a backend Logging object
+    self.log = Db4eLogger('P2Pool')
 
   def db(self):
     return self._db
@@ -56,7 +56,7 @@ class P2Pool():
 
     api = os.path.join(install_dir, api_dir, api_file)
     if not os.path.exists(api):
-      raise FileNotFoundError(f"P2Pool API file not found: {api_file}")
+      self.log.error(f'P2Pool API file not found: {api_file}')
     with open(api, 'r') as file:
       api_string_data = file.read()
       api_data = json.loads(api_string_data)
@@ -73,14 +73,14 @@ class P2Pool():
     if match:
       timestamp = match.group('timestamp')
       timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-      self.log("---------- Block Found ----------")
-      self.log(f"  Timestamp        : {timestamp}")
-      localtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      self.log(f"  Local Time       : {localtime}")
+      # Create a new blocks_found_event in the DB
       db = self.db()
       db.add_block_found(timestamp)
+      # Generate fresh 'blocksfound' reports
       reports = MiningReports(self.log, 'blocksfound')
       reports.run()
+      # Log the event
+      self.log.info('Block found')
 
   def is_main_chain_hashrate(self, log_line):
     """
@@ -94,9 +94,9 @@ class P2Pool():
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Mainchain hashrate : {hashrate}")
       db = self.db()
       db.add_mainchain_hashrate(hashrate)
+      self.log.debug(f"Detected mainchain hashrate ({hashrate})")
 
   def is_pool_hashrate(self, log_line):
     """
@@ -110,9 +110,9 @@ class P2Pool():
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Pool hashrate      : {hashrate}")
       db = self.db()
       db.add_pool_hashrate(hashrate)
+      self.log.debug(f"Detected pool hashrate ({hashrate})")
 
   def is_share_found(self, log_line):
     """
@@ -120,9 +120,6 @@ class P2Pool():
 
     2024-11-10 00:47:47.5596 StratumServer SHARE FOUND: mainchain height 3277956, sidechain height 9143872, diff 126624856, client 192.168.0.86:37294, user sally, effort 91.663%
     """
-    if self._debug == 9:
-      self.log("P2Pool.is_share_found()")
-      self.log(f"  log_line: ({log_line})")
     pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<worker>.*), effort (?P<effort>\d+.\d+)"
     match = re.search(pattern, log_line)
     if match:
@@ -131,17 +128,11 @@ class P2Pool():
       ip_addr = match.group('ip_addr')
       worker = match.group('worker')
       effort = float(match.group('effort'))
-      self.log("---------- Share Found ----------")
-      self.log(f"  Timestamp        : {timestamp}")
-      localtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      self.log(f"  Local Time       : {localtime}")
-      self.log(f"  Worker name      : {worker}")
-      self.log(f"  IP Address       : {ip_addr}")
-      self.log(f"  Effort           : {effort}%")
       db = self.db()
       db.add_share_found(timestamp, worker, ip_addr, effort)
       reports = MiningReports(self.log, 'blocksfound')
       reports.run()
+      self.log.info('Share found event', { 'miner': {worker} }) 
 
   def is_share_position(self, log_line):
     """
@@ -150,25 +141,22 @@ class P2Pool():
     Your shares position      = [.........................1....]
     Your shares               = 0 blocks (+0 uncles, 0 orphans)
     """
-    if self._debug == 9:
-      self.log("P2Pool.is_share_position()")
-      self.log(f"  log_line: ({log_line})")
     pattern = r"Your shares position .* = (?P<position>\[.*\])"
     match = re.search(pattern, log_line)
     if match:
       position = match.group('position')
-      self.log(f"---------- Position(s) {position}")
       localtime = datetime.now().strftime("%H:%M")
       db = self.db()
       db.add_share_position(localtime, position)
+      self.log.debug(f'Detected share position ({position})')
     pattern = r"Your shares .* = 0 .*"
     match = re.search(pattern, log_line)
     if match:
       position = '[..............................]'
-      self.log(f"---------- Position(s) {position}")
       localtime = datetime.now().strftime("%H:%M")
       db = self.db()
       db.add_share_position(localtime, position)
+      self.log.debug(f'Detected share position ({position})')
 
   def is_side_chain_hashrate(self, log_line):
     """
@@ -181,15 +169,15 @@ class P2Pool():
     localtime = datetime.now().strftime("%H:%M")
     if match:
       hashrate = match.group('hashrate')
-      self.log(f"---------- ({localtime}) Sidechain hashrate : {hashrate}")
       db = self.db()
       db.add_sidechain_hashrate(hashrate)
+      self.log.debug(f'Detected sidechain hashrate ({hashrate})')
 
       # While we're at it, let's also collect the number of miners 
       # on the sidechain at this time.
       sidechain_miners = self.get_sidechain_miners()
-      self.log(f"---------- ({localtime}) Sidechain miners   : {sidechain_miners}")
       db.add_sidechain_miners(sidechain_miners)
+      self.log.debug(f'Detected sidechain miners ({sidechain_miners})')
 
 
   def is_worker_stats(self, log_line):
@@ -202,7 +190,6 @@ class P2Pool():
     pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer (?P<ip_addr>\d+.\d+.\d+.\d+):\d+\s+no\s+\d+h \d+m \d+s\s+\d+\s+(?P<hashrate>\d+.*) (?P<unit>[H|K]).*/s\s+ (?P<worker_name>.*$)"
     match = re.search(pattern, log_line)
     if match:
-      ip_addr = match.group('ip_addr')
       hashrate = float(match.group('hashrate'))
       unit = match.group('unit')
       if unit == 'K':
@@ -212,6 +199,7 @@ class P2Pool():
       worker_name = match.group('worker_name')
       db = self.db()
       db.update_worker(worker_name, hashrate)
+      self.log.debug(f'Deteected miner ({worker_name}) hashrate ({hashrate} H/s)') 
 
   def is_xmr_payment(self, log_line):
     """
@@ -228,25 +216,15 @@ class P2Pool():
       payout = Decimal128(match.group('payout'))
       db = self.db()
       db.add_to_wallet(payout)
-      wallet_balance = db.get_wallet_balance()
-      self.log("---------- XMR Payment ----------")
-      self.print_payout_banner()
-      self.log(f"  Timestamp        : {timestamp}")
-      localtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-      self.log(f"  Local Time       : {localtime}")
-      self.log(f"  Payout           : {payout} XMR")
-      self.log(f"  Wallet Balance   : {wallet_balance} XMR")
       db = self.db()
       db.add_xmr_payment(timestamp, payout)
       reports = MiningReports(self.log, 'payments')
       reports.run()
+      self.log.info(f"Payout event ({payout}) XMR", {'payout': {payout}})
 
   def monitor_log(self):
     log_filename = self._p2pool_log
-    if self._debug == 9:
-      self.log("P2Pool.monitor_log()")
-      self.log(f"  log_filename: {log_filename}")
-    self.log(f"Monitoring log file ({log_filename})...")
+    self.log.info(f"Monitoring log file ({log_filename})...")
     p2p_log = open(log_filename, 'r')
     self._loglines = self.watch_log(p2p_log)
     loglines = self.watch_log(p2p_log)
@@ -256,10 +234,6 @@ class P2Pool():
         #while True:
         #log_line = self.get_next_logline()
         #print(log_line)
-
-        if self._debug == 9:
-          self.log("P2Pool.monitor_log()")
-          self.log(f"  log line: {log_line[0:-1]}")
 
         self.is_worker_stats(log_line)
         self.is_share_found(log_line)
@@ -273,24 +247,6 @@ class P2Pool():
     except KeyboardInterrupt:
       self.log("Exiting")
       sys.exit(0)
-
-  def print_payout_banner(self):
-    self.log("   ________       ______    ____      ____   _______    ____   ____   __________   ")
-    self.log("  |    __  \\\    /      \\\ |   \\\    /   ||/       \\\  |   |\ |   \\\/          \\\ ")
-    self.log("  |   || \  \\\  /   /\   \\\\\    \\\  /   ///   //\   \\\ |   || |   ||\___    ___// ")
-    self.log("  |   ||_/   |||   ||_|   ||\    \\\/   //|   //  \   |||   || |   ||    |   ||      ")
-    self.log("  |         // |          || \        // |   ||  |   |||   || |   ||    |   ||      ")
-    self.log("  |   _____|/  |   ____   ||  \_     //  |   \\\  /   |||   || |   ||    |   ||      ")
-    self.log("  |   ||       |   || |   ||   /    //    \   \\\/   // |   ||_|   ||    |   ||      ")
-    self.log("  |___|/       |___|| | __|/  |____//      \_______//   \_________//    |___|/      ")
-    self.log("")
-
-  def stop_monitor_p2pool_log(self):
-    pidfile= self._monitor_p2pool_pid_file
-    with open(pidfile, encoding='utf-8') as pidfile_handle:
-      pid = pidfile_handle.read()
-      pidfile_handle.close()
-      os.kill(int(pid), 15)
 
   def watch_log(self, p2p_log):
     p2p_log.seek(0, os.SEEK_END)
