@@ -1,6 +1,6 @@
 ---
 title: Hashrate Reports
-date: 2025-06-05
+date: 2025-06-06
 ---
 
 # Reports
@@ -20,4 +20,4 @@ Reports [definition file](/conf/reports/hashrates.yml).
 * [Mainchain Hashrate - 60 days](/pages/reports/hashrates/Mainchain-Hashrate-60-Days.html)
 * [Mainchain Hashrate - 90 days](/pages/reports/hashrates/Mainchain-Hashrate-90-Days.html)
 
-Last updated: 2025-06-05 23:30
+Last updated: 2025-06-06 00:30
