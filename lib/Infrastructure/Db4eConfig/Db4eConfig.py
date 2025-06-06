@@ -5,7 +5,7 @@ Infrastructure/Db4eConfig/Db4eConfig.py
 import yaml
 import argparse
 
-YAML_FILE = '/imports/disk1/github/db4e/conf/db4e.yml'
+YAML_FILE = '/imports/disk1/github/db4e/conf/db4e_prod.yml'
 YAML_FILE_QA = '/opt/qa/db4e/conf/db4e_qa.yml'
 
 
