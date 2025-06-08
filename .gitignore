@@ -3,3 +3,9 @@ __pycache__
 backups
 reports
 csv
+assets/js/blocksfound
+assets/js/hashrates
+assets/js/payments
+assets/js/sharesfound
+assets/js/snapshot
+
