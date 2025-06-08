@@ -1,16 +1,25 @@
 db4e:
-  backup_dir: backups
-  conf_dir: conf
-  install_dir: /opt/qa/db4e
-  js_dir: assets/js
-  src_dir: /opt/src
   environ: qa
+  install_dir: /opt/qa/db4e
+  src_dir: src
+  dev_dir: dev
+  conf_dir: conf
+  template_dir: tmpl
+  js_dir: js
+  reports_dir: reports
+  md_dir: md
+
+web:
+  install_dir: /opt/qa/xmrqa
+  backup_dir: backups
+  web_dir: pages
+  csv_dir: csv
 
 logging:
   log_dir: logs
   log_file: db4e.log
   # Valid log_level's are debug, info, warning, error and critical
-  log_level: warning
+  log_level: info
   
 p2pool:
   install_dir: /opt/qa/p2pool
@@ -28,14 +37,8 @@ monerod:
   proc_name: monerod
 
 xmrig:
-  install_dir: /opt/qa/xmrig_test
+  install_dir: xmrig
   proc_name: sleep
-
-export:
-  export_dir: /opt/qa/db4e/data
-  csv_dir: csv
-  template_dir: tmpl
-  reports_dir: pages/reports
   
 db:
   server: localhost
@@ -44,7 +47,7 @@ db:
   collection: mining
   log_collection: logging
   backup_dir: backups
-  backup_script: bin/backup-db.sh
+  backup_script: bin/db4e-backup.sh
   retry_timeout: 15
   
 git:

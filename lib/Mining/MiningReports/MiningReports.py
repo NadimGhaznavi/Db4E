@@ -27,37 +27,34 @@ from Db4eLogger.Db4eLogger import Db4eLogger
 class MiningReports():
   
     def __init__(self, report_type=None):
+        # The db4e logger
+        self.log = Db4eLogger('MiningReports')
         # Load the configuration 
         config = Db4eConfig()
-        self._install_dir = config.config['db4e']['install_dir']
-        self._conf_dir = config.config['db4e']['conf_dir']
-        self._js_dir = config.config['db4e']['js_dir']
-        self._csv_dir = config.config['export']['csv_dir']
-        self._templates_dir = config.config['export']['template_dir']
-        self._reports_dir = config.config['export']['reports_dir']
+        self._db4e_dir      = config.config['db4e']['install_dir']
+        self._conf_dir      = config.config['db4e']['conf_dir']
+        self._js_dir        = config.config['db4e']['js_dir']
+        self._templates_dir = config.config['db4e']['template_dir']
+        self._reports_dir   = config.config['db4e']['reports_dir']
+        self._md_dir        = config.config['db4e']['md_dir']
+        self._web_dir       = config.config['web']['install_dir']
+        self._csv_dir       = config.config['web']['csv_dir']
 
         if report_type:
             self._yaml_file = report_type
         else:
-            self._yaml_file = config.config['export']['reports']
+            self._yaml_file = config.config['db4e']['reports']
         
         # Load the report definitions from the YAML file
         self._load_reports()
-
         # Keep track of the data we've extracted
         self._fresh = {}
-
         # Get a db4e Git object
-        self.git = Db4eGit(self._install_dir)
-
+        self.git = Db4eGit(self._web_dir)
         # We'll create a reports summary page with these links
         self._report_links = []
-
         # We need a list of miners for the 'by miner' reports
         self._workers = []
-
-        # And a backend logging object
-        self.log = Db4eLogger('MiningReports')
 
     def run(self):
         """
@@ -66,27 +63,33 @@ class MiningReports():
         """
         # This loads the conf/reports/<reports_name>.yml 
         self._load_reports()
-
-        install_dir  = self._install_dir
+        self.log.info(f'Running report ({self._report_file})')
+        db4e_dir     = self._db4e_dir
+        web_dir      = self._web_dir
+        md_dir       = self._md_dir
         reports_dir  = self._reports_dir
         csv_dir      = self._csv_dir
         js_dir       = self._js_dir
         reports_name = self._yaml_file
         
-        # Create csv and reports directories if they don't exist
-        # i.e. csv/ and pages/reports/
-        if not os.path.exists(os.path.join(install_dir, csv_dir)):
-            os.mkdir(os.path.join(install_dir, csv_dir))
-        if not os.path.exists(os.path.join(install_dir, reports_dir)):
-            os.mkdir(os.path.join(install_dir, reports_dir))
+        # CSV file base directory
+        if not os.path.exists(os.path.join(web_dir, csv_dir)):
+            os.mkdir(os.path.join(web_dir, csv_dir))
+        # Reports base directory
+        if not os.path.exists(os.path.join(web_dir, reports_dir)):
+            os.mkdir(os.path.join(web_dir, reports_dir))
+        # Javascript base directory
+        if not os.path.exists(os.path.join(web_dir, js_dir)):
+            os.mkdir(os.path.join(web_dir, js_dir))
 
         # Create a fresh reports specific directory e.g.csv/<reports_name>, 
         # pages/reports/<reports_name>, assets/js/<reports_name>
-        fq_csv_dir = os.path.join(install_dir, csv_dir, reports_name)
-        fq_js_dir = os.path.join(install_dir, js_dir, reports_name)
-        fq_reports_dir = os.path.join(install_dir, reports_dir, reports_name)
+        fq_csv_dir = os.path.join(web_dir, csv_dir, reports_name)
+        fq_js_dir = os.path.join(web_dir, js_dir, reports_name)
+        fq_reports_dir = os.path.join(web_dir, reports_dir, reports_name)
         for aDir in [ fq_csv_dir, fq_js_dir, fq_reports_dir ]:
             if os.path.exists(aDir):
+                # Clean out any old report
                 shutil.rmtree(aDir)
             os.mkdir(aDir)
 
@@ -140,9 +143,9 @@ class MiningReports():
 
         if length != 'all':
             if sub_type:
-                self.log.info(f"Generating {sub_type} {report_type} report with {length} of data")
+                self.log.debug(f"Generating {sub_type} {report_type} report with {length} of data")
             else:
-                self.log.info(f"Generating {report_type} report with {length} of data")
+                self.log.debug(f"Generating {report_type} report with {length} of data")
             # A link to the doc for the TOC
             if Sub_type:
                 url_link = f"[{Sub_type} {Report_type} - {num_days} days](/{reports_dir}/{reports_name}/{Sub_type}-{Report_type}-{num_days}-Days.html)"
@@ -161,21 +164,21 @@ class MiningReports():
 
     def _gen_csv(self, report_type, sub_type, columns):
         # Create a filename for the CSV file to be exported
-        install_dir = self._install_dir
+        web_dir = self._web_dir
         csv_dir = self._csv_dir
         reports_name = self._yaml_file
 
         if sub_type:
-            self.log.info(f'Generating historical {sub_type} {report_type} report')
+            self.log.debug(f'Generating historical {sub_type} {report_type} report')
         else:
-            self.log.info(f'Generating historical {report_type} report')
+            self.log.debug(f'Generating historical {report_type} report')
 
         if sub_type == None:
             csv_filename = f"{report_type}.csv"
         else:
             csv_filename = f"{sub_type}-{report_type}.csv"
 
-        csv_handle = open(os.path.join(install_dir, csv_dir, reports_name, csv_filename), 'w')
+        csv_handle = open(os.path.join(web_dir, csv_dir, reports_name, csv_filename), 'w')
 
         # For the sharesfound reports, the columns depend on the list of currently active miners
         self._workers = []
@@ -312,14 +315,14 @@ class MiningReports():
 
 
         csv_handle.close()
-        export_file = os.path.join(install_dir, csv_dir, reports_name, csv_filename)
-        self.log.info(f"Created CSV file ({export_file})", 
+        export_file = os.path.join(web_dir, csv_dir, reports_name, csv_filename)
+        self.log.debug(f"Created CSV file ({export_file})", 
                       {'new_file': export_file, 'file_type': 'csv'})
         self.git.add(export_file)
 
     def _gen_csv_short(self, report):
         # Create a shorter version of the CSV file, last 'length' days
-        install_dir  = self._install_dir
+        web_dir  = self._web_dir
         csv_dir      = self._csv_dir
         reports_name = self._yaml_file
         report_type  = report['report_type']
@@ -335,8 +338,8 @@ class MiningReports():
             out_file = f"{report_type}-{num_days}days.csv"
 
 
-        in_handle = open(os.path.join(install_dir, csv_dir, reports_name, in_file), 'r')
-        out_handle = open(os.path.join(install_dir, csv_dir, reports_name, out_file), 'w')
+        in_handle = open(os.path.join(web_dir, csv_dir, reports_name, in_file), 'r')
+        out_handle = open(os.path.join(web_dir, csv_dir, reports_name, out_file), 'w')
         
         if report_type == 'hashrate':
             # The hashrate data is hourly
@@ -354,14 +357,16 @@ class MiningReports():
         # Close the files, print some output and issue a 'git add <file>'
         out_handle.close()
         in_handle.close()
-        export_file = os.path.join(install_dir, csv_dir, reports_name, out_file)
+        export_file = os.path.join(web_dir, csv_dir, reports_name, out_file)
         self.git.add(export_file)
-        self.log.info(f"Created CSV file ({export_file})", 
+        self.log.debug(f"Created CSV file ({export_file})", 
                       {'new_file': export_file, 'file_type': 'csv'})
         
     def _gen_js(self, report):
         # Create a copy of the Javascript file with the updated filename
-        install_dir  = self._install_dir
+        db4e_dir     = self._db4e_dir
+        web_dir      = self._web_dir
+        tmpl_dir     = self._templates_dir
         js_dir       = self._js_dir
         reports_name = self._yaml_file
         report_type  = report['report_type']
@@ -383,8 +388,8 @@ class MiningReports():
             else:
                 out_file = f"{sub_type}-{report_type}-{num_days}days.js"
 
-        in_handle = open(os.path.join(install_dir, js_dir, in_file), 'r')
-        out_handle = open(os.path.join(install_dir, js_dir, reports_name, out_file), 'w')
+        in_handle = open(os.path.join(db4e_dir, tmpl_dir, js_dir, in_file), 'r')
+        out_handle = open(os.path.join(web_dir, js_dir, reports_name, out_file), 'w')
 
         in_lines = in_handle.readlines()
         if sub_type == None:
@@ -430,9 +435,9 @@ class MiningReports():
         # Close out nicely
         out_handle.close()
         in_handle.close()
-        export_file = os.path.join(install_dir, js_dir, reports_name, out_file)
+        export_file = os.path.join(web_dir, js_dir, reports_name, out_file)
         self.git.add(export_file)
-        self.log.info(f"Created JavaScript file ({export_file})", 
+        self.log.debug(f"Created JavaScript file ({export_file})", 
                       {'new_file': export_file, 'file_type': 'js'})
 
     def _gen_md(self, report):
@@ -448,9 +453,11 @@ class MiningReports():
             sub_type = None
             Sub_type = None
 
-        install_dir   = self._install_dir
+        db4e_dir      = self._db4e_dir
+        web_dir       = self._web_dir
         templates_dir = self._templates_dir
         reports_dir   = self._reports_dir
+        md_dir        = self._md_dir
 
         num_days = length.split(' ')[0]
         Report_type = report_type.capitalize()
@@ -473,8 +480,8 @@ class MiningReports():
             else:
                 out_file = f'{Sub_type}-{Report_type}-{num_days}-Days.md'
 
-        in_handle = open(os.path.join(install_dir, templates_dir, report_type, in_file), 'r')
-        out_handle = open(os.path.join(install_dir, reports_dir, reports_name, out_file), 'w')
+        in_handle = open(os.path.join(db4e_dir, templates_dir, md_dir, report_type, in_file), 'r')
+        out_handle = open(os.path.join(web_dir, reports_dir, reports_name, out_file), 'w')
 
         # Generate a JavaScript filename
         if Sub_type == None:
@@ -526,20 +533,21 @@ class MiningReports():
         # Clean exit....
         out_handle.close()
         in_handle.close()
-        export_file = os.path.join(install_dir, reports_dir, reports_name, out_file)
+        export_file = os.path.join(web_dir, reports_dir, reports_name, out_file)
         self.git.add(export_file)
-        self.log.info(f"Created GitHub markdown file ({export_file})", 
+        self.log.debug(f"Created GitHub markdown file ({export_file})", 
                       {'new_file': export_file, 'file_type': 'md'})
 
 
     def _gen_toc(self, report_type):
         reports_name = self._yaml_file
-        Report_type = report_type.capitalize()
-        install_dir = self._install_dir
-        reports_dir = self._reports_dir
-        conf_dir = self._conf_dir
-        toc_file = 'index.md'
-        toc_handle = open(os.path.join(install_dir, reports_dir, reports_name, toc_file), 'w')
+        Report_type  = report_type.capitalize()
+        web_dir      = self._web_dir
+        reports_dir  = self._reports_dir
+        conf_dir     = self._conf_dir
+        toc_file     = 'index.md'
+
+        toc_handle = open(os.path.join(web_dir, reports_dir, reports_name, toc_file), 'w')
         # Generate the GitHub Markdown header
         toc_handle.write('---\n')
         toc_handle.write(f'title: {Report_type} Reports\n')
@@ -550,14 +558,12 @@ class MiningReports():
         toc_handle.write(f'Reports [definition file](/{conf_dir}/reports/{reports_name}.yml).\n\n')
         for link in self._report_links:
             toc_handle.write(f'* {link}\n')
-        self.git.add(os.path.join(install_dir, reports_dir, reports_name, toc_file))
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         toc_handle.write(f'\nLast updated: {datetime_str}\n')
-
         toc_handle.close()
-        export_file = os.path.join(install_dir, reports_dir, reports_name, toc_file)
+        export_file = os.path.join(web_dir, reports_dir, reports_name, toc_file)
         self.git.add(export_file)
-        self.log.info(f"Created reports summary GitHub markdown file ({export_file})", 
+        self.log.debug(f"Created reports summary GitHub markdown file ({export_file})", 
                       {'new_file': export_file, 'file_type': 'md'})
         
     def _get_data(self, report_type, sub_type):
@@ -578,12 +584,15 @@ class MiningReports():
 
     def _load_reports(self):
         # Report files are in conf/reports
-        install_dir = self._install_dir
-        conf_dir = os.path.join(self._conf_dir, 'reports')
+        db4e_dir = self._db4e_dir
+        conf_dir = self._conf_dir
+        reports_dir = self._reports_dir
         yaml_file = f'{self._yaml_file}.yml'
-        
-        with open(os.path.join(install_dir, conf_dir, yaml_file), 'r') as file:
+        # E.g. db4e/conf/reports/hashrates.yml
+        report_file = os.path.join(db4e_dir, conf_dir, reports_dir, yaml_file)        
+        with open(os.path.join(report_file), 'r') as file:
             self._reports = yaml.safe_load(file)
+        self._report_file = report_file
 
 
     

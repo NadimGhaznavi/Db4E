@@ -40,13 +40,13 @@ class Db4eGit():
     git_script = self._git_script
     repo_dir = self._repo_dir
     subprocess.run([git_script, repo_dir, 'add', repo_file])
-    self.log.info(f'Added file ({repo_file})', {'new_file': repo_file, 'file_type': 'git'})
+    self.log.debug(f'Added file ({repo_file})', {'new_file': repo_file, 'file_type': 'git'})
 
   def commit(self, msg):
     git_script = self._git_script
     repo_dir = self._repo_dir
     subprocess.run([git_script, repo_dir, 'commit', msg])
-    self.log.info(f'Executed a git commit for the added files')
+    self.log.debug(f'Executed a git commit for the added files')
 
   def push(self, fully_qualified_file=None, comment=None):
     if comment:
@@ -61,6 +61,6 @@ class Db4eGit():
     else:
       git_script = self._git_script
       subprocess.run([git_script, self._repo_dir, 'push'])
-      self.log.info(f'Executed a git push for the added files')
+      self.log.debug(f'Executed a git push for the added files')
 
 

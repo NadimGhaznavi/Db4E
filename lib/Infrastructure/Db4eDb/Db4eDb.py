@@ -6,7 +6,6 @@ lib/Infrastructure/Db4eDb/Db4eDb.py
 from pymongo import MongoClient
 import os, sys
 import subprocess
-import logging
 from datetime import datetime, timezone
 import time
 
@@ -32,14 +31,14 @@ class Db4eDb():
     self._db_name        = ini.config['db']['name']
     self._db_collection  = ini.config['db']['collection']
     self._log_collection = ini.config['db']['log_collection']
-    self._backup_dir     = ini.config['db']['backup_dir']
-
-    install_dir = ini.config['db4e']['install_dir']
-    backup_dir = ini.config['db']['backup_dir']
-    backup_script = ini.config['db']['backup_script']
     
-    self._backup_script = os.path.join(install_dir, backup_script)
-    self._backup_dir = os.path.join(install_dir, backup_dir)
+    db4e_dir             = ini.config['db4e']['install_dir']
+    web_dir              = ini.config['web']['install_dir']
+    backup_dir           = ini.config['web']['backup_dir']
+    backup_script        = ini.config['db']['backup_script']
+    
+    self._backup_script  = os.path.join(db4e_dir, backup_script)
+    self._backup_dir     = os.path.join(web_dir, backup_dir)
 
     # Setup logging
     self.log = Db4eLogger('Db4eDb')
@@ -51,8 +50,12 @@ class Db4eDb():
     backup_script = self._backup_script
     backup_dir = self._backup_dir
     db_name = self._db_name
-    subprocess.run([backup_script, db_name, backup_dir])
-    self.log.info(f'Created a new backup in {backup_dir}')
+    col = self._db_collection
+    log_col = self._log_collection
+
+    for aCol in [ col, log_col ]:
+      subprocess.run([backup_script, db_name, aCol, backup_dir])
+      self.log.info(f'Created a new backup of ({aCol}) in {backup_dir}')
 
   def db(self):
     if not self.connected:

@@ -38,7 +38,7 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
-    self.log.info('Creating a block found event')
+    self.log.debug(f'Creating a new {timestamp} block found event record')
 
   def add_mainchain_hashrate(self, hashrate):
     """
@@ -69,7 +69,7 @@ class MiningDb():
         'hashrate': hashrate
       }
       mining_col.insert_one(hourly_doc)
-      self.log.info(f'New mainchain hourly ({timestamp}) hashrate ({hashrate} GH/s) record')
+      self.log.debug(f'New mainchain hourly ({timestamp}) hashrate ({hashrate} GH/s) record')
     
   def add_pool_hashrate(self, hashrate):
     """
@@ -100,7 +100,7 @@ class MiningDb():
         'hashrate': hashrate
       }
       mining_col.insert_one(hourly_doc)
-      self.log.info(f'New pool hourly ({timestamp}) hashrate ({hashrate} KH/s) record')
+      self.log.debug(f'New pool hourly ({timestamp}) hashrate ({hashrate} KH/s) record')
     
   def add_share_found(self, timestamp, worker, ip_addr, effort):
     """
@@ -115,7 +115,7 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
-    self.log.info(f'New share found record', { 'miner': worker})
+    self.log.debug(f'New share found record', { 'miner': worker})
 
   def add_share_position(self, timestamp, position):
     """
@@ -159,7 +159,7 @@ class MiningDb():
         'hashrate': hashrate
       }
       mining_col.insert_one(hourly_doc)
-      self.log.info(f'New pool hourly ({timestamp}) hashrate record ({hashrate} MH/s)')
+      self.log.debug(f'New pool hourly ({timestamp}) hashrate record ({hashrate} MH/s)')
 
   def add_sidechain_miners(self, num_miners):
     """
@@ -196,7 +196,7 @@ class MiningDb():
     new_balance = Decimal128(amount + balance)
     new_values = { "$set": {'balance': new_balance}}
     mining_col.update_one(myquery, new_values)
-    self.log.info(f'Updated XMR Wallet balance ({new_balance}) record')
+    self.log.debug(f'Updated XMR Wallet balance ({new_balance}) record')
 
   def add_xmr_payment(self, timestamp, payment):
     jdoc = {
@@ -206,7 +206,7 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
-    self.log.info(f'New XMR payment ({payment}) record')
+    self.log.debug(f'New XMR payment ({payment}) record')
 
   def db(self):
     return self._db

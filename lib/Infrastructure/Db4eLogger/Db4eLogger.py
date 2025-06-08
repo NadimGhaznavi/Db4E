@@ -29,31 +29,30 @@ LOG_LEVELS = {
 class Db4eLogger:
     def __init__(self, component):
         self._component = component
+        logger_name = f'db4e.{component}'
+        self._logger = logging.getLogger(logger_name)
+
         # Get the config settings
         ini = Db4eConfig()
         ch_log_level = LOG_LEVELS[ini.config['logging']['log_level'].lower()]
-        # Get a Python logging instance, include the component to avoid dupes
-        self._logger = logging.getLogger(f'db4e.{component}')
-        # The logger's log level is hard-coded to debug. 
+
+        # Set the logger log level, should always be 'debug'
         self._logger.setLevel(LOG_LEVELS['debug'])
-        # Avoid duplicate handlers
-        if not getattr(self._logger, '_db4e_initialized', False):
-            # Create a console handler
-            ch = logging.StreamHandler()
-            formatter = logging.Formatter(
-                fmt='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S')
-            ch.setFormatter(formatter)
-            ch.setLevel(ch_log_level)
-            self._logger.addHandler(ch)
 
-            # Create a DB handler
-            dbh = Db4eDbLogHandler()
-            dbh.setLevel(LOG_LEVELS['debug'])
-            self._logger.addHandler(dbh)
+        # Console handler            
+        ch = logging.StreamHandler()
+        ch.setLevel(ch_log_level)
+        ch.setFormatter(logging.Formatter(
+            fmt='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'))
+        self._logger.addHandler(ch)
 
-            # Mark logger as initialized
-            self._logger._db4e_initialized = True
+        # DB handler
+        dbh = Db4eDbLogHandler()
+        dbh.setLevel(logging.DEBUG)
+        self._logger.addHandler(dbh)
+
+        self._logger.propagate = False
 
     def shutdown(self):
         # Exit cleanly

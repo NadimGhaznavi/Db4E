@@ -41,7 +41,7 @@ class Db4eConfig():
         
         # Run one or more reprts with a reports definition file in conf/reports
         if args.reports != 'None':
-            self.config['export']['reports'] = args.reports
+            self.config['db4e']['reports'] = args.reports
         
         # Monitor the P2Pool daemon log files for P2Pool events
         if args.monitor:

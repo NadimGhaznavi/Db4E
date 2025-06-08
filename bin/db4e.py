@@ -6,7 +6,6 @@ bin/db4e.py
 # Import supporting modules
 import os
 import sys
-import logging
 
 # The directory that this script is in
 script_dir = os.path.dirname(__file__)
@@ -36,8 +35,8 @@ log = Db4eLogger('db4e.py')
 
 try:
 
-  if 'reports' in ini.config['export']:
-    report = ini.config['export']['reports']
+  if 'reports' in ini.config['db4e']:
+    report = ini.config['db4e']['reports']
     reports = MiningReports(report)
     reports.run()
 
@@ -58,10 +57,5 @@ except KeyboardInterrupt:
   log.warning("Caught keyboard interrupt, exiting...")
   log.shutdown() # Flush all handlers
   sys.exit(0)
-
-banner = 'Database 4 Everything'
-environ = ini.config['db4e']['environ']
-banner += f' [{environ.upper()}]'
-print(banner)
 
 
