@@ -1,16 +1,18 @@
 db4e:
   backup_dir: backups
   conf_dir: conf
-  debug: 0
-  # Valid log_level's are debug, info, warning, error and critical
-  log_level: info
   install_dir: /opt/prod/db4e
   js_dir: assets/js
-  log_dir: logs
-  log_file: db4e.log
   src_dir: /opt/src
   environ: prod
-  
+
+logging:
+  log_dir: logs
+  log_file: db4e.log
+  # This is for the console logging.
+  # The log levels to the DB are always set to debug.
+  log_level: warning
+
 p2pool:
   install_dir: /opt/prod/p2pool
   api_dir: api
@@ -27,19 +29,15 @@ monerod:
   proc_name: monerod
 
 xmrig:
-  install_dir: /opt/prod/xmrig_test
-  proc_name: sleep
+  install_dir: /opt/prod/xmrig
+  proc_name: xmrig
 
 export:
   export_dir: /opt/prod/db4e/data
   csv_dir: csv
   template_dir: tmpl
   reports_dir: pages/reports
-  p2pool_payouts_csv: p2pool_payouts.csv
-  blocks_found_csv: blocks_found.csv
-  shares_found_csv: shares_found.csv
-  shares_found_by_host_csv: shares_found_by_host.csv
-
+  
 db:
   server: localhost
   port: 27017
