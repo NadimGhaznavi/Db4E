@@ -16,4 +16,4 @@ Reports [definition file](/conf/reports/payments.yml).
 * [Cumulative Payment - 90 days](/pages/reports/payments/Cumulative-Payment-90-Days.html)
 * [Cumulative Payment - 180 days](/pages/reports/payments/Cumulative-Payment-180-Days.html)
 
-Last updated: 2025-06-07 23:37
+Last updated: 2025-06-07 23:51
