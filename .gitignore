@@ -1,2 +1,5 @@
 logs
 __pycache__
+backups
+reports
+csv
