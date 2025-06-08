@@ -8,7 +8,6 @@ db4e:
   js_dir: assets/js
   log_dir: logs
   log_file: db4e.log
-  os_log_file: db4e-os.log
   src_dir: /opt/src
   environ: prod
   

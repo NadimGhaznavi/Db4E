@@ -10,22 +10,7 @@ This page documents the process of building [SChernykh's P2Pool Software](https:
 
 # Deployment Architecture
 
-I put source code in `/opt/src` and installed software in `/opt/prod`. For example:
-
-Directory               | Description
-------------------------|-------------------
-`/opt/src/p2pool-v4.6`  | Source code
-`/opt/prod/p2pool-v4.6` | Installed code
-`/opt/prod/p2pool`      | Symlink to installed code directory
-
-Within the installed software directories I use the following convention:
-
-Directory   | Description
-------------|-------------------
-`bin`       | Directory to house executibles 
-`logs`      | Directory to house logs
-`conf`      | Directory to house configuration files
-`run`       | Directory to contain temporary runtime files
+See the [Deployment Architecture](/pages/ops/Deployment-Architecture.html) for information on how the source, build and install directories are orgainized for this process.
 
 ---
 
@@ -45,7 +30,7 @@ I keep source code in `/opt/src`. In the example below, the p2pool version is 4.
 
 ```
 cd /opt/src
-sudo git clone --recursive https://github.com/SChernykh/p2pool
+sudo git clone --depth 1 --recursive https://github.com/SChernykh/p2pool
 sudo mv p2pool p2pool-v4.6
 ```
 
@@ -53,7 +38,7 @@ This clones the SChernykh P2Pool repository into the p2pool directory and rename
 
 ---
 
-# Configure the Source Code
+# Configure and Build 
 
 Assuming you are building P2Pool version 4.6:
 
@@ -61,7 +46,7 @@ Assuming you are building P2Pool version 4.6:
 cd /opt/src/p2pool-v4.6
 sudo mkdir build
 
-sudo cmake --install-prefix=/opt/prod/p2pool-v4.6 -DWITH_MERGE_MINING_DONATION=OFF -DSTATIC_BINARY=ON ..
+sudo cmake --install-prefix=/opt/prod/p2pool-v4.6 -DWITH_MERGE_MINING_DONATION=OFF
 ```
 
 ---

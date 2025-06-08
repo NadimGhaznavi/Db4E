@@ -20,13 +20,13 @@ for db4e_dir in db4e_dirs:
 
 from Db4eDb.Db4eDb import Db4eDb 
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eLogger.Db4eLogger import Db4eLogger
 
 class MiningDb():
 
   def __init__(self):
     self._db = Db4eDb()
-    config = Db4eConfig()
-    self._debug = config.config['db4e']['debug']
+    self.log = Db4eLogger('MiningDb')
     
   def add_block_found(self, timestamp):
     """
@@ -38,6 +38,7 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
+    self.log.info('Creating a block found event')
 
   def add_mainchain_hashrate(self, hashrate):
     """
@@ -59,6 +60,7 @@ class MiningDb():
       # Update the existing hourly doc
       new_values = { "$set": {'hashrate': hashrate}}
       mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
+      self.log.debug(f'Updated mainchain hourly ({timestamp}) hashrate ({hashrate}) record')
     else:
       # Create a new hourly doc
       hourly_doc = {
@@ -67,6 +69,7 @@ class MiningDb():
         'hashrate': hashrate
       }
       mining_col.insert_one(hourly_doc)
+      self.log.info(f'New mainchain hourly ({timestamp}) hashrate ({hashrate} GH/s) record')
     
   def add_pool_hashrate(self, hashrate):
     """
@@ -88,6 +91,7 @@ class MiningDb():
       # Update the existing hourly doc
       new_values = { "$set": {'hashrate': hashrate}}
       mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
+      self.log.debug(f'Updated pool hourly ({timestamp}) hashrate ({hashrate}) record')
     else:
       # Create a new hourly doc
       hourly_doc = {
@@ -96,6 +100,7 @@ class MiningDb():
         'hashrate': hashrate
       }
       mining_col.insert_one(hourly_doc)
+      self.log.info(f'New pool hourly ({timestamp}) hashrate ({hashrate} KH/s) record')
     
   def add_share_found(self, timestamp, worker, ip_addr, effort):
     """
@@ -110,6 +115,7 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
+    self.log.info(f'New share found record', { 'miner': worker})
 
   def add_share_position(self, timestamp, position):
     """
@@ -122,6 +128,7 @@ class MiningDb():
     # Initialize the JSON doc i.e. create it if it doesn't exist
     self.get_share_position()
     mining_col.update_one(myquery, new_values)
+    self.log.debug('Updated share position record')
 
   def add_sidechain_hashrate(self, hashrate):
     """
@@ -143,6 +150,7 @@ class MiningDb():
       # Update the existing hourly doc
       new_values = { "$set": {'hashrate': hashrate}}
       mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
+      self.log.debug(f'Updated sidechain hourly ({timestamp}) hashrate ({hashrate}) record')
     else:
       # Create a new hourly doc
       hourly_doc = {
@@ -150,7 +158,8 @@ class MiningDb():
         'timestamp': timestamp,
         'hashrate': hashrate
       }
-      mining_col.insert_one(hourly_doc)  
+      mining_col.insert_one(hourly_doc)
+      self.log.info(f'New pool hourly ({timestamp}) hashrate record ({hashrate} MH/s)')
 
   def add_sidechain_miners(self, num_miners):
     """
@@ -165,6 +174,7 @@ class MiningDb():
       # Update the existing hourly doc
       new_values = { "$set": {'num_miners': num_miners}}
       mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
+      self.log.debug(f'Updated hourly ({timestamp} sidechain miners ({num_miners}) record')
     else:
       # Create a new hourly doc
       hourly_doc = {
@@ -172,7 +182,8 @@ class MiningDb():
         'timestamp': timestamp,
         'sidechain_miners': num_miners
       }
-      mining_col.insert_one(hourly_doc)  
+      mining_col.insert_one(hourly_doc)
+      self.log.debug(f'Updated hourly ({timestamp} sidechain miners ({num_miners}) record')
 
   def add_to_wallet(self, amount):
     db = self.db().db()
@@ -185,6 +196,7 @@ class MiningDb():
     new_balance = Decimal128(amount + balance)
     new_values = { "$set": {'balance': new_balance}}
     mining_col.update_one(myquery, new_values)
+    self.log.info(f'Updated XMR Wallet balance ({new_balance}) record')
 
   def add_xmr_payment(self, timestamp, payment):
     jdoc = {
@@ -194,19 +206,14 @@ class MiningDb():
     }
     db = self.db()
     db.insert_uniq_one('mining', jdoc)
+    self.log.info(f'New XMR payment ({payment}) record')
 
   def db(self):
     return self._db
   
   def get_docs(self, doc_type):
-    if self._debug == 9:
-      print("MiningDb:get_docs(doc_type)")
-      print(f"  doc_type        : ({doc_type})\n")
     db = self.db()
     db_cursor = db.get_docs('mining', doc_type)
-    if self._debug == 9:
-      print("MiningDb:get_docs()")
-      print(f"  returns         : ({db_cursor})\n")
     return db_cursor
   
   def get_mainchain_hashrate(self):
@@ -329,9 +336,13 @@ class MiningDb():
         'doc_type': 'worker',
         'worker_name': worker_name,
         'hashrate': hashrate,
-        'timestamp': timestamp
+        'timestamp': timestamp,
+        'active': True
       }
       mining_col.insert_one(worker)
     myquery = {'doc_type': 'worker', 'worker_name': worker_name}
     new_values = { "$set": {'hashrate': hashrate, 'timestamp': timestamp}}
     mining_col.update_one(myquery, new_values)
+    worker_name = worker['worker_name']
+    hashrate = worker['hashrate']
+    self.log.debug(f'Updated miner ({worker_name}) hashrate ({hashrate} H/s) record')

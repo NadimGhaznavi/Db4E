@@ -6,6 +6,7 @@ bin/db4e.py
 # Import supporting modules
 import os
 import sys
+import logging
 
 # The directory that this script is in
 script_dir = os.path.dirname(__file__)
@@ -15,8 +16,7 @@ lib_dir = script_dir + '/../lib/'
 # Import DB4E modules
 db4e_dirs = [
   lib_dir + 'Infrastructure',
-  lib_dir + 'Mining',
-  lib_dir + 'Mining/export'
+  lib_dir + 'Mining'
 ]
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
@@ -26,27 +26,38 @@ from P2Pool.P2Pool import P2Pool
 from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
 from MiningReports.MiningReports import MiningReports
+from Db4eLogger.Db4eLogger import Db4eLogger
 
-
+# Get a config object
 ini = Db4eConfig()
 
-if 'reports' in ini.config['export']:
-  report = ini.config['export']['reports']
-  reports = MiningReports(report)
-  reports.run()
+# Get a Python logging object
+log = Db4eLogger('db4e.py')
 
-elif 'monitor_log' in ini.config['p2pool']:
-  p2pool = P2Pool()
-  p2pool.monitor_log()
+try:
 
-elif 'wallet_balance' in ini.config['db4e']:
-  db = MiningDb()
-  balance = db.get_wallet_balance()
-  print(f"Wallet balance: {balance} XMR")
+  if 'reports' in ini.config['export']:
+    report = ini.config['export']['reports']
+    reports = MiningReports(report)
+    reports.run()
 
-elif 'backup_db' in ini.config['db']:
-  db = Db4eDb()
-  db.backup_db()
+  elif 'monitor_log' in ini.config['p2pool']:
+    p2pool = P2Pool()
+    p2pool.monitor_log()
+
+  elif 'wallet_balance' in ini.config['db4e']:
+    db = MiningDb()
+    balance = db.get_wallet_balance()
+    print(f"Wallet balance: {balance} XMR")
+
+  elif 'backup_db' in ini.config['db']:
+    db = Db4eDb()
+    db.backup_db()
+
+except KeyboardInterrupt:
+  log.warning("Caught keyboard interrupt, exiting...")
+  log.shutdown() # Flush all handlers
+  sys.exit(0)
 
 banner = 'Database 4 Everything'
 environ = ini.config['db4e']['environ']

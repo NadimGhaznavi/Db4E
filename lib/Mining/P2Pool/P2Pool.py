@@ -36,7 +36,6 @@ class P2Pool():
     config = Db4eConfig()
     self._install_dir = config.config['p2pool']['install_dir']
     self._api_dir     = config.config['p2pool']['api_dir']
-    self._debug       = config.config['db4e']['debug']
     log_dir           = config.config['p2pool']['log_dir']
     log_file          = config.config['p2pool']['log_file']
     self._p2pool_log  = os.path.join(self._install_dir, log_dir, log_file)
@@ -77,7 +76,7 @@ class P2Pool():
       db = self.db()
       db.add_block_found(timestamp)
       # Generate fresh 'blocksfound' reports
-      reports = MiningReports(self.log, 'blocksfound')
+      reports = MiningReports('blocksfound')
       reports.run()
       # Log the event
       self.log.info('Block found')
@@ -130,7 +129,7 @@ class P2Pool():
       effort = float(match.group('effort'))
       db = self.db()
       db.add_share_found(timestamp, worker, ip_addr, effort)
-      reports = MiningReports(self.log, 'blocksfound')
+      reports = MiningReports('blocksfound')
       reports.run()
       self.log.info('Share found event', { 'miner': {worker} }) 
 
@@ -199,7 +198,7 @@ class P2Pool():
       worker_name = match.group('worker_name')
       db = self.db()
       db.update_worker(worker_name, hashrate)
-      self.log.debug(f'Deteected miner ({worker_name}) hashrate ({hashrate} H/s)') 
+      self.log.debug(f'Detected miner ({worker_name}) hashrate ({hashrate} H/s)') 
 
   def is_xmr_payment(self, log_line):
     """
@@ -218,9 +217,9 @@ class P2Pool():
       db.add_to_wallet(payout)
       db = self.db()
       db.add_xmr_payment(timestamp, payout)
-      reports = MiningReports(self.log, 'payments')
+      reports = MiningReports('payments')
       reports.run()
-      self.log.info(f"Payout event ({payout}) XMR", {'payout': {payout}})
+      self.log.info(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
 
   def monitor_log(self):
     log_filename = self._p2pool_log
@@ -229,24 +228,15 @@ class P2Pool():
     self._loglines = self.watch_log(p2p_log)
     loglines = self.watch_log(p2p_log)
                                            
-    try:
-      for log_line in loglines:
-        #while True:
-        #log_line = self.get_next_logline()
-        #print(log_line)
-
-        self.is_worker_stats(log_line)
-        self.is_share_found(log_line)
-        self.is_share_position(log_line)
-        self.is_block_found(log_line)
-        self.is_xmr_payment(log_line)
-        self.is_side_chain_hashrate(log_line)
-        self.is_main_chain_hashrate(log_line)
-        self.is_pool_hashrate(log_line)
-
-    except KeyboardInterrupt:
-      self.log("Exiting")
-      sys.exit(0)
+    for log_line in loglines:
+      self.is_worker_stats(log_line)
+      self.is_share_found(log_line)
+      self.is_share_position(log_line)
+      self.is_block_found(log_line)
+      self.is_xmr_payment(log_line)
+      self.is_side_chain_hashrate(log_line)
+      self.is_main_chain_hashrate(log_line)
+      self.is_pool_hashrate(log_line)
 
   def watch_log(self, p2p_log):
     p2p_log.seek(0, os.SEEK_END)

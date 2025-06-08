@@ -27,7 +27,6 @@ class Db4eGit():
     self._push_script = config.config['git']['push_script']
     self._git_script = config.config['git']['git_script']
     self._install_dir = config.config['db4e']['install_dir']
-    self._debug = config.config['db4e']['debug']
 
     self._push_script = os.path.join(self._install_dir, self._push_script)
     self._git_script = os.path.join(self._install_dir, self._git_script)

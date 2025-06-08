@@ -1,17 +1,16 @@
 db4e:
   backup_dir: backups
   conf_dir: conf
-  debug: 0
-  # Valid log_level's are debug, info, warning, error and critical
-  log_level: info
   install_dir: /opt/qa/db4e
-  logger_name: db4e_logger_qa
   js_dir: assets/js
-  log_dir: logs
-  log_file: db4e.log
-  os_log_file: db4e-os.log
   src_dir: /opt/src
   environ: qa
+
+logging:
+  log_dir: logs
+  log_file: db4e.log
+  # Valid log_level's are debug, info, warning, error and critical
+  log_level: warning
   
 p2pool:
   install_dir: /opt/qa/p2pool
