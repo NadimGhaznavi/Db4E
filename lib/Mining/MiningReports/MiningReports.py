@@ -555,7 +555,6 @@ class MiningReports():
         toc_handle.write(f'date: {date_str}\n')
         toc_handle.write('---\n\n')
         toc_handle.write("# Reports\n\n")
-        toc_handle.write(f'Reports [definition file](/{conf_dir}/reports/{reports_name}.yml).\n\n')
         for link in self._report_links:
             toc_handle.write(f'* {link}\n')
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M")
