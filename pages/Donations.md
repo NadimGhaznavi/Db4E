@@ -14,4 +14,4 @@ The gnomes in the server room quit years ago, now it's just me!
 
 # Donation QR Code
 
-![Donation QR Code](/assets/images/qr_code.png)
+![Donation QR Code](/images/qr_code.png)
