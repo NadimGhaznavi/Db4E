@@ -8,3 +8,7 @@ WEB_DIR=/opt/qa/xmrqa
 DB4E_DIR=/opt/qa/db4e
 
 rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
+cd $WEB_DIR
+git add . -v
+git commit -m "Static update"
+git push
