@@ -1,6 +1,7 @@
 db4e:
   environ: prod
   install_dir: /opt/prod/db4e
+  desc: "Database 4 Everything"
   src_dir: src
   dev_dir: dev
   conf_dir: conf
@@ -24,6 +25,7 @@ logging:
 
 p2pool:
   install_dir: /opt/prod/p2pool
+  desc: "P2Pool Daemon"
   api_dir: api
   log_dir: logs     
   log_file: p2pool.log
@@ -31,6 +33,7 @@ p2pool:
 
 monerod:
   install_dir: /opt/prod/monerod
+  desc: "Monero Blockchain Daemon"
   log_dir: logs
   log_file: monerod.log
   run_dir: run
@@ -39,6 +42,7 @@ monerod:
 
 xmrig:
   install_dir: xmrig
+  desc: "XMRig Miner"
   proc_name: xmrig
   
 db:

@@ -7,6 +7,9 @@
 
 ENVIRON=$1
 
+DEBUG=False
+# DEBUG=True
+
 if [ -z $ENVIRON ]; then
 	ENVIRON=prod
 fi
@@ -22,8 +25,16 @@ else
 	exit 1
 fi
 
-rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
 cd $WEB_DIR
-git add . -v
-git commit -m "Static update"
-git push
+
+if [ "${DEBUG}" == "False" ]; then
+	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR} > /dev/null 2>&1
+	git add . -v > /dev/null 2>&1
+	git commit -m "Static update" > /dev/null 2>&1
+	git push
+else
+	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
+	git add . -v
+	git commit -m "Static update"
+	git push
+fi

@@ -1,4 +1,4 @@
-#!/opt/prod/db4e_python/bin/python
+#!/opt/prod/db4e/venv/bin/python
 # Use venv environment for Python
 """
 bin/db4e-os.py
@@ -75,9 +75,9 @@ class View:
 
         self.main_widget = urwid.Filler(
             urwid.Pile([
-                urwid.Text("Select a daemon:", align='center'),
-                urwid.Divider(),
-                urwid.Pile(self.radio_buttons),
+                #urwid.Text(f'Timestamp', 'right'),
+
+                urwid.LineBox(urwid.Pile(self.radio_buttons), 'Select a Component'),
                 urwid.Divider(),
                 self.text_widget,
                 self.message
@@ -87,10 +87,12 @@ class View:
         daemon_list = self.model.get_daemon_list()
         group = []
         buttons = []
-        data = self.model.get_daemon_data()
+        #data = self.model.get_daemon_data()
         for daemon in daemon_list:
-            label = f"{daemon} [{data[daemon]['status']}]"
-            btn = urwid.RadioButton(group, label, state=(daemon == self.model.get_daemon()))
+            #label = f"{daemon} [{data[daemon]['status']}]"
+            label = f'{daemon}'
+            #btn = urwid.RadioButton(group, label, state=(daemon == self.model.get_daemon()))
+            btn = urwid.RadioButton(group, label)
             urwid.connect_signal(btn, 'change', self._on_radio_change, daemon)
             buttons.append(btn)
         return buttons
@@ -104,7 +106,7 @@ class View:
         return self.main_widget
 
     def update_display(self, data):
-        self.text_widget.set_text(f"View: {data}")
+        self.text_widget.set_text(f"{data}")
 
     def set_message(self, msg):
         self.message.set_text(msg)
@@ -118,7 +120,8 @@ class Controller:
             unhandled_input=self.handle_input)
 
     def start(self):
-        self.view.update_display(str(self.model.get_daemon_data()))
+        # str(self.model.get_daemon_data())
+        self.view.update_display('Welcome to the db4e OS!')
         self.loop.run()
 
     def handle_input(self, key):
