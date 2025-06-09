@@ -4,7 +4,7 @@ title: Donations
 
 The gnomes in the server room quit years ago, now it's just me! 
 
-Donations are always welcome! The *address* and *QR code* are for my Monero Wallet.
+Donations are always welcome. The *address* and *QR code* are for my Monero Wallet.
 
 
 # Donation Address

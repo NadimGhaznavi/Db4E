@@ -6,13 +6,15 @@
 #
 
 ENVIRON=$1
+WEB_DIR=$2
+
+if [ -z $WEB_DIR ]; then
+	echo "ERROR: Usage: $0 [qa|prod] [/path/to/github/pages/repo]"
+	exit 1
+fi
 
 DEBUG=False
 # DEBUG=True
-
-if [ -z $ENVIRON ]; then
-	ENVIRON=prod
-fi
 
 if [ "$ENVIRON" == "prod" ]; then
 	WEB_DIR=/opt/prod/xmr
@@ -21,7 +23,7 @@ elif [ "$ENVIRON" == "qa" ]; then
 	WEB_DIR=/opt/qa/xmrqa
 	DB4E_DIR=/opt/qa/db4e
 else
-	echo "ERROR: Usage $0 [prod|qa]"
+	echo "ERROR: Usage $0 [prod|qa] [/path/to/github/pages/repo]"
 	exit 1
 fi
 
@@ -31,7 +33,7 @@ if [ "${DEBUG}" == "False" ]; then
 	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR} > /dev/null 2>&1
 	git add . -v > /dev/null 2>&1
 	git commit -m "Static update" > /dev/null 2>&1
-	git push
+	git push > /dev/null 2>&1
 else
 	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
 	git add . -v
