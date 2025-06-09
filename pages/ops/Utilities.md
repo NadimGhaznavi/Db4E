@@ -15,7 +15,7 @@ The *db4e-gui.py* application provides a console based monitoring solution for m
 
 ---
 
-# backup-db.sh
+# db4e-backup.sh
 
 The *backup-db.sh* utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
 
@@ -37,3 +37,6 @@ The *db4e-restart.sh* script executed once a day from a cron job. It performs th
 
 Additionally, each miner also has a cron job to restart the *xmrig* mining software. Best practice is to restart on a scheduled basis.
 
+# db4e-update-repo.sh
+
+Used to update GitHub pages site when there is a new release of the *db4e*. This updates your GitHub pages repository with content from *tmpl/repo* using *rsync*.
