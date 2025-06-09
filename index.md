@@ -15,7 +15,7 @@ layout: default
   </div>
  </div>
 
-This is the home of the **db4e**, the **Database 4 Everything**  project. The **db4e** application aims to provide a simple *Terminal User Interface* (TUI) to setup and operate a Monero XMR Mining farm on one or multiple computers. This project is still under development.
+This is the home of **db4e**, the **Database 4 Everything**  project. The **db4e** application aims to provide a simple *Terminal User Interface* (TUI) to setup and operate a Monero XMR Mining farm on one or multiple computers. This project is still under development.
 
 # Features Today
 
