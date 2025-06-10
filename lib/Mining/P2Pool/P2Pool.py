@@ -214,8 +214,6 @@ class P2Pool():
       timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
       payout = Decimal128(match.group('payout'))
       db = self.db()
-      db.add_to_wallet(payout)
-      db = self.db()
       db.add_xmr_payment(timestamp, payout)
       reports = MiningReports('payments')
       reports.run()

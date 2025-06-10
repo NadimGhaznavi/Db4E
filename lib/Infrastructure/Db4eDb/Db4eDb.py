@@ -82,8 +82,18 @@ class Db4eDb():
   def find_many(self, collection, filter):
       return collection.find(filter)
 
-  def insert_one(self, collection, document):
-      return collection.insert_one(document)
+  def insert_one(self, collection, jdoc):
+      return collection.insert_one(jdoc)
+  
+  def insert_uniq_by_timestamp(self, collection, jdoc):
+    timestamp = jdoc['timestamp']
+    doc_type = jdoc['doc_type']
+    existing = self.find_one(collection, {'doc_type': doc_type, 
+                                          'timestamp': timestamp})
+    if not existing:
+        self.insert_one(collection, jdoc)
+        return True
+    return False
 
   def update_one(self, collection, filter, new_values):
       return collection.update_one(filter, new_values)

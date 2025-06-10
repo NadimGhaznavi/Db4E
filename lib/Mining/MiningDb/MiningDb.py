@@ -33,20 +33,18 @@ class MiningDb():
     """
     Create a block found record
     """
-    # TODO Modify P2Pool to not include the timestamp
-    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'block_found_event',
       'timestamp': timestamp
     }
-    self._db.insert_one(self._col, jdoc)
+    self._db.insert_uniq_by_timestamp(self._col, jdoc)
     self.log.debug(f'Creating a new {timestamp} block found event record')
 
   def add_mainchain_hashrate(self, hashrate):
     """
     Store the mainchain hashrate
     """
-        # Update the 'realtime' (rt) record first
+    # Update the 'realtime' (rt) record first
     rt_timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'rt_mainchain_hashrate',
@@ -128,8 +126,6 @@ class MiningDb():
     """
     Create a JSON document and pass it to the Db4eDb to be added to the backend database
     """
-    # TODO Update P2Pool to not include the timestamp
-    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'share_found_event',
       'timestamp': timestamp,
@@ -137,7 +133,7 @@ class MiningDb():
       'ip_addr': ip_addr,
       'effort': effort
     }
-    self._db.insert_one(self._col, jdoc)
+    self._db.insert_uniq_by_timestamp(self._col, jdoc)
     self.log.debug(f'New share found record', { 'miner': worker })
 
   def add_share_position(self, timestamp, position):
@@ -235,14 +231,14 @@ class MiningDb():
     self.log.debug(f'Updated XMR Wallet balance ({new_balance}) record')
 
   def add_xmr_payment(self, timestamp, payment):
-    # TODO fix P2Pool to stop including the timestamp
-    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'xmr_payment',
       'timestamp': timestamp,
       'payment': payment
     }
-    self._db.insert_one(self._col, jdoc)
+    if self._db.insert_uniq_by_timestamp(self._col, jdoc):
+      self.add_to_wallet(payment)
+
     self.log.debug(f'New XMR payment ({payment}) record')
 
   def get_docs(self, doc_type):
