@@ -51,9 +51,8 @@ def get_pool_hashrate():
 
 def get_share_position():
   db = MiningDb()
-  share_position = db.get_share_position()
-  return 'Updated: ' + share_position['timestamp'] + '\n' + \
-    share_position['position']
+  record = db.get_share_position()
+  return 'Share position: ' + record['position'] + '\n'
 
 def get_shares():
   db = MiningDb()

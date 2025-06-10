@@ -252,7 +252,7 @@ class MiningDb():
   def get_mainchain_hashrate(self):
     record = self._db.find_one(self._col, {'doc_type': 'rt_mainchain_hashrate'})
     if record:
-      return record['hashrate']
+      return record
     else:
       # Create a new doc if it doesn't already exist
       jdoc = {
@@ -267,7 +267,7 @@ class MiningDb():
   def get_pool_hashrate(self):
     record = self._db.find_one(self._col, {'doc_type': 'rt_pool_hashrate'})
     if record:
-      return record['hashrate']
+      return record
     else:
       # Create a new doc if it doesn't already exist
       jdoc = {
@@ -290,7 +290,7 @@ class MiningDb():
       self._db.insert_one(self._col, jdoc)
       self.log.debug(f'Created a new (share_position) record')
     else:
-      return record['position']
+      return record
   
   def get_shares(self):
     dbCursor = self._db.find_many(self._col, {'doc_type': 'share_found_event'})
@@ -304,7 +304,7 @@ class MiningDb():
   def get_sidechain_hashrate(self):
     record = self._db.find_one(self._col, {'doc_type': 'rt_sidechain_hashrate'})
     if record:
-      return record['hashrate']
+      return record
     else:
       # Create a new doc if it doesn't already exist
       jdoc = {
