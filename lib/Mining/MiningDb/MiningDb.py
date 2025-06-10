@@ -6,7 +6,7 @@ lib/Mining/MiningDb/MiningDb.py
 import os, sys
 from bson.decimal128 import Decimal128
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -27,85 +27,109 @@ class MiningDb():
   def __init__(self):
     self._db = Db4eDb()
     self.log = Db4eLogger('MiningDb')
+    self._col = self._db.get_collection(self._db._db_collection)
     
   def add_block_found(self, timestamp):
     """
-    Create a JSON document and pass it to the Db4eDb to be added to the backend database
+    Create a block found record
     """
+    # TODO Modify P2Pool to not include the timestamp
+    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'block_found_event',
       'timestamp': timestamp
     }
-    db = self.db()
-    db.insert_uniq_one('mining', jdoc)
+    self._db.insert_one(self._col, jdoc)
     self.log.debug(f'Creating a new {timestamp} block found event record')
 
   def add_mainchain_hashrate(self, hashrate):
     """
     Store the mainchain hashrate
     """
-    db = self.db().db()
-    mining_col = db['mining']
-    ## Add a "realtime" JSON doc
-    myquery = {'doc_type': 'rt_mainchain_hashrate'}
-    rt_timestamp = datetime.now().strftime("%H:%M")
-    new_values = { "$set": {'timestamp': rt_timestamp, 'hashrate': hashrate}}
-    # Initial the JSON doc i.e. create it if it doesn't exist
-    self.get_mainchain_hashrate()
-    mining_col.update_one(myquery, new_values)
-    ## Add an hourly "historical" JSON doc
-    timestamp = datetime.now().strftime("%Y-%m-%d %H")
-    hourly_doc = mining_col.find_one({'doc_type': 'mainchain_hashrate', 'timestamp': timestamp})
-    if hourly_doc:
-      # Update the existing hourly doc
-      new_values = { "$set": {'hashrate': hashrate}}
-      mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
-      self.log.debug(f'Updated mainchain hourly ({timestamp}) hashrate ({hashrate}) record')
+        # Update the 'realtime' (rt) record first
+    rt_timestamp = datetime.now(timezone.utc)
+    jdoc = {
+      'doc_type': 'rt_mainchain_hashrate',
+      'timestamp': rt_timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'rt_mainchain_hashrate',
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate, 'timestamp': rt_timestamp}})
+      self.log.debug(f'Updated existing real-time mainchain hashrate ({hashrate}) record')
     else:
-      # Create a new hourly doc
-      hourly_doc = {
-        'doc_type': 'mainchain_hashrate',
-        'timestamp': timestamp,
-        'hashrate': hashrate
-      }
-      mining_col.insert_one(hourly_doc)
-      self.log.debug(f'New mainchain hourly ({timestamp}) hashrate ({hashrate} GH/s) record')
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time mainchain hashrate ({hashrate}) record')
+
+    # Update the historical, hourly record next
+    timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    jdoc = {
+      'doc_type': 'mainchain_hashrate',
+      'timestamp': timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'mainchain_hashrate',
+      'timestamp': timestamp
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate }})
+      self.log.debug(f'Updated existing mainchain hashrate ({hashrate}) record')
+    else:
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time mainchain hashrate ({hashrate}) record')
     
   def add_pool_hashrate(self, hashrate):
     """
     Store the pool hashrate
     """
-    db = self.db().db()
-    mining_col = db['mining']
-    ## Add a "realtime" JSON doc
-    myquery = {'doc_type': 'rt_pool_hashrate'}
-    rt_timestamp = datetime.now().strftime("%H:%M")
-    new_values = { "$set": {'timestamp': rt_timestamp, 'hashrate': hashrate}}
-    # Initial the JSON doc i.e. create it if it doesn't exist
-    self.get_pool_hashrate()
-    mining_col.update_one(myquery, new_values)
-    ## Add an hourly "historical" JSON doc
-    timestamp = datetime.now().strftime("%Y-%m-%d %H")
-    hourly_doc = mining_col.find_one({'doc_type': 'pool_hashrate', 'timestamp': timestamp})
-    if hourly_doc:
-      # Update the existing hourly doc
-      new_values = { "$set": {'hashrate': hashrate}}
-      mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
-      self.log.debug(f'Updated pool hourly ({timestamp}) hashrate ({hashrate}) record')
+    # Update the 'realtime' (rt) record first
+    rt_timestamp = datetime.now(timezone.utc)
+    jdoc = {
+      'doc_type': 'rt_pool_hashrate',
+      'timestamp': rt_timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'rt_pool_hashrate',
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate, 'timestamp': rt_timestamp}})
+      self.log.debug(f'Updated existing real-time pool hashrate ({hashrate}) record')
     else:
-      # Create a new hourly doc
-      hourly_doc = {
-        'doc_type': 'pool_hashrate',
-        'timestamp': timestamp,
-        'hashrate': hashrate
-      }
-      mining_col.insert_one(hourly_doc)
-      self.log.debug(f'New pool hourly ({timestamp}) hashrate ({hashrate} KH/s) record')
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time pool hashrate ({hashrate}) record')
+
+    # Update the historical, hourly record next
+    timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    jdoc = {
+      'doc_type': 'pool_hashrate',
+      'timestamp': timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'pool_hashrate',
+      'timestamp': timestamp
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate }})
+      self.log.debug(f'Updated existing pool hashrate ({hashrate}) record')
+    else:
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time pool hashrate ({hashrate}) record')
     
   def add_share_found(self, timestamp, worker, ip_addr, effort):
     """
     Create a JSON document and pass it to the Db4eDb to be added to the backend database
     """
+    # TODO Update P2Pool to not include the timestamp
+    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'share_found_event',
       'timestamp': timestamp,
@@ -113,236 +137,240 @@ class MiningDb():
       'ip_addr': ip_addr,
       'effort': effort
     }
-    db = self.db()
-    db.insert_uniq_one('mining', jdoc)
-    self.log.debug(f'New share found record', { 'miner': worker})
+    self._db.insert_one(self._col, jdoc)
+    self.log.debug(f'New share found record', { 'miner': worker })
 
   def add_share_position(self, timestamp, position):
     """
     Store the share position
     """
-    db = self.db().db()
-    mining_col = db['mining']
-    myquery = {'doc_type': 'share_position'}
-    new_values = { "$set": {'timestamp': timestamp, 'position':position}}
-    # Initialize the JSON doc i.e. create it if it doesn't exist
-    self.get_share_position()
-    mining_col.update_one(myquery, new_values)
-    self.log.debug('Updated share position record')
+    # TODO update P2Pool to stop including the timestamp
+    timestamp = datetime.now(timezone.utc)
+    jdoc = {
+      'doc_type': 'share_position',
+      'timestamp': timestamp,
+      'position' : position
+    }
+    existing = self._db.find_one(self._col, {'doc_type': 'share_position'})
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'timestamp': timestamp,
+                                    'position': position}})
+      self.log.debug(f'Updated share position ({position}) record')
+    else:
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created a new share position ({position}) record')
 
   def add_sidechain_hashrate(self, hashrate):
     """
     Store the sidechain hashrate
     """
-    db = self.db().db()
-    mining_col = db['mining']
-    ## Add a "realtime" JSON doc
-    myquery = {'doc_type': 'rt_sidechain_hashrate'}
-    rt_timestamp = datetime.now().strftime("%H:%M")
-    new_values = { "$set": {'timestamp': rt_timestamp, 'hashrate': hashrate}}
-    # Initialize the JSON doc i.e. create it if it doesn't exist
-    self.get_sidechain_hashrate()
-    mining_col.update_one(myquery, new_values)
-    ## Add an hourly "historical" JSON doc
-    timestamp = datetime.now().strftime("%Y-%m-%d %H")
-    hourly_doc = mining_col.find_one({'doc_type': 'sidechain_hashrate', 'timestamp': timestamp})
-    if hourly_doc:
-      # Update the existing hourly doc
-      new_values = { "$set": {'hashrate': hashrate}}
-      mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
-      self.log.debug(f'Updated sidechain hourly ({timestamp}) hashrate ({hashrate}) record')
+    # Update the 'realtime' (rt) record first
+    rt_timestamp = datetime.now(timezone.utc)
+    jdoc = {
+      'doc_type': 'rt_sidechain_hashrate',
+      'timestamp': rt_timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'rt_sidechain_hashrate',
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate, 'timestamp': rt_timestamp}})
+      self.log.debug(f'Updated existing real-time sidechain hashrate ({hashrate}) record')
     else:
-      # Create a new hourly doc
-      hourly_doc = {
-        'doc_type': 'sidechain_hashrate',
-        'timestamp': timestamp,
-        'hashrate': hashrate
-      }
-      mining_col.insert_one(hourly_doc)
-      self.log.debug(f'New pool hourly ({timestamp}) hashrate record ({hashrate} MH/s)')
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time sidechain hashrate ({hashrate}) record')
+
+    # Update the historical, hourly record next
+    timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    jdoc = {
+      'doc_type': 'sidechain_hashrate',
+      'timestamp': timestamp,
+      'hashrate': hashrate
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'sidechain_hashrate',
+      'timestamp': timestamp
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'hashrate': hashrate }})
+      self.log.debug(f'Updated existing sidechain hashrate ({hashrate}) record')
+    else:
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created new real-time sidechain hashrate ({hashrate}) record')
 
   def add_sidechain_miners(self, num_miners):
     """
-    Store the sidechain hashrate
+    Store the number of unique wallets on the sidechain
     """
-    db = self.db().db()
-    mining_col = db['mining']
-    # Add an hourly "historical" JSON doc
-    timestamp = datetime.now().strftime("%Y-%m-%d %H")
-    hourly_doc = mining_col.find_one({'doc_type': 'sidechain_miners', 'timestamp': timestamp})
-    if hourly_doc:
-      # Update the existing hourly doc
-      new_values = { "$set": {'num_miners': num_miners}}
-      mining_col.update_one({'_id': hourly_doc['_id']}, new_values)
-      self.log.debug(f'Updated hourly ({timestamp} sidechain miners ({num_miners}) record')
+    timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    jdoc = {
+      'doc_type': 'sidechain_miners',
+      'timestamp': timestamp,
+      'sidechain_miners': num_miners
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'sidechain_miners',
+      'timestamp': timestamp
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']},
+                          {'$set': {'sidechain_miners': num_miners}})
+      self.log.debug(f'Updated existing sidechain miners ({num_miners}) record')
     else:
-      # Create a new hourly doc
-      hourly_doc = {
-        'doc_type': 'sidechain_miners',
-        'timestamp': timestamp,
-        'sidechain_miners': num_miners
-      }
-      mining_col.insert_one(hourly_doc)
-      self.log.debug(f'Updated hourly ({timestamp} sidechain miners ({num_miners}) record')
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Updated existing sidechain miners ({num_miners}) record')
 
   def add_to_wallet(self, amount):
-    db = self.db().db()
-    mining_col = db['mining']
-    myquery = {'doc_type': 'wallet_balance'}
-    # get_wallet_balance() returns a "decimal" datatype 
-    balance = self.get_wallet_balance()
-    # Convert 'amount' to the "decimal" datatype
+    # CAREFUL with datatypes here!!!
     amount = amount.to_decimal()
+    balance = self.get_wallet_balance().to_decimal() # This call ensures the DB record exists
     new_balance = Decimal128(amount + balance)
-    new_values = { "$set": {'balance': new_balance}}
-    mining_col.update_one(myquery, new_values)
+    dbRec = self._db.find_one(self._col, {'doc_type': 'wallet_balance'})
+    self._db.update_one(self._col, {'_id': dbRec['_id']},
+                        {'$set': {'balance': new_balance}})
     self.log.debug(f'Updated XMR Wallet balance ({new_balance}) record')
 
   def add_xmr_payment(self, timestamp, payment):
+    # TODO fix P2Pool to stop including the timestamp
+    timestamp = datetime.now(timezone.utc)
     jdoc = {
       'doc_type': 'xmr_payment',
       'timestamp': timestamp,
       'payment': payment
     }
-    db = self.db()
-    db.insert_uniq_one('mining', jdoc)
+    self._db.insert_one(self._col, jdoc)
     self.log.debug(f'New XMR payment ({payment}) record')
 
-  def db(self):
-    return self._db
-  
   def get_docs(self, doc_type):
-    db = self.db()
-    db_cursor = db.get_docs('mining', doc_type)
-    return db_cursor
+    dbCursor = self._db.find_many(self._col, {'doc_type': doc_type})
+    return dbCursor
   
   def get_mainchain_hashrate(self):
-    db = self.db().db()
-    mining_col = db['mining']
-    mainchain_hashrate = mining_col.find_one({'doc_type': 'rt_mainchain_hashrate'})
-    if not mainchain_hashrate:
+    record = self._db.find_one(self._col, {'doc_type': 'rt_mainchain_hashrate'})
+    if record:
+      return record['hashrate']
+    else:
       # Create a new doc if it doesn't already exist
-      mainchain_hashrate = {
+      jdoc = {
         'doc_type': 'rt_mainchain_hashrate',
-        'timestamp': 'n/a',
-        'hashrate': 'n/a'
+        'timestamp': None,
+        'hashrate': None
       }
-      mining_col.insert_one(mainchain_hashrate)
-    return mainchain_hashrate
+      self._db.insert_one(jdoc)
+      self.log.debug(f'Created new (rt_mainchain_hashrate) record')
+      return None
 
   def get_pool_hashrate(self):
-    db = self.db().db()
-    mining_col = db['mining']
-    pool_hashrate = mining_col.find_one({'doc_type': 'rt_pool_hashrate'})
-    if not pool_hashrate:
+    record = self._db.find_one(self._col, {'doc_type': 'rt_pool_hashrate'})
+    if record:
+      return record['hashrate']
+    else:
       # Create a new doc if it doesn't already exist
-      pool_hashrate = {
+      jdoc = {
         'doc_type': 'rt_pool_hashrate',
-        'timestamp': 'n/a',
-        'hashrate': 'n/a'
+        'timestamp': None,
+        'hashrate': None
       }
-      mining_col.insert_one(pool_hashrate)
-    return pool_hashrate
+      self._db.insert_one(jdoc)
+      self.log.debug(f'Created new (rt_pool_hashrate) record')
+      return None
 
   def get_share_position(self):
-    db = self.db().db()
-    mining_col = db['mining']
-    share_position = mining_col.find_one({'doc_type': 'share_position'})
-    if not share_position:
-      # Create a new, empty doc to store the share position in a
-      # round robin database type format
-      share_position = {
+    record = self._db.find_one(self._col, {'doc_type': 'share_position'})
+    if not record:
+      jdoc = {
         'doc_type': 'share_position',
-        'timestamp': 'n/a',
-        'position': 'n/a'
+        'timestamp': None,
+        'position': None
       }
-      mining_col.insert_one(share_position)
-    return share_position
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created a new (share_position) record')
+    else:
+      return record['position']
   
   def get_shares(self):
-    shares = self.get_docs('share_found_event')
-    shares_dict = {}
-    for share in shares:
+    dbCursor = self._db.find_many(self._col, {'doc_type': 'share_found_event'})
+    resDict = {}
+    for share in dbCursor:
       timestamp = share['timestamp']
       worker = share['worker']
-      shares_dict[timestamp] = worker
-    return shares_dict
+      resDict[timestamp] = worker
+    return resDict
 
   def get_sidechain_hashrate(self):
-    db = self.db().db()
-    mining_col = db['mining']
-    sidechain_hashrate = mining_col.find_one({'doc_type': 'rt_sidechain_hashrate'})
-    if not sidechain_hashrate:
+    record = self._db.find_one(self._col, {'doc_type': 'rt_sidechain_hashrate'})
+    if record:
+      return record['hashrate']
+    else:
       # Create a new doc if it doesn't already exist
-      sidechain_hashrate = {
+      jdoc = {
         'doc_type': 'rt_sidechain_hashrate',
-        'timestamp': 'n/a',
-        'hashrate': 'n/a'
+        'timestamp': None,
+        'hashrate': None
       }
-      mining_col.insert_one(sidechain_hashrate)
-    return sidechain_hashrate
+      self._db.insert_one(jdoc)
+      self.log.debug(f'Created new (rt_sidechain_hashrate) record')
+      return None            
 
   def get_wallet_balance(self):
-    db = self.db().db()
-    mining_col = db['mining']
-    balance = mining_col.find_one({'doc_type': 'wallet_balance'})
-    if not balance:
-      # The { doc_type: "wallet_balance", balance: <balance> } document does not exist, so
-      # create it with a balance of zero.
-      zero_value = Decimal128('0')
-      balance = {
-        'doc_type': 'wallet_balance',
-        'balance': zero_value
-      }
-      mining_col.insert_one(balance)
-
-    current_balance = balance['balance'].to_decimal()
-    return current_balance
+    record = self._db.find_one(self._col, {'doc_type': 'wallet_balance'})
+    if not record:
+      jdoc = {'doc_type': 'wallet_balance',
+              'balance': Decimal128('0') }
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created a new (wallet_balance) record with balance (0)')
+      return Decimal128('0')
+    else:
+      return record['balance']
   
   def get_workers(self):
-    workers = self.get_docs('worker')
-    workers_dict = {}
-    for worker in workers:
+    dbCursor = self._db.find_many(self._col, {'doc_type': 'worker'})
+    resDict = {}
+    for worker in dbCursor:
       worker_name = worker['worker_name']
       hashrate = worker['hashrate']
       timestamp = worker['timestamp']
       active = worker['active']
-
-      workers_dict[worker_name] = {
+      resDict[worker_name] = {
         'worker_name': worker_name,
         'hashrate': hashrate,
         'timestamp': timestamp,
         'active': active,
       }     
-    return workers_dict
+    return resDict
   
   def get_xmr_payments(self):
-    payments = self.get_docs('xmr_payment')
+    payments_cursor = self._db.find_many(self._col, {'doc_type': 'xmr_payment'})
     payments_dict = {}
-    for payment in payments:
+    for payment in payments_cursor:
       timestamp = payment['timestamp']
       payment = payment['payment']
       payments_dict[timestamp] = payment
     return payments_dict
 
   def update_worker(self, worker_name, hashrate):
-    db = self.db().db()
-    mining_col = db['mining']
-    worker = mining_col.find_one({'doc_type': 'worker', 'worker_name': worker_name})
-    timestamp = datetime.now().strftime("%H:%M")
-    if not worker:
-      # The document for this worker doesn't exist, create it.
-      worker = {
-        'doc_type': 'worker',
-        'worker_name': worker_name,
-        'hashrate': hashrate,
-        'timestamp': timestamp,
-        'active': True
-      }
-      mining_col.insert_one(worker)
-    myquery = {'doc_type': 'worker', 'worker_name': worker_name}
-    new_values = { "$set": {'hashrate': hashrate, 'timestamp': timestamp}}
-    mining_col.update_one(myquery, new_values)
-    worker_name = worker['worker_name']
-    hashrate = worker['hashrate']
-    self.log.debug(f'Updated miner ({worker_name}) hashrate ({hashrate} H/s) record')
+    timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    jdoc = {
+      'doc_type': 'worker',
+      'worker_name': worker_name,
+      'hashrate': hashrate,
+      'timestamp': timestamp,
+      'active': True
+    }
+    existing = self._db.find_one(self._col, {
+      'doc_type': 'worker',
+      'worker_name': worker_name,
+      'timestamp': timestamp
+    })
+    if existing:
+      self._db.update_one(self._col, {'_id': existing['_id']}, 
+                          {'$set': {'hashrate': hashrate}}
+      )
+      self.log.debug(f'Updated existing ({timestamp}) miner ({worker_name}) hashrate ({hashrate}) record')
+    else:
+      self._db.insert_one(self._col, jdoc)
+      self.log.debug(f'Created a new ({timestamp}) miner ({worker_name}) hashrate ({hashrate}) record')

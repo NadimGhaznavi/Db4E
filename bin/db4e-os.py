@@ -1,139 +1,128 @@
 #!/opt/prod/db4e/venv/bin/python
-# Use venv environment for Python
-"""
-bin/db4e-os.py
-"""
 
-# Import supporting modules
-import os, sys
 import urwid
 
-# The directory that this script is in
-script_dir = os.path.dirname(__file__)
-# DB4E modules are in the lib_dir
-lib_dir = script_dir + '/../lib/'
+DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
 
-# Import DB4E modules
-db4e_dirs = [
-  lib_dir + 'Infrastructure',
-  lib_dir + 'Mining'
+DISPLAY_NAMES = {
+    'db4e': 'db4e core',
+    'p2pool': 'P2Pool daemon',
+    'xmrig': 'XMRig miner',
+    'monerod': 'Monero daemon',
+    'repo': 'Website repo'
+}
+
+PALETTE = [
+    ('na', '', ''),
+    ('title', 'dark green, bold', ''),
+    
+    ('bold', 'bold', ''),
+    ('running', 'dark green,bold', ''),
+    ('stopped', 'dark red', ''),
+    ('not_installed', 'yellow', ''),
+    ('button', 'light cyan,bold', ''),
+    ('reversed', 'standout', '')
 ]
-for db4e_dir in db4e_dirs:
-  sys.path.append(db4e_dir)
 
-from Db4eConfig.Db4eConfig import Db4eConfig
-from Db4eOS.Db4eOS import Db4eOS
 
-class Model:
+# Dummy model for status reporting and probing
+class Db4eModel:
     def __init__(self):
-        # Get access to the YAML data through Db4eConfig
-        ini = Db4eConfig()
+        # ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
+        self.daemons = DB4E_CORE
+        
+    def get_daemons(self):
+        return self.daemons
 
-        # Init daemon checker
-        self.os = Db4eOS()
+    def get_daemon_status(self, name):
+        # TODO: Replace with actual probe logic
+        if name == 'db4e':
+            return ('✅', 'running')
+        elif name == 'p2pool':
+            return ('❌', 'stopped')
+        elif name == 'mongodb':
+            return ('✅', 'running')
+        elif name == 'xmrig':
+            return ('⚠️', 'not_installed')
+        elif name == 'monerod':
+            return ('✅', 'running')
+        elif name == 'repo':
+            return ('✅', 'running')
+        else:
+            return ('N/A', 'not_installed')
 
-        # Load the data from Db4eConfig
-        self.daemon_data = {}
-        self.daemon_list = ['monerod', 'p2pool', 'xmrig']
-        for daemon in self.daemon_list:
-            install_dir = ini.config[daemon]['install_dir']
-            proc_name = ini.config[daemon]['proc_name']
-            pid = self.os.get_pid(proc_name)
-            if pid:
-                status = "UP"
-            elif os.path.exists(install_dir):
-                status = "DOWN"
-            else:
-                status = "N/A"
-            self.daemon_data[daemon] = {
-                'name': daemon,
-                'install_dir': install_dir,
-                'proc_name': proc_name,
-                'status': status
-            }
-        # Set the default daemon to the first one
-        self.cur_daemon = self.daemon_list[0]
+    def set_main_screen(self, data):
+        self._main_screen = data
 
-    def get_daemon_data(self):
-        return self.daemon_data
+class Db4eTui:
+    def __init__(self):
+        self.model = Db4eModel()
 
-    def set_daemon(self, daemon):
-        self.cur_daemon = daemon
+        self.daemon_radios = []
+        self.right_panel = urwid.Text(('bold', "COMPONENT INFO"))
+        self.right_panel = urwid.LineBox(
+            urwid.Text(('bold', "COMPONENT INFO")),
+            title='TIME', title_align="right", title_attr="title"
+        )
+        
+        self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
-    def get_daemon(self):
-        return self.cur_daemon
-
-    def get_daemon_list(self):
-        return self.daemon_list
-
-class View:
-    def __init__(self, model):
-        self.model = model
-        self.text_widget = urwid.Text("", align='center')
-        self.message = urwid.Text("", align='center')
-        self.radio_buttons = self._build_radio_buttons()
-
-        self.main_widget = urwid.Filler(
-            urwid.Pile([
-                #urwid.Text(f'Timestamp', 'right'),
-
-                urwid.LineBox(urwid.Pile(self.radio_buttons), 'Select a Component'),
-                urwid.Divider(),
-                self.text_widget,
-                self.message
-            ]), valign='top')
-
-    def _build_radio_buttons(self):
-        daemon_list = self.model.get_daemon_list()
+    def build_daemon_list(self):
+        body = []
         group = []
-        buttons = []
-        #data = self.model.get_daemon_data()
-        for daemon in daemon_list:
-            #label = f"{daemon} [{data[daemon]['status']}]"
-            label = f'{daemon}'
-            #btn = urwid.RadioButton(group, label, state=(daemon == self.model.get_daemon()))
-            btn = urwid.RadioButton(group, label)
-            urwid.connect_signal(btn, 'change', self._on_radio_change, daemon)
-            buttons.append(btn)
-        return buttons
 
-    def _on_radio_change(self, button, state, daemon):
-        if state:
-            self.model.set_daemon(daemon)
-            self.update_display(f"Selected daemon: {daemon}")
+        for daemon in self.model.get_daemons():
+            name = DISPLAY_NAMES.get(daemon, daemon)
+            status_text, status_style = self.model.get_daemon_status(daemon)
 
-    def get_widgets(self):
-        return self.main_widget
+            #radio = urwid.RadioButton(group, '', on_state_change=self.select_daemon, user_data=daemon)
+            #self.daemon_radios.append(radio)
+            #x = urwid.Columns()
+            row = urwid.Columns([
+                (urwid.RadioButton(group, '', on_state_change=self.select_daemon, user_data=daemon)),
+                (urwid.AttrMap(urwid.Text(name), 'bold')),
+                (urwid.Text((status_style, status_text)))
+            ])
+            body.append(urwid.AttrMap(row, None, focus_map='reversed'))
 
-    def update_display(self, data):
-        self.text_widget.set_text(f"{data}")
+        body.append(urwid.Divider())
+        body.append(urwid.Button("More Info", on_press=self.show_component_info))
+        body.append(urwid.Button("Exit", on_press=lambda b: exit(0)))
+        return urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
-    def set_message(self, msg):
-        self.message.set_text(msg)
+    def build_main_frame(self):
+        left_panel = urwid.LineBox(
+            self.build_daemon_list(),
+            title="Components",
+            title_align="left",
+            title_attr="title"
+        )
 
-class Controller:
-    def __init__(self, model, view):
-        self.model = model
-        self.view = view
-        self.loop = urwid.MainLoop(
-            view.get_widgets(),
-            unhandled_input=self.handle_input)
+        columns = urwid.Columns(
+            [
+                ('weight', 1, left_panel),
+                ('weight', 2, urwid.Filler(self.right_panel, valign='top'))
+            ],
+            dividechars=2
+        )
+        return columns
 
-    def start(self):
-        # str(self.model.get_daemon_data())
-        self.view.update_display('Welcome to the db4e OS!')
-        self.loop.run()
+    def select_daemon(self, radio, new_state, daemon):
+        if new_state:
+            self.selected_daemon = daemon
 
-    def handle_input(self, key):
+    # The main screen shows this content
+    def show_component_info(self, button):
+        self.right_panel = urwid.Text(('bold', "COMPONENT INFO"))
+        self.main_loop.widget = self.build_main_frame()
+
+    def exit_on_q(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
 
+    def run(self):
+        self.main_loop.run()
 
-def main():
-    model = Model()
-    view = View(model)
-    controller = Controller(model, view)
-    controller.start()
 
 if __name__ == '__main__':
-    main()
+    Db4eTui().run()

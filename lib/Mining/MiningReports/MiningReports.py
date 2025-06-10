@@ -63,7 +63,7 @@ class MiningReports():
         """
         # This loads the conf/reports/<reports_name>.yml 
         self._load_reports()
-        self.log.info(f'Running report ({self._report_file})')
+        self.log.debug(f'Running report ({self._report_file})')
         db4e_dir     = self._db4e_dir
         web_dir      = self._web_dir
         md_dir       = self._md_dir

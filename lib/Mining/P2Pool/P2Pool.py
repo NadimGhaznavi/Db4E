@@ -79,7 +79,7 @@ class P2Pool():
       reports = MiningReports('blocksfound')
       reports.run()
       # Log the event
-      self.log.info('Block found')
+      self.log.debug('Block found')
 
   def is_main_chain_hashrate(self, log_line):
     """
@@ -131,7 +131,7 @@ class P2Pool():
       db.add_share_found(timestamp, worker, ip_addr, effort)
       reports = MiningReports('blocksfound')
       reports.run()
-      self.log.info('Share found event', { 'miner': {worker} }) 
+      self.log.debug('Share found event', { 'miner': worker }) 
 
   def is_share_position(self, log_line):
     """
@@ -144,17 +144,17 @@ class P2Pool():
     match = re.search(pattern, log_line)
     if match:
       position = match.group('position')
-      localtime = datetime.now().strftime("%H:%M")
+      timestamp = datetime.now()
       db = self.db()
-      db.add_share_position(localtime, position)
+      db.add_share_position(timestamp, position)
       self.log.debug(f'Detected share position ({position})')
     pattern = r"Your shares .* = 0 .*"
     match = re.search(pattern, log_line)
     if match:
       position = '[..............................]'
-      localtime = datetime.now().strftime("%H:%M")
+      timestamp = datetime.now()
       db = self.db()
-      db.add_share_position(localtime, position)
+      db.add_share_position(timestamp, position)
       self.log.debug(f'Detected share position ({position})')
 
   def is_side_chain_hashrate(self, log_line):
@@ -219,12 +219,18 @@ class P2Pool():
       db.add_xmr_payment(timestamp, payout)
       reports = MiningReports('payments')
       reports.run()
-      self.log.info(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
+      self.log.debug(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
 
   def monitor_log(self):
     log_filename = self._p2pool_log
     self.log.info(f"Monitoring log file ({log_filename})...")
-    p2p_log = open(log_filename, 'r')
+
+    try:    
+      p2p_log = open(log_filename, 'r')
+    except FileNotFoundError:
+      self.log.critical(f"P2Pool log file ({log_filename}) not found, exiting")
+      return None
+    
     self._loglines = self.watch_log(p2p_log)
     loglines = self.watch_log(p2p_log)
                                            
