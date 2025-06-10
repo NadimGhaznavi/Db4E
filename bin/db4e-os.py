@@ -1,5 +1,6 @@
-#!/opt/prod/db4e/venv/bin/python
-
+"""
+bin/db4e-os.py
+"""
 import urwid
 
 DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
@@ -14,8 +15,7 @@ DISPLAY_NAMES = {
 
 PALETTE = [
     ('na', '', ''),
-    ('title', 'dark green, bold', ''),
-    
+    ('title', 'dark green, bold', ''),    
     ('bold', 'bold', ''),
     ('running', 'dark green,bold', ''),
     ('stopped', 'dark red', ''),
@@ -36,84 +36,94 @@ class Db4eModel:
 
     def get_daemon_status(self, name):
         # TODO: Replace with actual probe logic
-        if name == 'db4e':
-            return ('✅', 'running')
-        elif name == 'p2pool':
-            return ('❌', 'stopped')
-        elif name == 'mongodb':
-            return ('✅', 'running')
-        elif name == 'xmrig':
-            return ('⚠️', 'not_installed')
-        elif name == 'monerod':
-            return ('✅', 'running')
-        elif name == 'repo':
-            return ('✅', 'running')
-        else:
-            return ('N/A', 'not_installed')
+        return {
+            'db4e': ('✅', 'running'),
+            'p2pool': ('❌', 'stopped'),
+            'xmrig': ('⛔', 'not_installed'),
+            'monerod': ('✅', 'running'),
+            'repo': ('✅', 'running')
+        }.get(name, ('N/A', 'not_installed'))
+    
+    def get_db4e_info(self):
+        # TODO: Replace with actual info
+        return 'Some db4e info to display'
 
-    def set_main_screen(self, data):
-        self._main_screen = data
+    def get_p2pool_info(self):
+        # TODO: Replace with actual info
+        return 'Some p2pool info to display'
+
+    def get_xmrig_info(self):
+        # TODO: Replace with actual info
+        return 'Some xmrig info to display'
+
+    def get_monerod_info(self):
+        # TODO: Replace with actual info
+        return 'Some monerod info to display'
+
+    def get_repo_info(self):
+        # TODO: Replace with actual info
+        return 'Some repo info to display'
 
 class Db4eTui:
     def __init__(self):
         self.model = Db4eModel()
-
+        self.selected_daemon = 'db4e'
         self.daemon_radios = []
-        self.right_panel = urwid.Text(('bold', "COMPONENT INFO"))
         self.right_panel = urwid.LineBox(
             urwid.Text(('bold', "COMPONENT INFO")),
             title='TIME', title_align="right", title_attr="title"
         )
-        
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
     def build_daemon_list(self):
-        body = []
+        items = []
+        self.daemon_radios = []
         group = []
-
         for daemon in self.model.get_daemons():
             name = DISPLAY_NAMES.get(daemon, daemon)
             status_text, status_style = self.model.get_daemon_status(daemon)
-
-            #radio = urwid.RadioButton(group, '', on_state_change=self.select_daemon, user_data=daemon)
-            #self.daemon_radios.append(radio)
-            #x = urwid.Columns()
+            radio = urwid.RadioButton(group, '', on_state_change=self.select_daemon, user_data=daemon, state=(daemon == self.selected_daemon))
+            self.daemon_radios.append(radio)
             row = urwid.Columns([
-                (urwid.RadioButton(group, '', on_state_change=self.select_daemon, user_data=daemon)),
-                (urwid.AttrMap(urwid.Text(name), 'bold')),
-                (urwid.Text((status_style, status_text)))
+                ('pack', radio),
+                urwid.Text(name),
+                ('pack', urwid.Text((status_style, status_text)))
             ])
-            body.append(urwid.AttrMap(row, None, focus_map='reversed'))
+            items.append(row)
+        res = urwid.Pile(items)
+        res = urwid.Padding(res, right=2, left=2)
+        return urwid.LineBox(res, title="Components", title_align="left", title_attr="title")
 
-        body.append(urwid.Divider())
-        body.append(urwid.Button("More Info", on_press=self.show_component_info))
-        body.append(urwid.Button("Exit", on_press=lambda b: exit(0)))
-        return urwid.ListBox(urwid.SimpleFocusListWalker(body))
+    def build_actions(self):
+        action_list = [
+            urwid.Button("More Info", on_press=self.show_component_info),
+            urwid.Button("Exit", on_press=lambda b: exit(0))
+        ]
+        res = urwid.Columns(action_list)
+        res = urwid.Padding(res, right=2, left=2)
+        return urwid.LineBox(res, title="Actions", title_align="left", title_attr="title")
 
     def build_main_frame(self):
-        left_panel = urwid.LineBox(
-            self.build_daemon_list(),
-            title="Components",
-            title_align="left",
-            title_attr="title"
-        )
-
-        columns = urwid.Columns(
-            [
-                ('weight', 1, left_panel),
-                ('weight', 2, urwid.Filler(self.right_panel, valign='top'))
-            ],
-            dividechars=2
-        )
-        return columns
-
+        components = self.build_daemon_list()
+        actions = self.build_actions()
+        left_panel = urwid.Pile([components, actions])
+        columns = urwid.Columns([
+            ('pack', left_panel),
+            self.right_panel
+        ])
+        return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
     def select_daemon(self, radio, new_state, daemon):
         if new_state:
             self.selected_daemon = daemon
 
     # The main screen shows this content
     def show_component_info(self, button):
-        self.right_panel = urwid.Text(('bold', "COMPONENT INFO"))
+        func_name = f'get_{self.selected_daemon}_info'
+        info = getattr(self.model, func_name, lambda: 'No info available')()
+        self.right_panel = urwid.LineBox(
+            urwid.Text(info),
+            title='INFO', title_align="right", title_attr="title"
+        )
         self.main_loop.widget = self.build_main_frame()
 
     def exit_on_q(self, key):

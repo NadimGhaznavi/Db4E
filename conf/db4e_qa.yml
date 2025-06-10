@@ -2,7 +2,7 @@ db4e:
   environ: qa
   install_dir: /opt/qa/db4e
   desc: "Database 4 Everything"
-  proc: db4e.py
+  process: db4e.py
   src_dir: src
   dev_dir: dev
   conf_dir: conf
@@ -30,6 +30,8 @@ p2pool:
   log_dir: logs     
   log_file: p2pool.log
   proc_name: p2pool
+  conf_dir: conf
+  config: p2pool.ini
 
 monerod:
   install_dir: /opt/qa/monerod
@@ -37,12 +39,16 @@ monerod:
   log_dir: logs
   log_file: monerod.log
   run_dir: run
+  conf_dir: conf
+  config: monerod.ini
   stdin_pipe: monerod.stdin
   proc_name: monerod
 
 xmrig:
   install_dir: xmrig
   desc: "XMRig Miner"
+  conf_dir: conf
+  config: config.json
   proc_name: sleep
   
 db:
