@@ -88,16 +88,26 @@ class Db4eRepoSetupUI:
 
         # Check SSH access
         try:
-            ssh_result = subprocess.run(
+            cmd_result = subprocess.run(
                 ["ssh", "-T", "git@github.com"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",
-                timeout=10
-            )
-            if ssh_result.returncode not in (0, 1):  # 1 is acceptable for SSH auth check
-                self.info_text.set_text("SSH connection failed. Ensure SSH is configured for GitHub.")
+                timeout=5)
+            stdout = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stderr.decode().strip()
+
+            # 1 is acceptable for SSH auth check
+            if cmd_result.returncode not in (0, 1):  
+                self.info_text.set_text(
+                    f"SSH connection failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
+                )
                 return
+
+            self.info_text.set_text(
+                f"SSH check succeeded (return code {cmd_result.returncode}).\nSTDOUT: {stdout}\nSTDERR: {stderr}"
+            )
+
         except Exception as e:
             self.info_text.set_text(f"SSH check failed: {str(e)}")
             return
@@ -108,14 +118,24 @@ class Db4eRepoSetupUI:
                 # Delete the clone_path if it exists
                 shutil.rmtree(clone_path)
 
-            subprocess.run(
+            cmd_result = subprocess.run(
                 ["git", "clone", f"git@github.com:{username}/{repo_name}.git", clone_path],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True)
+                stderr=subprocess.PIPE)
+                #check=True)
+            stdout = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stderr.decode().strip()
+
+            if cmd_result.returncode != 0:
+                self.info_text.set_text(
+                    f'Failed to clone repository.\nSTDOUT: {stdout}\nSTDERR: {stderr}'
+                )
+                return
+
             self.info_text.set_text("Repository cloned successfully.")
-        except subprocess.CalledProcessError:
-            self.info_text.set_text("Failed to clone the repository. Check SSH and repo name.")
+
+        #except subprocess.CalledProcessError:
+        #    self.info_text.set_text("Failed to clone the repository. Check SSH and repo name.")
         except Exception as e:
             self.info_text.set_text(f"Error: {str(e)}")
 
