@@ -112,7 +112,7 @@ class Db4eRepoSetupUI:
         # Check SSH access
         try:
             cmd_result = subprocess.run(
-                ["ssh", "-o", "UpdateHostKeys", "-T", "git@github.com"],
+                ["ssh", "-o", "UpdateHostKeys", "yes", "-T", "git@github.com"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",
