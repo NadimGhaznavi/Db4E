@@ -65,7 +65,7 @@ PALETTE = [
     ('running', 'dark green,bold', ''),
     ('stopped', 'dark red', ''),
     ('not_installed', 'yellow', ''),
-    ('button', 'light cyan,bold', ''),
+    ('button', 'light cyan', ''),
     ('reversed', 'standout', '')
 ]
 
@@ -76,21 +76,24 @@ STATUS = {
     'unknown': '❔'
 }
 
-WELCOME_MSG = "Welcome to the db4e OS console\n\n"
+WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to \"click\" the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
 NEW_REPO_MSG = "GitHub Pages website repository Setup\n\n"
-NEW_REPO_MSG += "The next step is to setup your GitHub repository. This will be used "
-NEW_REPO_MSG += "by db4e to publish web reports. In order to proceed you *must*:\n\n"
+NEW_REPO_MSG += "This screen will help you setup your GitHub repository. This "
+NEW_REPO_MSG += "repo is used by db4e to publish web reports. In order to"
+NEW_REPO_MSG += "proceed you *must*:\n\n"
 NEW_REPO_MSG += "  * Have a GitHub account\n"
 NEW_REPO_MSG += "  * Have created a db4e GitHub repository\n"
 NEW_REPO_MSG += "  * Have configured the GitHub repository\n"
 NEW_REPO_MSG += "  * Have SSH Authentication with GitHub configured\n\n"
-NEW_REPO_MSG += "You MUST have this configured before you can proceeed. "
-NEW_REPO_MSG += "Refer to https://db4e.osoyalce.com/pages/Getting-Started.html for "
+NEW_REPO_MSG += "You *MUST* have this configured before you can proceeed. "
+NEW_REPO_MSG += "Refer to the \"Getting Started\" page "
+NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
 NEW_REPO_MSG += "detailed information on setting this up."
+
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
@@ -140,7 +143,7 @@ class Db4eTui:
         self.right_panel = urwid.LineBox(urwid.Padding(
             urwid.Text(WELCOME_MSG),
             right=2, left=2),
-            title='TIME', title_align="right", title_attr="title")
+            title='Info', title_align="right", title_attr="title")
         
         self.repo_setup_ui = Db4eRepoSetupUI(self) 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
@@ -166,8 +169,8 @@ class Db4eTui:
 
     def build_actions(self):
         action_list = [
-            urwid.Button("More Info", on_press=self.show_component_info),
-            urwid.Button("Exit", on_press=self.exit_app)
+            urwid.Button(('button', 'More Info'), on_press=self.show_component_info),
+            urwid.Button(('button', 'Exit'), on_press=self.exit_app)
         ]
         res = urwid.Columns(action_list)
         res = urwid.Padding(res, right=2, left=2)
@@ -193,11 +196,11 @@ class Db4eTui:
             repo = self.model.os.get_info('repo')
             if 'install_path' not in repo:
                 text = urwid.Text(NEW_REPO_MSG)
-                continue_button = urwid.Button("Continue", on_press=lambda btn: self.show_repo_setup())
+                continue_button = urwid.Button(('button', 'Continue'), on_press=lambda btn: self.show_repo_setup())
                 pile = urwid.Pile([text, urwid.Divider(), continue_button])
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(pile, left=2, right=2),
-                    title='INFO', title_align="right", title_attr="title"
+                    title='Info', title_align="right", title_attr="title"
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
@@ -228,7 +231,11 @@ class Db4eTui:
             raise urwid.ExitMainLoop()
 
     def run(self):
-        self.main_loop.run()
+        try:
+            self.main_loop.run()
+        except KeyboardInterrupt:
+            print('Exiting...')
+            sys.exit(0)
 
 
 if __name__ == '__main__':

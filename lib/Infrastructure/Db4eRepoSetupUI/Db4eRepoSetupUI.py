@@ -35,14 +35,19 @@ import shutil
 class Db4eRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self.repo_name_edit = urwid.Edit("GitHub repo name (e.g. NadimGhaznavi/xmr): ")
-        self.repo_path_edit = urwid.Edit("Local path to clone repo: ")
+        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ")
+        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ")
+        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ")
         self.info_text = urwid.Text("")
         self.form = urwid.Pile([
-            self.repo_name_edit,
-            self.repo_path_edit,
-            urwid.Button("Submit", on_press=self.on_submit),
-            urwid.Button("Back", on_press=self.back_to_main)
+            urwid.Text('Enter the following information to setup your db4d GitHub Pages website:'),
+            urwid.Divider(),
+            self.github_username_edit,
+            self.github_repo_name_edit,
+            self.local_repo_path_edit,
+            urwid.Divider(),
+            urwid.Button(('button', 'Submit'), on_press=self.on_submit),
+            urwid.Button(('button', 'Back'), on_press=self.back_to_main)
         ])
         self.frame = urwid.LineBox(
             urwid.Padding(urwid.Pile([self.form, self.info_text]), left=2, right=2),
@@ -58,7 +63,7 @@ class Db4eRepoSetupUI:
 
         # Validate input
         if not repo_name or not clone_path:
-            self.info_text.set_text("Please provide both the repository name and clone path.")
+            self.info_text.set_text("Please provide your GitHub username, repository name and local path.")
             return
 
         # Check SSH access
