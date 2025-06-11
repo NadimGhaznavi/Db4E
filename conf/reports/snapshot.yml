@@ -1,6 +1,30 @@
-# Blocks found report definitions for db4e
+# Snapshot report definitions for db4e
 #
-# Use 'db4e.py -r blocksfound' to manually generate these reports.
+# Use 'db4e.sh -r snapshot' to manually generate these reports.
+#####################################################################
+
+
+#####################################################################
+#
+#  This file is part of *db4e*, the *Database 4 Everything* project
+#  <https://github.com/NadimGhaznavi/db4e>, developed independently
+#  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+#  <https://github.com/NadimGhaznavi/db4e>.
+# 
+#  This program is free software: you can redistribute it and/or 
+#  modify it under the terms of the GNU General Public License as 
+#  published by the Free Software Foundation, version 3.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  General Public License for more details.
+#
+#  You should have received a copy (LICENSE.txt) of the GNU General 
+#  Public License along with this program. If not, see 
+#  <http://www.gnu.org/licenses/>.
+#
+#####################################################################
 
 # Blocks Found - 14 days
 - report_type: blocksfound
