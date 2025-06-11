@@ -32,6 +32,20 @@ import subprocess
 import os
 import shutil
 
+
+NEW_REPO_MSG = "GitHub Pages Website Repository Setup\n\n"
+NEW_REPO_MSG += "This screen will help you setup your GitHub repository. This "
+NEW_REPO_MSG += "repo is used by db4e to publish web reports. In order to"
+NEW_REPO_MSG += "proceed you *must*:\n\n"
+NEW_REPO_MSG += "  * Have a GitHub account\n"
+NEW_REPO_MSG += "  * Have created a db4e GitHub repository\n"
+NEW_REPO_MSG += "  * Have configured the GitHub repository\n"
+NEW_REPO_MSG += "  * Have SSH Authentication with GitHub configured\n\n"
+NEW_REPO_MSG += "You *MUST* have this configured before you can proceeed. "
+NEW_REPO_MSG += "Refer to the \"Getting Started\" page "
+NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
+NEW_REPO_MSG += "detailed information on setting this up."
+
 class Db4eRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
@@ -40,7 +54,7 @@ class Db4eRepoSetupUI:
         self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ")
         self.info_text = urwid.Text("")
         self.form = urwid.Pile([
-            urwid.Text('Enter the following information to setup your db4d GitHub Pages website:'),
+            urwid.Text('Enter the following information to setup your db4e GitHub Pages website:'),
             urwid.Divider(),
             self.github_username_edit,
             self.github_repo_name_edit,
@@ -48,8 +62,11 @@ class Db4eRepoSetupUI:
             urwid.Divider(),
             urwid.Text('Do *NOT* use a \"local path\" in the directory where you have installed db4e.'),
             urwid.Divider(),
-            urwid.Button(('button', 'Submit'), on_press=self.on_submit),
-            urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+            urwid.Columns([
+                ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
+                ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
+            ])
+            
         ])
         self.frame = urwid.LineBox(
             urwid.Padding(urwid.Pile([self.form, self.info_text]), left=2, right=2),
