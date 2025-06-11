@@ -4,17 +4,19 @@ Infrastructure/Db4eConfig/Db4eConfig.py
 
 import yaml
 import argparse
+import os
 
-YAML_FILE = '/opt/prod/db4e/conf/db4e_prod.yml'
-YAML_FILE_QA = '/opt/qa/db4e/conf/db4e_qa.yml'
-
-
+YAML_FILE = 'conf/db4e_prod.yml'
+YAML_FILE_QA = 'conf/db4e_qa.yml'
+        
 class Db4eConfig():
 
     def __init__(self):
         # Read the application configuration file
-        print(__file__)
-        self.load(YAML_FILE)
+        db4e_dir = os.path.join(os.path.dirname(__file__), '../../../')
+        yaml_file = os.path.join(db4e_dir, YAML_FILE_QA)
+        self.load(yaml_file)
+
 
         # Setup the command line parser
         parser = argparse.ArgumentParser(description='DB4E Configuration')
@@ -38,7 +40,7 @@ class Db4eConfig():
         self.config['db4e']['environ'] = args.environ
         if args.environ == 'qa':
             # Load the QA environment settings (DB, directories etc)
-            self.load(YAML_FILE_QA)
+            self.load(os.path.join(db4e_dir, YAML_FILE_QA))
         
         # Run one or more reprts with a reports definition file in conf/reports
         if args.reports != 'None':

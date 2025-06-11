@@ -6,7 +6,7 @@ import shutil
 class Db4eRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self.repo_name_edit = urwid.Edit("GitHub repo name (e.g. username/db4e): ")
+        self.repo_name_edit = urwid.Edit("GitHub repo name (e.g. NadimGhaznavi/xmr): ")
         self.repo_path_edit = urwid.Edit("Local path to clone repo: ")
         self.info_text = urwid.Text("")
         self.form = urwid.Pile([
