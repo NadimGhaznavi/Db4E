@@ -41,6 +41,7 @@ NEW_REPO_MSG += "  * Have a GitHub account\n"
 NEW_REPO_MSG += "  * Have created a db4e GitHub repository\n"
 NEW_REPO_MSG += "  * Have configured the GitHub repository\n"
 NEW_REPO_MSG += "  * Have SSH Authentication with GitHub configured\n\n"
+NEW_REPO_MSG += "    (The command \"ssh -T git@github.com\" needs to work)\n"
 NEW_REPO_MSG += "You *MUST* have this configured before you can proceeed. "
 NEW_REPO_MSG += "Refer to the \"Getting Started\" page "
 NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
@@ -112,7 +113,7 @@ class Db4eRepoSetupUI:
         # Check SSH access
         try:
             cmd_result = subprocess.run(
-                ["ssh", "-o", "UpdateHostKeys=yes", "-T", "git@github.com"],
+                ["ssh", "-T", "git@github.com"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",

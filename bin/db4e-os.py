@@ -94,11 +94,11 @@ class Db4eModel:
     def get_daemon_status(self, name):
         # TODO: Replace with actual probe logic
         return {
-            'db4e': (STATUS[self.os.depl['db4e']['status']], ''),
-            'p2pool': (STATUS[self.os.depl['p2pool']['status']], ''),
-            'xmrig': (STATUS[self.os.depl['xmrig']['status']], ''),
-            'monerod': (STATUS[self.os.depl['monerod']['status']], ''),
-            'repo': (STATUS[self.os.depl['repo']['status']], '')
+            'db4e'   : (STATUS[self.os.get_status('db4e')], ''),
+            'p2pool' : (STATUS[self.os.get_status('p2pool')], ''),
+            'xmrig'  : (STATUS[self.os.get_status('xmrig')], ''),
+            'monerod': (STATUS[self.os.get_status('monerod')], ''),
+            'repo'   : (STATUS[self.os.get_status('repo')], '')
         }.get(name, ('N/A', ''))
     
     def get_db4e_info(self):
@@ -120,11 +120,16 @@ class Db4eModel:
     def get_repo_info(self):
         repo = self.os.get_info('repo')
         if 'install_path' not in repo:
-            return NEW_REPO_MSG
+            new_repo_msg = self.os.new_repo_msg()
+            return new_repo_msg
+        
+    def set_daemon_status(self, daemon, status):
+        self.os.depl[daemon]['status'] = status
 
 class Db4eTui:
     def __init__(self):
         self.model = Db4eModel()
+        self.os = Db4eOS()
         self.selected_daemon = 'db4e'
         self.daemon_radios = []
         self.right_panel = urwid.LineBox(urwid.Padding(
@@ -203,6 +208,10 @@ class Db4eTui:
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
+        if self.os.probe_env('repo') == 'running':
+            self.model.set_daemon_status('repo', 'running')
+        else:
+            self.model.set_daemon_status('repo', 'not_installed')
 
     def return_to_main(self):
         self.right_panel = urwid.LineBox(urwid.Padding(
