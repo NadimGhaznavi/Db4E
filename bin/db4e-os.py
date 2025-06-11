@@ -18,6 +18,7 @@ for db4e_dir in db4e_dirs:
 
 # DB4E modules
 from Db4eOS.Db4eOS import Db4eOS
+from Db4eRepoSetupUI.Db4eRepoSetupUI import Db4eRepoSetupUI
 
 DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
 
@@ -40,10 +41,27 @@ PALETTE = [
     ('reversed', 'standout', '')
 ]
 
+STATUS = {
+    'running': '🟢',
+    'stopped': '🔴',
+    'not_installed': '🟡',
+    'unknown': '❔'
+}
+
 WELCOME_MSG = "Welcome to the db4e OS console\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar to \"click\" the \"More Info\" or \"Exit\" button. "
 
+NEW_REPO_MSG = "GitHub Pages website repository Setup\n\n"
+NEW_REPO_MSG += "The next step is to setup your GitHub repository. This will be used "
+NEW_REPO_MSG += "by db4e to publish web reports. In order to proceed you *must*:\n\n"
+NEW_REPO_MSG += "  * Have a GitHub account\n"
+NEW_REPO_MSG += "  * Have created a db4e GitHub repository\n"
+NEW_REPO_MSG += "  * Have configured the GitHub repository\n"
+NEW_REPO_MSG += "  * Have SSH Authentication with GitHub configured\n\n"
+NEW_REPO_MSG += "You MUST have this configured before you can proceeed. "
+NEW_REPO_MSG += "Refer to https://db4e.osoyalce.com/pages/Getting-Started.html for "
+NEW_REPO_MSG += "detailed information on setting this up."
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
@@ -57,11 +75,11 @@ class Db4eModel:
     def get_daemon_status(self, name):
         # TODO: Replace with actual probe logic
         return {
-            'db4e': (self.os.depl['db4e']['status'], ''),
-            'p2pool': (self.os.depl['p2pool']['status'], ''),
-            'xmrig': (self.os.depl['xmrig']['status'], ''),
-            'monerod': (self.os.depl['monerod']['status'], ''),
-            'repo': (self.os.depl['repo']['status'], '')
+            'db4e': (STATUS[self.os.depl['db4e']['status']], ''),
+            'p2pool': (STATUS[self.os.depl['p2pool']['status']], ''),
+            'xmrig': (STATUS[self.os.depl['xmrig']['status']], ''),
+            'monerod': (STATUS[self.os.depl['monerod']['status']], ''),
+            'repo': (STATUS[self.os.depl['repo']['status']], '')
         }.get(name, ('N/A', ''))
     
     def get_db4e_info(self):
@@ -83,7 +101,7 @@ class Db4eModel:
     def get_repo_info(self):
         repo = self.os.get_info('repo')
         if 'install_path' not in repo:
-            return 'Not initialized'
+            return NEW_REPO_MSG
 
 class Db4eTui:
     def __init__(self):
@@ -94,7 +112,8 @@ class Db4eTui:
             urwid.Text(WELCOME_MSG),
             right=2, left=2),
             title='TIME', title_align="right", title_attr="title")
-            
+        
+        self.repo_setup_ui = Db4eRepoSetupUI(self) 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
     def build_daemon_list(self):
@@ -119,7 +138,7 @@ class Db4eTui:
     def build_actions(self):
         action_list = [
             urwid.Button("More Info", on_press=self.show_component_info),
-            urwid.Button("Exit", on_press=lambda b: exit(0))
+            urwid.Button("Exit", on_press=self.exit_app)
         ]
         res = urwid.Columns(action_list)
         res = urwid.Padding(res, right=2, left=2)
@@ -134,12 +153,26 @@ class Db4eTui:
             self.right_panel
         ])
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
+
     def select_daemon(self, radio, new_state, daemon):
         if new_state:
             self.selected_daemon = daemon
 
     # The main screen shows this content
     def show_component_info(self, button):
+        if self.selected_daemon == 'repo':
+            repo = self.model.os.get_info('repo')
+            if 'install_path' not in repo:
+                text = urwid.Text(NEW_REPO_MSG)
+                continue_button = urwid.Button("Continue", on_press=lambda btn: self.show_repo_setup())
+                pile = urwid.Pile([text, urwid.Divider(), continue_button])
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(pile, left=2, right=2),
+                    title='INFO', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                return
+
         func_name = f'get_{self.selected_daemon}_info'
         info = getattr(self.model, func_name, lambda: 'No info available')()
         self.right_panel = urwid.LineBox(
@@ -148,6 +181,19 @@ class Db4eTui:
         )
         self.main_loop.widget = self.build_main_frame()
 
+    def show_repo_setup(self):
+        self.main_loop.widget = self.repo_setup_ui.widget()
+
+    def return_to_main(self):
+        self.right_panel = urwid.LineBox(urwid.Padding(
+            urwid.Text(WELCOME_MSG),
+            right=2, left=2),
+            title='TIME', title_align="right", title_attr="title")
+        self.main_loop.widget = self.build_main_frame()
+
+    def exit_app(self, button):
+        raise urwid.ExitMainLoop()
+    
     def exit_on_q(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()

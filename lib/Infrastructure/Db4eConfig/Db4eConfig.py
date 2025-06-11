@@ -13,6 +13,7 @@ class Db4eConfig():
 
     def __init__(self):
         # Read the application configuration file
+        print(__file__)
         self.load(YAML_FILE)
 
         # Setup the command line parser

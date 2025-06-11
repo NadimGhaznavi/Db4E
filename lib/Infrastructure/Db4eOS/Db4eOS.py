@@ -39,30 +39,30 @@ class Db4eOS:
                 'install_dir' : ini.config['db4e']['install_dir'],
                 'process'     : ini.config['db4e']['process'],
                 'systemd'     : 'N/A',
-                'status'      : 'Installed',
+                'status'      : 'not_installed',
             },
             'p2pool': {
                 'install_dir' : ini.config['p2pool']['install_dir'],
                 'process'     : ini.config['p2pool']['process'],
                 'config'      : ini.config['p2pool']['config'],
-                'status'      : 'N/A',
+                'status'      : 'not_installed',
             },
             'monerod': {
                 'install_dir' : ini.config['monerod']['install_dir'],
                 'process'     : ini.config['monerod']['process'],
                 'config'      : ini.config['monerod']['config'],
                 'systemd'     : 'N/A',
-                'status'      : 'N/A',
+                'status'      : 'not_installed',
             },
             'xmrig': {
                 'install_dir' : ini.config['xmrig']['install_dir'],
                 'process'     : ini.config['xmrig']['process'],
                 'config'      : ini.config['xmrig']['config'],
                 'systemd'     : 'N/A',
-                'status'      : 'N/A',
+                'status'      : 'not_installed',
             },
             'repo': {
-                'status'      : 'N/A',
+                'status'      : 'not_installed',
             }
         }
         self.probe_env()
