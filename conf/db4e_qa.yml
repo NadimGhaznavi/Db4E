@@ -11,8 +11,10 @@ db4e:
   reports_dir: reports
   src_dir: src
   template_dir: tmpl
+  version: 0.14.2-beta
 
 web:
+  install_dir: /opt/qa/xmrqa
   backup_dir: backups
   web_dir: pages
   csv_dir: csv

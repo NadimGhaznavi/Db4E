@@ -1,5 +1,40 @@
-#!/opt/prod/db4e/venv/bin/python3
+"""
+bin/db4e-log-loader.py
 
+This utility takes a file and appends it to another file in batches
+with a 1 or more second delay between batches. 
+
+The utility script is used to 'replay' P2Pool logs i.e. by using an 
+old log as a source file and the actual P2Pool log as the destination 
+file with db4e running and monitoring the log. This prevents db4e
+from flooding MongoDB.
+
+Use this for the case where db4e was down, but P2Pool was up so you 
+have the old P2Pool logs, but you don't have the db4e records.
+"""
+
+
+"""
+  This file is part of *db4e*, the *Database 4 Everything* project
+  <https://github.com/NadimGhaznavi/db4e>, developed independently
+  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+  <https://github.com/NadimGhaznavi/db4e>.
+ 
+  This program is free software: you can redistribute it and/or 
+  modify it under the terms of the GNU General Public License as 
+  published by the Free Software Foundation, version 3.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy (LICENSE.txt) of the GNU General 
+  Public License along with this program. If not, see 
+  <http://www.gnu.org/licenses/>.
+"""
+
+# Import supporting modules
 import time
 import argparse
 import sys

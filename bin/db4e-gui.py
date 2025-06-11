@@ -1,6 +1,31 @@
-#!/opt/prod/db4e/venv/bin/python3
 """
 bin/db4e-gui.py
+
+This is the db4e TUI for monitoring the health and performance of 
+the db4e managed mining farm.
+
+Use the bin/db4e-gui.sh wrapper script to run this application.
+"""
+
+
+"""
+  This file is part of *db4e*, the *Database 4 Everything* project
+  <https://github.com/NadimGhaznavi/db4e>, developed independently
+  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+  <https://github.com/NadimGhaznavi/db4e>.
+ 
+  This program is free software: you can redistribute it and/or 
+  modify it under the terms of the GNU General Public License as 
+  published by the Free Software Foundation, version 3.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy (LICENSE.txt) of the GNU General 
+  Public License along with this program. If not, see 
+  <http://www.gnu.org/licenses/>.
 """
 
 # Import supporting modules

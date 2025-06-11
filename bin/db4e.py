@@ -1,7 +1,34 @@
-#!/opt/prod/db4e/venv/bin/python
 """
 bin/db4e.py
+
+This is the core *db4e* application. It is used to monitor the
+P2Pool log, backup the db4e database and push the backup to 
+GitHub, support a parallel QA environment, return the mining 
+farm wallet balance (from MongoDB, not from your wallet), run
+reports manuall and display the db4e version.
 """
+
+
+"""
+  This file is part of *db4e*, the *Database 4 Everything* project
+  <https://github.com/NadimGhaznavi/db4e>, developed independently
+  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+  <https://github.com/NadimGhaznavi/db4e>.
+ 
+  This program is free software: you can redistribute it and/or 
+  modify it under the terms of the GNU General Public License as 
+  published by the Free Software Foundation, version 3.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy (LICENSE.txt) of the GNU General 
+  Public License along with this program. If not, see 
+  <http://www.gnu.org/licenses/>.
+"""
+
 
 # Import supporting modules
 import os

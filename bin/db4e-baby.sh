@@ -1,7 +1,7 @@
 #!/bin/bash
-
-# This script is used to deploy new db4e releases into the db4e 
-# website GitHub repository. 
+#
+# Shell wrapper script to run the `bin/db4e-baby.py` program using the
+# db4e Python venv environment.
 #
 #####################################################################
 
@@ -29,38 +29,14 @@
 #####################################################################
 
 
-ENVIRON=$1
-WEB_DIR=$2
+# Assume this file lives in $DB4E_INSTALL_DIR/bin/
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DB4E_DIR="$BIN_DIR/.."
 
-if [ -z $WEB_DIR ]; then
-	echo "ERROR: Usage: $0 [qa|prod] [/path/to/github/pages/repo]"
-	exit 1
-fi
+VENV="$DB4E_DIR/venv"
+PYTHON="$VENV/bin/python"
+MAIN_SCRIPT="$BIN_DIR/db4e-baby.py"
 
-DEBUG=False
-# DEBUG=True
-
-if [ "$ENVIRON" == "prod" ]; then
-	WEB_DIR=/opt/prod/xmr
-	DB4E_DIR=/opt/prod/db4e
-elif [ "$ENVIRON" == "qa" ]; then
-	WEB_DIR=/opt/qa/xmrqa
-	DB4E_DIR=/opt/qa/db4e
-else
-	echo "ERROR: Usage $0 [prod|qa] [/path/to/github/pages/repo]"
-	exit 1
-fi
-
-cd $WEB_DIR
-
-if [ "${DEBUG}" == "False" ]; then
-	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR} > /dev/null 2>&1
-	git add . -v > /dev/null 2>&1
-	git commit -m "Static update" > /dev/null 2>&1
-	git push > /dev/null 2>&1
-else
-	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
-	git add . -v
-	git commit -m "Static update"
-	git push
-fi
+# Activate and run
+source "$VENV/bin/activate"
+exec "$PYTHON" "$MAIN_SCRIPT" "$@"

@@ -1,6 +1,34 @@
 """
 bin/db4e-os.py
+
+This is the db4e TUI; terminal user interface. It is used to manage
+and deploy the db4e software as well as the Monero Blockchain daemon,
+the P2Pool daemon, the XMRig miner and the db4e website GitHub 
+repository
 """
+
+
+"""
+  This file is part of *db4e*, the *Database 4 Everything* project
+  <https://github.com/NadimGhaznavi/db4e>, developed independently
+  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+  <https://github.com/NadimGhaznavi/db4e>.
+ 
+  This program is free software: you can redistribute it and/or 
+  modify it under the terms of the GNU General Public License as 
+  published by the Free Software Foundation, version 3.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy (LICENSE.txt) of the GNU General 
+  Public License along with this program. If not, see 
+  <http://www.gnu.org/licenses/>.
+"""
+
+# Import supporting modules
 import urwid
 import os, sys
 import subprocess
@@ -50,7 +78,8 @@ STATUS = {
 
 WELCOME_MSG = "Welcome to the db4e OS console\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
-WELCOME_MSG += "Use the spacebar to \"click\" the \"More Info\" or \"Exit\" button. "
+WELCOME_MSG += "Use the spacebar or mouse to \"click\" the \"More Info\" or "
+WELCOME_MSG += "\"Exit\" button. "
 
 NEW_REPO_MSG = "GitHub Pages website repository Setup\n\n"
 NEW_REPO_MSG += "The next step is to setup your GitHub repository. This will be used "

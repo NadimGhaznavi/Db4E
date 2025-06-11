@@ -1,9 +1,35 @@
 #!/bin/bash
+#
+# bin/db4e-git.sh
+#
+# A simple wrapper for git that enables the *db4e* application to run
+# git add, commit and push commands.
+#
+#####################################################################
 
-# A simple wrapper for git.
 
-# This script assumes you have a valid git repository setup and are using credentials
-# that allow git's 'add', 'commit' and 'push' commands.
+#####################################################################
+#
+#  This file is part of *db4e*, the *Database 4 Everything* project
+#  <https://github.com/NadimGhaznavi/db4e>, developed independently
+#  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
+#  <https://github.com/NadimGhaznavi/db4e>.
+# 
+#  This program is free software: you can redistribute it and/or 
+#  modify it under the terms of the GNU General Public License as 
+#  published by the Free Software Foundation, version 3.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+#  General Public License for more details.
+#
+#  You should have received a copy (LICENSE.txt) of the GNU General 
+#  Public License along with this program. If not, see 
+#  <http://www.gnu.org/licenses/>.
+#
+#####################################################################
+
 
 REPO_DIR=$1
 OP=$2
