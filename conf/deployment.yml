@@ -1,5 +1,4 @@
 db4e:
-  install_dir: /opt/qa/db4e
   process: db4e.py
   status: stopped
   systemd: N/A
