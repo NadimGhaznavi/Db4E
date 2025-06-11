@@ -46,27 +46,47 @@ NEW_REPO_MSG += "Refer to the \"Getting Started\" page "
 NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
 NEW_REPO_MSG += "detailed information on setting this up."
 
+
 class Db4eRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ")
         self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ")
         self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ")
-        self.info_text = urwid.Text("")
+
+        self.info_msg = urwid.Text('')
+        self.info_text = urwid.Pile([
+                urwid.Divider(),
+                urwid.LineBox(
+                    urwid.Padding(
+                        self.info_msg,
+                        left=2, right=2
+                    ),
+                    title="Results", title_align='left', title_attr='title'
+                )
+        ])
+
         self.form = urwid.Pile([
-            urwid.Text('Enter the following information to setup your db4e GitHub Pages website:'),
+            urwid.Text('Enter your GitHub account name, the name of your GitHub ' + 
+                       'repository and a directory on your computer for the local ' +
+                       'GitHub repository. Git will create the local directory and ' +
+                       'clone your repository into it. Do *NOT* use a \"local path\" ' +
+                       'that is within the directory where you have installed db4e. '),
             urwid.Divider(),
-            self.github_username_edit,
-            self.github_repo_name_edit,
-            self.local_repo_path_edit,
-            urwid.Divider(),
-            urwid.Text('Do *NOT* use a \"local path\" in the directory where you have installed db4e.'),
-            urwid.Divider(),
-            urwid.Columns([
-                ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
-                ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
-            ])
-            
+            urwid.LineBox(
+                urwid.Padding(
+                    urwid.Pile([
+                        self.github_username_edit,
+                        self.github_repo_name_edit,
+                        self.local_repo_path_edit,
+                        urwid.Divider(),
+                        urwid.Columns([
+                            ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
+                            ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
+                        ])
+                    ]), left=2, right=2),
+                    title='Setup Form', title_align='left', title_attr='title'
+            )
         ])
         self.frame = urwid.LineBox(
             urwid.Padding(urwid.Pile([self.form, self.info_text]), left=2, right=2),
@@ -76,6 +96,9 @@ class Db4eRepoSetupUI:
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
 
+    def new_repo_msg(self):
+        return NEW_REPO_MSG
+
     def on_submit(self, button):
         username = self.github_username_edit.edit_text.strip()
         repo_name = self.github_repo_name_edit.edit_text.strip()
@@ -83,7 +106,7 @@ class Db4eRepoSetupUI:
 
         # Validate input
         if not username or not repo_name or not clone_path:
-            self.info_text.set_text("Please provide your GitHub username, repository name and a local path.")
+            self.info_msg.set_text("Please provide your GitHub username, repository name and a local path.")
             return
 
         # Check SSH access
@@ -99,17 +122,17 @@ class Db4eRepoSetupUI:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode not in (0, 1):  
-                self.info_text.set_text(
+                self.info_msg.set_text(
                     f"SSH connection failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
                 )
                 return
 
-            self.info_text.set_text(
+            self.info_msg.set_text(
                 f"SSH check succeeded (return code {cmd_result.returncode}).\nSTDOUT: {stdout}\nSTDERR: {stderr}"
             )
 
         except Exception as e:
-            self.info_text.set_text(f"SSH check failed: {str(e)}")
+            self.info_msg.set_text(f"SSH check failed: {str(e)}")
             return
 
         # Try to clone
@@ -127,17 +150,17 @@ class Db4eRepoSetupUI:
             stderr = cmd_result.stderr.decode().strip()
 
             if cmd_result.returncode != 0:
-                self.info_text.set_text(
-                    f'Failed to clone repository.\nSTDOUT: {stdout}\nSTDERR: {stderr}'
+                self.info_msg.set_text(
+                    f'Failed to clone repository.\n\n{stderr}'
                 )
                 return
 
-            self.info_text.set_text("Repository cloned successfully.")
+            self.info_msg.set_text("Repository cloned successfully.")
 
         #except subprocess.CalledProcessError:
         #    self.info_text.set_text("Failed to clone the repository. Check SSH and repo name.")
         except Exception as e:
-            self.info_text.set_text(f"Error: {str(e)}")
+            self.info_msg.set_text(f"Error: {str(e)}")
 
     def widget(self):
         return self.frame

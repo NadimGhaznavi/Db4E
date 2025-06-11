@@ -81,19 +81,6 @@ WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to \"click\" the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
-NEW_REPO_MSG = "GitHub Pages website repository Setup\n\n"
-NEW_REPO_MSG += "This screen will help you setup your GitHub repository. This "
-NEW_REPO_MSG += "repo is used by db4e to publish web reports. In order to"
-NEW_REPO_MSG += "proceed you *must*:\n\n"
-NEW_REPO_MSG += "  * Have a GitHub account\n"
-NEW_REPO_MSG += "  * Have created a db4e GitHub repository\n"
-NEW_REPO_MSG += "  * Have configured the GitHub repository\n"
-NEW_REPO_MSG += "  * Have SSH Authentication with GitHub configured\n\n"
-NEW_REPO_MSG += "You *MUST* have this configured before you can proceeed. "
-NEW_REPO_MSG += "Refer to the \"Getting Started\" page "
-NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
-NEW_REPO_MSG += "detailed information on setting this up."
-
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
@@ -195,7 +182,8 @@ class Db4eTui:
         if self.selected_daemon == 'repo':
             repo = self.model.os.get_info('repo')
             if 'install_path' not in repo:
-                text = urwid.Text(NEW_REPO_MSG)
+                new_repo_msg = self.repo_setup_ui.new_repo_msg()
+                text = urwid.Text(new_repo_msg)
                 continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
                 pile = urwid.Pile([text, urwid.Divider(), continue_button])
                 self.right_panel = urwid.LineBox(
@@ -209,7 +197,7 @@ class Db4eTui:
         info = getattr(self.model, func_name, lambda: 'No info available')()
         self.right_panel = urwid.LineBox(
             urwid.Text(info),
-            title='INFO', title_align="right", title_attr="title"
+            title='INFO', title_align='right', title_attr='title'
         )
         self.main_loop.widget = self.build_main_frame()
 
