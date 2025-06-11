@@ -2,6 +2,22 @@
 bin/db4e-os.py
 """
 import urwid
+import os, sys
+import subprocess
+import psutil
+
+# Where the DB4E modules live
+lib_dir = os.path.dirname(__file__) + "/../lib/"
+# Import DB4E modules
+db4e_dirs = [
+  lib_dir + 'Infrastructure',
+  lib_dir + 'Mining'
+]
+for db4e_dir in db4e_dirs:
+  sys.path.append(db4e_dir)
+
+# DB4E modules
+from Db4eOS.Db4eOS import Db4eOS
 
 DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
 
@@ -24,12 +40,16 @@ PALETTE = [
     ('reversed', 'standout', '')
 ]
 
+WELCOME_MSG = "Welcome to the db4e OS console\n\n"
+WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
+WELCOME_MSG += "Use the spacebar to \"click\" the \"More Info\" or \"Exit\" button. "
 
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
         # ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
         self.daemons = DB4E_CORE
+        self.os = Db4eOS()
         
     def get_daemons(self):
         return self.daemons
@@ -37,12 +57,12 @@ class Db4eModel:
     def get_daemon_status(self, name):
         # TODO: Replace with actual probe logic
         return {
-            'db4e': ('✅', 'running'),
-            'p2pool': ('❌', 'stopped'),
-            'xmrig': ('⛔', 'not_installed'),
-            'monerod': ('✅', 'running'),
-            'repo': ('✅', 'running')
-        }.get(name, ('N/A', 'not_installed'))
+            'db4e': (self.os.depl['db4e']['status'], ''),
+            'p2pool': (self.os.depl['p2pool']['status'], ''),
+            'xmrig': (self.os.depl['xmrig']['status'], ''),
+            'monerod': (self.os.depl['monerod']['status'], ''),
+            'repo': (self.os.depl['repo']['status'], '')
+        }.get(name, ('N/A', ''))
     
     def get_db4e_info(self):
         # TODO: Replace with actual info
@@ -61,18 +81,20 @@ class Db4eModel:
         return 'Some monerod info to display'
 
     def get_repo_info(self):
-        # TODO: Replace with actual info
-        return 'Some repo info to display'
+        repo = self.os.get_info('repo')
+        if 'install_path' not in repo:
+            return 'Not initialized'
 
 class Db4eTui:
     def __init__(self):
         self.model = Db4eModel()
         self.selected_daemon = 'db4e'
         self.daemon_radios = []
-        self.right_panel = urwid.LineBox(
-            urwid.Text(('bold', "COMPONENT INFO")),
-            title='TIME', title_align="right", title_attr="title"
-        )
+        self.right_panel = urwid.LineBox(urwid.Padding(
+            urwid.Text(WELCOME_MSG),
+            right=2, left=2),
+            title='TIME', title_align="right", title_attr="title")
+            
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
     def build_daemon_list(self):
