@@ -46,6 +46,8 @@ class Db4eRepoSetupUI:
             self.github_repo_name_edit,
             self.local_repo_path_edit,
             urwid.Divider(),
+            urwid.Text('Do *NOT* use a \"local path\" in the directory where you have installed db4e.'),
+            urwid.Divider(),
             urwid.Button(('button', 'Submit'), on_press=self.on_submit),
             urwid.Button(('button', 'Back'), on_press=self.back_to_main)
         ])
@@ -58,12 +60,13 @@ class Db4eRepoSetupUI:
         self.parent_tui.return_to_main()
 
     def on_submit(self, button):
-        repo_name = self.repo_name_edit.edit_text.strip()
-        clone_path = os.path.expanduser(self.repo_path_edit.edit_text.strip())
+        username = self.github_username_edit.edit_text.strip()
+        repo_name = self.github_repo_name_edit.edit_text.strip()
+        clone_path = os.path.expanduser(self.local_repo_path_edit.edit_text.strip())
 
         # Validate input
-        if not repo_name or not clone_path:
-            self.info_text.set_text("Please provide your GitHub username, repository name and local path.")
+        if not username or not repo_name or not clone_path:
+            self.info_text.set_text("Please provide your GitHub username, repository name and a local path.")
             return
 
         # Check SSH access
@@ -85,10 +88,14 @@ class Db4eRepoSetupUI:
         # Try to clone
         try:
             if os.path.exists(clone_path):
+                # Delete the clone_path if it exists
                 shutil.rmtree(clone_path)
-            subprocess.run([
-                "git", "clone", f"git@github.com:{repo_name}.git", clone_path
-            ], check=True)
+
+            subprocess.run(
+                ["git", "clone", f"git@github.com:{username}/{repo_name}.git", clone_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True)
             self.info_text.set_text("Repository cloned successfully.")
         except subprocess.CalledProcessError:
             self.info_text.set_text("Failed to clone the repository. Check SSH and repo name.")

@@ -71,8 +71,8 @@ PALETTE = [
 
 STATUS = {
     'running': '🟢',
-    'stopped': '🔴',
-    'not_installed': '🟡',
+    'stopped': '🟡',
+    'not_installed': '🔴',
     'unknown': '❔'
 }
 
@@ -169,8 +169,8 @@ class Db4eTui:
 
     def build_actions(self):
         action_list = [
-            urwid.Button(('button', 'More Info'), on_press=self.show_component_info),
-            urwid.Button(('button', 'Exit'), on_press=self.exit_app)
+            ('pack', urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
+            ('pack', urwid.Button(('button', 'Exit'), on_press=self.exit_app))
         ]
         res = urwid.Columns(action_list)
         res = urwid.Padding(res, right=2, left=2)
@@ -196,7 +196,7 @@ class Db4eTui:
             repo = self.model.os.get_info('repo')
             if 'install_path' not in repo:
                 text = urwid.Text(NEW_REPO_MSG)
-                continue_button = urwid.Button(('button', 'Continue'), on_press=lambda btn: self.show_repo_setup())
+                continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
                 pile = urwid.Pile([text, urwid.Divider(), continue_button])
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(pile, left=2, right=2),
@@ -213,7 +213,7 @@ class Db4eTui:
         )
         self.main_loop.widget = self.build_main_frame()
 
-    def show_repo_setup(self):
+    def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
 
     def return_to_main(self):

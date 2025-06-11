@@ -65,7 +65,7 @@ class Db4eOS:
                 'install_dir' : ini.config['db4e']['install_dir'],
                 'process'     : ini.config['db4e']['process'],
                 'systemd'     : 'N/A',
-                'status'      : 'not_installed',
+                'status'      : 'stopped',
             },
             'p2pool': {
                 'install_dir' : ini.config['p2pool']['install_dir'],
