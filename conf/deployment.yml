@@ -1,0 +1,24 @@
+db4e:
+  install_dir: /opt/qa/db4e
+  process: db4e.py
+  status: stopped
+  systemd: N/A
+monerod:
+  config: monerod.ini
+  install_dir: monerod
+  process: monerod
+  status: not_installed
+  systemd: N/A
+p2pool:
+  config: p2pool.ini
+  install_dir: p2pool
+  process: p2pool
+  status: not_installed
+repo:
+  status: not_installed
+xmrig:
+  config: config.json
+  install_dir: xmrig
+  process: xmrig
+  status: not_installed
+  systemd: N/A
