@@ -126,44 +126,9 @@ Next you'll want to import the **public** part of your new key to GitHub. This f
 * Enter a name for the key, e.g. *db4e on my_server*.
 * Next you'll want to cut-and-paste the contents of the public key file (~/.ssh/id_rsa.pub) into the *Key* box in GitHub.
 
-# Test SSH 
+# Run the Deployment Tool
 
-Test that the connection to GitHub pages you just setup works.
-
-On your system, issue the following to test that everything is working properly:
-
-```
-ssh -T git@github.com
-```
-
-Sample output:
-
-```
-Hi SallyKolodny! You've successfully authenticated, but GitHub does not provide shell access.
-sally@debian12:~$ 
-```
-
-# Clone the Repository
-
-Since both db4e and your GitHub Pages site are Git repositories, do not clone the XMR repo inside the db4e project folder. Instead, place them side-by-side or in separate logical directories.
-
-Here's an example:
-
-```
-git clone git@github.com:SallyKolodny/xmr
-```
-
-Sample output:
-
-```
-Cloning into 'xmr'...
-remote: Enumerating objects: 7, done.
-remote: Counting objects: 100% (7/7), done.
-remote: Compressing objects: 100% (5/5), done.
-remote: Total 7 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
-Receiving objects: 100% (7/7), 13.68 KiB | 13.68 MiB/s, done.
-sally@debian12:~$ 
-```
+This tool, `db4e-os` is currently under development.
 
 
 
