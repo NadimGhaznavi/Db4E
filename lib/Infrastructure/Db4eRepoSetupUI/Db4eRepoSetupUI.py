@@ -112,11 +112,11 @@ class Db4eRepoSetupUI:
         # Check SSH access
         try:
             cmd_result = subprocess.run(
-                ["ssh", "-T", "git@github.com"],
+                ["ssh", "-o", "UpdateHostKeys", "-T", "git@github.com"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",
-                timeout=5)
+                timeout=10)
             stdout = cmd_result.stdout.decode().strip()
             stderr = cmd_result.stderr.decode().strip()
 
