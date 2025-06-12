@@ -80,11 +80,11 @@ class Db4eOSRepoSetupUI:
                 )
         ])
 
-        self.form = urwid.Pile([
+        form_widgets = [
             urwid.Text('Enter your GitHub account name, the name of your GitHub ' + 
                        'repository and a directory on your computer for the local ' +
                        'GitHub repository. Git will create the local directory and ' +
-                       'clone your repository into it. Do *NOT* use a \"local path\" ' +
+                       'clone your repository into it. Do *NOT* use a "local path" ' +
                        'that is within the directory where you have installed db4e. '),
             urwid.Divider(),
             urwid.LineBox(
@@ -99,11 +99,15 @@ class Db4eOSRepoSetupUI:
                             ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
                         ])
                     ]), left=2, right=2),
-                    title='Setup Form', title_align='left', title_attr='title'
-            )
-        ])
+                title='Setup Form', title_align='left', title_attr='title'
+            ),
+            self.info_text
+        ]
+
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
         self.frame = urwid.LineBox(
-            urwid.Padding(urwid.Pile([self.form, self.info_text]), left=2, right=2),
+            urwid.Padding(listbox, left=2, right=2),
             title="GitHub Repo Setup", title_align="center", title_attr="title"
         )
 
@@ -169,7 +173,7 @@ class Db4eOSRepoSetupUI:
                 )
                 return
 
-            self._db.update_repo({ 'status': 'running'})
+            self._db.update_repo({ 'status': 'running' })
             self.info_msg.set_text("Repository cloned successfully.")
 
         #except subprocess.CalledProcessError:

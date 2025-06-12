@@ -34,7 +34,7 @@ import os, sys
 import subprocess
 from datetime import datetime, timezone
 import time
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure, CollectionInvalid
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -98,7 +98,11 @@ class Db4eDb():
     db_col_names = self._db.list_collection_names()
     for aCol in [ db_col, log_col, depl_col]:
        if aCol not in db_col_names:
-          self._db.create_collection(aCol)
+          try:
+            self._db.create_collection(aCol)
+          except CollectionInvalid:
+            print("ERROR")
+            self.log.warning(f"Attempted to create existing collection: {aCol}")
           self.log.debug(f'Created DB collection ({aCol})')
 
   def get_collection(self, name):

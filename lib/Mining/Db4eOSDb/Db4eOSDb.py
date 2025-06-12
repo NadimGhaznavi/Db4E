@@ -159,7 +159,7 @@ class Db4eOSDb:
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
 
-    def get_deployment_by_component(self, component):
+    def get_deployment_by_component(self, component): 
         # Return one record
         doc = self._db.find_one(self._col, {'doc_type': 'deployment', 'component': component})
         return doc
