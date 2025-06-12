@@ -226,6 +226,7 @@ class Db4eTui:
 
     def install_db4e_service(self, radiobutton):
         results = self.model.install_db4e_service()
+        #### Generates too much output and crashes the non-scrolling app..... :(
         self.results_contents.set_text(results)
 
     def select_deployment(self, radio, new_state, deployment):
@@ -234,7 +235,41 @@ class Db4eTui:
 
     # The main screen shows this content
     def show_component_info(self, button):
-        if self.selected_deployment == 'repo':
+        if self.selected_deployment == 'db4e':
+            db4e = self.model.get_db4e_deployment()
+            if db4e['status'] == 'stopped':
+                text = urwid.Text(NEW_DB4E_SERVICE_MSG)
+                install_service_button = urwid.Columns([('pack', urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))])
+                results = urwid.LineBox(
+                    self.results_contents,
+                    title='Results',
+                    title_align='left',
+                    title_attr='title'
+                )
+                install_service_button = urwid.Columns([
+                    ('pack', urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))
+                ])
+                pile = urwid.Pile([
+                    text, urwid.Divider(), results, urwid.Divider(), install_service_button
+                ])
+                # Make the entire right panel scrollable
+                right_scrollable = urwid.Filler(pile, valign='top')
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(right_scrollable, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                """
+                pile = urwid.Pile([
+                    text, urwid.Divider(), results, urwid.Divider(), install_service_button])
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(pile, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                """
+
+        elif self.selected_deployment == 'repo':
             repo = self.model.get_repo_deployment()
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
@@ -248,25 +283,6 @@ class Db4eTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
         
-        elif self.selected_deployment == 'db4e':
-            db4e = self.model.get_db4e_deployment()
-            if db4e['status'] == 'stopped':
-                text = urwid.Text(NEW_DB4E_SERVICE_MSG)
-                install_service_button = urwid.Columns([('pack', urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))])
-                results = urwid.LineBox(
-                    self.results_contents,
-                    title='Results',
-                    title_align='left',
-                    title_attr='title'
-                )
-                pile = urwid.Pile([
-                    text, urwid.Divider(), results, urwid.Divider(), install_service_button])
-                self.right_panel = urwid.LineBox(
-                    urwid.Padding(pile, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
-                )
-                self.main_loop.widget = self.build_main_frame()
-
         else:
             self.right_panel = urwid.LineBox(
                 urwid.Text('No info available.'),
