@@ -44,7 +44,11 @@ if [ ! -f "$SERVICE_SRC" ]; then
 fi
 
 cp "$SERVICE_SRC" "$SERVICE_DEST"
-echo "Copied $SERVICE_SRC to $SERVICE_DEST"
+echo
+echo "* Created systemd service definition: $SERVICE_DEST"
+echo "* Reloaded systemd's configuration"
+echo "* Configured the service to start at boot time"
+echo "* Started the db4e service"
 
 # Reload systemd, enable and start the service
 systemctl daemon-reexec
