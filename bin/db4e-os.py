@@ -259,7 +259,8 @@ class Db4eTui:
                     title_align='left',
                     title_attr='title'
                 )
-                pile = urwid.Pile([text, urwid.Divider(), results, install_service_button])
+                pile = urwid.Pile([
+                    text, urwid.Divider(), results, urwid.Divider(), install_service_button])
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(pile, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
