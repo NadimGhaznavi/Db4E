@@ -82,8 +82,12 @@ class Db4eOS:
                 'status': repo_rec['status'],
                 'install_dir': repo_rec['install_dir']
             }
-            if not os.path.exists(os.path.join(repo['install_dir'], '.git/config')):
-                # Repo isn't there
+            if not repo['install_dir']:
+                # Repo 'install_dir' isn't set in the DB
+                self._db.update_repo({ 'status': 'not_installed' })
+
+            elif not os.path.exists(os.path.join(repo['install_dir'], '.git/config')):
+                # Repo .git/config file not found
                 self._db.update_repo({ 'install_dir': None, 'status': 'not_installed' })
 
 
