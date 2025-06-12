@@ -26,11 +26,23 @@ user configure their GitHub repository.
   <http://www.gnu.org/licenses/>.
 """
 
-
+# Supporting modules
+import os, sys
 import urwid
 import subprocess
-import os
 import shutil
+
+# Where the DB4E modules live
+lib_dir = os.path.dirname(__file__) + "/../../"
+# Import DB4E modules
+db4e_dirs = [
+    lib_dir + 'Infrastructure',
+    lib_dir + 'Mining'
+]
+for db4e_dir in db4e_dirs:
+    sys.path.append(db4e_dir)
+
+from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 
 NEW_REPO_MSG = "GitHub Pages Website Repository Setup\n\n"
@@ -48,9 +60,10 @@ NEW_REPO_MSG += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
 NEW_REPO_MSG += "detailed information on setting this up."
 
 
-class Db4eRepoSetupUI:
+class Db4eOSRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
+        self._db = Db4eOSDb()
         self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ")
         self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ")
         self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ")
@@ -156,6 +169,7 @@ class Db4eRepoSetupUI:
                 )
                 return
 
+            self._db.update_repo({ 'status': 'running'})
             self.info_msg.set_text("Repository cloned successfully.")
 
         #except subprocess.CalledProcessError:

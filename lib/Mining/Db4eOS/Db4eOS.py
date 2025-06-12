@@ -58,6 +58,7 @@ class Db4eOS:
         db4e_conf_dir = ini.config['db4e']['conf_dir']
         deployment_file = ini.config['db4e']['deployment_file']
         fq_path = os.path.join(self.db4e_dir, db4e_conf_dir, deployment_file)
+        self._depl_file = fq_path
         self.load(fq_path)
 
         for component in COMPONENTS:
@@ -101,6 +102,19 @@ class Db4eOS:
         Determine if a given component is installed (e.g., binary exists).
         """
         pass
+
+    def save_depl(self):
+        """
+        Save the current deployment status to file.
+        """
+        with open(self._depl_file, 'w') as outfile:
+            yaml.dump(self.depl, outfile, default_flow_style=False)
+
+    def set_status(self, component, status):
+        """
+        Set the status for a component
+        """
+        self.depl[component]['status'] = status
 
     def start_component(self, component):
         """

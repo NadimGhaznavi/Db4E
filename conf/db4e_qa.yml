@@ -90,6 +90,7 @@ db:
   name: db4e_qa
   collection: mining
   log_collection: logging
+  depl_collection: depl
   backup_dir: backups
   backup_script: bin/db4e-backup.sh
   retry_timeout: 15
