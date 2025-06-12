@@ -52,15 +52,7 @@ COMPONENTS = ['db4e', 'p2pool', 'monerod', 'xmrig', 'repo']
 class Db4eOS:
     def __init__(self):
         # Possibly store paths, config state, environment, etc.
-        ini  = Db4eConfig()
-        # Set the db4e dir
-        self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
-        # Setup the deployment config
-        db4e_conf_dir = ini.config['db4e']['conf_dir']
-        deployment_file = ini.config['db4e']['deployment_file']
-        fq_path = os.path.join(self.db4e_dir, db4e_conf_dir, deployment_file)
-        self._depl_file = fq_path
-        self.load(fq_path)
+        self._db = Db4eOSDb()
 
         for component in COMPONENTS:
             self.probe_env(component)
@@ -85,7 +77,15 @@ class Db4eOS:
 
     def probe_env(self, component):
         if component == 'repo':
-            pass
+            repo_rec = self._db.get_repo_deployment()
+            repo = {
+                'status': repo_rec['status'],
+                'install_dir': repo_rec['install_dir']
+            }
+            if not os.path.exists(os.path.join(repo['install_dir'], '.git/config')):
+                # Repo isn't there
+                self._db.update_repo({ 'install_dir': None, 'status': 'not_installed' })
+
 
     def load(self, yaml_file):
         with open(yaml_file, 'r') as file:
