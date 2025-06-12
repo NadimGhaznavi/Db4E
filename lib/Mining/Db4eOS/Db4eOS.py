@@ -45,6 +45,7 @@ for db4e_dir in db4e_dirs:
 # DB4E modules
 from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eLogger.Db4eLogger import Db4eLogger
+from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 COMPONENTS = ['db4e', 'p2pool', 'monerod', 'xmrig', 'repo']
 
@@ -53,7 +54,7 @@ class Db4eOS:
         # Possibly store paths, config state, environment, etc.
         ini  = Db4eConfig()
         # Set the db4e dir
-        self.db4e_dir = os.path.join(os.path.dirname(__file__), '../../../')
+        self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
         # Setup the deployment config
         db4e_conf_dir = ini.config['db4e']['conf_dir']
         deployment_file = ini.config['db4e']['deployment_file']
@@ -64,57 +65,11 @@ class Db4eOS:
         for component in COMPONENTS:
             self.probe_env(component)
 
-    def configure_component(self, component, config_data):
-        """
-        Write configuration files or set environment variables.
-        """
-        pass
-
     def get_pid(self, proc_name):
         for proc in psutil.process_iter(['pid', 'name']):
             if proc_name in proc.info['name']:
                 return proc.info['pid']
         return None        
-
-    def get_info(self, component):
-        """
-        Return status/info string for a given component.
-        E.g., check if process is running, version, uptime, etc.
-        """
-        if component == 'repo':
-            return self.depl['repo']
-        
-    def get_status(self, component):
-        """
-        Return the status of a component
-        """
-        return self.depl[component]['status']
-
-    def install_component(self, component):
-        """
-        Trigger installation procedure for missing component.
-        Could use apt, source builds, or pull from repo.
-        """
-        pass
-
-    def is_installed(self, component):
-        """
-        Determine if a given component is installed (e.g., binary exists).
-        """
-        pass
-
-    def save_depl(self):
-        """
-        Save the current deployment status to file.
-        """
-        with open(self._depl_file, 'w') as outfile:
-            yaml.dump(self.depl, outfile, default_flow_style=False)
-
-    def set_status(self, component, status):
-        """
-        Set the status for a component
-        """
-        self.depl[component]['status'] = status
 
     def start_component(self, component):
         """

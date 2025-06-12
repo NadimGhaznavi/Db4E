@@ -85,7 +85,8 @@ class Db4eOSRepoSetupUI:
                        'repository and a directory on your computer for the local ' +
                        'GitHub repository. Git will create the local directory and ' +
                        'clone your repository into it. Do *NOT* use a "local path" ' +
-                       'that is within the directory where you have installed db4e. '),
+                       'that is within the directory where you have installed db4e.\n\n' +
+                       'Use the arrow keys or mouse scrollwheel to scroll up and down.'),
             urwid.Divider(),
             urwid.LineBox(
                 urwid.Padding(
@@ -173,7 +174,12 @@ class Db4eOSRepoSetupUI:
                 )
                 return
 
-            self._db.update_repo({ 'status': 'running' })
+            self._db.update_repo({ 
+                'status': 'running', 
+                'install_dir': clone_path,
+                'github_user': username,
+                'github_repo': repo_name
+                })
             self.info_msg.set_text("Repository cloned successfully.")
 
         #except subprocess.CalledProcessError:
