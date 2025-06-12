@@ -48,6 +48,7 @@ from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 COMPONENTS = ['db4e', 'p2pool', 'monerod', 'xmrig', 'repo']
+DB4E_SERVICE_FILE = '/etc/systemd/system/db4e.service'
 
 class Db4eOS:
     def __init__(self):
@@ -134,4 +135,11 @@ class Db4eOS:
         
         elif component == 'db4e':
             install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
-            self._db.update_db4e({ 'install_dir': install_dir})
+            update_fields = { 'install_dir': install_dir }
+            if os.path.exists(DB4E_SERVICE_FILE):
+                update_fields['status'] = 'running'
+            else:
+                update_fields['status'] = 'stopped'
+            self._db.update_db4e(update_fields)
+            
+
