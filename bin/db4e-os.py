@@ -235,6 +235,32 @@ class Db4eTui:
 
     # The main screen shows this content
     def show_component_info(self, button):
+        db4e = self.model.get_db4e_deployment()
+        if db4e['status'] == 'stopped':
+            text = urwid.Text(NEW_DB4E_SERVICE_MSG)
+            install_service_button = urwid.Columns([
+                ('pack', urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))
+            ])
+            results = urwid.LineBox(
+                self.results_contents,
+                title='Results',
+                title_align='left',
+                title_attr='title'
+            )
+            pile = urwid.Pile([
+                text, urwid.Divider(), results, urwid.Divider(), install_service_button
+            ])
+
+            # Wrap in Filler for vertical scrolling
+            scrollable_pile = urwid.Filler(pile, valign='top')
+
+            self.right_panel = urwid.LineBox(
+                urwid.Padding(scrollable_pile, left=2, right=2),
+                title='Info', title_align="right", title_attr="title"
+            )
+            self.main_loop.widget = self.build_main_frame()
+
+        """
         if self.selected_deployment == 'db4e':
             db4e = self.model.get_db4e_deployment()
             if db4e['status'] == 'stopped':
@@ -259,7 +285,7 @@ class Db4eTui:
                     title='Info', title_align="right", title_attr="title"
                 )
                 self.main_loop.widget = self.build_main_frame()
-                """
+                
                 pile = urwid.Pile([
                     text, urwid.Divider(), results, urwid.Divider(), install_service_button])
                 self.right_panel = urwid.LineBox(
