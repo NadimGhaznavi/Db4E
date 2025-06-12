@@ -138,7 +138,7 @@ class Db4eModel:
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
         return deployments
     
-    def install_db4e_service(self, widget):
+    def install_db4e_service(self):
         return self._os.install_db4e_service()
 
     def update_db4e(self, update_fields):
