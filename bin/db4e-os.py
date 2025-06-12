@@ -139,7 +139,7 @@ class Db4eModel:
         return deployments
     
     def install_db4e_service(self, widget):
-        self._os.install_db4e_service()
+        return self._os.install_db4e_service()
 
     def update_db4e(self, update_fields):
         self._db.update_db4e(update_fields)
@@ -165,6 +165,7 @@ class Db4eTui:
             urwid.Text(WELCOME_MSG),
             right=2, left=2),
             title='Info', title_align="right", title_attr="title")
+        self.results_contents = urwid.Text('')
         
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
@@ -223,6 +224,10 @@ class Db4eTui:
         ])
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
+    def install_db4e_service(self, radiobutton):
+        results = self.model.install_db4e_service()
+        self.results_contents.set_text(results)
+
     def select_deployment(self, radio, new_state, deployment):
         if new_state:
             self.selected_deployment = deployment
@@ -247,8 +252,14 @@ class Db4eTui:
             db4e = self.model.get_db4e_deployment()
             if db4e['status'] == 'stopped':
                 text = urwid.Text(NEW_DB4E_SERVICE_MSG)
-                install_service_button = urwid.Columns([('pack', urwid.Button(('button', 'Install Service'), on_press=self.model.install_db4e_service))])
-                pile = urwid.Pile([text, urwid.Divider(), install_service_button])
+                install_service_button = urwid.Columns([('pack', urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))])
+                results = urwid.LineBox(
+                    self.results_contents,
+                    title='Results',
+                    title_align='left',
+                    title_attr='title'
+                )
+                pile = urwid.Pile([text, urwid.Divider(), results, install_service_button])
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(pile, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"

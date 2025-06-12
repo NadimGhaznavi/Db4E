@@ -92,20 +92,12 @@ class Db4eOS:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode != 0:
-                self.info_msg.set_text(
-                    f"Service install failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
-                )
-                return
-
-            self.info_msg.set_text(
-                f"Service installed successfully:\n{stdout}"
-            )
+                return f"Service install failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
+            else:
+                return f"Service installed successfully:\n{stdout}"
 
         except Exception as e:
-            self.info_msg.set_text(f"Service install failed: {str(e)}")
-            return
-        
-
+            return f"Service install failed: {str(e)}"
 
     def load(self, yaml_file):
         with open(yaml_file, 'r') as file:
