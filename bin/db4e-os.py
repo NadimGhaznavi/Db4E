@@ -247,12 +247,12 @@ class Db4eTui:
                 title_align='left',
                 title_attr='title'
             )
-            pile = urwid.Pile([
+            widgets = [
                 text, urwid.Divider(), results, urwid.Divider(), install_service_button
-            ])
+            ]
 
             # Wrap in a ListBox to make scrollable
-            listbox = urwid.ListBox(urwid.SimpleFocusListWalker(pile))
+            listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
             self.right_panel = urwid.LineBox(
                 urwid.Padding(listbox, left=2, right=2),
                 title='Info', title_align="right", title_attr="title"
