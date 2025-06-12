@@ -165,24 +165,24 @@ class Db4eTui:
         self.deployment_radios = []
         group = []
 
-        # db4e button
+        # db4e radiobutton
         db4e = self.model.get_db4e_deployment()
         db4e_radio = urwid.RadioButton(group, '', on_state_change=self.select_deployment, user_data='db4e', state=('db4e' == self.selected_deployment))
         self.deployment_radios.append(db4e_radio)
         items.append(urwid.Columns([
             ('pack', db4e_radio), 
             urwid.Text(db4e['name']), 
-            ('pack', urwid.Text((STATUS[db4e['status']], '')))
+            ('pack', urwid.Text(('', STATUS[db4e['status']])))
         ]))
         
-        # repo button
+        # repo radiobutton
         repo = self.model.get_repo_deployment()
         repo_radio = urwid.RadioButton(group, '', on_state_change=self.select_deployment, user_data='repo', state=('repo' == self.selected_deployment))
         self.deployment_radios.append(db4e_radio)
         items.append(urwid.Columns([
             ('pack', repo_radio), 
             urwid.Text(repo['name']), 
-            ('pack', urwid.Text((STATUS[repo['status']], '')))
+            ('pack', urwid.Text(('', STATUS[repo['status']])))
         ]))
 
         ### TODO add monerod, p2pool and xmrig instances
@@ -194,7 +194,8 @@ class Db4eTui:
         res = urwid.Padding(res, right=2, left=2)
         return urwid.LineBox(res, title="Deployments", title_align="left", title_attr="title")
 
-    def build_deployments_list2(self):
+    
+    def old_build_deployments_list(self):
         items = []
         self.deployment_radios = []
         group = []
@@ -213,7 +214,8 @@ class Db4eTui:
         res = urwid.Pile(items)
         res = urwid.Padding(res, right=2, left=2)
         return urwid.LineBox(res, title="Deployments", title_align="left", title_attr="title")
-
+    
+        
     def build_actions(self):
         action_list = [
             ('pack', urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
