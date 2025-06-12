@@ -264,7 +264,8 @@ class Db4eTui:
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
                 text = urwid.Text(new_repo_msg)
-                continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
+                #continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
+                continue_button = urwid.Columns([urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup)])
                 pile = urwid.Pile([text, urwid.Divider(), continue_button])
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(pile, left=2, right=2),
