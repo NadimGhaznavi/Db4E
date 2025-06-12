@@ -92,7 +92,7 @@ class Db4eOS:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode != 0:
-                return f"Service install failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
+                return f"Service install failed.\n\n{stderr}"
             else:
                 return f"Service installed successfully:\n{stdout}"
 
