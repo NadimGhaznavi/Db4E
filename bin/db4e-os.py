@@ -251,11 +251,10 @@ class Db4eTui:
                 text, urwid.Divider(), results, urwid.Divider(), install_service_button
             ])
 
-            # Wrap in Filler for vertical scrolling
-            scrollable_pile = urwid.Filler(pile, valign='top')
-
+            # Wrap in a ListBox to make scrollable
+            listbox = urwid.ListBox(urwid.SimpleFocusListWalker(pile))
             self.right_panel = urwid.LineBox(
-                urwid.Padding(scrollable_pile, left=2, right=2),
+                urwid.Padding(listbox, left=2, right=2),
                 title='Info', title_align="right", title_attr="title"
             )
             self.main_loop.widget = self.build_main_frame()
