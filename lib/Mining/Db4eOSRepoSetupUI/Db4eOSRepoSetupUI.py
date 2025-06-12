@@ -65,12 +65,12 @@ class Db4eOSRepoSetupUI:
         self.parent_tui = parent_tui
         self._db = Db4eOSDb()
         repo_rec = self._db.get_repo_deployment()
-        github_username = repo_rec['github_user'] or ''
+        github_user = repo_rec['github_user'] or ''
         github_repo = repo_rec['github_repo'] or ''
         install_dir = repo_rec['install_dir'] or ''
-        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", github_username)
-        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", github_repo)
-        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", install_dir)
+        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
+        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
+        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
 
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
