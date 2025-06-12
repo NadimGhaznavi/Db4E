@@ -264,25 +264,22 @@ class Db4eTui:
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
                 text = urwid.Text(new_repo_msg)
-                continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
-                widgets = [text, urwid.Divider(), continue_button]
-
-                # SCROLLABLE RIGHT PANEL FOR REPO SETUP MESSAGE
-                listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+                #continue_button = urwid.Columns([('pack', urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))])
+                continue_button = urwid.Columns([urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup)])
+                pile = urwid.Pile([text, urwid.Divider(), continue_button])
                 self.right_panel = urwid.LineBox(
-                    urwid.Padding(listbox, left=2, right=2),
+                    urwid.Padding(pile, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
-
+        
         else:
             self.right_panel = urwid.LineBox(
-                urwid.Padding(urwid.Text('No info available.'), left=2, right=2),
+                urwid.Text('No info available.'),
                 title='INFO', title_align='right', title_attr='title'
             )
             self.main_loop.widget = self.build_main_frame()
-
         
 
     def show_repo_setup(self, button):
