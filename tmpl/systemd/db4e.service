@@ -1,10 +1,10 @@
 [Unit]
-Description=db4e P2Pool Log Service - QA
+Description="Database 4 Everything Service"
 
 [Service]
 User=db4e
-WorkingDirectory=/opt/qa/db4e
-ExecStart=/opt/qa/db4e/bin/db4e.py -m
+WorkingDirectory=[[INSTALL_DIR]]
+ExecStart=[[INSTALL_DIR]]/bin/db4e.py -s
 Restart=always
 RestartSec=3
 KillMode=process
