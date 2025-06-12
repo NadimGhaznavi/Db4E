@@ -79,6 +79,14 @@ WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to \"click\" the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
+NEW_DB4E_SERVICE_MSG = "Database 4 Everything Service Setup\n\n"
+NEW_DB4E_SERVICE_MSG += "This screen lets you install db4e as a service. "
+NEW_DB4E_SERVICE_MSG += "The service will start at boot time and is "
+NEW_DB4E_SERVICE_MSG += "responsible for the following:\n\n"
+NEW_DB4E_SERVICE_MSG += "* The Monero blockchain daemon(s).\n"
+NEW_DB4E_SERVICE_MSG += "* The P2Pool daemon(s).\n"
+NEW_DB4E_SERVICE_MSG += "* The XMRig miner(s)."
+
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
@@ -129,6 +137,9 @@ class Db4eModel:
             instance = deployment['instance']
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
         return deployments
+    
+    def install_db4e_service(self, widget):
+        self._os.install_db4e_service()
 
     def update_db4e(self, update_fields):
         self._db.update_db4e(update_fields)
@@ -148,7 +159,6 @@ class Db4eModel:
 class Db4eTui:
     def __init__(self):
         self.model = Db4eModel()
-        self._os = Db4eOS()
         self.selected_deployment = 'db4e'
         self.deployment_radios = []
         self.right_panel = urwid.LineBox(urwid.Padding(
@@ -156,7 +166,7 @@ class Db4eTui:
             right=2, left=2),
             title='Info', title_align="right", title_attr="title")
         
-        self.repo_setup_ui = Db4eOSRepoSetupUI(self) 
+        self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
 
@@ -194,28 +204,6 @@ class Db4eTui:
         res = urwid.Padding(res, right=2, left=2)
         return urwid.LineBox(res, title="Deployments", title_align="left", title_attr="title")
 
-    
-    def old_build_deployments_list(self):
-        items = []
-        self.deployment_radios = []
-        group = []
-        for aDepl in self.model.get_deployments():
-            name = DISPLAY_NAMES.get(aDepl, aDepl)
-            status_text, status_style = self.model.get_deployment_status(aDepl)
-            radio = urwid.RadioButton(group, '', on_state_change=self.select_deployment, user_data=aDepl, state=(aDepl == self.selected_deployment))
-
-            self.deployment_radios.append(radio)
-            row = urwid.Columns([
-                ('pack', radio),
-                urwid.Text(name),
-                ('pack', urwid.Text((status_style, status_text)))
-            ])
-            items.append(row)
-        res = urwid.Pile(items)
-        res = urwid.Padding(res, right=2, left=2)
-        return urwid.LineBox(res, title="Deployments", title_align="left", title_attr="title")
-    
-        
     def build_actions(self):
         action_list = [
             ('pack', urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
@@ -254,14 +242,26 @@ class Db4eTui:
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
+        
+        elif self.selected_deployment == 'db4e':
+            db4e = self.model.get_db4e_deployment()
+            if db4e['status'] == 'stopped':
+                text = urwid.Text(NEW_DB4E_SERVICE_MSG)
+                install_service_button = urwid.Columns([('pack', urwid.Button(('button', 'Install Service'), on_press=self.model.install_db4e_service))])
+                pile = urwid.Pile([text, urwid.Divider(), install_service_button])
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(pile, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
 
-        func_name = f'get_{self.selected_deployment}_info'
-        info = getattr(self.model, func_name, lambda: 'No info available')()
-        self.right_panel = urwid.LineBox(
-            urwid.Text(info),
-            title='INFO', title_align='right', title_attr='title'
-        )
-        self.main_loop.widget = self.build_main_frame()
+        else:
+            self.right_panel = urwid.LineBox(
+                urwid.Text('No info available.'),
+                title='INFO', title_align='right', title_attr='title'
+            )
+            self.main_loop.widget = self.build_main_frame()
+        
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()

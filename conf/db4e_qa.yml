@@ -31,6 +31,7 @@
 
 db4e:
   conf_dir: conf
+  bin_dir: bin
   deployment_file: deployment.yml
   desc: "Database 4 Everything"
   dev_dir: dev
@@ -40,7 +41,10 @@ db4e:
   md_dir: md
   process: db4e.py
   reports_dir: reports
+  service_file: db4e.service
+  service_installer: db4e-install-service.sh
   src_dir: src
+  systemd_dir: systemd
   template_dir: tmpl
   version: 0.14.2-beta
 

@@ -51,8 +51,8 @@ COMPONENTS = ['db4e', 'p2pool', 'monerod', 'xmrig', 'repo']
 
 class Db4eOS:
     def __init__(self):
-        # Possibly store paths, config state, environment, etc.
         self._db = Db4eOSDb()
+        self._ini = Db4eConfig()
 
         for component in COMPONENTS:
             self.probe_env(component)
@@ -62,6 +62,56 @@ class Db4eOS:
             if proc_name in proc.info['name']:
                 return proc.info['pid']
         return None        
+
+    def install_db4e_service(self):
+        tmpl_dir         = self._ini.config['db4e']['template_dir']
+        service_file     = self._ini.config['db4e']['service_file']
+        systemd_dir      = self._ini.config['db4e']['systemd_dir']
+        installer_script = self._ini.config['db4e']['service_installer']
+        bin_dir          = self._ini.config['db4e']['bin_dir']
+        db4e_rec = self._db.get_db4e_deployment()
+        db4e_dir = db4e_rec['install_dir']
+        fq_service_file = os.path.join(db4e_dir, tmpl_dir, systemd_dir, service_file)
+        with open(fq_service_file, 'r') as f:
+            service_contents = f.read()
+        service_contents = service_contents.replace('[[INSTALL_DIR]]', db4e_dir)
+        tmp_service_file = os.path.join('/tmp', service_file)
+        with open(tmp_service_file, 'w') as f:
+            f.write(service_contents)
+        
+        try:
+            fq_installer = os.path.join(db4e_dir, bin_dir, installer_script)
+            cmd_result = subprocess.run(
+                ['sudo', fq_installer, tmp_service_file, ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                input=b"",
+                timeout=10)
+            stdout = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stderr.decode().strip()
+
+            # 1 is acceptable for SSH auth check
+            if cmd_result.returncode != 0:
+                self.info_msg.set_text(
+                    f"Service install failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
+                )
+                return
+
+            self.info_msg.set_text(
+                f"Service installed successfully:\n{stdout}"
+            )
+
+        except Exception as e:
+            self.info_msg.set_text(f"Service install failed: {str(e)}")
+            return
+        
+
+
+    def load(self, yaml_file):
+        with open(yaml_file, 'r') as file:
+            self.depl = yaml.safe_load(file)
+            self.depl['runtime'] = {}
+            self.depl['runtime']['yaml_file'] = yaml_file
 
     def start_component(self, component):
         """
@@ -89,10 +139,7 @@ class Db4eOS:
             elif not os.path.exists(os.path.join(repo['install_dir'], '.git/config')):
                 # Repo .git/config file not found
                 self._db.update_repo({ 'install_dir': None, 'status': 'not_installed' })
-
-
-    def load(self, yaml_file):
-        with open(yaml_file, 'r') as file:
-            self.depl = yaml.safe_load(file)
-            self.depl['runtime'] = {}
-            self.depl['runtime']['yaml_file'] = yaml_file
+        
+        elif component == 'db4e':
+            install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
+            self._db.update_db4e({ 'install_dir': install_dir})
