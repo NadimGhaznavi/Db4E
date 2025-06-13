@@ -153,7 +153,7 @@ class Db4eOSDb:
         if tmpl_flag:
             rec = self.get_deployment_by_component(component, tmpl_flag)    
             if not rec:
-                self.add_deployment(deepcopy(record_template, tmpl_flag))
+                self.add_deployment(deepcopy(record_template), tmpl_flag)
         else:
             rec = self.get_deployment_by_component(component)
             if not rec:
