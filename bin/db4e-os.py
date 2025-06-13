@@ -116,7 +116,16 @@ class Db4eModel:
             status = deployment['status']
             instance = deployment['instance']
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
-        return deployments
+        if deployments:
+            return deployments
+        else:
+            depl_rec = self._db.get_monerod_tmpl()
+            depl = {
+                'name': depl_rec['name'] + '(' + depl_rec['instance'] + ')',
+                'status': depl_rec['status']
+
+            }
+            return depl
 
     def get_p2pool_deployments(self):
         deployments = {}
