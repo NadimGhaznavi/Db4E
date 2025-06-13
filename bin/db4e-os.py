@@ -120,16 +120,7 @@ class Db4eModel:
             status = deployment['status']
             instance = deployment['instance']
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
-        if deployments:
-            return deployments
-        else:
-            depl_rec = self._db.get_monerod_tmpl()
-            depl = {
-                'name': depl_rec['instance'],
-                'status': depl_rec['status']
-
-            }
-            return { depl_rec['instance']: depl }
+        return deployments
         
     def get_monerod_deployment(self, instance):
         depl_rec = self._db.get_deployment_by_instance('monerod', instance)
@@ -186,6 +177,23 @@ class Db4eTui:
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
+
+    def add_new_monerod(self, button):
+        text_msg = urwid.Text(MONEROD_SETUP)
+        continue_button = urwid.Columns([
+            (9, urwid.Button(('button', 'Local'), on_press=self.show_monerod_setup)),
+            (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_monerod_setup))
+        ], dividechars=2)
+        widgets = [text_msg, urwid.Divider(), continue_button]
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+        self.right_panel = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title='Info', title_align="right", title_attr="title"
+        )
+        self.main_loop.widget = self.build_main_frame()
+        return
+
 
     def build_actions(self):
         action_list = [
@@ -247,6 +255,13 @@ class Db4eTui:
                 (20, radio),
                 (3, urwid.Text(('', STATUS[data['status']]), wrap='clip'))
             ], dividechars=1))
+
+
+        # Dynamically construct the method name
+        callback_method_name = f'add_new_{depl_type}'
+        on_add_callback = getattr(self, callback_method_name, None)
+        add_button = urwid.Button(('button', 'New Deployment'), on_press=on_add_callback)
+        items.append(urwid.Padding(add_button, align='left', left=2))
         return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
 
     def build_main_frame(self):
@@ -317,21 +332,8 @@ class Db4eTui:
         instance = deployment.split(':')[1]
         if depl_type == 'monerod':
             depl = self.model.get_monerod_deployment(instance)
-            if depl['status'] == 'not_installed':
-                text_msg = urwid.Text(MONEROD_SETUP)
-                continue_button = urwid.Columns([
-                    (9, urwid.Button(('button', 'Local'), on_press=self.show_monerod_setup)),
-                    (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_monerod_setup))
-                ], dividechars=2)
-                widgets = [text_msg, urwid.Divider(), continue_button]
-                # Wrap in a ListBox to make scrollable
-                listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
-                self.right_panel = urwid.LineBox(
-                    urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
-                )
-                self.main_loop.widget = self.build_main_frame()
-                return
+            return
+            # TBD - Handle reconfiguration of an existing deployment
 
         else:
             self.right_panel = urwid.LineBox(
