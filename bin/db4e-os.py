@@ -322,7 +322,7 @@ class Db4eTui:
                 continue_button = urwid.Columns([
                     (9, urwid.Button(('button', 'Local'), on_press=self.show_monerod_setup)),
                     (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_monerod_setup))
-                ])
+                ], dividechars=2)
                 widgets = [text_msg, urwid.Divider(), continue_button]
                 # Wrap in a ListBox to make scrollable
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
