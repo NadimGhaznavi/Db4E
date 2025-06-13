@@ -231,6 +231,7 @@ class Db4eTui:
             # Success!!! We can replace the "Install Service" button with a blank widget
             self.install_service_button = urwid.Text('')
         self.results_contents.set_text(results)
+        self.main_loop.widget = self.build_main_frame()
 
     def select_deployment(self, radio, new_state, deployment):
         if new_state:
