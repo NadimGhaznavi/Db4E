@@ -83,7 +83,11 @@ WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
-MONEROD_SETUP = "This screen lets you setup the Monero blockchain daemon."
+MONEROD_SETUP = "Monero Blockchain Daemon Setup\n\n"
+MONEROD_SETUP = "This screen lets you setup the Monero blockchain daemon. "
+MONEROD_SETUP += "You have two deployment choices. You can either configure "
+MONEROD_SETUP += "db4e to use an existing remote Monero daemon or you can "
+MONEROD_SETUP += "setup a Monero daemon on this machine."
 
 # Dummy model for status reporting and probing
 class Db4eModel:
@@ -215,13 +219,13 @@ class Db4eTui:
         all_items.append(urwid.LineBox(db4e_items, title="db4e core", title_align="left", title_attr="title"))
 
         # instance groups
-        all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group))
-        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group))
-        all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group))
+        all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group, 'monerod'))
+        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
+        all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
 
         return urwid.Pile(all_items)
 
-    def build_instance_box(self, title, instances_dict, group):
+    def build_instance_box(self, title, instances_dict, group, depl_type):
         items = []
         for instance_name, data in sorted(instances_dict.items()):
             is_selected = (instance_name == self.selected_deployment)
@@ -229,7 +233,7 @@ class Db4eTui:
                 group,
                 data['name'],
                 on_state_change=self.select_deployment,
-                user_data=instance_name,
+                user_data=depl_type + ':' + instance_name,
                 state=is_selected
             )
             self.deployment_radios.append(radio)
@@ -285,7 +289,7 @@ class Db4eTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
 
-        elif deployment == 'repo':
+        if deployment == 'repo':
             repo = self.model.get_repo_deployment()
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
@@ -303,13 +307,15 @@ class Db4eTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
 
-        elif deployment == 'monerod':
-            repo = self.model.get_repo_deployment()
-            if repo['status'] == 'not_installed':
-                new_repo_msg = self.repo_setup_ui.new_repo_msg()
-                text_msg = urwid.Text(new_repo_msg)
+        depl_type = deployment.split(':')[0]
+        instance = deployment.split(':')[1]
+        if depl_type == 'monerod':
+            depl = self.model.get_monerod_deployment(instance)
+            if depl['status'] == 'not_installed':
+                text_msg = urwid.Text(MONEROD_SETUP)
                 continue_button = urwid.Columns([
-                    (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
+                    (9, urwid.Button(('button', 'Local'), on_press=self.show_monerod_setup)),
+                    (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_monerod_setup))
                 ])
                 widgets = [text_msg, urwid.Divider(), continue_button]
                 # Wrap in a ListBox to make scrollable
@@ -330,6 +336,12 @@ class Db4eTui:
 
     def show_db4e_setup(self, button):
         self.main_loop.widget = self.db4e_setup_ui.widget()
+
+    def show_monerod_setup(self, button):
+        pass
+
+    def show_remote_monerod_setup(self, button):
+        self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
