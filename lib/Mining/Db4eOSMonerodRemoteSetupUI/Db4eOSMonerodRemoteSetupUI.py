@@ -92,7 +92,7 @@ class Db4eOSMonerodRemoteSetupUI:
                         urwid.Columns([
                             ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
                             ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
-                        ])
+                        ], dividechars=1)
                     ]), left=2, right=2),
                 title='Setup Form', title_align='left', title_attr='title'
             ),
