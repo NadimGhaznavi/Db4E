@@ -124,17 +124,17 @@ class Db4eOSMonerodRemoteSetupUI:
         rpc_port = int(rpc_port)
 
         # Cannot connect warnings
-        results = 'Checklist:\n'
+        results = 'Checklist:\n\n'
         # Check that db4e can connect to the remote system
         if not self._os.is_port_open(ip_addr, zmq_port):
             results += f'* Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-        if self._os.is_port_open(ip_addr, rpc_port):
+        if not self._os.is_port_open(ip_addr, rpc_port):
             results += f'* Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
         else:
-            results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
+            results += f"* WARNING: Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"
 
         self._db.update_deployment('monerod', { 
             'status': 'running',
@@ -142,7 +142,7 @@ class Db4eOSMonerodRemoteSetupUI:
             'instance': instance,
             'doc_type': 'template'
             }, instance)
-        results += f'Created new Monero daemon ({instance}) deployment record'
+        results += f'\nCreated new Monero daemon ({instance}) deployment record. '
         self.info_msg.set_text(results)
 
     def widget(self):
