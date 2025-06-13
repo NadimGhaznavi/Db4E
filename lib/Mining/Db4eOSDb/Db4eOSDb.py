@@ -206,11 +206,27 @@ class Db4eOSDb:
         # Return the xmrig deployment docs
         return self.get_deployments_by_component('xmrig')
 
-    def update_deployment(self, component, update_fields):
+    def update_deployment(self, component, update_fields, instance=None):
         update_fields['updated'] = datetime.now(timezone.utc)
+
+        # Update an existing instance's deployment
+        if instance and update_fields['doc_type'] == 'deployment':
+            return self._db.update_one(
+                {'doc_type': 'deployment', 'component': component, 'instance': instance},
+                {'$set': update_fields})
+
+        # Create a new instance deployment
+        if instance and update_fields['doc_type'] == 'template':
+            if component == 'monerod':
+                new_rec = deepcopy(MONEROD_RECORD)
+                new_rec.update(update_fields)
+                new_rec['updated'] = datetime.now(timezone.utc)
+                new_rec['doc_type'] = 'deployment'
+                return self._db.insert_one(self._col, new_rec)
+
+        # An update of a 'db4e' or 'repo' deployment record.            
         return self._db.update_one(
-            self._col,
-            {'doc_type': 'deployment', 'component': component},
+            self._col, {'doc_type': 'deployment', 'component': component},
             {'$set': update_fields}
         )
     

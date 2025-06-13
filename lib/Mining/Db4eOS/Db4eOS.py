@@ -31,6 +31,7 @@ import os, sys
 import subprocess
 import psutil
 import yaml
+import socket
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -49,6 +50,7 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 COMPONENTS = ['db4e', 'p2pool', 'monerod', 'xmrig', 'repo']
 DB4E_SERVICE_FILE = '/etc/systemd/system/db4e.service'
+CONN_TIMEOUT = 5
 
 class Db4eOS:
     def __init__(self):
@@ -63,6 +65,15 @@ class Db4eOS:
             if proc_name in proc.info['name']:
                 return proc.info['pid']
         return None        
+
+    def is_port_open(self, ip_addr, port_num):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(CONN_TIMEOUT)  # Set a timeout for the connection attempt
+                result = sock.connect_ex((ip_addr, port_num))
+                return result == 0
+        except socket.gaierror:
+            return False  # Handle cases like invalid hostname
 
     def load(self, yaml_file):
         with open(yaml_file, 'r') as file:

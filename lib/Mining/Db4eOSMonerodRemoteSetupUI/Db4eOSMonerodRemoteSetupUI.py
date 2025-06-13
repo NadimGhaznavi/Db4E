@@ -50,9 +50,6 @@ class Db4eOSMonerodRemoteSetupUI:
         self.parent_tui = parent_tui
         self._db = Db4eOSDb()
         monerod_rec = self._db.get_monerod_tmpl()
-        # MONERO_NODE="192.168.0.176"
-        # ZMQ_PORT=20083
-        # RPC_PORT=20081
         instance = monerod_rec['instance'] or ''
         ip_addr = monerod_rec['ip_addr'] or ''
         zmq_port = monerod_rec['zmq_pub_port'] or ''
@@ -61,7 +58,6 @@ class Db4eOSMonerodRemoteSetupUI:
         self.ip_addr_edit = urwid.Edit("Remote node IP addrss: ", edit_text=ip_addr)
         self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=str(zmq_port))
         self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=str(rpc_port))
-
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
                 urwid.Divider(),
@@ -112,9 +108,10 @@ class Db4eOSMonerodRemoteSetupUI:
         self.parent_tui.return_to_main()
 
     def on_submit(self, button):
-        username = self.github_username_edit.edit_text.strip()
-        repo_name = self.github_repo_name_edit.edit_text.strip()
-        clone_path = os.path.expanduser(self.local_repo_path_edit.edit_text.strip())
+        instance = self.instance_edit.edit_text.strip()
+        ip_addr = self.ip_addr_edit.edit_text.strip()
+        zmq_port = self.zmq_port_edit.edit_text.strip()
+        rpc_port = self.ip_addr_edit.edit_text.strip()
 
         # Validate input
         if not username or not repo_name or not clone_path:
