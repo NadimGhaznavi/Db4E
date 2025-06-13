@@ -100,8 +100,8 @@ class Db4eOSRepoSetupUI:
                         self.local_repo_path_edit,
                         urwid.Divider(),
                         urwid.Columns([
-                            ('weight', 1, urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
-                            ('weight', 1, urwid.Button(('button', 'Back'), on_press=self.back_to_main))
+                            ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
+                            ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
                         ])
                     ]), left=2, right=2),
                 title='Setup Form', title_align='left', title_attr='title'

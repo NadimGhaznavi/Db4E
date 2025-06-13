@@ -193,7 +193,7 @@ class Db4eTui:
         self.deployment_radios.append(db4e_radio)
         items.append(urwid.Columns([
             ('pack', repo_radio), 
-            ('weight', 2, urwid.Text(repo['name'])), 
+            ('pack', urwid.Text(repo['name'])), 
             ('pack', urwid.Text(('', STATUS[repo['status']])))
         ]))
 
