@@ -227,6 +227,13 @@ class Db4eOSDb:
                 new_rec['updated'] = datetime.now(timezone.utc)
                 new_rec['doc_type'] = 'deployment'
                 return self._db.insert_one(self._col, new_rec)
+            elif component == 'p2pool':
+                new_rec = deepcopy(P2POOL_RECORD)
+                new_rec.update(update_fields)
+                new_rec['updated'] = datetime.now(timezone.utc)
+                new_rec['doc_type'] = 'deployment'
+                return self._db.insert_one(self._col, new_rec)
+
 
         # An update of a 'db4e' or 'repo' deployment record.            
         return self._db.update_one(
