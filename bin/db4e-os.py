@@ -377,7 +377,7 @@ class Db4eTui:
     def show_remote_monerod_setup(self, button):
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
-    def show_p2pool_sewtup(self, button):
+    def show_p2pool_setup(self, button):
         pass
 
     def show_remote_p2pool_setup(self, button):
