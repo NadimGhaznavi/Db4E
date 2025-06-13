@@ -136,7 +136,7 @@ class Db4eOSMonerodRemoteSetupUI:
         else:
             results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-        self._db.update_deployment({ 
+        self._db.update_deployment('monerod', { 
             'status': 'running',
             'component': 'monerod',
             'instance': instance,
