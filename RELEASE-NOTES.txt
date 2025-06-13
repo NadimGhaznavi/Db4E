@@ -1,3 +1,7 @@
 * Created shell wrappers to run *db4e* Python programs using the *db4e* venv environment.
 * Deleted unused, orphaned junk.
 * Added a licence header to all all files.
+* BugFix: The *sharesfound* wasn't being run when a new share was found.
+* BugFIx: The *hashrates* report was causing MiningReports to crash.
+
+

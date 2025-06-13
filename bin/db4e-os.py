@@ -164,39 +164,6 @@ class Db4eTui:
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
-
-    def build_deployments_list(self):
-        items = []
-        self.deployment_radios = []
-        group = []
-
-        # db4e radiobutton
-        db4e = self.model.get_db4e_deployment()
-        db4e_radio = urwid.RadioButton(group, db4e['name'], on_state_change=self.select_deployment, user_data='db4e', state=('db4e' == self.selected_deployment))
-        self.deployment_radios.append(db4e_radio)
-        items.append(urwid.Columns([
-            (20, db4e_radio), 
-            (3, urwid.Text(('', STATUS[db4e['status']]), wrap='clip'))
-        ], dividechars=1))
-        
-        # repo radiobutton
-        repo = self.model.get_repo_deployment()
-        repo_radio = urwid.RadioButton(group, repo['name'], on_state_change=self.select_deployment, user_data='repo', state=('repo' == self.selected_deployment))
-        self.deployment_radios.append(repo_radio)
-        items.append(urwid.Columns([
-            (20, repo_radio), 
-            (3, urwid.Text(('', STATUS[repo['status']]), wrap='clip'))
-        ], dividechars=1))
-
-        ### TODO add monerod, p2pool and xmrig instances
-        monerod_list = self.model.get_monerod_deployments()
-        p2pool_list = self.model.get_p2pool_deployments()
-        xmrig_list = self.model.get_xmrig_deployments()
-
-        res = urwid.Pile(items)
-        res = urwid.Padding(res, right=2, left=2)
-        return urwid.LineBox(res, title="Deployments", title_align="left", title_attr="title")
-
     def build_actions(self):
         action_list = [
             (13, urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
@@ -205,6 +172,83 @@ class Db4eTui:
         res = urwid.Columns(action_list, dividechars=1)
         res = urwid.Padding(res, right=2, left=2)
         return urwid.LineBox(res, title="Actions", title_align="left", title_attr="title")
+
+    def build_deployments_list(self):
+        all_items = []
+        self.deployment_radios = []
+        group = []
+
+        db4e_items = []
+        # db4e radiobutton
+        db4e = self.model.get_db4e_deployment()
+        db4e_radio = urwid.RadioButton(group, db4e['name'], on_state_change=self.select_deployment, user_data='db4e', state=('db4e' == self.selected_deployment))
+        self.deployment_radios.append(db4e_radio)
+        db4e_items.append(urwid.Columns([
+            (20, db4e_radio), 
+            (3, urwid.Text(('', STATUS[db4e['status']]), wrap='clip'))
+        ], dividechars=1))
+        
+        # repo radiobutton
+        repo = self.model.get_repo_deployment()
+        repo_radio = urwid.RadioButton(group, repo['name'], on_state_change=self.select_deployment, user_data='repo', state=('repo' == self.selected_deployment))
+        self.deployment_radios.append(repo_radio)
+        db4e_items.append(urwid.Columns([
+            (20, repo_radio), 
+            (3, urwid.Text(('', STATUS[repo['status']]), wrap='clip'))
+        ], dividechars=1))
+
+        db4e_items = urwid.Pile(db4e_items)
+        db4e_items = urwid.Padding(db4e_items, right=2, left=2)
+        all_items.append(urwid.LineBox(db4e_items, title="db4e core", title_align="left", title_attr="title"))
+
+        # instance groups
+        all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group))
+        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group))
+        all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group))
+
+        return urwid.Pile(all_items)
+
+    def build_instance_box(self, title, instances_dict, group):
+        items = []
+        for instance_name, data in sorted(instances_dict.items()):
+            is_selected = (instance_name == self.selected_deployment)
+            radio = urwid.RadioButton(
+                group,
+                data['name'],
+                on_state_change=self.select_deployment,
+                user_data=instance_name,
+                state=is_selected
+            )
+            self.deployment_radios.append(radio)
+            items.append(urwid.Columns([
+                (20, radio),
+                (3, urwid.Text(('', STATUS[data['status']]), wrap='clip'))
+            ], dividechars=1))
+        return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
+
+        """
+                # Monero daemon radiobutton(s)
+        monerod_items = []
+        monerod_list = self.model.get_monerod_deployments()
+        for monerod in monerod_list:
+            monerod_radio = urwid.RadioButton(
+                group, monerod_list[monerod]['name'], on_state_change=self.select_deployment, 
+                user_data=monerod_list['instance'], state=(monerod_list['instance'] == self.selected_deployment))
+            self.deployment_radios.append(monerod_radio)
+            monerod_items.append(urwid.Columns([
+                (20, monerod_radio),
+                (3, urwid.Text(('', STATUS[repo['status']]), wrap='clip'))
+            ], dividechars=1))
+        monerod_box = urwid.Pile(monerod_items)
+        monerod_box = urwid.Padding(monerod_box, right=2, left=2)
+        monerod_box = urwid.LineBox(monerod_box, title="Monero Daemon(s)", title_align="left", title_attr="title")
+        items.append(monerod_box)
+
+        ### TODO p2pool and xmrig instances
+        p2pool_list = self.model.get_p2pool_deployments()
+        xmrig_list = self.model.get_xmrig_deployments()
+
+        """
 
     def build_main_frame(self):
         deployments = self.build_deployments_list()
@@ -217,9 +261,19 @@ class Db4eTui:
         
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
-    def select_deployment(self, radio, new_state, deployment):
-        if new_state:
-            self.selected_deployment = deployment
+    def exit_app(self, button):
+        raise urwid.ExitMainLoop()
+    
+    def exit_on_q(self, key):
+        if key in ('q', 'Q'):
+            raise urwid.ExitMainLoop()
+
+    def return_to_main(self):
+        self.right_panel = urwid.LineBox(urwid.Padding(
+            urwid.Text(WELCOME_MSG),
+            right=2, left=2),
+            title='TIME', title_align="right", title_attr="title")
+        self.main_loop.widget = self.build_main_frame()
 
     # The main screen shows this content
     def show_component_info(self, button):
@@ -273,19 +327,9 @@ class Db4eTui:
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
 
-    def return_to_main(self):
-        self.right_panel = urwid.LineBox(urwid.Padding(
-            urwid.Text(WELCOME_MSG),
-            right=2, left=2),
-            title='TIME', title_align="right", title_attr="title")
-        self.main_loop.widget = self.build_main_frame()
-
-    def exit_app(self, button):
-        raise urwid.ExitMainLoop()
-    
-    def exit_on_q(self, key):
-        if key in ('q', 'Q'):
-            raise urwid.ExitMainLoop()
+    def select_deployment(self, radio, new_state, deployment):
+        if new_state:
+            self.selected_deployment = deployment
 
     def run(self):
         try:
