@@ -230,7 +230,7 @@ class Db4eTui:
                 setup_service_msg = self.db4e_setup_ui.setup_service_msg()
                 text_msg = urwid.Text(setup_service_msg)
                 install_service_button = urwid.Columns([
-                    (19, urwid.Button(('button', 'Continue'), on_press=self.show_db4e_setup))
+                    (12, urwid.Button(('button', 'Continue'), on_press=self.show_db4e_setup))
                 ])
                 widgets = [text_msg, urwid.Divider(), install_service_button]
                 # Wrap in a ListBox to make scrollable
