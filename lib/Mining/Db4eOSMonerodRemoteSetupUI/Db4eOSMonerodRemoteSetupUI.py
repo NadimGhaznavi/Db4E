@@ -45,7 +45,6 @@ for db4e_dir in db4e_dirs:
 
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
-
 class Db4eOSMonerodRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui

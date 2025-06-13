@@ -145,9 +145,9 @@ class Db4eOSDb:
         # Make sure we have a 'db4e' deployment record
         self.ensure_record('db4e', DB4E_RECORD)
         self.ensure_record('repo', REPO_RECORD)
-        self.ensure_record('p2pool', P2POOL_RECORD)
-        self.ensure_record('monerod', MONEROD_RECORD)
-        self.ensure_record('xmrig', XMRIG_RECORD)
+        self.ensure_record('p2pool', P2POOL_RECORD, True)
+        self.ensure_record('monerod', MONEROD_RECORD, True)
+        self.ensure_record('xmrig', XMRIG_RECORD, True)
 
     def ensure_record(self, component, record_template, tmpl_flag=None):
         if tmpl_flag:

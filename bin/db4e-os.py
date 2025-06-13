@@ -83,6 +83,8 @@ WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
+MONEROD_SETUP = "This screen lets you setup the Monero blockchain daemon."
+
 # Dummy model for status reporting and probing
 class Db4eModel:
     def __init__(self):
