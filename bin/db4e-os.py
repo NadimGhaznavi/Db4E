@@ -245,7 +245,7 @@ class Db4eTui:
             is_selected = (instance_name == self.selected_deployment)
             radio = urwid.RadioButton(
                 group,
-                data['name'],
+                data['instance'],
                 on_state_change=self.select_deployment,
                 user_data=depl_type + ':' + instance_name,
                 state=is_selected
