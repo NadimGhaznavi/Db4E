@@ -226,12 +226,7 @@ class Db4eTui:
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
     def install_db4e_service(self, radiobutton):
-        return_code, results = self.model.install_db4e_service()
-        if return_code == 0:
-            # Success!!! We can replace the "Install Service" button with a blank widget
-            self.install_service_button = urwid.Text('')
-        self.results_contents.set_text(results)
-        self.main_loop.widget = self.build_main_frame()
+        self.results_contents.set_text(self.model.install_db4e_service())
 
     def select_deployment(self, radio, new_state, deployment):
         if new_state:
@@ -250,11 +245,11 @@ class Db4eTui:
                     title_align='left',
                     title_attr='title'
                 )
-                self.install_service_button = urwid.Columns([
+                install_service_button = urwid.Columns([
                     (19, urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))
                     ])
                 widgets = [
-                    text_msg, urwid.Divider(), results, urwid.Divider(), self.install_service_button
+                    text_msg, urwid.Divider(), results, urwid.Divider(), install_service_button
                 ]
 
                 # Wrap in a ListBox to make scrollable
