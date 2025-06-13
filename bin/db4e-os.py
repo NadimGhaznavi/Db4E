@@ -226,8 +226,7 @@ class Db4eTui:
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
     def install_db4e_service(self, radiobutton):
-        results = self.model.install_db4e_service()
-        #### Generates too much output and crashes the non-scrolling app..... :(
+        return_code, results = self.model.install_db4e_service()
         self.results_contents.set_text(results)
 
     def select_deployment(self, radio, new_state, deployment):

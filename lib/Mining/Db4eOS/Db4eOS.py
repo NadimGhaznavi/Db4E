@@ -92,13 +92,13 @@ class Db4eOS:
             stderr = cmd_result.stderr.decode().strip()
 
             # 1 is acceptable for SSH auth check
-            if cmd_result.returncode != 0:
-                return f"Service install failed.\n\n{stderr}"
+            if cmd_result.returncode == 0:
+                return 0, f"Service installed successfully:\n{stdout}"
             else:
-                return f"Service installed successfully:\n{stdout}"
+                return cmd_result.returncode, f"Service install failed.\n\n{stderr}"
 
         except Exception as e:
-            return f"Service install failed: {str(e)}"
+            return 128, f"Service install failed: {str(e)}"
 
     def load(self, yaml_file):
         with open(yaml_file, 'r') as file:
