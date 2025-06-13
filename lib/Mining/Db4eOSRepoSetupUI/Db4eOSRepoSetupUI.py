@@ -1,5 +1,5 @@
 """
-lib/Infrastructure/Db4eRepoSetupUI/Db4eRepoSetupUI.py
+lib/Infrastructure/Db4eOSRepoSetupUI/Db4eOSRepoSetupUI.py
 
 This urwid based TUI drops into the db4e-os.py TUI to help the
 user configure their GitHub repository.
@@ -145,9 +145,7 @@ class Db4eOSRepoSetupUI:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode not in (0, 1):  
-                self.info_msg.set_text(
-                    f"SSH connection failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}"
-                )
+                self.info_msg.set_text(f"SSH connection failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
                 return
 
             self.info_msg.set_text(

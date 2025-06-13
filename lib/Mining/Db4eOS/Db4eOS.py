@@ -64,43 +64,6 @@ class Db4eOS:
                 return proc.info['pid']
         return None        
 
-    def install_db4e_service(self):
-        tmpl_dir         = self._ini.config['db4e']['template_dir']
-        service_file     = self._ini.config['db4e']['service_file']
-        systemd_dir      = self._ini.config['db4e']['systemd_dir']
-        installer_script = self._ini.config['db4e']['service_installer']
-        bin_dir          = self._ini.config['db4e']['bin_dir']
-        db4e_rec = self._db.get_db4e_deployment()
-        db4e_dir = db4e_rec['install_dir']
-        fq_service_file = os.path.join(db4e_dir, tmpl_dir, systemd_dir, service_file)
-        with open(fq_service_file, 'r') as f:
-            service_contents = f.read()
-        service_contents = service_contents.replace('[[INSTALL_DIR]]', db4e_dir)
-        tmp_service_file = os.path.join('/tmp', service_file)
-        with open(tmp_service_file, 'w') as f:
-            f.write(service_contents)
-        
-        try:
-            fq_installer = os.path.join(db4e_dir, bin_dir, installer_script)
-            cmd_result = subprocess.run(
-                ['sudo', fq_installer, tmp_service_file, ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                input=b"",
-                timeout=10)
-            stdout = cmd_result.stdout.decode().strip()
-            stderr = cmd_result.stderr.decode().strip()
-
-            # 1 is acceptable for SSH auth check
-            if cmd_result.returncode == 0:
-                self._db.update_db4e({'status': 'running'})
-                return f"Service installed successfully:\n{stdout}"
-            else:
-                return f"Service install failed.\n\n{stderr}"
-
-        except Exception as e:
-            return f"Service install failed: {str(e)}"
-
     def load(self, yaml_file):
         with open(yaml_file, 'r') as file:
             self.depl = yaml.safe_load(file)
