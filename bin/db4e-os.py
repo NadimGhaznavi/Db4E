@@ -256,12 +256,12 @@ class Db4eTui:
                 (3, urwid.Text(('', STATUS[data['status']]), wrap='clip'))
             ], dividechars=1))
 
-
         # Dynamically construct the method name
         callback_method_name = f'add_new_{depl_type}'
         on_add_callback = getattr(self, callback_method_name, None)
-        add_button = urwid.Button(('button', 'New Deployment'), on_press=on_add_callback)
+        add_button = (18, urwid.Button(('button', 'New Deployment'), on_press=on_add_callback))
         items.append(urwid.Padding(add_button, align='left', left=2))
+    
         return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
 
     def build_main_frame(self):
