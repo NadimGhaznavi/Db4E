@@ -59,8 +59,8 @@ class Db4eOSMonerodRemoteSetupUI:
         rpc_port = monerod_rec['rpc_bind_port'] or ''
         self.instance_edit = urwid.Edit("Monero instance name: ", edit_text=instance)
         self.ip_addr_edit = urwid.Edit("Remote node IP addrss: ", edit_text=ip_addr)
-        self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=zmq_port)
-        self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=rpc_port)
+        self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=str(zmq_port))
+        self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=str(rpc_port))
 
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
