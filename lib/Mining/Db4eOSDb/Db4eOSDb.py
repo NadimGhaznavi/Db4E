@@ -99,7 +99,7 @@ P2POOL_RECORD = {
     'component': 'p2pool',
     'name': 'P2Pool daemon',
     'version': '4.7',
-    'instance': 'N/A',
+    'instance': None,
     'status': 'not_installed',
     'wallet': None,
     'monero_node': None,
