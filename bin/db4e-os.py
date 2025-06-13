@@ -31,6 +31,8 @@ repository
 # Import supporting modules
 import urwid
 import os, sys
+import warnings
+from urwid.widget.columns import ColumnsWarning
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../lib/"
@@ -46,6 +48,11 @@ for db4e_dir in db4e_dirs:
 from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
+
+
+# Needed, otherwise we get STDERR warnings being dumped into the TUI
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=ColumnsWarning)
 
 DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
 
@@ -280,8 +287,6 @@ class Db4eTui:
                 title='INFO', title_align='right', title_attr='title'
             )
             self.main_loop.widget = self.build_main_frame()
-
-        
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
