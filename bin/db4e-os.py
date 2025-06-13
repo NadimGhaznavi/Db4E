@@ -303,9 +303,27 @@ class Db4eTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
 
+        elif deployment == 'monerod':
+            repo = self.model.get_repo_deployment()
+            if repo['status'] == 'not_installed':
+                new_repo_msg = self.repo_setup_ui.new_repo_msg()
+                text_msg = urwid.Text(new_repo_msg)
+                continue_button = urwid.Columns([
+                    (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
+                ])
+                widgets = [text_msg, urwid.Divider(), continue_button]
+                # Wrap in a ListBox to make scrollable
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                return
+
         else:
             self.right_panel = urwid.LineBox(
-                urwid.Padding(urwid.Text('No info available.'), left=2, right=2),
+                urwid.Padding(urwid.Text(f'No info available for {deployment}.'), left=2, right=2),
                 title='INFO', title_align='right', title_attr='title'
             )
             self.main_loop.widget = self.build_main_frame()
