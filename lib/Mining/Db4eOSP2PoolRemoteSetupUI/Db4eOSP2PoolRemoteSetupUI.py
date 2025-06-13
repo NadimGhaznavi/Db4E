@@ -54,7 +54,7 @@ class Db4eOSP2PoolRemoteSetupUI:
         instance = p2pool_rec['instance'] or ''
         ip_addr = p2pool_rec['ip_addr'] or ''
         stratum_port = p2pool_rec['stratum_port'] or ''
-        self.instance_edit = urwid.Edit("P2Pool instance name: ", edit_text=instance)
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
         self.ip_addr_edit = urwid.Edit("Remote node hostname or IP address: ", edit_text=ip_addr)
         self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
         self.info_msg = urwid.Text('')
@@ -120,8 +120,8 @@ class Db4eOSP2PoolRemoteSetupUI:
         # Cannot connect warnings
         results = 'Checklist:\n\n'
         # Check that db4e can connect to the remote system
-        if not self._os.is_port_open(ip_addr, stratum_port):
-            results += f'* Connected to ZMQ port ({stratum_port}) on remote machine ({ip_addr})\n'
+        if self._os.is_port_open(ip_addr, stratum_port):
+            results += f'* Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"* WARNING: Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n"
 
