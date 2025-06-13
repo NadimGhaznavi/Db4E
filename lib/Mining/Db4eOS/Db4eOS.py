@@ -93,6 +93,7 @@ class Db4eOS:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode == 0:
+                self._db.update_db4e({'status': 'running'})
                 return f"Service installed successfully:\n{stdout}"
             else:
                 return f"Service install failed.\n\n{stderr}"
