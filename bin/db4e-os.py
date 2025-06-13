@@ -226,8 +226,8 @@ class Db4eTui:
 
         # instance groups
         all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group, 'monerod'))
-        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
-        all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
+        #all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
+        #all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
 
         return urwid.Pile(all_items)
 
