@@ -179,6 +179,10 @@ class Db4eOSDb:
         docs = self._db.find_many(self._col, {'doc_type': 'deployment', 'component': component})
         return docs or []
     
+    def get_deployment_by_instance(self, component, instance):
+        return self._db.find_one(
+            self._col, {'doc_type': 'deployment', 'component': component, 'instance': instance})
+    
     def get_db4e_deployment(self):
         # Return the db4e deployment doc
         return self.get_deployment_by_component('db4e')
