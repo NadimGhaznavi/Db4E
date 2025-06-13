@@ -121,7 +121,7 @@ class Db4eModel:
         else:
             depl_rec = self._db.get_monerod_tmpl()
             depl = {
-                'name': depl_rec['name'] + '(' + depl_rec['instance'] + ')',
+                'name': depl_rec['instance'],
                 'status': depl_rec['status']
 
             }
