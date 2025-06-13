@@ -100,8 +100,8 @@ class Db4eOSRepoSetupUI:
                         self.local_repo_path_edit,
                         urwid.Divider(),
                         urwid.Columns([
-                            ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
-                            ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
+                            ('weight', 1, urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
+                            ('weight', 1, urwid.Button(('button', 'Back'), on_press=self.back_to_main))
                         ])
                     ]), left=2, right=2),
                 title='Setup Form', title_align='left', title_attr='title'
@@ -168,7 +168,6 @@ class Db4eOSRepoSetupUI:
                 ["git", "clone", f"git@github.com:{username}/{repo_name}.git", clone_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-                #check=True)
             stdout = cmd_result.stdout.decode().strip()
             stderr = cmd_result.stderr.decode().strip()
 
@@ -186,8 +185,6 @@ class Db4eOSRepoSetupUI:
                 })
             self.info_msg.set_text("Repository cloned successfully.")
 
-        #except subprocess.CalledProcessError:
-        #    self.info_text.set_text("Failed to clone the repository. Check SSH and repo name.")
         except Exception as e:
             self.info_msg.set_text(f"Error: {str(e)}")
 
