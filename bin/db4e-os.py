@@ -50,6 +50,7 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
 from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
+from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
 
 
 # Needed, otherwise we get STDERR warnings being dumped into the TUI
@@ -79,15 +80,23 @@ STATUS = {
 }
 
 WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
+WELCOME_MSG += "You need to setup at least one Monero daemon, P2Pool daemon "
+WELCOME_MSG += "and a XMRig miner.\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
 MONEROD_SETUP = "Monero Blockchain Daemon Setup\n\n"
 MONEROD_SETUP = "This screen lets you setup the Monero blockchain daemon. "
-MONEROD_SETUP += "You have two deployment choices. You can either configure "
+MONEROD_SETUP += "You have two deployment choices: You can either configure "
 MONEROD_SETUP += "db4e to use an existing remote Monero daemon or you can "
 MONEROD_SETUP += "setup a Monero daemon on this machine."
+
+P2POOL_SETUP = "P2Pool Daemon Setup\n\n"
+P2POOL_SETUP += "This screen lets you setup the P2Pool daemon. You have two "
+P2POOL_SETUP += "deployment choices: You can either configure db4e to use an "
+P2POOL_SETUP += "existing remote P2Pool daemon or you can setup a P2Pool "
+P2POOL_SETUP += "daemon on this machine."
 
 # Dummy model for status reporting and probing
 class Db4eModel:
@@ -175,6 +184,7 @@ class Db4eTui:
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
+        self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
@@ -194,7 +204,22 @@ class Db4eTui:
         self.main_loop.widget = self.build_main_frame()
         return
 
-
+    def add_new_p2pool(self, button):
+        text_msg = urwid.Text(P2POOL_SETUP)
+        continue_button = urwid.Columns([
+            (9, urwid.Button(('button', 'Local'), on_press=self.show_p2pool_setup)),
+            (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_p2pool_setup))
+        ], dividechars=2)
+        widgets = [text_msg, urwid.Divider(), continue_button]
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+        self.right_panel = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title='Info', title_align="right", title_attr="title"
+        )
+        self.main_loop.widget = self.build_main_frame()
+        return
+    
     def build_actions(self):
         action_list = [
             (13, urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
@@ -234,7 +259,7 @@ class Db4eTui:
 
         # instance groups
         all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group, 'monerod'))
-        #all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
+        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
         #all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
 
         return urwid.Pile(all_items)
@@ -351,6 +376,9 @@ class Db4eTui:
 
     def show_remote_monerod_setup(self, button):
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
+
+    def show_remote_p2pool_setup(self, button):
+        self.main_loop.widget = self.p2pool_remote_setup_ui.widget()
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()

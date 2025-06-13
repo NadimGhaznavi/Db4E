@@ -103,6 +103,7 @@ P2POOL_RECORD = {
     'status': 'not_installed',
     'wallet': None,
     'monero_node': None,
+    'ip_addr': None,
     'zmq_port': 18083,
     'rpc_port': 18081,
     'stratum_port': 3339,
@@ -201,6 +202,9 @@ class Db4eOSDb:
     def get_p2pool_deployments(self):
         # Return the P2Pool deployment docs
         return self.get_deployments_by_component('p2pool')
+
+    def get_p2pool_tmpl(self):
+        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'p2pool'})
 
     def get_xmrig_deployments(self):
         # Return the xmrig deployment docs
