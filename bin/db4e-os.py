@@ -49,6 +49,7 @@ from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
+from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
 
 
 # Needed, otherwise we get STDERR warnings being dumped into the TUI
@@ -79,7 +80,7 @@ STATUS = {
 
 WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
-WELCOME_MSG += "Use the spacebar or mouse to \"click\" the \"More Info\" or "
+WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
 # Dummy model for status reporting and probing
@@ -161,6 +162,7 @@ class Db4eTui:
         
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
+        self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
@@ -225,30 +227,6 @@ class Db4eTui:
                 (3, urwid.Text(('', STATUS[data['status']]), wrap='clip'))
             ], dividechars=1))
         return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
-
-        """
-                # Monero daemon radiobutton(s)
-        monerod_items = []
-        monerod_list = self.model.get_monerod_deployments()
-        for monerod in monerod_list:
-            monerod_radio = urwid.RadioButton(
-                group, monerod_list[monerod]['name'], on_state_change=self.select_deployment, 
-                user_data=monerod_list['instance'], state=(monerod_list['instance'] == self.selected_deployment))
-            self.deployment_radios.append(monerod_radio)
-            monerod_items.append(urwid.Columns([
-                (20, monerod_radio),
-                (3, urwid.Text(('', STATUS[repo['status']]), wrap='clip'))
-            ], dividechars=1))
-        monerod_box = urwid.Pile(monerod_items)
-        monerod_box = urwid.Padding(monerod_box, right=2, left=2)
-        monerod_box = urwid.LineBox(monerod_box, title="Monero Daemon(s)", title_align="left", title_attr="title")
-        items.append(monerod_box)
-
-        ### TODO p2pool and xmrig instances
-        p2pool_list = self.model.get_p2pool_deployments()
-        xmrig_list = self.model.get_xmrig_deployments()
-
-        """
 
     def build_main_frame(self):
         deployments = self.build_deployments_list()

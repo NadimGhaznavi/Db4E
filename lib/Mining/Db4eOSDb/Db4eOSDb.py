@@ -68,7 +68,7 @@ MONEROD_RECORD = {
     'component': 'monerod',
     'name': 'Monero daemon',
     'version': '0.18.4.0',
-    'instance': 'N/A',
+    'instance': 'Primary',
     'status': 'not_installed',
     'ip_addr': None,
     'zmq_pub_port': 18083,
@@ -149,19 +149,29 @@ class Db4eOSDb:
         self.ensure_record('monerod', MONEROD_RECORD)
         self.ensure_record('xmrig', XMRIG_RECORD)
 
-    def ensure_record(self, component, record_template):
-        rec = self.get_deployment_by_component(component)
-        if not rec:
-            self.add_deployment(deepcopy(record_template))
+    def ensure_record(self, component, record_template, tmpl_flag=None):
+        if tmpl_flag:
+            rec = self.get_deployment_by_component(component, tmpl_flag)    
+            if not rec:
+                self.add_deployment(deepcopy(record_template, tmpl_flag))
+        else:
+            rec = self.get_deployment_by_component(component)
+            if not rec:
+                self.add_deployment(deepcopy(record_template))
 
-    def add_deployment(self, jdoc):
-        jdoc['doc_type'] = 'deployment'
+    def add_deployment(self, jdoc, tmpl_flag=None):
+        if tmpl_flag:
+            jdoc['doc_type'] = 'template'
+        else:
+            jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
 
-    def get_deployment_by_component(self, component): 
-        # Return one record
-        doc = self._db.find_one(self._col, {'doc_type': 'deployment', 'component': component})
+    def get_deployment_by_component(self, component, tmpl_flag=None):
+        if tmpl_flag:
+            doc = self._db.find_one(self._col, {'doc_type': 'template', 'component': component})
+        else:        
+            doc = self._db.find_one(self._col, {'doc_type': 'deployment', 'component': component})
         return doc
 
     def get_deployments_by_component(self, component):
@@ -180,6 +190,9 @@ class Db4eOSDb:
     def get_monerod_deployments(self):
         # Return the Monero daemon deployment docs
         return self.get_deployments_by_component('monerod')
+
+    def get_monerod_tmpl(self):
+        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'monerod'})
 
     def get_p2pool_deployments(self):
         # Return the P2Pool deployment docs
