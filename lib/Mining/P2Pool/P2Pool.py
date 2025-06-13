@@ -156,7 +156,7 @@ class P2Pool():
       effort = float(match.group('effort'))
       db = self.db()
       db.add_share_found(timestamp, worker, ip_addr, effort)
-      reports = MiningReports('blocksfound')
+      reports = MiningReports('sharesfound')
       reports.run()
       self.log.debug('Share found event', { 'miner': worker }) 
 
