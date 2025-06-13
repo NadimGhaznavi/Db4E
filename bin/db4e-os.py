@@ -125,7 +125,7 @@ class Db4eModel:
                 'status': depl_rec['status']
 
             }
-            return { depl_rec[instance]: depl }
+            return { depl_rec['instance']: depl }
 
     def get_p2pool_deployments(self):
         deployments = {}
