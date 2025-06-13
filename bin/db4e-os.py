@@ -58,13 +58,8 @@ DISPLAY_NAMES = {
 }
 
 PALETTE = [
-    ('na', '', ''),
-    ('title', 'dark green, bold', ''),    
-    ('running', 'dark green, bold', ''),
-    ('stopped', 'dark red', ''),
-    ('not_installed', 'yellow', ''),
-    ('button', 'light cyan', ''),
-    ('reversed', 'standout', '')
+    ('title', 'dark green, bold', ''),
+    ('button', 'light cyan', '')
 ]
 
 STATUS = {
@@ -122,7 +117,7 @@ class Db4eModel:
 
     def get_p2pool_deployments(self):
         deployments = {}
-        for deployment in self._db.get_monerod_deployments():
+        for deployment in self._db.get_p2pool_deployments():
             name = deployment['name']
             status = deployment['status']
             instance = deployment['instance']
@@ -131,7 +126,7 @@ class Db4eModel:
 
     def get_xmrig_deployments(self):
         deployments = {}
-        for deployment in self._db.get_monerod_deployments():
+        for deployment in self._db.get_xmrig_deployments():
             name = deployment['name']
             status = deployment['status']
             instance = deployment['instance']
@@ -178,24 +173,21 @@ class Db4eTui:
 
         # db4e radiobutton
         db4e = self.model.get_db4e_deployment()
-        db4e_radio = urwid.RadioButton(group, '', on_state_change=self.select_deployment, user_data='db4e', state=('db4e' == self.selected_deployment))
+        db4e_radio = urwid.RadioButton(group, db4e['name'], on_state_change=self.select_deployment, user_data='db4e', state=('db4e' == self.selected_deployment))
         self.deployment_radios.append(db4e_radio)
         items.append(urwid.Columns([
-            ('pack', db4e_radio), 
-            ('weight', 2, urwid.Text(db4e['name'])), 
-            ('pack', urwid.Text(('', STATUS[db4e['status']])))
-        ]))
-
+            (20, db4e_radio), 
+            (3, urwid.Text(('', STATUS[db4e['status']]), wrap='clip'))
+        ], dividechars=1))
         
         # repo radiobutton
         repo = self.model.get_repo_deployment()
-        repo_radio = urwid.RadioButton(group, '', on_state_change=self.select_deployment, user_data='repo', state=('repo' == self.selected_deployment))
-        self.deployment_radios.append(db4e_radio)
+        repo_radio = urwid.RadioButton(group, repo['name'], on_state_change=self.select_deployment, user_data='repo', state=('repo' == self.selected_deployment))
+        self.deployment_radios.append(repo_radio)
         items.append(urwid.Columns([
-            ('pack', repo_radio), 
-            ('pack', urwid.Text(repo['name'])), 
-            ('pack', urwid.Text(('', STATUS[repo['status']])))
-        ]))
+            (20, repo_radio), 
+            (3, urwid.Text(('', STATUS[repo['status']]), wrap='clip'))
+        ], dividechars=1))
 
         ### TODO add monerod, p2pool and xmrig instances
         monerod_list = self.model.get_monerod_deployments()
@@ -208,10 +200,10 @@ class Db4eTui:
 
     def build_actions(self):
         action_list = [
-            ('pack', urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
-            ('pack', urwid.Button(('button', 'Exit'), on_press=self.exit_app))
+            (13, urwid.Button(('button', 'More Info'), on_press=self.show_component_info)),
+            (8, urwid.Button(('button', 'Exit'), on_press=self.exit_app))
         ]
-        res = urwid.Columns(action_list)
+        res = urwid.Columns(action_list, dividechars=1)
         res = urwid.Padding(res, right=2, left=2)
         return urwid.LineBox(res, title="Actions", title_align="left", title_attr="title")
 
@@ -221,8 +213,8 @@ class Db4eTui:
         left_panel = urwid.Pile([deployments, actions])
         columns = urwid.Columns([
             ('weight', 1, left_panel),
-            ('weight', 2, self.right_panel)
-        ])
+            ('weight', 3, self.right_panel)
+        ], dividechars=1)
         
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
@@ -237,37 +229,39 @@ class Db4eTui:
 
     # The main screen shows this content
     def show_component_info(self, button):
-        db4e = self.model.get_db4e_deployment()
-        if db4e['status'] == 'stopped':
-            text = urwid.Text(NEW_DB4E_SERVICE_MSG)
-            install_service_button = urwid.Columns([
-                ('weight', 1, urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))
-            ])
-            results = urwid.LineBox(
-                self.results_contents,
-                title='Results',
-                title_align='left',
-                title_attr='title'
-            )
-            widgets = [
-                text, urwid.Divider(), results, urwid.Divider(), install_service_button
-            ]
+        deployment = self.selected_deployment
+        if deployment == 'db4e':
+            db4e = self.model.get_db4e_deployment()
+            if db4e['status'] == 'stopped':
+                text_msg = urwid.Text(NEW_DB4E_SERVICE_MSG)
+                results = urwid.LineBox(
+                    self.results_contents,
+                    title='Results',
+                    title_align='left',
+                    title_attr='title'
+                )
+                install_service_button = urwid.Columns([
+                    (19, urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service))
+                    ])
+                widgets = [
+                    text_msg, urwid.Divider(), results, urwid.Divider(), install_service_button
+                ]
 
-            # Wrap in a ListBox to make scrollable
-            listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
-            self.right_panel = urwid.LineBox(
-                urwid.Padding(listbox, left=2, right=2),
-                title='Info', title_align="right", title_attr="title"
-            )
-            self.main_loop.widget = self.build_main_frame()
+                # Wrap in a ListBox to make scrollable
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
 
-        elif self.selected_deployment == 'repo':
+        elif deployment == 'repo':
             repo = self.model.get_repo_deployment()
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
                 text = urwid.Text(new_repo_msg)
                 continue_button = urwid.Columns([
-                    ('weight', 1, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
+                    (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
                 ])
                 widgets = [text, urwid.Divider(), continue_button]
 
