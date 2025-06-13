@@ -259,8 +259,9 @@ class Db4eTui:
         # Dynamically construct the method name
         callback_method_name = f'add_new_{depl_type}'
         on_add_callback = getattr(self, callback_method_name, None)
-        add_button = (18, urwid.Button(('button', 'New Deployment'), on_press=on_add_callback))
-        items.append(urwid.Padding(add_button, align='left', left=2))
+        add_button = urwid.Button(('button', 'New Deployment'), on_press=on_add_callback)
+        add_button = urwid.Columns([(18, add_button)])
+        items.append(add_button)
     
         return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
 
