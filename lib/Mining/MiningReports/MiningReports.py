@@ -231,7 +231,7 @@ class MiningReports():
         if report_type == 'hashrate':
             for row in report_data:
                 # Get the timestamp and convert it to a date string
-                timestamp = row['timestamp'] + ':00:00'
+                timestamp = row['timestamp']
                 # The hashrate data includes units (e.g. "6.889 KH/s")
                 hashrate_value = row['hashrate'].split(' ')[0]
                 csv_row = f"{timestamp},{hashrate_value}\n"
