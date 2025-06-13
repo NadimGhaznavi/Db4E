@@ -130,6 +130,12 @@ class Db4eModel:
 
             }
             return { depl_rec['instance']: depl }
+        
+    def get_monerod_deployment(self, instance):
+        depl_rec = self._db.get_deployment_by_instance('monerod', instance)
+        if depl_rec:
+            return depl_rec
+        return self._db.get_monerod_tmpl()
 
     def get_p2pool_deployments(self):
         deployments = {}
