@@ -43,11 +43,13 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
+from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 class Db4eOSMonerodRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
+        self._os = Db4eOS()
         self._db = Db4eOSDb()
         monerod_rec = self._db.get_monerod_tmpl()
         instance = monerod_rec['instance'] or ''
@@ -111,66 +113,37 @@ class Db4eOSMonerodRemoteSetupUI:
         instance = self.instance_edit.edit_text.strip()
         ip_addr = self.ip_addr_edit.edit_text.strip()
         zmq_port = self.zmq_port_edit.edit_text.strip()
-        rpc_port = self.ip_addr_edit.edit_text.strip()
+        rpc_port = self.zmq_port_edit.edit_text.strip()
 
         # Validate input
-        if not username or not repo_name or not clone_path:
-            self.info_msg.set_text("Please provide your GitHub username, repository name and a local path.")
+        if not instance or not ip_addr or not zmq_port or not rpc_port:
+            self.info_msg.set_text("Please fill in *all* of the fields.")
             return
+        # TODO Put this in a try/except block
+        zmq_port = int(zmq_port)
+        rpc_port = int(rpc_port)
 
-        # Check SSH access
-        try:
-            cmd_result = subprocess.run(
-                ["ssh", "-T", "git@github.com"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                input=b"",
-                timeout=10)
-            stdout = cmd_result.stdout.decode().strip()
-            stderr = cmd_result.stderr.decode().strip()
+        # Cannot connect warnings
+        results = 'Checklist:\n'
+        # Check that db4e can connect to the remote system
+        if not self._os.is_port_open(ip_addr, zmq_port):
+            results += f'* Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
+        else:
+            results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-            # 1 is acceptable for SSH auth check
-            if cmd_result.returncode not in (0, 1):  
-                self.info_msg.set_text(f"SSH connection failed.\nSTDOUT: {stdout}\nSTDERR: {stderr}")
-                return
+        if self._os.is_port_open(ip_addr, rpc_port):
+            results += f'* Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
+        else:
+            results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-            self.info_msg.set_text(
-                f"SSH check succeeded (return code {cmd_result.returncode}).\nSTDOUT: {stdout}\nSTDERR: {stderr}"
-            )
-
-        except Exception as e:
-            self.info_msg.set_text(f"SSH check failed: {str(e)}")
-            return
-
-        # Try to clone
-        try:
-            if os.path.exists(clone_path):
-                # Delete the clone_path if it exists
-                shutil.rmtree(clone_path)
-
-            cmd_result = subprocess.run(
-                ["git", "clone", f"git@github.com:{username}/{repo_name}.git", clone_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            stdout = cmd_result.stdout.decode().strip()
-            stderr = cmd_result.stderr.decode().strip()
-
-            if cmd_result.returncode != 0:
-                self.info_msg.set_text(
-                    f'Failed to clone repository.\n\n{stderr}'
-                )
-                return
-
-            self._db.update_repo({ 
-                'status': 'running', 
-                'install_dir': clone_path,
-                'github_user': username,
-                'github_repo': repo_name
-                })
-            self.info_msg.set_text("Repository cloned successfully.")
-
-        except Exception as e:
-            self.info_msg.set_text(f"Error: {str(e)}")
+        self._db.update_deployment({ 
+            'status': 'running',
+            'component': 'monerod',
+            'instance': instance,
+            'doc_type': 'template'
+            }, instance)
+        results += f'Created new Monero daemon ({instance}) deployment record'
+        self.info_msg.set_text(results)
 
     def widget(self):
         return self.frame
