@@ -81,8 +81,6 @@ STATUS = {
 }
 
 WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
-WELCOME_MSG += "You need to setup at least one Monero daemon, P2Pool daemon "
-WELCOME_MSG += "and a XMRig miner.\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
@@ -340,8 +338,8 @@ class Db4eTui:
         actions = self.build_actions()
         left_panel = urwid.Pile([deployments, actions])
         columns = urwid.Columns([
-            ('weight', 1, left_panel),
-            ('weight', 3, self.right_panel)
+            (30, left_panel),
+            self.right_panel
         ], dividechars=1)
         
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")

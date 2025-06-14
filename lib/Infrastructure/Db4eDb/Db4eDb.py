@@ -32,7 +32,7 @@ interfaces with MongoDB.
 from pymongo import MongoClient
 import os, sys
 import subprocess
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 from pymongo.errors import ConnectionFailure, CollectionInvalid
 
@@ -65,6 +65,7 @@ class Db4eDb():
     web_dir               = ini.config['web']['install_dir']
     backup_dir            = ini.config['web']['backup_dir']
     backup_script         = ini.config['db']['backup_script']
+    self._log_retention   = ini.config['db']['log_retention_days']
     self._backup_script   = os.path.join(db4e_dir, backup_script)
     self._backup_dir      = os.path.join(web_dir, backup_dir)
     # Setup logging
@@ -101,7 +102,6 @@ class Db4eDb():
           try:
             self._db.create_collection(aCol)
           except CollectionInvalid:
-            print("ERROR")
             self.log.warning(f"Attempted to create existing collection: {aCol}")
           self.log.debug(f'Created DB collection ({aCol})')
 
@@ -127,6 +127,13 @@ class Db4eDb():
         self.insert_one(collection, jdoc)
         return True
     return False
+  
+  def purge_old_logs(self):
+     retention_days = self._log_retention
+     log_col = self.get_collection(self._log_collection)
+     threshold_date = datetime.now(timezone.utc) - timedelta(days=retention_days)
+     result = log_col.delete_many({"timestamp": {"$lt": threshold_date}})
+     self.log.debug(f'Purged ({result.deleted_count}) old log entries')
 
   def update_one(self, collection, filter, new_values):
       return collection.update_one(filter, new_values)

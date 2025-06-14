@@ -63,8 +63,6 @@ class Db4eOSXMRigSetupUI:
             p2pool_deployments[instance] = { 'name': name, 'instance': instance }
             self.selected_p2pool = instance # Initialize to the last instance
         instance = xmrig_rec['instance'] or ''
-        p2pool_host = xmrig_rec['p2pool_host'] or ''
-        stratum_port = xmrig_rec['stratum_port'] or ''
         num_threads = xmrig_rec['num_threads'] or ''
         self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
         self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text=str(num_threads))

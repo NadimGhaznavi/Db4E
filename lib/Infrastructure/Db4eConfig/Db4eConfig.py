@@ -74,7 +74,7 @@ class Db4eConfig():
         if args.environ == 'qa':
             # Load the QA environment settings (DB, directories etc)
             self.load(os.path.join(db4e_dir, YAML_FILE_QA))
-        
+
         # Run one or more reprts with a reports definition file in conf/reports
         if args.reports != 'None':
             self.config['db4e']['reports'] = args.reports
