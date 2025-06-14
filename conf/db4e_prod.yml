@@ -30,17 +30,22 @@
 #####################################################################
 
 db4e:
+  third_party_dir: 3rdparty
   conf_dir: conf
+  bin_dir: bin
   deployment_file: deployment.yml
   desc: "Database 4 Everything"
   dev_dir: dev
-  environ: prod
+  environ: qa
   install_dir: /opt/prod/db4e
   js_dir: js
   md_dir: md
   process: db4e.py
   reports_dir: reports
+  service_file: db4e.service
+  service_installer: db4e-install-service.sh
   src_dir: src
+  systemd_dir: systemd
   template_dir: tmpl
   version: 0.14.2-beta
 
@@ -83,6 +88,8 @@ xmrig:
   conf_dir: conf
   config: config.json
   process: xmrig
+  version: "6.22.2"
+
   
 db:
   server: localhost
@@ -90,11 +97,11 @@ db:
   name: db4e
   collection: mining
   log_collection: logging
+  depl_collection: depl
   backup_dir: backups
   backup_script: bin/db4e-backup.sh
   retry_timeout: 15
   
 git:
-  push_script: bin/gitpush.sh
   git_script: bin/db4e-git.sh
 
