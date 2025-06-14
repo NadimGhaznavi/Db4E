@@ -53,13 +53,20 @@ class Db4eOSXMRigSetupUI:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         xmrig_rec = self._db.get_xmrig_tmpl()
+        self.selected_p2pool = None
+        self.deployment_radios = []
+        self.group = []
+        p2pool_deployments = {}
+        for deployment in self._db.get_p2pool_deployments():
+            name = deployment['name']
+            instance = deployment['instance']
+            p2pool_deployments[instance] = { 'name': name, 'instance': instance }
+            self.selected_p2pool = instance # Initialize to the last instance
         instance = xmrig_rec['instance'] or ''
         p2pool_host = xmrig_rec['p2pool_host'] or ''
         stratum_port = xmrig_rec['stratum_port'] or ''
         num_threads = xmrig_rec['num_threads'] or ''
         self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
-        self.p2pool_host_edit = urwid.Edit("P2Pool hostname or IP address: ", edit_text=p2pool_host)
-        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
         self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text=str(num_threads))
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
@@ -88,9 +95,8 @@ class Db4eOSXMRigSetupUI:
                 urwid.Padding(
                     urwid.Pile([
                         self.instance_edit,
-                        self.p2pool_host_edit,
-                        self.stratum_port_edit,
                         self.num_threads_edit,
+                        self.build_p2pool_deployments(p2pool_deployments),
                         urwid.Divider(),
                         urwid.Columns([
                             ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
@@ -112,18 +118,32 @@ class Db4eOSXMRigSetupUI:
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
 
+    def build_p2pool_deployments(self, deployments):
+        items = []
+        for instance_name, data in sorted(deployments.items()):
+            is_selected = (instance_name == self.selected_p2pool)
+            radio = urwid.RadioButton(
+                self.group,
+                data['instance'],
+                on_state_change=self.select_p2pool,
+                user_data=instance_name,
+                state=is_selected
+            )
+            self.deployment_radios.append(radio)
+            items.append(urwid.Columns([
+                (20, radio)
+            ], dividechars=1))
+        return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title='Select P2Pool daemon', title_align='left', title_attr='title')
+
     def on_submit(self, button):
         instance = self.instance_edit.edit_text.strip()
-        p2pool_host = self.p2pool_host_edit.edit_text.strip()
-        stratum_port = self.stratum_port_edit.edit_text.strip()
         num_threads = self.num_threads_edit.edit_text.strip()
 
         # Validate input
-        if not instance or not p2pool_host or not stratum_port and num_threads:
+        if not instance or not num_threads:
             self.info_msg.set_text("Please fill in *all* of the fields.")
             return
-        # TODO Put this in a try/except block
-        stratum_port = int(stratum_port)
+        # TODO Validate that num_threads is in fact an integer
         num_threads = int(num_threads)
         # TODO check that the miner name is unique
         # TODO check that a P2pool deployment exists. Have the P2Pool deployments
@@ -131,12 +151,7 @@ class Db4eOSXMRigSetupUI:
         # TODO support multiple P2Pools (xmrig does that) for a xmrig deployment
 
         # Cannot connect warnings
-        results = 'Checklist:\n\n'
-        # Check that db4e can connect to the remote system
-        if self._os.is_port_open(p2pool_host, stratum_port):
-            results += f'* Connected to stratum port ({stratum_port}) on remote machine ({p2pool_host})\n'
-        else:
-            results += f"* WARNING: Unable to connect to stratum port ({stratum_port}) on remote machine ({p2pool_host})\n"
+        results = ''
 
         # Generate a XMRig configuration file
         conf_dir        = self.ini.config['db4e']['conf_dir']
@@ -146,27 +161,43 @@ class Db4eOSXMRigSetupUI:
         version         = self.ini.config['xmrig']['version']
         xmrig_dir = 'xmrig-' + version
         db4e_dir = self._db.get_db4e_dir()
+        repo_dir = self._db.get_repo_dir()
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
-        fq_config = os.path.join(db4e_dir, third_party_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
+        fq_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
+        # Make sure the directories exist
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir))
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir))
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir))
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
         # Populate the config template placeholders
         config_contents = config_contents.replace('[[MINER_NAME]]', instance)
         num_threads_entry = ','.join(['-1'] * num_threads)
         config_contents = config_contents.replace('[[NUM_THREADS]]', num_threads_entry)
-        url_entry = p2pool_host + ':' + str(stratum_port)
+        p2pool_rec = self._db.get_deployment_by_instance('p2pool', self.selected_p2pool)
+        url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
         config_contents = config_contents.replace('[[URL]]', url_entry)
         with open(fq_config, 'w') as f:
             f.write(config_contents)
-
         self._db.update_deployment('xmrig', { 
             'status': 'stopped',
             'component': 'xmrig',
             'instance': instance,
-            'doc_type': 'template'
+            'doc_type': 'template',
+            'num_threads': int(num_threads),
+            'config': fq_config,
+            'p2pool_id': p2pool_rec['_id'],
             }, instance)
         results += f'\nCreated new XMRig daemon ({instance}) deployment record. '
+        # TODO Push the config to GitHub
         self.info_msg.set_text(results)
+
+    def select_p2pool(self, radio, new_state, deployment):
+        if new_state:
+            self.selected_p2pool = deployment
 
     def widget(self):
         return self.frame

@@ -68,7 +68,7 @@ MONEROD_RECORD = {
     'component': 'monerod',
     'name': 'Monero daemon',
     'version': '0.18.4.0',
-    'instance': 'Primary',
+    'instance': None,
     'status': 'not_installed',
     'ip_addr': None,
     'zmq_pub_port': 18083,
@@ -97,38 +97,31 @@ MONEROD_RECORD = {
 
 P2POOL_RECORD = {
     'component': 'p2pool',
-    'name': 'P2Pool daemon',
-    'version': '4.7',
-    'instance': None,
-    'status': 'not_installed',
-    'wallet': None,
-    'monero_node': None,
-    'ip_addr': None,
-    'zmq_port': 18083,
-    'rpc_port': 18081,
-    'stratum_port': 3333,
-    'p2p_port': 37889,
-    'log_level': 1,
-    'in_peers': 16,
-    'out_peers': 16,
-    'log_dir': 'logs',
     'conf_dir': 'conf',
-    'config': 'p2pool.ini'
+    'config': 'p2pool.ini',
+    'instance': None,
+    'in_peers': 16,
+    'ip_addr': None,
+    'log_level': 1,
+    'log_dir': 'logs',
+    'monerod_id': None,
+    'name': 'P2Pool daemon',
+    'out_peers': 16,
+    'p2p_port': 37889,
+    'status': 'not_installed',
+    'stratum_port': 3333,
+    'version': '4.7',
+    'wallet': None,
     }
 
 XMRIG_RECORD = {
     'component': 'xmrig',
-    'name': 'XMRig miner',
+    'config': None,
     'instance': None,
+    'name': 'XMRig miner',
+    'num_threads': None,
+    'p2pool_id': None,
     'status': 'not_installed',
-    'hostname': None,
-    'miner': None,
-    'install_dir': None,
-    'threads': None,
-    'config': 'config.json',
-    'p2pool_host': None,
-    'stratum_port': 3333,
-    'num_threads': None
     }
 
 class Db4eOSDb:
@@ -161,6 +154,10 @@ class Db4eOSDb:
 
     def get_db4e_dir(self):
         return self._db4e_dir
+    
+    def get_repo_dir(self):
+        depl = self.get_repo_deployment()
+        return depl['install_dir']
 
     def add_deployment(self, jdoc, tmpl_flag=None):
         if tmpl_flag:

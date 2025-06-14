@@ -51,11 +51,20 @@ class Db4eOSP2PoolRemoteSetupUI:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         p2pool_rec = self._db.get_p2pool_tmpl()
+        self.selected_monerod = None
+        self.deployment_radios = []
+        self.group = []
+        monerod_deployments = {}
+        for deployment in self._db.get_monerod_deployments():
+            name = deployment['name']
+            instance = deployment['instance']
+            monerod_deployments[instance] = { 'name': name, 'instance': instance }
+            self.selected_monerod = instance # Initialize to the last instance
         instance = p2pool_rec['instance'] or ''
         ip_addr = p2pool_rec['ip_addr'] or ''
         stratum_port = p2pool_rec['stratum_port'] or ''
         self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
-        self.ip_addr_edit = urwid.Edit("Remote node hostname or IP address: ", edit_text=ip_addr)
+        self.ip_addr_edit = urwid.Edit("Remote P2Pool hostname or IP address: ", edit_text=ip_addr)
         self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
@@ -71,8 +80,7 @@ class Db4eOSP2PoolRemoteSetupUI:
 
         form_widgets = [
             urwid.Text('Remote P2Pool Demon Setup\n\n' +
-                'All of the fields below are mandatory. Furthermore ' +
-                'the \"instance name\" must be unique within the ' +
+                'The \"instance name\" must be unique within the ' +
                 'db4e environment i.e. if you have more than one ' +
                 'daemon deployed, then each must have their own ' +
                 'instance name.\n\nUse the arrow keys or mouse scrollwheel ' +
@@ -84,10 +92,11 @@ class Db4eOSP2PoolRemoteSetupUI:
                         self.instance_edit,
                         self.ip_addr_edit,
                         self.stratum_port_edit,
+                        self.build_monerod_deployments(monerod_deployments),
                         urwid.Divider(),
                         urwid.Columns([
-                            ('pack', urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
-                            ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
+                            (10, urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
+                            (8, urwid.Button(('button', 'Back'), on_press=self.back_to_main))
                         ], dividechars=1)
                     ]), left=2, right=2),
                 title='Setup Form', title_align='left', title_attr='title'
@@ -105,37 +114,56 @@ class Db4eOSP2PoolRemoteSetupUI:
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
 
+    def build_monerod_deployments(self, deployments):
+        items = []
+        for instance_name, data in sorted(deployments.items()):
+            is_selected = (instance_name == self.selected_monerod)
+            radio = urwid.RadioButton(
+                self.group,
+                data['instance'],
+                on_state_change=self.select_monerod,
+                user_data=instance_name,
+                state=is_selected
+            )
+            self.deployment_radios.append(radio)
+            items.append(urwid.Columns([
+                (20, radio)
+            ], dividechars=1))
+        return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title='Select Monero daemon', title_align='left', title_attr='title')
+
     def on_submit(self, button):
         instance = self.instance_edit.edit_text.strip()
         ip_addr = self.ip_addr_edit.edit_text.strip()
         stratum_port = self.stratum_port_edit.edit_text.strip()
 
         # Validate input
-        if not instance or not ip_addr or not stratum_port:
-            self.info_msg.set_text("Please fill in *all* of the fields.")
+        results = ''
+        if not instance:
+            self.info_msg.set_text("Please fill enter a unique instance name.")
             return
-        # TODO Put this in a try/except block
-        stratum_port = int(stratum_port)
-        # TODO check that the instance name is unique
-        # TODO check that a Monero daemon deployment exists. Have the monerod deployments
-        # show as a drop down i.e. so P2Pool "chooses" a Monero deployment.
-
-        # Cannot connect warnings
-        results = 'Checklist:\n\n'
         # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, stratum_port):
-            results += f'* Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
+        if self._os.is_port_open(ip_addr, int(stratum_port)):
+            results += f'* Connected to the P2Pool ({ip_addr}) stratum port ({stratum_port})\n'
         else:
-            results += f"* WARNING: Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n"
+            results += f"* WARNING: Unable to connect to the P2Pool ({ip_addr}) stratum port ({stratum_port})\n"
 
+        # TODO check that the instance name is unique
+        monerod_rec = self._db.get_deployment_by_instance('monerod', self.selected_monerod)
         self._db.update_deployment('p2pool', { 
             'status': 'running',
             'component': 'p2pool',
             'instance': instance,
+            'ip_addr': ip_addr,
+            'stratum_port': int(stratum_port),
+            'monerod_id': monerod_rec['_id'],
             'doc_type': 'template'
             }, instance)
         results += f'\nCreated new P2Pool daemon ({instance}) deployment record. '
         self.info_msg.set_text(results)
+
+    def select_monerod(self, radio, new_state, deployment):
+        if new_state:
+            self.selected_monerod = deployment
 
     def widget(self):
         return self.frame

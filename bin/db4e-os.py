@@ -93,6 +93,10 @@ MONEROD_SETUP += "You have two deployment choices: You can either configure "
 MONEROD_SETUP += "db4e to use an existing remote Monero daemon or you can "
 MONEROD_SETUP += "setup a Monero daemon on this machine."
 
+P2POOL_PREREQ = "P2Pool Daemon Pre-Requisites\n\n"
+P2POOL_PREREQ += "You must create a Monero daemon deployment before setting "
+P2POOL_PREREQ += "up P2Pool."
+
 P2POOL_SETUP = "P2Pool Daemon Setup\n\n"
 P2POOL_SETUP += "This screen lets you setup a P2Pool daemon. You have two "
 P2POOL_SETUP += "deployment choices: You can either configure db4e to use an "
@@ -105,6 +109,10 @@ XMRIG_SETUP += "This screen lets you setup a XMRig miner. This is a local "
 XMRIG_SETUP += "installation: The XMRig miner will be deployed and running "
 XMRIG_SETUP += "on this machine. You must configure a P2Pool daemon before "
 XMRIG_SETUP += "you setup XMRig."
+
+XMRIG_PREREQ = "XMRig Miner Pre-Requisites\n\n"
+XMRIG_PREREQ += "You must create a P2Pool daemon deployment before setting "
+XMRIG_PREREQ += "up XMRig."
 
 # Dummy model for status reporting and probing
 class Db4eModel:
@@ -214,6 +222,13 @@ class Db4eTui:
         return
 
     def add_new_p2pool(self, button):
+        if not self.model.get_monerod_deployments():
+            # You need to have a Monero daemon deployment before setting up a P2Pool instance.
+            text_msg = urwid.Text(P2POOL_PREREQ)
+            self.right_panel = urwid.LineBox(text_msg)
+            self.main_loop.widget = self.build_main_frame()
+            return
+
         text_msg = urwid.Text(P2POOL_SETUP)
         continue_button = urwid.Columns([
             (9, urwid.Button(('button', 'Local'), on_press=self.show_p2pool_setup)),
@@ -230,6 +245,13 @@ class Db4eTui:
         return
     
     def add_new_xmrig(self, button):
+        if not self.model.get_p2pool_deployments():
+            # You need to have a P2Pool daemon deployment before setting up a XMRig instance.
+            text_msg = urwid.Text(XMRIG_PREREQ)
+            self.right_panel = urwid.LineBox(text_msg)
+            self.main_loop.widget = self.build_main_frame()
+            return
+
         text_msg = urwid.Text(XMRIG_SETUP)
         continue_button = urwid.Columns([
             (12, urwid.Button(('button', 'Continue'), on_press=self.show_xmrig_setup)),
@@ -310,8 +332,7 @@ class Db4eTui:
         on_add_callback = getattr(self, callback_method_name, None)
         add_button = urwid.Button(('button', 'New Deployment'), on_press=on_add_callback)
         add_button = urwid.Columns([(18, add_button)])
-        items.append(add_button)
-    
+        items.append(add_button)    
         return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title=title, title_align="left", title_attr="title")
 
     def build_main_frame(self):
@@ -338,6 +359,10 @@ class Db4eTui:
             right=2, left=2),
             title='TIME', title_align="right", title_attr="title")
         self.main_loop.widget = self.build_main_frame()
+
+    def select_deployment(self, radio, new_state, deployment):
+        if new_state:
+            self.selected_deployment = deployment
 
     # The main screen shows this content
     def show_component_info(self, button):
@@ -412,10 +437,6 @@ class Db4eTui:
 
     def show_xmrig_setup(self, button):
         self.main_loop.widget = self.xmrig_setup_ui.widget()
-
-    def select_deployment(self, radio, new_state, deployment):
-        if new_state:
-            self.selected_deployment = deployment
 
     def run(self):
         try:

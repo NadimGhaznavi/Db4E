@@ -119,7 +119,7 @@ class Db4eOSMonerodRemoteSetupUI:
         if not instance or not ip_addr or not zmq_port or not rpc_port:
             self.info_msg.set_text("Please fill in *all* of the fields.")
             return
-        # TODO Put this in a try/except block
+        # TODO VAlidate these are integers
         zmq_port = int(zmq_port)
         rpc_port = int(rpc_port)
         # TODO check that the instance name is unique
@@ -141,6 +141,9 @@ class Db4eOSMonerodRemoteSetupUI:
             'status': 'running',
             'component': 'monerod',
             'instance': instance,
+            'zmq_pub': zmq_port,
+            'rpc_port': rpc_port,
+            'ip_addr': ip_addr,
             'doc_type': 'template'
             }, instance)
         results += f'\nCreated new Monero daemon ({instance}) deployment record. '
