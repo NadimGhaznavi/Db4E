@@ -37,6 +37,17 @@ The *db4e-restart.sh* script executed once a day from a cron job. It performs th
 
 Additionally, each miner also has a cron job to restart the *xmrig* mining software. Best practice is to restart on a scheduled basis.
 
+---
+
 # db4e-update-repo.sh
 
 Used to update GitHub pages site when there is a new release of the *db4e*. This updates your GitHub pages repository with content from *tmpl/repo* using *rsync*.
+
+---
+
+# db4e-purge-logs.sh
+
+The *db4e* application sends log messages to a dedicated MongoDB collection (*logging*). The *db4e-purge-logs.sh* deletes old log entries from this collection. The retention time
+is defined in the `conf/db4e_prod.yml` file by the *log_retention_days* in the *db* section. 
+
+**PRO TIP:** Run this on a daily basis with a cronjob.
