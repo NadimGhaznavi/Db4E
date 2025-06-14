@@ -152,13 +152,6 @@ class Db4eOSDb:
             if not rec:
                 self.add_deployment(deepcopy(record_template))
 
-    def get_db4e_dir(self):
-        return self._db4e_dir
-    
-    def get_repo_dir(self):
-        depl = self.get_repo_deployment()
-        return depl['install_dir']
-
     def add_deployment(self, jdoc, tmpl_flag=None):
         if tmpl_flag:
             jdoc['doc_type'] = 'template'
@@ -167,6 +160,9 @@ class Db4eOSDb:
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
 
+    def get_db4e_dir(self):
+        return self._db4e_dir
+    
     def get_deployment_by_component(self, component, tmpl_flag=None):
         if tmpl_flag:
             doc = self._db.find_one(self._col, {'doc_type': 'template', 'component': component})
@@ -204,6 +200,10 @@ class Db4eOSDb:
 
     def get_p2pool_tmpl(self):
         return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'p2pool'})
+
+    def get_repo_dir(self):
+        depl = self.get_repo_deployment()
+        return depl['install_dir']
 
     def get_xmrig_deployments(self):
         # Return the xmrig deployment docs

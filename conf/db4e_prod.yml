@@ -57,7 +57,7 @@ logging:
   log_level: info
   
 p2pool:
-  install_dir: p2pool
+  install_dir: /opt/prod/p2pool
   desc: "P2Pool Daemon"
   api_dir: api
   log_dir: logs     

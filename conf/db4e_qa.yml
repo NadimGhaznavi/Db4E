@@ -102,6 +102,5 @@ db:
   retry_timeout: 15
   
 git:
-  push_script: bin/gitpush.sh
   git_script: bin/db4e-git.sh
 
