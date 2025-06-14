@@ -47,7 +47,10 @@ Papa.parse(csvUrl, {
       }
 
       // Parse the date string and convert it to a timestamp
-      const date = new Date(dateString).getTime();
+      const [datePart, hourPart] = dateString.split(' ');
+      const [year, month, day] = datePart.split('-').map(Number);
+      const hour = parseInt(hourPart, 10);
+      const date = new Date(year, month - 1, day, hour).getTime();
 
       dateData.push(date);
       //totalData.push(Number(total));
@@ -106,9 +109,9 @@ Papa.parse(csvUrl, {
       },
       xaxis: {
         type: "datetime"
-      //},
-      //yaxis: {
-      //  min: 0,
+      },
+      yaxis: {
+        min: 0,
       //  tickAmount: 4
       }
     };
