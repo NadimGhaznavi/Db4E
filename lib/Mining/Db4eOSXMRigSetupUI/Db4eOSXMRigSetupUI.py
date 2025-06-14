@@ -147,7 +147,7 @@ class Db4eOSXMRigSetupUI:
         xmrig_dir = 'xmrig-' + version
         db4e_dir = self._db.get_db4e_dir()
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
-        fq_config = os.path.join(db4e_dir, third_party_dir, xmrig_dir, conf_dir, instance
+        fq_config = os.path.join(db4e_dir, third_party_dir, xmrig_dir, conf_dir, instance)
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
         # Populate the config template placeholders
