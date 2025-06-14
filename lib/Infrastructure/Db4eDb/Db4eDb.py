@@ -88,7 +88,8 @@ class Db4eDb():
     db_name = self._db_name
     col = self._db_collection
     log_col = self._log_collection
-    for aCol in [ col, log_col ]:
+    depl_col = self._depl_collection
+    for aCol in [ col, log_col, depl_col ]:
       subprocess.run([backup_script, db_name, aCol, backup_dir])
       self.log.info(f'Created a new backup of ({aCol}) in {backup_dir}')
 
