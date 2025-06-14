@@ -98,8 +98,6 @@ class Db4eDb():
     log_col = self._log_collection
     depl_col = self._depl_collection
     db_col_names = self._db.list_collection_names()
-    log_col = self.get_collection(log_col)
-    log_col.create_index('timestamp')
     for aCol in [ db_col, log_col, depl_col]:
        if aCol not in db_col_names:
           try:

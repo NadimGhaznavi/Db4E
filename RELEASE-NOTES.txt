@@ -1,2 +1,1 @@
-* Added the 'depl' MongoDB collection to the MongoDB backups
   
