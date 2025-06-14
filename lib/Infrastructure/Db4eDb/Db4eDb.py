@@ -128,7 +128,7 @@ class Db4eDb():
         return True
     return False
   
-  def purge_old_logs(self)
+  def purge_old_logs(self):
     try:
       retention_days = self._log_retention
       log_col = self.get_collection(self._log_collection)
