@@ -56,7 +56,7 @@ class Db4eOSMonerodRemoteSetupUI:
         ip_addr = monerod_rec['ip_addr'] or ''
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
-        self.instance_edit = urwid.Edit("Monero instance name: ", edit_text=instance)
+        self.instance_edit = urwid.Edit("Monero instance name (e.g. Primary): ", edit_text=instance)
         self.ip_addr_edit = urwid.Edit("Remote node IP address: ", edit_text=ip_addr)
         self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=str(zmq_port))
         self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=str(rpc_port))
@@ -103,7 +103,7 @@ class Db4eOSMonerodRemoteSetupUI:
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
         self.frame = urwid.LineBox(
             urwid.Padding(listbox, left=2, right=2),
-            title="GitHub Repo Setup", title_align="center", title_attr="title"
+            title="Remote Monero Daemon Setup", title_align="center", title_attr="title"
         )
 
     def back_to_main(self, button):
@@ -122,16 +122,17 @@ class Db4eOSMonerodRemoteSetupUI:
         # TODO Put this in a try/except block
         zmq_port = int(zmq_port)
         rpc_port = int(rpc_port)
+        # TODO check that the instance name is unique
 
         # Cannot connect warnings
         results = 'Checklist:\n\n'
         # Check that db4e can connect to the remote system
-        if not self._os.is_port_open(ip_addr, zmq_port):
+        if self._os.is_port_open(ip_addr, zmq_port):
             results += f'* Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"* WARNING: Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-        if not self._os.is_port_open(ip_addr, rpc_port):
+        if self._os.is_port_open(ip_addr, rpc_port):
             results += f'* Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"* WARNING: Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"

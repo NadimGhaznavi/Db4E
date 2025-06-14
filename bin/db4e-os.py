@@ -51,6 +51,7 @@ from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
 from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
 from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
+from Db4eOSXMRigSetupUI.Db4eOSXMRigSetupUI import Db4eOSXMRigSetupUI
 
 
 # Needed, otherwise we get STDERR warnings being dumped into the TUI
@@ -87,16 +88,23 @@ WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
 WELCOME_MSG += "\"Exit\" button. "
 
 MONEROD_SETUP = "Monero Blockchain Daemon Setup\n\n"
-MONEROD_SETUP = "This screen lets you setup the Monero blockchain daemon. "
+MONEROD_SETUP = "This screen lets you setup a Monero blockchain daemon. "
 MONEROD_SETUP += "You have two deployment choices: You can either configure "
 MONEROD_SETUP += "db4e to use an existing remote Monero daemon or you can "
 MONEROD_SETUP += "setup a Monero daemon on this machine."
 
 P2POOL_SETUP = "P2Pool Daemon Setup\n\n"
-P2POOL_SETUP += "This screen lets you setup the P2Pool daemon. You have two "
+P2POOL_SETUP += "This screen lets you setup a P2Pool daemon. You have two "
 P2POOL_SETUP += "deployment choices: You can either configure db4e to use an "
 P2POOL_SETUP += "existing remote P2Pool daemon or you can setup a P2Pool "
-P2POOL_SETUP += "daemon on this machine."
+P2POOL_SETUP += "daemon on this machine. You must deploy a Monero daemon "
+P2POOL_SETUP += "before configuring P2Pool."
+
+XMRIG_SETUP = "XMRig Miner Setup\n\n"
+XMRIG_SETUP += "This screen lets you setup a XMRig miner. This is a local "
+XMRIG_SETUP += "installation: The XMRig miner will be deployed and running "
+XMRIG_SETUP += "on this machine. You must configure a P2Pool daemon before "
+XMRIG_SETUP += "you setup XMRig."
 
 # Dummy model for status reporting and probing
 class Db4eModel:
@@ -185,6 +193,7 @@ class Db4eTui:
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
         self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
+        self.xmrig_setup_ui = Db4eOSXMRigSetupUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
@@ -209,6 +218,21 @@ class Db4eTui:
         continue_button = urwid.Columns([
             (9, urwid.Button(('button', 'Local'), on_press=self.show_p2pool_setup)),
             (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_p2pool_setup))
+        ], dividechars=2)
+        widgets = [text_msg, urwid.Divider(), continue_button]
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
+        self.right_panel = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title='Info', title_align="right", title_attr="title"
+        )
+        self.main_loop.widget = self.build_main_frame()
+        return
+    
+    def add_new_xmrig(self, button):
+        text_msg = urwid.Text(XMRIG_SETUP)
+        continue_button = urwid.Columns([
+            (12, urwid.Button(('button', 'Continue'), on_press=self.show_xmrig_setup)),
         ], dividechars=2)
         widgets = [text_msg, urwid.Divider(), continue_button]
         # Wrap in a ListBox to make scrollable
@@ -260,7 +284,7 @@ class Db4eTui:
         # instance groups
         all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group, 'monerod'))
         all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
-        #all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
+        all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
 
         return urwid.Pile(all_items)
 
@@ -385,6 +409,9 @@ class Db4eTui:
 
     def show_repo_setup(self, button):
         self.main_loop.widget = self.repo_setup_ui.widget()
+
+    def show_xmrig_setup(self, button):
+        self.main_loop.widget = self.xmrig_setup_ui.widget()
 
     def select_deployment(self, radio, new_state, deployment):
         if new_state:

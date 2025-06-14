@@ -30,6 +30,7 @@
 
 
 db4e:
+  third_party_dir: 3rdparty
   conf_dir: conf
   bin_dir: bin
   deployment_file: deployment.yml
@@ -87,6 +88,7 @@ xmrig:
   conf_dir: conf
   config: config.json
   process: xmrig
+  version: "6.22.2"
   
 db:
   server: localhost

@@ -116,6 +116,9 @@ class Db4eOSP2PoolRemoteSetupUI:
             return
         # TODO Put this in a try/except block
         stratum_port = int(stratum_port)
+        # TODO check that the instance name is unique
+        # TODO check that a Monero daemon deployment exists. Have the monerod deployments
+        # show as a drop down i.e. so P2Pool "chooses" a Monero deployment.
 
         # Cannot connect warnings
         results = 'Checklist:\n\n'

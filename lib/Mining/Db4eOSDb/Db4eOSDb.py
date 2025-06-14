@@ -106,13 +106,11 @@ P2POOL_RECORD = {
     'ip_addr': None,
     'zmq_port': 18083,
     'rpc_port': 18081,
-    'stratum_port': 3339,
-    'p2p_port': 38900,
+    'stratum_port': 3333,
+    'p2p_port': 37889,
     'log_level': 1,
     'in_peers': 16,
     'out_peers': 16,
-    'api_dir': 'api',
-    'bin_dir': 'bin',
     'log_dir': 'logs',
     'conf_dir': 'conf',
     'config': 'p2pool.ini'
@@ -121,15 +119,16 @@ P2POOL_RECORD = {
 XMRIG_RECORD = {
     'component': 'xmrig',
     'name': 'XMRig miner',
-    'version': '6.22.21',
-    'instance': 'N/A',
+    'instance': None,
     'status': 'not_installed',
     'hostname': None,
     'miner': None,
     'install_dir': None,
-    'bin_dir': 'bin',
-    'conf_dir': 'conf',
-    'config': 'config.json'
+    'threads': None,
+    'config': 'config.json',
+    'p2pool_host': None,
+    'stratum_port': 3333,
+    'num_threads': None
     }
 
 class Db4eOSDb:
@@ -159,6 +158,9 @@ class Db4eOSDb:
             rec = self.get_deployment_by_component(component)
             if not rec:
                 self.add_deployment(deepcopy(record_template))
+
+    def get_db4e_dir(self):
+        return self._db4e_dir
 
     def add_deployment(self, jdoc, tmpl_flag=None):
         if tmpl_flag:
@@ -209,6 +211,9 @@ class Db4eOSDb:
     def get_xmrig_deployments(self):
         # Return the xmrig deployment docs
         return self.get_deployments_by_component('xmrig')
+    
+    def get_xmrig_tmpl(self):
+        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'xmrig'})
 
     def update_deployment(self, component, update_fields, instance=None):
         update_fields['updated'] = datetime.now(timezone.utc)
@@ -233,7 +238,12 @@ class Db4eOSDb:
                 new_rec['updated'] = datetime.now(timezone.utc)
                 new_rec['doc_type'] = 'deployment'
                 return self._db.insert_one(self._col, new_rec)
-
+            elif component == 'xmrig':
+                new_rec = deepcopy(XMRIG_RECORD)
+                new_rec.update(update_fields)
+                new_rec['updated'] = datetime.now(timezone.utc)
+                new_rec['doc_type'] = 'deployment'
+                return self._db.insert_one(self._col, new_rec)
 
         # An update of a 'db4e' or 'repo' deployment record.            
         return self._db.update_one(
