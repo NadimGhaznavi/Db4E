@@ -112,7 +112,6 @@ class Db4eDb():
       return collection.find_one(filter)
 
   def find_many(self, collection, filter):
-      self.log.debug(f'FOO col {collection}, filter {filter}')
       return collection.find(filter)
 
   def insert_one(self, collection, jdoc):
