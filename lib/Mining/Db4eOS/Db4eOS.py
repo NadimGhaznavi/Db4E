@@ -60,6 +60,14 @@ class Db4eOS:
         for component in COMPONENTS:
             self.probe_env(component)
 
+    def get_db4e_service_status(self):
+        results = {}
+        if os.path.exists(DB4E_SERVICE_FILE):
+            results['service_installed'] = f'The systemd service file ({DB4E_SERVICE_FILE}) is installed'
+        else:
+            results['service_installed'] = f'The systemd service file ({DB4E_SERVICE_FILE}) is not installed'
+        return results
+
     def get_pid(self, proc_name):
         for proc in psutil.process_iter(['pid', 'name']):
             if proc_name in proc.info['name']:
