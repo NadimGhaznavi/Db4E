@@ -49,11 +49,8 @@ class Db4eGit():
   def __init__(self, repo_dir=None):
     # Load the DB4E configuration
     config = Db4eConfig()
-    self._push_script = config.config['git']['push_script']
     self._git_script = config.config['git']['git_script']
     self._install_dir = config.config['db4e']['install_dir']
-
-    self._push_script = os.path.join(self._install_dir, self._push_script)
     self._git_script = os.path.join(self._install_dir, self._git_script)
 
     # New code uses this
@@ -74,18 +71,8 @@ class Db4eGit():
     self.log.debug(f'Executed a git commit for the added files')
 
   def push(self, fully_qualified_file=None, comment=None):
-    if comment:
-      # Legacy git process
-      base_file = os.path.basename(fully_qualified_file)
-      repo_dir = os.path.dirname(fully_qualified_file)
-      push_script = self._push_script
-      if self._debug == 0:
-        subprocess.run([push_script, repo_dir, base_file, comment])
-      else:
-        subprocess.run([push_script, repo_dir, base_file, comment, "1"])
-    else:
-      git_script = self._git_script
-      subprocess.run([git_script, self._repo_dir, 'push'])
-      self.log.debug(f'Executed a git push for the added files')
+    git_script = self._git_script
+    subprocess.run([git_script, self._repo_dir, 'push'])
+    self.log.debug(f'Executed a git push for the added files')
 
 
