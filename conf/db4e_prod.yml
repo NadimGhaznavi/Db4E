@@ -36,7 +36,7 @@ db4e:
   deployment_file: deployment.yml
   desc: "Database 4 Everything"
   dev_dir: dev
-  environ: qa
+  environ: prod
   install_dir: /opt/prod/db4e
   js_dir: js
   md_dir: md
