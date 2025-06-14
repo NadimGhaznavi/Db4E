@@ -57,7 +57,7 @@ Papa.parse(csvUrl, {
     
     const areaOptions = {
       chart: {
-        id: "barChart",
+        id: "areaChart",
         type: "area",
         height: 275,
         foreColor: "#ccc",
@@ -118,12 +118,12 @@ Papa.parse(csvUrl, {
 
     var barOptions = {
       chart: {
-        id: "areaChart",
+        id: "barChart",
         height: 100,
         type: "bar",
         foreColor: "#ccc",
         brush: {
-          target: "barChart",
+          target: "areaChart",
           enabled: true
         },
         selection: {
