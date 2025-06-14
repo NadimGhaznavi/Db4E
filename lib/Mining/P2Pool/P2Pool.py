@@ -66,7 +66,7 @@ class P2Pool():
     log_dir           = ini.config['p2pool']['log_dir']
     log_file          = ini.config['p2pool']['log_file']
     self._p2pool_log  = os.path.join(self._install_dir, log_dir, log_file)
-    
+
     # Get a backend Mining DB object
     self._db = MiningDb()
     # Get a backend Logging object

@@ -39,7 +39,7 @@ class Db4eConfig():
     def __init__(self):
         # Read the application configuration file
         db4e_dir = os.path.join(os.path.dirname(__file__), '../../../')
-        yaml_file = os.path.join(db4e_dir, YAML_FILE_QA)
+        yaml_file = os.path.join(db4e_dir, YAML_FILE)
         self.load(yaml_file)
 
 
