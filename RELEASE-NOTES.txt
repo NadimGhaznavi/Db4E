@@ -1,0 +1,2 @@
+* Created `bin/db4e-purge-logs.sh` wrapper for newly created `bin/db4e-purge-logs.py`.
+  * Updated the main db4e website's *Utilities* page with documentation

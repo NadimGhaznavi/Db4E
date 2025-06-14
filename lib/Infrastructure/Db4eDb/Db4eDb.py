@@ -128,12 +128,15 @@ class Db4eDb():
         return True
     return False
   
-  def purge_old_logs(self):
-     retention_days = self._log_retention
-     log_col = self.get_collection(self._log_collection)
-     threshold_date = datetime.now(timezone.utc) - timedelta(days=retention_days)
-     result = log_col.delete_many({"timestamp": {"$lt": threshold_date}})
-     self.log.debug(f'Purged ({result.deleted_count}) old log entries')
+  def purge_old_logs(self)
+    try:
+      retention_days = self._log_retention
+      log_col = self.get_collection(self._log_collection)
+      threshold_date = datetime.now(timezone.utc) - timedelta(days=retention_days)
+      result = log_col.delete_many({"timestamp": {"$lt": threshold_date}})
+      self.log.debug(f'Purged ({result.deleted_count}) old log entries')
+    except:
+      self.log.error(f'Error purging logs: {e}')
 
   def update_one(self, collection, filter, new_values):
       return collection.update_one(filter, new_values)
