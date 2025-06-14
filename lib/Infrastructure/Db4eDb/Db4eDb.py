@@ -108,6 +108,13 @@ class Db4eDb():
           except CollectionInvalid:
             self.log.warning(f"Attempted to create existing collection: {aCol}")
           self.log.debug(f'Created DB collection ({aCol})')
+    self.ensure_indexes()
+
+  def ensure_indexes(self):
+    log_col = self.get_collection(self._log_collection)
+    if "timestamp_1" not in log_col.index_information():
+      log_col.create_index("timestamp")
+      self.log.debug("Created index on 'timestamp' for log collection.")
 
   def get_collection(self, name):
       return self._db[name]
