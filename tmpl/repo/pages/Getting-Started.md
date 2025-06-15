@@ -33,6 +33,8 @@ The *gnupg* and *curl* packages are needed to install MongoDB. The *libhwloc15* 
 sudo apt-get install gnupg curl libhwloc15
 ```
 
+---
+
 ## Root Access
 
 The *db4e* application does *NOT* require root access to run. However, root access is required to:
@@ -40,8 +42,9 @@ The *db4e* application does *NOT* require root access to run. However, root acce
 * Install Pre-Requisite Linux packages
 * Install MongoDB
 * Run the XMRig miner 
-* Configure sudo for XMRig control
 * Configure *db4e* as a system service
+
+You will only be required to use the root password when you install the package pre-requisites and to install the *db4e* service. The *db4e* applicaiton **NEVER** stores the root password.
 
 ---
 
@@ -117,6 +120,8 @@ Enter same passphrase again:
 
 -simply hit enter (default path, empty passphrase).
 
+---
+
 # Import Key into GitHub
 
 Next you'll want to import the **public** part of your new key to GitHub. This file is `~/.ssh/id_rsa.pub`.
@@ -128,9 +133,13 @@ Next you'll want to import the **public** part of your new key to GitHub. This f
 * Enter a name for the key, e.g. *db4e on my_server*.
 * Next you'll want to cut-and-paste the contents of the public key file (~/.ssh/id_rsa.pub) into the *Key* box in GitHub.
 
+---
+
 # Setup the db4e Service
 
 See the [Setup the db4e Service](/pages/Setup-db4e-Service.html) for information on setting up the *db4e* service.
+
+---
 
 # Hashrate Reports
 
@@ -143,7 +152,6 @@ setup a cronjob (`crontab -e` command) to run these reports periodically. Here's
 ```
 
 **IMPORTANT NOTE**: The cronjob should be installed using the same Linux account name that you are using to run the *db4e* application. This account name is referenced in the *systemd* service definition file (see [Setup the db4e Service](/pages/Setup-db4e-Service.html)) and is also the owner of the *db4e* files and the *website repo* files.
-
 
 
 
