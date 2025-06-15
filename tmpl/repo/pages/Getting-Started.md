@@ -10,20 +10,16 @@ This page will guide you through the process of setting up the *Database 4 Every
 
 # Pre-Requisites
 
----
-
 ## Debian Linux
 
 While *db4e* is certified for [Debian](https://debian.org) [12 Bookworm](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso) Linux, it should work with minimal tweaks on any Linux distribution.
 
-This guide assumes a *minimal* (NetInst) install with only:
+This guide assumes a *minimal* Debian (NetInst) install with only:
 
   * SSH server
-  * Standard system utilities* 
+  * Standard system utilities
 
 -selected.
-
----
 
 ## Additional Software
 
@@ -37,8 +33,6 @@ sudo apt-get install gnupg curl libhwloc15 rsync
 * The *libhwloc15* package is required to run XMRig
 * *rsync* is used by the `db4e-update-repo.sh` script
 
----
-
 ## Root Access
 
 The *db4e* application does *NOT* require root access to run. However, root access is required to:
@@ -50,15 +44,13 @@ The *db4e* application does *NOT* require root access to run. However, root acce
 
 You will only be required to use the root password when you install the package pre-requisites and to install the *db4e* service. The *db4e* applicaiton **NEVER** stores the root password.
 
----
-
 ### Dedicated db4e Account
 
 **PRO TIP:** The *best practise* is to created a dedicated Linux *db4e* account named `db4e`. Have that account own the *db4e* code and the *GitHub Pages* repository. This is optional.
 
 ---
 
-## MongoDB Install
+# Install MongoDB 
 
 MongoDB does not ship with Debian, however the good folks at Mongo run their own repository. See [Installing MongoDB](/pages/Installing-MongoDB.html) for detailed instructions on setting up repository access and installing MongoDB.
 
