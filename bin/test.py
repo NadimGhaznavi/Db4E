@@ -1,10 +1,10 @@
+#!/opt/qa/db4e/venv/bin/python
 """
-bin/db4e-os.py
+bin/db4e-purge-logs.py
 
-This is the db4e TUI; terminal user interface. It is used to manage
-and deploy the db4e software as well as the Monero Blockchain daemon,
-the P2Pool daemon, the XMRig miner and the db4e website GitHub 
-repository
+This is a utility program that purges old log records from MongoDB.
+This *only* purges log records. It does not touch the mining,
+deployment or other MongoDB collections. This is basic housekeeping.
 """
 
 
@@ -28,15 +28,16 @@ repository
   <http://www.gnu.org/licenses/>.
 """
 
+
 # Import supporting modules
-import urwid
-import os, sys
-import warnings
-from urwid.widget.columns import ColumnsWarning
+import os
+import sys
 
+# The directory that this script is in
+script_dir = os.path.dirname(__file__)
+# DB4E modules are in the lib_dir
+lib_dir = script_dir + '/../lib/'
 
-# Where the DB4E modules live
-lib_dir = os.path.dirname(__file__) + "/../lib/"
 # Import DB4E modules
 db4e_dirs = [
   lib_dir + 'Infrastructure',
@@ -45,12 +46,7 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-# DB4E modules
-from Db4eOSTui.Db4eOSTui import Db4eOSTui
+from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
-# Needed, otherwise we get STDERR warnings being dumped into the TUI
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings("ignore", category=ColumnsWarning)
+db = Db4eOSDb()
 
-if __name__ == '__main__':
-    Db4eOSTui().run()

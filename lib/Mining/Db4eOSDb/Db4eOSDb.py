@@ -62,37 +62,45 @@ REPO_RECORD = {
     'github_user': None,
     'github_repo': None,
     'install_dir': None,
-}
+    }
+
+MONEROD_RECORD_REMOTE = {
+    'component': 'monerod',
+    'instance': None,
+    'ip_addr': None,
+    'name': 'Monero daemon',
+    'remote': True,
+    'rpc_bind_port': 18081,
+    'status': 'not_installed',
+    'zmq_pub_port': 18083,
+    }
+
 
 MONEROD_RECORD = {
     'component': 'monerod',
+    'config': 'monerod.ini',
+    'data_dir': None,
     'name': 'Monero daemon',
-    'version': '0.18.4.0',
-    'instance': None,
-    'status': 'not_installed',
-    'ip_addr': None,
-    'zmq_pub_port': 18083,
-    'zmq_rpc_port': 18082,
-    'p2p_bind_port': 18080,
-    'rpc_bind_port': 18081,
-    'out_peers': 16,
     'in_peers': 16,
+    'instance': None,
+    'ip_addr': None,
     'log_level': 0,
+    'log_name': 'monerod.log',
     'max_log_files': 5,
     'max_log_size': 100000,
-    'log_name': 'monerod.log',
-    'show_time_stats': 1,
-    'install_dir': None,
-    'data_dir': None,
+    'out_peers': 16,
+    'p2p_bind_port': 18080,
     'priority_node_1': 'p2pmd.xmrvsbeast.com',
-    'priority_port_1': 18080,
     'priority_node_2': 'nodes.hashvault.pro',
-    'priority_node_2': 18080,
-    'bin_dir': 'bin',
-    'conf_dir': 'conf',
-    'log_dir': 'logs',
-    'run_dir': 'run',
-    'config': 'monerod.ini'
+    'priority_port_1': 18080,
+    'priority_port_2': 18080,
+    'remote': False,
+    'rpc_bind_port': 18081,
+    'show_time_stats': 1,
+    'status': 'not_installed',
+    'version': '0.18.4.0',
+    'zmq_pub_port': 18083,
+    'zmq_rpc_port': 18082,
     }
 
 P2POOL_RECORD = {
@@ -138,27 +146,27 @@ class Db4eOSDb:
         # Make sure we have a 'db4e' deployment record
         self.ensure_record('db4e', DB4E_RECORD)
         self.ensure_record('repo', REPO_RECORD)
-        self.ensure_record('p2pool', P2POOL_RECORD, True)
-        self.ensure_record('monerod', MONEROD_RECORD, True)
-        self.ensure_record('xmrig', XMRIG_RECORD, True)
+        #self.ensure_record('p2pool', P2POOL_RECORD, True)
+        #self.ensure_record('monerod', MONEROD_RECORD, True)
+        #self.ensure_record('xmrig', XMRIG_RECORD, True)
 
-    def ensure_record(self, component, record_template, tmpl_flag=None):
-        if tmpl_flag:
-            rec = self.get_deployment_by_component(component, tmpl_flag)    
-            if not rec:
-                self.add_deployment(deepcopy(record_template), tmpl_flag)
-        else:
-            rec = self.get_deployment_by_component(component)
-            if not rec:
-                self.add_deployment(deepcopy(record_template))
+    def ensure_record(self, component, record_template):
+        rec = self.get_deployment_by_component(component)
+        if not rec:
+            self.add_deployment(deepcopy(record_template))
 
-    def add_deployment(self, jdoc, tmpl_flag=None):
-        if tmpl_flag:
-            jdoc['doc_type'] = 'template'
-        else:
-            jdoc['doc_type'] = 'deployment'
+    def add_deployment(self, jdoc):
+        jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
+
+    def new_deployment(self, component, update_fields):
+        if component == 'monerod':
+            if update_fields['remote']:
+                new_rec = deepcopy(MONEROD_RECORD_REMOTE)
+                new_rec.update(update_fields)
+                self.add_deployment(new_rec)
+
 
     def get_db4e_dir(self):
         return self._db4e_dir
@@ -214,7 +222,6 @@ class Db4eOSDb:
 
     def update_deployment(self, component, update_fields, instance=None):
         update_fields['updated'] = datetime.now(timezone.utc)
-
         # Update an existing instance's deployment
         if instance and update_fields['doc_type'] == 'deployment':
             return self._db.update_one(

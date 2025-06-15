@@ -137,14 +137,13 @@ class Db4eOSMonerodRemoteSetupUI:
         else:
             results += f"* WARNING: Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"
 
-        self._db.update_deployment('monerod', { 
+        self._db.new_deployment('monerod', { 
             'status': 'running',
-            'component': 'monerod',
             'instance': instance,
             'zmq_pub': zmq_port,
             'rpc_port': rpc_port,
             'ip_addr': ip_addr,
-            'doc_type': 'template'
+            'remote': True,
             }, instance)
         results += f'\nCreated new Monero daemon ({instance}) deployment record. '
         self.info_msg.set_text(results)

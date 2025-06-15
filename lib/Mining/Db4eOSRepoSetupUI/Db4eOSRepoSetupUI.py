@@ -175,8 +175,9 @@ class Db4eOSRepoSetupUI:
                 )
                 return
 
-            self._db.update_repo({ 
-                'status': 'running', 
+            self._db.update_deployment('repo', {
+                'status': 'running',
+                'component': 'repo',
                 'install_dir': clone_path,
                 'github_user': username,
                 'github_repo': repo_name
