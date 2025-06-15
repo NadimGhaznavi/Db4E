@@ -25,6 +25,12 @@ See the [Reports](/pages/Reports.html) page.
 
 ---
 
+# Utilities
+
+See the [Utilities](/pages/Utilities.html) page.
+
+---
+
 # Getting Started
 
 Refer to the [Getting Started](/pages/Getting-Started.html) for everything you need to get started.
