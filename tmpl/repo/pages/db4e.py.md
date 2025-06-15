@@ -23,8 +23,6 @@ options:
   -v, --version         Print the db4e version.
 ```
 
-[Back](/)
-
 
 
 
