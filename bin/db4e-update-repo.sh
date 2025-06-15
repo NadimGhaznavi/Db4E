@@ -29,32 +29,27 @@
 #####################################################################
 
 
-ENVIRON=$1
-WEB_DIR=$2
+SRC_DIR=$1
+DEST_DIR=$2
 
-if [ -z $WEB_DIR ]; then
-	echo "ERROR: Usage: $0 [qa|prod] [/path/to/github/pages/repo]"
+# WARNING: Do *NOT* use trailing slashes (/) on the directories
+#
+#     BAD: db4d-update-repo.sh /home/sally/db4e/tmpl/repo /home/sally/xmr/
+#                                                                        ^
+#
+#    GOOD: db4d-update-repo.sh /home/sally/db4e/tmpl/repo /home/sally/xmr
+
+if [ -z $DEST_DIR ]; then
+	echo "ERROR: Usage: $0 /path/to/db4e/tmpl/repo /path/to/local/github/repo"
 	exit 1
 fi
-
-if [ "$ENVIRON" == "prod" ]; then
-	WEB_DIR=/opt/prod/xmr
-	DB4E_DIR=/opt/prod/db4e
-elif [ "$ENVIRON" == "qa" ]; then
-	WEB_DIR=/opt/qa/xmrqa
-	DB4E_DIR=/opt/qa/db4e
-else
-	echo "ERROR: Usage $0 [prod|qa] [/path/to/github/pages/repo]"
-	exit 1
-fi
-
-cd $WEB_DIR
 
 echo "rsync output:"
 echo "-----------------------------------------------------------"
-rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
+rsync -avr ${SRC_DIR}/* ${DEST_DIR}
 echo "-----------------------------------------------------------"
 echo -n "Pushing the new files to GitHub: "
+cd $DEST_DIR
 git add . -v > /dev/null 2>&1
 git commit -m "Static update" > /dev/null 2>&1
 git push > /dev/null 2>&1
