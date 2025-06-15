@@ -86,10 +86,7 @@ class Db4eOSModel:
         return deployments
         
     def get_monerod_deployment(self, instance):
-        depl_rec = self._db.get_deployment_by_instance('monerod', instance)
-        if depl_rec:
-            return depl_rec
-        return self._db.get_monerod_tmpl()
+        return self._db.get_deployment_by_instance('monerod', instance)
 
     def get_p2pool_deployments(self):
         deployments = {}
@@ -99,6 +96,9 @@ class Db4eOSModel:
             instance = deployment['instance']
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
         return deployments
+
+    def get_p2pool_deployment(self, instance):
+        return self._db.get_deployment_by_instance('p2pool', instance)
 
     def get_xmrig_deployments(self):
         deployments = {}

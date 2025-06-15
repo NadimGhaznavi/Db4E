@@ -52,7 +52,7 @@ class Db4eOSXMRigSetupUI:
         self.ini = Db4eConfig()
         self._os = Db4eOS()
         self._db = Db4eOSDb()
-        xmrig_rec = self._db.get_xmrig_tmpl()
+        xmrig_rec = self._db.get_tmpl('xmrig')
         self.selected_p2pool = None
         self.deployment_radios = []
         self.group = []

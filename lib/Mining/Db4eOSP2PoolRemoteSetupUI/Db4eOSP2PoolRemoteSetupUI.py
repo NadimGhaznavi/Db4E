@@ -50,7 +50,7 @@ class Db4eOSP2PoolRemoteSetupUI:
         self.parent_tui = parent_tui
         self._os = Db4eOS()
         self._db = Db4eOSDb()
-        p2pool_rec = self._db.get_p2pool_tmpl()
+        p2pool_rec = self._db.get_tmpl('p2pool', 'remote')
         self.selected_monerod = None
         self.deployment_radios = []
         self.group = []
@@ -92,7 +92,8 @@ class Db4eOSP2PoolRemoteSetupUI:
                         self.instance_edit,
                         self.ip_addr_edit,
                         self.stratum_port_edit,
-                        self.build_monerod_deployments(monerod_deployments),
+                        # Not used for remote deployments
+                        #self.build_monerod_deployments(monerod_deployments),
                         urwid.Divider(),
                         urwid.Columns([
                             (10, urwid.Button(('button', 'Submit'), on_press=self.on_submit)),
@@ -143,21 +144,22 @@ class Db4eOSP2PoolRemoteSetupUI:
             return
         # Check that db4e can connect to the remote system
         if self._os.is_port_open(ip_addr, int(stratum_port)):
-            results += f'* Connected to the P2Pool ({ip_addr}) stratum port ({stratum_port})\n'
+            results += f'* Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
         else:
-            results += f"* WARNING: Unable to connect to the P2Pool ({ip_addr}) stratum port ({stratum_port})\n"
+            results += f'* WARNING: Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
 
         # TODO check that the instance name is unique
         monerod_rec = self._db.get_deployment_by_instance('monerod', self.selected_monerod)
-        self._db.update_deployment('p2pool', { 
+        self._db.new_deployment('p2pool', { 
             'status': 'running',
             'component': 'p2pool',
             'instance': instance,
             'ip_addr': ip_addr,
             'stratum_port': int(stratum_port),
             'monerod_id': monerod_rec['_id'],
-            'doc_type': 'template'
-            }, instance)
+            'doc_type': 'template',
+            'remote': True
+            })
         results += f'\nCreated new P2Pool daemon ({instance}) deployment record. '
         self.info_msg.set_text(results)
 

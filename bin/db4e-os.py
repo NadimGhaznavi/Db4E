@@ -29,7 +29,6 @@ repository
 """
 
 # Import supporting modules
-import urwid
 import os, sys
 import warnings
 from urwid.widget.columns import ColumnsWarning

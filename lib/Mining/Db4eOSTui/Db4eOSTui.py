@@ -256,7 +256,6 @@ class Db4eOSTui:
             (30, left_panel),
             self.right_panel
         ], dividechars=1)
-        
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
     def exit_app(self, button):
@@ -357,8 +356,55 @@ class Db4eOSTui:
 
             if depl_type == 'monerod':
                 depl = self.model.get_monerod_deployment(instance)
+                ip_addr = depl['ip_addr']
+                remote_flag = depl['remote']
+                if remote_flag:
+                    remote = 'Remote'
+                else:
+                    remote = 'Local'
+                rpc_bind_port = depl['rpc_bind_port']
+                zmq_pub_port = depl['zmq_pub_port']
+                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
+                header_msg = urwid.Text(f'Monero Blockchain Daemon - {instance}\n')
+                status = f'* Hostname or IP address: {ip_addr}\n'
+                status += f'* Local or remote: {remote}\n'
+                status += f'* RPC bind port: {rpc_bind_port}\n'
+                status += f'* ZMQ pub port: {zmq_pub_port}\n'
+                status += f'* Updated: {updated}\n'
+                status_msg = urwid.Text(status)
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
+                header_msg, status_msg]))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
                 return
-                
+
+            elif depl_type == 'p2pool':
+                depl = self.model.get_p2pool_deployment(instance)
+                ip_addr = depl['ip_addr']
+                remote_flag = depl['remote']
+                if remote_flag:
+                    remote = 'Remote'
+                else:
+                    remote = 'Local'
+                stratum_port = depl['stratum_port']
+                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
+                header_msg = urwid.Text(f'P2Pool Daemon - {instance}\n')
+                status = f'* Hostname or IP address: {ip_addr}\n'
+                status += f'* Local or remote: {remote}\n'
+                status += f'* Stratum port: {stratum_port}\n'
+                status += f'* Updated: {updated}\n'
+                status_msg = urwid.Text(status)
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
+                header_msg, status_msg]))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                return
 
             else:
                 self.right_panel = urwid.LineBox(

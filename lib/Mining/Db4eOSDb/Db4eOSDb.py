@@ -103,6 +103,16 @@ MONEROD_RECORD = {
     'zmq_rpc_port': 18082,
     }
 
+P2POOL_RECORD_REMOTE = {
+    'component': 'p2pool',
+    'instance': None,
+    'ip_addr': None,
+    'monerod_id': None,
+    'name': 'P2Pool daemon',
+    'status': 'not_installed',
+    'stratum_port': 3333,
+    }
+
 P2POOL_RECORD = {
     'component': 'p2pool',
     'conf_dir': 'conf',
@@ -143,12 +153,9 @@ class Db4eOSDb:
         self.init_deployments()
 
     def init_deployments(self):
-        # Make sure we have a 'db4e' deployment record
+        # Make sure we have a 'db4e' and 'repo' deployment records.
         self.ensure_record('db4e', DB4E_RECORD)
         self.ensure_record('repo', REPO_RECORD)
-        #self.ensure_record('p2pool', P2POOL_RECORD, True)
-        #self.ensure_record('monerod', MONEROD_RECORD, True)
-        #self.ensure_record('xmrig', XMRIG_RECORD, True)
 
     def ensure_record(self, component, record_template):
         rec = self.get_deployment_by_component(component)
@@ -166,7 +173,11 @@ class Db4eOSDb:
                 new_rec = deepcopy(MONEROD_RECORD_REMOTE)
                 new_rec.update(update_fields)
                 self.add_deployment(new_rec)
-
+        elif component == 'p2pool':
+            if update_fields['remote']:
+                new_rec = deepcopy(P2POOL_RECORD_REMOTE)
+                new_rec.update(update_fields)
+                self.add_deployment(new_rec)
 
     def get_db4e_dir(self):
         return self._db4e_dir
@@ -199,19 +210,27 @@ class Db4eOSDb:
         # Return the Monero daemon deployment docs
         return self.get_deployments_by_component('monerod')
 
-    def get_monerod_tmpl(self):
-        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'monerod'})
-
     def get_p2pool_deployments(self):
         # Return the P2Pool deployment docs
         return self.get_deployments_by_component('p2pool')
 
-    def get_p2pool_tmpl(self):
-        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'p2pool'})
-
     def get_repo_dir(self):
         depl = self.get_repo_deployment()
         return depl['install_dir']
+    
+    def get_tmpl(self, component, remote=None):
+        if component == 'monerod':
+            if remote:
+                return deepcopy(MONEROD_RECORD_REMOTE)
+            else:
+                return deepcopy(MONEROD_RECORD)
+        elif component == 'p2pool':
+            if remote:
+                return deepcopy(P2POOL_RECORD_REMOTE)
+            else:
+                return deepcopy(P2POOL_RECORD)
+        elif component == 'xmrig':
+            return deepcopy(XMRIG_RECORD)
 
     def get_xmrig_deployments(self):
         # Return the xmrig deployment docs

@@ -51,12 +51,11 @@ class Db4eOSMonerodRemoteSetupUI:
         self.parent_tui = parent_tui
         self._os = Db4eOS()
         self._db = Db4eOSDb()
-        monerod_rec = self._db.get_monerod_tmpl()
-        ip_addr = monerod_rec['ip_addr'] or ''
+        monerod_rec = self._db.get_tmpl('monerod', 'remote')
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
         self.instance_edit = urwid.Edit("Monero instance name (e.g. Primary): ", edit_text='')
-        self.ip_addr_edit = urwid.Edit("Remote node IP address: ", edit_text=ip_addr)
+        self.ip_addr_edit = urwid.Edit("Remote node hostname or IP address: ", edit_text='')
         self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=str(zmq_port))
         self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=str(rpc_port))
         self.info_msg = urwid.Text('')
@@ -139,11 +138,11 @@ class Db4eOSMonerodRemoteSetupUI:
         self._db.new_deployment('monerod', { 
             'status': 'running',
             'instance': instance,
-            'zmq_pub': zmq_port,
-            'rpc_port': rpc_port,
+            'zmq_pub_port': zmq_port,
+            'rpc_bind_port': rpc_port,
             'ip_addr': ip_addr,
-            'remote': True,
-            }, instance)
+            'remote': True
+            })
         results += f'\nCreated new Monero daemon ({instance}) deployment record. '
         self.info_msg.set_text(results)
 
