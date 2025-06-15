@@ -54,7 +54,7 @@ fi
 cd $WEB_DIR
 
 if [ "${DEBUG}" == "False" ]; then
-	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR} > /dev/null 2>&1
+	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
 	git add . -v > /dev/null 2>&1
 	git commit -m "Static update" > /dev/null 2>&1
 	git push > /dev/null 2>&1
