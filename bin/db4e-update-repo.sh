@@ -50,7 +50,7 @@ fi
 
 cd $WEB_DIR
 
-echo "rsync output"
+echo "rsync output:"
 echo "-----------------------------------------------------------"
 rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
 echo "-----------------------------------------------------------"
@@ -58,4 +58,4 @@ echo -n "Pushing the new files to GitHub: "
 git add . -v > /dev/null 2>&1
 git commit -m "Static update" > /dev/null 2>&1
 git push > /dev/null 2>&1
-echo "DONE
+echo "DONE"
