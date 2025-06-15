@@ -48,7 +48,6 @@ class Db4eConfig():
         
         parser.add_argument('-b', '--backup', action='store_true', help='Perform a db4e backup.')
         parser.add_argument('-e', '--environ', default='prod', help='Run in QA environment with -e qa.')
-        parser.add_argument('-l', '--log_level', default='info', type=str, help='Set the log level (debug, info, warning, error or critical')
         parser.add_argument('-m', '--monitor', action='store_true', help='Monitor the P2Pool log.')
         parser.add_argument('-r', '--reports', default='None', type=str, help='Run a db4e report.')
         parser.add_argument('-s', '--service', action='store_true', help='Run db4e as a service.')
@@ -65,9 +64,6 @@ class Db4eConfig():
             version = self.config['db4e']['version']
             print(f'db4e {version}')
             sys.exit(0)
-
-        # This has a default, so its always set
-        self.config['db4e']['log_level'] = args.log_level
 
         # This has a default, so its always set.
         self.config['db4e']['environ'] = args.environ
