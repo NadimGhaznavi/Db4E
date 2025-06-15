@@ -27,8 +27,10 @@ This guide assumes a *minimal* (NetInst) install with only:
 
 ## Additional Software
 
+The *gnupg* and *curl* packages are needed to install MongoDB. The *libhwloc15* package is required to run XMRig.
+
 ```
-sudo apt-get install gnupg curl
+sudo apt-get install gnupg curl libhwloc15
 ```
 
 ## Root Access
