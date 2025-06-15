@@ -37,9 +37,6 @@ if [ -z $WEB_DIR ]; then
 	exit 1
 fi
 
-DEBUG=False
-# DEBUG=True
-
 if [ "$ENVIRON" == "prod" ]; then
 	WEB_DIR=/opt/prod/xmr
 	DB4E_DIR=/opt/prod/db4e
@@ -53,14 +50,12 @@ fi
 
 cd $WEB_DIR
 
-if [ "${DEBUG}" == "False" ]; then
-	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
-	git add . -v > /dev/null 2>&1
-	git commit -m "Static update" > /dev/null 2>&1
-	git push > /dev/null 2>&1
-else
-	rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
-	git add . -v
-	git commit -m "Static update"
-	git push
-fi
+echo "rsync output"
+echo "-----------------------------------------------------------"
+rsync -avr ${DB4E_DIR}/tmpl/repo/* ${WEB_DIR}
+echo "-----------------------------------------------------------"
+echo -n "Pushing the new files to GitHub: "
+git add . -v > /dev/null 2>&1
+git commit -m "Static update" > /dev/null 2>&1
+git push > /dev/null 2>&1
+echo "DONE
