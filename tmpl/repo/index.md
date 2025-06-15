@@ -31,6 +31,12 @@ See the [Utilities](/pages/Utilities.html) page.
 
 ---
 
+# Community Feedback
+
+*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page.
+
+---
+
 # Getting Started
 
 Refer to the [Getting Started](/pages/Getting-Started.html) for everything you need to get started.

@@ -110,12 +110,6 @@ See the [Utilities](/pages/Utilities.html) for a comprehensive list.
 
 ---
 
-# Donations
-
-Please help keep this project alive and moving forward by [donating](/pages/Donations.html).
-
----
-
 # Coming Soon
 
 The `db4e-os` *terminal user interface* (TUI) is coming. It's used to manage the deployment of the *db4e* components and monitor their health.
@@ -129,6 +123,25 @@ The `db4e-os` *terminal user interface* (TUI) is coming. It's used to manage the
 This code is **alpha** it's under active development and doesn't fully work. Here's a screenshot to whet your appetite:
 
 ![db4e-os screenshot](/images/db4e-os-alpha.png)
+
+---
+
+# Community Feedback
+
+Please use the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page for:
+
+* Announcements
+* Ideas
+* Q&A
+* Bug Reporting
+
+-and general chatter about the project.
+
+---
+
+# Donations
+
+Please help keep this project alive and moving forward by [donating](/pages/Donations.html).
 
 ---
 
