@@ -128,6 +128,9 @@ class Db4eModel:
         }
         return db4e
     
+    def get_db4e_status(self):
+        return self._os.get_db4e_service_status()
+
     def get_repo_deployment(self):
         repo_rec = self._db.get_repo_deployment()
         repo = {
@@ -367,6 +370,7 @@ class Db4eTui:
         deployment = self.selected_deployment
         if deployment == 'db4e':
             db4e = self.model.get_db4e_deployment()
+
             if db4e['status'] == 'stopped':
                 setup_service_msg = self.db4e_setup_ui.setup_service_msg()
                 text_msg = urwid.Text(setup_service_msg)
@@ -382,8 +386,24 @@ class Db4eTui:
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
+            
+            elif db4e['status'] == 'running':
+                header_msg = urwid.Text('db4e Service Status\n')
+                status = self.model.get_db4e_status()
+                status_msg = urwid.Text('* ' + status['service_installed'] )
+                enabled_msg = urwid.Text('* ' + status['service_enabled'] )
+                running_msg = urwid.Text('* ' + status['service_running'] )
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
+                    header_msg, status_msg, enabled_msg, running_msg]))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                return
 
-        if deployment == 'repo':
+
+        elif deployment == 'repo':
             repo = self.model.get_repo_deployment()
             if repo['status'] == 'not_installed':
                 new_repo_msg = self.repo_setup_ui.new_repo_msg()
@@ -401,19 +421,20 @@ class Db4eTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
 
-        depl_type = deployment.split(':')[0]
-        instance = deployment.split(':')[1]
-        if depl_type == 'monerod':
-            depl = self.model.get_monerod_deployment(instance)
-            return
-            # TBD - Handle reconfiguration of an existing deployment
-
         else:
-            self.right_panel = urwid.LineBox(
-                urwid.Padding(urwid.Text(f'No info available for {deployment}.'), left=2, right=2),
-                title='INFO', title_align='right', title_attr='title'
-            )
-            self.main_loop.widget = self.build_main_frame()
+            depl_type = deployment.split(':')[0]
+            instance = deployment.split(':')[1]
+            if depl_type == 'monerod':
+                depl = self.model.get_monerod_deployment(instance)
+                return
+                # TBD - Handle reconfiguration of an existing deployment
+
+            else:
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(urwid.Text(f'No info available for {deployment}.'), left=2, right=2),
+                    title='INFO', title_align='right', title_attr='title'
+                )
+                self.main_loop.widget = self.build_main_frame()
 
     def show_db4e_setup(self, button):
         self.main_loop.widget = self.db4e_setup_ui.widget()

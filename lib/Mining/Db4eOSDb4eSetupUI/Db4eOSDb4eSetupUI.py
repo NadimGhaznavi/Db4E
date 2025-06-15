@@ -30,7 +30,6 @@ user setup the db4e service.
 import os, sys
 import urwid
 import subprocess
-import shutil
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"

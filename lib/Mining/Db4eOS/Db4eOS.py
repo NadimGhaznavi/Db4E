@@ -32,6 +32,7 @@ import subprocess
 import psutil
 import yaml
 import socket
+import re
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -66,6 +67,25 @@ class Db4eOS:
             results['service_installed'] = f'The systemd service file ({DB4E_SERVICE_FILE}) is installed'
         else:
             results['service_installed'] = f'The systemd service file ({DB4E_SERVICE_FILE}) is not installed'
+        cmd_result = subprocess.run(
+            ['systemctl', 'status', 'db4e'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            input='',
+            timeout=10)
+        stdout = cmd_result.stdout.decode().strip()
+        stderr = cmd_result.stderr.decode().strip()
+        pattern = r".*db4e.service; (?P<enable_disable>.*);.*"
+        match = re.search(pattern, str(stdout))
+        if match:
+            enable_disable = match.group('enable_disable')
+            if enable_disable == 'disabled':
+                results['service_enabled'] = 'The service is disabled, use `sudo systemctl enable db4e` to enable the service'
+            else:
+                results['service_enabled'] = 'The db4e service is configured to start at boot time'
+        else:
+            results['service_enabled'] = 'ERROR'
+        results['service_running'] = 'Is running: NOT IMPLEMENTED'
         return results
 
     def get_pid(self, proc_name):
