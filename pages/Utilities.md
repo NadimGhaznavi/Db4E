@@ -40,6 +40,20 @@ The *db4e-update-repo.sh* script ised to update GitHub pages site when there is 
 When you run a `git pull` in your local *db4e* folder to get the latest software those static content changes need to be copied into your *GitHub Pages* reposity. The utility
 uses rsync to do this.
 
+**WARNING**: Do **NOT** use a trailing slash (/) for the destination directory. It will 
+cause bad things to happen with rsync.
+
+This is **wrong**:
+```
+db4d-update-repo.sh /home/sally/db4e/tmpl/repo /home/sally/xmr/
+                                                              ^
+```
+
+This is good:
+```
+db4d-update-repo.sh /home/sally/db4e/tmpl/repo /home/sally/xmr
+```
+
 ---
 
 # db4e-purge-logs.sh
