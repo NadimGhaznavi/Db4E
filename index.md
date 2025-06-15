@@ -21,7 +21,7 @@ This is the home of **db4e**, the **Database 4 Everything**  project. The **db4e
 
 *db4e*:
 
-* Monitors the health of your farm with a [console based dashboard](/pages/ops/db4e-gui.py.html)
+* Monitors the health of your farm with a [console based dashboard](/pages/db4e-gui.py.html)
 * Manages a (free) GitHub Pages website (e.g. [my mining farm](https://xmr.osoyalce.com)) where *db4e* publishes reports
 * Includes a mini Python install containing required 3rd party software (e.g. PyMongo)
 * A [MongoDB Backend](#mongodb-backend) for historical data, logging and configuration settings
@@ -62,8 +62,6 @@ The *db4e* application is currently running on [Debian Linux](https://www.debian
 
 At it's core, *db4e* monitors the P2Pool server for events. Scheduled commands are also sent to the running P2Pool daemon to trigger log output. Events are stored in MongoDB. Some events also trigger the creation of a CSV file which is published to a GitHub hosted website (this site). Javascript code is used to render the CSV data into nice, human-friendly graphs and bar charts.
 
-See the [Pre-Requisites page](/pages/ops/Pre-Requisites.md)
-
 ---
 
 # Systems Architecture
@@ -82,9 +80,9 @@ See the [Codebase Architecture](/pages/ops/Codebase-Architecture.html) page for 
 
 # Utilities
 
-Utilities include the core [db4e.py](/pages/ops/db4e.py.html) too, the [db4e-gui.py](/pages/ops/db4e-gui.py.html) console application, the [backup-db.sh](/pages/ops/backup-db.sh.html) and more.
+Utilities include the core [db4e.py](/pages/db4e.py.html) too such as the [db4e-gui.py](/pages/db4e-gui.py.html) console application.
 
-See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
+See the [Utilities](/pages/Utilities.html) for a comprehensive list.
 
 ---
 
@@ -114,7 +112,7 @@ See the [Utilities](/pages/ops/Utilities.html) for a comprehensive list.
 
 # Donations
 
-Please help keep this project alive and moving forward by [donating](/pages/web/Donations.html).
+Please help keep this project alive and moving forward by [donating](/pages/Donations.html).
 
 ---
 

@@ -27,11 +27,15 @@ This guide assumes a *minimal* (NetInst) install with only:
 
 ## Additional Software
 
-The *gnupg* and *curl* packages are needed to install MongoDB. The *libhwloc15* package is required to run XMRig.
+Some standard packages are required to setup and run *db4e*:
 
 ```
-sudo apt-get install gnupg curl libhwloc15
+sudo apt-get install gnupg curl libhwloc15 rsync
 ```
+
+* The *gnupg* and *curl* packages are needed to install MongoDB
+* The *libhwloc15* package is required to run XMRig
+* *rsync* is used by the `db4e-update-repo.sh` script
 
 ---
 
@@ -152,6 +156,19 @@ setup a cronjob (`crontab -e` command) to run these reports periodically. Here's
 ```
 
 **IMPORTANT NOTE**: The cronjob should be installed using the same Linux account name that you are using to run the *db4e* application. This account name is referenced in the *systemd* service definition file (see [Setup the db4e Service](/pages/Setup-db4e-Service.html)) and is also the owner of the *db4e* files and the *website repo* files.
+
+---
+
+# MongoDB Backups
+
+A comprehensive backup of MongoDb has been implemented by running `db4e.sh -b`. The code will backup the MongoDB databases into your local *GitHub Pages website* in the `backups` directory. Currently the script keeps 7 backups before rotating them out. The implementation also pushes the backups to GitHub so you have off-site storage for free!
+
+**PRO-TIP**: Create a cronjob to schedule daily backups. E.g.
+
+```
+# Do a daily DB backup at noon
+0 12 * * * /opt/prod/db4e/bin/db4e.sh -b
+```
 
 
 

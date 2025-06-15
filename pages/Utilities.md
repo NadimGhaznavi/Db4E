@@ -5,19 +5,13 @@ layout: default
 
 # db4e.py
 
-This utility monitors the Mining Farm's P2Pool daemon logs, creates records in the backend database and triggers updates to the web front end. See the [db4e.py page](/pages/ops/db4e.py.html) for more information.
+This utility monitors the Mining Farm's P2Pool daemon logs, creates records in the backend database and triggers updates to the web front end. See the [db4e.py page](/pages/db4e.py.html) for more information.
 
 ---
 
 # db4e-gui.py
 
-The *db4e-gui.py* application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/ops/db4e-gui.py.html) for more information.
-
----
-
-# db4e-backup.sh
-
-The *backup-db.sh* utility is used to backup the backend MongoDB database. The database contains all of the historical data that the [db4e.py](/pages/ops/db4e.py.html) application collects. See the [backup-db.sh page](/pages/ops/backup-db.sh.html) for more information.
+The *db4e-gui.py* application provides a console based monitoring solution for my Monero XMR Mining farm.See the [db4e-gui.py page](/pages/db4e-gui.py.html) for more information.
 
 ---
 
@@ -41,7 +35,10 @@ Additionally, each miner also has a cron job to restart the *xmrig* mining softw
 
 # db4e-update-repo.sh
 
-Used to update GitHub pages site when there is a new release of the *db4e*. This updates your GitHub pages repository with content from *tmpl/repo* using *rsync*.
+The *db4e-update-repo.sh* script ised to update GitHub pages site when there is a new release of *db4e* that includes updates to the static content of the *GitHub Pages website". For example, an update to the contents of the included [Getting Started](/pages/Getting-Started.html) page.
+
+When you run a `git pull` in your local *db4e* folder to get the latest software those static content changes need to be copied into your *GitHub Pages* reposity. The utility
+uses rsync to do this.
 
 ---
 
