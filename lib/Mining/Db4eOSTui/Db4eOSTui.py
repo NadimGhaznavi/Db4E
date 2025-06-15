@@ -350,12 +350,15 @@ class Db4eOSTui:
                 return
 
         else:
+            # Unlike 'db4e' and 'repo' the 'monerod', 'p2opool' and 'xmrig' 
+            # deployments have multiple instances...
             depl_type = deployment.split(':')[0]
             instance = deployment.split(':')[1]
+
             if depl_type == 'monerod':
                 depl = self.model.get_monerod_deployment(instance)
                 return
-                # TBD - Handle reconfiguration of an existing deployment
+                
 
             else:
                 self.right_panel = urwid.LineBox(

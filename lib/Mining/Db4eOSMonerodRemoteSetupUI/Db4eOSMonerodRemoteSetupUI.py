@@ -52,11 +52,10 @@ class Db4eOSMonerodRemoteSetupUI:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         monerod_rec = self._db.get_monerod_tmpl()
-        instance = monerod_rec['instance'] or ''
         ip_addr = monerod_rec['ip_addr'] or ''
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
-        self.instance_edit = urwid.Edit("Monero instance name (e.g. Primary): ", edit_text=instance)
+        self.instance_edit = urwid.Edit("Monero instance name (e.g. Primary): ", edit_text='')
         self.ip_addr_edit = urwid.Edit("Remote node IP address: ", edit_text=ip_addr)
         self.zmq_port_edit = urwid.Edit("ZMQ port: ", edit_text=str(zmq_port))
         self.rpc_port_edit = urwid.Edit("RPC port: ", edit_text=str(rpc_port))
