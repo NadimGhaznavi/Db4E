@@ -128,14 +128,7 @@ This code is **alpha** it's under active development and doesn't fully work. Her
 
 # Community Feedback
 
-Please use the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page for:
-
-* Announcements
-* Ideas
-* Q&A
-* Bug Reporting
-
--and general chatter about the project.
+*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page.
 
 ---
 
