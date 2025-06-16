@@ -93,18 +93,19 @@ xmrig:
   version: "6.22.2"
   
 db:
-  server: localhost
-  port: 27017
-  name: db4e_qa
-  collection: mining
-  log_collection: logging
-  depl_collection: depl
   backup_dir: backups
-  backup_script: bin/db4e-backup.sh
-  retry_timeout: 15
+  backup_script: db4e-backup.sh
+  collection: mining
+  depl_collection: depl
+  log_collection: logging
   # How many days of data to keep in the logging collection
-  log_retention_days: 1
+  log_retention_days: 7
+  metrics_collection: metrics
+  name: db4e_qa
+  port: 27017
+  retry_timeout: 15
+  server: localhost
   
 git:
-  git_script: bin/db4e-git.sh
+  git_script: db4e-git.sh
 
