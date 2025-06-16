@@ -43,6 +43,8 @@ for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
+from Db4eConfig.Db4eConfig import Db4eConfig
 
 
 NEW_REPO_MSG = "GitHub Pages Website Repository Setup\n\n"
@@ -64,6 +66,8 @@ class Db4eOSRepoSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self._db = Db4eOSDb()
+        self.model = Db4eOSModel()
+        self.ini = Db4eConfig()
         repo_rec = self._db.get_repo_deployment()
         github_user = repo_rec['github_user'] or ''
         github_repo = repo_rec['github_repo'] or ''
@@ -174,7 +178,7 @@ class Db4eOSRepoSetupUI:
                     f'Failed to clone repository.\n\n{stderr}'
                 )
                 return
-
+            
             self._db.update_deployment('repo', {
                 'status': 'running',
                 'component': 'repo',
@@ -182,7 +186,30 @@ class Db4eOSRepoSetupUI:
                 'github_user': username,
                 'github_repo': repo_name
                 })
-            self.info_msg.set_text("Repository cloned successfully.")
+            info_msg = 'Repository cloned successfully.\n\n'
+            info_msg += 'Pre-populating static content:\n'
+
+            # Pre-Populate the new repo with static content
+            db4e_dir = self.model.get_db4e_dir()
+            local_repo_dir = self.model.get_repo_dir()
+            tmpl_dir = self.ini.config['db4e']['template_dir']
+            db4e_repo_dir = self.ini.config['db4e']['repo_dir']
+            bin_dir = self.ini.config['db4e']['bin_dir']
+            update_repo_script = self.ini.config['db4e']['update_repo_script']
+            fq_script = os.path.join(db4e_dir, bin_dir, update_repo_script)
+            fq_src_dir = os.path.join(db4e_dir, tmpl_dir, db4e_repo_dir)
+            sync_result = subprocess.run(
+                [fq_script, fq_src_dir, local_repo_dir],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            if sync_result.returncode != 0:
+                self.info_msg.set_text(
+                    f'Failed to pre-populate static content.\n\n{stderr}'
+                )
+                return
+            sync_output = sync_result.stdout.decode().strip()
+            self.info_msg.set_text(f'{info_msg}{sync_output}')
+
 
         except Exception as e:
             self.info_msg.set_text(f"Error: {str(e)}")

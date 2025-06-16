@@ -1,1 +1,2 @@
-  
+* Updated *Utilities Page* static content
+* Added a *Community Feedback" section to the db4e and GitHub pages static content 

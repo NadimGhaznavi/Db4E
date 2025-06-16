@@ -123,7 +123,7 @@ class Db4eOSMonerodRemoteSetupUI:
         # TODO check that the instance name is unique
 
         # Cannot connect warnings
-        results = 'Checklist:\n\n'
+        results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
         if self._os.is_port_open(ip_addr, zmq_port):
             results += f'* Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'

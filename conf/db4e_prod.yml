@@ -41,12 +41,14 @@ db4e:
   js_dir: js
   md_dir: md
   process: db4e.py
+  repo_dir: repo
   reports_dir: reports
   service_file: db4e.service
   service_installer: db4e-install-service.sh
   src_dir: src
   systemd_dir: systemd
   template_dir: tmpl
+  update_repo_script: db4e-update-repo.sh
   version: 0.14.2-beta
 
 web:

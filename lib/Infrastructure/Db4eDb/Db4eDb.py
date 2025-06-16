@@ -93,6 +93,9 @@ class Db4eDb():
       subprocess.run([backup_script, db_name, aCol, backup_dir])
       self.log.info(f'Created a new backup of ({aCol}) in {backup_dir}')
 
+  def delete_one(self, collection, dbquery):
+     return collection.delete_one(dbquery)
+
   def init_db(self):
     db_col  = self._db_collection
     log_col = self._log_collection

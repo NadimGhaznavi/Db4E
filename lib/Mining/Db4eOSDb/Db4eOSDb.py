@@ -152,6 +152,10 @@ class Db4eOSDb:
         self._db4e_dir = db4e_dir
         self.init_deployments()
 
+    def delete_instance(self, component, instance):
+        dbquery = { 'component': component, 'instance': instance }
+        return self._db.delete_one(self._col, dbquery)
+
     def init_deployments(self):
         # Make sure we have a 'db4e' and 'repo' deployment records.
         self.ensure_record('db4e', DB4E_RECORD)
@@ -166,18 +170,6 @@ class Db4eOSDb:
         jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
-
-    def new_deployment(self, component, update_fields):
-        if component == 'monerod':
-            if update_fields['remote']:
-                new_rec = deepcopy(MONEROD_RECORD_REMOTE)
-                new_rec.update(update_fields)
-                self.add_deployment(new_rec)
-        elif component == 'p2pool':
-            if update_fields['remote']:
-                new_rec = deepcopy(P2POOL_RECORD_REMOTE)
-                new_rec.update(update_fields)
-                self.add_deployment(new_rec)
 
     def get_db4e_dir(self):
         return self._db4e_dir
@@ -194,6 +186,9 @@ class Db4eOSDb:
         docs = self._db.find_many(self._col, {'doc_type': 'deployment', 'component': component})
         return docs or []
     
+    def get_deployment_by_id(self, dep_id):
+        return self._db.find_one(self._col, {'doc_type': 'deployment', '_id': dep_id})
+
     def get_deployment_by_instance(self, component, instance):
         return self._db.find_one(
             self._col, {'doc_type': 'deployment', 'component': component, 'instance': instance})
@@ -238,6 +233,18 @@ class Db4eOSDb:
     
     def get_xmrig_tmpl(self):
         return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'xmrig'})
+
+    def new_deployment(self, component, update_fields):
+        if component == 'monerod':
+            if update_fields['remote']:
+                new_rec = deepcopy(MONEROD_RECORD_REMOTE)
+                new_rec.update(update_fields)
+                self.add_deployment(new_rec)
+        elif component == 'p2pool':
+            if update_fields['remote']:
+                new_rec = deepcopy(P2POOL_RECORD_REMOTE)
+                new_rec.update(update_fields)
+                self.add_deployment(new_rec)
 
     def update_deployment(self, component, update_fields, instance=None):
         update_fields['updated'] = datetime.now(timezone.utc)

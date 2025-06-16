@@ -53,6 +53,9 @@ class Db4eOSModel:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
 
+    def delete_instance(self, component, instance):
+        return self._db.delete_instance(component, instance)
+
     def get_db4e_deployment(self):
         db4e_rec = self._db.get_db4e_deployment()
         db4e = {
@@ -61,8 +64,25 @@ class Db4eOSModel:
         }
         return db4e
     
+    def get_db4e_dir(self):
+        db4e_rec = self._db.get_db4e_deployment()
+        return db4e_rec['install_dir']
+    
     def get_db4e_status(self):
         return self._os.get_db4e_service_status()
+
+    def get_problems(self, component, instance):
+        problems = []
+        depl_rec = self._db.get_deployment_by_instance(component, instance)
+        if component == 'p2pool':
+            ip_addr = depl_rec['ip_addr']
+            stratum_port = depl_rec['stratum_port']
+            monerod_id = depl_rec['monerod_id']
+            if not self._os.is_port_open(ip_addr, stratum_port):
+                problems.append(f'Unable to connect to P2Pool\'s stratum port ({stratum_port}) on host ({ip_addr})')
+            if not self._db.get_deployment_by_id(monerod_id):
+                problems.append('P2Pool deployment is not connected to a Monero daemon deployment')
+            return problems
 
     def get_repo_deployment(self):
         repo_rec = self._db.get_repo_deployment()
@@ -93,6 +113,9 @@ class Db4eOSModel:
         for deployment in self._db.get_p2pool_deployments():
             name = deployment['name']
             status = deployment['status']
+            # Check that the P2Pool instance's Monero daemon deployment record exists
+            if not self._db.get_deployment_by_id(deployment['monerod_id']):
+                status = 'stopped'
             instance = deployment['instance']
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
         return deployments

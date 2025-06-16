@@ -5,10 +5,8 @@ This is the db4e TUI; terminal user interface. It is used to manage
 and deploy the db4e software as well as the Monero Blockchain daemon,
 the P2Pool daemon, the XMRig miner and the db4e website GitHub 
 repository
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi

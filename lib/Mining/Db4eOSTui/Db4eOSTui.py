@@ -64,6 +64,7 @@ STATUS = {
     'running'       : '🟢',
     'stopped'       : '🟡',
     'not_installed' : '🔴',
+    'warning'       : '⚠️',
     'unknown'       : '❔'
 }
 
@@ -103,6 +104,7 @@ class Db4eOSTui:
     def __init__(self):
         self.model = Db4eOSModel()
         self.selected_deployment = 'db4e'
+        self.selected_instance = None
         self.deployment_radios = []
         self.right_panel = urwid.LineBox(urwid.Padding(
             urwid.Text(WELCOME_MSG),
@@ -258,6 +260,12 @@ class Db4eOSTui:
         ], dividechars=1)
         return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
 
+    def delete_instance(self, button):
+        component = self.selected_instance['component']
+        instance = self.selected_instance['instance']
+        self.model.delete_instance(component, instance)
+        self.return_to_main()
+
     def exit_app(self, button):
         raise urwid.ExitMainLoop()
     
@@ -353,6 +361,7 @@ class Db4eOSTui:
             # deployments have multiple instances...
             depl_type = deployment.split(':')[0]
             instance = deployment.split(':')[1]
+            self.selected_instance = { 'component': depl_type, 'instance': instance }
 
             if depl_type == 'monerod':
                 depl = self.model.get_monerod_deployment(instance)
@@ -372,8 +381,12 @@ class Db4eOSTui:
                 status += f'* ZMQ pub port: {zmq_pub_port}\n'
                 status += f'* Updated: {updated}\n'
                 status_msg = urwid.Text(status)
+                div = urwid.Divider()
+                delete_button = urwid.Columns([
+                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
+                ])
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg]))
+                header_msg, status_msg, div, delete_button]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
@@ -395,10 +408,21 @@ class Db4eOSTui:
                 status = f'* Hostname or IP address: {ip_addr}\n'
                 status += f'* Local or remote: {remote}\n'
                 status += f'* Stratum port: {stratum_port}\n'
-                status += f'* Updated: {updated}\n'
+                status += f'* Updated: {updated}'
                 status_msg = urwid.Text(status)
+                div = urwid.Divider()
+                problems_list = []
+                for problem in self.model.get_problems(depl_type, instance):
+                    warning = STATUS['warning']
+                    problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
+                if problems_list:
+                    problems_list.append(div)
+                problems = urwid.Pile(problems_list)
+                delete_button = urwid.Columns([
+                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
+                ])
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg]))
+                header_msg, status_msg, div, problems, delete_button]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
