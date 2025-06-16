@@ -26,12 +26,13 @@ This guide assumes a *minimal* Debian (NetInst) install with only:
 Some standard packages are required to setup and run *db4e*:
 
 ```
-sudo apt-get install gnupg curl libhwloc15 rsync
+sudo apt-get install gnupg curl libhwloc15 rsync python3.11-venv
 ```
 
 * The *gnupg* and *curl* packages are needed to install MongoDB
 * The *libhwloc15* package is required to run XMRig
 * *rsync* is used by the `db4e-update-repo.sh` script
+* The *python3.11-venv* package is required to install the db4e Python venv environment
 
 ## Root Access
 
