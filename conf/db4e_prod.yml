@@ -69,6 +69,7 @@ p2pool:
   process: p2pool
   conf_dir: conf
   config: p2pool.ini
+  version: 4.8
 
 monerod:
   install_dir: monerod

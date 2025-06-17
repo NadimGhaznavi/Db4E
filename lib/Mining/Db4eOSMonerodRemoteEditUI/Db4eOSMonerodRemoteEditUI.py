@@ -124,7 +124,7 @@ class Db4eOSMonerodRemoteEditUI:
 
     def set_instance(self, instance):
         self._instance = instance
-        monerod_rec = self._db.get_deployment_by_instance('monerod', self._instance)
+        monerod_rec = self._db.get_deployment_by_instance('monerod', instance)
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
         ip_addr = monerod_rec['ip_addr'] or ''

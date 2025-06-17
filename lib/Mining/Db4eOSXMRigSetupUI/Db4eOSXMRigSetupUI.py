@@ -203,6 +203,7 @@ class Db4eOSXMRigSetupUI:
             'num_threads': int(num_threads),
             'config': fq_config,
             'p2pool_id': p2pool_rec['_id'],
+            'version': version
             })
         
         # Set the results

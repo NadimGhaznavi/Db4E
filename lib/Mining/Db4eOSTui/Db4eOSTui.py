@@ -42,14 +42,17 @@ for db4e_dir in db4e_dirs:
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
 ## Mini TUIs
 # Setup new component
-from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
+from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
+from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
 from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
 from Db4eOSXMRigSetupUI.Db4eOSXMRigSetupUI import Db4eOSXMRigSetupUI
 # Edit component
 from Db4eOSRepoEditUI.Db4eOSRepoEditUI import Db4eOSRepoEditUI
+from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
 from Db4eOSMonerodRemoteEditUI.Db4eOSMonerodRemoteEditUI import Db4eOSMonerodRemoteEditUI
+from Db4eOSP2PoolEditUI.Db4eOSP2PoolEditUI import Db4eOSP2PoolEditUI
 from Db4eOSP2PoolRemoteEditUI.Db4eOSP2PoolRemoteEditUI import Db4eOSP2PoolRemoteEditUI
 from Db4eOSXMRigEditUI.Db4eOSXMRigEditUI import Db4eOSXMRigEditUI
 
@@ -141,12 +144,14 @@ class Db4eOSTui:
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
+        self.p2pool_setup_ui = Db4eOSP2PoolSetupUI(self)
         self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
         self.xmrig_setup_ui = Db4eOSXMRigSetupUI(self)
         # Edit
         self.edit_repo_ui = Db4eOSRepoEditUI(self)
         self.edit_monerod_ui = Db4eOSMonerodRemoteEditUI(self)
-        self.edit_p2pool_ui = Db4eOSP2PoolRemoteEditUI(self)
+        self.edit_p2pool_ui = Db4eOSP2PoolEditUI(self)
+        self.edit_p2pool_remote_ui = Db4eOSP2PoolRemoteEditUI(self)
         self.edit_xmrig_ui = Db4eOSXMRigEditUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
@@ -305,6 +310,10 @@ class Db4eOSTui:
         self.edit_p2pool_ui.set_instance(self.selected_instance['instance'])
         self.main_loop.widget = self.edit_p2pool_ui.widget()
 
+    def edit_p2pool_remote(self, button):
+        self.edit_p2pool_remote_ui.set_instance(self.selected_instance['instance'])
+        self.main_loop.widget = self.edit_p2pool_remote_ui.widget()
+
     def edit_repo(self, button):
         self.main_loop.widget = self.edit_repo_ui.widget()
 
@@ -449,18 +458,56 @@ class Db4eOSTui:
 
             elif depl_type == 'p2pool':
                 depl = self.model.get_p2pool_deployment(instance)
-                ip_addr = depl['ip_addr']
                 remote_flag = depl['remote']
                 if remote_flag:
                     remote = 'Remote'
-                else:
-                    remote = 'Local'
+                    ip_addr = depl['ip_addr']
+                    stratum_port = depl['stratum_port']
+                    updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
+                    header_msg = urwid.Text(f'Remote P2Pool Daemon - {instance}\n')
+                    status = f'{bullet} Hostname or IP address: {ip_addr}\n'
+                    status += f'{bullet} Local or remote: {remote}\n'
+                    status += f'{bullet} Stratum port: {stratum_port}\n'
+                    status += f'{bullet} Updated: {updated}'
+                    status_msg = urwid.Text(status)
+                    problems_list = []
+                    for problem in self.model.get_problems(depl_type, instance):
+                        problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
+                    if problems_list:
+                        problems_list.append(div)
+                    problems = urwid.Pile(problems_list)
+                    delete_button = urwid.Columns([
+                        (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool_remote)),
+                        (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
+                    ])
+                    listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
+                    header_msg, status_msg, div, problems, delete_button]))
+                    self.right_panel = urwid.LineBox(
+                        urwid.Padding(listbox, left=2, right=2),
+                        title='Info', title_align="right", title_attr="title"
+                    )
+                    self.main_loop.widget = self.build_main_frame()
+                    return
+
+                # Local P2Pool deployment
+                remote = 'Local'
+                wallet = depl['wallet']
+                any_ip = depl['any_ip']
                 stratum_port = depl['stratum_port']
+                p2p_port = depl['p2p_port']
+                log_level = depl['log_level']
+                in_peers = depl['in_peers']
+                out_peers = depl['out_peers']
                 updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
-                header_msg = urwid.Text(f'P2Pool Daemon - {instance}\n')
-                status = f'{bullet} Hostname or IP address: {ip_addr}\n'
+                header_msg = urwid.Text(f'Local P2Pool Daemon - {instance}\n')
+                status = f'{bullet} Your Monero wallet: {wallet}\n'
                 status += f'{bullet} Local or remote: {remote}\n'
+                status += f'{bullet} Listen on IP address: {any_ip}\n'
                 status += f'{bullet} Stratum port: {stratum_port}\n'
+                status += f'{bullet} P2P port: {p2p_port}\n'
+                status += f'{bullet} Log level: {log_level}\n'
+                status += f'{bullet} Number of allowed incoming connections: {in_peers}\n'
+                status += f'{bullet} Number of allowed outbound connections: {out_peers}\n'
                 status += f'{bullet} Updated: {updated}'
                 status_msg = urwid.Text(status)
                 problems_list = []
@@ -481,6 +528,7 @@ class Db4eOSTui:
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
+
 
             elif depl_type == 'xmrig':
                 depl = self.model.get_xmrig_deployment(instance)
@@ -533,7 +581,7 @@ class Db4eOSTui:
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
     def show_p2pool_setup(self, button):
-        pass
+        self.main_loop.widget = self.p2pool_setup_ui.widget()
 
     def show_remote_p2pool_setup(self, button):
         self.main_loop.widget = self.p2pool_remote_setup_ui.widget()

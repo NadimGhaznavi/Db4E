@@ -111,25 +111,25 @@ P2POOL_RECORD_REMOTE = {
     'name': 'P2Pool daemon',
     'status': 'not_installed',
     'stratum_port': 3333,
+    'remote': True
     }
 
 P2POOL_RECORD = {
     'component': 'p2pool',
-    'conf_dir': 'conf',
-    'config': 'p2pool.ini',
     'instance': None,
-    'in_peers': 16,
-    'ip_addr': None,
+    'wallet': None,
+    'any_ip': "0.0.0.0",
+    'stratum_port': 3333,
+    'p2p_port': 37889,
     'log_level': 1,
-    'log_dir': 'logs',
+    'config': None,
+    'in_peers': 16,
     'monerod_id': None,
     'name': 'P2Pool daemon',
     'out_peers': 16,
-    'p2p_port': 37889,
     'status': 'not_installed',
-    'stratum_port': 3333,
-    'version': '4.7',
-    'wallet': None,
+    'version': '4.8',
+    'remote': False
     }
 
 XMRIG_RECORD = {
@@ -243,6 +243,10 @@ class Db4eOSDb:
         elif component == 'p2pool':
             if update_fields['remote']:
                 new_rec = deepcopy(P2POOL_RECORD_REMOTE)
+                new_rec.update(update_fields)
+                self.add_deployment(new_rec)
+            else:
+                new_rec = deepcopy(P2POOL_RECORD)
                 new_rec.update(update_fields)
                 self.add_deployment(new_rec)
         elif component == 'xmrig':

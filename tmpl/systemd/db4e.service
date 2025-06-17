@@ -2,7 +2,6 @@
 Description="Database 4 Everything Service"
 
 [Service]
-User=db4e
 WorkingDirectory=[[INSTALL_DIR]]
 ExecStart=[[INSTALL_DIR]]/bin/db4e.py -s
 Restart=always

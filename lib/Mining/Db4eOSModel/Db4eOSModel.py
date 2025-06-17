@@ -85,7 +85,9 @@ class Db4eOSModel:
     def get_problems(self, component, instance):
         problems = []
         depl_rec = self._db.get_deployment_by_instance(component, instance)
-        if component == 'p2pool':
+        remote_flag = depl_rec['remote']
+        if component == 'p2pool' and remote_flag:
+            # TODO add checks for local p2pool deployments
             ip_addr = depl_rec['ip_addr']
             stratum_port = depl_rec['stratum_port']
             monerod_id = depl_rec['monerod_id']
