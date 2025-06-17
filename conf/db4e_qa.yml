@@ -37,7 +37,6 @@ db4e:
   desc: "Database 4 Everything"
   dev_dir: dev
   environ: qa
-  install_dir: /opt/qa/db4e
   js_dir: js
   md_dir: md
   process: db4e.py
@@ -52,7 +51,6 @@ db4e:
   version: 0.14.2-beta
 
 web:
-  install_dir: /opt/qa/xmrqa
   backup_dir: backups
   web_dir: pages
   csv_dir: csv
@@ -64,7 +62,6 @@ logging:
   log_level: info
   
 p2pool:
-  install_dir: /opt/qa/p2pool
   desc: "P2Pool Daemon"
   api_dir: api
   log_dir: logs     

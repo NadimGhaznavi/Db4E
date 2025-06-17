@@ -53,6 +53,7 @@ from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
 from MiningReports.MiningReports import MiningReports
 from Db4eLogger.Db4eLogger import Db4eLogger
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
 # Get a config object
 ini = Db4eConfig()
@@ -78,6 +79,10 @@ try:
 
   elif 'backup_db' in ini.config['db']:
     db = Db4eDb()
+    # Get the current db4e and repo install directories
+    os_model = Db4eOSModel()
+    db.set_db4e_dir(os_model.get_db4e_dir())
+    db.set_repo_dir(os_model.get_repo_dir())
     db.backup_db()
 
 except KeyboardInterrupt:

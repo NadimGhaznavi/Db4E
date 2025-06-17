@@ -43,15 +43,18 @@ for db4e_dir in db4e_dirs:
 # DB4E modules
 from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eLogger.Db4eLogger import Db4eLogger
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
 class Db4eGit():
 
   def __init__(self, repo_dir=None):
     # Load the DB4E configuration
-    config = Db4eConfig()
-    self._git_script = config.config['git']['git_script']
-    self._install_dir = config.config['db4e']['install_dir']
-    self._git_script = os.path.join(self._install_dir, self._git_script)
+    ini = Db4eConfig()
+    bin_dir = ini.config['db4e']['bin_dir']
+    os_model = Db4eOSModel()
+    self._db4e_dir = os_model.get_db4e_dir()
+    self._git_script = ini.config['git']['git_script']
+    self._git_script = os.path.join(self._db4e_dir, bin_dir, self._git_script)
 
     # New code uses this
     self._repo_dir = repo_dir

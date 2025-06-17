@@ -53,21 +53,16 @@ class Db4eDb():
   def __init__(self):
     ini = Db4eConfig()
     # MongoDB settings
-    retry_timeout         = ini.config['db']['retry_timeout']
-    db_server             = ini.config['db']['server']
-    db_port               = ini.config['db']['port']
-    self._db_name         = ini.config['db']['name']
-    self._db_collection   = ini.config['db']['collection']
-    self._log_collection  = ini.config['db']['log_collection']
-    self._depl_collection = ini.config['db']['depl_collection']
-    # Backup script settings
-    db4e_dir              = ini.config['db4e']['install_dir']
-    web_dir               = ini.config['web']['install_dir']
-    backup_dir            = ini.config['web']['backup_dir']
-    backup_script         = ini.config['db']['backup_script']
-    self._log_retention   = ini.config['db']['log_retention_days']
-    self._backup_script   = os.path.join(db4e_dir, backup_script)
-    self._backup_dir      = os.path.join(web_dir, backup_dir)
+    retry_timeout            = ini.config['db']['retry_timeout']
+    db_server                = ini.config['db']['server']
+    db_port                  = ini.config['db']['port']
+    self._db_name            = ini.config['db']['name']
+    self._db_collection      = ini.config['db']['collection']
+    self._depl_collection    = ini.config['db']['depl_collection']
+    self._log_collection     = ini.config['db']['log_collection']
+    self._log_retention      = ini.config['db']['log_retention_days']
+    self._metrics_collection = ini.config['db']['metrics_collection']
+    self.ini = ini
     # Setup logging
     self.log = Db4eLogger('Db4eDb')
 
@@ -80,16 +75,26 @@ class Db4eDb():
         time.sleep(retry_timeout)
     
     self._db = self._client[self._db_name]
+
+    # Used for backups
+    self._db4e_dir = None
+    self._repo_dir = None
     self.init_db()
 
   def backup_db(self):
+    backup_dir = self.ini.config['web']['backup_dir']
+    backup_script = self.ini.config['db']['backup_script']
+    bin_dir = self.ini.config['db4e']['bin_dir']
+    self._backup_script   = os.path.join(self._db4e_dir, bin_dir, backup_script)
+    self._backup_dir      = os.path.join(self._repo_dir, backup_dir)
     backup_script = self._backup_script
     backup_dir = self._backup_dir
     db_name = self._db_name
     col = self._db_collection
     log_col = self._log_collection
     depl_col = self._depl_collection
-    for aCol in [ col, log_col, depl_col ]:
+    metrics_col = self._metrics_collection
+    for aCol in [ col, log_col, depl_col, metrics_col ]:
       subprocess.run([backup_script, db_name, aCol, backup_dir])
       self.log.info(f'Created a new backup of ({aCol}) in {backup_dir}')
 
@@ -97,11 +102,12 @@ class Db4eDb():
      return collection.delete_one(dbquery)
 
   def init_db(self):
-    db_col  = self._db_collection
+    db_col = self._db_collection
     log_col = self._log_collection
     depl_col = self._depl_collection
+    metrics_col = self._metrics_collection
     db_col_names = self._db.list_collection_names()
-    for aCol in [ db_col, log_col, depl_col]:
+    for aCol in [ db_col, log_col, depl_col, metrics_col ]:
        if aCol not in db_col_names:
           try:
             self._db.create_collection(aCol)
@@ -150,6 +156,12 @@ class Db4eDb():
       self.log.debug(f'Purged ({result.deleted_count}) old log entries')
     except:
       self.log.error(f'Error purging logs: {e}')
+
+  def set_db4e_dir(self, db4e_dir):
+      self._db4e_dir = db4e_dir
+
+  def set_repo_dir(self, repo_dir):
+      self._repo_dir = repo_dir
 
   def update_one(self, collection, filter, new_values):
       return collection.update_one(filter, new_values)

@@ -1,12 +1,10 @@
 """
-lib/Infrastructure/Db4eOSRepoSetupUI/Db4eOSRepoSetupUI.py
+lib/Infrastructure/Db4eOSRepoEditUI/Db4eOSRepoEditUI.py
 
 This urwid based TUI drops into the db4e-os.py TUI to help the
-user configure their GitHub repository.
-"""
+user re-configure their GitHub repository.
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
@@ -47,7 +45,7 @@ from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eConfig.Db4eConfig import Db4eConfig
 
 
-class Db4eOSRepoSetupUI:
+class Db4eOSRepoEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self._db = Db4eOSDb()
@@ -58,6 +56,7 @@ class Db4eOSRepoSetupUI:
         github_user = repo_rec['github_user'] or ''
         github_repo = repo_rec['github_repo'] or ''
         install_dir = repo_rec['install_dir'] or ''
+        self.old_install_dir = install_dir
 
         # Form elements, edit widgets
         self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
@@ -65,12 +64,12 @@ class Db4eOSRepoSetupUI:
         self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
 
         # The buttons
-        self.submit_button =  urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.update_button =  urwid.Button(('button', 'Update'), on_press=self.on_submit)
         self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
 
         # The assembled buttons
         self.form_buttons = urwid.Columns([
-            (10, self.submit_button),
+            (10, self.update_button),
             (8, self.back_button)
         ], dividechars=1)
 
@@ -99,10 +98,8 @@ class Db4eOSRepoSetupUI:
         ])
 
         form_widgets = [
-            urwid.Text('Enter your GitHub account name, the name of your GitHub ' + 
-                       'repository and a directory on your computer for the local ' +
-                       'GitHub repository. Git will create the local directory and ' +
-                       'clone your repository into it. Do *NOT* use a "local path" ' +
+            urwid.Text('This screen allows you to re-create your local website ' +
+                       'GitHub repository. Do *NOT* use a "local path" ' +
                        'that is within the directory where you have installed db4e.\n\n' +
                        'Use the arrow keys or mouse scrollwheel to scroll up and down  ' +
                        'and the spacebar to click.'),
@@ -158,6 +155,10 @@ class Db4eOSRepoSetupUI:
             self.results_msg.set_text(f"SSH check failed: {str(e)}")
             return
 
+        # Delete the old repository
+        if os.path.exists(self.old_install_dir):
+            shutil.rmtree(self.old_install_dir)
+
         # Try to clone
         try:
             if os.path.exists(clone_path):
@@ -212,7 +213,7 @@ class Db4eOSRepoSetupUI:
             sync_output = sync_result.stdout.decode().strip()
             self.results_msg.set_text(f'{results_text}{sync_output}')
 
-            # Remove the submit button after success and change the back to done
+            # Remove the submit button after success
             self.back_button.set_label("Done")
             self.form_buttons.set_focus(0)
             self.form_buttons.contents = [

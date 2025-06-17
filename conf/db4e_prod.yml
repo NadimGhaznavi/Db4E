@@ -37,7 +37,6 @@ db4e:
   desc: "Database 4 Everything"
   dev_dir: dev
   environ: prod
-  install_dir: /opt/prod/db4e
   js_dir: js
   md_dir: md
   process: db4e.py
@@ -52,7 +51,6 @@ db4e:
   version: 0.14.2-beta
 
 web:
-  install_dir: /opt/prod/xmr
   backup_dir: backups
   web_dir: pages
   csv_dir: csv
@@ -64,7 +62,6 @@ logging:
   log_level: info
   
 p2pool:
-  install_dir: /opt/prod/p2pool
   desc: "P2Pool Daemon"
   api_dir: api
   log_dir: logs     
@@ -91,21 +88,21 @@ xmrig:
   config: config.json
   process: xmrig
   version: "6.22.2"
-
   
 db:
-  server: localhost
-  port: 27017
-  name: db4e
-  collection: mining
-  log_collection: logging
-  depl_collection: depl
   backup_dir: backups
-  backup_script: bin/db4e-backup.sh
-  retry_timeout: 15
+  backup_script: db4e-backup.sh
+  collection: mining
+  depl_collection: depl
+  log_collection: logging
   # How many days of data to keep in the logging collection
   log_retention_days: 7
+  metrics_collection: metrics
+  name: db4e
+  port: 27017
+  retry_timeout: 15
+  server: localhost
   
 git:
-  git_script: bin/db4e-git.sh
+  git_script: db4e-git.sh
 

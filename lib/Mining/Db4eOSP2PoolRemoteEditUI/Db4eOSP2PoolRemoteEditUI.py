@@ -1,8 +1,8 @@
 """
-lib/Infrastructure/Db4eOSP2PoolRemoteSetupUI/Db4eOSP2PoolRemoteSetupUI.py
+lib/Infrastructure/Db4eOSP2PoolRemoteEditUI/Db4eOSP2PoolRemoteEditUI.py
 
 This urwid based TUI drops into the db4e-os.py TUI to help the
-user configure access to a P2Pool daemon running on a remote node.
+user re-configure access to a P2Pool daemon running on a remote node.
 """
 
 
@@ -49,13 +49,74 @@ MD = {
     'warning' : '⚠️',
 }
 
-class Db4eOSP2PoolRemoteSetupUI:
+class Db4eOSP2PoolRemoteEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self._os = Db4eOS()
         self._db = Db4eOSDb()
+        # Most of the initialization is done in set_instance()
 
-        p2pool_rec = self._db.get_tmpl('p2pool', 'remote')
+    def back_to_main(self, button):
+        self.parent_tui.return_to_main()
+
+    def on_submit(self, button):
+        instance = self.instance_edit.edit_text.strip()
+        ip_addr = self.ip_addr_edit.edit_text.strip()
+        stratum_port = self.stratum_port_edit.edit_text.strip()
+
+        bullet = MD['bullet']
+        warning = MD['warning']
+
+        # Validate input
+        if any(not val for val in (instance, ip_addr, stratum_port)):
+            self.results_msg.set_text("You must fill in *all* of the fields")
+            return
+        
+        try:
+            stratum_port = int(stratum_port)
+        except:
+            self.results_msg.set_text("The stratum port must be an integer value")
+
+        if self._db.get_deployment_by_instance('p2pool', instance):
+            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                      "There can be only one P2Pool daemon deployment with that " +
+                                      "instance name.")
+            return
+
+        results = ''
+        # Check that db4e can connect to the remote system
+        if self._os.is_port_open(ip_addr, int(stratum_port)):
+            results += f'{bullet} Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
+        else:
+            results += f'{warning} Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
+
+        # Check connectivity
+        results = 'Checklist:\n'
+        # Check that db4e can connect to the remote system
+        if self._os.is_port_open(ip_addr, stratum_port):
+            results += f'{bullet} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
+        else:
+            results += f'{warning} Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
+
+        self._db.update_deployment('p2pool', { 
+            'status': 'running',
+            'instance': instance,
+            'ip_addr': ip_addr,
+            'stratum_port': stratum_port,
+            'remote': True
+            })
+
+        # Set the results
+        results += f'\nRe-configured the P2Pool daemon ({instance}) deployment record. '
+        self.results_msg.set_text(results)
+
+        # Remove the submit button
+        self.form_buttons.contents = [
+            (self.back_button, self.form_buttons.options('given', 8))
+        ]
+
+    def set_instance(self, instance):
+        p2pool_rec = self._db.get_deployment_by_instance('p2pool', instance)
         instance = p2pool_rec['instance'] or ''
         ip_addr = p2pool_rec['ip_addr'] or ''
         stratum_port = p2pool_rec['stratum_port'] or ''
@@ -105,7 +166,7 @@ class Db4eOSP2PoolRemoteSetupUI:
                 'db4e environment i.e. if you have more than one ' +
                 'daemon deployed, then each must have their own ' +
                 'instance name.\n\nUse the arrow keys or mouse scrollwheel ' +
-                'to scroll up and down.'),
+                'to scroll up and down and the spacebar to click.'),
             urwid.Divider(),
             urwid.LineBox(
                 urwid.Padding(self.form_box, left=2, right=2),
@@ -120,65 +181,6 @@ class Db4eOSP2PoolRemoteSetupUI:
             urwid.Padding(listbox, left=2, right=2),
             title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
         )
-
-    def back_to_main(self, button):
-        self.parent_tui.return_to_main()
-
-    def on_submit(self, button):
-        instance = self.instance_edit.edit_text.strip()
-        ip_addr = self.ip_addr_edit.edit_text.strip()
-        stratum_port = self.stratum_port_edit.edit_text.strip()
-
-        bullet = MD['bullet']
-        warning = MD['warning']
-
-        # Validate input
-        if any(not val for val in (instance, ip_addr, stratum_port)):
-            self.results_msg.set_text("You must fill in *all* of the fields")
-            return
-        
-        try:
-            stratum_port = int(stratum_port)
-        except:
-            self.results_msg.set_text("The stratum port must be an integer value")
-
-        if self._db.get_deployment_by_instance('p2pool', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one P2Pool daemon deployment with that " +
-                                      "instance name.")
-            return
-
-        results = ''
-        # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, int(stratum_port)):
-            results += f'{bullet} Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
-        else:
-            results += f'{warning} Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
-
-        # Check connectivity
-        results = 'Checklist:\n'
-        # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, stratum_port):
-            results += f'{bullet} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
-        else:
-            results += f'{warning} Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
-
-        self._db.new_deployment('p2pool', { 
-            'status': 'running',
-            'instance': instance,
-            'ip_addr': ip_addr,
-            'stratum_port': stratum_port,
-            'remote': True
-            })
-
-        # Set the results
-        results += f'\nCreated new P2Pool daemon ({instance}) deployment record. '
-        self.results_msg.set_text(results)
-
-        # Remove the submit button
-        self.form_buttons.contents = [
-            (self.back_button, self.form_buttons.options('given', 8))
-        ]
 
     def widget(self):
         return self.frame

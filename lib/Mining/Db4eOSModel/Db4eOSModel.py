@@ -26,7 +26,6 @@ This is the db4e-os model, which is part of db4e-os MVC pattern.
 """
 
 # Import supporting modules
-import urwid
 import os, sys
 
 # Where the DB4E modules live
@@ -71,6 +70,18 @@ class Db4eOSModel:
     def get_db4e_status(self):
         return self._os.get_db4e_service_status()
 
+    def get_monerod_deployment(self, instance):
+        return self._db.get_deployment_by_instance('monerod', instance)
+
+    def get_monerod_deployments(self):
+        deployments = {}
+        for deployment in self._db.get_monerod_deployments():
+            name = deployment['name']
+            status = deployment['status']
+            instance = deployment['instance']
+            deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
+        return deployments
+        
     def get_problems(self, component, instance):
         problems = []
         depl_rec = self._db.get_deployment_by_instance(component, instance)
@@ -78,11 +89,35 @@ class Db4eOSModel:
             ip_addr = depl_rec['ip_addr']
             stratum_port = depl_rec['stratum_port']
             monerod_id = depl_rec['monerod_id']
+            remote = depl_rec['remote']
             if not self._os.is_port_open(ip_addr, stratum_port):
                 problems.append(f'Unable to connect to P2Pool\'s stratum port ({stratum_port}) on host ({ip_addr})')
-            if not self._db.get_deployment_by_id(monerod_id):
-                problems.append('P2Pool deployment is not connected to a Monero daemon deployment')
+            if not remote:
+                if not self._db.get_deployment_by_id(monerod_id):
+                    problems.append('P2Pool deployment is not connected to a Monero daemon deployment')
             return problems
+        else:
+            return []
+
+    def get_p2pool_deployments(self):
+        deployments = {}
+        for deployment in self._db.get_p2pool_deployments():
+            name = deployment['name']
+            status = deployment['status']
+            remote = deployment['remote']
+            if not remote:
+                # Check that the P2Pool instance's Monero daemon deployment record exists
+                if not self._db.get_deployment_by_id(deployment['monerod_id']):
+                    status = 'stopped'
+            instance = deployment['instance']
+            deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
+        return deployments
+
+    def get_p2pool_deployment(self, instance):
+        return self._db.get_deployment_by_instance('p2pool', instance)
+
+    def get_p2pool_deployment_by_id(self, p2pool_id):
+        return self._db.get_deployment_by_id(p2pool_id)
 
     def get_repo_deployment(self):
         repo_rec = self._db.get_repo_deployment()
@@ -96,32 +131,8 @@ class Db4eOSModel:
         repo_rec = self._db.get_repo_deployment()
         return repo_rec['install_dir']
 
-    def get_monerod_deployments(self):
-        deployments = {}
-        for deployment in self._db.get_monerod_deployments():
-            name = deployment['name']
-            status = deployment['status']
-            instance = deployment['instance']
-            deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
-        return deployments
-        
-    def get_monerod_deployment(self, instance):
-        return self._db.get_deployment_by_instance('monerod', instance)
-
-    def get_p2pool_deployments(self):
-        deployments = {}
-        for deployment in self._db.get_p2pool_deployments():
-            name = deployment['name']
-            status = deployment['status']
-            # Check that the P2Pool instance's Monero daemon deployment record exists
-            if not self._db.get_deployment_by_id(deployment['monerod_id']):
-                status = 'stopped'
-            instance = deployment['instance']
-            deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
-        return deployments
-
-    def get_p2pool_deployment(self, instance):
-        return self._db.get_deployment_by_instance('p2pool', instance)
+    def get_xmrig_deployment(self, instance):
+        return self._db.get_deployment_by_instance('xmrig', instance)
 
     def get_xmrig_deployments(self):
         deployments = {}

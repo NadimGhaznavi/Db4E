@@ -57,7 +57,7 @@ DB4E_RECORD = {
 REPO_RECORD = {  
     'component': 'repo',
     'name': 'Website repo',
-    'status': 'not_installed',
+    'status': 'stopped',
     'install_dir': None,
     'github_user': None,
     'github_repo': None,
@@ -245,6 +245,10 @@ class Db4eOSDb:
                 new_rec = deepcopy(P2POOL_RECORD_REMOTE)
                 new_rec.update(update_fields)
                 self.add_deployment(new_rec)
+        elif component == 'xmrig':
+            new_rec = deepcopy(XMRIG_RECORD)
+            new_rec.update(update_fields)
+            self.add_deployment(new_rec)
 
     def update_deployment(self, component, update_fields, instance=None):
         update_fields['updated'] = datetime.now(timezone.utc)

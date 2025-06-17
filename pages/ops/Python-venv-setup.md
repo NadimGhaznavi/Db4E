@@ -24,6 +24,15 @@ Additional packages were added using Pip:
 (venv) pip install pymongo
 (venv) pip install pyyaml
 (venv) pip install requests
-(vent) pip install urwid
+(venv) pip install urwid
+(venv) pip install psutil
 ```
 
+# Generating requirements.txt
+
+The `conf/requirements.txt` was generated using pip:
+
+```
+. /opt/prod/db4e/venv/bin/activate
+(venv) pip freeze > /opt/prod/db4e/conf/requirements.txt
+```

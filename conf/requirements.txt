@@ -1,0 +1,11 @@
+certifi==2025.6.15
+charset-normalizer==3.4.2
+dnspython==2.7.0
+idna==3.10
+pymongo==4.13.1
+PyYAML==6.0.2
+requests==2.32.4
+urllib3==2.4.0
+urwid==3.0.2
+wcwidth==0.2.13
+psutil==7.0.0

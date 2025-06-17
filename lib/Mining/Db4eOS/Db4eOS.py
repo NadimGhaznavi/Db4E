@@ -74,7 +74,6 @@ class Db4eOS:
             input='',
             timeout=10)
         stdout = cmd_result.stdout.decode().strip()
-        stderr = cmd_result.stderr.decode().strip()
         pattern = r".*db4e.service; (?P<enable_disable>.*);.*"
         match = re.search(pattern, str(stdout))
         if match:

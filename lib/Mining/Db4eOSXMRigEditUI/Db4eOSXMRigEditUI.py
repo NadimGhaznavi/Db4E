@@ -1,8 +1,8 @@
 """
-lib/Infrastructure/Db4eOSXMRigSetupUI/Db4eOSXMRigSetupUI.py
+lib/Infrastructure/Db4eOSXMRigEditUI/Db4eOSXMRigEditUI.py
 
 This urwid based TUI drops into the db4e-os.py TUI to help the
-user setup a local XMRig miner.
+user reconfigure a local XMRig miner.
 """
 
 
@@ -44,14 +44,114 @@ from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
 
-class Db4eOSXMRigSetupUI:
+class Db4eOSXMRigEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self.ini = Db4eConfig()
         self._os = Db4eOS()
         self._db = Db4eOSDb()
+        # Most of the initialization is done in set_instance()
 
-        xmrig_rec = self._db.get_tmpl('xmrig')
+    def back_to_main(self, button):
+        self.parent_tui.return_to_main()
+
+    def build_p2pool_deployments(self, deployments):
+        items = []
+        for instance_name, data in sorted(deployments.items()):
+            is_selected = (instance_name == self.selected_p2pool)
+            radio = urwid.RadioButton(
+                self.group,
+                data['instance'],
+                on_state_change=self.select_p2pool,
+                user_data=instance_name,
+                state=is_selected
+            )
+            self.deployment_radios.append(radio)
+            items.append(urwid.Columns([
+                (20, radio)
+            ], dividechars=1))
+        return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title='Select P2Pool daemon', title_align='left', title_attr='title')
+
+    def on_submit(self, button):
+        instance = self.instance_edit.edit_text.strip()
+        num_threads = self.num_threads_edit.edit_text.strip()
+
+        # Validate input
+        try:
+            num_threads = int(num_threads)
+        except:
+            self.results_msg.set_text("The number of threads must be an integer value")
+            return
+        
+        if self._db.get_deployment_by_instance('xmrig', instance):
+            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                      "There can be only one XMRig deployment with that " +
+                                      "instance name.")
+            return
+
+        # Generate a XMRig configuration file
+        conf_dir        = self.ini.config['db4e']['conf_dir']
+        tmpl_dir        = self.ini.config['db4e']['template_dir']
+        third_party_dir = self.ini.config['db4e']['third_party_dir']
+        config          = self.ini.config['xmrig']['config']
+        version         = self.ini.config['xmrig']['version']
+        xmrig_dir = 'xmrig-' + version
+        db4e_dir = self._db.get_db4e_dir()
+        repo_dir = self._db.get_repo_dir()
+        tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
+        fq_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, instance + '.ini')
+        # Make sure the directories exist
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir))
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir))
+        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir)):
+            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir))
+
+        # Delete the old configuration if the instance name has changed
+        if instance != self.old_instance:
+            old_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, self.old_instance + '.ini')
+            if os.path.exists(old_config):
+                os.remove(old_config)
+
+        with open(tmpl_config, 'r') as f:
+            config_contents = f.read()
+        # Populate the config template placeholders
+        config_contents = config_contents.replace('[[MINER_NAME]]', instance)
+        num_threads_entry = ','.join(['-1'] * num_threads)
+        config_contents = config_contents.replace('[[NUM_THREADS]]', num_threads_entry)
+        p2pool_rec = self._db.get_deployment_by_instance('p2pool', self.selected_p2pool)
+        url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
+        config_contents = config_contents.replace('[[URL]]', url_entry)
+        with open(fq_config, 'w') as f:
+            f.write(config_contents)
+
+        self._db.update_deployment('xmrig', { 
+            'status': 'stopped',
+            'instance': instance,
+            'num_threads': int(num_threads),
+            'config': fq_config,
+            'p2pool_id': p2pool_rec['_id'],
+            })
+        
+        # Set the results
+        results = f'\nRe-configured the XMRig miner ({instance}) deployment record. '
+        self.results_msg.set_text(results)
+
+        # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)        
+        self.form_buttons.contents = [
+            (self.back_button, self.form_buttons.options('given', 8))
+        ]
+
+    def select_p2pool(self, radio, new_state, deployment):
+        if new_state:
+            self.selected_p2pool = deployment
+
+    def set_instance(self, instance):
+        self.old_instance = instance
+        xmrig_rec = self._db.get_deployment_by_instance('xmrig', instance)
         instance = xmrig_rec['instance'] or ''
         num_threads = xmrig_rec['num_threads'] or ''
 
@@ -129,94 +229,6 @@ class Db4eOSXMRigSetupUI:
             urwid.Padding(listbox, left=2, right=2),
             title='XMRig Miner Setup', title_align='center', title_attr='title'
         )
-
-    def back_to_main(self, button):
-        self.parent_tui.return_to_main()
-
-    def build_p2pool_deployments(self, deployments):
-        items = []
-        for instance_name, data in sorted(deployments.items()):
-            is_selected = (instance_name == self.selected_p2pool)
-            radio = urwid.RadioButton(
-                self.group,
-                data['instance'],
-                on_state_change=self.select_p2pool,
-                user_data=instance_name,
-                state=is_selected
-            )
-            self.deployment_radios.append(radio)
-            items.append(urwid.Columns([
-                (20, radio)
-            ], dividechars=1))
-        return urwid.LineBox(urwid.Padding(urwid.Pile(items), left=2, right=2), title='Select P2Pool daemon', title_align='left', title_attr='title')
-
-    def on_submit(self, button):
-        instance = self.instance_edit.edit_text.strip()
-        num_threads = self.num_threads_edit.edit_text.strip()
-
-        # Validate input
-        try:
-            num_threads = int(num_threads)
-        except:
-            self.results_msg.set_text("The number of threads must be an integer value")
-            return
-        
-        if self._db.get_deployment_by_instance('xmrig', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one XMRig deployment with that " +
-                                      "instance name.")
-            return
-
-        # Generate a XMRig configuration file
-        conf_dir        = self.ini.config['db4e']['conf_dir']
-        tmpl_dir        = self.ini.config['db4e']['template_dir']
-        third_party_dir = self.ini.config['db4e']['third_party_dir']
-        config          = self.ini.config['xmrig']['config']
-        version         = self.ini.config['xmrig']['version']
-        xmrig_dir = 'xmrig-' + version
-        db4e_dir = self._db.get_db4e_dir()
-        repo_dir = self._db.get_repo_dir()
-        tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
-        fq_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
-        # Make sure the directories exist
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir))
-        with open(tmpl_config, 'r') as f:
-            config_contents = f.read()
-        # Populate the config template placeholders
-        config_contents = config_contents.replace('[[MINER_NAME]]', instance)
-        num_threads_entry = ','.join(['-1'] * num_threads)
-        config_contents = config_contents.replace('[[NUM_THREADS]]', num_threads_entry)
-        p2pool_rec = self._db.get_deployment_by_instance('p2pool', self.selected_p2pool)
-        url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
-        config_contents = config_contents.replace('[[URL]]', url_entry)
-        with open(fq_config, 'w') as f:
-            f.write(config_contents)
-
-        self._db.new_deployment('xmrig', { 
-            'status': 'stopped',
-            'instance': instance,
-            'num_threads': int(num_threads),
-            'config': fq_config,
-            'p2pool_id': p2pool_rec['_id'],
-            })
-        
-        # Set the results
-        results = f'Created new XMRig daemon ({instance}) deployment record. '
-        self.results_msg.set_text(results)
-
-        # Remove the submit button
-        self.form_buttons.contents = [
-            (self.back_button, self.form_buttons.options('given', 8))
-        ]
-
-    def select_p2pool(self, radio, new_state, deployment):
-        if new_state:
-            self.selected_p2pool = deployment
 
     def widget(self):
         return self.frame

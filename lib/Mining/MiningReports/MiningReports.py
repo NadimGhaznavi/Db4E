@@ -54,22 +54,26 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 from MiningDb.MiningDb import MiningDb
 from Db4eGit.Db4eGit import Db4eGit
 from Db4eLogger.Db4eLogger import Db4eLogger
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
 class MiningReports():
   
     def __init__(self, report_type=None):
         # The db4e logger
         self.log = Db4eLogger('MiningReports')
-        # Load the configuration 
-        config = Db4eConfig()
-        self._db4e_dir      = config.config['db4e']['install_dir']
-        self._conf_dir      = config.config['db4e']['conf_dir']
-        self._js_dir        = config.config['db4e']['js_dir']
-        self._templates_dir = config.config['db4e']['template_dir']
-        self._reports_dir   = config.config['db4e']['reports_dir']
-        self._md_dir        = config.config['db4e']['md_dir']
-        self._web_dir       = config.config['web']['install_dir']
-        self._csv_dir       = config.config['web']['csv_dir']
+        # Get the configuration 
+        ini = Db4eConfig()
+        # Get the current deployment info
+        os_model = Db4eOSModel()
+
+        self._db4e_dir      = os_model.get_db4e_dir()
+        self._conf_dir      = ini.config['db4e']['conf_dir']
+        self._js_dir        = ini.config['db4e']['js_dir']
+        self._templates_dir = ini.config['db4e']['template_dir']
+        self._reports_dir   = ini.config['db4e']['reports_dir']
+        self._md_dir        = ini.config['db4e']['md_dir']
+        self._web_dir       = os_model.get_repo_dir()
+        self._csv_dir       = ini.config['web']['csv_dir']
 
         if report_type:
             self._yaml_file = report_type

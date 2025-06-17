@@ -40,12 +40,18 @@ for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
+## Mini TUIs
+# Setup new component
 from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
 from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
 from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
 from Db4eOSXMRigSetupUI.Db4eOSXMRigSetupUI import Db4eOSXMRigSetupUI
-
+# Edit component
+from Db4eOSRepoEditUI.Db4eOSRepoEditUI import Db4eOSRepoEditUI
+from Db4eOSMonerodRemoteEditUI.Db4eOSMonerodRemoteEditUI import Db4eOSMonerodRemoteEditUI
+from Db4eOSP2PoolRemoteEditUI.Db4eOSP2PoolRemoteEditUI import Db4eOSP2PoolRemoteEditUI
+from Db4eOSXMRigEditUI.Db4eOSXMRigEditUI import Db4eOSXMRigEditUI
 
 DISPLAY_NAMES = {
     'db4e'    : 'db4e core',
@@ -66,6 +72,10 @@ STATUS = {
     'not_installed' : '🔴',
     'warning'       : '⚠️',
     'unknown'       : '❔'
+}
+
+MD = {
+    'bullet': '🔸',
 }
 
 WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
@@ -90,6 +100,20 @@ P2POOL_SETUP += "existing remote P2Pool daemon or you can setup a P2Pool "
 P2POOL_SETUP += "daemon on this machine. You must deploy a Monero daemon "
 P2POOL_SETUP += "before configuring P2Pool."
 
+REPO_SETUP = "This screen will help you setup your GitHub repository. This "
+REPO_SETUP += "repo is used by db4e to publish web reports. In order to "
+REPO_SETUP += "proceed you *must*:\n\n"
+REPO_SETUP += f"{MD['bullet']} Have a GitHub account\n"
+REPO_SETUP += f"{MD['bullet']} Have created a db4e GitHub repository\n"
+REPO_SETUP += f"{MD['bullet']} Have configured the GitHub repository\n"
+REPO_SETUP += f"{MD['bullet']} Have SSH Authentication with GitHub configured\n\n"
+REPO_SETUP += "The command \"ssh -T git@github.com\" needs to work. "
+REPO_SETUP += "You *MUST* have this configured before you can proceeed. "
+REPO_SETUP += "Refer to the \"Getting Started\" page "
+REPO_SETUP += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
+REPO_SETUP += "detailed information on setting this up."
+
+
 XMRIG_SETUP = "XMRig Miner Setup\n\n"
 XMRIG_SETUP += "This screen lets you setup a XMRig miner. This is a local "
 XMRIG_SETUP += "installation: The XMRig miner will be deployed and running "
@@ -112,11 +136,18 @@ class Db4eOSTui:
             title='Info', title_align="right", title_attr="title")
         self.results_contents = urwid.Text('')
         
+        ## Mini TUIs
+        # Setup
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
         self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
         self.xmrig_setup_ui = Db4eOSXMRigSetupUI(self)
+        # Edit
+        self.edit_repo_ui = Db4eOSRepoEditUI(self)
+        self.edit_monerod_ui = Db4eOSMonerodRemoteEditUI(self)
+        self.edit_p2pool_ui = Db4eOSP2PoolRemoteEditUI(self)
+        self.edit_xmrig_ui = Db4eOSXMRigEditUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
 
@@ -220,7 +251,7 @@ class Db4eOSTui:
 
         # instance groups
         all_items.append(self.build_instance_box("Monero Daemon(s)", self.model.get_monerod_deployments(), group, 'monerod'))
-        all_items.append(self.build_instance_box("P2Pool(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
+        all_items.append(self.build_instance_box("P2Pool Daemon(s)", self.model.get_p2pool_deployments(), group, 'p2pool'))
         all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_xmrig_deployments(), group, 'xmrig'))
 
         return urwid.Pile(all_items)
@@ -266,6 +297,21 @@ class Db4eOSTui:
         self.model.delete_instance(component, instance)
         self.return_to_main()
 
+    def edit_monerod(self, button):
+        self.edit_monerod_ui.set_instance(self.selected_instance['instance'])
+        self.main_loop.widget = self.edit_monerod_ui.widget()
+
+    def edit_p2pool(self, button):
+        self.edit_p2pool_ui.set_instance(self.selected_instance['instance'])
+        self.main_loop.widget = self.edit_p2pool_ui.widget()
+
+    def edit_repo(self, button):
+        self.main_loop.widget = self.edit_repo_ui.widget()
+
+    def edit_xmrig(self, button):
+        self.edit_xmrig_ui.set_instance(self.selected_instance['instance'])
+        self.main_loop.widget = self.edit_xmrig_ui.widget()
+
     def exit_app(self, button):
         raise urwid.ExitMainLoop()
     
@@ -287,12 +333,18 @@ class Db4eOSTui:
     # The main screen shows this content
     def show_component_info(self, button):
         deployment = self.selected_deployment
+        # Fancy unicode
+        bullet = MD['bullet']
+        warning = STATUS['warning']
+        # uwid divider
+        div = urwid.Divider()
 
         if deployment == 'db4e':
+            title_text = 'db4e Service Status'
             db4e = self.model.get_db4e_deployment()
 
             if db4e['status'] == 'stopped':
-                setup_service_msg = self.db4e_setup_ui.setup_service_msg()
+                setup_service_msg = self.db4e_setup_ui.setup_service_msg()                
                 text_msg = urwid.Text(setup_service_msg)
                 install_service_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_db4e_setup))
@@ -302,56 +354,57 @@ class Db4eOSTui:
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
             
             elif db4e['status'] == 'running':
-                header_msg = urwid.Text('db4e Service Status\n')
                 status = self.model.get_db4e_status()
-                status_msg = urwid.Text('* ' + status['service_installed'] )
-                enabled_msg = urwid.Text('* ' + status['service_enabled'] )
-                running_msg = urwid.Text('* ' + status['service_running'] )
+                status_msg = urwid.Text(bullet + status['service_installed'] )
+                enabled_msg = urwid.Text(bullet + status['service_enabled'] )
+                running_msg = urwid.Text(bullet + status['service_running'] )
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    header_msg, status_msg, enabled_msg, running_msg]))
+                    div, status_msg, enabled_msg, running_msg]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
 
 
         elif deployment == 'repo':
+            title_text = 'Website Repository Status'
             repo = self.model.get_repo_deployment()
             if repo['status'] == 'not_installed':
-                new_repo_msg = self.repo_setup_ui.new_repo_msg()
-                text_msg = urwid.Text(new_repo_msg)
+                text_msg = urwid.Text(REPO_SETUP)
                 continue_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
                 ])
-                widgets = [text_msg, urwid.Divider(), continue_button]
+                widgets = [div, text_msg, div, continue_button]
                 # Wrap in a ListBox to make scrollable
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
             
             elif repo['status'] == 'running':
-                header_msg = urwid.Text('Website Repository Status\n')
                 repo_dir = self.model.get_repo_dir()
-                status = '* Repo is properly configured\n'
-                status += f'* Repo is in directory ({repo_dir})'
-                status_msg = urwid.Text(status)
+                status1 = urwid.Text(f'{bullet} Repo is properly configured')
+                status2 = urwid.Text(f'{bullet} Repo is in directory ({repo_dir})')
+                status_msg = urwid.Pile([ status1, status2 ])
+                edit_button = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_repo))
+                ])
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    header_msg, status_msg]))
+                    div, status_msg, div, edit_button]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
@@ -375,18 +428,18 @@ class Db4eOSTui:
                 zmq_pub_port = depl['zmq_pub_port']
                 updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
                 header_msg = urwid.Text(f'Monero Blockchain Daemon - {instance}\n')
-                status = f'* Hostname or IP address: {ip_addr}\n'
-                status += f'* Local or remote: {remote}\n'
-                status += f'* RPC bind port: {rpc_bind_port}\n'
-                status += f'* ZMQ pub port: {zmq_pub_port}\n'
-                status += f'* Updated: {updated}\n'
+                status = f'{bullet} Hostname or IP address: {ip_addr}\n'
+                status += f'{bullet} Local or remote: {remote}\n'
+                status += f'{bullet} RPC bind port: {rpc_bind_port}\n'
+                status += f'{bullet} ZMQ pub port: {zmq_pub_port}\n'
+                status += f'{bullet} Updated: {updated}\n'
                 status_msg = urwid.Text(status)
-                div = urwid.Divider()
-                delete_button = urwid.Columns([
+                buttons = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_monerod)), 
                     (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
-                ])
+                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg, div, delete_button]))
+                header_msg, status_msg, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
@@ -405,24 +458,57 @@ class Db4eOSTui:
                 stratum_port = depl['stratum_port']
                 updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
                 header_msg = urwid.Text(f'P2Pool Daemon - {instance}\n')
-                status = f'* Hostname or IP address: {ip_addr}\n'
-                status += f'* Local or remote: {remote}\n'
-                status += f'* Stratum port: {stratum_port}\n'
-                status += f'* Updated: {updated}'
+                status = f'{bullet} Hostname or IP address: {ip_addr}\n'
+                status += f'{bullet} Local or remote: {remote}\n'
+                status += f'{bullet} Stratum port: {stratum_port}\n'
+                status += f'{bullet} Updated: {updated}'
                 status_msg = urwid.Text(status)
-                div = urwid.Divider()
                 problems_list = []
                 for problem in self.model.get_problems(depl_type, instance):
-                    warning = STATUS['warning']
                     problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
                 if problems_list:
                     problems_list.append(div)
                 problems = urwid.Pile(problems_list)
                 delete_button = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool)),
                     (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
                 ])
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
                 header_msg, status_msg, div, problems, delete_button]))
+                self.right_panel = urwid.LineBox(
+                    urwid.Padding(listbox, left=2, right=2),
+                    title='Info', title_align="right", title_attr="title"
+                )
+                self.main_loop.widget = self.build_main_frame()
+                return
+
+            elif depl_type == 'xmrig':
+                depl = self.model.get_xmrig_deployment(instance)
+                config = depl['config']
+                num_threads = depl['num_threads']
+                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
+                p2pool_id = depl['p2pool_id']
+                p2pool_rec = self.model.get_p2pool_deployment_by_id(p2pool_id)
+                p2pool_name = p2pool_rec['instance']
+
+                header_msg = urwid.Text(f'XMRig Miner - {instance}\n')
+                status = f'{bullet} CPU threads: {num_threads}\n'
+                status += f'{bullet} Configuration file: {config}\n'
+                status += f'{bullet} P2Pool daemon: {p2pool_name}\n'
+                status += f'{bullet} Updated: {updated}'
+                status_msg = urwid.Text(status)
+                problems_list = []
+                for problem in self.model.get_problems(depl_type, instance):
+                    problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
+                if problems_list:
+                    problems_list.append(div)
+                problems = urwid.Pile(problems_list)
+                buttons = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)),
+                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
+                ])
+                listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
+                header_msg, status_msg, div, problems, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title='Info', title_align="right", title_attr="title"
