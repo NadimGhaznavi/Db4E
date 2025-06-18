@@ -60,8 +60,8 @@ class Db4eOSRepoSetupUI:
         install_dir = repo_rec['install_dir'] or ''
 
         # Form elements, edit widgets
-        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
-        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
+        self.github_username_edit = urwid.Edit("GitHub account name (e.g. NadimGhaznavi): ", edit_text=github_user)
+        self.github_repo_name_edit = urwid.Edit("GitHub repository name (e.g. xmr): ", edit_text=github_repo)
         self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
 
         # The buttons

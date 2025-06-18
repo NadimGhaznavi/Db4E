@@ -44,6 +44,7 @@ db4e:
   reports_dir: reports
   service_file: db4e.service
   service_installer: db4e-install-service.sh
+  service_uninstaller: db4e-uninstall-service.sh
   src_dir: src
   systemd_dir: systemd
   template_dir: tmpl

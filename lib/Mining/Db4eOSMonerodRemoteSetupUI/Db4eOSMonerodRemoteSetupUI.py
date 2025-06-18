@@ -177,7 +177,7 @@ class Db4eOSMonerodRemoteSetupUI:
             })
         
         # Set the results
-        results += f'\nCreated new Monero daemon ({instance}) deployment record. '
+        results += f'Created new Monero daemon ({instance}) deployment record. '
         self.results_msg.set_text(results)
 
         # Remove the submit button

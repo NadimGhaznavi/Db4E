@@ -49,7 +49,7 @@ from Db4eLogger.Db4eLogger import Db4eLogger
 DB4E_RECORD = {
     'component': 'db4e',
     'name': 'db4e service',
-    'version': '0.15.0-beta',
+    'version': 'latest',
     'status': 'stopped',
     'install_dir': None,
     'vendor_dir': None,

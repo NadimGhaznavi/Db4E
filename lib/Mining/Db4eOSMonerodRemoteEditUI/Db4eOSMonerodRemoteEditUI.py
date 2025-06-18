@@ -64,7 +64,7 @@ class Db4eOSMonerodRemoteEditUI:
         instance = self.instance_edit.edit_text.strip()
         ip_addr = self.ip_addr_edit.edit_text.strip()
         zmq_port = self.zmq_port_edit.edit_text.strip()
-        rpc_port = self.zmq_port_edit.edit_text.strip()
+        rpc_port = self.rpc_port_edit.edit_text.strip()
         # Unicode
         bullet = MD['bullet']
         warning = MD['warning']
@@ -81,11 +81,12 @@ class Db4eOSMonerodRemoteEditUI:
             self.results_msg.set_text("The ZMQ and RPC ports must be integer values")
             return
 
-        if self._db.get_deployment_by_instance('monerod', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one Monero daemon deployment with that " +
-                                      "instance name.")
-            return
+        if instance != self.old_instance:
+            if self._db.get_deployment_by_instance('monerod', instance):
+                self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                        "There can be only one Monero daemon deployment with that " +
+                                        "instance name.")
+                return
 
         # Check connectivity
         results = 'Checklist:\n'
@@ -123,7 +124,7 @@ class Db4eOSMonerodRemoteEditUI:
         ]
 
     def set_instance(self, instance):
-        self._instance = instance
+        self.old_instance = instance
         monerod_rec = self._db.get_deployment_by_instance('monerod', instance)
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''

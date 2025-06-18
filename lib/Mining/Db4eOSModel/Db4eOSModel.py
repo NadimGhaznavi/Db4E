@@ -165,7 +165,7 @@ class Db4eOSModel:
                 status.append({'state': 'warning', 'msg': 'The 3rd party software directory has not been set'})
                 mark_unhealthy()
             elif not os.path.exists(vendor_dir):
-                status.append({'status': 'warning', 'msg': f'The 3rd party software directory ({vendor_dir}) does not exist'})
+                status.append({'state': 'warning', 'msg': f'The 3rd party software directory ({vendor_dir}) does not exist'})
                 mark_unhealthy()
             else:
                 status.append({'state': 'good', 'msg': f'The 3rd party software directory ({vendor_dir}) is good'})
@@ -200,6 +200,36 @@ class Db4eOSModel:
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
             return status
+        
+        elif component == 'monerod':
+            # Helper function
+            def mark_unhealthy():
+                status[0] = {'state': 'warning', 'msg': f'The Monero daemon ({instance}) has issue(s)'}            
+            # Get the DB record
+            depl_rec = self._db.get_deployment_by_instance('monerod', instance)
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': 'The website repository is healthy'})
+            # Instance name
+            status.append({'state': 'good', 'msg': f'Instance name: {instance}'})
+            # IP address
+            ip_addr = depl_rec['ip_addr']
+            status.append({'state': 'good', 'msg': f'Hostname or IP address: {ip_addr}'})
+            # RPC bind port
+            rpc_port = depl_rec['rpc_bind_port']
+            if self._os.is_port_open(ip_addr, rpc_port):
+                status.append({'state': 'good', 'msg': f'Connected to RPC port ({rpc_port}) on {ip_addr}'})
+            else:
+                status.append({'state': 'warning', 'msg': f'Unable to connect to RPC port ({rpc_port}) on {ip_addr}'})
+            # ZMQ pub port
+            zmq_port = depl_rec['zmq_pub_port']
+            if self._os.is_port_open(ip_addr, zmq_port):
+                status.append({'state': 'good', 'msg': f'Connected to ZMQ port ({zmq_port}) on {ip_addr}'})
+            else:
+                status.append({'state': 'warning', 'msg': f'Unable to connect to ZMQ port ({zmq_port}) on {ip_addr}'})
+            # Last updated
+            updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
+            status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
+            return status            
 
     def get_vendor_dir(self):
         # Return the 'vendor dir' where the vendor config and other supporting

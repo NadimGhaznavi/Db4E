@@ -48,8 +48,8 @@ from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodR
 from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
 from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
 from Db4eOSXMRigSetupUI.Db4eOSXMRigSetupUI import Db4eOSXMRigSetupUI
-from Db4eOSVendorSetupUI.Db4eOSVendorSetupUI import Db4eOSVendorSetupUI
 # Edit component
+from Db4eOSDb4eEditUI.Db4eOSDb4eEditUI import Db4eOSDb4eEditUI
 from Db4eOSRepoEditUI.Db4eOSRepoEditUI import Db4eOSRepoEditUI
 from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
 from Db4eOSMonerodRemoteEditUI.Db4eOSMonerodRemoteEditUI import Db4eOSMonerodRemoteEditUI
@@ -151,12 +151,12 @@ class Db4eOSTui:
         # Setup
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
-        self.vendor_setup_ui = Db4eOSVendorSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
         self.p2pool_setup_ui = Db4eOSP2PoolSetupUI(self)
         self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
         self.xmrig_setup_ui = Db4eOSXMRigSetupUI(self)
         # Edit
+        self.edit_db4e_ui = Db4eOSDb4eEditUI(self)
         self.edit_repo_ui = Db4eOSRepoEditUI(self)
         self.edit_monerod_ui = Db4eOSMonerodRemoteEditUI(self)
         self.edit_p2pool_ui = Db4eOSP2PoolEditUI(self)
@@ -311,6 +311,9 @@ class Db4eOSTui:
         self.model.delete_instance(component, instance)
         self.return_to_main()
 
+    def edit_db4e(self, button):
+        self.main_loop.widget = self.edit_db4e_ui.widget()
+
     def edit_monerod(self, button):
         self.edit_monerod_ui.set_instance(self.selected_instance['instance'])
         self.main_loop.widget = self.edit_monerod_ui.widget()
@@ -386,8 +389,11 @@ class Db4eOSTui:
                     status_msg = aStatus['msg']
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 status = urwid.Pile(status_list)
+                buttons = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_db4e)), 
+                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status]))
+                    div, status, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -422,8 +428,11 @@ class Db4eOSTui:
                     status_msg = aStatus['msg']
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 status = urwid.Pile(status_list)
+                buttons = urwid.Columns([
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_repo)), 
+                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status]))
+                    div, status, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -439,32 +448,22 @@ class Db4eOSTui:
             self.selected_instance = { 'component': depl_type, 'instance': instance }
 
             if depl_type == 'monerod':
-                depl = self.model.get_monerod_deployment(instance)
-                ip_addr = depl['ip_addr']
-                remote_flag = depl['remote']
-                if remote_flag:
-                    remote = 'Remote'
-                else:
-                    remote = 'Local'
-                rpc_bind_port = depl['rpc_bind_port']
-                zmq_pub_port = depl['zmq_pub_port']
-                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
-                header_msg = urwid.Text(f'Monero Blockchain Daemon - {instance}\n')
-                status = f'{bullet} Hostname or IP address: {ip_addr}\n'
-                status += f'{bullet} Local or remote: {remote}\n'
-                status += f'{bullet} RPC bind port: {rpc_bind_port}\n'
-                status += f'{bullet} ZMQ pub port: {zmq_pub_port}\n'
-                status += f'{bullet} Updated: {updated}\n'
-                status_msg = urwid.Text(status)
+                title_text = f'Monero Daemon ({instance}) Status'
+                status_info = self.model.get_status('monerod', instance)
+                status_list = []
+                for aStatus in status_info[1:]:
+                    status_state = STATUS[aStatus['state']]
+                    status_msg = aStatus['msg']
+                    status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                status = urwid.Pile(status_list)
                 buttons = urwid.Columns([
                     (8, urwid.Button(('button', 'Edit'), on_press=self.edit_monerod)), 
-                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
                 ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg, div, buttons]))
+                    div, status, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
@@ -599,7 +598,7 @@ class Db4eOSTui:
     def show_p2pool_setup(self, button):
         # Check that the vendor_dir has been setup
         if not self.model.get_vendor_dir():
-            self.main_loop.widget = self.vendor_setup_ui.widget()
+            self.main_loop.widget = self.db4e_setup_ui.widget()
         else:
             self.main_loop.widget = self.p2pool_setup_ui.widget()
 
@@ -612,7 +611,7 @@ class Db4eOSTui:
     def show_xmrig_setup(self, button):
         # Check that the vendor_dir has been setup
         if not self.model.get_vendor_dir():
-            self.main_loop.widget = self.vendor_setup_ui.widget()
+            self.main_loop.widget = self.db4e_setup_ui.widget()
         else:
             self.main_loop.widget = self.xmrig_setup_ui.widget()
 

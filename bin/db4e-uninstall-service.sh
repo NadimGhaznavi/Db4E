@@ -1,9 +1,8 @@
 #!/bin/bash
 #
-# bin/db4e-install-service.sh
+# bin/db4e-uninstall-service.sh
 #
-# This script installs the *db4e* service and configures it to 
-# start when your system boots. This script is run by db4e
+# This script removes the *db4e* service. This script is run by db4e
 # with using sudo. The *db4e* application does NOT keep or 
 # store your root user password.
 #
@@ -31,30 +30,20 @@
 #  <http://www.gnu.org/licenses/>.
 #
 #####################################################################
+ 
+SERVICE_FILE="/etc/systemd/system/db4e.service"
 
-SERVICE_SRC="$1"  
-SERVICE_DEST="/etc/systemd/system/db4e.service"
-
-if [ -z "$SERVICE_SRC" ]; then
-    echo "Usage: $0 /path/to/generated/service/file"
-    exit 1
-fi
-
-if [ ! -f "$SERVICE_SRC" ]; then
-    echo "Service file not found: $SERVICE_SRC"
+if [ ! -f "$SERVICE_FILE" ]; then
+    echo "Service file not found: $SERVICE_FILE"
     exit 2
 fi
 
-cp "$SERVICE_SRC" "$SERVICE_DEST"
-echo
-echo "* Created systemd service definition: $SERVICE_DEST"
-echo "* Reloaded systemd's configuration"
-echo "* Configured the service to start at boot time"
-echo "* Started the db4e service"
+rm -f $SERVICE_FILE
 
 # Reload systemd, enable and start the service
 systemctl daemon-reexec
 systemctl daemon-reload
-systemctl enable "$SERVICE_NAME"
-systemctl start "$SERVICE_NAME"
-echo "$SERVICE_NAME installed and started."
+echo "The db4e service has been removed from your system."
+echo
+echo "* Removed systemd service definition: $SERVICE_FILE"
+echo "* Reloaded systemd's configuration"
