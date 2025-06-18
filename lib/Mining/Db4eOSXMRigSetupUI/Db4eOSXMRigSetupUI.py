@@ -115,7 +115,8 @@ class Db4eOSXMRigSetupUI:
                 'unique name. The \"CPU threads\" setting determines how ' +
                 'many CPU threads to allocate to the miner. It iss recommended ' +
                 'that you leave at least one thread free for the OS.\n\n ' +
-                'Use the arrow keys or mouse scrollwheel to scroll up and down.'),
+                'Use the arrow keys or mouse scrollwheel to scroll up and ' +
+                'down and the spacebar to click.'),
             urwid.Divider(),
             urwid.LineBox(
                 urwid.Padding(self.form_box, left=2, right=2),
@@ -175,16 +176,14 @@ class Db4eOSXMRigSetupUI:
         version         = self.ini.config['xmrig']['version']
         xmrig_dir = 'xmrig-' + version
         db4e_dir = self._db.get_db4e_dir()
-        repo_dir = self._db.get_repo_dir()
+        vendor_dir = self._db.get_vendor_dir()
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
-        fq_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
+        fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance.replace(' ', '-') + '.ini')
         # Make sure the directories exist
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir))
+        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir)):
+            os.mkdir(os.path.join(vendor_dir, xmrig_dir))
+        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir, conf_dir)):
+            os.mkdir(os.path.join(vendor_dir, xmrig_dir, conf_dir))
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
         # Populate the config template placeholders
@@ -211,6 +210,8 @@ class Db4eOSXMRigSetupUI:
         self.results_msg.set_text(results)
 
         # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)
         self.form_buttons.contents = [
             (self.back_button, self.form_buttons.options('given', 8))
         ]

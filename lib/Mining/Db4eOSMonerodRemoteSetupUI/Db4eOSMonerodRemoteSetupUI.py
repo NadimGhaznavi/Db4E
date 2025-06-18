@@ -181,6 +181,8 @@ class Db4eOSMonerodRemoteSetupUI:
         self.results_msg.set_text(results)
 
         # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)
         self.form_buttons.contents = [
             (self.back_button, self.form_buttons.options('given', 8))
         ]

@@ -217,16 +217,14 @@ class Db4eOSP2PoolSetupUI:
         config          = self.ini.config['p2pool']['config']
         p2pool_dir = 'p2pool-' + str(version)
         db4e_dir = self._db.get_db4e_dir()
-        repo_dir = self._db.get_repo_dir()
+        vendor_dir = self._db.get_vendor_dir()
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, p2pool_dir, conf_dir, config)
-        fq_config = os.path.join(repo_dir, third_party_dir, p2pool_dir, conf_dir, instance + '.ini')
+        fq_config = os.path.join(vendor_dir, p2pool_dir, conf_dir, instance + '.ini')
         # Make sure the directories exist
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, p2pool_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, p2pool_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, p2pool_dir, conf_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, p2pool_dir, conf_dir))
+        if not os.path.exists(os.path.join(vendor_dir, p2pool_dir)):
+            os.mkdir(os.path.join(vendor_dir, p2pool_dir))
+        if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, conf_dir)):
+            os.mkdir(os.path.join(vendor_dir, p2pool_dir, conf_dir))
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
 
@@ -267,7 +265,7 @@ class Db4eOSP2PoolSetupUI:
             })
 
         # Set the results
-        results = f'\nCreated new P2Pool daemon ({instance}) deployment record. '
+        results = f'Created new P2Pool daemon ({instance}) deployment record. '
         self.results_msg.set_text(results)
 
         # Remove the submit button

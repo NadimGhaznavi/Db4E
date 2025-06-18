@@ -82,25 +82,6 @@ class Db4eOSModel:
             deployments[instance] = { 'name': name, 'status': status, 'instance': instance }
         return deployments
         
-    def get_problems(self, component, instance):
-        problems = []
-        depl_rec = self._db.get_deployment_by_instance(component, instance)
-        remote_flag = depl_rec['remote']
-        if component == 'p2pool' and remote_flag:
-            # TODO add checks for local p2pool deployments
-            ip_addr = depl_rec['ip_addr']
-            stratum_port = depl_rec['stratum_port']
-            monerod_id = depl_rec['monerod_id']
-            remote = depl_rec['remote']
-            if not self._os.is_port_open(ip_addr, stratum_port):
-                problems.append(f'Unable to connect to P2Pool\'s stratum port ({stratum_port}) on host ({ip_addr})')
-            if not remote:
-                if not self._db.get_deployment_by_id(monerod_id):
-                    problems.append('P2Pool deployment is not connected to a Monero daemon deployment')
-            return problems
-        else:
-            return []
-
     def get_p2pool_deployments(self):
         deployments = {}
         for deployment in self._db.get_p2pool_deployments():
@@ -121,6 +102,28 @@ class Db4eOSModel:
     def get_p2pool_deployment_by_id(self, p2pool_id):
         return self._db.get_deployment_by_id(p2pool_id)
 
+    def get_problems(self, component, instance):
+        problems = []
+        depl_rec = self._db.get_deployment_by_instance(component, instance)
+        if component == 'p2pool':
+            if depl_rec['remote']:
+                # TODO add checks for local p2pool deployments
+                ip_addr = depl_rec['ip_addr']
+                stratum_port = depl_rec['stratum_port']
+                monerod_id = depl_rec['monerod_id']
+                remote = depl_rec['remote']
+                if not self._os.is_port_open(ip_addr, stratum_port):
+                    problems.append(f'Unable to connect to P2Pool\'s stratum port ({stratum_port}) on host ({ip_addr})')
+                if not remote:
+                    if not self._db.get_deployment_by_id(monerod_id):
+                        problems.append('P2Pool deployment is not connected to a Monero daemon deployment')
+                return problems
+            else:
+                return []
+        else:
+            return []
+            # TODO add checks for XMRig
+
     def get_repo_deployment(self):
         repo_rec = self._db.get_repo_deployment()
         repo = {
@@ -132,6 +135,77 @@ class Db4eOSModel:
     def get_repo_dir(self):
         repo_rec = self._db.get_repo_deployment()
         return repo_rec['install_dir']
+    
+    def get_status(self, component, instance=None):
+        status = []
+        if component == 'db4e':
+            # Helper fuction
+            def mark_unhealthy():
+                status[0] = {'state': 'warning', 'msg': 'The db4e service has issue(s)'}            
+            # Get the DB record
+            depl_rec = self._db.get_db4e_deployment()
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': 'The db4e service is healthy'})
+            # Version
+            version = depl_rec['version']
+            status.append({'state': 'good', 'msg': f'Version: {version}'})
+            # Service status
+            service_status = depl_rec['status']
+            if service_status == 'running':
+                status.append({'state': 'good', 'msg': 'The db4e service is running'})
+            else:
+                status.append({'state': 'warning', 'msg': f'The db4e service is stopped'})
+                mark_unhealthy()
+            # Install directory
+            install_dir = depl_rec['install_dir']
+            status.append({'state': 'good', 'msg': f'Install directory: {install_dir}'})
+            # 3rd party software directory
+            vendor_dir = depl_rec['vendor_dir']
+            if not vendor_dir:
+                status.append({'state': 'warning', 'msg': 'The 3rd party software directory has not been set'})
+                mark_unhealthy()
+            elif not os.path.exists(vendor_dir):
+                status.append({'status': 'warning', 'msg': f'The 3rd party software directory ({vendor_dir}) does not exist'})
+                mark_unhealthy()
+            else:
+                status.append({'state': 'good', 'msg': f'The 3rd party software directory ({vendor_dir}) is good'})
+            # Last updated
+            updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
+            status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
+            return status
+
+        elif component == 'repo':
+            # Helper function
+            def mark_unhealthy():
+                status[0] = {'state': 'warning', 'msg': 'The website repository has issue(s)'}            
+            # Get the DB record
+            depl_rec = self._db.get_repo_deployment()
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': 'The website repository is healthy'})
+            # GitHub account
+            github_user = depl_rec['github_user']
+            status.append({'state': 'good', 'msg': f'GitHub account name: {github_user}'})
+            # GitHub repository
+            github_repo = depl_rec['github_repo']
+            status.append({'state': 'good', 'msg': f'GitHub repository name: {github_repo}'})
+            # Local repo install directory
+            install_dir = depl_rec['install_dir']
+            if not os.path.exists(install_dir):
+                status.append({'state': 'warning', 'msg': f'Local repository ({install_dir}) not found'})
+            elif not os.path.exists(os.path.join(install_dir, '.git')):
+                status.append({'state': 'warning', 'msg': f'Local repository ({install_dir}) is not a valid GitHub repository'})
+            else:
+                status.append({'state': 'good', 'msg': f'Local path to repository: {install_dir}'})
+            # Last updated
+            updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
+            status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
+            return status
+
+    def get_vendor_dir(self):
+        # Return the 'vendor dir' where the vendor config and other supporting
+        # files are installed (log dir, run dir, startup scripts etc.)
+        depl = self._db.get_db4e_deployment()
+        return depl['vendor_dir']
 
     def get_xmrig_deployment(self, instance):
         return self._db.get_deployment_by_instance('xmrig', instance)

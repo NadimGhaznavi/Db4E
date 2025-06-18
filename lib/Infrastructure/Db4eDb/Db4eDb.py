@@ -56,6 +56,7 @@ class Db4eDb():
     retry_timeout            = ini.config['db']['retry_timeout']
     db_server                = ini.config['db']['server']
     db_port                  = ini.config['db']['port']
+    self._max_backups        = ini.config['db']['max_backups']
     self._db_name            = ini.config['db']['name']
     self._db_collection      = ini.config['db']['collection']
     self._depl_collection    = ini.config['db']['depl_collection']
@@ -86,6 +87,7 @@ class Db4eDb():
     backup_script = self.ini.config['db']['backup_script']
     bin_dir = self.ini.config['db4e']['bin_dir']
     self._backup_script   = os.path.join(self._db4e_dir, bin_dir, backup_script)
+          
     self._backup_dir      = os.path.join(self._repo_dir, backup_dir)
     backup_script = self._backup_script
     backup_dir = self._backup_dir
@@ -95,8 +97,9 @@ class Db4eDb():
     depl_col = self._depl_collection
     metrics_col = self._metrics_collection
     for aCol in [ col, log_col, depl_col, metrics_col ]:
-      subprocess.run([backup_script, db_name, aCol, backup_dir])
-      self.log.info(f'Created a new backup of ({aCol}) in {backup_dir}')
+      subprocess.run([backup_script, db_name, aCol, backup_dir, str(self._max_backups)])
+      self.log.debug(f'Created a new backup of ({aCol}) in {backup_dir}')
+      print(f'Created a new backup of ({aCol}) in {backup_dir}')
 
   def delete_one(self, collection, dbquery):
      return collection.delete_one(dbquery)

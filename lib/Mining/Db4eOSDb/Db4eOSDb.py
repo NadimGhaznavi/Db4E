@@ -52,6 +52,7 @@ DB4E_RECORD = {
     'version': '0.15.0-beta',
     'status': 'stopped',
     'install_dir': None,
+    'vendor_dir': None,
     }
 
 REPO_RECORD = {  
@@ -118,6 +119,7 @@ P2POOL_RECORD = {
     'component': 'p2pool',
     'instance': None,
     'wallet': None,
+    'ip_addr': "127.0.0.1",
     'any_ip': "0.0.0.0",
     'stratum_port': 3333,
     'p2p_port': 37889,
@@ -226,10 +228,14 @@ class Db4eOSDb:
                 return deepcopy(P2POOL_RECORD)
         elif component == 'xmrig':
             return deepcopy(XMRIG_RECORD)
-
+        
     def get_xmrig_deployments(self):
         # Return the xmrig deployment docs
         return self.get_deployments_by_component('xmrig')
+    
+    def get_vendor_dir(self):
+        depl = self.get_db4e_deployment()
+        return depl['vendor_dir']
     
     def get_xmrig_tmpl(self):
         return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'xmrig'})

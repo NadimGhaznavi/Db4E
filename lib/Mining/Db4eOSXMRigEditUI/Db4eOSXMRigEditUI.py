@@ -97,20 +97,18 @@ class Db4eOSXMRigEditUI:
         version         = self.ini.config['xmrig']['version']
         xmrig_dir = 'xmrig-' + version
         db4e_dir = self._db.get_db4e_dir()
-        repo_dir = self._db.get_repo_dir()
+        vendor_dir = self._db.get_vendor_dir()
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
-        fq_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, instance + '.ini')
+        fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.ini')
         # Make sure the directories exist
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir))
-        if not os.path.exists(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir)):
-            os.mkdir(os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir))
+        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir)):
+            os.mkdir(os.path.join(vendor_dir, xmrig_dir))
+        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir, conf_dir)):
+            os.mkdir(os.path.join(vendor_dir, xmrig_dir, conf_dir))
 
         # Delete the old configuration if the instance name has changed
         if instance != self.old_instance:
-            old_config = os.path.join(repo_dir, third_party_dir, xmrig_dir, conf_dir, self.old_instance + '.ini')
+            old_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, self.old_instance + '.ini')
             if os.path.exists(old_config):
                 os.remove(old_config)
 

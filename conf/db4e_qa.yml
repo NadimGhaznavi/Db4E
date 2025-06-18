@@ -103,6 +103,7 @@ db:
   port: 27017
   retry_timeout: 15
   server: localhost
+  max_backups: 7
   
 git:
   git_script: db4e-git.sh

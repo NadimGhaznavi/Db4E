@@ -48,6 +48,7 @@ from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodR
 from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
 from Db4eOSP2PoolRemoteSetupUI.Db4eOSP2PoolRemoteSetupUI import Db4eOSP2PoolRemoteSetupUI
 from Db4eOSXMRigSetupUI.Db4eOSXMRigSetupUI import Db4eOSXMRigSetupUI
+from Db4eOSVendorSetupUI.Db4eOSVendorSetupUI import Db4eOSVendorSetupUI
 # Edit component
 from Db4eOSRepoEditUI.Db4eOSRepoEditUI import Db4eOSRepoEditUI
 from Db4eOSP2PoolSetupUI.Db4eOSP2PoolSetupUI import Db4eOSP2PoolSetupUI
@@ -74,6 +75,7 @@ STATUS = {
     'stopped'       : '🟡',
     'not_installed' : '🔴',
     'warning'       : '⚠️',
+    'good'          : '✔️',
     'unknown'       : '❔'
 }
 
@@ -116,6 +118,12 @@ REPO_SETUP += "Refer to the \"Getting Started\" page "
 REPO_SETUP += "(https://db4e.osoyalce.com/pages/Getting-Started.html) for "
 REPO_SETUP += "detailed information on setting this up."
 
+VENDOR_DIR_SETUP = "3rd Party Software Setup\n\n"
+VENDOR_DIR_SETUP += "This screen is used to set the directory where 3rd party "
+VENDOR_DIR_SETUP += "configuration files, logs, startup scripts and "
+VENDOR_DIR_SETUP += "other 3rd part software artifacts are deployed. "
+VENDOR_DIR_SETUP += "You must set this directory before you deploy any local "
+VENDOR_DIR_SETUP += "software i.e. a Monero daemon, P2Pool daemon or XMRig."
 
 XMRIG_SETUP = "XMRig Miner Setup\n\n"
 XMRIG_SETUP += "This screen lets you setup a XMRig miner. This is a local "
@@ -141,8 +149,9 @@ class Db4eOSTui:
         
         ## Mini TUIs
         # Setup
-        self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
+        self.repo_setup_ui = Db4eOSRepoSetupUI(self)
+        self.vendor_setup_ui = Db4eOSVendorSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
         self.p2pool_setup_ui = Db4eOSP2PoolSetupUI(self)
         self.p2pool_remote_setup_ui = Db4eOSP2PoolRemoteSetupUI(self)
@@ -181,11 +190,11 @@ class Db4eOSTui:
             return
 
         text_msg = urwid.Text(P2POOL_SETUP)
-        continue_button = urwid.Columns([
+        buttons = urwid.Columns([
             (9, urwid.Button(('button', 'Local'), on_press=self.show_p2pool_setup)),
             (10, urwid.Button(('button', 'Remote'), on_press=self.show_remote_p2pool_setup))
         ], dividechars=2)
-        widgets = [text_msg, urwid.Divider(), continue_button]
+        widgets = [text_msg, urwid.Divider(), buttons]
         # Wrap in a ListBox to make scrollable
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widgets))
         self.right_panel = urwid.LineBox(
@@ -353,6 +362,7 @@ class Db4eOSTui:
             db4e = self.model.get_db4e_deployment()
 
             if db4e['status'] == 'stopped':
+                # Screen with a continue button leading to Db4eOSDb4eSetupUI
                 setup_service_msg = self.db4e_setup_ui.setup_service_msg()                
                 text_msg = urwid.Text(setup_service_msg)
                 install_service_button = urwid.Columns([
@@ -369,12 +379,15 @@ class Db4eOSTui:
                 return
             
             elif db4e['status'] == 'running':
-                status = self.model.get_db4e_status()
-                status_msg = urwid.Text(bullet + status['service_installed'] )
-                enabled_msg = urwid.Text(bullet + status['service_enabled'] )
-                running_msg = urwid.Text(bullet + status['service_running'] )
+                status_info = self.model.get_status('db4e')
+                status_list = []
+                for aStatus in status_info[1:]:
+                    status_state = STATUS[aStatus['state']]
+                    status_msg = aStatus['msg']
+                    status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                status = urwid.Pile(status_list)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status_msg, enabled_msg, running_msg]))
+                    div, status]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -402,15 +415,15 @@ class Db4eOSTui:
                 return
             
             elif repo['status'] == 'running':
-                repo_dir = self.model.get_repo_dir()
-                status1 = urwid.Text(f'{bullet} Repo is properly configured')
-                status2 = urwid.Text(f'{bullet} Repo is in directory ({repo_dir})')
-                status_msg = urwid.Pile([ status1, status2 ])
-                edit_button = urwid.Columns([
-                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_repo))
-                ])
+                status_info = self.model.get_status('repo')
+                status_list = []
+                for aStatus in status_info[1:]:
+                    status_state = STATUS[aStatus['state']]
+                    status_msg = aStatus['msg']
+                    status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                status = urwid.Pile(status_list)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status_msg, div, edit_button]))
+                    div, status]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -537,7 +550,10 @@ class Db4eOSTui:
                 updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
                 p2pool_id = depl['p2pool_id']
                 p2pool_rec = self.model.get_p2pool_deployment_by_id(p2pool_id)
-                p2pool_name = p2pool_rec['instance']
+                if p2pool_rec:
+                    p2pool_name = p2pool_rec['instance']
+                else:
+                    p2pool_name = 'N/A'
 
                 header_msg = urwid.Text(f'XMRig Miner - {instance}\n')
                 status = f'{bullet} CPU threads: {num_threads}\n'
@@ -581,7 +597,11 @@ class Db4eOSTui:
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
     def show_p2pool_setup(self, button):
-        self.main_loop.widget = self.p2pool_setup_ui.widget()
+        # Check that the vendor_dir has been setup
+        if not self.model.get_vendor_dir():
+            self.main_loop.widget = self.vendor_setup_ui.widget()
+        else:
+            self.main_loop.widget = self.p2pool_setup_ui.widget()
 
     def show_remote_p2pool_setup(self, button):
         self.main_loop.widget = self.p2pool_remote_setup_ui.widget()
@@ -590,7 +610,11 @@ class Db4eOSTui:
         self.main_loop.widget = self.repo_setup_ui.widget()
 
     def show_xmrig_setup(self, button):
-        self.main_loop.widget = self.xmrig_setup_ui.widget()
+        # Check that the vendor_dir has been setup
+        if not self.model.get_vendor_dir():
+            self.main_loop.widget = self.vendor_setup_ui.widget()
+        else:
+            self.main_loop.widget = self.xmrig_setup_ui.widget()
 
     def run(self):
         try:

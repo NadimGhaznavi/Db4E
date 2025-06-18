@@ -98,6 +98,7 @@ db:
   log_collection: logging
   # How many days of data to keep in the logging collection
   log_retention_days: 7
+  max_backups: 7
   metrics_collection: metrics
   name: db4e
   port: 27017
