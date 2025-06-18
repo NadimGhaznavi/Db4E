@@ -145,20 +145,23 @@ class P2Pool():
     Sample log messages to watch for:
 
     2024-11-10 00:47:47.5596 StratumServer SHARE FOUND: mainchain height 3277956, sidechain height 9143872, diff 126624856, client 192.168.0.86:37294, user sally, effort 91.663%
+  
     """
-    pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<worker>.*), effort (?P<effort>\d+.\d+)"
+    pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.* sidechain height (?P<height>\d+).*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<worker>.*), effort (?P<effort>\d+.\d+)"
     match = re.search(pattern, log_line)
     if match:
-      timestamp = match.group('timestamp')
-      timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-      ip_addr = match.group('ip_addr')
-      worker = match.group('worker')
-      effort = float(match.group('effort'))
-      db = self.db()
-      db.add_share_found(timestamp, worker, ip_addr, effort)
-      reports = MiningReports('sharesfound')
-      reports.run()
-      self.log.debug('Share found event', { 'miner': worker }) 
+      sidechain_height = int(match.group('height'))
+      if sidechain_height > 1000000:
+        timestamp = match.group('timestamp')
+        timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
+        ip_addr = match.group('ip_addr')
+        worker = match.group('worker')
+        effort = float(match.group('effort'))
+        db = self.db()
+        db.add_share_found(timestamp, worker, ip_addr, effort)
+        reports = MiningReports('sharesfound')
+        reports.run()
+        self.log.debug('Share found event', { 'miner': worker }) 
 
   def is_share_position(self, log_line):
     """
