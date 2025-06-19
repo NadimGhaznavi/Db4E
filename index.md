@@ -17,9 +17,9 @@ layout: default
 
 This is the home of **db4e**, the **Database 4 Everything**  project. The **db4e** application aims to provide a simple *Terminal User Interface* (TUI) to setup and operate a Monero XMR Mining farm on one or multiple computers. This project is still under development.
 
-# Features Today
+---
 
-*db4e*:
+# Features Today
 
 * Monitors the health of your farm with a [console based dashboard](/pages/db4e-gui.py.html)
 * Manages a (free) GitHub Pages website (e.g. [my mining farm](https://xmr.osoyalce.com)) where *db4e* publishes reports
