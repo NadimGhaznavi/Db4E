@@ -51,7 +51,49 @@ class Db4eOSDb4eEditUI:
         self._db = Db4eOSDb()
         self.model = Db4eOSModel()
         self.ini = Db4eConfig()
+        self.reset() # (Re)initialize the mini-TUI
 
+    def back_to_main(self, button):
+        self.parent_tui.return_to_main()
+
+    def on_submit(self, button):
+        vendor_dir = self.vendor_dir_edit.edit_text.strip()
+
+        # Validate input
+        if not vendor_dir:
+            self.results_msg.set_text("You must set the 3rd party software directory.")
+            return
+
+        # Create the vendor directory
+        try:
+            if self.old_vendor_dir and self.old_vendor_dir != vendor_dir:
+                # Delete the old vendor directory
+                shutil.rmtree(self.old_vendor_dir)
+            if os.path.exists(vendor_dir):
+                shutil.rmtree(vendor_dir)
+            os.mkdir(vendor_dir)
+        except (PermissionError, FileNotFoundError, FileExistsError) as e:
+            error_msg = f'Failed to create directory ({vendor_dir}). Make sure you '
+            error_msg += 'have permission to create the directory and that the parent '
+            error_msg += f'exists\n\n'
+            error_msg += f'{e}'
+            self.results_msg.set_text(error_msg)
+            return
+
+        # Update the deployment record
+        self._db.update_deployment('db4e', {'vendor_dir': vendor_dir})
+
+        # Set the results
+        self.results_msg.set_text('Updated the db4e service deployment record')
+
+        # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)        
+        self.form_buttons.contents = [
+            (self.back_button, self.form_buttons.options('given', 8))
+        ]        
+
+    def reset(self):
         depl_rec = self._db.get_db4e_deployment()
         vendor_dir = depl_rec['vendor_dir'] or ''
         self.old_vendor_dir = vendor_dir
@@ -114,45 +156,6 @@ class Db4eOSDb4eEditUI:
             urwid.Padding(listbox, left=2, right=2),
             title="GitHub Repo Setup", title_align='center', title_attr='title'
         )
-
-    def back_to_main(self, button):
-        self.parent_tui.return_to_main()
-
-    def on_submit(self, button):
-        vendor_dir = self.vendor_dir_edit.edit_text.strip()
-
-        # Validate input
-        if not vendor_dir:
-            self.results_msg.set_text("You must set the 3rd party software directory.")
-            return
-
-        # Check SSH access
-        try:
-            if self.old_vendor_dir and self.old_vendor_dir != vendor_dir:
-                # Delete the old vendor directory
-                shutil.rmtree(self.old_vendor_dir)
-            os.mkdir(vendor_dir)
-        except (PermissionError, FileNotFoundError, FileExistsError) as e:
-            error_msg = f'Failed to create directory ({vendor_dir}). Make sure you '
-            error_msg += 'have permission to create the directory, that the parent '
-            error_msg += f'exists and that the directory ({vendor_dir}) does not '
-            error_msg += f'exist.\n\n'
-            error_msg += f'{e}'
-            self.results_msg.set_text(error_msg)
-            return
-
-        # Update the deployment record
-        self._db.update_deployment('db4e', {'vendor_dir': vendor_dir})
-
-        # Set the results
-        self.results_msg.set_text('Updated the db4e service deployment record')
-
-        # Remove the submit button
-        self.back_button.set_label("Done")
-        self.form_buttons.set_focus(0)        
-        self.form_buttons.contents = [
-            (self.back_button, self.form_buttons.options('given', 8))
-        ]        
 
     def uninstall_service(self, button):
         db4e_dir = self._db.get_db4e_dir()

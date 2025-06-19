@@ -83,11 +83,12 @@ class Db4eOSXMRigEditUI:
             self.results_msg.set_text("The number of threads must be an integer value")
             return
         
-        if self._db.get_deployment_by_instance('xmrig', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one XMRig deployment with that " +
-                                      "instance name.")
-            return
+        if instance != self.old_instance:
+            if self._db.get_deployment_by_instance('xmrig', instance):
+                self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                        "There can be only one XMRig deployment with that " +
+                                        "instance name.")
+                return
 
         # Generate a XMRig configuration file
         conf_dir        = self.ini.config['db4e']['conf_dir']
@@ -133,7 +134,7 @@ class Db4eOSXMRigEditUI:
             })
         
         # Set the results
-        results = f'\nRe-configured the XMRig miner ({instance}) deployment record. '
+        results = f'Re-configured the XMRig miner ({instance}) deployment record. '
         self.results_msg.set_text(results)
 
         # Remove the submit button
@@ -146,6 +147,19 @@ class Db4eOSXMRigEditUI:
     def select_p2pool(self, radio, new_state, deployment):
         if new_state:
             self.selected_p2pool = deployment
+
+    def reset(self):
+        self.old_instance = None
+        self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text='')
+        self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text='')
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+        self.selected_p2pool = None
+        self.results_msg = urwid.Text('')
 
     def set_instance(self, instance):
         self.old_instance = instance

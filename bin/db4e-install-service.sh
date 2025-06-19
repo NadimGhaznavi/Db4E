@@ -32,11 +32,21 @@
 #
 #####################################################################
 
-SERVICE_SRC="$1"  
+SERVICE_SRC="$1"
+DB4EGROUP="$2"
+DB4EUSER="$3"
+XMRIG_SRC="$4"
+XMRIG_DEST="$5"
 SERVICE_DEST="/etc/systemd/system/db4e.service"
 
-if [ -z "$SERVICE_SRC" ]; then
-    echo "Usage: $0 /path/to/generated/service/file"
+# Create the db4e (system) group
+groupadd -r $DB4EGROUP
+
+# Add the db4e user to the db4e group
+usermod -a -G $DB4EGROUP $DB4EUSER
+
+if [ -z "$XMRIG_DEST" ]; then
+    echo "Usage: $0 /path/to/generated/service/file db4e_group db4e_user /path/to/db4e/xmrig /path/to/3rdparty/xmrig"
     exit 1
 fi
 
@@ -45,16 +55,23 @@ if [ ! -f "$SERVICE_SRC" ]; then
     exit 2
 fi
 
-cp "$SERVICE_SRC" "$SERVICE_DEST"
-echo
-echo "* Created systemd service definition: $SERVICE_DEST"
-echo "* Reloaded systemd's configuration"
-echo "* Configured the service to start at boot time"
-echo "* Started the db4e service"
+# Copy in the xmrig binary and set SUID bit for performance reasons
+cp $XMRIG_SRC $XMRIG_DEST
+chown root:$DB4EGROUP $XMRIG_DEST
+chmod 4750 $XMRIG_DEST
 
+cp "$SERVICE_SRC" "$SERVICE_DEST"
 # Reload systemd, enable and start the service
 systemctl daemon-reexec
 systemctl daemon-reload
 systemctl enable "$SERVICE_NAME"
 systemctl start "$SERVICE_NAME"
-echo "$SERVICE_NAME installed and started."
+
+echo "Created the db4e group: $DB4EGROUP"
+echo "Added the db4e user ($DB4EUSER) to the new group"
+echo "Created systemd service definition: $SERVICE_DEST"
+echo "Set the SUID bit for xmrig ($XMRIG_DEST)"
+echo "Reloaded systemd's configuration"
+echo "Configured the service to start at boot time"
+echo "Started the db4e service"
+

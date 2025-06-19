@@ -51,6 +51,7 @@ DB4E_RECORD = {
     'name': 'db4e service',
     'version': 'latest',
     'status': 'stopped',
+    'group': None,
     'install_dir': None,
     'vendor_dir': None,
     }
@@ -108,7 +109,6 @@ P2POOL_RECORD_REMOTE = {
     'component': 'p2pool',
     'instance': None,
     'ip_addr': None,
-    'monerod_id': None,
     'name': 'P2Pool daemon',
     'status': 'not_installed',
     'stratum_port': 3333,
@@ -260,35 +260,8 @@ class Db4eOSDb:
             new_rec.update(update_fields)
             self.add_deployment(new_rec)
 
-    def update_deployment(self, component, update_fields, instance=None):
+    def update_deployment(self, component, update_fields):
         update_fields['updated'] = datetime.now(timezone.utc)
-        # Update an existing instance's deployment
-        if instance and update_fields['doc_type'] == 'deployment':
-            return self._db.update_one(
-                {'doc_type': 'deployment', 'component': component, 'instance': instance},
-                {'$set': update_fields})
-
-        # Create a new instance deployment
-        if instance and update_fields['doc_type'] == 'template':
-            if component == 'monerod':
-                new_rec = deepcopy(MONEROD_RECORD)
-                new_rec.update(update_fields)
-                new_rec['updated'] = datetime.now(timezone.utc)
-                new_rec['doc_type'] = 'deployment'
-                return self._db.insert_one(self._col, new_rec)
-            elif component == 'p2pool':
-                new_rec = deepcopy(P2POOL_RECORD)
-                new_rec.update(update_fields)
-                new_rec['updated'] = datetime.now(timezone.utc)
-                new_rec['doc_type'] = 'deployment'
-                return self._db.insert_one(self._col, new_rec)
-            elif component == 'xmrig':
-                new_rec = deepcopy(XMRIG_RECORD)
-                new_rec.update(update_fields)
-                new_rec['updated'] = datetime.now(timezone.utc)
-                new_rec['doc_type'] = 'deployment'
-                return self._db.insert_one(self._col, new_rec)
-
         # An update of a 'db4e' or 'repo' deployment record.            
         return self._db.update_one(
             self._col, {'doc_type': 'deployment', 'component': component},

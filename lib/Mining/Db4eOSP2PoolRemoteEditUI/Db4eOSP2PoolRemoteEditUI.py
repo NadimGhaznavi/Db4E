@@ -3,10 +3,8 @@ lib/Infrastructure/Db4eOSP2PoolRemoteEditUI/Db4eOSP2PoolRemoteEditUI.py
 
 This urwid based TUI drops into the db4e-os.py TUI to help the
 user re-configure access to a P2Pool daemon running on a remote node.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
@@ -45,7 +43,7 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 # TODO Put into a strings class
 MD = {
-    'bullet'  : '🔸',
+    'good'  : '✔️',
     'warning' : '⚠️',
 }
 
@@ -64,60 +62,76 @@ class Db4eOSP2PoolRemoteEditUI:
         ip_addr = self.ip_addr_edit.edit_text.strip()
         stratum_port = self.stratum_port_edit.edit_text.strip()
 
-        bullet = MD['bullet']
+        good = MD['good']
         warning = MD['warning']
 
         # Validate input
         if any(not val for val in (instance, ip_addr, stratum_port)):
             self.results_msg.set_text("You must fill in *all* of the fields")
             return
-        
         try:
             stratum_port = int(stratum_port)
         except:
             self.results_msg.set_text("The stratum port must be an integer value")
 
-        if self._db.get_deployment_by_instance('p2pool', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one P2Pool daemon deployment with that " +
-                                      "instance name.")
-            return
+        if instance != self.old_instance:
+            if self._db.get_deployment_by_instance('p2pool', instance):
+                self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                        "There can be only one P2Pool daemon deployment with that " +
+                                        "instance name.")
+                return
 
-        results = ''
-        # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, int(stratum_port)):
-            results += f'{bullet} Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
-        else:
-            results += f'{warning} Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
-
-        # Check connectivity
         results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
         if self._os.is_port_open(ip_addr, stratum_port):
-            results += f'{bullet} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
+            results += f'{good} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
         else:
             results += f'{warning} Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
 
-        self._db.update_deployment('p2pool', { 
-            'status': 'running',
-            'instance': instance,
-            'ip_addr': ip_addr,
-            'stratum_port': stratum_port,
-            'remote': True
-            })
+        if instance != self.old_instance:
+            self._db.update_deployment_instance('p2pool', self.old_instance, { 
+                'status': 'running',
+                'instance': instance,
+                'ip_addr': ip_addr,
+                'stratum_port': stratum_port,
+                'remote': True
+                })
+        else:
+            self._db.update_deployment_instance('p2pool', instance, { 
+                'status': 'running',
+                'instance': instance,
+                'ip_addr': ip_addr,
+                'stratum_port': stratum_port,
+                'remote': True
+                })
 
         # Set the results
         results += f'\nRe-configured the P2Pool daemon ({instance}) deployment record. '
         self.results_msg.set_text(results)
 
         # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)
         self.form_buttons.contents = [
             (self.back_button, self.form_buttons.options('given', 8))
         ]
 
+    def reset(self):
+        self.old_instance = None
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
+        self.ip_addr_edit = urwid.Edit("Remote P2Pool hostname or IP address: ", edit_text='')
+        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text='')
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+        self.results_msg = urwid.Text('')
+
     def set_instance(self, instance):
         p2pool_rec = self._db.get_deployment_by_instance('p2pool', instance)
-        instance = p2pool_rec['instance'] or ''
+        self.old_instance = instance
         ip_addr = p2pool_rec['ip_addr'] or ''
         stratum_port = p2pool_rec['stratum_port'] or ''
 

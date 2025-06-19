@@ -82,11 +82,29 @@ STATUS = {
 MD = {
     'bullet': '🔸',
 }
+bullet = MD['bullet']
 
 WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
-WELCOME_MSG += "Use the spacebar or mouse to click the \"More Info\" or "
-WELCOME_MSG += "\"Exit\" button. "
+WELCOME_MSG += "Or use your mouse to select components and to click the "
+WELCOME_MSG += "\"More Info\", \"Exit\" or \"New Deployment\" buttons. "
+
+DB4E_SETUP = "\nThis screen will take you to the initial setup screen. "
+DB4E_SETUP += "There are three distinct elements that are configured: "
+DB4E_SETUP += "1) Setting the 3rd party software directory and 2) "
+DB4E_SETUP += "creating a \"db4e\" group and 3) installing the db4e service.\n\n"
+DB4E_SETUP += "The 3rd party software directory is used to store "
+DB4E_SETUP += "configuration files, log files, startup scripts and "
+DB4E_SETUP += "other runtime artifacts.\n\n"
+DB4E_SETUP += "Members of the db4e group will be allowed to interact with the "
+DB4E_SETUP += "service using the db4e-os tool.\n\n"
+DB4E_SETUP += "The db4e service will start at boot time and is "
+DB4E_SETUP += "responsible for managing:\n"
+DB4E_SETUP += f"{bullet} The Monero blockchain daemon(s).\n"
+DB4E_SETUP += f"{bullet} The P2Pool daemon(s).\n"
+DB4E_SETUP += f"{bullet} The XMRig miner(s).\n"
+DB4E_SETUP += "You *MUST* have sudo access to the root account "
+DB4E_SETUP += "before you can install the db4e service."
 
 MONEROD_SETUP = "Monero Blockchain Daemon Setup\n\n"
 MONEROD_SETUP = "This screen lets you setup a Monero blockchain daemon. "
@@ -158,7 +176,7 @@ class Db4eOSTui:
         # Edit
         self.edit_db4e_ui = Db4eOSDb4eEditUI(self)
         self.edit_repo_ui = Db4eOSRepoEditUI(self)
-        self.edit_monerod_ui = Db4eOSMonerodRemoteEditUI(self)
+        self.edit_monerod_remote_ui = Db4eOSMonerodRemoteEditUI(self)
         self.edit_p2pool_ui = Db4eOSP2PoolEditUI(self)
         self.edit_p2pool_remote_ui = Db4eOSP2PoolRemoteEditUI(self)
         self.edit_xmrig_ui = Db4eOSXMRigEditUI(self)
@@ -312,24 +330,33 @@ class Db4eOSTui:
         self.return_to_main()
 
     def edit_db4e(self, button):
+        self.edit_db4e_ui.reset()
         self.main_loop.widget = self.edit_db4e_ui.widget()
 
     def edit_monerod(self, button):
-        self.edit_monerod_ui.set_instance(self.selected_instance['instance'])
-        self.main_loop.widget = self.edit_monerod_ui.widget()
+        self.edit_monerod_remote_ui.reset()
+        self.edit_monerod_remote_ui.set_instance(self.selected_instance['instance'])
+        self.main_loop.widget = self.edit_monerod_remote_ui.widget()
 
     def edit_p2pool(self, button):
-        self.edit_p2pool_ui.set_instance(self.selected_instance['instance'])
-        self.main_loop.widget = self.edit_p2pool_ui.widget()
+        if self.model.is_remote('p2pool', self.selected_instance['instance']):
+            self.edit_p2pool_remote()
+        else:
+            self.edit_p2pool_ui.reset()
+            self.edit_p2pool_ui.set_instance(self.selected_instance['instance'])
+            self.main_loop.widget = self.edit_p2pool_ui.widget()
 
-    def edit_p2pool_remote(self, button):
+    def edit_p2pool_remote(self):
+        self.edit_p2pool_remote_ui.reset()
         self.edit_p2pool_remote_ui.set_instance(self.selected_instance['instance'])
         self.main_loop.widget = self.edit_p2pool_remote_ui.widget()
 
     def edit_repo(self, button):
+        self.edit_repo_ui.reset()
         self.main_loop.widget = self.edit_repo_ui.widget()
 
     def edit_xmrig(self, button):
+        self.edit_xmrig_ui.reset()
         self.edit_xmrig_ui.set_instance(self.selected_instance['instance'])
         self.main_loop.widget = self.edit_xmrig_ui.widget()
 
@@ -354,20 +381,14 @@ class Db4eOSTui:
     # The main screen shows this content
     def show_component_info(self, button):
         deployment = self.selected_deployment
-        # Fancy unicode
-        bullet = MD['bullet']
-        warning = STATUS['warning']
-        # uwid divider
         div = urwid.Divider()
-
         if deployment == 'db4e':
             title_text = 'db4e Service Status'
             db4e = self.model.get_db4e_deployment()
 
             if db4e['status'] == 'stopped':
                 # Screen with a continue button leading to Db4eOSDb4eSetupUI
-                setup_service_msg = self.db4e_setup_ui.setup_service_msg()                
-                text_msg = urwid.Text(setup_service_msg)
+                text_msg = urwid.Text(DB4E_SETUP)
                 install_service_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_db4e_setup))
                 ])
@@ -401,11 +422,10 @@ class Db4eOSTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
 
-
         elif deployment == 'repo':
             title_text = 'Website Repository Status'
             repo = self.model.get_repo_deployment()
-            if repo['status'] == 'not_installed':
+            if repo['status'] == 'stopped':
                 text_msg = urwid.Text(REPO_SETUP)
                 continue_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
@@ -457,6 +477,7 @@ class Db4eOSTui:
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 status = urwid.Pile(status_list)
                 buttons = urwid.Columns([
+                    (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
                     (8, urwid.Button(('button', 'Edit'), on_press=self.edit_monerod)), 
                 ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
@@ -469,116 +490,49 @@ class Db4eOSTui:
                 return
 
             elif depl_type == 'p2pool':
-                depl = self.model.get_p2pool_deployment(instance)
-                remote_flag = depl['remote']
-                if remote_flag:
-                    remote = 'Remote'
-                    ip_addr = depl['ip_addr']
-                    stratum_port = depl['stratum_port']
-                    updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
-                    header_msg = urwid.Text(f'Remote P2Pool Daemon - {instance}\n')
-                    status = f'{bullet} Hostname or IP address: {ip_addr}\n'
-                    status += f'{bullet} Local or remote: {remote}\n'
-                    status += f'{bullet} Stratum port: {stratum_port}\n'
-                    status += f'{bullet} Updated: {updated}'
-                    status_msg = urwid.Text(status)
-                    problems_list = []
-                    for problem in self.model.get_problems(depl_type, instance):
-                        problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
-                    if problems_list:
-                        problems_list.append(div)
-                    problems = urwid.Pile(problems_list)
-                    delete_button = urwid.Columns([
-                        (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool_remote)),
-                        (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
-                    ])
-                    listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    header_msg, status_msg, div, problems, delete_button]))
-                    self.right_panel = urwid.LineBox(
-                        urwid.Padding(listbox, left=2, right=2),
-                        title='Info', title_align="right", title_attr="title"
-                    )
-                    self.main_loop.widget = self.build_main_frame()
-                    return
-
-                # Local P2Pool deployment
-                remote = 'Local'
-                wallet = depl['wallet']
-                any_ip = depl['any_ip']
-                stratum_port = depl['stratum_port']
-                p2p_port = depl['p2p_port']
-                log_level = depl['log_level']
-                in_peers = depl['in_peers']
-                out_peers = depl['out_peers']
-                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
-                header_msg = urwid.Text(f'Local P2Pool Daemon - {instance}\n')
-                status = f'{bullet} Your Monero wallet: {wallet}\n'
-                status += f'{bullet} Local or remote: {remote}\n'
-                status += f'{bullet} Listen on IP address: {any_ip}\n'
-                status += f'{bullet} Stratum port: {stratum_port}\n'
-                status += f'{bullet} P2P port: {p2p_port}\n'
-                status += f'{bullet} Log level: {log_level}\n'
-                status += f'{bullet} Number of allowed incoming connections: {in_peers}\n'
-                status += f'{bullet} Number of allowed outbound connections: {out_peers}\n'
-                status += f'{bullet} Updated: {updated}'
-                status_msg = urwid.Text(status)
-                problems_list = []
-                for problem in self.model.get_problems(depl_type, instance):
-                    problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
-                if problems_list:
-                    problems_list.append(div)
-                problems = urwid.Pile(problems_list)
-                delete_button = urwid.Columns([
-                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool)),
-                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
-                ])
+                title_text = f'P2Pool Daemon ({instance}) Status'
+                status_info = self.model.get_status('p2pool', instance)
+                status_list = []
+                for aStatus in status_info[1:]:
+                    status_state = STATUS[aStatus['state']]
+                    status_msg = aStatus['msg']
+                    status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                status = urwid.Pile(status_list)
+                buttons = urwid.Columns([
+                    (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool)), 
+                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg, div, problems, delete_button]))
+                    div, status, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
-
 
             elif depl_type == 'xmrig':
-                depl = self.model.get_xmrig_deployment(instance)
-                config = depl['config']
-                num_threads = depl['num_threads']
-                updated = depl['updated'].strftime("%Y-%m-%d %H:%M:%S")
-                p2pool_id = depl['p2pool_id']
-                p2pool_rec = self.model.get_p2pool_deployment_by_id(p2pool_id)
-                if p2pool_rec:
-                    p2pool_name = p2pool_rec['instance']
-                else:
-                    p2pool_name = 'N/A'
-
-                header_msg = urwid.Text(f'XMRig Miner - {instance}\n')
-                status = f'{bullet} CPU threads: {num_threads}\n'
-                status += f'{bullet} Configuration file: {config}\n'
-                status += f'{bullet} P2Pool daemon: {p2pool_name}\n'
-                status += f'{bullet} Updated: {updated}'
-                status_msg = urwid.Text(status)
-                problems_list = []
-                for problem in self.model.get_problems(depl_type, instance):
-                    problems_list.append(urwid.Text(f'{warning}  {problem}\n'))
-                if problems_list:
-                    problems_list.append(div)
-                problems = urwid.Pile(problems_list)
+                title_text = f'XMRig Miner ({instance}) Status'
+                status_info = self.model.get_status('xmrig', instance)
+                status_list = []
+                for aStatus in status_info[1:]:
+                    status_state = STATUS[aStatus['state']]
+                    status_msg = aStatus['msg']
+                    status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                status = urwid.Pile(status_list)
                 buttons = urwid.Columns([
-                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)),
-                    (19, urwid.Button(('button', 'Delete Instance'), on_press=self.delete_instance))
-                ])
+                    (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
+                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)), 
+                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                header_msg, status_msg, div, problems, buttons]))
+                    div, status, div, buttons]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
-                    title='Info', title_align="right", title_attr="title"
+                    title=title_text, title_align='left', title_attr='title'
                 )
                 self.main_loop.widget = self.build_main_frame()
                 return
-
+            
             else:
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(urwid.Text(f'No info available for {deployment}.'), left=2, right=2),
@@ -593,16 +547,19 @@ class Db4eOSTui:
         pass
 
     def show_remote_monerod_setup(self, button):
+        self.monerod_remote_setup_ui.reset()
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
     def show_p2pool_setup(self, button):
         # Check that the vendor_dir has been setup
         if not self.model.get_vendor_dir():
-            self.main_loop.widget = self.db4e_setup_ui.widget()
+            self.main_loop.widget = self.edit_db4e_ui.widget()
         else:
+            self.p2pool_setup_ui.reset()
             self.main_loop.widget = self.p2pool_setup_ui.widget()
 
     def show_remote_p2pool_setup(self, button):
+        self.p2pool_remote_setup_ui.reset()
         self.main_loop.widget = self.p2pool_remote_setup_ui.widget()
 
     def show_repo_setup(self, button):
@@ -611,8 +568,9 @@ class Db4eOSTui:
     def show_xmrig_setup(self, button):
         # Check that the vendor_dir has been setup
         if not self.model.get_vendor_dir():
-            self.main_loop.widget = self.db4e_setup_ui.widget()
+            self.main_loop.widget = self.edit_db4e_ui.widget()
         else:
+            self.xmrig_setup_ui.reset()
             self.main_loop.widget = self.xmrig_setup_ui.widget()
 
     def run(self):

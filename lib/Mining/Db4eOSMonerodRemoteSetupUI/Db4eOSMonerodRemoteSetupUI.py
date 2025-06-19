@@ -46,7 +46,7 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 # TODO Put into a strings class
 MD = {
-    'bullet'  : '🔸',
+    'good'  : '✔️',
     'warning' : '⚠️',
 }
 
@@ -55,7 +55,73 @@ class Db4eOSMonerodRemoteSetupUI:
         self.parent_tui = parent_tui
         self._os = Db4eOS()
         self._db = Db4eOSDb()
+        self.reset() # (Re)initialize the mini-TUI
 
+    def back_to_main(self, button):
+        self.parent_tui.return_to_main()
+
+    def on_submit(self, button):
+        instance = self.instance_edit.edit_text.strip()
+        ip_addr = self.ip_addr_edit.edit_text.strip()
+        zmq_port = self.zmq_port_edit.edit_text.strip()
+        rpc_port = self.rpc_port_edit.edit_text.strip()
+        # Unicode
+        good = MD['good']
+        warning = MD['warning']
+
+        # Validate input
+        if any(not val for val in (instance, ip_addr, zmq_port, rpc_port)):
+            self.results_msg.set_text("You must fill in *all* of the fields.")
+            return
+        
+        try:
+            zmq_port = int(zmq_port)
+            rpc_port = int(rpc_port)
+        except:
+            self.results_msg.set_text("The ZMQ and RPC ports must be integer values")
+            return
+
+        if self._db.get_deployment_by_instance('monerod', instance):
+            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                      "There can be only one Monero daemon deployment with that " +
+                                      "instance name.")
+            return
+
+        # Check connectivity
+        results = 'Checklist:\n'
+        # Check that db4e can connect to the remote system
+        if self._os.is_port_open(ip_addr, zmq_port):
+            results += f'{good} Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
+        else:
+            results += f"{warning} Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
+
+        if self._os.is_port_open(ip_addr, rpc_port):
+            results += f'{good} Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
+        else:
+            results += f"{warning} Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"
+
+        # Create the deployment record
+        self._db.new_deployment('monerod', { 
+            'status': 'running',
+            'instance': instance,
+            'zmq_pub_port': zmq_port,
+            'rpc_bind_port': rpc_port,
+            'ip_addr': ip_addr,
+            'remote': True
+            })
+        
+        # Set the results
+        results += f'Created new Monero daemon ({instance}) deployment record. '
+        self.results_msg.set_text(results)
+
+        # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)
+        self.form_buttons.contents = [
+            (self.back_button, self.form_buttons.options('given', 8))
+        ]
+
+    def reset(self):
         monerod_rec = self._db.get_tmpl('monerod', 'remote')
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
@@ -122,70 +188,6 @@ class Db4eOSMonerodRemoteSetupUI:
             urwid.Padding(listbox, left=2, right=2),
             title='Remote Monero Daemon Setup', title_align='center', title_attr='title'
         )
-
-    def back_to_main(self, button):
-        self.parent_tui.return_to_main()
-
-    def on_submit(self, button):
-        instance = self.instance_edit.edit_text.strip()
-        ip_addr = self.ip_addr_edit.edit_text.strip()
-        zmq_port = self.zmq_port_edit.edit_text.strip()
-        rpc_port = self.zmq_port_edit.edit_text.strip()
-        # Unicode
-        bullet = MD['bullet']
-        warning = MD['warning']
-
-        # Validate input
-        if any(not val for val in (instance, ip_addr, zmq_port, rpc_port)):
-            self.results_msg.set_text("You must fill in *all* of the fields.")
-            return
-        
-        try:
-            zmq_port = int(zmq_port)
-            rpc_port = int(rpc_port)
-        except:
-            self.results_msg.set_text("The ZMQ and RPC ports must be integer values")
-            return
-
-        if self._db.get_deployment_by_instance('monerod', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one Monero daemon deployment with that " +
-                                      "instance name.")
-            return
-
-        # Check connectivity
-        results = 'Checklist:\n'
-        # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, zmq_port):
-            results += f'{bullet} Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
-        else:
-            results += f"{warning} Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
-
-        if self._os.is_port_open(ip_addr, rpc_port):
-            results += f'{bullet} Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
-        else:
-            results += f"{warning} Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"
-
-        # Create the deployment record
-        self._db.new_deployment('monerod', { 
-            'status': 'running',
-            'instance': instance,
-            'zmq_pub_port': zmq_port,
-            'rpc_bind_port': rpc_port,
-            'ip_addr': ip_addr,
-            'remote': True
-            })
-        
-        # Set the results
-        results += f'Created new Monero daemon ({instance}) deployment record. '
-        self.results_msg.set_text(results)
-
-        # Remove the submit button
-        self.back_button.set_label("Done")
-        self.form_buttons.set_focus(0)
-        self.form_buttons.contents = [
-            (self.back_button, self.form_buttons.options('given', 8))
-        ]
 
     def widget(self):
         return self.frame

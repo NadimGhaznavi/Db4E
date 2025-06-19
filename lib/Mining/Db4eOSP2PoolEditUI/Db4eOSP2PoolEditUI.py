@@ -4,10 +4,8 @@ lib/Infrastructure/Db4eOSP2PoolRemoteSetupUI/Db4eOSP2PoolSetupUI.py
 This urwid based TUI drops into the db4e-os.py TUI to help the
 user configure access to a local P2Pool daemon running on your 
 machine. The db4e project includes a pre-compiled P2Pool binary.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
@@ -45,18 +43,13 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
-# TODO Put into a strings class
-MD = {
-    'bullet'  : '🔸',
-    'warning' : '⚠️',
-}
-
 class Db4eOSP2PoolEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.ini = Db4eConfig()
+        self.instance = ''
         # Most of the initialization is done in set_instance()
 
     def back_to_main(self, button):
@@ -105,11 +98,12 @@ class Db4eOSP2PoolEditUI:
             self.results_msg.set_text("The stratum port, p2p port, log level, incoming and " +
                                       "outgoing connections must have integer values")
 
-        if self._db.get_deployment_by_instance('p2pool', instance):
-            self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
-                                      "There can be only one P2Pool daemon deployment with that " +
-                                      "instance name.")
-            return
+        if instance != self.old_instance:
+            if self._db.get_deployment_by_instance('p2pool', instance):
+                self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
+                                        "There can be only one P2Pool daemon deployment with that " +
+                                        "instance name.")
+                return
 
         # Generate a P2Pool configuration file
         conf_dir        = self.ini.config['db4e']['conf_dir']
@@ -159,20 +153,37 @@ class Db4eOSP2PoolEditUI:
             f.write(config_contents)
 
         monerod_id = monerod_rec['_id']
-        self._db.update_deployment('p2pool', { 
-            'status': 'running',
-            'instance': instance,
-            'wallet': wallet,
-            'config': fq_config,
-            'any_ip': any_ip,
-            'stratum_port': stratum_port,
-            'p2p_port': p2p_port,
-            'log_level': log_level,
-            'in_peers': in_peers,
-            'out_peers': out_peers,
-            'monerod_id': monerod_id,
-            'remote': False
-            })
+
+        if instance != self.old_instance:
+            self._db.update_deployment_instance('p2pool', self.old_instance, { 
+                'status': 'running',
+                'instance': instance,
+                'wallet': wallet,
+                'config': fq_config,
+                'any_ip': any_ip,
+                'stratum_port': stratum_port,
+                'p2p_port': p2p_port,
+                'log_level': log_level,
+                'in_peers': in_peers,
+                'out_peers': out_peers,
+                'monerod_id': monerod_id,
+                'remote': False
+                })
+        else:
+            self._db.update_deployment_instance('p2pool', instance, { 
+                'status': 'running',
+                'instance': instance,
+                'wallet': wallet,
+                'config': fq_config,
+                'any_ip': any_ip,
+                'stratum_port': stratum_port,
+                'p2p_port': p2p_port,
+                'log_level': log_level,
+                'in_peers': in_peers,
+                'out_peers': out_peers,
+                'monerod_id': monerod_id,
+                'remote': False
+                })
 
 
         # Set the results
@@ -188,10 +199,28 @@ class Db4eOSP2PoolEditUI:
         if new_state:
             self.selected_monerod = deployment
 
+    def reset(self):
+        self.old_instance = None
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
+        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j)", edit_text='')
+        self.any_ip_edit = urwid.Edit("The IP that you want P2Pool to listen on: ", edit_text='')
+        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text='')
+        self.p2p_port_edit = urwid.Edit("P2P port: ", edit_text='')
+        self.log_level_edit = urwid.Edit("P2Pool log level: ", edit_text='')
+        self.in_peers_edit = urwid.Edit("Number of incoming connections: ", edit_text='')
+        self.out_peers_edit = urwid.Edit("Number of outgoing connections: ", edit_text='')
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+        self.selected_monerod = None
+        self.results_msg = urwid.Text('')
+
     def set_instance(self, instance):
         self.old_instance = instance
         p2pool_rec = self._db.get_deployment_by_instance('p2pool', instance)
-        instance = p2pool_rec['instance'] or ''
         wallet = p2pool_rec['wallet'] or ''
         any_ip = p2pool_rec['any_ip'] or ''
         stratum_port = p2pool_rec['stratum_port'] or ''
@@ -285,7 +314,7 @@ class Db4eOSP2PoolEditUI:
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
         self.frame = urwid.LineBox(
             urwid.Padding(listbox, left=2, right=2),
-            title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
+            title="Local P2Pool Daemon Setup", title_align="center", title_attr="title"
         )
 
     def widget(self):

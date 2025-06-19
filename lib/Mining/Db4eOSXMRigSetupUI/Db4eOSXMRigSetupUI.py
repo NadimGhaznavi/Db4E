@@ -50,86 +50,7 @@ class Db4eOSXMRigSetupUI:
         self.ini = Db4eConfig()
         self._os = Db4eOS()
         self._db = Db4eOSDb()
-
-        xmrig_rec = self._db.get_tmpl('xmrig')
-        instance = xmrig_rec['instance'] or ''
-        num_threads = xmrig_rec['num_threads'] or ''
-
-        # Form elements; edit widgets
-        self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
-        self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text=str(num_threads))
-
-        # The buttons
-        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
-        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
-
-        # The assembled buttons
-        self.form_buttons = urwid.Columns([
-            (10, self.submit_button),
-            (8, self.back_button)
-        ], dividechars=1)
-
-        # Setup the reference to the P2Pool instance XMRig will use
-        self.selected_p2pool = None
-        self.deployment_radios = []
-        self.group = []
-        p2pool_deployments = {}
-        for deployment in self._db.get_p2pool_deployments():
-            name = deployment['name']
-            instance = deployment['instance']
-            p2pool_deployments[instance] = { 'name': name, 'instance': instance }
-            self.selected_p2pool = instance # Initialize to the last instance
-        p2pool_deployments_box = self.build_p2pool_deployments(p2pool_deployments)
-
-        # The assembled form elements and buttons
-        self.form_box = urwid.Pile([
-            self.instance_edit,
-            self.num_threads_edit,
-            urwid.Divider(),
-            p2pool_deployments_box,
-            urwid.Divider(),
-            self.form_buttons
-        ])
-
-        # Results
-        self.results_msg = urwid.Text('')
-
-        # Assembled results
-        self.results_box = urwid.Pile([
-            urwid.Divider(),
-            urwid.LineBox(
-                urwid.Padding(
-                    self.results_msg,
-                    left=2, right=2
-                ),
-                title="Results", title_align='left', title_attr='title'
-            )
-        ])
-
-        form_widgets = [
-            urwid.Text('XMRig Miner Setup\n\n' +
-                'All of the fields below are mandatory. Furthermore ' +
-                'the \"miner name\" must be unique within the ' +
-                'db4e environment i.e. if you have more than one ' +
-                'miner deployed, then each must have their own ' +
-                'unique name. The \"CPU threads\" setting determines how ' +
-                'many CPU threads to allocate to the miner. It iss recommended ' +
-                'that you leave at least one thread free for the OS.\n\n ' +
-                'Use the arrow keys or mouse scrollwheel to scroll up and ' +
-                'down and the spacebar to click.'),
-            urwid.Divider(),
-            urwid.LineBox(
-                urwid.Padding(self.form_box, left=2, right=2),
-                title='Setup Form', title_align='left', title_attr='title'),
-            self.results_box
-        ]
-
-        # Wrap in a ListBox to make scrollable
-        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
-        self.frame = urwid.LineBox(
-            urwid.Padding(listbox, left=2, right=2),
-            title='XMRig Miner Setup', title_align='center', title_attr='title'
-        )
+        self.reset()
 
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
@@ -215,6 +136,87 @@ class Db4eOSXMRigSetupUI:
         self.form_buttons.contents = [
             (self.back_button, self.form_buttons.options('given', 8))
         ]
+
+    def reset(self):
+        xmrig_rec = self._db.get_tmpl('xmrig')
+        instance = xmrig_rec['instance'] or ''
+        num_threads = xmrig_rec['num_threads'] or ''
+
+        # Form elements; edit widgets
+        self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
+        self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text=str(num_threads))
+
+        # The buttons
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+
+        # The assembled buttons
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+
+        # Setup the reference to the P2Pool instance XMRig will use
+        self.selected_p2pool = None
+        self.deployment_radios = []
+        self.group = []
+        p2pool_deployments = {}
+        for deployment in self._db.get_p2pool_deployments():
+            name = deployment['name']
+            instance = deployment['instance']
+            p2pool_deployments[instance] = { 'name': name, 'instance': instance }
+            self.selected_p2pool = instance # Initialize to the last instance
+        p2pool_deployments_box = self.build_p2pool_deployments(p2pool_deployments)
+
+        # The assembled form elements and buttons
+        self.form_box = urwid.Pile([
+            self.instance_edit,
+            self.num_threads_edit,
+            urwid.Divider(),
+            p2pool_deployments_box,
+            urwid.Divider(),
+            self.form_buttons
+        ])
+
+        # Results
+        self.results_msg = urwid.Text('')
+
+        # Assembled results
+        self.results_box = urwid.Pile([
+            urwid.Divider(),
+            urwid.LineBox(
+                urwid.Padding(
+                    self.results_msg,
+                    left=2, right=2
+                ),
+                title="Results", title_align='left', title_attr='title'
+            )
+        ])
+
+        form_widgets = [
+            urwid.Text('XMRig Miner Setup\n\n' +
+                'All of the fields below are mandatory. Furthermore ' +
+                'the \"miner name\" must be unique within the ' +
+                'db4e environment i.e. if you have more than one ' +
+                'miner deployed, then each must have their own ' +
+                'unique name. The \"CPU threads\" setting determines how ' +
+                'many CPU threads to allocate to the miner. It iss recommended ' +
+                'that you leave at least one thread free for the OS.\n\n ' +
+                'Use the arrow keys or mouse scrollwheel to scroll up and ' +
+                'down and the spacebar to click.'),
+            urwid.Divider(),
+            urwid.LineBox(
+                urwid.Padding(self.form_box, left=2, right=2),
+                title='Setup Form', title_align='left', title_attr='title'),
+            self.results_box
+        ]
+
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
+        self.frame = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title='XMRig Miner Setup', title_align='center', title_attr='title'
+        )
 
     def select_p2pool(self, radio, new_state, deployment):
         if new_state:

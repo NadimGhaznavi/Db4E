@@ -1,13 +1,22 @@
 [Unit]
 Description="Database 4 Everything Service"
+After=network.target
 
 [Service]
+User=[[DB4E_USER]]
 WorkingDirectory=[[INSTALL_DIR]]
-ExecStart=[[INSTALL_DIR]]/bin/db4e.py -s
+ExecStart=[[INSTALL_DIR]]/bin/db4e.sh -s
 Restart=always
 RestartSec=3
 KillMode=process
+Group=db4e
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+TimeoutStopSec=10
 
 [Install]
 WantedBy=multi-user.target
-

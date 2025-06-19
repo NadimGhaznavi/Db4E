@@ -4,10 +4,8 @@ lib/Infrastructure/Db4eOSP2PoolRemoteSetupUI/Db4eOSP2PoolSetupUI.py
 This urwid based TUI drops into the db4e-os.py TUI to help the
 user configure access to a local P2Pool daemon running on your 
 machine. The db4e project includes a pre-compiled P2Pool binary.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
@@ -47,7 +45,7 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 # TODO Put into a strings class
 MD = {
-    'bullet'  : '🔸',
+    'good'    : '✔️',
     'warning' : '⚠️',
 }
 
@@ -57,105 +55,7 @@ class Db4eOSP2PoolSetupUI:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.ini = Db4eConfig()
-
-        p2pool_rec = self._db.get_tmpl(component='p2pool', remote=False)
-
-        instance = p2pool_rec['instance'] or ''
-        wallet = p2pool_rec['wallet'] or ''
-        any_ip = p2pool_rec['any_ip'] or ''
-        stratum_port = p2pool_rec['stratum_port'] or ''
-        p2p_port = p2pool_rec['p2p_port'] or ''
-        log_level = p2pool_rec['log_level'] or ''
-        in_peers = p2pool_rec['in_peers'] or ''
-        out_peers = p2pool_rec['out_peers'] or ''
-
-        # Form elements; edit widgets
-        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
-        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j): ", edit_text=wallet)
-        self.any_ip_edit = urwid.Edit("Listen on IP address: ", edit_text=any_ip)
-        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
-        self.p2p_port_edit = urwid.Edit("P2P port: ", edit_text=str(p2p_port))
-        self.log_level_edit = urwid.Edit("P2Pool log level: ", edit_text=str(log_level))
-        self.in_peers_edit = urwid.Edit("Number of allowed incoming connections: ", edit_text=str(in_peers))
-        self.out_peers_edit = urwid.Edit("Number of allowed outbound connections: ", edit_text=str(out_peers))
-
-        # The buttons
-        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
-        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
-
-        # The assembled buttons
-        self.form_buttons = urwid.Columns([
-            (10, self.submit_button),
-            (8, self.back_button)
-        ], dividechars=1)
-
-        # Setup the reference to the P2Pool instance XMRig will use
-        self.selected_monerod = None
-        self.deployment_radios = []
-        self.group = []
-        monerod_deployments = {}
-        for deployment in self._db.get_monerod_deployments():
-            name = deployment['name']
-            instance = deployment['instance']
-            monerod_deployments[instance] = { 'name': name, 'instance': instance }
-            self.selected_monerod = instance # Initialize to the last instance
-        monerod_deployments_box = self.build_monerod_deployments(monerod_deployments)
-
-        # The assembled form elements and buttons
-        self.form_box = urwid.Pile([
-            self.instance_edit,
-            self.wallet_edit,
-            self.any_ip_edit,
-            self.stratum_port_edit,
-            self.p2p_port_edit,
-            self.log_level_edit,
-            self.in_peers_edit,
-            self.out_peers_edit,
-            urwid.Divider(),
-            monerod_deployments_box,
-            urwid.Divider(),
-            self.form_buttons
-        ])
-
-        # Results
-        self.results_msg = urwid.Text('')
-
-        # Assembled results
-        self.results_box = urwid.Pile([
-                urwid.Divider(),
-                urwid.LineBox(
-                    urwid.Padding(
-                        self.results_msg,
-                        left=2, right=2
-                    ),
-                    title='Results', title_align='left', title_attr='title'
-                )
-        ])
-
-        form_widgets = [
-            urwid.Text('Remote P2Pool Demon Setup\n\n' +
-                'The \"instance name\" must be unique within the ' +
-                'db4e environment i.e. if you have more than one ' +
-                'daemon deployed, then each must have their own ' +
-                'instance name. Setting the listen on IP to \"0.0.0.0\" "'
-                'will configure P2Pool to listen on all of your network ' +
-                'interfaces (you likely want this).\n\nUse the arrow ' +
-                'keys or mouse scrollwheel to scroll up and down and ' +
-                'the spacebar to click.'),
-            urwid.Divider(),
-            urwid.LineBox(
-                urwid.Padding(self.form_box, left=2, right=2),
-                title='Setup Form', title_align='left', title_attr='title'
-            ),
-            self.results_box
-        ]
-
-        # Wrap in a ListBox to make scrollable
-        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
-        self.frame = urwid.LineBox(
-            urwid.Padding(listbox, left=2, right=2),
-            title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
-        )
+        self.reset()
 
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
@@ -274,6 +174,204 @@ class Db4eOSP2PoolSetupUI:
         self.form_buttons.contents = [
             (self.back_button, self.form_buttons.options('given', 8))
         ]
+        p2pool_rec = self._db.get_tmpl(component='p2pool', remote=False)
+
+        instance = p2pool_rec['instance'] or ''
+        wallet = p2pool_rec['wallet'] or ''
+        any_ip = p2pool_rec['any_ip'] or ''
+        stratum_port = p2pool_rec['stratum_port'] or ''
+        p2p_port = p2pool_rec['p2p_port'] or ''
+        log_level = p2pool_rec['log_level'] or ''
+        in_peers = p2pool_rec['in_peers'] or ''
+        out_peers = p2pool_rec['out_peers'] or ''
+
+        # Form elements; edit widgets
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
+        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j): ", edit_text=wallet)
+        self.any_ip_edit = urwid.Edit("Listen on IP address: ", edit_text=any_ip)
+        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
+        self.p2p_port_edit = urwid.Edit("P2P port: ", edit_text=str(p2p_port))
+        self.log_level_edit = urwid.Edit("P2Pool log level: ", edit_text=str(log_level))
+        self.in_peers_edit = urwid.Edit("Allowed incoming connections: ", edit_text=str(in_peers))
+        self.out_peers_edit = urwid.Edit("Allowed outbound connections: ", edit_text=str(out_peers))
+
+        # The buttons
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+
+        # The assembled buttons
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+
+        # Setup the reference to the P2Pool instance XMRig will use
+        self.selected_monerod = None
+        self.deployment_radios = []
+        self.group = []
+        monerod_deployments = {}
+        for deployment in self._db.get_monerod_deployments():
+            name = deployment['name']
+            instance = deployment['instance']
+            monerod_deployments[instance] = { 'name': name, 'instance': instance }
+            self.selected_monerod = instance # Initialize to the last instance
+        monerod_deployments_box = self.build_monerod_deployments(monerod_deployments)
+
+        # The assembled form elements and buttons
+        self.form_box = urwid.Pile([
+            self.instance_edit,
+            self.wallet_edit,
+            self.any_ip_edit,
+            self.stratum_port_edit,
+            self.p2p_port_edit,
+            self.log_level_edit,
+            self.in_peers_edit,
+            self.out_peers_edit,
+            urwid.Divider(),
+            monerod_deployments_box,
+            urwid.Divider(),
+            self.form_buttons
+        ])
+
+        # Results
+        self.results_msg = urwid.Text('')
+
+        # Assembled results
+        self.results_box = urwid.Pile([
+                urwid.Divider(),
+                urwid.LineBox(
+                    urwid.Padding(
+                        self.results_msg,
+                        left=2, right=2
+                    ),
+                    title='Results', title_align='left', title_attr='title'
+                )
+        ])
+
+        form_widgets = [
+            urwid.Text('Remote P2Pool Demon Setup\n\n' +
+                'The \"instance name\" must be unique within the ' +
+                'db4e environment i.e. if you have more than one ' +
+                'daemon deployed, then each must have their own ' +
+                'instance name. Setting the listen on IP to \"0.0.0.0\" "'
+                'will configure P2Pool to listen on all of your network ' +
+                'interfaces (you likely want this).\n\nUse the arrow ' +
+                'keys or mouse scrollwheel to scroll up and down and ' +
+                'the spacebar to click.'),
+            urwid.Divider(),
+            urwid.LineBox(
+                urwid.Padding(self.form_box, left=2, right=2),
+                title='Setup Form', title_align='left', title_attr='title'
+            ),
+            self.results_box
+        ]
+
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
+        self.frame = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
+        )
+
+    def reset(self):
+        p2pool_rec = self._db.get_tmpl(component='p2pool', remote=False)
+
+        instance = p2pool_rec['instance'] or ''
+        wallet = p2pool_rec['wallet'] or ''
+        any_ip = p2pool_rec['any_ip'] or ''
+        stratum_port = p2pool_rec['stratum_port'] or ''
+        p2p_port = p2pool_rec['p2p_port'] or ''
+        log_level = p2pool_rec['log_level'] or ''
+        in_peers = p2pool_rec['in_peers'] or ''
+        out_peers = p2pool_rec['out_peers'] or ''
+
+        # Form elements; edit widgets
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
+        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j): ", edit_text=wallet)
+        self.any_ip_edit = urwid.Edit("Listen on IP address: ", edit_text=any_ip)
+        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
+        self.p2p_port_edit = urwid.Edit("P2P port: ", edit_text=str(p2p_port))
+        self.log_level_edit = urwid.Edit("P2Pool log level: ", edit_text=str(log_level))
+        self.in_peers_edit = urwid.Edit("Allowed incoming connections: ", edit_text=str(in_peers))
+        self.out_peers_edit = urwid.Edit("Allowed outbound connections: ", edit_text=str(out_peers))
+
+        # The buttons
+        self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+
+        # The assembled buttons
+        self.form_buttons = urwid.Columns([
+            (10, self.submit_button),
+            (8, self.back_button)
+        ], dividechars=1)
+
+        # Setup the reference to the P2Pool instance XMRig will use
+        self.selected_monerod = None
+        self.deployment_radios = []
+        self.group = []
+        monerod_deployments = {}
+        for deployment in self._db.get_monerod_deployments():
+            name = deployment['name']
+            instance = deployment['instance']
+            monerod_deployments[instance] = { 'name': name, 'instance': instance }
+            self.selected_monerod = instance # Initialize to the last instance
+        monerod_deployments_box = self.build_monerod_deployments(monerod_deployments)
+
+        # The assembled form elements and buttons
+        self.form_box = urwid.Pile([
+            self.instance_edit,
+            self.wallet_edit,
+            self.any_ip_edit,
+            self.stratum_port_edit,
+            self.p2p_port_edit,
+            self.log_level_edit,
+            self.in_peers_edit,
+            self.out_peers_edit,
+            urwid.Divider(),
+            monerod_deployments_box,
+            urwid.Divider(),
+            self.form_buttons
+        ])
+
+        # Results
+        self.results_msg = urwid.Text('')
+
+        # Assembled results
+        self.results_box = urwid.Pile([
+                urwid.Divider(),
+                urwid.LineBox(
+                    urwid.Padding(
+                        self.results_msg,
+                        left=2, right=2
+                    ),
+                    title='Results', title_align='left', title_attr='title'
+                )
+        ])
+
+        form_widgets = [
+            urwid.Text('Remote P2Pool Demon Setup\n\n' +
+                'The \"instance name\" must be unique within the ' +
+                'db4e environment i.e. if you have more than one ' +
+                'daemon deployed, then each must have their own ' +
+                'instance name. Setting the listen on IP to \"0.0.0.0\" "'
+                'will configure P2Pool to listen on all of your network ' +
+                'interfaces (you likely want this).\n\nUse the arrow ' +
+                'keys or mouse scrollwheel to scroll up and down and ' +
+                'the spacebar to click.'),
+            urwid.Divider(),
+            urwid.LineBox(
+                urwid.Padding(self.form_box, left=2, right=2),
+                title='Setup Form', title_align='left', title_attr='title'
+            ),
+            self.results_box
+        ]
+
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
+        self.frame = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
+        )
 
     def select_monerod(self, radio, new_state, deployment):
         if new_state:

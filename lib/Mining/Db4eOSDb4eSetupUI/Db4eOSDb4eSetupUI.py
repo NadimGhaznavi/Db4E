@@ -30,6 +30,7 @@ user setup the db4e service.
 import os, sys
 import urwid
 import subprocess
+import shutil
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../../"
@@ -44,30 +45,19 @@ for db4e_dir in db4e_dirs:
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
 
-NEW_DB4E_SERVICE_MSG = "Database 4 Everything Service Setup\n\n"
-NEW_DB4E_SERVICE_MSG += "This screen lets you install db4e as a service. "
-NEW_DB4E_SERVICE_MSG += "The service will start at boot time and is "
-NEW_DB4E_SERVICE_MSG += "responsible for the following:\n\n"
-NEW_DB4E_SERVICE_MSG += "* The Monero blockchain daemon(s).\n"
-NEW_DB4E_SERVICE_MSG += "* The P2Pool daemon(s).\n"
-NEW_DB4E_SERVICE_MSG += "* The XMRig miner(s).\n\n"
-NEW_DB4E_SERVICE_MSG += "You *MUST* have sudo access to the root account "
-NEW_DB4E_SERVICE_MSG += "before you can proceed."
-
+# TODO Put into a strings class
+MD = {
+    'good'  : '✔️',
+    'warning' : '⚠️',
+}
 
 class Db4eOSDb4eSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self._db = Db4eOSDb()
-        self._ini = Db4eConfig()
-        repo_rec = self._db.get_repo_deployment()
-        github_user = repo_rec['github_user'] or ''
-        github_repo = repo_rec['github_repo'] or ''
-        install_dir = repo_rec['install_dir'] or ''
-        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
-        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
-        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
-
+        self.ini = Db4eConfig()
+        self.db4e_group_edit = urwid.Edit("The Linux db4e group: ", edit_text='db4e')
+        self.vendor_dir_edit = urwid.Edit("3rd party software directory (e.g. /home/sally/vendor): ", edit_text='')
         self.info_msg = urwid.Text('')
         self.info_text = urwid.Pile([
                 urwid.Divider(),
@@ -80,15 +70,28 @@ class Db4eOSDb4eSetupUI:
                 )
         ])
 
+        # The buttons
+        self.proceed_button = urwid.Button(('button', 'Proceed'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+
+        # The assembled buttons
+        self.form_buttons = urwid.Columns([
+            (11, self.proceed_button),
+            (8, self.back_button)
+            ], dividechars=1)
+
         form_widgets = [
-            urwid.Text('When you setup db4e as a service you will be prompted for your ' +
+            urwid.Text('The 3rd party software directory must *NOT* be within ' +
+                       'the db4e directory or in the directory containing the ' + 
+                       'website repository.\n\n' +
+                       'When you setup db4e as a service you will be prompted for your ' +
                        'password. This is for "sudo" access which will allow db4e to ' +
                        'install and configure the service.'),
             urwid.Divider(),
-            urwid.Columns([
-                ('pack', urwid.Button(('button', 'Install Service'), on_press=self.on_submit)),
-                ('pack', urwid.Button(('button', 'Back'), on_press=self.back_to_main))
-                ]),
+            self.db4e_group_edit,
+            self.vendor_dir_edit,
+            urwid.Divider(),
+            self.form_buttons,
             self.info_text
         ]
 
@@ -102,29 +105,71 @@ class Db4eOSDb4eSetupUI:
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
 
-    def setup_service_msg(self):
-        return NEW_DB4E_SERVICE_MSG
-
     def on_submit(self, button):
-        tmpl_dir         = self._ini.config['db4e']['template_dir']
-        service_file     = self._ini.config['db4e']['service_file']
-        systemd_dir      = self._ini.config['db4e']['systemd_dir']
-        installer_script = self._ini.config['db4e']['service_installer']
-        bin_dir          = self._ini.config['db4e']['bin_dir']
-        db4e_rec = self._db.get_db4e_deployment()
-        db4e_dir = db4e_rec['install_dir']
+        good = MD['good']
+        # Create the 3rd party software directory
+        vendor_dir = self.vendor_dir_edit.edit_text.strip()
+        if not vendor_dir:
+            self.info_msg.set_text("You must set the 3rd party software directory.")
+            return
+        
+        try:
+            if os.path.exists(vendor_dir):
+                shutil.rmtree(vendor_dir)
+            os.mkdir(vendor_dir)
+        except (PermissionError, FileNotFoundError, FileExistsError) as e:
+            error_msg = f'Failed to create directory ({vendor_dir}). Make sure you '
+            error_msg += 'have permission to create the directory and that the parent '
+            error_msg += f'exists\n\n'
+            error_msg += f'{e}'
+            self.results_msg.set_text(error_msg)
+            return
+        msg_text = 'Checklist\n'
+        msg_text += f'{good}  Created 3rd party software directory: {vendor_dir}\n'
+
+        # The db4e group
+        db4e_group = self.db4e_group_edit.edit_text.strip()
+        if not db4e_group:
+            self.info_msg.set_text("You must choose a name for the db4e group")
+            return
+        
+        # The db4e user
+        db4e_user = os.getlogin()
+
+        tmpl_dir         = self.ini.config['db4e']['template_dir']
+        service_file     = self.ini.config['db4e']['service_file']
+        systemd_dir      = self.ini.config['db4e']['systemd_dir']
+        installer_script = self.ini.config['db4e']['service_installer']
+        bin_dir          = self.ini.config['db4e']['bin_dir']
+        third_party_dir  = self.ini.config['db4e']['third_party_dir']
+        xmrig_version    = self.ini.config['xmrig']['version']
+        xmrig_binary     = self.ini.config['xmrig']['process']
+
+        db4e_dir = self._db.get_db4e_dir()
+
+        # Template for the db4e.service
         fq_service_file = os.path.join(db4e_dir, tmpl_dir, systemd_dir, service_file)
+
+        # Setup xmrig so the installer script can set the SUID bit for performance reasons
+        xmrig_src = os.path.join(db4e_dir, third_party_dir, 'xmrig-' + xmrig_version, bin_dir,  xmrig_binary)
+        xmrig_dest = os.path.join(vendor_dir, 'xmrig-' + xmrig_version, bin_dir,  xmrig_binary)
+        os.mkdir(os.path.join(vendor_dir, 'xmrig-' + xmrig_version))
+        os.mkdir(os.path.join(vendor_dir, 'xmrig-' + xmrig_version, bin_dir))
+
+        # Update the template service definition with the actual deployment path
         with open(fq_service_file, 'r') as f:
             service_contents = f.read()
-        service_contents = service_contents.replace('[[INSTALL_DIR]]', db4e_dir)
+            service_contents = service_contents.replace('[[INSTALL_DIR]]', db4e_dir)
+            service_contents = service_contents.replace('[[DB4E_USER]]', db4e_user)
         tmp_service_file = os.path.join('/tmp', service_file)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
-        
+
+        # Run the bin/db4e-installer.sh
         try:
             fq_installer = os.path.join(db4e_dir, bin_dir, installer_script)
             cmd_result = subprocess.run(
-                ['sudo', fq_installer, tmp_service_file, ],
+                ['sudo', fq_installer, tmp_service_file, db4e_group, db4e_user, xmrig_src, xmrig_dest],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",
@@ -137,11 +182,22 @@ class Db4eOSDb4eSetupUI:
                 self.info_msg.set_text(f"Service install failed.\n\n{stderr}")
                 return
             
-            self._db.update_db4e({'status': 'running'})
-            self.info_msg.set_text(f"Service installed successfully:\n{stdout}")
+            self._db.update_deployment('db4e', {'status': 'running', 'vendor_dir': vendor_dir})
+            for aLine in stdout.split('\n'):
+                msg_text += f"{good}  {aLine}\n"
+            msg_text += f"Service installed successfully:\n"
+            self.info_msg.set_text(msg_text)
+            os.remove(tmp_service_file)
 
         except Exception as e:
             self.info_msg.set_text(f"Service install failed: {str(e)}")
+
+        # Remove the submit button
+        self.back_button.set_label("Done")
+        self.form_buttons.set_focus(0)
+        self.form_buttons.contents = [
+            (self.back_button, self.form_buttons.options('given', 8))
+        ]
 
     def widget(self):
         return self.frame

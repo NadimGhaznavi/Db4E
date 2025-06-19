@@ -51,72 +51,7 @@ class Db4eOSRepoEditUI:
         self._db = Db4eOSDb()
         self.model = Db4eOSModel()
         self.ini = Db4eConfig()
-
-        repo_rec = self._db.get_repo_deployment()
-        github_user = repo_rec['github_user'] or ''
-        github_repo = repo_rec['github_repo'] or ''
-        install_dir = repo_rec['install_dir'] or ''
-        self.old_install_dir = install_dir
-
-        # Form elements, edit widgets
-        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
-        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
-        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
-
-        # The buttons
-        self.update_button =  urwid.Button(('button', 'Update'), on_press=self.on_submit)
-        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
-
-        # The assembled buttons
-        self.form_buttons = urwid.Columns([
-            (10, self.update_button),
-            (8, self.back_button)
-        ], dividechars=1)
-
-        # The assembled form elements and buttons
-        self.form_box = urwid.Pile([
-            self.github_username_edit,
-            self.github_repo_name_edit,
-            self.local_repo_path_edit,
-            urwid.Divider(),
-            self.form_buttons
-        ])
-
-        # Results
-        self.results_msg = urwid.Text('')
-
-        # Assembled results
-        self.results_box = urwid.Pile([
-                urwid.Divider(),
-                urwid.LineBox(
-                    urwid.Padding(
-                        self.results_msg,
-                        left=2, right=2
-                    ),
-                    title='Results', title_align='left', title_attr='title'
-                )
-        ])
-
-        form_widgets = [
-            urwid.Text('This screen allows you to re-create your local website ' +
-                       'GitHub repository. Do *NOT* use a "local path" ' +
-                       'that is within the directory where you have installed db4e.\n\n' +
-                       'Use the arrow keys or mouse scrollwheel to scroll up and down  ' +
-                       'and the spacebar to click.'),
-            urwid.Divider(),
-            urwid.LineBox(
-                urwid.Padding(self.form_box, left=2, right=2),
-                title='Setup Form', title_align='left', title_attr='title'
-            ),
-            self.results_box
-        ]
-
-        # Wrap in a ListBox to make scrollable
-        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
-        self.frame = urwid.LineBox(
-            urwid.Padding(listbox, left=2, right=2),
-            title="GitHub Repo Setup", title_align='center', title_attr='title'
-        )
+        self.reset() # (Re)initialize the mini-TUI
 
     def back_to_main(self, button):
         self.parent_tui.return_to_main()
@@ -222,6 +157,73 @@ class Db4eOSRepoEditUI:
 
         except Exception as e:
             self.results_msg.set_text(f"Error: {str(e)}")
+
+    def reset(self):
+        repo_rec = self._db.get_repo_deployment()
+        github_user = repo_rec['github_user'] or ''
+        github_repo = repo_rec['github_repo'] or ''
+        install_dir = repo_rec['install_dir'] or ''
+        self.old_install_dir = install_dir
+
+        # Form elements, edit widgets
+        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
+        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
+        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
+
+        # The buttons
+        self.update_button =  urwid.Button(('button', 'Update'), on_press=self.on_submit)
+        self.back_button = urwid.Button(('button', 'Back'), on_press=self.back_to_main)
+
+        # The assembled buttons
+        self.form_buttons = urwid.Columns([
+            (10, self.update_button),
+            (8, self.back_button)
+        ], dividechars=1)
+
+        # The assembled form elements and buttons
+        self.form_box = urwid.Pile([
+            self.github_username_edit,
+            self.github_repo_name_edit,
+            self.local_repo_path_edit,
+            urwid.Divider(),
+            self.form_buttons
+        ])
+
+        # Results
+        self.results_msg = urwid.Text('')
+
+        # Assembled results
+        self.results_box = urwid.Pile([
+                urwid.Divider(),
+                urwid.LineBox(
+                    urwid.Padding(
+                        self.results_msg,
+                        left=2, right=2
+                    ),
+                    title='Results', title_align='left', title_attr='title'
+                )
+        ])
+
+        form_widgets = [
+            urwid.Text('This screen allows you to re-create your local website ' +
+                       'GitHub repository. Do *NOT* use a "local path" ' +
+                       'that is within the directory where you have installed db4e.\n\n' +
+                       'Use the arrow keys or mouse scrollwheel to scroll up and down  ' +
+                       'and the spacebar to click.'),
+            urwid.Divider(),
+            urwid.LineBox(
+                urwid.Padding(self.form_box, left=2, right=2),
+                title='Setup Form', title_align='left', title_attr='title'
+            ),
+            self.results_box
+        ]
+
+        # Wrap in a ListBox to make scrollable
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
+        self.frame = urwid.LineBox(
+            urwid.Padding(listbox, left=2, right=2),
+            title="GitHub Repo Setup", title_align='center', title_attr='title'
+        )
 
     def widget(self):
         return self.frame
