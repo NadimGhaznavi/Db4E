@@ -70,7 +70,8 @@ Papa.parse(csvUrl, {
         }
       },
       /* TODO Need to paramerize the next line based on the number of active miners */
-      colors: ["#23ac35", "#FF6500", "#C40C0C", "#FFC100", "#472a07", "#014510", "#3bb4e0"],
+      colors: ["#23ac35", "#FF6500", "#C40C0C", "#FFC100", "#472a07", "#014510", "#3bb4e0", "#2e15d1"],
+
       stroke: {
 	    curve: 'stepline',
         width: 3
