@@ -54,12 +54,6 @@ class Db4eOSModel:
         self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.ini = Db4eConfig()
-        vendor_dir = self._db.get_vendor_dir()
-        xmrig_version = self.ini.config['xmrig']['version']
-        xmrig_progname = self.ini.config['xmrig']['process']
-        bin_dir = self.ini.config['db4e']['bin_dir']
-        self._xmrig = os.path.join(vendor_dir, 'xmrig-' + xmrig_version, bin_dir, xmrig_progname)
-        self._xmrig_perms = self.ini.config['xmrig']['permissions']
 
     def delete_instance(self, component, instance):
         return self._db.delete_instance(component, instance)
@@ -311,6 +305,13 @@ class Db4eOSModel:
             return status
 
         elif component == 'xmrig':
+            vendor_dir = self._db.get_vendor_dir()
+            xmrig_version = self.ini.config['xmrig']['version']
+            xmrig_progname = self.ini.config['xmrig']['process']
+            bin_dir = self.ini.config['db4e']['bin_dir']
+            self._xmrig = os.path.join(vendor_dir, 'xmrig-' + xmrig_version, bin_dir, xmrig_progname)
+            self._xmrig_perms = self.ini.config['xmrig']['permissions']
+
             # Helper function
             def mark_unhealthy():
                 status[0] = {'state': 'warning', 'msg': f'The XMRig miner ({instance}) has issue(s)'}            

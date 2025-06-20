@@ -122,7 +122,7 @@ P2POOL_RECORD = {
     'any_ip': "0.0.0.0",
     'stratum_port': 3333,
     'p2p_port': 37889,
-    'log_level': 1,
+    'log_level': 0,
     'config': None,
     'in_peers': 16,
     'monerod_id': None,
