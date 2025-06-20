@@ -89,7 +89,9 @@ class Db4eConfig():
 
         # Run the db4e service
         if args.service:
-            pass
+            self.config['db4e']['service'] = True
+        else:
+            self.config['db4e']['service'] = False
 
     def get(self, key):
         """

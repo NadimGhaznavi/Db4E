@@ -32,6 +32,9 @@ deployment or other MongoDB collections. This is basic housekeeping.
 # Import supporting modules
 import os
 import sys
+import socket
+import json
+
 
 # The directory that this script is in
 script_dir = os.path.dirname(__file__)
@@ -46,7 +49,22 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eOSDb.Db4eOSDb import Db4eOSDb
+# test_client.py
 
-db = Db4eOSDb()
+
+SOCKET_PATH = '/home/sally/vendor/db4e-latest/run/db4e.sock'
+
+client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+client.connect(SOCKET_PATH)
+
+msg = json.dumps({"op": "ping"})
+client.sendall(msg.encode())
+
+data = client.recv(1024)
+response = json.loads(data.decode())
+
+print("Response from db4e service:", response)
+
+client.close()
+
 

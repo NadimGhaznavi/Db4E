@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Get the deployment specific settings
-source /opt/qa/p2pool/conf/p2pool.ini
+INI_FILE=$1
+
+source $INI_FILE
 
 # The values are in the p2pool.ini file
 API_DIR=${P2P_DIR}/api

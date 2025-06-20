@@ -5,9 +5,8 @@ This module is part of the Data Abstraction Layer. All *db4e*
 deployment operations that result in a database operation go through 
 this module. This module, in turn, communicates with the Db4eDb 
 module to access MongoDB.
-"""
 
-"""
+
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi

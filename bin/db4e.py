@@ -54,6 +54,7 @@ from Db4eDb.Db4eDb import Db4eDb
 from MiningReports.MiningReports import MiningReports
 from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
+from Db4eService.Db4eService import Db4eService
 
 # Get a config object
 ini = Db4eConfig()
@@ -84,6 +85,10 @@ try:
     db.set_db4e_dir(os_model.get_db4e_dir())
     db.set_repo_dir(os_model.get_repo_dir())
     db.backup_db()
+
+  elif ini.config['db4e']['service']:
+    db4e_service = Db4eService()
+    db4e_service.listen()
 
 except KeyboardInterrupt:
   log.warning("Caught keyboard interrupt, exiting...")

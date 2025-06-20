@@ -135,7 +135,9 @@ class Db4eOSP2PoolSetupUI:
         monerod_ip_addr = monerod_rec['ip_addr']
         monerod_zmq_port = monerod_rec['zmq_pub_port']
         monerod_rpc_port = monerod_rec['rpc_bind_port']
+        p2p_dir = os.path.join(vendor_dir, p2pool_dir)
         # Populate the config template placeholders
+        config_contents = config_contents.replace('[[P2P_DIR]]', p2p_dir)
         config_contents = config_contents.replace('[[MONEROD_IP]]', monerod_ip_addr)
         config_contents = config_contents.replace('[[ZMQ_PORT]]', str(monerod_zmq_port))
         config_contents = config_contents.replace('[[RPC_PORT]]', str(monerod_rpc_port))
