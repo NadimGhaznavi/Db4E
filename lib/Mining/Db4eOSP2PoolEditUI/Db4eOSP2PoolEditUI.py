@@ -202,7 +202,7 @@ class Db4eOSP2PoolEditUI:
     def reset(self):
         self.old_instance = None
         self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
-        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j)", edit_text='')
+        self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j): ", edit_text='')
         self.any_ip_edit = urwid.Edit("The IP that you want P2Pool to listen on: ", edit_text='')
         self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text='')
         self.p2p_port_edit = urwid.Edit("P2P port: ", edit_text='')

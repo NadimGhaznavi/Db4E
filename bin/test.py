@@ -49,9 +49,14 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-# test_client.py
+from Db4eOS.Db4eOS import Db4eOS
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
-
+db_os = Db4eOSModel()
+results = db_os.get_status('db4e')
+for aResult in results:
+  print(aResult)
+"""
 SOCKET_PATH = '/home/sally/vendor/db4e-latest/run/db4e.sock'
 
 client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -66,5 +71,5 @@ response = json.loads(data.decode())
 print("Response from db4e service:", response)
 
 client.close()
-
+"""
 

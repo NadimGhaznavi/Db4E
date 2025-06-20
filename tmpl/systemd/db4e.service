@@ -12,10 +12,6 @@ KillMode=process
 Group=db4e
 StandardOutput=journal
 StandardError=journal
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=full
-ProtectHome=true
 TimeoutStopSec=10
 
 [Install]

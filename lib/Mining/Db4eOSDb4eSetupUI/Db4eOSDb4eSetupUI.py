@@ -182,7 +182,9 @@ class Db4eOSDb4eSetupUI:
                 self.info_msg.set_text(f"Service install failed.\n\n{stderr}")
                 return
             
-            self._db.update_deployment('db4e', {'status': 'running', 'vendor_dir': vendor_dir})
+            self._db.update_deployment('db4e', {'status': 'running', 
+                                                'vendor_dir': vendor_dir,
+                                                'group': db4e_group})
             for aLine in stdout.split('\n'):
                 msg_text += f"{good}  {aLine}\n"
             msg_text += f"Service installed successfully:\n"

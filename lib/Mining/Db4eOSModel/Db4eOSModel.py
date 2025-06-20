@@ -28,6 +28,8 @@ This is the db4e-os model, which is part of db4e-os MVC pattern.
 # Import supporting modules
 import os, sys
 import stat
+import subprocess
+import re
 
 # Where the DB4E modules live
 lib_dir = os.path.dirname(__file__) + "/../lib/"
@@ -149,15 +151,31 @@ class Db4eOSModel:
             version = depl_rec['version']
             status.append({'state': 'good', 'msg': f'Version: {version}'})
             # Service status
-            service_status = depl_rec['status']
-            if service_status == 'running':
-                status.append({'state': 'good', 'msg': 'The db4e service is running'})
-            else:
-                status.append({'state': 'warning', 'msg': f'The db4e service is stopped'})
+            cmd_result = subprocess.run(['systemctl', 'status', 'db4e'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        input='',
+                                        timeout=10)
+            stdout = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stderr.decode().strip()
+            if stderr == 'Unit db4e.service could not be found.':
+                status.append({'state': 'warning', 'msg': 'The db4e service is not installed'})
                 mark_unhealthy()
+            else:
+                for aLine in stdout.split('\n'):
+                    # Sample: "   Main PID: 28155 (python)"
+                    pattern = r"\s*Main PID:\s+(?P<db4e_pid>\d+)\s+\(python\)"
+                    match = re.search(pattern, aLine)
+                    if match:
+                        db4e_pid = match.group('db4e_pid')
+                        status.append({'state': 'good', 'msg': f'The db4e service is running (PID {db4e_pid})'})
+                    # Sample: "     Active: inactive (dead)"
+                    if aLine == '     Active: inactive (dead)':
+                        status.append({'state': 'warning', 'msg': 'The db4e service is stopped'})
+                        mark_unhealthy()
             # Install directory
             install_dir = depl_rec['install_dir']
-            status.append({'state': 'good', 'msg': f'The db4e nstall directory, {install_dir}, is good'})
+            status.append({'state': 'good', 'msg': f'The db4e install directory, {install_dir}, is good'})
             # 3rd party software directory
             vendor_dir = depl_rec['vendor_dir']
             if not vendor_dir:
