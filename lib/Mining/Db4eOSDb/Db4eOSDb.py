@@ -115,22 +115,23 @@ P2POOL_RECORD_REMOTE = {
     }
 
 P2POOL_RECORD = {
-    'component': 'p2pool',
-    'instance': None,
-    'wallet': None,
-    'ip_addr': "127.0.0.1",
     'any_ip': "0.0.0.0",
-    'stratum_port': 3333,
-    'p2p_port': 37889,
-    'log_level': 0,
+    'component': 'p2pool',
     'config': None,
     'in_peers': 16,
+    'instance': None,
+    'ip_addr': "127.0.0.1",
+    'log_level': 0,
     'monerod_id': None,
     'name': 'P2Pool daemon',
     'out_peers': 16,
+    'p2p_port': 37889,
+    'remote': False,
     'status': 'not_installed',
+    'stdin': None,
+    'stratum_port': 3333,
     'version': '4.8',
-    'remote': False
+    'wallet': None,
     }
 
 XMRIG_RECORD = {
@@ -197,7 +198,11 @@ class Db4eOSDb:
     def get_deployment_by_instance(self, component, instance):
         return self._db.find_one(
             self._col, {'doc_type': 'deployment', 'component': component, 'instance': instance})
-    
+
+    def get_deployment_stdin(self, component, instance):
+        depl = self.get_deployment_by_instance(component, instance)
+        return depl['stdin']
+
     def get_db4e_deployment(self):
         # Return the db4e deployment doc
         return self.get_deployment_by_component('db4e')

@@ -72,6 +72,7 @@ p2pool:
   log_file: p2pool.log
   process: p2pool
   start_script: start-p2pool.sh
+  stdin: p2pool.stdin
   version: 4.8
 
 monerod:

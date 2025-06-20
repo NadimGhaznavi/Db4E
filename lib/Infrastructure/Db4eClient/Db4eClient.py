@@ -49,17 +49,6 @@ class Db4eClient:
     def __init__(self):
         self.ini = Db4eConfig()
         self._osDb = Db4eOSDb()
-        # Set the location of the socket
-        db4e_version = self.ini.config['db4e']['version']
-        vendor_dir = self._osDb.get_vendor_dir()
-        vendor_db4e_dir = 'db4e-' + db4e_version
-        run_dir = self.ini.config['db4e']['run_dir']
-        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir)):
-            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir))
-        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir, run_dir)):
-            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir, run_dir))
-        uds = self.ini.config['db4e']['uds']
-        self.socket = os.path.join(vendor_dir, vendor_db4e_dir, run_dir, uds)
 
     def _send_msg(self, msg):
         try:
@@ -83,6 +72,18 @@ class Db4eClient:
         except Exception as e:
             return {'error': str(e)}
 
+    def initialize(self):
+        # Set the location of the socket
+        db4e_version = self.ini.config['db4e']['version']
+        vendor_dir = self._osDb.get_vendor_dir()
+        vendor_db4e_dir = 'db4e-' + db4e_version
+        run_dir = self.ini.config['db4e']['run_dir']
+        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir)):
+            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir))
+        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir, run_dir)):
+            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir, run_dir))
+        uds = self.ini.config['db4e']['uds']
+        self.socket = os.path.join(vendor_dir, vendor_db4e_dir, run_dir, uds)
 
     def start(self, component, instance):
         msg = json.dumps({'op': 'start', 'component': component, 'instance': instance})

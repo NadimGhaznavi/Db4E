@@ -174,20 +174,26 @@ class Db4eOSP2PoolSetupUI:
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
+        # Named pipe to feed a running P2Pool instance commands
+        p2pool_stdin = self.ini.config['p2pool']['stdin']
+        fq_p2pool_stdin = os.path.join(vendor_dir, p2pool_dir, run_dir, instance, p2pool_stdin)
+        os.mkfifo(fq_p2pool_stdin)
+
         monerod_id = monerod_rec['_id']
         self._db.new_deployment('p2pool', { 
-            'status': 'running',
-            'instance': instance,
-            'wallet': wallet,
-            'config': fq_config,
             'any_ip': any_ip,
-            'stratum_port': stratum_port,
-            'p2p_port': p2p_port,
-            'log_level': log_level,
+            'config': fq_config,
             'in_peers': in_peers,
-            'out_peers': out_peers,
+            'instance': instance,
+            'log_level': log_level,
             'monerod_id': monerod_id,
-            'remote': False
+            'out_peers': out_peers,
+            'p2p_port': p2p_port,
+            'remote': False,
+            'status': 'running',
+            'stdin': fq_p2pool_stdin,
+            'stratum_port': stratum_port,
+            'wallet': wallet,
             })
 
         # Copy the p2pool binary from the db4e repo into the user's vendor directory

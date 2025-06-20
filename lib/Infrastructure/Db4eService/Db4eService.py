@@ -106,6 +106,8 @@ class Db4eService:
     def spawn_process(self, component, instance):
         #print(f'DEBUG Starting {component} - {instance}')
         try:
+            fq_stdin = self._osDb.get_deployment_stdin(component, instance)
+            stdin = open(fq_stdin, 'r')
             # Get the component's start script and configuration file
             vendor_dir = self._osDb.get_vendor_dir()
             bin_dir = self.ini.config['db4e']['bin_dir']
@@ -115,8 +117,10 @@ class Db4eService:
             fq_start_script = os.path.join(vendor_dir, component_dir, bin_dir, start_script)
             config = self._osDb.get_deployment_config(component, instance)
             # Spawn the process, detached from the service process
+            print(f'DEBUG {fq_start_script} {config}')
             subprocess.Popen(
                 [ fq_start_script, config ],
+                stdin=stdin,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 preexec_fn=os.setsid # Detach from parent process

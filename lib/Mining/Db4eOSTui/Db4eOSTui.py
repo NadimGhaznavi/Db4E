@@ -580,6 +580,7 @@ class Db4eOSTui:
     def start_instance(self, button):
         component = self.selected_instance['component']
         instance = self.selected_instance['instance']
+        self.client.initialize()
         result = self.client.start(component, instance)
         if 'error' in result:
             self.server_response.set_text(f"Error: {result['error']}")
