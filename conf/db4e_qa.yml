@@ -30,7 +30,7 @@
 
 
 db4e:
-  third_party_dir: 3rdparty
+  api_dir: api
   conf_dir: conf
   bin_dir: bin
   deployment_file: deployment.yml
@@ -50,6 +50,7 @@ db4e:
   src_dir: src
   systemd_dir: systemd
   template_dir: tmpl
+  third_party_dir: 3rdparty
   update_repo_script: db4e-update-repo.sh
   uds: db4e.sock
   version: latest
@@ -67,7 +68,6 @@ logging:
   
 p2pool:
   desc: "P2Pool Daemon"
-  api_dir: api
   config: p2pool.ini
   log_file: p2pool.log
   process: p2pool

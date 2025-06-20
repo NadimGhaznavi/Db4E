@@ -62,6 +62,7 @@ class Db4eOSModel:
 
     def get_db4e_deployment(self):
         db4e_rec = self._db.get_db4e_deployment()
+        """
         status = self.get_status('db4e')
         if status[0]['state'] == 'good':
             db4e_status = 'running'
@@ -72,6 +73,8 @@ class Db4eOSModel:
             'status': db4e_status
         }
         return db4e
+        """
+        return {'name': db4e_rec['name'], 'status': db4e_rec['status']}
     
     def get_db4e_dir(self):
         db4e_rec = self._db.get_db4e_deployment()

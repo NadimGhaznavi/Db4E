@@ -181,6 +181,10 @@ class Db4eOSDb:
         else:        
             doc = self._db.find_one(self._col, {'doc_type': 'deployment', 'component': component})
         return doc
+    
+    def get_deployment_config(self, component, instance):
+        depl_rec = self.get_deployment_by_instance(component, instance)
+        return depl_rec['config']
 
     def get_deployments_by_component(self, component):
         # Return a cursor

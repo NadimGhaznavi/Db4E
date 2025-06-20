@@ -6,9 +6,6 @@ INI_FILE=$1
 source $INI_FILE
 
 # The values are in the p2pool.ini file
-API_DIR=${P2P_DIR}/api
-RUN_DIR=${P2P_DIR}/run
-LOG_DIR=${P2P_DIR}/logs
 STDIN=${RUN_DIR}/p2pool.stdin
 DATA_API_DIR="${P2P_DIR}/api"
 P2P_LOG="${LOG_DIR}/p2pool.log"

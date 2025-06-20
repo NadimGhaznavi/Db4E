@@ -60,12 +60,12 @@ cp $XMRIG_SRC $XMRIG_DEST
 chown root:$DB4EGROUP $XMRIG_DEST
 chmod 4750 $XMRIG_DEST
 
-cp "$SERVICE_SRC" "$SERVICE_DEST"
+cp $SERVICE_SRC $SERVICE_DEST
 # Reload systemd, enable and start the service
 systemctl daemon-reexec
 systemctl daemon-reload
-systemctl enable "$SERVICE_NAME"
-systemctl start "$SERVICE_NAME"
+systemctl enable $SERVICE_NAME
+systemctl start $SERVICE_NAME
 
 echo "Created the db4e group: $DB4EGROUP"
 echo "Added the db4e user ($DB4EUSER) to the new group"

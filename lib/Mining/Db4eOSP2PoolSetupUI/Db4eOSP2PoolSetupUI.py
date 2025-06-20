@@ -111,9 +111,12 @@ class Db4eOSP2PoolSetupUI:
             return
 
         # Generate a P2Pool configuration file
+        api_dir         = self.ini.config['db4e']['api_dir']
         conf_dir        = self.ini.config['db4e']['conf_dir']
-        tmpl_dir        = self.ini.config['db4e']['template_dir']
+        log_dir         = self.ini.config['db4e']['log_dir']
+        run_dir         = self.ini.config['db4e']['run_dir']
         third_party_dir = self.ini.config['db4e']['third_party_dir']
+        tmpl_dir        = self.ini.config['db4e']['template_dir']
         version         = self.ini.config['p2pool']['version']
         config          = self.ini.config['p2pool']['config']
         p2pool_dir = 'p2pool-' + str(version)
@@ -126,6 +129,22 @@ class Db4eOSP2PoolSetupUI:
             os.mkdir(os.path.join(vendor_dir, p2pool_dir))
         if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, conf_dir)):
             os.mkdir(os.path.join(vendor_dir, p2pool_dir, conf_dir))
+        if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, api_dir)):
+            os.mkdir(os.path.join(vendor_dir, p2pool_dir, api_dir))
+        fq_api_dir = os.path.join(vendor_dir, p2pool_dir, api_dir, instance)
+        if not os.path.exists(fq_api_dir):
+            os.mkdir(fq_api_dir)
+        if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, log_dir)):
+            os.mkdir(os.path.join(vendor_dir, p2pool_dir, log_dir))
+        fq_log_dir = os.path.join(vendor_dir, p2pool_dir, log_dir, instance)
+        if not os.path.exists(fq_log_dir):
+            os.mkdir(fq_log_dir)
+        if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, run_dir)):
+            os.mkdir(os.path.join(vendor_dir, p2pool_dir, run_dir))
+        fq_run_dir = os.path.join(vendor_dir, p2pool_dir, run_dir, instance)
+        if not os.path.exists(fq_run_dir):
+            os.mkdir(fq_run_dir)
+
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
 
@@ -148,6 +167,9 @@ class Db4eOSP2PoolSetupUI:
         config_contents = config_contents.replace('[[LOG_LEVEL]]', str(log_level))
         config_contents = config_contents.replace('[[IN_PEERS]]', str(in_peers))
         config_contents = config_contents.replace('[[OUT_PEERS]]', str(out_peers))
+        config_contents = config_contents.replace('[[API_DIR]]', fq_api_dir)
+        config_contents = config_contents.replace('[[RUN_DIR]]', fq_run_dir)
+        config_contents = config_contents.replace('[[LOG_DIR]]', fq_log_dir)
 
         with open(fq_config, 'w') as f:
             f.write(config_contents)

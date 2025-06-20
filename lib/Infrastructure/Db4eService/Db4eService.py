@@ -30,6 +30,7 @@ start/stop operations on the deployed components.
 import os, sys
 import socket
 import json
+import subprocess
 
 
 # Where the DB4E modules live
@@ -86,6 +87,12 @@ class Db4eService:
                         request = json.loads(data.decode())
                         if request.get('op') == 'ping':
                             response = {'result': 'pong'}
+                        elif request.get('op') == 'start':
+                            component = request.get('component')
+                            instance = request.get('instance')
+                            response_msg = f'Starting {component} - {instance}'
+                            response = {'result': response_msg}
+                            self.spawn_process(component, instance)
                         else:
                             response = {'error': 'Unknown op'}
                     except Exception as e:
@@ -95,3 +102,25 @@ class Db4eService:
         finally:
             server.close()
             os.remove(self.fq_uds)
+
+    def spawn_process(self, component, instance):
+        #print(f'DEBUG Starting {component} - {instance}')
+        try:
+            # Get the component's start script and configuration file
+            vendor_dir = self._osDb.get_vendor_dir()
+            bin_dir = self.ini.config['db4e']['bin_dir']
+            version = self.ini.config[component]['version']
+            component_dir = component + '-' + str(version)
+            start_script = self.ini.config[component]['start_script']
+            fq_start_script = os.path.join(vendor_dir, component_dir, bin_dir, start_script)
+            config = self._osDb.get_deployment_config(component, instance)
+            # Spawn the process, detached from the service process
+            subprocess.Popen(
+                [ fq_start_script, config ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                preexec_fn=os.setsid # Detach from parent process
+            )
+        except Exception as e:
+            pass
+            #print(f"Error spawning {component} - {instance}: {e}")

@@ -40,6 +40,7 @@ for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
+from Db4eClient.Db4eClient import Db4eClient
 ## Mini TUIs
 # Setup new component
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
@@ -156,6 +157,7 @@ XMRIG_PREREQ += "up XMRig."
 class Db4eOSTui:
     def __init__(self):
         self.model = Db4eOSModel()
+        self.client = Db4eClient()
         self.selected_deployment = 'db4e'
         self.selected_instance = None
         self.deployment_radios = []
@@ -491,6 +493,7 @@ class Db4eOSTui:
 
             elif depl_type == 'p2pool':
                 title_text = f'P2Pool Daemon ({instance}) Status'
+                self.server_response = urwid.Text('')
                 status_info = self.model.get_status('p2pool', instance)
                 status_list = []
                 for aStatus in status_info[1:]:
@@ -499,11 +502,12 @@ class Db4eOSTui:
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 status = urwid.Pile(status_list)
                 buttons = urwid.Columns([
+                    (9, urwid.Button(('button', 'Start'), on_press=self.start_instance)),
                     (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
                     (8, urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool)), 
                 ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status, div, buttons]))
+                    div, status, div, buttons, self.server_response]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -572,6 +576,15 @@ class Db4eOSTui:
         else:
             self.xmrig_setup_ui.reset()
             self.main_loop.widget = self.xmrig_setup_ui.widget()
+
+    def start_instance(self, button):
+        component = self.selected_instance['component']
+        instance = self.selected_instance['instance']
+        result = self.client.start(component, instance)
+        if 'error' in result:
+            self.server_response.set_text(f"Error: {result['error']}")
+        else:
+            self.server_response.set_text(result['result'])
 
     def run(self):
         try:

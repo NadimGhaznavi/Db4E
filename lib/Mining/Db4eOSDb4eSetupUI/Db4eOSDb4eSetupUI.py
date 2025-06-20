@@ -124,7 +124,7 @@ class Db4eOSDb4eSetupUI:
             error_msg += f'{e}'
             self.results_msg.set_text(error_msg)
             return
-        msg_text = 'Checklist\n'
+        msg_text = 'Checklist:\n'
         msg_text += f'{good}  Created 3rd party software directory: {vendor_dir}\n'
 
         # The db4e group
