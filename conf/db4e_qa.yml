@@ -39,6 +39,7 @@ db4e:
   environ: qa
   js_dir: js
   md_dir: md
+  log_dir: logs     
   process: db4e.sh
   repo_dir: repo
   reports_dir: reports
@@ -67,11 +68,10 @@ logging:
 p2pool:
   desc: "P2Pool Daemon"
   api_dir: api
-  log_dir: logs     
+  config: p2pool.ini
   log_file: p2pool.log
   process: p2pool
-  conf_dir: conf
-  config: p2pool.ini
+  start_script: start-p2pool.sh
   version: 4.8
 
 monerod:
@@ -89,6 +89,7 @@ xmrig:
   desc: "XMRig Miner"
   conf_dir: conf
   config: config.json
+  permissions: "-rwsr-x---"
   process: xmrig
   version: "6.22.2"
   
