@@ -221,13 +221,13 @@ class Db4eOSP2PoolEditUI:
     def set_instance(self, instance):
         self.old_instance = instance
         p2pool_rec = self._db.get_deployment_by_instance('p2pool', instance)
-        wallet = p2pool_rec['wallet'] or ''
-        any_ip = p2pool_rec['any_ip'] or ''
-        stratum_port = p2pool_rec['stratum_port'] or ''
-        p2p_port = p2pool_rec['p2p_port'] or ''
-        log_level = p2pool_rec['log_level'] or ''
-        in_peers = p2pool_rec['in_peers'] or ''
-        out_peers = p2pool_rec['out_peers'] or ''
+        wallet = p2pool_rec['wallet']
+        any_ip = p2pool_rec['any_ip']
+        stratum_port = p2pool_rec['stratum_port']
+        p2p_port = p2pool_rec['p2p_port']
+        log_level = p2pool_rec['log_level']
+        in_peers = p2pool_rec['in_peers']
+        out_peers = p2pool_rec['out_peers']
 
         # Form elements; edit widgets
         self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)

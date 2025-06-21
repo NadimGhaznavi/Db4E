@@ -174,10 +174,10 @@ class Db4eOSP2PoolSetupUI:
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
-        # Named pipe to feed a running P2Pool instance commands
+        # Named pipe to feed a running P2Pool instance commands, the db4eService takes
+        # care of actually creating it
         p2pool_stdin = self.ini.config['p2pool']['stdin']
         fq_p2pool_stdin = os.path.join(vendor_dir, p2pool_dir, run_dir, instance, p2pool_stdin)
-        os.mkfifo(fq_p2pool_stdin)
 
         monerod_id = monerod_rec['_id']
         self._db.new_deployment('p2pool', { 
