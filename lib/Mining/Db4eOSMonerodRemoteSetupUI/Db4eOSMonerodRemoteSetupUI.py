@@ -41,7 +41,7 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
-from Db4eOS.Db4eOS import Db4eOS
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 # TODO Put into a strings class
@@ -53,8 +53,8 @@ MD = {
 class Db4eOSMonerodRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self._os = Db4eOS()
         self._db = Db4eOSDb()
+        self._model = Db4eOSModel()
         self.reset() # (Re)initialize the mini-TUI
 
     def back_to_main(self, button):
@@ -90,12 +90,12 @@ class Db4eOSMonerodRemoteSetupUI:
         # Check connectivity
         results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, zmq_port):
+        if self._model.is_port_open(ip_addr, zmq_port):
             results += f'{good} Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"{warning} Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-        if self._os.is_port_open(ip_addr, rpc_port):
+        if self._model.is_port_open(ip_addr, rpc_port):
             results += f'{good} Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"{warning} Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"

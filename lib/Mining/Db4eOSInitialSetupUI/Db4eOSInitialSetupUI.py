@@ -59,6 +59,7 @@ class Db4eOSInitialSetupUI:
         self.db4e_user_edit = urwid.Edit("The Linux db4e user: ", edit_text='db4e')
         self.db4e_group_edit = urwid.Edit("The Linux db4e group: ", edit_text='db4e')
         db4e_dir = self._db.get_dir('db4e')
+        print(f'FOO {db4e_dir}')
         vendor_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'vendor'))
         self.vendor_dir_edit = urwid.Edit("Software deployment directory: ", edit_text=vendor_dir)
         website_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'website'))

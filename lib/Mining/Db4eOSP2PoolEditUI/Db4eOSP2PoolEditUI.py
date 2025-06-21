@@ -40,13 +40,11 @@ for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
 from Db4eConfig.Db4eConfig import Db4eConfig
-from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 class Db4eOSP2PoolEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.ini = Db4eConfig()
         self.instance = ''

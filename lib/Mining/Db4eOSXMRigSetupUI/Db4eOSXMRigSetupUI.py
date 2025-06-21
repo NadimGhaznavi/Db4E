@@ -40,7 +40,6 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
-from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
 
@@ -48,7 +47,6 @@ class Db4eOSXMRigSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self.ini = Db4eConfig()
-        self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.reset()
 

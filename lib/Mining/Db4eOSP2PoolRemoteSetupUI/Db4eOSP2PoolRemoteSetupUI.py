@@ -38,7 +38,7 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
     sys.path.append(db4e_dir)
 
-from Db4eOS.Db4eOS import Db4eOS
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 
 # TODO Put into a strings class
@@ -50,7 +50,7 @@ MD = {
 class Db4eOSP2PoolRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self._os = Db4eOS()
+        self._model = Db4eOSModel()
         self._db = Db4eOSDb()
         self.reset() # (Re)initialize mini-TUI
 
@@ -83,7 +83,7 @@ class Db4eOSP2PoolRemoteSetupUI:
 
         results = ''
         # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, int(stratum_port)):
+        if self._model.is_port_open(ip_addr, int(stratum_port)):
             results += f'{good} Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
         else:
             results += f'{warning} Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
@@ -91,7 +91,7 @@ class Db4eOSP2PoolRemoteSetupUI:
         # Check connectivity
         results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
-        if self._os.is_port_open(ip_addr, stratum_port):
+        if self._model.is_port_open(ip_addr, stratum_port):
             results += f'{good} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
         else:
             results += f'{warning} Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'

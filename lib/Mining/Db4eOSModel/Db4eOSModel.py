@@ -41,7 +41,6 @@ db4e_dirs = [
 for db4e_dir in db4e_dirs:
   sys.path.append(db4e_dir)
 
-from Db4eOS.Db4eOS import Db4eOS
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
 
@@ -53,7 +52,6 @@ class Db4eOSModel:
     def __init__(self):
         # ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
         self.deployments = DB4E_CORE
-        self._os = Db4eOS()
         self._db = Db4eOSDb()
         self.ini = Db4eConfig()
 
@@ -187,14 +185,14 @@ class Db4eOSModel:
             status.append({'state': 'good', 'msg': f'Hostname or IP address: {ip_addr}'})
             # RPC bind port
             rpc_port = depl_rec['rpc_bind_port']
-            if self._os.is_port_open(ip_addr, rpc_port):
+            if self.is_port_open(ip_addr, rpc_port):
                 status.append({'state': 'good', 'msg': f'Connected to RPC port ({rpc_port}) on {ip_addr}'})
             else:
                 status.append({'state': 'warning', 'msg': f'Unable to connect to RPC port ({rpc_port}) on {ip_addr}'})
                 mark_unhealthy()
             # ZMQ pub port
             zmq_port = depl_rec['zmq_pub_port']
-            if self._os.is_port_open(ip_addr, zmq_port):
+            if self.is_port_open(ip_addr, zmq_port):
                 status.append({'state': 'good', 'msg': f'Connected to ZMQ port ({zmq_port}) on {ip_addr}'})
             else:
                 status.append({'state': 'warning', 'msg': f'Unable to connect to ZMQ port ({zmq_port}) on {ip_addr}'})
@@ -219,7 +217,7 @@ class Db4eOSModel:
             status.append({'state': 'good', 'msg': f'Hostname or IP address: {ip_addr}'})
             # Stratum port
             stratum_port = depl_rec['stratum_port']
-            if self._os.is_port_open(ip_addr, stratum_port):
+            if self.is_port_open(ip_addr, stratum_port):
                 status.append({'state': 'good', 'msg': f'Connected to stratum port ({stratum_port}) on {ip_addr}'})
             else:
                 status.append({'state': 'warning', 'msg': f'Unable to connect to stratum port ({stratum_port}) on {ip_addr}'})
@@ -234,7 +232,7 @@ class Db4eOSModel:
                 status.append({'state': 'good', 'msg': f'Listens on IP address: {any_ip}'})
                 # P2P port
                 p2p_port = depl_rec['p2p_port']
-                if self._os.is_port_open(ip_addr, p2p_port):
+                if self.is_port_open(ip_addr, p2p_port):
                     status.append({'state': 'good', 'msg': f'Connected to P2P port ({p2p_port}) on {ip_addr}'})
                 else:
                     status.append({'state': 'warning', 'msg': f'Unable to connect to P2P port ({p2p_port}) on {ip_addr}'})
