@@ -43,6 +43,7 @@ from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eClient.Db4eClient import Db4eClient
 ## Mini TUIs
 # Setup new component
+from Db4eOSInitialSetupUI.Db4eOSInitialSetupUI import Db4eOSInitialSetupUI
 from Db4eOSDb4eSetupUI.Db4eOSDb4eSetupUI import Db4eOSDb4eSetupUI
 from Db4eOSRepoSetupUI.Db4eOSRepoSetupUI import Db4eOSRepoSetupUI
 from Db4eOSMonerodRemoteSetupUI.Db4eOSMonerodRemoteSetupUI import Db4eOSMonerodRemoteSetupUI
@@ -169,6 +170,7 @@ class Db4eOSTui:
         
         ## Mini TUIs
         # Setup
+        self.initial_setup_ui = Db4eOSInitialSetupUI(self)
         self.db4e_setup_ui = Db4eOSDb4eSetupUI(self)
         self.repo_setup_ui = Db4eOSRepoSetupUI(self)
         self.monerod_remote_setup_ui = Db4eOSMonerodRemoteSetupUI(self)
@@ -184,7 +186,7 @@ class Db4eOSTui:
         self.edit_xmrig_ui = Db4eOSXMRigEditUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
-        sys.exit(0)
+        self.initialize()
 
     def add_new_monerod(self, button):
         text_msg = urwid.Text(MONEROD_SETUP)
@@ -369,6 +371,11 @@ class Db4eOSTui:
     def exit_on_q(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+
+    def initialize(self):
+        # Check if this is the first time the user ran db4e-os.
+        if self.model.first_time():
+            self.main_loop.widget = self.initial_setup_ui.widget()
 
     def return_to_main(self):
         self.right_panel = urwid.LineBox(urwid.Padding(

@@ -60,6 +60,10 @@ class Db4eOSModel:
     def delete_instance(self, component, instance):
         return self._db.delete_instance(component, instance)
 
+    def first_time(self):
+        db4e_rec = self._db.get_deployment_by_component('db4e')
+        return db4e_rec['vendor_dir']
+
     def get_db4e_deployment(self):
         db4e_rec = self._db.get_db4e_deployment()
         """
@@ -76,70 +80,12 @@ class Db4eOSModel:
         """
         return {'name': db4e_rec['name'], 'status': db4e_rec['status']}
     
-    def get_db4e_dir(self):
-        db4e_rec = self._db.get_db4e_deployment()
-        return db4e_rec['install_dir']
-    
-    def get_monerod_deployment(self, instance):
-        return self._db.get_deployment_by_instance('monerod', instance)
+    def get_pid(self, proc_name):
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc_name in proc.info['name']:
+                return proc.info['pid']
+        return None        
 
-    def get_monerod_deployments(self):
-        deployments = {}
-        for deployment in self._db.get_monerod_deployments():
-            name = deployment['name']
-            instance = deployment['instance']
-            status = self.get_status('monerod', instance)
-            if status[0]['state'] == 'good':
-                monerod_status = 'running'
-            else:
-                monerod_status = 'stopped'
-            deployments[instance] = { 'name': name, 'status': monerod_status, 'instance': instance }
-        return deployments
-        
-    def get_p2pool_deployments(self):
-        deployments = {}
-        for deployment in self._db.get_p2pool_deployments():
-            name = deployment['name']
-            status = None
-            remote = deployment['remote']
-            instance = deployment['instance']
-            if not remote:
-                # Check that the P2Pool instance's Monero daemon deployment record exists
-                if not self._db.get_deployment_by_id(deployment['monerod_id']):
-                    status = 'stopped'
-            if status != 'stopped':
-                status = self.get_status('p2pool', instance)
-                if status[0]['state'] == 'good':
-                    p2pool_status = 'running'
-                else:
-                    p2pool_status = 'stopped'
-            deployments[instance] = { 'name': name, 'status': p2pool_status, 'instance': instance }
-        return deployments
-
-    def get_p2pool_deployment(self, instance):
-        return self._db.get_deployment_by_instance('p2pool', instance)
-
-    def get_p2pool_deployment_by_id(self, p2pool_id):
-        return self._db.get_deployment_by_id(p2pool_id)
-
-    def get_repo_deployment(self):
-        repo_rec = self._db.get_repo_deployment()
-        status = self.get_status('repo')
-        if status[0]['state'] == 'good':
-            repo_status = 'running'
-        else:
-            repo_status = 'stopped'
-
-        repo = {
-            'name': repo_rec['name'],
-            'status': repo_status
-        }
-        return repo
-    
-    def get_repo_dir(self):
-        repo_rec = self._db.get_repo_deployment()
-        return repo_rec['install_dir']
-    
     def get_status(self, component, instance=None):
         status = []
         if component == 'db4e':
@@ -385,6 +331,15 @@ class Db4eOSModel:
             deployments[instance] = { 'name': name, 'status': xmrig_status, 'instance': instance }
         return deployments
     
+    def is_port_open(self, ip_addr, port_num):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(CONN_TIMEOUT)  # Set a timeout for the connection attempt
+                result = sock.connect_ex((ip_addr, port_num))
+                return result == 0
+        except socket.gaierror:
+            return False  # Handle cases like invalid hostname
+
     def is_remote(self, component, instance):
         depl = self._db.get_deployment_by_instance(component, instance)
         return depl['remote']

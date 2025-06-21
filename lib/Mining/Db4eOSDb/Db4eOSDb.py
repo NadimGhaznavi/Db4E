@@ -173,9 +173,6 @@ class Db4eOSDb:
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
 
-    def get_db4e_dir(self):
-        return self._db4e_dir
-    
     def get_deployment_by_component(self, component, tmpl_flag=None):
         if tmpl_flag:
             doc = self._db.find_one(self._col, {'doc_type': 'template', 'component': component})
@@ -203,26 +200,11 @@ class Db4eOSDb:
         depl = self.get_deployment_by_instance(component, instance)
         return depl['stdin']
 
-    def get_db4e_deployment(self):
-        # Return the db4e deployment doc
-        return self.get_deployment_by_component('db4e')
-    
-    def get_repo_deployment(self):
-        # Return the repo deployment doc
-        return self.get_deployment_by_component('repo')
+    def get_dir(self, dirType):
+        if dirType == 'db4e':
+            depl = self.get_deployment_by_component('db4e')
+            return depl['install_dir']
 
-    def get_monerod_deployments(self):
-        # Return the Monero daemon deployment docs
-        return self.get_deployments_by_component('monerod')
-
-    def get_p2pool_deployments(self):
-        # Return the P2Pool deployment docs
-        return self.get_deployments_by_component('p2pool')
-
-    def get_repo_dir(self):
-        depl = self.get_repo_deployment()
-        return depl['install_dir']
-    
     def get_tmpl(self, component, remote=None):
         if component == 'monerod':
             if remote:
@@ -237,17 +219,6 @@ class Db4eOSDb:
         elif component == 'xmrig':
             return deepcopy(XMRIG_RECORD)
         
-    def get_xmrig_deployments(self):
-        # Return the xmrig deployment docs
-        return self.get_deployments_by_component('xmrig')
-    
-    def get_vendor_dir(self):
-        depl = self.get_db4e_deployment()
-        return depl['vendor_dir']
-    
-    def get_xmrig_tmpl(self):
-        return self._db.find_one(self._col, {'doc_type': 'template', 'component': 'xmrig'})
-
     def new_deployment(self, component, update_fields):
         if component == 'monerod':
             if update_fields['remote']:
@@ -284,17 +255,3 @@ class Db4eOSDb:
             {'$set': update_fields }
         )
     
-    def update_db4e(self, update_fields):
-        return self.update_deployment('db4e', update_fields)
-    
-    def update_repo(self, update_fields):
-        return self.update_deployment('repo', update_fields)
-    
-    def update_monerod(self, update_fields, instance):
-        return self.update_deployment_instance('monerod', instance, update_fields)
-
-    def update_p2pool(self, update_fields, instance):
-        return self.update_deployment_instance('p2pool', instance, update_fields)
-
-    def update_xmrig(self, update_fields, instance):
-        return self.update_deployment_instance('xmrig', instance, update_fields)
