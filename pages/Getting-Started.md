@@ -44,7 +44,9 @@ The *db4e* application does *NOT* require root access to run. However, root acce
 * Run the XMRig miner 
 * Configure *db4e* as a system service
 
-You will only be required to use the root password when you install the package pre-requisites and to install the *db4e* service. The *db4e* applicaiton **NEVER** stores the root password.
+You will only be required to use the root password when you install the package pre-requisites and to install the *db4e* service. For optimal performance, the included XMRig miner needs to access Model-Specific Registers (MSRs). This requires root access. To handle this *db4e* sets the SUID bit on the XMRig binary.
+
+The *db4e* applicaiton **NEVER** stores the root password.
 
 ### Dedicated db4e Account
 
