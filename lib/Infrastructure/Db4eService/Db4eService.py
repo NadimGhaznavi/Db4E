@@ -69,6 +69,7 @@ class Db4eService:
         if os.path.exists(self.fq_uds):
             os.remove(self.fq_uds)
         # Start sending commands to the P2Pool STDIN pipe
+        self.launch_p2pool_writer()
 
     def listen(self):
         # Create the UDS and start handling requests
@@ -109,6 +110,7 @@ class Db4eService:
     def launch_p2pool_writer(self):
         # Send 'status' and 'workers' commands to local P2Pool deployments
         def writer_loop():
+            print('writer_loop()')
             while True:
                 try:
                     deployments = self._osDb.get_deployments_by_component('p2pool')
@@ -116,13 +118,17 @@ class Db4eService:
                         if depl['remote']:
                             continue
                         pipe = self._osDb.get_deployment_stdin('p2pool', depl['instance'])
+                        print(f'Found local deployment')
                         if not os.path.exists(pipe):
                             continue
+                        print(f'Found named pipe  {pipe}')
                         with open(pipe, 'w') as fifo:
+                            print(f'Sending "status" command')
                             fifo.write("status\n")
                             fifo.flush()
                         time.sleep(30)
                         with open(pipe, 'w') as fifo:
+                            print(f'Sending "workers" command')
                             fifo.write("workers\n")
                             fifo.flush()
                 except Exception as e:
@@ -135,12 +141,16 @@ class Db4eService:
     def spawn_process(self, component, instance):
         try:
             fq_stdin = self._osDb.get_deployment_stdin(component, instance)
+            print(f'STDIN is {fq_stdin}')
             
             # Create the p2pool named pipe so we can send it 'workers' and 'status' commands.
-            if component == 'p2pool' and not os.path.exists(fq_stdin):
+            if component == 'p2pool':
+                if os.path.exists(fq_stdin):
+                    os.remove(fq_stdin) # Delete stale named pipe if it's there (and maybe full of messages)
                 os.mkfifo(fq_stdin)
+
             # May take up to 30 seconds before the next line returns
-            stdin = open(fq_stdin, 'r')
+            stdin_handle = open(fq_stdin, 'r')
             vendor_dir = self._osDb.get_vendor_dir()
             bin_dir = self.ini.config['db4e']['bin_dir']
             version = self.ini.config[component]['version']
@@ -151,11 +161,10 @@ class Db4eService:
             # Spawn the process, detached from the service process
             subprocess.Popen(
                 [ fq_start_script, config ],
-                stdin=stdin,
+                stdin=stdin_handle,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 preexec_fn=os.setsid # Detach from parent process
             )
         except Exception as e:
-            pass
-            #print(f"Error spawning {component} - {instance}: {e}")
+            print(f"Error spawning {component} - {instance}: {e}")

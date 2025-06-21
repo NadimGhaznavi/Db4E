@@ -184,6 +184,7 @@ class Db4eOSTui:
         self.edit_xmrig_ui = Db4eOSXMRigEditUI(self)
 
         self.main_loop = urwid.MainLoop(self.build_main_frame(), PALETTE, unhandled_input=self.exit_on_q)
+        sys.exit(0)
 
     def add_new_monerod(self, button):
         text_msg = urwid.Text(MONEROD_SETUP)
