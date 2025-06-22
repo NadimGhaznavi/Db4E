@@ -126,6 +126,12 @@ This code is **alpha** it's under active development and doesn't fully work. Her
 
 ---
 
+# Getting Started
+
+**NOTE:** The db4e project is in **beta** phase. See the [Getting Started](/pages/Getting-Started.html) page for information on getting started.
+
+---
+
 # Community Feedback
 
 *Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page.
