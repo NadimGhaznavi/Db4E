@@ -132,6 +132,20 @@ Next you'll want to import the **public** part of your new key to GitHub. This f
 * Click on the *New SSH key* button.
 * Enter a name for the key, e.g. *db4e on my_server*.
 * Next you'll want to cut-and-paste the contents of the public key file (~/.ssh/id_rsa.pub) into the *Key* box in GitHub.
+* Finally, click the *Add SSH key* button
+
+To test that this worked, go the command line of your machine and issue the command below:
+
+```
+ssh -T git@github.com
+```
+
+Sample output:
+
+```
+Hi SallyKolodny! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
 
 ---
 
