@@ -36,6 +36,11 @@ PYTHON="$VENV/bin/python"
 MAIN_SCRIPT="$BIN_DIR/db4e-os.py"
 
 if [ ! -d "$VENV" ]; then
+  which python3 > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "ERROR: You must have python3 installed and in your path, exiting"
+    exit 1
+  fi
   echo "Python venv environment not found, doing a one-time setup..."
   cd "$DB4E_DIR"
   python3 -m venv venv

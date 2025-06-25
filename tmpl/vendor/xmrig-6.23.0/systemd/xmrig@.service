@@ -1,0 +1,18 @@
+[Unit]
+Description=The XMRig miner
+After=network.target
+Wants=network.target
+
+[Service]
+Type=exec
+WorkingDirectory=[[XMRIG_DIR]]
+ExecStart=[[XMRIG_DIR]]/bin/xmrig -c [[XMRIG_DIR]]/conf/%i.json
+StandardOutput=journal
+StandardError=journal
+TimeoutStopSec=60
+User=[[DB4E_USER]]
+Group=[[DB4E_GROUP]]
+
+[Install]
+WantedBy=multi-user.target
+

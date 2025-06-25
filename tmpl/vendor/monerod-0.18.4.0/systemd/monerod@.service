@@ -1,0 +1,21 @@
+[Unit]
+Description=Monero Daemon Full Blockchain Node
+After=network.target
+Wants=network.target
+Requires=monerod%i.socket
+
+[Service]
+User=[[DB4E_USER]]
+Group=[[DB4E_GROUP]]
+StandardInput=socket
+Sockets=monerod%i.socket
+WorkingDirectory=[[MONEROD_DIR]]
+Type=simple
+Restart=always
+ExecStart=[[MONEROD_DIR]]/bin/start-monerod.sh
+TimeoutStopSec=60
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -31,8 +31,9 @@
 
 db4e:
   api_dir: api
-  conf_dir: conf
   bin_dir: bin
+  conf_dir: conf
+  config: db4e_prod.yml
   deployment_file: deployment.yml
   desc: "Database 4 Everything"
   dev_dir: dev
@@ -45,14 +46,15 @@ db4e:
   reports_dir: reports
   run_dir: run
   service_file: db4e.service
-  service_installer: db4e-install-service.sh
+  setup_script: db4e-initial-setup.sh
   service_uninstaller: db4e-uninstall-service.sh
+  service_install_script: db4e-install-service.sh
   src_dir: src
   systemd_dir: systemd
   template_dir: tmpl
-  third_party_dir: 3rdparty
   update_repo_script: db4e-update-repo.sh
   uds: db4e.sock
+  vendor_dir: vendor
   version: latest
 
 web:
@@ -67,31 +69,35 @@ logging:
   log_level: info
   
 p2pool:
-  desc: "P2Pool Daemon"
   config: p2pool.ini
+  desc: "P2Pool Daemon"
   log_file: p2pool.log
   process: p2pool
+  service_file: p2pool@.service
+  socket_file: p2pool@.socket
   start_script: start-p2pool.sh
   stdin: p2pool.stdin
-  version: 4.8
+  version: "4.8"
 
 monerod:
-  install_dir: monerod
-  desc: "Monero Blockchain Daemon"
-  log_dir: logs
-  log_file: monerod.log
-  conf_dir: conf
+  blockchain_dir: monero-blockchain
   config: monerod.ini
-  stdin_pipe: monerod.stdin
+  desc: "Monero Blockchain Daemon"
+  log_file: monerod.log
   process: monerod
+  service_file: monerod@.service
+  socket_file: monerod@.socket
+  stdin_pipe: monerod.stdin
+  start_script: start-monerod.sh
+  version: "0.18.4.0"
 
 xmrig:
-  install_dir: xmrig
   desc: "XMRig Miner"
   conf_dir: conf
   config: config.json
   permissions: "-rwsr-x---"
   process: xmrig
+  service_file: xmrig@.service
   version: "6.23.0"
   
 db:

@@ -31,18 +31,11 @@ import os, sys
 import warnings
 from urwid.widget.columns import ColumnsWarning
 
-
 # Where the DB4E modules live
-lib_dir = os.path.dirname(__file__) + "/../lib/"
-# Import DB4E modules
-db4e_dirs = [
-  lib_dir + 'Infrastructure',
-  lib_dir + 'Mining'
-]
-for db4e_dir in db4e_dirs:
-  sys.path.append(db4e_dir)
+lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
+sys.path.append(lib_dir)
 
-# DB4E modules
+# Import DB4E modules
 from Db4eOSTui.Db4eOSTui import Db4eOSTui
 
 # Needed, otherwise we get STDERR warnings being dumped into the TUI

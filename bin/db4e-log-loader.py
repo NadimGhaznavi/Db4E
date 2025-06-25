@@ -11,10 +11,8 @@ from flooding MongoDB.
 
 Use this for the case where db4e was down, but P2Pool was up so you 
 have the old P2Pool logs, but you don't have the db4e records.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi

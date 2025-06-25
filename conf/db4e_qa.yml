@@ -1,3 +1,4 @@
+# conf/db4e_qa.yml
 #
 # This is the main configuration file for *db4e* QA. You should not
 # have to change anything in this file and if you do you may break
@@ -28,7 +29,6 @@
 #
 #####################################################################
 
-
 db4e:
   api_dir: api
   conf_dir: conf
@@ -45,14 +45,14 @@ db4e:
   reports_dir: reports
   run_dir: run
   service_file: db4e.service
-  service_installer: db4e-install-service.sh
+  setup_script: db4e-initial-setup.sh
   service_uninstaller: db4e-uninstall-service.sh
   src_dir: src
   systemd_dir: systemd
   template_dir: tmpl
-  third_party_dir: 3rdparty
   update_repo_script: db4e-update-repo.sh
   uds: db4e.sock
+  vendor_dir: vendor
   version: latest
 
 web:
@@ -72,6 +72,8 @@ p2pool:
   log_file: p2pool.log
   process: p2pool
   start_script: start-p2pool.sh
+  service_file: p2pool.service
+  socket_file: p2pool.socket
   stdin: p2pool.stdin
   version: 4.8
 

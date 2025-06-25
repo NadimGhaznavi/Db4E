@@ -28,19 +28,11 @@ import os
 import requests
 import sys
 
-# The directory that this script is in
-script_dir = os.path.dirname(__file__)
-# DB4E modules are in the lib_dir
-lib_dir = script_dir + '/../lib/'
+# Where the DB4E modules live
+lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
+sys.path.append(lib_dir)
 
 # Import DB4E modules
-db4e_dirs = [
-  lib_dir + 'Infrastructure',
-  lib_dir + 'Mining'
-]
-for db4e_dir in db4e_dirs:
-  sys.path.append(db4e_dir)
-
 from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eDb.Db4eDb import Db4eDb

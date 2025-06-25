@@ -6,10 +6,8 @@ P2Pool log, backup the db4e database and push the backup to
 GitHub, support a parallel QA environment, return the mining 
 farm wallet balance (from MongoDB, not from your wallet), run
 reports manuall and display the db4e version.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
@@ -34,19 +32,11 @@ reports manuall and display the db4e version.
 import os
 import sys
 
-# The directory that this script is in
-script_dir = os.path.dirname(__file__)
-# DB4E modules are in the lib_dir
-lib_dir = script_dir + '/../lib/'
+# Where the DB4E modules live
+lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
+sys.path.append(lib_dir)
 
 # Import DB4E modules
-db4e_dirs = [
-  lib_dir + 'Infrastructure',
-  lib_dir + 'Mining'
-]
-for db4e_dir in db4e_dirs:
-  sys.path.append(db4e_dir)
-
 from Db4eConfig.Db4eConfig import Db4eConfig
 from P2Pool.P2Pool import P2Pool
 from MiningDb.MiningDb import MiningDb

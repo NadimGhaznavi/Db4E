@@ -1,0 +1,13 @@
+[Unit]
+Description=Command FIFO for the Monero daemon
+
+[Socket]
+ListenFIFO=[[MONEROD_DIR]]/run/monerod%i.stdin
+DirectoryMode=0755
+SocketMode=0666
+SocketUser=[[DB4E_USER]]
+SocketGroup=[[DB4E_GROUP]]
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target

@@ -1,15 +1,15 @@
 [Unit]
-Description="Database 4 Everything Service"
+Description=Database 4 Everything Service
 After=network.target
 
 [Service]
 User=[[DB4E_USER]]
-WorkingDirectory=[[INSTALL_DIR]]
-ExecStart=[[INSTALL_DIR]]/bin/db4e.sh -s
+WorkingDirectory=[[DB4E_DIR]]
+ExecStart=[[DB4E_DIR]]/bin/db4e.sh -s
 Restart=always
 RestartSec=3
 KillMode=process
-Group=db4e
+Group=[[DB4E_GROUP]]
 StandardOutput=journal
 StandardError=journal
 TimeoutStopSec=10

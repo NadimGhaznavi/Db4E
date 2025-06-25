@@ -1,0 +1,12 @@
+[Unit]
+Description=Command FIFO for the P2Pool daemon
+
+[Socket]
+ListenFIFO=[[P2POOL_DIR]]/run/p2pool%i.stdin
+DirectoryMode=0755
+SocketMode=0666
+SocketUser=[[DB4E_USER]]
+SocketGroup=[[DB4E_GROUP]]
+RemoveOnStop=true
+
+[Install]

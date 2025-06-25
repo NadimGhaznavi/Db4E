@@ -1,9 +1,7 @@
-#!/opt/qa/db4e/venv/bin/python
 """
-bin/test.py
+lib/Db4eOSStrings/Db4eOSStrings.py
 
-Test program used for debugging.
-
+Common symbols are defined here.
 
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
@@ -24,23 +22,21 @@ Test program used for debugging.
   <http://www.gnu.org/licenses/>.
 """
 
+import logging
 
-# Import supporting modules
-import os
-import sys
-import socket
-import json
+MD = {
+    'good'  : '✔️',
+    'warning' : '⚠️',
+    'bullet': '🔸',
+    'dancing_man': '🕺',
+    'dancing_woman': '💃',
+}
 
-# Where the DB4E modules live
-lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
-sys.path.append(lib_dir)
+LOG_LEVELS = {
+    'info': logging.INFO,
+    'debug': logging.DEBUG,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL
+}
 
-# Import DB4E modules
-from Db4eOSModel.Db4eOSModel import Db4eOSModel
-#from Db4eClient.Db4eClient import Db4eClient
-
-mod = Db4eOSModel()
-result = mod.get_service_status('p2pool@local')
-print(result)
-result = mod.get_service_status('db4e')
-print(result)

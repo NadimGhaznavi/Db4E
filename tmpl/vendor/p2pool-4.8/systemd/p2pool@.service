@@ -1,0 +1,19 @@
+[Unit]
+Description=P2Pool instance %i
+After=network.target p2pool@%i.socket
+Wants=network.target
+Requires=p2pool@%i.socket
+BindsTo=p2pool@%i.socket
+
+[Service]
+Type=simple
+ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
+TimeoutStopSec=60
+User=[[DB4E_USER]]
+Group=[[DB4E_GROUP]]
+StandardOutput=journal
+StandardError=journal
+WorkingDirectory=[[P2POOL_DIR]]
+
+[Install]
+WantedBy=multi-user.target
