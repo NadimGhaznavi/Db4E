@@ -72,9 +72,9 @@ WELCOME_MSG = "Welcome to the db4e OS console!\n\n"
 WELCOME_MSG += "Use the arrow keys and the spacebar to select a component. "
 WELCOME_MSG += "Or use your mouse to select components and to click the "
 WELCOME_MSG += "\"More Info\", \"Exit\" or \"New Deployment\" buttons.\n\n"
-WELCOME_MSG += "Please be patient: This application can take up to 30 seconds "
-WELCOME_MSG += "to refresh. The Monero and P2Pool daemons can also take 30 to "
-WELCOME_MSG += "60 seconds to start or stop cleanly."
+WELCOME_MSG += "Please be patient when using this tool. Operations such as "
+WELCOME_MSG += "starting and stoping components can take up to a minute or "
+WELCOME_MSG += "or more."
 
 DB4E_SETUP = "\nThis screen will take you to the initial setup screen. "
 DB4E_SETUP += "There are three distinct elements that are configured: "
@@ -450,7 +450,7 @@ class Db4eOSTui:
         elif deployment == 'repo':
             title_text = 'Website Repository Status'
             repo = self.model.get_deployment_by_component('repo')
-            if not repo:
+            if not repo['enable']:
                 text_msg = urwid.Text(REPO_SETUP)
                 continue_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
@@ -531,16 +531,8 @@ class Db4eOSTui:
                     if f'The p2pool@' + instance + ' service is running PID' in status_msg:
                         button_list.append((16, self.stop_button))
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
-                status = urwid.Pile(status_list)
-                if status_info[0]['state'] == 'good':
-                    buttons = urwid.Columns([
-                        (8, self.stop_button),
-                    ], dividechars=1)
-                else:
-                    buttons = urwid.Columns([
-                        (9, self.start_button),
-                    ], dividechars=1)
                 button_list.append((10, self.delete_button))
+                status = urwid.Pile(status_list)
                 self.form_buttons = urwid.Columns(button_list, dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
                     div, status, div, self.form_buttons, div, self.results_box]))
@@ -555,17 +547,24 @@ class Db4eOSTui:
                 title_text = f'XMRig Miner ({instance}) Status'
                 status_info = self.model.get_status('xmrig', instance)
                 status_list = []
+                self.edit_button = urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)
+                self.stop_button = urwid.Button(('button', 'Stop Service'), on_press=self.stop_instance)
+                self.start_button = urwid.Button(('button', 'Start Service'), on_press=self.start_instance)
+                self.delete_button = urwid.Button(('button', 'Delete'), on_press=self.delete_instance)
+                button_list = [(8, self.edit_button)]
                 for aStatus in status_info[1:]:
                     status_state = MD[aStatus['state']]
                     status_msg = aStatus['msg']
+                    if status_msg == f'The xmrig@' + instance + ' service is stopped':
+                        button_list.append((17, self.start_button))
+                    if f'The xmrig@' + instance + ' service is running PID' in status_msg:
+                        button_list.append((16, self.stop_button))
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                button_list.append((10, self.delete_button))
                 status = urwid.Pile(status_list)
-                buttons = urwid.Columns([
-                    (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
-                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)), 
-                ], dividechars=1)
+                self.form_buttons = urwid.Columns(button_list, dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status, div, buttons]))
+                    div, status, div, self.form_buttons, div, self.results_box]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'

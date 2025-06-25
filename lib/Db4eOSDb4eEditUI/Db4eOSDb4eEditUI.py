@@ -29,6 +29,7 @@ import os, sys
 import urwid
 import subprocess
 import shutil
+from datetime import datetime
 
 # Where the DB4E modules live
 lib_dir = os.path.join(os.path.dirname(__file__), '..')
@@ -38,6 +39,7 @@ sys.path.append(lib_dir)
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eOSStrings.Db4eOSStrings import MD
 
 class Db4eOSDb4eEditUI:
     def __init__(self, parent_tui):
@@ -52,33 +54,42 @@ class Db4eOSDb4eEditUI:
 
     def on_submit(self, button):
         vendor_dir = self.vendor_dir_edit.edit_text.strip()
+        good = MD['good']
+        warning = MD['warning']
 
         # Validate input
         if not vendor_dir:
-            self.results_msg.set_text("You must set the 3rd party software directory.")
+            self.results_msg.set_text(f'{warning}  You must set the 3rd party software directory.')
             return
 
         # Create the vendor directory
-        try:
-            if self.old_vendor_dir and self.old_vendor_dir != vendor_dir:
-                # Delete the old vendor directory
-                shutil.rmtree(self.old_vendor_dir)
+        results = ''
+        if self.old_vendor_dir and self.old_vendor_dir != vendor_dir:
             if os.path.exists(vendor_dir):
-                shutil.rmtree(vendor_dir)
-            os.mkdir(vendor_dir)
-        except (PermissionError, FileNotFoundError, FileExistsError) as e:
-            error_msg = f'Failed to create directory ({vendor_dir}). Make sure you '
-            error_msg += 'have permission to create the directory and that the parent '
-            error_msg += f'exists\n\n'
-            error_msg += f'{e}'
-            self.results_msg.set_text(error_msg)
-            return
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+                try:
+                    os.rename(vendor_dir, vendor_dir + '.' + timestamp)
+                    results += f'{warning}  Found existing directory ({vendor_dir}), backed it up as ({vendor_dir}.{timestamp})\n'
+                except PermissionError as e:
+                    results += f'{warning}  Unable to move directory ({vendor_dir}): {e}'
+                    self.results_msg.set_text(results)
+                    return
+            # Move the directory
+            try:
+                shutil.move(self.old_vendor_dir, vendor_dir)
+                results += f'{good}  Moved {self.old_vendor_dir} to {vendor_dir}'
+            except (PermissionError, FileNotFoundError) as e:
+                results_msg += f'{warning}  Failed to create directory ({vendor_dir}). Make sure you '
+                results_msg += f'{warning}  have permission to create the directory and that the parent '
+                results_msg += f'{warning}  exists\n\n'
+                self.results_msg.set_text(results)
+                return
 
         # Update the deployment record
         self._db.update_deployment('db4e', {'vendor_dir': vendor_dir})
 
         # Set the results
-        self.results_msg.set_text('Updated the db4e service deployment record')
+        self.results_msg.set_text(f'{good}  Updated the db4e deployment record')
 
         # Remove the submit button
         self.back_button.set_label("Done")
@@ -88,10 +99,8 @@ class Db4eOSDb4eEditUI:
         ]        
 
     def reset(self):
-        depl_rec = self._db.get_deployment_by_component('db4e')
-        vendor_dir = depl_rec['vendor_dir'] or ''
+        vendor_dir = self.model.get_dir('vendor') or ''
         self.old_vendor_dir = vendor_dir
-
         # Form elements, edit widgets
         self.vendor_dir_edit = urwid.Edit("3rd party software directory: ", edit_text=vendor_dir)
 
@@ -172,7 +181,6 @@ class Db4eOSDb4eEditUI:
                 self.results_msg.set_text(f"Service uninstall failed.\n\n{stderr}")
                 return
             
-            self._db.update_db4e({'status': 'stopped'})
             self.results_msg.set_text(f"Service uninstalled successfully:\n{stdout}")
 
         except Exception as e:

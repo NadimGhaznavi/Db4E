@@ -153,16 +153,12 @@ class Db4eOSRepoEditUI:
             self.results_msg.set_text(f"Error: {str(e)}")
 
     def reset(self):
-        repo_rec = self.osdb.get_deployment_by_component('repo')
-        github_user = repo_rec['github_user'] or ''
-        github_repo = repo_rec['github_repo'] or ''
-        install_dir = repo_rec['install_dir'] or ''
-        self.old_install_dir = install_dir
+        self.old_install_dir = ''
 
         # Form elements, edit widgets
-        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text=github_user)
-        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text=github_repo)
-        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text=install_dir)
+        self.github_username_edit = urwid.Edit("GitHub user name (e.g. NadimGhaznavi): ", edit_text='')
+        self.github_repo_name_edit = urwid.Edit("GitHub repo name (e.g. xmr): ", edit_text='')
+        self.local_repo_path_edit = urwid.Edit("Local path for the repo: (e.g. /home/nadim/xmr): ", edit_text='')
 
         # The buttons
         self.update_button =  urwid.Button(('button', 'Update'), on_press=self.on_submit)

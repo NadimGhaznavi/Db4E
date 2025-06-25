@@ -86,13 +86,13 @@ class Db4eOSXMRigEditUI:
         # Generate a XMRig configuration file
         conf_dir        = self.ini.config['db4e']['conf_dir']
         tmpl_dir        = self.ini.config['db4e']['template_dir']
-        third_party_dir = self.ini.config['db4e']['third_party_dir']
+        tmpl_vendor_dir = self.ini.config['db4e']['vendor_dir']
         config          = self.ini.config['xmrig']['config']
         version         = self.ini.config['xmrig']['version']
         xmrig_dir = 'xmrig-' + version
-        db4e_dir = self._db.get_db4e_dir()
-        vendor_dir = self._db.get_vendor_dir()
-        tmpl_config = os.path.join(db4e_dir, tmpl_dir, third_party_dir, xmrig_dir, conf_dir, config)
+        db4e_dir = self.model.get_dir('db4e')
+        vendor_dir = self.model.get_dir('vendor')
+        tmpl_config = os.path.join(db4e_dir, tmpl_dir, tmpl_vendor_dir, xmrig_dir, conf_dir, config)
         fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.ini')
         # Make sure the directories exist
         if not os.path.exists(os.path.join(vendor_dir, xmrig_dir)):
@@ -123,14 +123,15 @@ class Db4eOSXMRigEditUI:
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
-        # Create a new deployment record
-        depl = self.osdb.get_tmpl('xmrig')
-        depl['config'] = fq_config
-        depl['enable'] = True
-        depl['instance'] = instance
-        depl['num_threads'] = int(num_threads)
-        depl['p2pool_id'] = p2pool_id
-        self.osdb.add_deployment('xmrig', depl)
+        # Update the deployment record
+        update_fields = {
+            'config': fq_config,
+            'enable': True,
+            'instance': instance,
+            'num_threads': int(num_threads),
+            'p2pool_id': p2pool_id,
+        }
+        self.osdb.update_deployment_instance('xmrig', instance, update_fields)
         
         # Set the results
         results = f'Re-configured the XMRig miner ({instance}) deployment record. '

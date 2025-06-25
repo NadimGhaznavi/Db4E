@@ -208,6 +208,8 @@ class Db4eOSDb:
 
     def get_dir(self, dirType):
         depl = self.get_deployment_by_component('db4e')
+        if not depl:
+            return None
         if dirType == 'db4e':
             return depl['install_dir']
         elif dirType == 'vendor':
@@ -218,6 +220,8 @@ class Db4eOSDb:
     def get_tmpl(self, component, remote=None):
         if component == 'db4e':
             return deepcopy(DB4E_RECORD)
+        elif component == 'repo':
+            return deepcopy(REPO_RECORD)
         elif component == 'monerod':
             if remote:
                 return deepcopy(MONEROD_RECORD_REMOTE)
@@ -232,24 +236,22 @@ class Db4eOSDb:
             return deepcopy(XMRIG_RECORD)
         
     def new_deployment(self, component, update_fields):
-        if component == 'monerod':
+        if component == 'db4e':
+            new_rec = deepcopy(DB4E_RECORD)
+        elif component == 'repo':
+            new_rec = deepcopy(REPO_RECORD)
+        elif component == 'monerod':
             if update_fields['remote']:
                 new_rec = deepcopy(MONEROD_RECORD_REMOTE)
-                new_rec.update(update_fields)
-                self.add_deployment(new_rec)
         elif component == 'p2pool':
             if update_fields['remote']:
                 new_rec = deepcopy(P2POOL_RECORD_REMOTE)
-                new_rec.update(update_fields)
-                self.add_deployment(new_rec)
             else:
                 new_rec = deepcopy(P2POOL_RECORD)
-                new_rec.update(update_fields)
-                self.add_deployment(new_rec)
         elif component == 'xmrig':
             new_rec = deepcopy(XMRIG_RECORD)
-            new_rec.update(update_fields)
-            self.add_deployment(new_rec)
+        new_rec.update(update_fields)
+        self.add_deployment(new_rec)
 
     def update_deployment(self, component, update_fields):
         update_fields['updated'] = datetime.now(timezone.utc)

@@ -29,6 +29,7 @@ import os, sys
 import urwid
 import subprocess
 import shutil
+from datetime import datetime
 
 # Where the DB4E modules live
 lib_dir = os.path.join(os.path.dirname(__file__), '..')
@@ -37,6 +38,7 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eOSStrings.Db4eOSStrings import MD
 
 bullet = MD['bullet']
@@ -52,11 +54,12 @@ class Db4eOSInitialSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self.osdb = Db4eOSDb()
+        self.model = Db4eOSModel()
         self.ini = Db4eConfig()
 
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        website_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'website'))
-        vendor_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'vendor'))
+        website_dir = os.path.abspath(os.path.join(self.db4e_dir, '..', 'website'))
+        vendor_dir = os.path.abspath(os.path.join(self.db4e_dir, '..', 'vendor'))
 
         # Form widgets    
         self.db4e_group_edit = urwid.Edit("The Linux db4e group: ", edit_text='db4e')
@@ -138,8 +141,9 @@ class Db4eOSInitialSetupUI:
         # Create the vendor directory
         try:
             if os.path.exists(vendor_dir):
-                os.rename(vendor_dir, vendor_dir + '.orig')
-                msg_text += f'{warning}  Found existing vendor dir, backed it up as {vendor_dir}.orig\n'
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+                os.rename(vendor_dir, vendor_dir + '.' + timestamp )
+                msg_text += f'{warning}  Found existing vendor dir, backed it up as {vendor_dir}.{timestamp}\n'
             os.mkdir(vendor_dir)
         except (PermissionError, FileNotFoundError, FileExistsError) as e:
             error_msg = f'Failed to create directory ({vendor_dir}). Make sure you '
@@ -361,10 +365,9 @@ class Db4eOSInitialSetupUI:
         depl['user'] = db4e_user
         depl['user_wallet'] = wallet
         depl['vendor_dir'] = vendor_dir
-        depl['version'] = self.ini.config['db4e']['version']
         depl['website_dir'] = website_dir
         # Update the repo deployment record
-        self.osdb.update_deployment('repo', depl)
+        self.osdb.new_deployment('db4e', depl)
 
     def on_quit(self, button):
         raise urwid.ExitMainLoop()

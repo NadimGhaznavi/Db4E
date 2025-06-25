@@ -91,7 +91,7 @@ class Db4eOSP2PoolRemoteSetupUI:
         depl['ip_addr'] = ip_addr
         depl['remote'] = True
         depl['stratum_port'] = stratum_port
-        self.osdb.add_deployment('p2pool', depl)
+        self.osdb.new_deployment('p2pool', depl)
 
         # Set the results
         results += f'Created new P2Pool daemon ({instance}) deployment record. '
@@ -104,13 +104,12 @@ class Db4eOSP2PoolRemoteSetupUI:
 
     def reset(self):
         p2pool_rec = self.osdb.get_tmpl('p2pool', 'remote')
-        ip_addr = p2pool_rec['ip_addr']
-        stratum_port = p2pool_rec['stratum_port']
+        stratum_port = str(p2pool_rec['stratum_port'])
 
         # Form elements; edit widgets
         self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
-        self.ip_addr_edit = urwid.Edit("Remote P2Pool hostname or IP address: ", edit_text=ip_addr)
-        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
+        self.ip_addr_edit = urwid.Edit("Remote P2Pool hostname or IP address: ", edit_text='')
+        self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=stratum_port)
 
         # The buttons
         self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)

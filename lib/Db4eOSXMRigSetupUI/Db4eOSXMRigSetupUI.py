@@ -118,7 +118,7 @@ class Db4eOSXMRigSetupUI:
         depl['instance'] = instance
         depl['num_threads'] = int(num_threads)
         depl['p2pool_id'] = p2pool_id
-        self.osdb.add_deployment('xmrig', depl)
+        self.osdb.new_deployment('xmrig', depl)
 
         self.parent_tui.return_to_main()
 

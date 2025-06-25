@@ -185,7 +185,7 @@ class Db4eOSP2PoolSetupUI:
         depl['remote'] = False
         depl['stratum_port'] = stratum_port
         depl['wallet'] = wallet
-        self.osdb.add_deployment('p2pool', depl)
+        self.osdb.new_deployment('p2pool', depl)
         self.parent_tui.return_to_main()
 
     def reset(self):
@@ -294,7 +294,7 @@ class Db4eOSP2PoolSetupUI:
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
         self.frame = urwid.LineBox(
             urwid.Padding(listbox, left=2, right=2),
-            title="Remote P2Pool Daemon Setup", title_align="center", title_attr="title"
+            title="Local P2Pool Daemon Setup", title_align="center", title_attr="title"
         )
 
     def select_monerod(self, radio, new_state, deployment):

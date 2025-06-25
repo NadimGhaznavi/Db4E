@@ -102,8 +102,11 @@ class Db4eOSModel:
     def get_deployment_by_component(self, component):
         # Used to retrieve the 'db4e' and 'repo' records
         depl_rec = self.osdb.get_deployment_by_component(component)
+        if not depl_rec:
+            depl_rec = self.osdb.get_tmpl(component)
         depl = {}
         depl['name'] = depl_rec['name']
+        depl['enable'] = depl_rec['enable']
         status = self.get_status(component)
         if status[0]['state'] == 'good':
             depl['status'] = 'running'
@@ -117,6 +120,7 @@ class Db4eOSModel:
         for rec in depl_recs:
             depl = {}
             depl['instance'] = rec['instance']
+            depl['name'] = rec['name']
             status = self.get_status(component, rec['instance'])
             if status[0]['state'] == 'good':
                 depl['status'] = 'running'
@@ -223,13 +227,16 @@ class Db4eOSModel:
     def get_status(self, component, instance=None):
         status = []
         if component == 'db4e':
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': 'The db4e service is healthy'})
             # Helper fuction
             def mark_unhealthy():
                 status[0] = {'state': 'warning', 'msg': 'The db4e service has issue(s)'}            
             # Get the DB record
             depl_rec = self.osdb.get_deployment_by_component('db4e')
-            # Initialize the state to be 'good'
-            status.append({'state': 'good', 'msg': 'The db4e service is healthy'})
+            if not depl_rec:
+                mark_unhealthy()
+                return status
             # Get the state of the associated service
             results = self.get_service_status('db4e')
             if results[0]['state'] == 'warning':
@@ -257,13 +264,16 @@ class Db4eOSModel:
             return status
 
         elif component == 'repo':
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': 'The website repository is healthy'})
             # Helper function
             def mark_unhealthy():
                 status[0] = {'state': 'warning', 'msg': 'The website repository has issue(s)'}            
             # Get the DB record
             depl_rec = self.osdb.get_deployment_by_component('repo')
-            # Initialize the state to be 'good'
-            status.append({'state': 'good', 'msg': 'The website repository is healthy'})
+            if not depl_rec:
+                mark_unhealthy()
+                return status
             # GitHub account
             github_user = depl_rec['github_user']
             status.append({'state': 'good', 'msg': f'GitHub account name: {github_user}'})
@@ -331,9 +341,6 @@ class Db4eOSModel:
             # Instance name
             status.append({'state': 'good', 'msg': f'Instance name: {instance}'})
 
-            # Main chain, mini sidechain or nano chain
-            chain_name = CHAIN[depl_rec['chain']]
-            status.append({'state': 'good', 'msg': f'Mining on the {chain_name}'})
             # IP address
             ip_addr = depl_rec['ip_addr']
             status.append({'state': 'good', 'msg': f'Hostname or IP address: {ip_addr}'})
@@ -348,6 +355,9 @@ class Db4eOSModel:
             if not depl_rec['remote']:
                 ### Local P2Pool instance
 
+                # Main chain, mini sidechain or nano chain
+                chain_name = CHAIN[depl_rec['chain']]
+                status.append({'state': 'good', 'msg': f'Mining on the {chain_name}'})
                 # Get the state of the associated service
                 results = self.get_service_status('p2pool@' + instance)
                 if results[0]['state'] == 'warning':
@@ -406,19 +416,29 @@ class Db4eOSModel:
             self._xmrig = os.path.join(vendor_dir, 'xmrig-' + xmrig_version, bin_dir, xmrig_progname)
             self._xmrig_perms = self.ini.config['xmrig']['permissions']
 
+            # Initialize the state to be 'good'
+            status.append({'state': 'good', 'msg': f'The XMRig miner ({instance}) is healthy'})
             # Helper function
             def mark_unhealthy():
                 status[0] = {'state': 'warning', 'msg': f'The XMRig miner ({instance}) has issue(s)'}            
-                mark_unhealthy()
             # Get the DB record
             depl_rec = self.osdb.get_deployment_by_instance('xmrig', instance)
-            # Initialize the state to be 'good'
-            status.append({'state': 'good', 'msg': f'The XMRig miner ({instance}) is healthy'})
             # Instance name
             status.append({'state': 'good', 'msg': f'Instance name: {instance}'})
+            # Get the state of the associated service
+            results = self.get_service_status('xmrig@' + instance)
+            if results[0]['state'] == 'warning':
+                mark_unhealthy()
+            status += results[1:]            
             # Number of threads
             num_threads = depl_rec['num_threads']
             status.append({'state': 'good', 'msg': f'CPU threads: {num_threads}'})
+            # Configuration file
+            config = depl_rec['config']
+            if os.path.exists(config):
+                status.append({'state': 'good', 'msg': f'Found configuration file {config}'})
+            else:
+                status.append({'state': 'warning', 'msg': f'Missing configuration file {config}'})
             p2pool_id = depl_rec['p2pool_id']
             p2pool_depl = self.osdb.get_deployment_by_id(p2pool_id)
             if not p2pool_depl:
@@ -438,7 +458,8 @@ class Db4eOSModel:
 
     def get_user_wallet(self):
         depl = self.osdb.get_deployment_by_component('db4e')
-        return depl['user_wallet']
+        if depl:
+            return depl['user_wallet'] or ''
 
     def is_port_open(self, ip_addr, port_num):
         try:

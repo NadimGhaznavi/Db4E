@@ -118,7 +118,7 @@ class Db4eOSRepoSetupUI:
             depl['github_repo'] = repo_name
             depl['github_user'] = username
             depl['install_dir'] = website_dir
-            self.osdb.add_deployment('repo', depl)
+            self.osdb.new_deployment('repo', depl)
             
             results_text += f'{good}  Repository cloned successfully\n'
             results_text += f'{good}  Pre-populating static content:\n'
