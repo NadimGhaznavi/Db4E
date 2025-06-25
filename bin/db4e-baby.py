@@ -11,10 +11,8 @@ rounding errors.
 
 See https://github.com/NadimGhaznavi/kb/wiki/Handling-Floating-Point-Math-with-Python-and-MongoDb
 for more information on this issue.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi

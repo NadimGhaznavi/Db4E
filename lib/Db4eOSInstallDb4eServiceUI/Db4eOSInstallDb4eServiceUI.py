@@ -90,7 +90,7 @@ class Db4eOSInstallDb4eServiceUI:
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(all_widgets))
         self.frame = urwid.LineBox(
             urwid.Padding(listbox, left=2, right=2),
-            title="Initial db4e Setup", title_align="center", title_attr="title"
+            title="Reinstall the db4e Service", title_align="center", title_attr="title"
         )
 
     def on_continue(self, button):
@@ -153,7 +153,7 @@ class Db4eOSInstallDb4eServiceUI:
 
             # 1 is acceptable for SSH auth check
             if cmd_result.returncode != 0:
-                self.info_msg.set_text(f"Service install failed.\n\n{stderr}")
+                self.results_msg.set_text(f"Service install failed.\n\n{stderr}")
                 return
             
             for aLine in stdout.split('\n'):
@@ -163,7 +163,7 @@ class Db4eOSInstallDb4eServiceUI:
             shutil.rmtree(tmp_dir)
 
         except Exception as e:
-            self.info_msg.set_text(f"Service install failed: {str(e)}")
+            self.results_msg.set_text(f"Service install failed: {str(e)}")
 
         # Replace the "Quit" and "Proceed" buttons with a "Continue" button
         self.form_buttons.set_focus(0)

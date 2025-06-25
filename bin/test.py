@@ -36,11 +36,8 @@ lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
 sys.path.append(lib_dir)
 
 # Import DB4E modules
-from Db4eOSModel.Db4eOSModel import Db4eOSModel
+#from Db4eOSModel.Db4eOSModel import Db4eOSModel
 #from Db4eClient.Db4eClient import Db4eClient
+from Db4eOSInitialSetupUI.Db4eOSInitialSetupUI import Db4eOSInitialSetupUI
 
-mod = Db4eOSModel()
-result = mod.get_service_status('p2pool@local')
-print(result)
-result = mod.get_service_status('db4e')
-print(result)
+ui = Db4eOSInitialSetupUI('foo')

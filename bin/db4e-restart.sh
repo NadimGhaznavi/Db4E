@@ -1,7 +1,7 @@
 #!/bin/bash -x
 #
 # This script is used to gracefully restart the *db4e* software
-# stack.
+# stack. This script is deprecated.
 #
 #####################################################################
 

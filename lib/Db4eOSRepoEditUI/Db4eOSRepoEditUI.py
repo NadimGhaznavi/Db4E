@@ -216,7 +216,7 @@ class Db4eOSRepoEditUI:
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(form_widgets))
         self.frame = urwid.LineBox(
             urwid.Padding(listbox, left=2, right=2),
-            title="GitHub Repo Setup", title_align='center', title_attr='title'
+            title="GitHub Website Repository Setup", title_align='center', title_attr='title'
         )
 
     def widget(self):

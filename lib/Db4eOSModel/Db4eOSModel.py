@@ -82,9 +82,16 @@ class Db4eOSModel:
             os.remove(fq_config)
         return self.osdb.delete_instance(component, instance)
 
+    def disable_instance(self, component, instance):
+        self.osdb.disable_instance(component, instance)
+
+    def enable_instance(self, component, instance):
+        self.osdb.enable_instance(component, instance)
+
     def first_time(self):
+        # If there's no 'db4e' deployment record, then this is the first time the tool has been run
         db4e_rec = self.osdb.get_deployment_by_component('db4e')
-        if db4e_rec['vendor_dir']:
+        if db4e_rec:
             return False
         return True
 
@@ -93,6 +100,7 @@ class Db4eOSModel:
         return db4e_rec['group']
 
     def get_deployment_by_component(self, component):
+        # Used to retrieve the 'db4e' and 'repo' records
         depl_rec = self.osdb.get_deployment_by_component(component)
         depl = {}
         depl['name'] = depl_rec['name']
@@ -118,6 +126,7 @@ class Db4eOSModel:
         return depls
 
     def get_deployment_stdin(self, component, instance):
+        # Return the path to the socket that's used to send commands to the Monero daemon and P2Pool
         if component == 'p2pool':
             vendor_dir = self.osdb.get_dir('vendor')
             depl = self.osdb.get_deployment_by_instance(component, instance)
@@ -128,12 +137,6 @@ class Db4eOSModel:
 
     def get_dir(self, dir_type):
         return self.osdb.get_dir(dir_type)
-
-    def get_pid(self, proc_name):
-        for proc in psutil.process_iter(['pid', 'name']):
-            if proc_name in proc.info['name']:
-                return proc.info['pid']
-        return None        
 
     def get_service_status(self, service_name):
         # Make sure systemd isn't including color codes

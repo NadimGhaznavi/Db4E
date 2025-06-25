@@ -80,7 +80,6 @@ class Db4eOSP2PoolRemoteEditUI:
 
         if instance != self.old_instance:
             self._db.update_deployment_instance('p2pool', self.old_instance, { 
-                'status': 'running',
                 'instance': instance,
                 'ip_addr': ip_addr,
                 'stratum_port': stratum_port,
@@ -88,7 +87,6 @@ class Db4eOSP2PoolRemoteEditUI:
                 })
         else:
             self._db.update_deployment_instance('p2pool', instance, { 
-                'status': 'running',
                 'instance': instance,
                 'ip_addr': ip_addr,
                 'stratum_port': stratum_port,
@@ -96,7 +94,7 @@ class Db4eOSP2PoolRemoteEditUI:
                 })
 
         # Set the results
-        results += f'\nRe-configured the P2Pool daemon ({instance}) deployment record. '
+        results += f'Re-configured the P2Pool daemon ({instance}) deployment record. '
         self.results_msg.set_text(results)
 
         # Remove the submit button

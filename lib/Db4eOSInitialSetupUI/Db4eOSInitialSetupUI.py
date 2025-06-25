@@ -54,7 +54,7 @@ class Db4eOSInitialSetupUI:
         self.osdb = Db4eOSDb()
         self.ini = Db4eConfig()
 
-        db4e_dir = self.osdb.get_dir('db4e')
+        self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         website_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'website'))
         vendor_dir = os.path.abspath(os.path.join(db4e_dir, '..', 'vendor'))
 
@@ -118,7 +118,6 @@ class Db4eOSInitialSetupUI:
         self.parent_tui.return_to_main()
 
     def on_proceed(self, button):
-        db4e_user = os.getlogin()
         db4e_group = self.db4e_group_edit.edit_text.strip()
         vendor_dir = self.vendor_dir_edit.edit_text.strip()
         website_dir = self.website_dir_edit.edit_text.strip()
@@ -165,17 +164,6 @@ class Db4eOSInitialSetupUI:
             return
         msg_text += f'{good}  Created GitHb pages website directory: {website_dir}\n'
         
-        # Update the db4e deployment record
-        self.osdb.update_deployment('db4e', {'status': 'stopped',
-                                             'vendor_dir': vendor_dir,
-                                             'user': db4e_user,
-                                             'group': db4e_group,
-                                             'user_wallet': wallet,
-                                             'website_dir': website_dir})
-        # Update the repo deployment record
-        self.osdb.update_deployment('repo', {'status': 'stopped', 
-                                             'install_dir': website_dir})
-
         # Additional config settings
         bin_dir              = self.ini.config['db4e']['bin_dir']
         conf_dir             = self.ini.config['db4e']['conf_dir']
@@ -203,9 +191,12 @@ class Db4eOSInitialSetupUI:
         xmrig_service_file   = self.ini.config['xmrig']['service_file'] 
         xmrig_version        = self.ini.config['xmrig']['version']
 
+        # Directory on the local machine where the db4e softare has been installed
+        db4e_dir = self.db4e_dir
+        # The db4e user
+        db4e_user = os.getlogin()
 
         # db4e, P2Pool, Monero daemon and XMRig directories
-        db4e_dir = self.osdb.get_dir('db4e')
         db4e_vendor_dir = 'db4e-' + str(db4e_version)
         p2pool_dir = 'p2pool-' + str(p2pool_version)
         monerod_dir = 'monerod-' + str(monerod_version)
@@ -323,7 +314,7 @@ class Db4eOSInitialSetupUI:
         fq_db4e_config    = os.path.join(db4e_dir, conf_dir, db4e_config)
         shutil.copy(fq_db4e_config, os.path.join(vendor_dir, db4e_vendor_dir, conf_dir))
         
-        # Copy in the Monero daemon, P2Pool and XMRig binaries
+        # Copy in the Monero daemon, P2Pool and XMRig binaries and startup scripts
         shutil.copy(fq_p2pool, os.path.join(vendor_dir, p2pool_dir, bin_dir))
         shutil.copy(fq_p2pool_start_script, os.path.join(vendor_dir, p2pool_dir, bin_dir))
         shutil.copy(fq_monerod, os.path.join(vendor_dir, monerod_dir, bin_dir))
@@ -360,7 +351,20 @@ class Db4eOSInitialSetupUI:
         self.form_buttons.set_focus(0)
         self.form_buttons.contents = [
             (self.continue_button, self.form_buttons.options('given', 12))
-        ]   
+        ]
+
+        # Build the db4e deployment record
+        depl = self.osdb.get_tmpl('db4e')
+        depl['enable'] = True
+        depl['group'] = db4e_group
+        depl['install_dir'] = db4e_dir
+        depl['user'] = db4e_user
+        depl['user_wallet'] = wallet
+        depl['vendor_dir'] = vendor_dir
+        depl['version'] = self.ini.config['db4e']['version']
+        depl['website_dir'] = website_dir
+        # Update the repo deployment record
+        self.osdb.update_deployment('repo', depl)
 
     def on_quit(self, button):
         raise urwid.ExitMainLoop()

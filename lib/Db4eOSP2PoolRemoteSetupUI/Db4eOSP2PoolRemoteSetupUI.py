@@ -40,8 +40,8 @@ from Db4eOSStrings.Db4eOSStrings import MD
 class Db4eOSP2PoolRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self._model = Db4eOSModel()
-        self._db = Db4eOSDb()
+        self.model = Db4eOSModel()
+        self.osdb = Db4eOSDb()
         self.reset() # (Re)initialize mini-TUI
 
     def back_to_main(self, button):
@@ -65,34 +65,33 @@ class Db4eOSP2PoolRemoteSetupUI:
         except:
             self.results_msg.set_text("The stratum port must be an integer value")
 
-        if self._db.get_deployment_by_instance('p2pool', instance):
+        if self.osdb.get_deployment_by_instance('p2pool', instance):
             self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
                                       "There can be only one P2Pool daemon deployment with that " +
                                       "instance name.")
             return
 
-        results = ''
+        results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
-        if self._model.is_port_open(ip_addr, int(stratum_port)):
+        if self.model.is_port_open(ip_addr, int(stratum_port)):
             results += f'{good} Connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
         else:
             results += f'{warning} Unable to connected to P2Pool\'s stratum port ({stratum_port}) on  ({ip_addr})\n'
 
-        # Check connectivity
-        results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
-        if self._model.is_port_open(ip_addr, stratum_port):
+        if self.model.is_port_open(ip_addr, stratum_port):
             results += f'{good} Connected to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
         else:
             results += f'{warning} Unable to connect to stratum port ({stratum_port}) on remote machine ({ip_addr})\n'
 
-        self._db.new_deployment('p2pool', { 
-            'status': 'running',
-            'instance': instance,
-            'ip_addr': ip_addr,
-            'stratum_port': stratum_port,
-            'remote': True
-            })
+        # Build a new deployment record
+        depl = self.osdb.get_tmpl('p2pool')
+        depl['enable'] = True
+        depl['instance'] = instance
+        depl['ip_addr'] = ip_addr
+        depl['remote'] = True
+        depl['stratum_port'] = stratum_port
+        self.osdb.add_deployment('p2pool', depl)
 
         # Set the results
         results += f'Created new P2Pool daemon ({instance}) deployment record. '
@@ -104,13 +103,12 @@ class Db4eOSP2PoolRemoteSetupUI:
         ]
 
     def reset(self):
-        p2pool_rec = self._db.get_tmpl('p2pool', 'remote')
-        instance = p2pool_rec['instance'] or ''
-        ip_addr = p2pool_rec['ip_addr'] or ''
-        stratum_port = p2pool_rec['stratum_port'] or ''
+        p2pool_rec = self.osdb.get_tmpl('p2pool', 'remote')
+        ip_addr = p2pool_rec['ip_addr']
+        stratum_port = p2pool_rec['stratum_port']
 
         # Form elements; edit widgets
-        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
         self.ip_addr_edit = urwid.Edit("Remote P2Pool hostname or IP address: ", edit_text=ip_addr)
         self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))
 

@@ -5,10 +5,8 @@ This is the db4e TUI for monitoring the health and performance of
 the db4e managed mining farm.
 
 Use the bin/db4e-gui.sh wrapper script to run this application.
-"""
 
 
-"""
   This file is part of *db4e*, the *Database 4 Everything* project
   <https://github.com/NadimGhaznavi/db4e>, developed independently
   by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi

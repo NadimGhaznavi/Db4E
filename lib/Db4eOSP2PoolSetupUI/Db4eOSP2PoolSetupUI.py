@@ -114,6 +114,7 @@ class Db4eOSP2PoolSetupUI:
         vendor_dir = self.osdb.get_dir('vendor')
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, tmpl_vendor_dir, p2pool_dir, conf_dir, config)
         fq_config = os.path.join(vendor_dir, p2pool_dir, conf_dir, instance + '.ini')
+
         # Make sure the directories exist
         if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, api_dir + '-' + instance)):
             os.mkdir(os.path.join(vendor_dir, p2pool_dir, api_dir + '-' + instance))
@@ -137,7 +138,10 @@ class Db4eOSP2PoolSetupUI:
         monerod_ip_addr = monerod_rec['ip_addr']
         monerod_zmq_port = monerod_rec['zmq_pub_port']
         monerod_rpc_port = monerod_rec['rpc_bind_port']
+        monerod_id = monerod_rec['_id']
+
         p2p_dir = os.path.join(vendor_dir, p2pool_dir)
+
         # Populate the config template placeholders
         placeholders = {
             'WALLET': wallet,
@@ -157,30 +161,31 @@ class Db4eOSP2PoolSetupUI:
             'CHAIN': self.selected_chain
 
         }
+        # Load the configuration template 
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
             for key, val in placeholders.items():
                 config_contents = config_contents.replace(f'[[{key}]]', str(val))
+        # Write the new configuration
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
-        monerod_id = monerod_rec['_id']
-        self.osdb.new_deployment('p2pool', { 
-            'any_ip': any_ip,
-            'chain': self.selected_chain,
-            'config': fq_config,
-            'enable': True,
-            'in_peers': in_peers,
-            'instance': instance,
-            'log_level': log_level,
-            'monerod_id': monerod_id,
-            'out_peers': out_peers,
-            'p2p_port': p2p_port,
-            'remote': False,
-            'status': 'running',
-            'stratum_port': stratum_port,
-            'wallet': wallet,
-            })
+        # Build a new deployment record
+        depl = self.osdb.get_tmpl('p2pool')
+        depl['any_ip'] = any_ip
+        depl['chain'] = self.selected_chain
+        depl['config'] = fq_config
+        depl['enable'] = True
+        depl['in_peers'] = in_peers
+        depl['instance'] = instance
+        depl['log_level'] = log_level
+        depl['monerod_id'] = monerod_id
+        depl['out_peers'] = out_peers
+        depl['p2p_port'] = p2p_port
+        depl['remote'] = False
+        depl['stratum_port'] = stratum_port
+        depl['wallet'] = wallet
+        self.osdb.add_deployment('p2pool', depl)
         self.parent_tui.return_to_main()
 
     def reset(self):
@@ -194,7 +199,6 @@ class Db4eOSP2PoolSetupUI:
         p2pool_rec = self.osdb.get_tmpl(component='p2pool', remote=False)
         wallet = self.model.get_user_wallet() or ''
 
-        instance = p2pool_rec['instance'] or ''
         any_ip = p2pool_rec['any_ip']
         stratum_port = p2pool_rec['stratum_port']
         p2p_port = p2pool_rec['p2p_port']
@@ -203,7 +207,7 @@ class Db4eOSP2PoolSetupUI:
         out_peers = p2pool_rec['out_peers']
 
         # Form elements; edit widgets
-        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text=instance)
+        self.instance_edit = urwid.Edit("P2Pool instance name (e.g. Primary): ", edit_text='')
         self.wallet_edit = urwid.Edit("Your Monero wallet (e.g. 48aTDJfRH...QHwao4j): ", edit_text=wallet)
         self.any_ip_edit = urwid.Edit("Listen on IP address: ", edit_text=any_ip)
         self.stratum_port_edit = urwid.Edit("Stratum port: ", edit_text=str(stratum_port))

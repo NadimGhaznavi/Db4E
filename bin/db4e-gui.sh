@@ -39,6 +39,12 @@ VENV="$DB4E_DIR/venv"
 PYTHON="$VENV/bin/python"
 MAIN_SCRIPT="$BIN_DIR/db4e-gui.py"
 
+# Make sure the initial setup for db4e has been executed
+if [ ! -d $VENV ]; then
+    echo "ERROR: Run db4e-os.sh to do the initial db4e setup"
+    exit 1
+fi
+
 # Activate and run
 source "$VENV/bin/activate"
 exec "$PYTHON" "$MAIN_SCRIPT" "$@"

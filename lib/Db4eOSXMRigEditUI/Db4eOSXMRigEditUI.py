@@ -35,12 +35,14 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
 class Db4eOSXMRigEditUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
         self.ini = Db4eConfig()
-        self._db = Db4eOSDb()
+        self.osdb = Db4eOSDb()
+        self.model = Db4eOSModel()
         # Most of the initialization is done in set_instance()
 
     def back_to_main(self, button):
@@ -75,7 +77,7 @@ class Db4eOSXMRigEditUI:
             return
         
         if instance != self.old_instance:
-            if self._db.get_deployment_by_instance('xmrig', instance):
+            if self.osdb.get_deployment_by_instance('xmrig', instance):
                 self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
                                         "There can be only one XMRig deployment with that " +
                                         "instance name.")
@@ -104,25 +106,31 @@ class Db4eOSXMRigEditUI:
             if os.path.exists(old_config):
                 os.remove(old_config)
 
+        # We need to the upstream P2Pool IP address and stratum port to build the config
+        p2pool_rec = self.osdb.get_deployment_by_instance('p2pool', self.selected_p2pool)
+        p2pool_id = p2pool_rec['_id']
+        url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
+        # Populate the config template placeholders
+        placeholders = {
+            'MINER_NAME': instance,
+            'NUM_THREADS': ','.join(['-1'] * num_threads),
+            'URL': url_entry
+        }
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
-        # Populate the config template placeholders
-        config_contents = config_contents.replace('[[MINER_NAME]]', instance)
-        num_threads_entry = ','.join(['-1'] * num_threads)
-        config_contents = config_contents.replace('[[NUM_THREADS]]', num_threads_entry)
-        p2pool_rec = self._db.get_deployment_by_instance('p2pool', self.selected_p2pool)
-        url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
-        config_contents = config_contents.replace('[[URL]]', url_entry)
+            for key, val in placeholders.items():
+                config_contents = config_contents.replace(f'[[{key}]]', str(val))
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
-        self._db.update_deployment('xmrig', { 
-            'config': fq_config,
-            'enable': True,
-            'instance': instance,
-            'num_threads': int(num_threads),
-            'p2pool_id': p2pool_rec['_id'],
-            })
+        # Create a new deployment record
+        depl = self.osdb.get_tmpl('xmrig')
+        depl['config'] = fq_config
+        depl['enable'] = True
+        depl['instance'] = instance
+        depl['num_threads'] = int(num_threads)
+        depl['p2pool_id'] = p2pool_id
+        self.osdb.add_deployment('xmrig', depl)
         
         # Set the results
         results = f'Re-configured the XMRig miner ({instance}) deployment record. '
@@ -154,9 +162,9 @@ class Db4eOSXMRigEditUI:
 
     def set_instance(self, instance):
         self.old_instance = instance
-        xmrig_rec = self._db.get_deployment_by_instance('xmrig', instance)
-        instance = xmrig_rec['instance'] or ''
-        num_threads = xmrig_rec['num_threads'] or ''
+        xmrig_rec = self.osdb.get_deployment_by_instance('xmrig', instance)
+        instance = xmrig_rec['instance']
+        num_threads = xmrig_rec['num_threads']
 
         # Form elements; edit widgets
         self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
@@ -177,7 +185,7 @@ class Db4eOSXMRigEditUI:
         self.deployment_radios = []
         self.group = []
         p2pool_deployments = {}
-        for deployment in self._db.get_p2pool_deployments():
+        for deployment in self.model.get_deployments_by_component('p2pool'):
             name = deployment['name']
             instance = deployment['instance']
             p2pool_deployments[instance] = { 'name': name, 'instance': instance }

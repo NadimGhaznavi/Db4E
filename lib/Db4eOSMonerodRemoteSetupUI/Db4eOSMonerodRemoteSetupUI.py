@@ -41,8 +41,8 @@ from Db4eOSStrings.Db4eOSStrings import MD
 class Db4eOSMonerodRemoteSetupUI:
     def __init__(self, parent_tui):
         self.parent_tui = parent_tui
-        self._db = Db4eOSDb()
-        self._model = Db4eOSModel()
+        self.osdb = Db4eOSDb()
+        self.model = Db4eOSModel()
         self.reset() # (Re)initialize the mini-TUI
 
     def back_to_main(self, button):
@@ -53,6 +53,7 @@ class Db4eOSMonerodRemoteSetupUI:
         ip_addr = self.ip_addr_edit.edit_text.strip()
         zmq_port = self.zmq_port_edit.edit_text.strip()
         rpc_port = self.rpc_port_edit.edit_text.strip()
+
         # Unicode
         good = MD['good']
         warning = MD['warning']
@@ -71,7 +72,7 @@ class Db4eOSMonerodRemoteSetupUI:
             self.results_msg.set_text("The ZMQ and RPC ports must be integer values")
             return
 
-        if self._db.get_deployment_by_instance('monerod', instance):
+        if self.osdb.get_deployment_by_instance('monerod', instance):
             self.results_msg.set_text(f"The instance name ({instance}) is already being used. " +
                                       "There can be only one Monero daemon deployment with that " +
                                       "instance name.")
@@ -80,25 +81,25 @@ class Db4eOSMonerodRemoteSetupUI:
         # Check connectivity
         results = 'Checklist:\n'
         # Check that db4e can connect to the remote system
-        if self._model.is_port_open(ip_addr, zmq_port):
+        if self.model.is_port_open(ip_addr, zmq_port):
             results += f'{good} Connected to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"{warning} Unable to connect to ZMQ port ({zmq_port}) on remote machine ({ip_addr})\n"
 
-        if self._model.is_port_open(ip_addr, rpc_port):
+        if self.model.is_port_open(ip_addr, rpc_port):
             results += f'{good} Connected to RPC port ({rpc_port}) on remote machine ({ip_addr})\n'
         else:
             results += f"{warning} Unable to connect to RPC port ({rpc_port}) on remote machine ({ip_addr})\n"
 
         # Create the deployment record
-        self._db.new_deployment('monerod', { 
-            'enable': True,
-            'instance': instance,
-            'ip_addr': ip_addr,
-            'remote': True,
-            'rpc_bind_port': rpc_port,
-            'zmq_pub_port': zmq_port,
-            })
+        depl = self.osdb.get_tmpl('monerod')
+        depl['enable'] = True
+        depl['instance'] = instance
+        depl['ip_addr'] = ip_addr
+        depl['remote'] = True
+        depl['rpc_bind_port'] = rpc_port
+        depl['zmq_pub_port'] = zmq_port
+        self.osdb.new_deployment('monerod', depl)
         
         # Set the results
         results += f'{dancing_man} Created new Monero daemon ({instance}) deployment record {dancing_woman}'
@@ -112,7 +113,7 @@ class Db4eOSMonerodRemoteSetupUI:
         ]
 
     def reset(self):
-        monerod_rec = self._db.get_tmpl('monerod', 'remote')
+        monerod_rec = self.osdb.get_tmpl('monerod', 'remote')
         zmq_port = monerod_rec['zmq_pub_port'] or ''
         rpc_port = monerod_rec['rpc_bind_port'] or ''
 

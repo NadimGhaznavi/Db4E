@@ -136,7 +136,7 @@ P2POOL_RECORD = {
     'out_peers': 16,
     'p2p_port': 37889,
     'remote': False,
-    'status': 'not_installed',
+    'status': None,
     'stratum_port': 3333,
     'updated': None,
     'version': '4.8',
@@ -151,7 +151,7 @@ XMRIG_RECORD = {
     'name': 'XMRig miner',
     'num_threads': None,
     'p2pool_id': None,
-    'status': 'not_installed',
+    'status': None,
     'updated': None,
     }
 
@@ -168,10 +168,16 @@ class Db4eOSDb:
         dbquery = { 'component': component, 'instance': instance }
         return self._db.delete_one(self._col, dbquery)
 
+    def disable_instance(self, component, instance):
+        self.update_deployment_instance(component, instance, {'enable': False})
+
     def add_deployment(self, jdoc):
         jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
+
+    def enable_instance(self, component, instance):
+        self.update_deployment_instance(component, instance, {'enable': True})
 
     def get_deployment_by_component(self, component, tmpl_flag=None):
         if tmpl_flag:
@@ -210,7 +216,9 @@ class Db4eOSDb:
             return depl['website_dir']
 
     def get_tmpl(self, component, remote=None):
-        if component == 'monerod':
+        if component == 'db4e':
+            return deepcopy(DB4E_RECORD)
+        elif component == 'monerod':
             if remote:
                 return deepcopy(MONEROD_RECORD_REMOTE)
             else:

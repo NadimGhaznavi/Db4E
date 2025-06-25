@@ -100,7 +100,7 @@ class Db4eOSP2PoolEditUI:
                                         "instance name.")
                 return
 
-        # Generate a P2Pool configuration file
+        ### Generate a P2Pool configuration file
         api_dir         = self.ini.config['db4e']['api_dir']
         conf_dir        = self.ini.config['db4e']['conf_dir']
         log_dir         = self.ini.config['db4e']['log_dir']
@@ -119,23 +119,19 @@ class Db4eOSP2PoolEditUI:
             os.mkdir(os.path.join(vendor_dir, p2pool_dir))
         if not os.path.exists(os.path.join(vendor_dir, p2pool_dir, conf_dir)):
             os.mkdir(os.path.join(vendor_dir, p2pool_dir, conf_dir))
-
         # Delete the old configuration if the instance name has changed
         if instance != self.old_instance:
             old_config = os.path.join(vendor_dir, p2pool_dir, conf_dir, self.old_instance + '.ini')
             if os.path.exists(old_config):
                 os.remove(old_config)
-        
-        # Generate a new config
-        with open(tmpl_config, 'r') as f:
-            config_contents = f.read()
-
         # P2Pool deployments point at a Monero daemon deployment. We need the
-        # Monero daemon hostname/IP, ZMQ and RPC ports for P2Pool.
+        # Monero daemon hostname/IP, ZMQ and RPC ports to build the P2Pool configuration file.
         monerod_rec = self.osdb.get_deployment_by_instance('monerod', self.selected_monerod)
         monerod_ip_addr = monerod_rec['ip_addr']
         monerod_zmq_port = monerod_rec['zmq_pub_port']
         monerod_rpc_port = monerod_rec['rpc_bind_port']
+        monerod_id = monerod_rec['_id']
+
         # API, run and logging directories
         fq_api_dir = os.path.join(vendor_dir, p2pool_dir, api_dir + '-' + instance)
         fq_run_dir = os.path.join(vendor_dir, p2pool_dir, run_dir)
@@ -160,16 +156,17 @@ class Db4eOSP2PoolEditUI:
             'LOG_DIR': fq_log_dir,
             'CHAIN': self.selected_chain
         }
+        # Populate the template with the new config values
         with open(tmpl_config, 'r') as f:
             config_contents = f.read()
             for key, val in placeholders.items():
                 config_contents = config_contents.replace(f'[[{key}]]', str(val))
+        # Write the configuration file
         with open(fq_config, 'w') as f:
             f.write(config_contents)
 
-        monerod_id = monerod_rec['_id']
-
         if instance != self.old_instance:
+            # The user changed the instance name
             self.osdb.update_deployment_instance('p2pool', self.old_instance, { 
                 'any_ip': any_ip,
                 'chain': self.selected_chain,
@@ -248,6 +245,7 @@ class Db4eOSP2PoolEditUI:
         self.selected_chain = None
 
     def set_instance(self, instance):
+        # Pre-populate the edit form with the original values...
         self.old_instance = instance
         p2pool_rec = self.osdb.get_deployment_by_instance('p2pool', instance)
         wallet = p2pool_rec['wallet']
@@ -283,7 +281,7 @@ class Db4eOSP2PoolEditUI:
             (8, self.back_button)
         ], dividechars=1)
 
-        # Setup the reference to the P2Pool instance XMRig will use
+        # Setup the reference to the Monerod instance that P2Pool will use
         self.selected_monerod = None
         self.deployment_radios = []
         self.group = []

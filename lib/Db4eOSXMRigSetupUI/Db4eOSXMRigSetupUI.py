@@ -35,6 +35,7 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eOSStrings.Db4eOSStrings import MD
 
 class Db4eOSXMRigSetupUI:
@@ -42,6 +43,7 @@ class Db4eOSXMRigSetupUI:
         self.parent_tui = parent_tui
         self.ini = Db4eConfig()
         self.osdb = Db4eOSDb()
+        self.model = Db4eOSModel()
         self.reset()
 
     def back_to_main(self, button):
@@ -81,7 +83,7 @@ class Db4eOSXMRigSetupUI:
                                       "instance name.")
             return
 
-        # Generate a XMRig configuration file
+        ### Generate a XMRig configuration file
         conf_dir        = self.ini.config['db4e']['conf_dir']
         tmpl_dir        = self.ini.config['db4e']['template_dir']
         tmpl_vendor_dir = self.ini.config['db4e']['vendor_dir']
@@ -92,21 +94,14 @@ class Db4eOSXMRigSetupUI:
         vendor_dir = self.osdb.get_dir('vendor')
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, tmpl_vendor_dir, xmrig_dir, conf_dir, config)
         fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.json')
-        # Make sure the directories exist
-        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir)):
-            os.mkdir(os.path.join(vendor_dir, xmrig_dir))
-        if not os.path.exists(os.path.join(vendor_dir, xmrig_dir, conf_dir)):
-            os.mkdir(os.path.join(vendor_dir, xmrig_dir, conf_dir))
-        # Update the configuration template with deployment values
+        # The XMRig deploymet has references to the upstream P2Pool deployment
         p2pool_rec = self.osdb.get_deployment_by_instance('p2pool', self.selected_p2pool)
+        p2pool_id = p2pool_rec['_id']
         url_entry = p2pool_rec['ip_addr'] + ':' + str(p2pool_rec['stratum_port'])
-        num_threads_entry = ''
-        while num_threads > 0:
-            num_threads_entry += '-1, '
-            num_threads -= 1
+        # Populate the config templace placeholders
         placeholders = {
             'MINER_NAME': instance,
-            'NUM_THREADS': num_threads_entry[:-2],
+            'NUM_THREADS': ','.join(['-1'] * num_threads),
             'URL': url_entry
         }
         with open(tmpl_config, 'r') as f:
@@ -117,24 +112,20 @@ class Db4eOSXMRigSetupUI:
             f.write(config_contents)
 
         # Create a new deployment record
-        self.osdb.new_deployment('xmrig', { 
-            'config': fq_config,
-            'enable': True,
-            'instance': instance,
-            'num_threads': int(num_threads),
-            'p2pool_id': p2pool_rec['_id'],
-            'version': version
-            })
+        depl = self.osdb.get_tmpl('xmrig')
+        depl['config'] = fq_config
+        depl['enable'] = True
+        depl['instance'] = instance
+        depl['num_threads'] = int(num_threads)
+        depl['p2pool_id'] = p2pool_id
+        self.osdb.add_deployment('xmrig', depl)
+
         self.parent_tui.return_to_main()
 
     def reset(self):
-        xmrig_rec = self.osdb.get_tmpl('xmrig')
-        instance = xmrig_rec['instance'] or ''
-        num_threads = xmrig_rec['num_threads'] or ''
-
         # Form elements; edit widgets
-        self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text=instance)
-        self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text=str(num_threads))
+        self.instance_edit = urwid.Edit("XMRig miner name (e.g. sally): ", edit_text='')
+        self.num_threads_edit = urwid.Edit("CPU threads: ", edit_text='')
 
         # The buttons
         self.submit_button = urwid.Button(('button', 'Submit'), on_press=self.on_submit)

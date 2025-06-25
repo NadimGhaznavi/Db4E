@@ -367,7 +367,8 @@ class Db4eOSTui:
         else:
             self.in_mini_tui = False
             # Safe to start auto-refresh
-            self.main_loop.set_alarm_in(30, self.refresh_tui)            
+            self.main_loop.set_alarm_in(30, self.refresh_tui)
+
     def install_db4e_service(self, button):
         self.in_mini_tui = True
         self.main_loop.widget = self.install_db4e_service_ui.widget()
@@ -449,7 +450,7 @@ class Db4eOSTui:
         elif deployment == 'repo':
             title_text = 'Website Repository Status'
             repo = self.model.get_deployment_by_component('repo')
-            if repo['status'] == 'stopped':
+            if not repo:
                 text_msg = urwid.Text(REPO_SETUP)
                 continue_button = urwid.Columns([
                     (12, urwid.Button(('button', 'Continue'), on_press=self.show_repo_setup))
@@ -464,7 +465,7 @@ class Db4eOSTui:
                 self.main_loop.widget = self.build_main_frame()
                 return
             
-            elif repo['status'] == 'running':
+            else:
                 status_info = self.model.get_status('repo')
                 status_list = []
                 for aStatus in status_info[1:]:
@@ -485,8 +486,8 @@ class Db4eOSTui:
                 return
 
         else:
-            # Unlike 'db4e' and 'repo' the 'monerod', 'p2opool' and 'xmrig' 
-            # deployments have multiple instances...
+            # Unlike the 'db4e' and 'repo' records, the 'monerod', 'p2opool' and 'xmrig' 
+            # deployment records can have multiple instances...
             depl_type = deployment.split(':::')[0]
             instance = deployment.split(':::')[1]
             self.selected_instance = { 'component': depl_type, 'instance': instance }
@@ -584,6 +585,7 @@ class Db4eOSTui:
         self.main_loop.widget = self.db4e_setup_ui.widget()
 
     def show_monerod_setup(self, button):
+        # TODO
         pass
 
     def show_remote_monerod_setup(self, button):
@@ -592,10 +594,10 @@ class Db4eOSTui:
         self.main_loop.widget = self.monerod_remote_setup_ui.widget()
 
     def show_p2pool_setup(self, button):
-        # Check that the vendor_dir has been setup
+        # Check db4e has been setup (we need the vendor_dir for P2pool deployments)
         if not self.model.get_dir('vendor'):
             self.in_mini_tui = True
-            self.main_loop.widget = self.edit_db4e_ui.widget()
+            self.main_loop.widget = self.initial_setup_ui.widget()
         else:
             self.p2pool_setup_ui.reset()
             self.in_mini_tui = True
@@ -611,10 +613,10 @@ class Db4eOSTui:
         self.main_loop.widget = self.repo_setup_ui.widget()
 
     def show_xmrig_setup(self, button):
-        # Check that the vendor_dir has been setup
+        # Check that db4e has been setup (we need the vendor_dir for XMRig deployments)
         if not self.model.get_dir('vendor'):
             self.in_mini_tui = True
-            self.main_loop.widget = self.edit_db4e_ui.widget()
+            self.main_loop.widget = self.initial_setup_ui.widget()
         else:
             self.xmrig_setup_ui.reset()
             self.in_mini_tui = True
@@ -638,12 +640,8 @@ class Db4eOSTui:
     def start_instance(self, button):
         component = self.selected_instance['component']
         instance = self.selected_instance['instance']
-        self.client.initialize()
-        result = self.client.start(component, instance)
-        if 'error' in result:
-            self.results_msg.set_text(f"Error: {result['msg']}")
-        else:
-            self.results_msg.set_text(result['msg'])
+        self.model.enable_instance(component, instance)
+        self.results_msg.set_text(f'The {component} instance {instance} has been scheduled for immediate startup')
 
     def stop_db4e_service(self, button):
         warning = MD['warning']
@@ -660,16 +658,11 @@ class Db4eOSTui:
                 (self.start_button, self.form_buttons.options('given', 17))
             ]
 
-
     def stop_instance(self, button):
         component = self.selected_instance['component']
         instance = self.selected_instance['instance']
-        self.client.initialize()
-        result = self.client.stop(component, instance)
-        if 'error' in result:
-            self.results_msg.set_text(f"Error: {result['msg']}")
-        else:
-            self.results_msg.set_text(result['msg'])
+        self.model.disable_instance(component, instance)
+        self.results_msg.set_text(f'The {component} instance {instance} has been scheduled for immediate shutdown')
 
     def run(self):
         try:

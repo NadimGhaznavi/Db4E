@@ -112,12 +112,14 @@ class Db4eOSRepoSetupUI:
                 )
                 return
             
-            self.osdb.update_deployment('repo', {
-                'status': 'running',
-                'component': 'repo',
-                'github_user': username,
-                'github_repo': repo_name
-                })
+            # Build the deployment record
+            depl = self.osdb.get_tmpl('repo')
+            depl['enable'] = True
+            depl['github_repo'] = repo_name
+            depl['github_user'] = username
+            depl['install_dir'] = website_dir
+            self.osdb.add_deployment('repo', depl)
+            
             results_text += f'{good}  Repository cloned successfully\n'
             results_text += f'{good}  Pre-populating static content:\n'
 
@@ -134,15 +136,14 @@ class Db4eOSRepoSetupUI:
                 [fq_script, fq_src_dir, local_repo_dir],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-            
+            # Run the update repo script
             if sync_result.returncode != 0:
                 stderr = cmd_result.stderr.decode().strip()
                 self.results_msg.set_text(
                     f'{warning}  Failed to pre-populate static content.\n\n{stderr}'
                 )
                 return
-            
-            # Set the results
+            # Add the script output to the results
             sync_output = sync_result.stdout.decode().strip()
             results_text += f'{sync_output}\n'
             results_text += f'{good}  Static content updated\n'
