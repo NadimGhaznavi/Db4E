@@ -297,6 +297,7 @@ class Db4eOSModel:
                 status.append({'state': 'good', 'msg': 'The Monero daemon deployment is enabled'})
             else:
                 status.append({'state': 'warning', 'msg': 'The Monero daemon deployment is disabled'})
+                mark_unhealthy()
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
@@ -380,6 +381,7 @@ class Db4eOSModel:
                 status.append({'state': 'good', 'msg': 'The P2Pool deployment is enabled'})
             else:
                 status.append({'state': 'warning', 'msg': 'The P2Pool deployment is disabled'})
+                mark_unhealthy()
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
@@ -436,6 +438,7 @@ class Db4eOSModel:
                 status.append({'state': 'good', 'msg': 'The XMRig deployment is enabled'})
             else:
                 status.append({'state': 'warning', 'msg': 'The XMRig deployment is disabled'})
+                mark_unhealthy()
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})

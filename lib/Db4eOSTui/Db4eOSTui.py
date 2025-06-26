@@ -315,6 +315,12 @@ class Db4eOSTui:
         self.model.delete_instance(component, instance)
         self.return_to_main()
 
+    def disable_instance(self, button):
+        component = self.selected_instance['component']
+        instance = self.selected_instance['instance']
+        self.model.disable_instance(component, instance)
+        self.results_msg.set_text(f'The {component} instance {instance} has been disabled')
+
     def edit_db4e(self, button):
         self.edit_db4e_ui.reset()
         self.in_mini_tui = True
@@ -351,6 +357,12 @@ class Db4eOSTui:
         self.edit_xmrig_ui.set_instance(self.selected_instance['instance'])
         self.in_mini_tui = True
         self.main_loop.widget = self.edit_xmrig_ui.widget()
+
+    def enable_instance(self, button):
+        component = self.selected_instance['component']
+        instance = self.selected_instance['instance']
+        self.model.enable_instance(component, instance)
+        self.results_msg.set_text(f'The {component} instance {instance} has been enabled')
 
     def exit_app(self, button):
         raise urwid.ExitMainLoop()
@@ -491,22 +503,29 @@ class Db4eOSTui:
             depl_type = deployment.split(':::')[0]
             instance = deployment.split(':::')[1]
             self.selected_instance = { 'component': depl_type, 'instance': instance }
+            self.disable_button = urwid.Button(('button', 'Disable'), on_press=self.disable_instance)
+            self.enable_button = urwid.Button(('button', 'Enable'), on_press=self.enable_instance)
+            self.delete_button = urwid.Button(('button', 'Delete'), on_press=self.delete_instance)
 
             if depl_type == 'monerod':
                 title_text = f'Monero Daemon ({instance}) Status'
                 status_info = self.model.get_status('monerod', instance)
                 status_list = []
+                self.edit_button = urwid.Button(('button', 'Edit'), on_press=self.edit_monerod)
+                button_list = [(8, self.edit_button)]
                 for aStatus in status_info[1:]:
                     status_state = MD[aStatus['state']]
                     status_msg = aStatus['msg']
+                    if status_msg == 'The Monero daemon deployment is disabled':
+                        button_list.append((10, self.enable_button))
+                    if status_msg == 'The Monero daemon deployment is enabled':
+                        button_list.append((11, self.disable_button))
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
+                button_list.append((10, self.delete_button))
+                self.form_buttons = urwid.Columns(button_list, dividechars=1)
                 status = urwid.Pile(status_list)
-                buttons = urwid.Columns([
-                    (10, urwid.Button(('button', 'Delete'), on_press=self.delete_instance)),
-                    (8, urwid.Button(('button', 'Edit'), on_press=self.edit_monerod)), 
-                ], dividechars=1)
                 listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                    div, status, div, buttons]))
+                    div, status, div, self.form_buttons, div, self.results_box]))
                 self.right_panel = urwid.LineBox(
                     urwid.Padding(listbox, left=2, right=2),
                     title=title_text, title_align='left', title_attr='title'
@@ -519,17 +538,14 @@ class Db4eOSTui:
                 status_info = self.model.get_status('p2pool', instance)
                 status_list = []
                 self.edit_button = urwid.Button(('button', 'Edit'), on_press=self.edit_p2pool)
-                self.stop_button = urwid.Button(('button', 'Stop Service'), on_press=self.stop_instance)
-                self.start_button = urwid.Button(('button', 'Start Service'), on_press=self.start_instance)
-                self.delete_button = urwid.Button(('button', 'Delete'), on_press=self.delete_instance)
                 button_list = [(8, self.edit_button)]
                 for aStatus in status_info[1:]:
                     status_state = MD[aStatus['state']]
                     status_msg = aStatus['msg']
-                    if status_msg == f'The p2pool@' + instance + ' service is stopped':
-                        button_list.append((17, self.start_button))
-                    if f'The p2pool@' + instance + ' service is running PID' in status_msg:
-                        button_list.append((16, self.stop_button))
+                    if status_msg == 'The P2Pool deployment is disabled':
+                        button_list.append((10, self.enable_button))
+                    if status_msg == 'The P2Pool deployment is enabled':
+                        button_list.append((11, self.disable_button))
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 button_list.append((10, self.delete_button))
                 status = urwid.Pile(status_list)
@@ -548,17 +564,14 @@ class Db4eOSTui:
                 status_info = self.model.get_status('xmrig', instance)
                 status_list = []
                 self.edit_button = urwid.Button(('button', 'Edit'), on_press=self.edit_xmrig)
-                self.stop_button = urwid.Button(('button', 'Stop Service'), on_press=self.stop_instance)
-                self.start_button = urwid.Button(('button', 'Start Service'), on_press=self.start_instance)
-                self.delete_button = urwid.Button(('button', 'Delete'), on_press=self.delete_instance)
                 button_list = [(8, self.edit_button)]
                 for aStatus in status_info[1:]:
                     status_state = MD[aStatus['state']]
                     status_msg = aStatus['msg']
-                    if status_msg == f'The xmrig@' + instance + ' service is stopped':
-                        button_list.append((17, self.start_button))
-                    if f'The xmrig@' + instance + ' service is running PID' in status_msg:
-                        button_list.append((16, self.stop_button))
+                    if status_msg == 'The XMRig deployment is disabled':
+                        button_list.append((10, self.enable_button))
+                    if status_msg == 'The XMRig deployment is enabled':
+                        button_list.append((11, self.disable_button))
                     status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
                 button_list.append((10, self.delete_button))
                 status = urwid.Pile(status_list)
@@ -636,12 +649,6 @@ class Db4eOSTui:
                 (self.stop_button, self.form_buttons.options('given', 16))
             ]
 
-    def start_instance(self, button):
-        component = self.selected_instance['component']
-        instance = self.selected_instance['instance']
-        self.model.enable_instance(component, instance)
-        self.results_msg.set_text(f'The {component} instance {instance} has been scheduled for immediate startup')
-
     def stop_db4e_service(self, button):
         warning = MD['warning']
         good = MD['good']
@@ -656,12 +663,6 @@ class Db4eOSTui:
                 (self.edit_button, self.form_buttons.options('given', 8)),
                 (self.start_button, self.form_buttons.options('given', 17))
             ]
-
-    def stop_instance(self, button):
-        component = self.selected_instance['component']
-        instance = self.selected_instance['instance']
-        self.model.disable_instance(component, instance)
-        self.results_msg.set_text(f'The {component} instance {instance} has been scheduled for immediate shutdown')
 
     def run(self):
         try:
