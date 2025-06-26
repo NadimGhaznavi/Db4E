@@ -28,8 +28,7 @@ start/stop operations on the deployed components.
 
 # Supporting modules
 import os, sys
-import socket
-import json
+import signal
 import subprocess
 import time
 import threading
@@ -44,6 +43,8 @@ from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
 
+POLL_INTERVAL = 10
+
 class Db4eService:
 
     def __init__(self):
@@ -51,65 +52,72 @@ class Db4eService:
         self.osdb = Db4eOSDb()
         self.log = Db4eLogger('Db4eService')
         self.model = Db4eOSModel()
-        # Set the location of the socket
-        db4e_version = self.ini.config['db4e']['version']
-        vendor_dir = self.osdb.get_dir('vendor')
-        vendor_db4e_dir = 'db4e-' + db4e_version
-        run_dir = self.ini.config['db4e']['run_dir']
-        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir)):
-            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir))
-        if not os.path.exists(os.path.join(vendor_dir, vendor_db4e_dir, run_dir)):
-            os.mkdir(os.path.join(vendor_dir, vendor_db4e_dir, run_dir))
-        uds = self.ini.config['db4e']['uds']
-        self.fq_uds = os.path.join(vendor_dir, vendor_db4e_dir, run_dir, uds)
 
-        # Keep track of the threads we're spawning
-        self.p2pool_writer_threads = {}
+        self.running = threading.Event()
+        self.running.set()
 
-        # Delete old socket if it's there
-        if os.path.exists(self.fq_uds):
-            os.remove(self.fq_uds)
-        # Start sending commands to the P2Pool STDIN pipe
-        self.launch_p2pool_writer()
-        # Start monitoring local P2Pool instances for mining data
-        self.launch_p2pool_monitor()
+        self.p2pool_monitors = {}
+        self.xmrig_monitors = {}
 
-    def listen(self):
-        # Create the UDS and start handling requests
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        server.bind(self.fq_uds)
-        server.listen(1)
+        self.log.debug('db4e service initialized')
 
-        self.log.info("The db4e service API is up and listening for requests...")
+    def start(self):
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
+        while self.running.is_set():
+            self.check_deployments()
+            time.sleep(POLL_INTERVAL)
+        
+        self.cleanup()
 
-        try:
-            while True:
-                conn, _ = server.accept()
-                with conn:
-                    data = conn.recv(1024)
-                    if not data:
-                        continue
-                    try:
-                        request = json.loads(data.decode())
-                        if request.get('op') == 'ping':
-                            response = {'result': 'pong'}
-                        elif request.get('op') == 'start':
-                            component = request.get('component')
-                            instance = request.get('instance')
-                            response = self.start_instance(component, instance)
-                        elif request.get('op') == 'stop':
-                            component = request.get('component')
-                            instance = request.get('instance')
-                            response = self.stop_instance(component, instance)
-                        else:
-                            response = {'error': 'Unknown op'}
-                    except Exception as e:
-                        response = {'error': str(e)}
+    def shutdown(self, signum, frame):
+        # Ops DB event
+        self.log.debug(f'Shutdown requested (signal {signum})')
+        self.running.clear()
 
-                    conn.sendall(json.dumps(response).encode())
-        finally:
-            server.close()
-            os.remove(self.fq_uds)
+    def cleanup(self):
+        for instance_id, (thread, stop_event) in self.p2pool_monitors.items():
+            stop_event.set()
+            thread.join()
+            # Ops DB event
+            self.log.debug(f'Stopped P2Pool monitor thread for {instance_id}')
+
+        for instance_id, (thread, stop_event) in self.p2pool_monitors.items():
+            stop_event.set()
+            thread.join()
+            # Ops DB event
+            self.log.debug(f'Stopped XMRig monitor thread for {instance_id}')
+
+    def check_deployments(self):
+        depls = self.model.get_deployments_by_component('p2pool')
+        for depl in depls:
+            if depl['remote']:
+                # We only manage local deployments
+                continue
+            if not depl.get('enable', False):
+                self.ensure_stopped(depl)
+            else:
+                self.ensure_running(depl)
+        depls = self.model.get_deployments_by_component('xmrig')
+        for depl in depls:
+            if not depl.get('enable', False):
+                self.ensure_stopped(depl)
+            else:
+                self.ensure_running(depl)
+    
+
+    def ensure_running(self, depl):
+        # Check deployment type and spawn threads or start services
+        component = depl['component']
+        instance = depl['instance']
+        print(f'Ensuring that {component}/{instance} is running')
+
+    def ensure_stopped(self, depl):
+        # TODO
+        print(f"Ensuring that {depl['component']}/{depl['instance']} is stopped")
+
+        
+
 
     def launch_p2pool_monitor(self):
         p2pools = self.osdb.get_deployments_by_component('p2pool')

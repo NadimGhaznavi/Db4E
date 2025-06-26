@@ -151,6 +151,7 @@ XMRIG_RECORD = {
     'name': 'XMRig miner',
     'num_threads': None,
     'p2pool_id': None,
+    'remote': False,
     'status': None,
     'updated': None,
     }

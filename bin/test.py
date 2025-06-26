@@ -36,10 +36,16 @@ lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
 sys.path.append(lib_dir)
 
 # Import DB4E modules
-from Db4eOSModel.Db4eOSModel import Db4eOSModel
+#from Db4eOSModel.Db4eOSModel import Db4eOSModel
 #from Db4eClient.Db4eClient import Db4eClient
 #from Db4eOSInitialSetupUI.Db4eOSInitialSetupUI import Db4eOSInitialSetupUI
 #from Db4eOSP2PoolRemoteEditUI.Db4eOSP2PoolRemoteEditUI import Db4eOSP2PoolRemoteEditUI
+from Db4eSystemd.Db4eSystemd import Db4eSystemd
 
-model = Db4eOSModel()
-model.get_deployment_by_component('repo')
+systemd = Db4eSystemd()
+systemd.status('db4e')
+print(f"Active: {systemd.active()}")
+print(f"PID: {systemd.pid()}")
+print(f"Enabled: {systemd.enabled()}")
+print(f"STDOUT:\n{systemd.stdout()}")
+print(f"STDERR:\n{systemd.stderr()}")

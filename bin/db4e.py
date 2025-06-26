@@ -78,7 +78,7 @@ try:
 
   elif ini.config['db4e']['service']:
     db4e_service = Db4eService()
-    db4e_service.listen()
+    db4e_service.start()
 
 except KeyboardInterrupt:
   log.warning("Caught keyboard interrupt, exiting...")

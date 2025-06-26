@@ -40,6 +40,7 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eConfig.Db4eConfig import Db4eConfig
+from Db4eSystemd.Db4eSystemd import Db4eSystemd
 
 # The five core component types managed by db4e-os.
 DB4E_CORE = ['db4e', 'p2pool', 'xmrig', 'monerod', 'repo']
@@ -121,11 +122,26 @@ class Db4eOSModel:
             depl = {}
             depl['instance'] = rec['instance']
             depl['name'] = rec['name']
-            status = self.get_status(component, rec['instance'])
-            if status[0]['state'] == 'good':
-                depl['status'] = 'running'
-            else:
+            depl['enable'] = rec['enable']
+            depl['remote'] = rec['remote']
+            depl['component'] = component
+
+            if not rec['status'] and rec['remote']:
+                # The status field is initialized to None.
+                # The Db4eServer manages this field for local deployments.
+                # For remote deployments it is good if all of the 'get_status()' elements are good.
+                # The first element from get_status() holds the overall health of the component.
+                depl_status = self.get_status(component, rec['instance'])
+                if depl_status[0]['state'] == 'good':
+                    depl['status'] = 'running'
+                else:
+                    depl['status'] = 'stopped'
+
+            elif not rec['status'] and not rec['remote']:
                 depl['status'] = 'stopped'
+
+            else:
+                depl['status'] = rec['status']
             depls.append(depl)
         return depls
 
@@ -143,11 +159,8 @@ class Db4eOSModel:
         return self.osdb.get_dir(dir_type)
 
     def get_service_status(self, service_name):
-        # Make sure systemd isn't including color codes
-        os.environ['SYSTEMD_COLORS'] = '0'
-        # Make sure systemd doesn't use less or more
-        os.environ['SYSTEMD_PAGER'] = ''
-        # Helper fuction
+        systemd = Db4eSystemd(service_name)
+
         def mark_unhealthy():
             results[0] = {'state': 'warning', 'msg': f'The {service_name} service has issue(s)'}            
 
@@ -155,72 +168,26 @@ class Db4eOSModel:
         results = []
         results.append({'state': 'good', 'msg': f'The {service_name} service is healthy'})
 
-        # Execute aLine `systemctl status <service_name>`
-        cmd_result = subprocess.run(['systemctl', 'status', service_name],
-                                    stdout = subprocess.PIPE,
-                                    stderr = subprocess.PIPE,
-                                    input='',
-                                    timeout=10)
-        stdout = cmd_result.stdout.decode().strip()
-        stderr = cmd_result.stderr.decode().strip()
+        if not systemd.installed():
+            results.append({'state': 'warning', 'msg': f'The {service_name} service is not installed'})
+            mark_unhealthy()
+            return results
 
-        # Check STDERR
-        for aLine in stderr.split('\n'):
-            pattern = r'Unit .*service could not be found.*'
-            match = re.search(pattern, aLine)
-            if match:
-                results.append({'state': 'warning', 'msg': f'The {service_name} service is not installed'})
+        if service_name == 'db4e':
+            # The db4e service is responsible for starting P2Pool and XMRig deployments          
+            if systemd.enabled():
+                results.append({'state': 'good', 'msg': f'The {service_name} service is configured to start at boot time'})
+            else:
+                results.append({'state': 'warning', 'msg': f'The {service_name} service is not configured to start when the system boots'})
                 mark_unhealthy()
-                return results
-            
-        # Check STDOUT (sample output is shown in the comments)
-        service_running = False
-        for aLine in stdout.split('\n'):
-            if service_name == 'db4e':
-                # The P2Pool and XMRig deployments are started by db4e, not automatically lauched at boot time.
 
-                #     Loaded: loaded (/etc/systemd/system/db4e.service; disabled; preset: enabled)
-                pattern = r'^\s*Loaded:\s+loaded\s+\(.*?; disabled;.*?\)'
-                match = re.search(pattern, aLine)
-                if match:
-                    results.append({'state': 'warning', 'msg': f'The {service_name} service is not configured to start when the system boots'})
-                    mark_unhealthy()
+        if not systemd.active():
+            results.append({'state': 'warning', 'msg': f'The {service_name} service is stopped'})
+            mark_unhealthy()
 
-                #     Loaded: loaded (/etc/systemd/system/db4e.service; enabled; preset: enabled)
-                pattern = r'^\s*Loaded:\s+loaded\s+\(.*?;\s+enabled;\s+preset:\s+enabled\)'
-                match = re.search(pattern, aLine)
-                if match:
-                    results.append({'state': 'good', 'msg': f'The {service_name} service is configured to start at boot time'})
-            
-            #     Active: inactive (dead)
-            pattern = r'^\s*Active:\s+inactive\s+\(dead\)'
-            match = re.search(pattern, aLine)
-            if match:
-                results.append({'state': 'warning', 'msg': f'The {service_name} service is stopped'})
-                mark_unhealthy()
-            
-            #     Active: failed (Result: exit-code) since Tue 2025-06-24 17:04:42 EDT; 16min ago
-            pattern = r'^\s*Active:\s+failed\s+.*'
-            match = re.search(pattern, aLine)
-            if match:
-                results.append({'state': 'warning', 'msg': f'The {service_name} service is stopped'})
-                mark_unhealthy()
-            
-            #     Active: active (running) since Tue 2025-06-24 17:19:38 EDT; 9min ago
-            pattern = r'^\s*Active:\s+active\s+\(running\)\s+.*'
-            match = re.search(pattern, aLine)
-            if match:
-                # Okay, the process is running, let's get the PID too
-                service_running = True
-
-            #   Main PID: 929 (python)
-            #   Main PID: 10445 (start-p2pool.sh)
-            pattern = r'^\s*Main PID:\s+(?P<pid>\d+)\s+\(.*\)'
-            match = re.search(pattern, aLine)
-            # Systemd will output lines like these for dead services, so we need the service_running flag
-            if match and service_running:
-                pid = match.group('pid')
-                results.append({'state': 'good', 'msg': f'The {service_name} service is running PID ({pid})'})
+        if systemd.active():            
+            pid = systemd.pid()
+            results.append({'state': 'good', 'msg': f'The {service_name} service is running PID ({pid})'})
 
         return results
 
@@ -325,6 +292,11 @@ class Db4eOSModel:
             else:
                 status.append({'state': 'warning', 'msg': f'Unable to connect to ZMQ port ({zmq_port}) on {ip_addr}'})
                 mark_unhealthy()
+            # Enabled
+            if depl_rec['enable']:
+                status.append({'state': 'good', 'msg': 'The Monero daemon deployment is enabled'})
+            else:
+                status.append({'state': 'warning', 'msg': 'The Monero daemon deployment is disabled'})
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
@@ -351,7 +323,7 @@ class Db4eOSModel:
             else:
                 status.append({'state': 'warning', 'msg': f'Unable to connect to stratum port ({stratum_port}) on {ip_addr}'})
                 mark_unhealthy()
-            
+
             if not depl_rec['remote']:
                 ### Local P2Pool instance
 
@@ -403,6 +375,11 @@ class Db4eOSModel:
                 else:
                     monerod_instance = monerod_depl['instance']
                     status.append({'state': 'good', 'msg': f'Upstream Monero daemon deployment: {monerod_instance}'})
+            # Enabled
+            if depl_rec['enable']:
+                status.append({'state': 'good', 'msg': 'The P2Pool deployment is enabled'})
+            else:
+                status.append({'state': 'warning', 'msg': 'The P2Pool deployment is disabled'})
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
@@ -454,7 +431,16 @@ class Db4eOSModel:
                 status.append({'state': 'good', 'msg': f'File permissions ({permissions}) on xmrig ({self._xmrig}) are good'})
             else:
                 status.append({'state': 'warning', 'msg': f'File permissions ({permissions}) on xmrig ({self._xmrig}) are wrong, should be {self._xmrig_perms}'})                
+            # Enabled
+            if depl_rec['enable']:
+                status.append({'state': 'good', 'msg': 'The XMRig deployment is enabled'})
+            else:
+                status.append({'state': 'warning', 'msg': 'The XMRig deployment is disabled'})
+            # Last updated
+            updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
+            status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})
             return status
+            
 
     def get_user_wallet(self):
         depl = self.osdb.get_deployment_by_component('db4e')
