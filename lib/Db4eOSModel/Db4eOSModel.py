@@ -83,11 +83,21 @@ class Db4eOSModel:
             os.remove(fq_config)
         return self.osdb.delete_instance(component, instance)
 
-    def disable_instance(self, component, instance):
-        self.osdb.disable_instance(component, instance)
+    def disable_instance(self, component, instance=None):
+        if component == 'db4e':
+            self.osdb.disable_instance('db4e')
+            systemd = Db4eSystemd('db4e')
+            systemd.disable()
+        else:
+            self.osdb.disable_instance(component, instance)
 
-    def enable_instance(self, component, instance):
-        self.osdb.enable_instance(component, instance)
+    def enable_instance(self, component, instance=None):
+        if component == 'db4e':
+            self.osdb.enable_instance('db4e')
+            systemd = Db4eSystemd('db4e')
+            systemd.enable()
+        else:
+            self.osdb.enable_instance(component, instance)
 
     def first_time(self):
         # If there's no 'db4e' deployment record, then this is the first time the tool has been run
@@ -225,6 +235,11 @@ class Db4eOSModel:
             # Version
             version = depl_rec['version']
             status.append({'state': 'good', 'msg': f'Version: {version}'})
+            if depl_rec['enable']:
+                status.append({'state': 'good', 'msg': 'The db4e service is enabled'})
+            else:
+                status.append({'state': 'warning', 'msg': 'The db4e service is disabled'})
+                mark_unhealthy()
             # Last updated
             updated = depl_rec['updated'].strftime("%Y-%m-%d %H:%M:%S")
             status.append({'state': 'good', 'msg': f'Record last updated: {updated}'})

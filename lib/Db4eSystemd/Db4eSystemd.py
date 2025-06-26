@@ -59,7 +59,19 @@ class Db4eSystemd:
         Return a boolean indicating if the service is running or not.
         """
         return self.result['active']
-    
+
+    def disable(self):
+        """
+        Disable the service.
+        """
+        self._run_systemd('disable')
+
+    def enable(self):
+        """
+        Enable the service.
+        """
+        self._run_systemd('enable')
+
     def enabled(self):
         """
         Return a boolean indicating if a service is enabled or not.
@@ -159,8 +171,13 @@ class Db4eSystemd:
         Execute a 'systemd [start|stop|status] service_name' command and load the
         instance's result dictionary.
         """
-        try:
+        # systemctl [enable|disable] requires sudo access
+        if arg == 'enable' or arg == 'disable':
+            cmd = ['sudo', 'systemctl', arg, self.service_name]
+        else:
             cmd = ['systemctl', arg, self.service_name]
+            
+        try:
             proc = subprocess.run(cmd,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE,
@@ -177,3 +194,7 @@ class Db4eSystemd:
 
         self.result['raw_stdout'] = stdout
         self.result['raw_stderr'] = stderr
+
+        if arg == 'enable' or arg == 'disable':
+            # Reload the status information
+            self.status()

@@ -38,6 +38,7 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eDb.Db4eDb import Db4eDb 
 from Db4eLogger.Db4eLogger import Db4eLogger
+from Db4eSystemd.Db4eSystemd import Db4eSystemd
 
 DB4E_RECORD = {
     'component': 'db4e',
@@ -169,16 +170,22 @@ class Db4eOSDb:
         dbquery = { 'component': component, 'instance': instance }
         return self._db.delete_one(self._col, dbquery)
 
-    def disable_instance(self, component, instance):
-        self.update_deployment_instance(component, instance, {'enable': False})
+    def disable_instance(self, component, instance=None):
+        if component == 'db4e':
+            self.update_deployment('db4e', {'enable': False})
+        else:
+            self.update_deployment_instance(component, instance, {'enable': False})
 
     def add_deployment(self, jdoc):
         jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
         self._db.insert_one(self._col, jdoc)
 
-    def enable_instance(self, component, instance):
-        self.update_deployment_instance(component, instance, {'enable': True})
+    def enable_instance(self, component, instance=None):
+        if component == 'db4e':
+            self.update_deployment('db4e', {'enable': True})
+        else:
+            self.update_deployment_instance(component, instance, {'enable': True})
 
     def get_deployment_by_component(self, component, tmpl_flag=None):
         if tmpl_flag:

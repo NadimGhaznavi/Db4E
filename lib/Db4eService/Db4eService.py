@@ -89,22 +89,15 @@ class Db4eService:
             self.log.debug(f'Stopped XMRig monitor thread for {instance_id}')
 
     def check_deployments(self):
-        depls = self.model.get_deployments_by_component('p2pool')
-        for depl in depls:
-            if depl['remote']:
-                # We only manage local deployments
-                continue
-            if not depl.get('enable', False):
-                self.ensure_stopped(depl)
-            else:
-                self.ensure_running(depl)
-        depls = self.model.get_deployments_by_component('xmrig')
-        for depl in depls:
-            if not depl.get('enable', False):
-                self.ensure_stopped(depl)
-            else:
-                self.ensure_running(depl)
-    
+        for component in ['p2pool', 'xmrig']:
+            depls = self.model.get_deployments_by_component(component)
+            for depl in depls:
+                if depl.get('remote'):
+                    continue
+                if depl.get('enable', False):
+                    self.ensure_running(depl)
+                else:
+                    self.ensure_stopped(depl)
 
     def ensure_running(self, depl):
         # Check deployment type and spawn threads or start services
@@ -115,9 +108,6 @@ class Db4eService:
     def ensure_stopped(self, depl):
         # TODO
         print(f"Ensuring that {depl['component']}/{depl['instance']} is stopped")
-
-        
-
 
     def launch_p2pool_monitor(self):
         p2pools = self.osdb.get_deployments_by_component('p2pool')
