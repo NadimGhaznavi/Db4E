@@ -61,27 +61,7 @@ class Db4eOSModel:
         self.ini = Db4eConfig()
 
     def delete_instance(self, component, instance):
-        vendor_dir = self.osdb.get_dir('vendor')
-        conf_dir = self.ini.config['db4e']['conf_dir']
-        if component == 'p2pool':
-            # We need to cleanup; delete the log and api directory and the config file
-            depl_rec = self.osdb.get_deployment_by_instance(component, instance)
-            version = depl_rec['version']
-            p2pool_dir = 'p2pool-' + str(version)
-            fq_log_dir = os.path.join(vendor_dir, p2pool_dir, 'logs-' + instance)
-            shutil.rmtree(fq_log_dir)
-            fq_api_dir = os.path.join(vendor_dir, p2pool_dir, 'api-' + instance)
-            shutil.rmtree(fq_api_dir)
-            fq_config = os.path.join(vendor_dir, p2pool_dir, conf_dir, instance + '.ini')
-            os.remove(fq_config)
-        elif component == 'xmrig':
-            # We need to delete the config file
-            depl_rec = self.osdb.get_deployment_by_instance(component, instance)
-            version = depl_rec['version']
-            xmrig_dir = 'xmrig-' + str(version)
-            fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.json')
-            os.remove(fq_config)
-        return self.osdb.delete_instance(component, instance)
+        self.osdb.update_deployment_instance(component, instance, {'op': 'delete'})
 
     def disable_instance(self, component, instance=None):
         if component == 'db4e':
@@ -89,15 +69,15 @@ class Db4eOSModel:
             systemd = Db4eSystemd('db4e')
             systemd.disable()
         else:
-            self.osdb.disable_instance(component, instance)
+            self.osdb.update_deployment_instance(component, instance, {'op': 'disable'})
 
     def enable_instance(self, component, instance=None):
         if component == 'db4e':
-            self.osdb.enable_instance('db4e')
+            self.osdb.update_deployment('db4e', {'enable': True})
             systemd = Db4eSystemd('db4e')
             systemd.enable()
         else:
-            self.osdb.enable_instance(component, instance)
+            self.osdb.update_deployment_instance(component, instance, {'op': 'enable'})
 
     def first_time(self):
         # If there's no 'db4e' deployment record, then this is the first time the tool has been run
@@ -129,29 +109,31 @@ class Db4eOSModel:
         depl_recs = self.osdb.get_deployments_by_component(component)
         depls = []
         for rec in depl_recs:
-            depl = {}
-            depl['instance'] = rec['instance']
-            depl['name'] = rec['name']
-            depl['enable'] = rec['enable']
-            depl['remote'] = rec['remote']
-            depl['component'] = component
+            depl = {
+                'component': component,
+                'enable': rec['enable'],
+                'instance': rec['instance'],
+                'name': rec['name'],
+                'op': rec['op'],
+                'remote': rec['remote']
+            }
 
-            if not rec['status'] and rec['remote']:
-                # The status field is initialized to None.
-                # The Db4eServer manages this field for local deployments.
-                # For remote deployments it is good if all of the 'get_status()' elements are good.
-                # The first element from get_status() holds the overall health of the component.
+            # The status field is initialized to None.
+            # The Db4eServer manages this field for local deployments.
+            # For remote deployments it is good if all of the 'get_status()' elements are good.
+            # The first element from get_status() holds the overall health of the component.
+            if not rec['remote']:
+                # Local deployment, status managed by the Db4eServer
+                depl['status'] = rec['status']
+
+            elif rec['remote']:
+                # Remote deployment, get status from heallth checks
                 depl_status = self.get_status(component, rec['instance'])
                 if depl_status[0]['state'] == 'good':
                     depl['status'] = 'running'
                 else:
                     depl['status'] = 'stopped'
 
-            elif not rec['status'] and not rec['remote']:
-                depl['status'] = 'stopped'
-
-            else:
-                depl['status'] = rec['status']
             depls.append(depl)
         return depls
 

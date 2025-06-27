@@ -24,6 +24,14 @@ Common symbols are defined here.
 
 import logging
 
+LOG_LEVELS = {
+    'info': logging.INFO,
+    'debug': logging.DEBUG,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL,
+}
+
 MD = {
     'good'  : '✔️',
     'warning' : '⚠️',
@@ -32,11 +40,10 @@ MD = {
     'dancing_woman': '💃',
 }
 
-LOG_LEVELS = {
-    'info': logging.INFO,
-    'debug': logging.DEBUG,
-    'warning': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL
+NAME = {
+    'db4e': 'db4e service',
+    'repo': 'Website repo',
+    'monerod': 'Monero daemon',
+    'p2pool': 'P2Pool daemon',
+    'xmrig': 'XMRig miner',
 }
-

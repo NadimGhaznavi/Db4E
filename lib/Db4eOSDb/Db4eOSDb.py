@@ -38,7 +38,7 @@ sys.path.append(lib_dir)
 # Import DB4E modules
 from Db4eDb.Db4eDb import Db4eDb 
 from Db4eLogger.Db4eLogger import Db4eLogger
-from Db4eSystemd.Db4eSystemd import Db4eSystemd
+from Db4eConfig.Db4eConfig import Db4eConfig
 
 DB4E_RECORD = {
     'component': 'db4e',
@@ -47,12 +47,13 @@ DB4E_RECORD = {
     'group': None,
     'install_dir': None,
     'name': 'db4e service',
+    'op': None,
     'status': None,
     'updated': None,
     'user': None,
     'user_wallet': None,
     'vendor_dir': None,
-    'version': 'latest',
+    'version': None,
     'website_dir': None,
     }
 
@@ -63,6 +64,7 @@ REPO_RECORD = {
     'github_user': None,
     'install_dir': None,
     'name': 'Website repo',
+    'op': None,
     'status': None,
     'updated': None,
     }
@@ -73,6 +75,7 @@ MONEROD_RECORD_REMOTE = {
     'instance': None,
     'ip_addr': None,
     'name': 'Monero daemon',
+    'op': None,
     'remote': True,
     'rpc_bind_port': 18081,
     'status': None,
@@ -94,6 +97,7 @@ MONEROD_RECORD = {
     'max_log_files': 5,
     'max_log_size': 100000,
     'name': 'Monero daemon',
+    'op': None,
     'out_peers': 16,
     'p2p_bind_port': 18080,
     'priority_node_1': 'p2pmd.xmrvsbeast.com',
@@ -105,7 +109,7 @@ MONEROD_RECORD = {
     'show_time_stats': 1,
     'status': None,
     'updated': None,
-    'version': '0.18.4.0',
+    'version': None,
     'zmq_pub_port': 18083,
     'zmq_rpc_port': 18082,
     }
@@ -116,6 +120,7 @@ P2POOL_RECORD_REMOTE = {
     'instance': None,
     'ip_addr': None,
     'name': 'P2Pool daemon',
+    'op': None,
     'remote': True,
     'status': None,
     'stratum_port': 3333,
@@ -134,13 +139,14 @@ P2POOL_RECORD = {
     'log_level': 0,
     'monerod_id': None,
     'name': 'P2Pool daemon',
+    'op': None,
     'out_peers': 16,
     'p2p_port': 37889,
     'remote': False,
     'status': None,
     'stratum_port': 3333,
     'updated': None,
-    'version': '4.8',
+    'version': None,
     'wallet': None,
     }
 
@@ -151,10 +157,12 @@ XMRIG_RECORD = {
     'instance': None,
     'name': 'XMRig miner',
     'num_threads': None,
+    'op': None,
     'p2pool_id': None,
     'remote': False,
     'status': None,
     'updated': None,
+    'version': None,
     }
 
 class Db4eOSDb:
@@ -162,6 +170,7 @@ class Db4eOSDb:
     def __init__(self):
         self._db = Db4eDb()
         self.log = Db4eLogger('Db4eOSDb')
+        self.ini = Db4eConfig()
         self._col = self._db.get_collection(self._db._depl_collection)
         db4e_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         self._db4e_dir = db4e_dir
@@ -179,6 +188,8 @@ class Db4eOSDb:
     def add_deployment(self, jdoc):
         jdoc['doc_type'] = 'deployment'
         jdoc['updated'] = datetime.now(timezone.utc)
+        if jdoc['component'] != 'repo':
+            jdoc['version'] = self.ini.config[jdoc['component']]['version']
         self._db.insert_one(self._col, jdoc)
 
     def enable_instance(self, component, instance=None):

@@ -34,7 +34,7 @@ sys.path.append(lib_dir)
 ### Import DB4E modules
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eClient.Db4eClient import Db4eClient
-from Db4eOSStrings.Db4eOSStrings import MD
+from Db4eOSStrings.Db4eOSStrings import MD, NAME
 ## Mini TUIs
 # Setup new component
 from Db4eOSInstallDb4eServiceUI.Db4eOSInstallDb4eServiceUI import Db4eOSInstallDb4eServiceUI
@@ -134,6 +134,8 @@ XMRIG_SETUP += "you setup XMRig."
 XMRIG_PREREQ = "XMRig Miner Pre-Requisites\n\n"
 XMRIG_PREREQ += "You must create a P2Pool daemon deployment before setting "
 XMRIG_PREREQ += "up XMRig."
+
+TUI_REFRESH = 15
 
 class Db4eOSTui:
     def __init__(self):
@@ -271,11 +273,14 @@ class Db4eOSTui:
         all_items.append(self.build_instance_box("P2Pool Daemon(s)", self.model.get_deployments_by_component('p2pool'), group, 'p2pool'))
         all_items.append(self.build_instance_box("XMRig Miner(s)", self.model.get_deployments_by_component('xmrig'), group, 'xmrig'))
 
+        #return urwid.ListBox(urwid.SimpleFocusListWalker([urwid.Pile(all_items)]))
         return urwid.Pile(all_items)
 
     def build_instance_box(self, title, instances_list, group, depl_type):
         items = []
         for instance in instances_list:
+            if instance['op'] == 'delete':
+                continue
             instance_name = instance['instance']
             is_selected = (instance_name == self.selected_deployment)
             radio = urwid.RadioButton(
@@ -307,7 +312,8 @@ class Db4eOSTui:
             (30, left_panel),
             self.right_panel
         ], dividechars=1)
-        return urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
+        linebox =  urwid.LineBox(columns, title="Database 4 Everything", title_align="center", title_attr="title")
+        return urwid.ListBox(urwid.SimpleFocusListWalker([linebox]))
 
     def delete_instance(self, button):
         component = self.selected_instance['component']
@@ -323,7 +329,8 @@ class Db4eOSTui:
             component = self.selected_instance['component']
             instance = self.selected_instance['instance']
             self.model.disable_instance(component, instance)
-            self.results_msg.set_text(f'The {component} instance {instance} has been disabled')
+            component_name = NAME[component]
+            self.results_msg.set_text(f'The {component_name} ({instance}) has been disabled')
 
     def edit_db4e(self, button):
         self.edit_db4e_ui.reset()
@@ -370,7 +377,8 @@ class Db4eOSTui:
             component = self.selected_instance['component']
             instance = self.selected_instance['instance']
             self.model.enable_instance(component, instance)
-            self.results_msg.set_text(f'The {component} instance {instance} has been enabled')
+            component_name = NAME[component]
+            self.results_msg.set_text(f'The {component_name} ({in_namestance}) has been enabled')
 
     def exit_app(self, button):
         raise urwid.ExitMainLoop()
@@ -397,7 +405,7 @@ class Db4eOSTui:
         # Refresh the TUI
         # Make sure we're not in a mini-TUI (they have a different layout)
         if self.in_mini_tui:
-            self.main_loop.set_alarm_in(30, self.refresh_tui)
+            self.main_loop.set_alarm_in(TUI_REFRESH, self.refresh_tui)
             return
         try:
             new_left_panel = urwid.Pile([
@@ -408,7 +416,7 @@ class Db4eOSTui:
         except (AttributeError, TypeError) as e:
             # Another urwid quirk :(
             pass
-        self.main_loop.set_alarm_in(30, self.refresh_tui)
+        self.main_loop.set_alarm_in(TUI_REFRESH, self.refresh_tui)
 
     def return_to_main(self):
         self.in_mini_tui = False
@@ -417,6 +425,13 @@ class Db4eOSTui:
             right=2, left=2),
             title='TIME', title_align="right", title_attr="title")
         self.main_loop.widget = self.build_main_frame()
+
+    def run(self):
+        try:
+            self.main_loop.run()
+        except KeyboardInterrupt:
+            print('Exiting...')
+            sys.exit(0)
 
     def select_deployment(self, radio, new_state, deployment):
         if new_state:
@@ -510,7 +525,11 @@ class Db4eOSTui:
             # deployment records can have multiple instances...
             depl_type = deployment.split(':::')[0]
             instance = deployment.split(':::')[1]
-            self.selected_instance = { 'component': depl_type, 'instance': instance }
+            self.selected_instance = { 
+                'component': depl_type, 
+                'instance': instance,
+                'name': NAME[depl_type]
+                 }
 
             if depl_type == 'monerod':
                 title_text = f'Monero Daemon ({instance}) Status'
@@ -668,11 +687,4 @@ class Db4eOSTui:
                 (self.edit_button, self.form_buttons.options('given', 8)),
                 (self.start_button, self.form_buttons.options('given', 17))
             ]
-
-    def run(self):
-        try:
-            self.main_loop.run()
-        except KeyboardInterrupt:
-            print('Exiting...')
-            sys.exit(0)
 

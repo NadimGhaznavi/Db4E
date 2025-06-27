@@ -51,7 +51,7 @@ class Db4eSystemd:
             'raw_stdout': '',
             'raw_stderr': ''
         }
-        self.service_name = service_name
+        self._service_name = service_name
         self.status()
 
     def active(self):
@@ -64,13 +64,13 @@ class Db4eSystemd:
         """
         Disable the service.
         """
-        self._run_systemd('disable')
+        return self._run_systemd('disable')
 
     def enable(self):
         """
         Enable the service.
         """
-        self._run_systemd('enable')
+        return self._run_systemd('enable')
 
     def enabled(self):
         """
@@ -104,18 +104,18 @@ class Db4eSystemd:
         """
         Get/Set the service_name.
         """
-        old_service_name = self.service_name
+        old_service_name = self._service_name
         if service_name:
-            self.service_name = service_name
+            self._service_name = service_name
             if service_name != old_service_name:
                 self.status()
-        return service_name
+        return self._service_name
 
     def start(self):
         """
         Start a systemd service.
         """
-        self._run_systemd('start')
+        return self._run_systemd('start')
 
     def status(self):
         """
@@ -164,18 +164,17 @@ class Db4eSystemd:
         """
         Stop a systemd service.
         """
-        self._run_systemd('stop')
+        return self._run_systemd('stop')
 
     def _run_systemd(self, arg):
         """
-        Execute a 'systemd [start|stop|status] service_name' command and load the
+        Execute a 'systemd [start|stop|status|enable|disable] service_name' command and load the
         instance's result dictionary.
         """
-        # systemctl [enable|disable] requires sudo access
-        if arg == 'enable' or arg == 'disable':
-            cmd = ['sudo', 'systemctl', arg, self.service_name]
+        if arg == 'status':
+            cmd = ['systemctl', arg, self._service_name]
         else:
-            cmd = ['systemctl', arg, self.service_name]
+            cmd = ['sudo', 'systemctl', arg, self._service_name]
             
         try:
             proc = subprocess.run(cmd,
@@ -188,9 +187,11 @@ class Db4eSystemd:
 
         except subprocess.TimeoutExpired:
             self.result['raw_stderr'] = 'systemctl timed out'
+            return 5
 
         except Exception as e:
             self.result['raw_stderr'] = str(e)
+            return 5
 
         self.result['raw_stdout'] = stdout
         self.result['raw_stderr'] = stderr
@@ -198,3 +199,6 @@ class Db4eSystemd:
         if arg == 'enable' or arg == 'disable':
             # Reload the status information
             self.status()
+        
+        # Return the return code for the systemctl command
+        return proc.returncode

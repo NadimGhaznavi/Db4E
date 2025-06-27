@@ -1,1 +1,4 @@
 * Update the db4e version in the db4e_prod.yml an db4e_qa.yml
+
+3rd Party Software
+* Make sure the Monero, P2Pool and XMRig versions are correct in the Db4eOSDb are correct

@@ -32,6 +32,7 @@ import signal
 import subprocess
 import time
 import threading
+import shutil
 
 # Where the DB4E modules live
 lib_dir = os.path.join(os.path.dirname(__file__), '..')
@@ -42,8 +43,9 @@ from Db4eConfig.Db4eConfig import Db4eConfig
 from Db4eOSDb.Db4eOSDb import Db4eOSDb
 from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
+from Db4eSystemd.Db4eSystemd import Db4eSystemd
 
-POLL_INTERVAL = 10
+POLL_INTERVAL = 15
 
 class Db4eService:
 
@@ -52,14 +54,14 @@ class Db4eService:
         self.osdb = Db4eOSDb()
         self.log = Db4eLogger('Db4eService')
         self.model = Db4eOSModel()
+        self.systemd = Db4eSystemd('db4e')
 
         self.running = threading.Event()
         self.running.set()
 
         self.p2pool_monitors = {}
-        self.xmrig_monitors = {}
 
-        self.log.debug('db4e service initialized')
+        self.log.info('db4e service initialized')
 
     def start(self):
         signal.signal(signal.SIGINT, self.shutdown)
@@ -72,7 +74,7 @@ class Db4eService:
 
     def shutdown(self, signum, frame):
         # Ops DB event
-        self.log.debug(f'Shutdown requested (signal {signum})')
+        self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
 
     def cleanup(self):
@@ -82,16 +84,27 @@ class Db4eService:
             # Ops DB event
             self.log.debug(f'Stopped P2Pool monitor thread for {instance_id}')
 
-        for instance_id, (thread, stop_event) in self.p2pool_monitors.items():
-            stop_event.set()
-            thread.join()
-            # Ops DB event
-            self.log.debug(f'Stopped XMRig monitor thread for {instance_id}')
-
     def check_deployments(self):
         for component in ['p2pool', 'xmrig']:
             depls = self.model.get_deployments_by_component(component)
             for depl in depls:
+                component = depl.get('component')
+                instance = depl.get('instance')
+                op = depl.get('op')
+                if op:
+                    self.log.info(f'Received {component}/{instance} op ({op})')
+                if op == 'enable':
+                    self.osdb.update_deployment_instance(component, instance, {
+                        'enable': True, 'op': None})
+                    self.ensure_running(depl)
+                elif op == 'disable':
+                    self.osdb.update_deployment_instance(component, instance, {
+                        'enable': False, 'op': None})
+                    self.ensure_stopped(depl)
+                elif op == 'delete':
+                    self.ensure_stopped(depl)
+                    self.delete_deployment(depl)
+
                 if depl.get('remote'):
                     continue
                 if depl.get('enable', False):
@@ -99,15 +112,63 @@ class Db4eService:
                 else:
                     self.ensure_stopped(depl)
 
+    def delete_deployment(self, depl):
+        component = depl.get('component')
+        instance = depl.get('instance')
+        remote = depl.get('remote')
+        vendor_dir = self.osdb.get_dir('vendor')
+        conf_dir = self.ini.config['db4e']['conf_dir']
+        if component == 'p2pool' and remote == False:
+            # We need to cleanup; delete the log and api directory and the config file
+            depl_rec = self.osdb.get_deployment_by_instance(component, instance)
+            version = depl_rec['version']
+            p2pool_dir = 'p2pool-' + str(version)
+            fq_log_dir = os.path.join(vendor_dir, p2pool_dir, 'logs-' + instance)
+            shutil.rmtree(fq_log_dir)
+            fq_api_dir = os.path.join(vendor_dir, p2pool_dir, 'api-' + instance)
+            shutil.rmtree(fq_api_dir)
+            fq_config = os.path.join(vendor_dir, p2pool_dir, conf_dir, instance + '.ini')
+            os.remove(fq_config)
+        elif component == 'xmrig' and remote == False:
+            # We need to delete the config file
+            depl_rec = self.osdb.get_deployment_by_instance(component, instance)
+            version = depl_rec['version']
+            xmrig_dir = 'xmrig-' + str(version)
+            fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.json')
+            os.remove(fq_config)
+        return self.osdb.delete_instance(component, instance)
+
     def ensure_running(self, depl):
-        # Check deployment type and spawn threads or start services
+        # Check if the deployment service is running, start it if it's not
         component = depl['component']
         instance = depl['instance']
-        print(f'Ensuring that {component}/{instance} is running')
+        sd = self.systemd
+        sd.service_name(component + '@' + instance)
+        if not sd.active():
+            rc = sd.start()
+            if rc == 0:
+                self.osdb.update_deployment_instance(component, instance, {'status': 'running'})
+                print(f'Started {component}/{instance}')
+            else:
+                print(f'ERROR: Failed to start {component}/{instance}, return code was {rc}')
+
 
     def ensure_stopped(self, depl):
-        # TODO
-        print(f"Ensuring that {depl['component']}/{depl['instance']} is stopped")
+        sd = self.systemd
+        component = depl['component']
+        instance = depl['instance']
+        sd.service_name(component + '@' + instance)
+        if sd.active():
+            rc = sd.stop()
+            if rc == 0:
+                self.osdb.update_deployment_instance(component, instance, {'status': 'stopped'})
+                print(f'Stopped {component}/{instance}')
+            else:
+                print(f'ERROR: Failed to stop {component}/{instance}, return code was {rc}')
+
+
+
+    ##################################################################
 
     def launch_p2pool_monitor(self):
         p2pools = self.osdb.get_deployments_by_component('p2pool')
