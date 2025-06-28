@@ -1,12 +1,13 @@
 """ lib/components/nav_tree.py"""
 
-from textual.widgets import Tree, Label, Static
+from textual.widgets import Tree, Label
 from textual.message import Message
 from textual.app import ComposeResult
 from textual.widget import Widget
 from textual.containers import Container, Vertical
 
 class NavTree(Widget):
+
 
     def compose(self) -> ComposeResult:
         # Deployments menu tree

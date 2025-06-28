@@ -13,6 +13,7 @@ sys.path.append(DB4E_MODULE_DIR)
 # db4e modules
 from components.nav_tree import NavTree
 from components.detail_pane import DetailPane
+from components.clock import Clock
 
 class Db4eApp(App):
     """A console for db4e"""
@@ -24,7 +25,9 @@ class Db4eApp(App):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield NavTree()
+        yield NavTree(classes="box")
+        yield DetailPane(classes="box")
+        yield Clock(classes="clock")
         yield Footer()
 
     def on_mount(self) -> None:

@@ -1,7 +1,31 @@
 
+DetailPane{
+    border: round;
+    padding: 0 2;
+    row-span: 2;
+}
+
 NavTree {
     border: round;
-    width: 25;
+}
+
+Screen {
+    layout: grid;
+    grid-size: 2 2;
+    grid-columns: 1fr 3fr;
+    grid-rows: 9fr 1fr;
+}
+
+.box {
+    height: 100%;
+    border: round;
+}
+
+.clock {
+    padding: 0 2;
+    height: 3;
+    border: round;
+    align: center middle;
 }
 
 #donations {
