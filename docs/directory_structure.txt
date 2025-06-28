@@ -1,20 +1,36 @@
-db4e/
-├── __main__.py           # Entry point
-├── app.py                # Main Textual app
-├── app.tcss              # Global styling
-├── components/           # UI widgets
-│   ├── footer.py         # Db4eFooter
-│   ├── nav_tree.py       # NavTree
-│   └── detail_pane.py    # Main pane
-├── messages.py           # Custom Message subclasses
-├── state.py              # App state helpers
-├── model/                # DB logic (e.g., Mongo models)
-│   ├── deployment.py
-│   └── settings.py
-├── service/              # Interfaces with monerod, xmrig, etc.
-│   ├── monerod.py
-│   └── xmrig.py
-├── config.py             # App/user config
-├── utils.py              # Helpers/utilities
-├── db4e.tcss             # Optional component-specific styling
-
+db4e
+ ├──  
+ ├── bin
+ │    └── db4e.py               # Entry Point
+ ├── conf
+ │    ├── db4e.yml              # Application config
+ │    ├── requirements.txt      # Pip requirements
+ │    └── reports
+ │         ├ blocksfound.yml    # Blocks Found report definition
+ │         ├ hashrates.yml      # Pool, sidechain and main chain report definitions
+ │         ├ payments.yml       # XMR Payment report definitions
+ │         └ sharesfound.yml    # Shares Found report definitions
+ ├── css
+ │    ├── db4e.tcss
+ │    └── app.tcss
+ ├── docs                       # Project documentation folder
+ ├── images                     # GitHub Pages image files
+ ├── lib 
+ │    ├── app.py                # Main Textual app
+ │    ├── app.tcss              # Global styling
+ │    ├── components/           # UI widgets
+ │    │   ├── nav_tree.py       # NavTree
+ │    │   └── detail_pane.py    # Main pane
+ │    ├── messages.py           # Custom Message subclasses
+ │    ├── state.py              # App state helpers
+ │    ├── model/                # DB logic (e.g., Mongo models)
+ │    │   ├── deployment.py
+ │    │   └── settings.py
+ │    ├── service/              # Interfaces with monerod, xmrig, etc.
+ │    │   ├── monerod.py
+ │    │   └── xmrig.py
+ │    ├── config.py             # App/user config
+ │    ├── utils.py              # Helpers/utilities
+ │    └── db4e.tcss             # Optional component-specific styling
+ ├── pages                      # Folder for GitHub Pages db4e project site
+ └── tmpl                       # Template folders   

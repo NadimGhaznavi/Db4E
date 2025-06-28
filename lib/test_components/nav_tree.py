@@ -1,4 +1,4 @@
-""" lib/components/nav_tree.py"""
+""" lib/test_components/nav_tree.py"""
 
 from textual.widgets import Tree, Label, Static
 from textual.message import Message
@@ -41,3 +41,5 @@ class NavTree(Widget):
 
     def on_mount(self) -> None:
         self.border_title = 'Menu'
+
+

@@ -1,0 +1,49 @@
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer
+from textual.containers import Horizontal
+
+from components.nav_tree import NavTree
+from components.detail_pane import DetailPane
+from messages import TreeItemSelected
+
+
+class Db4eApp(App):
+    CSS_PATH = "app.tcss"
+
+    BINDINGS = [
+        ("ctrl+n", "new_deployment", "New Deployment"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Horizontal(
+            NavTree(),
+            DetailPane(),
+        )
+        yield Footer()
+
+    def on_tree_item_selected(self, message: TreeItemSelected) -> None:
+        self.update_footer_for_context(message.label_path)
+
+    def update_footer_for_context(self, context: str) -> None:
+        self.clear_bindings()
+        if context == "Deployments":
+            self.add_binding("ctrl+n", "new_deployment", "New Deployment")
+        else:
+            self.add_binding("e", "edit", "Edit")
+            self.add_binding("x", "toggle_enable", "Enable/Disable")
+            self.add_binding("delete", "delete", "Delete")
+
+    def action_new_deployment(self) -> None:
+        # Placeholder: Launch a form/modal or prefill right pane
+        self.console.log("New deployment triggered.")
+
+    def action_edit(self) -> None:
+        self.console.log("Edit triggered.")
+
+    def action_toggle_enable(self) -> None:
+        self.console.log("Enable/Disable triggered.")
+
+    def action_delete(self) -> None:
+        self.console.log("Delete triggered.")
+

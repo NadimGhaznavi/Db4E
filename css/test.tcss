@@ -1,0 +1,21 @@
+
+NavTree {
+    border: round;
+    width: 25;
+}
+
+#donations {
+    padding: 0 2;
+}
+
+#tree_deployments {
+    padding: 0 2;
+    height: auto;
+    background: $background;
+}
+
+#tree_metrics {
+    padding: 0 2;
+    height: auto;
+    background: $background;
+}
