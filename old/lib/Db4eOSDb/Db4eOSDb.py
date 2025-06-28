@@ -143,7 +143,7 @@ P2POOL_RECORD = {
     'out_peers': 16,
     'p2p_port': 37889,
     'remote': False,
-    'status': None,
+    'status': 'stopped',
     'stratum_port': 3333,
     'updated': None,
     'version': None,
@@ -160,7 +160,7 @@ XMRIG_RECORD = {
     'op': None,
     'p2pool_id': None,
     'remote': False,
-    'status': None,
+    'status': 'stopped',
     'updated': None,
     'version': None,
     }

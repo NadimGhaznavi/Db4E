@@ -1,0 +1,22 @@
+┌─── Menu ──────┐
+│ Deployments   │
+│  ├ db4e core  │
+│  ├ Monero     │
+│  │  ├ Kermit  │
+│  │  └ Local   │
+│  ├ P2Pool     │
+│  │  ├ Kermit  │
+│  │  └ Local   │
+│  └ XMRig      │
+│     ├ Bingo   │
+│     ├ Maia    │
+│     ├ Paris   │
+│     ├ Phoebe  │
+│     └ ThePad  │
+│ Metrics       │
+│  ├ Monero     │
+│  ├ P2Pool     │
+│  └ XMRig      │
+| Donations     │
+└───────────────┘
+

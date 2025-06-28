@@ -1,0 +1,20 @@
+db4e/
+├── __main__.py           # Entry point
+├── app.py                # Main Textual app
+├── app.tcss              # Global styling
+├── components/           # UI widgets
+│   ├── footer.py         # Db4eFooter
+│   ├── nav_tree.py       # NavTree
+│   └── detail_pane.py    # Main pane
+├── messages.py           # Custom Message subclasses
+├── state.py              # App state helpers
+├── model/                # DB logic (e.g., Mongo models)
+│   ├── deployment.py
+│   └── settings.py
+├── service/              # Interfaces with monerod, xmrig, etc.
+│   ├── monerod.py
+│   └── xmrig.py
+├── config.py             # App/user config
+├── utils.py              # Helpers/utilities
+├── db4e.tcss             # Optional component-specific styling
+

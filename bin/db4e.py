@@ -32,12 +32,20 @@ reports manuall and display the db4e version.
 import os
 import sys
 
-# Where the DB4E modules live
-lib_dir = os.path.join(os.path.dirname(__file__), '..', 'lib')
-sys.path.append(lib_dir)
+# Setup the db4e paths
+DB4E_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..")) 
+DB4E_MODULE_DIR = os.path.join(DB4E_DIR, 'lib')
+sys.path.append(DB4E_MODULE_DIR)
 
-# Import DB4E modules
-from Db4eConfig.Db4eConfig import Db4eConfig
+from app import Db4eApp
+
+if __name__ == "__main__":
+    app = Db4eApp()
+    app.run()
+
+"""
+# Old code references
+
 from P2Pool.P2Pool import P2Pool
 from MiningDb.MiningDb import MiningDb
 from Db4eDb.Db4eDb import Db4eDb
@@ -46,11 +54,14 @@ from Db4eLogger.Db4eLogger import Db4eLogger
 from Db4eOSModel.Db4eOSModel import Db4eOSModel
 from Db4eService.Db4eService import Db4eService
 
-# Get a config object
-ini = Db4eConfig()
-
 # Get a Python logging object
 log = Db4eLogger('db4e.py')
+
+# Import DB4E modules
+from config import Db4eConfig
+
+# Get a config object
+ini = Db4eConfig()
 
 try:
 
@@ -84,5 +95,9 @@ except KeyboardInterrupt:
   log.warning("Caught keyboard interrupt, exiting...")
   log.shutdown() # Flush all handlers
   sys.exit(0)
+
+
+"""
+
 
 

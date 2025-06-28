@@ -32,15 +32,35 @@
 # Assume this file lives in $DB4E_INSTALL_DIR/bin/
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DB4E_DIR="$BIN_DIR/.."
-
 VENV="$DB4E_DIR/venv"
 PYTHON="$VENV/bin/python"
 MAIN_SCRIPT="$BIN_DIR/db4e.py"
 
-# Make sure the initial setup for db4e has been executed
-if [ ! -d $VENV ]; then
-    echo "ERROR: Run db4e-os.sh to do the initial db4e setup"
+if [ ! -d "$VENV" ]; then
+  which python3 > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "ERROR: You must have python3 installed and in your path, exiting"
     exit 1
+  fi
+  echo "Python venv environment not found, doing a one-time setup..."
+  cd "$DB4E_DIR"
+  python3 -m venv venv
+  echo "Activating virtual environment and installing packages..."
+  source "$VENV/bin/activate"
+  pip install --upgrade pip
+
+  REQ_FILE="$DB4E_DIR/conf/requirements.txt"
+  if [ -f "$REQ_FILE" ]; then
+    pip install -r "$REQ_FILE"
+  else
+    echo "ERROR: Missing Python venv requirements file ($REQ_FILE)."
+    echo "ERROR: Your *db4e* clone is broken. Please try cloning again."
+    echo
+    echo "git clone git@github.com:NadimGhazavi/db4e"
+    echo
+    echo "exiting..."
+    exit 1
+  fi
 fi
 
 # Activate and run

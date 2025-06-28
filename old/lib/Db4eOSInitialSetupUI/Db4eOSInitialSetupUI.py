@@ -26,6 +26,7 @@ do the initial setup.
 
 # Supporting modules
 import os, sys
+import getpass
 import urwid
 import subprocess
 import shutil
@@ -198,7 +199,7 @@ class Db4eOSInitialSetupUI:
         # Directory on the local machine where the db4e softare has been installed
         db4e_dir = self.db4e_dir
         # The db4e user
-        db4e_user = os.getlogin()
+        db4e_user = getpass.getuser()
 
         # db4e, P2Pool, Monero daemon and XMRig directories
         db4e_vendor_dir = 'db4e-' + str(db4e_version)

@@ -440,10 +440,13 @@ class Db4eOSTui:
     # The main screen shows this content
     def show_component_info(self, button):
         deployment = self.selected_deployment
+
+        # Divider
         div = urwid.Divider()
+
+        # Results box
         self.results_msg = urwid.Text('')
-        self.results_box = urwid.Pile([
-            urwid.Divider(),
+        self.results_box = urwid.ListBox(urwid.SimpleFocusListWalker([
             urwid.LineBox(
                 urwid.Padding(
                     self.results_msg,
@@ -451,33 +454,49 @@ class Db4eOSTui:
                 ),
                 title='Results', title_align='left', title_attr='title'
             )
-        ])
+        ]))
+
+        # Buttons
         self.disable_button = urwid.Button(('button', 'Disable'), on_press=self.disable_instance)
         self.enable_button = urwid.Button(('button', 'Enable'), on_press=self.enable_instance)
         self.delete_button = urwid.Button(('button', 'Delete'), on_press=self.delete_instance)
 
         if deployment == 'db4e':
-            title_text = 'db4e Service Status'
-            status_info = self.model.get_status('db4e')
-            status_list = []
+            # db4e specific buttons
             self.edit_button = urwid.Button(('button', 'Edit'), on_press=self.edit_db4e)
             self.install_button = urwid.Button(('button', 'Install Service'), on_press=self.install_db4e_service)
+
+            # Initial button list
             button_list = [(8, self.edit_button)]
+
+            # Get db4e status info  and update button list
+            status_info = self.model.get_status('db4e')
+            status_list = []
             for aStatus in status_info[1:]:
                 status_state = MD[aStatus['state']]
                 status_msg = aStatus['msg']
                 if status_msg == 'The db4e service is disabled':
+                    # Service disabled: Add 'enable' button
                     button_list.append((10, self.enable_button))
                 elif status_msg == 'The db4e service is enabled':
+                    # Service enable: Add 'disable' button
                     button_list.append((11, self.disable_button))
                 status_list.append(urwid.Text(f'{status_state}  {status_msg}'))
-            status = urwid.Pile(status_list)
-            self.form_buttons = urwid.Columns(button_list, dividechars=1)
-            listbox = urwid.ListBox(urwid.SimpleFocusListWalker([
-                div, status, div, self.form_buttons, div, self.results_box]))
+            status_pile = urwid.Pile(status_list)
+            self.results_msg.set_text(status_pile)
+            
+            # Buttons
+            self.button_box = urwid.Columns(button_list, dividechars=1)
+            button_box = urwid.Linebox(
+                urwid.Padding(self.form_buttons, left=2, right=2),
+                title='db4e Actions', title_align='left', title_attr='title'
+            )
+
+            boxes_pile = urwid.Pile([self.results_box, self.button_box])
+            
             self.right_panel = urwid.LineBox(
-                urwid.Padding(listbox, left=2, right=2),
-                title=title_text, title_align='left', title_attr='title'
+                urwid.Pile([]),
+                title='db4e Service Information', title_align='left', title_attr='title'
             )
             self.main_loop.widget = self.build_main_frame()
             return
