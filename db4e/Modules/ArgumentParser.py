@@ -12,15 +12,11 @@ class ArgumentParser:
         self.config = {}
         parser = argparse.ArgumentParser(description='Db4E command line switches')
         parser.add_argument('-b', '--backup', action='store_true', help='Perform a db4e backup.')
-        parser.add_argument('-r', '--reports', default='None', type=str, help='Run a db4e report.')
         parser.add_argument('-s', '--service', action='store_true', help='Run db4e as a service.')
         parser.add_argument('-v', '--version', action='store_true', help='Print the db4e version.')        
         args = parser.parse_args()
         if args.backup:
             self.config['op'] = 'run_backup'
-        elif args.report:
-            self.config['op'] = 'run_report'
-            self.config['report'] = args.report
         elif args.service:
             self.config['op'] = 'run_daemon'
         elif args.version:
