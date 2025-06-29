@@ -131,35 +131,41 @@ class Db4EApp(App):
             )
             logger.info(f"Log file: {config.daemon_mode_log_file}")
 
-    def check_for_new_version(self):
-        # Query PyPI API to get the latest version
-        try:
-            url = self.config.pypi_repository
-            response = requests.get(url, timeout=3)
+    async def on_mount(self):
+        self.tab_manager = TabManager(app=self.app, config=self.config)
+        await self.tab_manager.create_ui_widgets()
 
-            if response.status_code == 200:
-                data = response.json()
+        if self.config.hostgroup:
+            self.connect_as_hostgroup(self.config.hostgroup)
+        else:
+            tab = await self.tab_manager.create_tab(tab_name="Initial Tab")
 
-                # Extract the latest version from the response
-                latest_version = data["info"]["version"]
+            if self.config.tab_setup:
+                self.tab_manager.setup_host_tab(tab)
+            elif self.tab_manager.active_tab.dolphie.replay_file:
+                self.tab_manager.active_tab.replay_manager = ReplayManager(tab.dolphie)
+                if not tab.replay_manager.verify_replay_file():
+                    tab.replay_manager = None
+                    self.tab_manager.setup_host_tab(tab)
+                    return
 
-                # Compare the current version with the latest version
-                if parse_version(latest_version) > parse_version(__version__):
-                    self.notify(
-                        f"{Emoji('tada')}  [b]New version [$highlight]{latest_version}[/$highlight] is available![/b] "
-                        f"{Emoji('tada')}\n\nPlease update at your earliest convenience\n"
-                        f"[$dark_gray]Find more details at https://github.com/NadimGhaznavi/db4e",
-                        title="",
-                        severity="information",
-                        timeout=20,
-                    )
+                self.tab_manager.rename_tab(tab)
+                self.tab_manager.update_connection_status(tab=tab, connection_status=ConnectionStatus.connected)
+                self.run_worker_replay(self.tab_manager.active_tab.id)
+            else:
+                self.run_worker_main(self.tab_manager.active_tab.id)
 
-                    logger.warning(
-                        f"New version {latest_version} is available! Please update at your earliest convenience. "
-                        "Find more details at https://github.com/NadimGhaznavi/db4e"
-                    )
-        except Exception:
-            pass
+                if not self.config.daemon_mode:
+                    self.run_worker_replicas(self.tab_manager.active_tab.id)
+
+    def compose(self):
+        yield TopBar(host="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
+        yield Tabs(id="host_tabs")
+
+    def _handle_exception(self, error: Exception) -> None:
+        self.bell()
+        self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
+
 
 def setup_logger(config: Config):
     logger.remove()
@@ -188,8 +194,9 @@ def main():
     os.environ["COLORTERM"] = "truecolor"
 
     arg_parser = ArgumentParser(__version__)
-
-    setup_logger(arg_parser.config)
+    parsed_config = arg_parser.get_config()
+    config = Config(app_version=__version__, daemon_mode=parsed_config.get("op") == "run_daemon")
+    setup_logger(config)
 
     app = Db4EApp()
     app.run()
