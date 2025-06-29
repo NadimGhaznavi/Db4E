@@ -7,29 +7,22 @@
 #   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
 #   License: GPL 3.0
 
-import argparse
-import json
 import os
 import sys
-import re
-from configparser import RawConfigParser
 from dataclasses import dataclass, field, fields
-from typing import Dict, List
-from urllib.parse import ParseResult, urlparse
-
 from importlib import metadata
-
 from loguru import logger
-
 from rich.theme import Theme as RichTheme
-from textual.app import App, ComposeResult
-from textual.widgets import Footer, Header
+from textual.app import App
+from textual.widgets import Footer, Header, Tabs
 from textual.theme import Theme as TextualTheme
-from textual.command import DiscoveryHit, Hit, Provider
-
+from textual.command import Provider
+from rich.traceback import Traceback
 from db4e.Db4E import Db4E
-from db4e.Modules.ArgumentParser import ArgumentParser, Config
+from db4e.Modules.ArgumentParser import Config, create_config_from_args
 from db4e.Modules.CommandManager import CommandManager
+from db4e.Modules.TabManager import TabManager
+from db4e.Widgets.TopBar import TopBar
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -134,33 +127,20 @@ class Db4EApp(App):
     async def on_mount(self):
         self.tab_manager = TabManager(app=self.app, config=self.config)
         await self.tab_manager.create_ui_widgets()
+        tab = await self.tab_manager.create_tab(tab_name="Initial Tab")
+        self.tab_manager.setup_component_tab(tab)
+        self.tab_manager.run_component_updater(tab)
 
-        if self.config.hostgroup:
-            self.connect_as_hostgroup(self.config.hostgroup)
-        else:
-            tab = await self.tab_manager.create_tab(tab_name="Initial Tab")
-
-            if self.config.tab_setup:
-                self.tab_manager.setup_host_tab(tab)
-            elif self.tab_manager.active_tab.dolphie.replay_file:
-                self.tab_manager.active_tab.replay_manager = ReplayManager(tab.dolphie)
-                if not tab.replay_manager.verify_replay_file():
-                    tab.replay_manager = None
-                    self.tab_manager.setup_host_tab(tab)
-                    return
-
-                self.tab_manager.rename_tab(tab)
-                self.tab_manager.update_connection_status(tab=tab, connection_status=ConnectionStatus.connected)
-                self.run_worker_replay(self.tab_manager.active_tab.id)
-            else:
-                self.run_worker_main(self.tab_manager.active_tab.id)
-
-                if not self.config.daemon_mode:
-                    self.run_worker_replicas(self.tab_manager.active_tab.id)
+        if not self.config.daemon_mode:
+            self.tab_manager.run_metrics_collector(tab)
 
     def compose(self):
-        yield TopBar(host="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
-        yield Tabs(id="host_tabs")
+        yield TopBar(
+            host="localhost",  # or dynamically updated later
+            app_version=__version__,
+            help="press [b highlight]?[/b highlight] for commands"
+        )
+        yield Tabs(id="deployment_tabs")
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
@@ -193,9 +173,7 @@ def main():
     os.environ["TERM"] = "xterm-256color"
     os.environ["COLORTERM"] = "truecolor"
 
-    arg_parser = ArgumentParser(__version__)
-    parsed_config = arg_parser.get_config()
-    config = Config(app_version=__version__)
+    config = create_config_from_args(__version__)
     setup_logger(config)
 
     setup_logger(config)
