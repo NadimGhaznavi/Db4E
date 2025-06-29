@@ -6,6 +6,7 @@
 #   License: GPL 3.0import argparse
 
 import argparse
+from dataclasses import dataclass, field
 
 class ArgumentParser:
     def __init__(self, app_version: str):
@@ -27,6 +28,7 @@ class ArgumentParser:
     def get_config(self):
         return self.config
     
+@dataclass
 class Config:
     app_version: str
     api_dir = 'api'
