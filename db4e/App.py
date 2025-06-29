@@ -198,7 +198,8 @@ def main():
     config = Config(app_version=__version__)
     setup_logger(config)
 
-    app = Db4EApp()
+    setup_logger(config)
+    app = Db4EApp(config)
     app.run()
 
 
