@@ -45,7 +45,6 @@ class Db4eConfig():
         parser.add_argument('-b', '--backup', action='store_true', help='Perform a db4e backup.')
         parser.add_argument('-e', '--environ', default='prod', help='Run in QA environment with -e qa.')
         parser.add_argument('-m', '--monitor', action='store_true', help='Monitor the P2Pool log.')
-        parser.add_argument('-r', '--reports', default='None', type=str, help='Run a db4e report.')
         parser.add_argument('-s', '--service', action='store_true', help='Run db4e as a service.')
         parser.add_argument('-w', '--wallet', action='store_true', help='Get the mining wallet balance.')
         parser.add_argument('-v', '--version', action='store_true', help='Print the db4e version.')
@@ -67,10 +66,6 @@ class Db4eConfig():
             # Load the QA environment settings (DB, directories etc)
             self.load(os.path.join(db4e_dir, YAML_FILE_QA))
 
-        # Run one or more reprts with a reports definition file in conf/reports
-        if args.reports != 'None':
-            self.config['db4e']['reports'] = args.reports
-        
         # Monitor the P2Pool daemon log files for P2Pool events
         if args.monitor:
             self.config['p2pool']['monitor_log'] = True

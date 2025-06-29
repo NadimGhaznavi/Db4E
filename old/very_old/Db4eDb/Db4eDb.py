@@ -131,7 +131,8 @@ class Db4eDb():
   def find_many(self, collection, filter):
       return collection.find(filter)
 
-  def insert_one(self, collection, jdoc):
+  def insert_one(self, col_name, jdoc):
+      collection = self.get_collection(col_name)
       return collection.insert_one(jdoc)
   
   def insert_uniq_by_timestamp(self, collection, jdoc):

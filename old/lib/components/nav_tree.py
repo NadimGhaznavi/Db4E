@@ -1,13 +1,24 @@
 """ lib/components/nav_tree.py"""
-
+from textual import on
 from textual.widgets import Tree, Label
 from textual.message import Message
 from textual.app import ComposeResult
 from textual.widget import Widget
 from textual.containers import Container, Vertical
 
-class NavTree(Widget):
 
+class DeploymentSelected(Message):
+    """Custom message sent when a deployment tree node is selected."""
+    def __init__(self, sender: Widget, node_path: str) -> None:
+        super().__init__()
+        self.sender = sender
+        if node_path.parent == None:
+            self.node_path = 'N/A' + ':' + str(node_path.label)
+        else: 
+            self.node_path = node_path.parent.label + ':' + node_path.label
+
+
+class NavTree(Widget):
 
     def compose(self) -> ComposeResult:
         # Deployments menu tree
@@ -42,3 +53,8 @@ class NavTree(Widget):
 
     def on_mount(self) -> None:
         self.border_title = 'Menu'
+
+    @on(Tree.NodeSelected)
+    def process_selection(self, message: Tree.NodeSelected[str]) -> None:
+        """Handle a node selection in the tree."""
+        self.post_message(DeploymentSelected(self, message.node))

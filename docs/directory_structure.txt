@@ -21,13 +21,19 @@ db4e
  │    ├── components/           # UI widgets
  │    │   ├── nav_tree.py       # NavTree
  │    │   └── detail_pane.py    # Main pane
- │    ├── messages.py           # Custom Message subclasses
- │    ├── state.py              # App state helpers
- │    ├── model/                # DB logic (e.g., Mongo models)
+ │    ├── controller/
  │    │   ├── deployment.py
- │    │   └── settings.py
+ │    │   ├── donation.py
+ │    │   └── metrics.py
+ │    ├── model/                # DB and state logic
+ │    │   ├── db4e_db.py        # Direct acces to Mongo
+ │    │   ├── deployment.py     # Deployment model
+ │    │   ├── logging.py        # Logging for db4e
+ │    │   └── settings.py       # Static settings model
  │    ├── service/              # Interfaces with monerod, xmrig, etc.
+ │    │   ├── db4e_systemd.py   # Service management for deployments
  │    │   ├── monerod.py
+ │    │   ├── p2pool.py
  │    │   └── xmrig.py
  │    ├── config.py             # App/user config
  │    ├── utils.py              # Helpers/utilities

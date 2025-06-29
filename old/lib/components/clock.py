@@ -9,7 +9,13 @@ from textual.reactive import reactive
 class Clock(Widget):
 
     cur_datetime = reactive('')
+    emoji_index = reactive('0')
     label = Label('', id="clock")
+
+    CLOCK_EMOJIS = [
+        "🕐", "🕑", "🕒", "🕓", "🕔", "🕕",
+        "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"
+    ]
 
     def compose(self) -> ComposeResult:
         yield self.label
@@ -19,7 +25,9 @@ class Clock(Widget):
         self.update_time()
 
     def update_time(self) -> None:
+        self.emoji_index = (int(self.emoji_index) + 1) % len(self.CLOCK_EMOJIS)
         self.cur_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     def watch_cur_datetime(self, time: str) -> None:
-        self.label.update(time)
+        emoji = self.CLOCK_EMOJIS[self.emoji_index]
+        self.label.update(f"{emoji} {time}")

@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "db4e"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+description = "A unified Monero XMR mining dashboard for deployment, operation and real-time analytics."
+authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8.1"
+pymongo = "^4.13.2"
+PyYAML = "^6.0.2"
+loguru = "^0.7.3"
+myloginpath = "^0.0.4"
+textual = {extras = ["syntax"], version = "^3.2.0"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+db4e = "db4e.App:main"

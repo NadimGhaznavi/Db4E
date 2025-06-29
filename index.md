@@ -154,11 +154,3 @@ Please help keep this project alive and moving forward by [donating](/pages/Dona
 * [ApexCharts](https://apexcharts.com/)
 * [GitHub](https://github.com/)
 
-
-
-
-
-
-
-
-
