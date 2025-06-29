@@ -195,7 +195,7 @@ def main():
 
     arg_parser = ArgumentParser(__version__)
     parsed_config = arg_parser.get_config()
-    config = Config(app_version=__version__, daemon_mode=parsed_config.get("op") == "run_daemon")
+    config = Config(app_version=__version__)
     setup_logger(config)
 
     app = Db4EApp()
