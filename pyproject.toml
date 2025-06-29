@@ -7,7 +7,7 @@ authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.11.2"
 pymongo = "^4.13.2"
 PyYAML = "^6.0.2"
 loguru = "^0.7.3"
