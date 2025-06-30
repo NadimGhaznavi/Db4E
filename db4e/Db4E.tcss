@@ -109,17 +109,17 @@ TopBar {
     layout: horizontal;
 }
 #topbar_title {
-    width: 15%;
+    width: 1fr;
     content-align: left middle;
 }
 #topbar_host {
     color: #bbc8e8;
-    width: 70%;
+    width: 9fr;
     content-align: center middle;
     text-style: bold;
 }
 #topbar_help {
-    width: 15%;
+    width: 1fr;
     content-align: right middle;
     color: #8f9fc1;
 }
