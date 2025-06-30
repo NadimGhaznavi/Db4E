@@ -1,0 +1,11 @@
+TopBar {
+    layout: horizontal;
+    align: center middle;
+    height: 1;
+    padding: 0 1;
+    border: tall $panel_border;
+}
+
+#topbar_title, #topbar_host, #topbar_help {
+    margin-right: 2;
+}
