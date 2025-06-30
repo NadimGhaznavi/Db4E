@@ -9,22 +9,14 @@
 
 import os
 import sys
-from datetime import datetime
 from dataclasses import dataclass, field, fields
 from importlib import metadata
 from loguru import logger
-from rich.theme import Theme as RichTheme
+from textual import events
 from textual.app import App
-from textual.command import DiscoveryHit, Hit, Provider
 from textual.theme import Theme as TextualTheme
-from textual.widgets import Tabs
+from rich.theme import Theme as RichTheme
 from rich.traceback import Traceback
-
-from Widgets.Clock import Clock
-from Widgets.DetailPane import DetailPane
-from Widgets.NavPane import NavPane
-from Widgets.TopBar import TopBar
-from Modules.ArgumentParser import get_cli_args
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -36,7 +28,11 @@ except Exception:
 
 from functools import partial
 from textual.command import Provider
-from textual import events
+from Widgets.TopBar import TopBar
+#from Widgets.Clock import Clock
+#from Widgets.DetailPane import DetailPane
+#from Widgets.NavPane import NavPane
+from Modules.ArgumentParser import get_cli_args, Config
 
 class Db4EApp(App):
     TITLE = "Db4E"

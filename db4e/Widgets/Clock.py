@@ -3,8 +3,9 @@ from textual.widgets import Label
 from textual.widget import Widget
 from textual.app import ComposeResult
 from textual.reactive import reactive
+from textual.containers import Container
 
-class Clock(Widget):
+class Clock(Container):
 
     cur_datetime = reactive('')
     emoji_index = reactive('0')
