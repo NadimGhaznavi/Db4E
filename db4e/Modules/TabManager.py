@@ -17,7 +17,7 @@ class TabManager:
 
     async def create_tab(self, tab_name="New Tab"):
         """Stub for creating a new tab with default content."""
-        tab_content = TabPane(Static(f"Welcome to {tab_name}"), title=tab_name)
+        tab_content = TabPane(Static(f"Welcome to {tab_name}"))
         self.tabs.append(tab_content)
         self.active_tab = tab_content
         return tab_content
