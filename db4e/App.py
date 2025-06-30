@@ -147,6 +147,11 @@ class Db4EApp(App):
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
 
+class Db4eScreen(Screen, id="main", classes="-main-layout"):
+    def compose(self):
+        yield TopBar(...)
+        yield Tabs(id="host_tabs")
+        yield Container(id="main_content")  # Or a Grid/TabPane
 
 def setup_logger(config: Config):
     logger.remove()

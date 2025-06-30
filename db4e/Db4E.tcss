@@ -1,54 +1,121 @@
+/* db4e.tcss */
+
+
+/* Theme Variables for DB4E */
+
+$surface:        #1e1e2e;   /* Dark background */
+$surface-light:  #292d3e;   /* Slightly lighter for containers */
+$surface-muted:  #3e4451;   /* Muted background for tabs, tooltips */
+
+$primary:        #7f5af0;   /* Primary brand color (purple-ish) */
+$secondary:      #313244;   /* Secondary border/background */
+$highlight:      #f2cdcd;   /* Highlight color for selected tabs, etc. */
+$text:           #cdd6f4;   /* Main text color */
+$text-muted:     #6c7086;   /* Disabled or secondary text */
+$text-on-highlight: #1e1e2e; /* Text on highlight backgrounds */
+
+/* Root screen layout */
 Screen {
-    layout: grid;
-    grid-size: 2;
-    /* grid-columns: 1fr 4fr; */
-    /* grid-rows: 1fr 9fr 1fr; */
+    height: 100%;
+    width: 100%;
+    background: $surface;  /* Use your theme color */
 }
 
+/* TopBar - fixed height, docked top */
 TopBar {
-    column-span: 2;
+    height: 3;
+    min-height: 3;
+    background: $primary;
+    color: $text;
+    padding: 0 2;
+    border: round $secondary;
     dock: top;
-    background: $surface;
-    border: round;
+}
+
+/* Tabs - fixed height below TopBar */
+Tabs {
     height: 3;
-    layout: horizontal;
-    padding: 0 2;
+    background: $surface-muted;
+    border: tall transparent;
+    margin-top: 0;
+    dock: top;
 }
 
-NavPane {
-    background: $surface;
-    border: round;
-    height: auto;
-    padding: 0 2;
+/* Selected tab styling */
+Tabs > Tab.-selected {
+    background: $primary;
+    color: $highlight;
+    text-style: bold;
+    border-bottom: thick $highlight;
 }
 
-DetailPane {
-    border: round;
-    background: $surface;
-    padding: 0 2;
-    row-span: 2;
+/* Main content container fills remaining space */
+#main_container {
+    height: 1fr !important;
+    padding: 1 2;
+    overflow: auto;
+    background: $surface-light;
 }
 
-Clock {
-    border: round;
-    height: 3;
-    padding: 0 2;
+/* Scrollbars */
+ScrollView > .scrollbar.vertical {
+    background: $secondary;
+    width: 1;
 }
 
-#topbar_component {
-    content-align: center middle;
-    text-align: center;
-    width: 70%;
+/* Generic widgets padding and margin */
+Widget {
+    margin: 0 0 1 0;
+    padding: 0;
 }
 
-#topbar_title {
-    content-align: left middle;
-    width: 15%;
+/* Help tooltip style */
+HelpText {
+    background: $surface-muted;
+    color: $text-muted;
+    padding: 1 2;
+    border: round $secondary;
 }
 
-#topbar_help {
-    content-align: right middle;
-    width: 15%;
+/* DataTable stretch */
+DataTable {
+    height: 100% !important;
+    max-height: 100% !important;
 }
 
+/* Utility classes */
+.highlight {
+    background: $highlight;
+    color: $text-on-highlight;
+}
 
+/* Tabs container */
+Tabs {
+  height: 3;
+  background: $surface-muted;
+  border-bottom: thick solid $secondary;
+  padding-left: 2;
+  dock: top;
+}
+
+/* Individual Tab */
+Tabs > Tab {
+  padding: 0 2;
+  color: $text-muted;
+  border-bottom: thick solid transparent;
+  text-style: normal;
+}
+
+/* Selected tab */
+Tabs > Tab.-selected {
+  color: $highlight;
+  background: $primary;
+  border-bottom-color: $highlight;
+  text-style: bold;
+}
+
+/* Tab hover */
+Tabs > Tab:hover:not(.-selected) {
+  background: $surface-light;
+  color: $text;
+}
