@@ -9,19 +9,22 @@
 
 import os
 import sys
+from datetime import datetime
 from dataclasses import dataclass, field, fields
 from importlib import metadata
 from loguru import logger
 from rich.theme import Theme as RichTheme
 from textual.app import App
-from textual.command import Provider
+from textual.command import DiscoveryHit, Hit, Provider
 from textual.theme import Theme as TextualTheme
 from textual.widgets import Tabs
 from rich.traceback import Traceback
-from db4e.Modules.ArgumentParser import Config, create_config_from_args
-from db4e.Modules.CommandManager import CommandManager
-from db4e.Modules.TabManager import TabManager
-from db4e.Widgets.TopBar import TopBar
+
+from Widgets.Clock import Clock
+from Widgets.DetailPane import DetailPane
+from Widgets.NavPane import NavPane
+from Widgets.TopBar import TopBar
+from Modules.ArgumentParser import get_cli_args
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -31,37 +34,18 @@ except Exception:
     __version__ = "N/A"
 
 
-class CommandPaletteCommands(Provider):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db4e_app: Db4EApp = self.db4e_app
-
-    def async_command(self, key: str):
-        """Helper function to call the process_key_event command asynchronously."""
-        self.app.call_later(self.db4e_app.process_key_event, key)
-
-    def get_command_hits(self):
-        """Helper function to get all commands and format them for discovery or search."""
-        return
-    
-    async def discover(self):
-        return
-    
-    async def search(self, query: str):
-        return
+from functools import partial
+from textual.command import Provider
+from textual import events
 
 class Db4EApp(App):
     TITLE = "Db4E"
     CSS_PATH = "Db4E.tcss"
-    COMMANDS = {CommandPaletteCommands}
-    COMMAND_PALETTE_BINDING = "question_mark"
 
     def __init__(self, config: Config):
         super().__init__()
 
         self.config = config
-        self.command_manager = CommandManager()
 
         theme = RichTheme(
             {
@@ -131,25 +115,14 @@ class Db4EApp(App):
         await self.process_key_event(event.key)
 
     async def process_key_event(self, key):
-        tab = self.tab_manager.active_tab
-        if not tab:
-            return
         if key == "q":
             self.app.exit()
 
-    async def on_mount(self):
-        self.tab_manager = TabManager(app=self.app, config=self.config)
-        await self.tab_manager.create_ui_widgets()
-        tab = await self.tab_manager.create_tab(tab_name="Initial Tab")
-        self.tab_manager.setup_component_tab(tab)
-        self.tab_manager.run_component_updater(tab)
-
-        if not self.config.daemon_mode:
-            self.tab_manager.run_metrics_collector(tab)
-
     def compose(self):
         yield TopBar(component="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
-        yield Tabs(id="host_tabs")
+        #yield NavPane()
+        #yield DetailPane()
+        #yield Clock()
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
@@ -181,9 +154,7 @@ def main():
     os.environ["TERM"] = "xterm-256color"
     os.environ["COLORTERM"] = "truecolor"
 
-    config = create_config_from_args(__version__)
-    setup_logger(config)
-
+    config = get_cli_args(__version__)
     setup_logger(config)
     app = Db4EApp(config)
     app.run()

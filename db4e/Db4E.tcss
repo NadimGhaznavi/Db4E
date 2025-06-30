@@ -18,13 +18,12 @@ $text-on-highlight: #1e1e2e; /* Text on highlight backgrounds */
 Screen {
     height: 100%;
     width: 100%;
-    background: $surface;  /* Use your theme color */
+    background: $surface;
 }
 
 /* TopBar - fixed height, docked top */
 TopBar {
     height: 3;
-    min-height: 3;
     background: $primary;
     color: $text;
     padding: 0 2;

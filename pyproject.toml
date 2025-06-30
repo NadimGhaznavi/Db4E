@@ -7,13 +7,19 @@ authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10.19"
+python = "^3.10.20"
 pymongo = "^4.13.2"
 PyYAML = "^6.0.2"
+rich = "^14.0.0"
 loguru = "^0.7.3"
 myloginpath = "^0.0.4"
 textual = {extras = ["syntax"], version = "^3.5.0"}
 textual-dev = "1.7.0"
+plotext = "^5.3.2"
+requests = "^2.32.3"
+zstandard = "^0.23.0"
+orjson = "^3.10.15"
+psutil = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -21,4 +27,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 db4e = "db4e.App:main"
+
 

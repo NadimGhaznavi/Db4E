@@ -55,7 +55,7 @@ class Config:
     template_dir: str = "tmpl"
     vendor_dir: str = "vendor"
 
-def create_config_from_args(app_version: str) -> Config:
+def get_cli_args(app_version: str) -> Config:
     parser = argparse.ArgumentParser(description="Db4E command line switches")
     parser.add_argument("-b", "--backup", action="store_true", help="Perform a db4e backup.")
     parser.add_argument("-s", "--service", action="store_true", help="Run db4e as a service.")
@@ -72,5 +72,5 @@ def create_config_from_args(app_version: str) -> Config:
     elif args.service:
         op = "run_daemon"
 
-    return Config(app_version=app_version, op=op, daemon_mode=(op == "run_daemon"))
+    return Config(app_version=app_version, op=op)
 
