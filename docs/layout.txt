@@ -3,6 +3,22 @@
 │  ├ db4e core  │
 │  ├ Monero     │
 │  │  ├ Kermit  │
+│  │  ├ Local   │
+│  │  └ <New>   │
+│  ├ P2Pool     │
+│  │  ├ Kermit  │
+│  │  ├ Local   │
+│  │  └ <New>   │
+│  └ XMRig      │
+│     ├ Bingo   │
+│     ├ Maia    │
+│     ├ Paris   │
+│     ├ Phoebe  │
+│     ├ ThePad  │
+│     └ <New>   │
+│ Metrics       │
+│  ├ Monero     │
+│  │  ├ Kermit  │
 │  │  └ Local   │
 │  ├ P2Pool     │
 │  │  ├ Kermit  │
@@ -13,10 +29,13 @@
 │     ├ Paris   │
 │     ├ Phoebe  │
 │     └ ThePad  │
-│ Metrics       │
-│  ├ Monero     │
-│  ├ P2Pool     │
-│  └ XMRig      │
 | Donations     │
 └───────────────┘
 
+┌────────────────────────────────────────────────────────────┐
+│ TopBar: [Db4E vX.Y.Z]  [Hostname]  [Contextual Help Msg]   │
+├────────────────────────────────────────────────────────────┤
+│ Menu (Left Pane)          │  DetailPane (Right Pane)       │
+│ TreeView-like structure   │  Displays info for selected    │
+│ from mockup above         │  deployment/metrics/etc        │
+└────────────────────────────────────────────────────────────┘

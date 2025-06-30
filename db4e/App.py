@@ -136,7 +136,7 @@ class Db4EApp(App):
 
     def compose(self):
         yield TopBar(
-            host="localhost",  # or dynamically updated later
+            component="COMPONENT",  # TODO - Dynamic updates
             app_version=__version__,
             help="press [b highlight]?[/b highlight] for commands"
         )

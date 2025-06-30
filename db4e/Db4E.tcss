@@ -1,11 +1,23 @@
-TopBar {
+#topbar_row {
     layout: horizontal;
-    align: center middle;
     height: 1;
-    padding: 0 1;
-    border: tall $panel_border;
+    dock: top;
+    background: $surface;
 }
 
-#topbar_title, #topbar_host, #topbar_help {
-    margin-right: 2;
+#topbar_component {
+    text-align: center;
+    content-align: center middle;
+    width: 70%;
 }
+
+#topbar_title {
+    width: 15%;
+    content-align: left middle;
+}
+
+#topbar_help {
+    width: 15%;
+    content-align: right middle;
+}
+
