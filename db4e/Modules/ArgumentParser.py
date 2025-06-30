@@ -33,27 +33,27 @@ class ArgumentParser:
 @dataclass
 class Config:
     app_version: str
-    api_dir = 'api'
-    bin_dir = 'bin'
-    conf_dir = 'conf'
-    daemon_mode = False
-    daemon_mode_log_file = 'db4e.log'
-    desc = "Database 4 Everything"
-    dev_dir = 'dev'
-    log_dir = 'logs'
-    op: str = 'run_ui'
-    process = 'db4e.sh'
+    op: str = "run_ui"
+    daemon_mode: bool = False
+    daemon_mode_log_file: str = "db4e.log"
     pypi_repository: str = "https://pypi.org/pypi/db4e/json"
-    refresh_interval = 15
-    run_dir = 'run'
-    service_file = 'db4e.service'
-    setup_script = 'db4e-initial-setup.sh'
-    service_uninstaller = 'db4e-uninstall-service.sh'
-    service_install_script = 'db4e-install-service.sh'
-    src_dir = 'src'
-    systemd_dir = 'systemd'
-    template_dir = 'tmpl'
-    vendor_dir = 'vendor'
+    refresh_interval: int = 15
+    api_dir: str = "api"
+    bin_dir: str = "bin"
+    conf_dir: str = "conf"
+    desc: str = "Database 4 Everything"
+    dev_dir: str = "dev"
+    log_dir: str = "logs"
+    process: str = "db4e.sh"
+    run_dir: str = "run"
+    service_file: str = "db4e.service"
+    setup_script: str = "db4e-initial-setup.sh"
+    service_uninstaller: str = "db4e-uninstall-service.sh"
+    service_install_script: str = "db4e-install-service.sh"
+    src_dir: str = "src"
+    systemd_dir: str = "systemd"
+    template_dir: str = "tmpl"
+    vendor_dir: str = "vendor"
 
 def create_config_from_args(app_version: str) -> Config:
     parser = argparse.ArgumentParser(description="Db4E command line switches")
