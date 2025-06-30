@@ -1,40 +1,54 @@
-#topbar_row {
-    layout: horizontal;
-    height: 3;
+Screen {
+    layout: grid;
+    grid-size: 2;
+    /* grid-columns: 1fr 4fr; */
+    /* grid-rows: 1fr 9fr 1fr; */
+}
+
+TopBar {
+    column-span: 2;
     dock: top;
     background: $surface;
     border: round;
+    height: 3;
+    layout: horizontal;
+    padding: 0 2;
+}
+
+NavPane {
+    background: $surface;
+    border: round;
+    height: auto;
+    padding: 0 2;
+}
+
+DetailPane {
+    border: round;
+    background: $surface;
+    padding: 0 2;
+    row-span: 2;
+}
+
+Clock {
+    border: round;
+    height: 3;
+    padding: 0 2;
 }
 
 #topbar_component {
-    text-align: center;
     content-align: center middle;
+    text-align: center;
     width: 70%;
 }
 
 #topbar_title {
-    width: 15%;
     content-align: left middle;
+    width: 15%;
 }
 
 #topbar_help {
-    width: 15%;
     content-align: right middle;
+    width: 15%;
 }
 
-#main_row {
-    layout: horizontal;
-    height: 100%;
-}
 
-#nav_pane {
-    width: 25%;
-    background: $background;
-    border: round;
-}
-
-#detail_pane {
-    width: 75%;
-    background: $surface;
-    border: round;
-}

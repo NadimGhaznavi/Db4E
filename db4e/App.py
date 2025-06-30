@@ -14,16 +14,16 @@ from importlib import metadata
 from loguru import logger
 from rich.theme import Theme as RichTheme
 from textual.app import App
-from textual.theme import Theme as TextualTheme
 from textual.command import Provider
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
+from textual.theme import Theme as TextualTheme
+from textual.widgets import Tabs
 from rich.traceback import Traceback
 from db4e.Modules.ArgumentParser import Config, create_config_from_args
 from db4e.Modules.CommandManager import CommandManager
 from db4e.Modules.TabManager import TabManager
+from db4e.Modules.Db4eScreen import Db4eScreen
 from db4e.Widgets.TopBar import TopBar
-from db4e.Widgets.NavPane import NavPane
-from db4e.Widgets.DetailPane import DetailPane
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -31,6 +31,7 @@ try:
 except Exception:
     __package_name__ = "Db4E"
     __version__ = "N/A"
+
 
 class CommandPaletteCommands(Provider):
 
@@ -136,14 +137,11 @@ class Db4EApp(App):
             self.tab_manager.run_metrics_collector(tab)
 
     def compose(self):
-        yield TopBar(
-            component="COMPONENT",  # TODO - Dynamic updates
-            app_version=__version__,
-            help="press [b highlight]?[/b highlight] for commands"
-        )
-        with Horizontal(id="main_row"):
-            yield NavPane(id="nav_pane")
-            yield DetailPane(id="detail_pane")
+        yield TopBar(component="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
+        yield Tabs(id="host_tabs")
+
+    def on_ready(self) -> None:
+        self.push_screen(Db4eScreen())
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()

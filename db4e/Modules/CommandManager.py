@@ -9,7 +9,16 @@ class CommandManager:
 
     def __init__(self):
 
-        self.command_keys = {}
+        self.command_keys = {
+            "db4e_app": {
+                "Commands": {
+                    "q": {
+                        "human_key": "q",
+                        "description": "Quit"
+                        },
+                    },
+                }
+        }
 
         # These are keys that we let go through no matter what
         self.exclude_keys = [
@@ -36,3 +45,7 @@ class CommandManager:
     def get_commands(self):
         key = {}
         return self.command_keys.get(key, {}).get("Commands")
+    
+
+
+    # db4e_app
