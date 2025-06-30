@@ -15,14 +15,12 @@ from loguru import logger
 from rich.theme import Theme as RichTheme
 from textual.app import App
 from textual.command import Provider
-from textual.containers import Horizontal, Vertical
 from textual.theme import Theme as TextualTheme
 from textual.widgets import Tabs
 from rich.traceback import Traceback
 from db4e.Modules.ArgumentParser import Config, create_config_from_args
 from db4e.Modules.CommandManager import CommandManager
 from db4e.Modules.TabManager import TabManager
-from db4e.Modules.Db4eScreen import Db4eScreen
 from db4e.Widgets.TopBar import TopBar
 
 try:
@@ -126,6 +124,19 @@ class Db4EApp(App):
             )
             logger.info(f"Log file: {config.daemon_mode_log_file}")
 
+    async def on_key(self, event: events.Key):
+        if len(self.screen_stack) > 1:
+            return
+
+        await self.process_key_event(event.key)
+
+    async def process_key_event(self, key):
+        tab = self.tab_manager.active_tab
+        if not tab:
+            return
+        if key == "q":
+            self.app.exit()
+
     async def on_mount(self):
         self.tab_manager = TabManager(app=self.app, config=self.config)
         await self.tab_manager.create_ui_widgets()
@@ -140,18 +151,9 @@ class Db4EApp(App):
         yield TopBar(component="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
         yield Tabs(id="host_tabs")
 
-    def on_ready(self) -> None:
-        self.push_screen(Db4eScreen())
-
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
-
-class Db4eScreen(Screen, id="main", classes="-main-layout"):
-    def compose(self):
-        yield TopBar(...)
-        yield Tabs(id="host_tabs")
-        yield Container(id="main_content")  # Or a Grid/TabPane
 
 def setup_logger(config: Config):
     logger.remove()

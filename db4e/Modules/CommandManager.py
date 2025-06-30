@@ -42,8 +42,7 @@ class CommandManager:
             "ctrl+d",
         ]
 
-    def get_commands(self):
-        key = {}
+    def get_commands(self, context="db4e_app"):
         return self.command_keys.get(key, {}).get("Commands")
     
 
