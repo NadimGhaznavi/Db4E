@@ -1,8 +1,9 @@
 #topbar_row {
     layout: horizontal;
-    height: 1;
+    height: 3;
     dock: top;
     background: $surface;
+    border: round;
 }
 
 #topbar_component {
@@ -21,3 +22,19 @@
     content-align: right middle;
 }
 
+#main_row {
+    layout: horizontal;
+    height: 100%;
+}
+
+#nav_pane {
+    width: 25%;
+    background: $background;
+    border: round;
+}
+
+#detail_pane {
+    width: 75%;
+    background: $surface;
+    border: round;
+}

@@ -1,4 +1,4 @@
-# db4e/Status/NodeStatusBar.py
+# db4e/Widgets/TopBar.py
 
 from rich.text import Text
 from textual.app import ComposeResult

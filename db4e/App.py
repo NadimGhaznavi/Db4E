@@ -14,15 +14,16 @@ from importlib import metadata
 from loguru import logger
 from rich.theme import Theme as RichTheme
 from textual.app import App
-from textual.widgets import Footer, Header, Tabs
 from textual.theme import Theme as TextualTheme
 from textual.command import Provider
+from textual.containers import Horizontal
 from rich.traceback import Traceback
-from db4e.Db4E import Db4E
 from db4e.Modules.ArgumentParser import Config, create_config_from_args
 from db4e.Modules.CommandManager import CommandManager
 from db4e.Modules.TabManager import TabManager
 from db4e.Widgets.TopBar import TopBar
+from db4e.Widgets.NavPane import NavPane
+from db4e.Widgets.DetailPane import DetailPane
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -140,7 +141,9 @@ class Db4EApp(App):
             app_version=__version__,
             help="press [b highlight]?[/b highlight] for commands"
         )
-        yield Tabs(id="deployment_tabs")
+        with Horizontal(id="main_row"):
+            yield NavPane(id="nav_pane")
+            yield DetailPane(id="detail_pane")
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
