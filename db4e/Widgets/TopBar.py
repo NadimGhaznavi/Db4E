@@ -10,11 +10,11 @@ class TopBar(Container):
     tb_component = reactive("", init=False, always_update=True)
     tb_msg = reactive("", init=False, always_update=True)
 
-    def __init__(self, component="", app_version=""):
-        super().__init__()
+    def __init__(self, component="", app_version="", **kwargs):
+        super().__init__(**kwargs)
 
         self.topbar_title = Text.from_markup(f"[b green]Db4E[/b green] [dim]v{app_version}[/dim]")
-        self.topbar_component = Label("", id="topbar_component")
+        self.topbar_component = Text("")
 
     def _update_topbar(self):
         if self.tb_component or self.tb_msg:
@@ -38,5 +38,5 @@ class TopBar(Container):
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
-            yield self.topbar_title
-            yield self.topbar_component
+            yield Label((self.topbar_title), id="topbar_title")
+            yield Label(self.topbar_component, id="topbar_component")

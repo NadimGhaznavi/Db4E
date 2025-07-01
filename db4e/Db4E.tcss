@@ -1,11 +1,32 @@
 
 /* Root screen layout */
 Screen {
-    height: 100%;
-    width: 100%;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 1fr 4fr;
+    grid-rows: 13fr 1fr;
 }
 
-/* TopBar - fixed height, docked top */
+Clock {
+    height: 3;
+    padding: 0 2;
+    border: round;
+    align: center middle;
+}
+
+DetailPane {
+    height: 1fr;
+    padding: 0 2;
+    border: round;
+    row-span: 2;
+}
+
+NavPane {
+    height: 9fr;
+    padding: 0 2;
+    border: round;
+}
+
 TopBar {
     height: 3;
     padding: 0 2;

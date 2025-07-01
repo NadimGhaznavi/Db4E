@@ -29,9 +29,9 @@ except Exception:
 from functools import partial
 from textual.command import Provider
 from db4e.Widgets.TopBar import TopBar
-#from Widgets.Clock import Clock
-#from Widgets.DetailPane import DetailPane
-#from Widgets.NavPane import NavPane
+from db4e.Widgets.Clock import Clock
+from db4e.Widgets.DetailPane import DetailPane
+from db4e.Widgets.NavPane import NavPane
 from db4e.Modules.ArgumentParser import get_cli_args, Config
 
 class Db4EApp(App):
@@ -115,9 +115,9 @@ class Db4EApp(App):
 
     def compose(self):
         yield TopBar(component="", app_version=__version__)
-        #yield NavPane()
-        #yield DetailPane()
-        #yield Clock()
+        yield NavPane()
+        yield DetailPane()
+        yield Clock()
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
