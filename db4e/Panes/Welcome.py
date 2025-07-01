@@ -10,7 +10,7 @@ from textual.widgets import Label, Static
 from textual.containers import Container
 from textual.app import ComposeResult
 
-from db4e.Widgets.TopBar import TopBar
+from db4e.Messages.TopBarUpdate import TopBarUpdate
 
 class Welcome(Container):
 
@@ -18,3 +18,6 @@ class Welcome(Container):
         print(f'Welcome:compose()')
         yield Label('Welcome Pane')
         yield Static('Welcome Pane - Static')
+
+    async def on_mount(self):
+        await self.post_message(TopBarUpdate(self, "Welcome", "Monero XMR Mining Dashboard"))
