@@ -12,7 +12,7 @@ from textual.widgets import ContentSwitcher
 from textual.reactive import reactive
 from textual.containers import Container
 
-from db4e.Modules.PaneManager import PaneManager
+from db4e.Modules.PaneMgr import PaneMgr
 
 
 class DetailPane(Container):
@@ -21,7 +21,7 @@ class DetailPane(Container):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.pane_manager = PaneManager()
+        self.pane_manager = PaneMgr()
 
     def compose(self) -> ComposeResult:
         print(f'DetailPane:compose() - {self.pane_id}')

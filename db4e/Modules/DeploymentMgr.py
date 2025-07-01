@@ -34,7 +34,7 @@ class DeploymentMgr:
          rec['user_wallet'] = self.ini.config['db4e']['user_wallet']
       self.db.insert_one(self.col_name, rec)
 
-   def first_time(self):
+   def is_first_time(self):
       rec = self.db.find_one(self.col_name, {'doc_type': 'deployment', 'component': 'db4e'})
       if rec:
          return False

@@ -34,3 +34,12 @@ TopBar {
     dock: top;
 }
 
+#tree_deployments {
+    height: auto;
+    background: $background;
+}
+
+#tree_metrics {
+    height: auto;
+    background: $background;
+}
