@@ -19,7 +19,11 @@ class NavPane(Container):
     def compose(self) -> ComposeResult:
         depls: Tree[str] = Tree("Deployments", id="tree_deployments")
         depls.root.add_leaf("db4e core")
+        depls.guide_depth = 3
+        depls.root.expand()
         metrics: Tree[str] = Tree("Metrics", id="tree_metrics")
+        metrics.guide_depth = 3
+        metrics.root.expand()
         donations = Label("Donations", id="donations")
         if not self.initialized:
             yield Vertical(depls, metrics, donations, id="navbar")
@@ -32,15 +36,11 @@ class NavPane(Container):
         p2pool_depls.add_leaf("New")
         xmrig_depls = depls.root.add("XMRig")
         xmrig_depls.add_leaf("New")
-        depls.guide_depth = 3
-        depls.root.expand()
 
         # Metrics
         metrics.root.add_leaf("db4e core")
         metrics.root.add_leaf("Monero")
         metrics.root.add_leaf("P2Pool")
         metrics.root.add_leaf("XMRig")
-        metrics.guide_depth = 3
-        metrics.root.expand()
         
         yield Vertical(depls, metrics, donations, id="navbar")

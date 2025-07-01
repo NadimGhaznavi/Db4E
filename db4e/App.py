@@ -35,6 +35,7 @@ from db4e.Widgets.NavPane import NavPane
 from db4e.Modules.ConfigMgr import ConfigMgr, Config
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Panes.Welcome import Welcome
+from db4e.Panes.InitialSetup import InitialSetup
 
 class Db4EApp(App):
     TITLE = "Db4E"
@@ -118,13 +119,20 @@ class Db4EApp(App):
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
+        initialized_flag = self.deployment_mgr.is_initialized()
         yield self.topbar
-        yield NavPane(initialized=not self.deployment_mgr.is_first_time())
-        yield DetailPane()
+        yield NavPane(initialized=initialized_flag)
+        yield DetailPane(initialized=initialized_flag)
         yield Clock()
 
+    # Panes updating the TopBar...
     def on_welcome_update_top_bar(self, message: Welcome.UpdateTopBar):
-        print('Db4eApp:on_top_bar_update')
+        self.update_topbar(message.component, message.msg)
+
+    def on_initial_setup_update_top_bar(self, message: InitialSetup.UpdateTopBar):
+        self.update_topbar(message.component, message.msg)
+
+    def update_topbar(self, component: str, message: str) -> None:
         if self.topbar:
             self.topbar.set_component(message.component)
             self.topbar.set_msg(message.msg)

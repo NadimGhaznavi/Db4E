@@ -12,7 +12,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, CollectionInvalid
 
 from db4e.Modules.ConfigMgr import Config
-from db4e.Templates.Mongo import DB4E_RECORD
+from db4e.Templates.db.Deployment import DB4E_RECORD
 
 class DbMgr:
     

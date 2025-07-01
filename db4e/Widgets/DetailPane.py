@@ -14,18 +14,22 @@ from textual.containers import Container
 
 from db4e.Modules.PaneMgr import PaneMgr
 
+INITIAL_SETUP = 'InitialSetup'
 
 class DetailPane(Container):
 
     pane_id = reactive('Welcome')
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, initialized: bool, **kwargs):
+        self.initialized = initialized
         self.pane_manager = PaneMgr()
+        super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
-        print(f'DetailPane:compose() - {self.pane_id}')
-        yield self.pane_manager.get_pane(self.pane_id)
+        if not self.initialized:
+            yield self.pane_manager.get_pane(INITIAL_SETUP)
+        else:
+            yield self.pane_manager.get_pane(self.pane_id)
 
     def set_pane_id(self, pane_id):
         self.pane_id = pane_id
