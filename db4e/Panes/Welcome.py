@@ -9,15 +9,22 @@ db4e/Panes/Welcome.py
 from textual.widgets import Label, Static
 from textual.containers import Container
 from textual.app import ComposeResult
+from textual.message import Message
 
-from db4e.Messages.TopBarUpdate import TopBarUpdate
+#from db4e.Messages.TopBarUpdate import TopBarUpdate
 
 class Welcome(Container):
 
+    class UpdateTopBar(Message):
+        def __init__(self, component: str, msg: str) -> None:
+            self.component = component
+            self.msg = msg
+            super().__init__()
+
     def compose(self) -> ComposeResult:
-        print(f'Welcome:compose()')
         yield Label('Welcome Pane')
         yield Static('Welcome Pane - Static')
 
     async def on_mount(self):
-        await self.post_message(TopBarUpdate(self, "Welcome", "Monero XMR Mining Dashboard"))
+        print('Welcome:on_mount()')
+        self.post_message(self.UpdateTopBar(component="Welcome", msg="Monero XMR Mining Dashboard"))

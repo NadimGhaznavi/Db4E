@@ -43,3 +43,8 @@ TopBar {
     height: auto;
     background: $background;
 }
+
+#topbar_title {
+    align: center middle;
+    width: 35%;
+}

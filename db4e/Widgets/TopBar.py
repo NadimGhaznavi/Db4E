@@ -11,39 +11,34 @@ from textual.app import ComposeResult
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
 from textual.widgets import Label
-from textual.message import Message
-
-from db4e.Messages.TopBarUpdate import TopBarUpdate
 
 class TopBar(Container):
     tb_component = reactive("", init=False, always_update=True)
     tb_msg = reactive("", init=False, always_update=True)
 
-    def __init__(self, sender, component: str, msg: str, app_version: str, **kwargs):
+    def __init__(self, sender = "", component: str = "", msg: str = "", app_version: str ="", **kwargs):
         super().__init__(**kwargs)
         self.sender = sender
         self.component = component
         self.msg = msg
 
         self.topbar_title = Text.from_markup(f"[b green]Db4E[/b green] [dim]v{app_version}[/dim]")
-        self.topbar_component = Text("")
+        self.topbar_component = Label("")
 
     def update_topbar(self):
         if self.tb_component or self.tb_msg:
             self.topbar_component.update(
-                Text.from_markup(f"[b cyan]{self.tb_component}[/b cyan] {self.tb_msg}")
+                Text.from_markup(f"[b cyan]{self.tb_component} - {self.tb_msg}[/b cyan]")
             )
         else:
             self.topbar_component.update("")
 
-    def on_top_bar_update(self, message: TopBarUpdate):
-        self.set_component(message.component)
-        self.set_msg(message.msg)
-
     def set_component(self, component):
+        print('TopBar:set_component()')
         self.tb_component = component
 
     def set_msg(self, msg):
+        print('TopBar:set_msg()')
         self.tb_msg = msg
 
     def watch_tb_component(self):
@@ -55,5 +50,5 @@ class TopBar(Container):
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
             yield Label((self.topbar_title), id="topbar_title")
-            yield Label(self.topbar_component, id="topbar_component")
+            yield self.topbar_component
 
