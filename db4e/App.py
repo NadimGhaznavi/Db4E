@@ -28,21 +28,19 @@ except Exception:
 
 from functools import partial
 from textual.command import Provider
-from Widgets.TopBar import TopBar
+from db4e.Widgets.TopBar import TopBar
 #from Widgets.Clock import Clock
 #from Widgets.DetailPane import DetailPane
 #from Widgets.NavPane import NavPane
-from Modules.ArgumentParser import get_cli_args, Config
+from db4e.Modules.ArgumentParser import get_cli_args, Config
 
 class Db4EApp(App):
     TITLE = "Db4E"
     CSS_PATH = "Db4E.tcss"
 
-    def __init__(self, config: Config):
-        super().__init__()
-
-        self.config = config
-
+    def __init__(self, ini: Config, **kwargs):
+        super().__init__(**kwargs)
+        self.ini = ini
         theme = RichTheme(
             {
                 "white": "#e9e9e9",
@@ -68,7 +66,6 @@ class Db4EApp(App):
         )
         self.console.push_theme(theme)
         self.console.set_window_title(self.TITLE)
-
         theme = TextualTheme(
             name="custom",
             primary="white",
@@ -97,12 +94,14 @@ class Db4EApp(App):
         self.register_theme(theme)
         self.theme = "custom"
 
-        if config.daemon_mode:
+        if ini.config['op'] == 'run_daemon':
+            refresh_interval = ini.config['refresh_interval']
+            log_file = ini.config['service_log_file']
             logger.info(
                 f"Starting Db4E v{__version__} in daemon mode with a refresh "
-                f"interval of {config.refresh_interval}s"
+                f"interval of {refresh_interval}s"
             )
-            logger.info(f"Log file: {config.daemon_mode_log_file}")
+            logger.info(f"Log file: {log_file}")
 
     async def on_key(self, event: events.Key):
         if len(self.screen_stack) > 1:
@@ -115,7 +114,7 @@ class Db4EApp(App):
             self.app.exit()
 
     def compose(self):
-        yield TopBar(component="", app_version=__version__, help="press [b highlight]?[/b highlight] for commands")
+        yield TopBar(component="", app_version=__version__)
         #yield NavPane()
         #yield DetailPane()
         #yield Clock()
@@ -124,11 +123,11 @@ class Db4EApp(App):
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
 
-def setup_logger(config: Config):
+def setup_logger(ini: Config):
     logger.remove()
 
     # If we're not using daemon mode, we want to essentially disable logging
-    if not config.daemon_mode:
+    if not ini.config['op'] == 'run_daemon':
         return
 
     logger.level("DEBUG", color="<magenta>")

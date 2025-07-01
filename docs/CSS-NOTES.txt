@@ -1,0 +1,87 @@
+/* Tabs - fixed height below TopBar */
+Tabs {
+    height: 3;
+    background: $surface-muted;
+    border: tall transparent;
+    margin-top: 0;
+    dock: top;
+}
+
+/* Selected tab styling */
+Tabs > Tab.-selected {
+    background: $primary;
+    color: $highlight;
+    text-style: bold;
+    border-bottom: thick $highlight;
+}
+
+/* Main content container fills remaining space */
+#main_container {
+    height: 1fr !important;
+    padding: 1 2;
+    overflow: auto;
+    background: $surface-light;
+}
+
+/* Scrollbars */
+ScrollView > .scrollbar.vertical {
+    background: $secondary;
+    width: 1;
+}
+
+/* Generic widgets padding and margin */
+Widget {
+    margin: 0 0 1 0;
+    padding: 0;
+}
+
+/* Help tooltip style */
+HelpText {
+    background: $surface-muted;
+    color: $text-muted;
+    padding: 1 2;
+    border: round $secondary;
+}
+
+/* DataTable stretch */
+DataTable {
+    height: 100% !important;
+    max-height: 100% !important;
+}
+
+/* Utility classes */
+.highlight {
+    background: $highlight;
+    color: $text-on-highlight;
+}
+
+/* Tabs container */
+Tabs {
+  height: 3;
+  background: $surface-muted;
+  border-bottom: thick solid $secondary;
+  padding-left: 2;
+  dock: top;
+}
+
+/* Individual Tab */
+Tabs > Tab {
+  padding: 0 2;
+  color: $text-muted;
+  border-bottom: thick solid transparent;
+  text-style: normal;
+}
+
+/* Selected tab */
+Tabs > Tab.-selected {
+  color: $highlight;
+  background: $primary;
+  border-bottom-color: $highlight;
+  text-style: bold;
+}
+
+/* Tab hover */
+Tabs > Tab:hover:not(.-selected) {
+  background: $surface-light;
+  color: $text;
+}

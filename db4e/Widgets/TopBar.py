@@ -13,7 +13,7 @@ class TopBar(Container):
     def __init__(self, component="", app_version=""):
         super().__init__()
 
-        self.topbar_title = Text.from_markup(f"[b green]Db4E[/b green] [dim]v{app_version}[/dim]", id="topbar_title")
+        self.topbar_title = Text.from_markup(f"[b green]Db4E[/b green] [dim]v{app_version}[/dim]")
         self.topbar_component = Label("", id="topbar_component")
 
     def _update_topbar(self):
