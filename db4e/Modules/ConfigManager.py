@@ -33,8 +33,10 @@ class ConfigManager:
         if args.version:
             print(f"Db4E v{app_version}")
             sys.exit(0)
-        return ini
+        self.ini = ini
 
+    def get_config(self):
+        return self.ini
     
 class Config:
     def __init__(self, app_version: str):

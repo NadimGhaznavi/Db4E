@@ -94,9 +94,9 @@ class Db4EApp(App):
         self.register_theme(theme)
         self.theme = "custom"
 
-        if ini.config['op'] == 'run_daemon':
-            refresh_interval = ini.config['refresh_interval']
-            log_file = ini.config['service_log_file']
+        if ini.config['db4e']['op'] == 'run_daemon':
+            refresh_interval = ini.config['db4e']['refresh_interval']
+            log_file = ini.config['db4e']['service_log_file']
             logger.info(
                 f"Starting Db4E v{__version__} in daemon mode with a refresh "
                 f"interval of {refresh_interval}s"
@@ -150,7 +150,8 @@ def main():
     os.environ["TERM"] = "xterm-256color"
     os.environ["COLORTERM"] = "truecolor"
 
-    config = ConfigManager(__version__)
+    config_manager = ConfigManager(__version__)
+    config = config_manager.get_config()
     setup_logger(config)
     app = Db4EApp(config)
     app.run()
