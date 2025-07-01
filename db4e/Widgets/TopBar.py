@@ -31,10 +31,10 @@ class TopBar(Container):
         self.tb_msg = msg
 
     def watch_tb_component(self):
-        self._update_topbar_component()
+        self._update_topbar()
 
     def watch_tb_msg(self):
-        self._update_topbar_component()
+        self._update_topbar()
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):

@@ -32,7 +32,8 @@ from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.Clock import Clock
 from db4e.Widgets.DetailPane import DetailPane
 from db4e.Widgets.NavPane import NavPane
-from db4e.Modules.ConfigManager import ConfigManager, Config
+from db4e.Modules.ConfigMgr import ConfigMgr, Config
+from db4e.Modules.DeploymentMgr import DeploymentMgr
 
 class Db4EApp(App):
     TITLE = "Db4E"
@@ -41,6 +42,7 @@ class Db4EApp(App):
     def __init__(self, ini: Config, **kwargs):
         super().__init__(**kwargs)
         self.ini = ini
+        self.deployment_mgr = DeploymentMgr(ini)
         theme = RichTheme(
             {
                 "white": "#e9e9e9",
@@ -115,7 +117,7 @@ class Db4EApp(App):
 
     def compose(self):
         yield TopBar(component="", app_version=__version__)
-        yield NavPane()
+        yield NavPane(initialized=not self.deployment_mgr.is_first_time())
         yield DetailPane()
         yield Clock()
 
@@ -150,7 +152,7 @@ def main():
     os.environ["TERM"] = "xterm-256color"
     os.environ["COLORTERM"] = "truecolor"
 
-    config_manager = ConfigManager(__version__)
+    config_manager = ConfigMgr(__version__)
     config = config_manager.get_config()
     setup_logger(config)
     app = Db4EApp(config)

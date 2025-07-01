@@ -10,7 +10,7 @@ from textual.widgets import Label, Static
 from textual.containers import Container
 from textual.app import ComposeResult
 
-
+from db4e.Widgets.TopBar import TopBar
 
 class Welcome(Container):
 

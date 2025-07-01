@@ -9,9 +9,10 @@ db4e/Modules/PaneManager.py
 
 from db4e.Panes.Welcome import Welcome
 
-class PaneManager:
+class PaneMgr:
 
     def get_pane(self, pane_name):
         print(f'PaneManager:get_pane({pane_name})')
         if pane_name == 'Welcome':
             return Welcome(id=pane_name)
+        

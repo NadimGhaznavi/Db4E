@@ -9,11 +9,8 @@ db4e/Modules/ConfigManager.py
 
 import sys
 import argparse
-from typing import Dict
-from dataclasses import dataclass, field
-from typing import Optional
 
-class ConfigManager:
+class ConfigMgr:
     def __init__(self, app_version: str):
         parser = argparse.ArgumentParser(description="Db4E command line switches")
         parser.add_argument("-b", "--backup", action="store_true", help="Perform a db4e backup.")
@@ -28,11 +25,9 @@ class ConfigManager:
             ini.config['db4e']['op'] = 'run_daemon'
         elif args.version:
             print(f'Db4e v{app_version}')
+            sys.exit(0)
         else:
             ini.config['db4e']['op'] = 'run_ui'
-        if args.version:
-            print(f"Db4E v{app_version}")
-            sys.exit(0)
         self.ini = ini
 
     def get_config(self):
@@ -63,6 +58,21 @@ class Config:
                 'systemd_dir': "systemd",
                 'template_dir': "tmpl",
                 'vendor_dir': "vendor",
+            },
+            'db': {
+                'backup_dir': 'backups',
+                'backup_script':'db4e-backup.sh',
+                'collection': 'mining',
+                'depl_collection': 'depl',
+                'log_collection': 'logging',
+                # How many days of data to keep in the logging collection
+                'log_retention_days': 7,
+                'max_backups': 7,
+                'metrics_collection': 'metrics',
+                'name': 'db4e',
+                'port': 27017,
+                'retry_timeout': 15,
+                'server': 'localhost',
             }
         }
 
