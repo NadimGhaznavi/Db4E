@@ -32,7 +32,7 @@ from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.Clock import Clock
 from db4e.Widgets.DetailPane import DetailPane
 from db4e.Widgets.NavPane import NavPane
-from db4e.Modules.ArgumentParser import get_cli_args, Config
+from db4e.Modules.ConfigManager import ConfigManager, Config
 
 class Db4EApp(App):
     TITLE = "Db4E"
@@ -127,7 +127,7 @@ def setup_logger(ini: Config):
     logger.remove()
 
     # If we're not using daemon mode, we want to essentially disable logging
-    if not ini.config['op'] == 'run_daemon':
+    if not ini.config['db4e']['op'] == 'run_daemon':
         return
 
     logger.level("DEBUG", color="<magenta>")
@@ -136,10 +136,11 @@ def setup_logger(ini: Config):
     logger.level("ERROR", color="<red>")
     log_format = "<dim>{time:MM-DD-YYYY HH:mm:ss}</dim> <b><level>[{level}]</level></b> {message}"
     log_level = "INFO"
+    log_file = ini['db4e']['service_log_file']
 
     # Add terminal & file logging
     logger.add(sys.stdout, format=log_format, backtrace=True, colorize=True, level=log_level)
-    logger.add(config.daemon_mode_log_file, format=log_format, backtrace=True, level=log_level)
+    logger.add(log_file, format=log_format, backtrace=True, level=log_level)
 
     # Exit when critical is used
     logger.add(lambda _: sys.exit(1), level="CRITICAL")
@@ -149,7 +150,7 @@ def main():
     os.environ["TERM"] = "xterm-256color"
     os.environ["COLORTERM"] = "truecolor"
 
-    config = get_cli_args(__version__)
+    config = ConfigManager(__version__)
     setup_logger(config)
     app = Db4EApp(config)
     app.run()
