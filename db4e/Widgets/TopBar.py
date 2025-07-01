@@ -40,3 +40,4 @@ class TopBar(Container):
         with Horizontal(id="topbar"):
             yield Label((self.topbar_title), id="topbar_title")
             yield Label(self.topbar_component, id="topbar_component")
+
