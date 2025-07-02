@@ -1,12 +1,10 @@
-
-
-
 /* Root screen layout */
 Screen {
     layout: grid;
     grid-size: 2;
     grid-columns: 1fr 4fr;
     grid-rows: 13fr 1fr;
+    grid-gutter: 0 1;
 }
 
 Clock {
@@ -36,6 +34,17 @@ TopBar {
     dock: top;
 }
 
+#labeled_input_label {
+    align: right middle;
+    height: 1;
+    width: 25;
+}
+
+#topbar_title {
+    align: center middle;
+    width: 35%;
+}
+
 #tree_deployments {
     height: auto;
 }
@@ -44,8 +53,40 @@ TopBar {
     height: auto;
 }
 
-#topbar_title {
+#initial_setup_form {
+    height: 5;
+    border: round;
+}
+#initial_setup_db4e_group_label {
+    padding: 0 1;
+    width: 23;
+}
+#initial_setup_vendor_dir_label {
+    padding: 0 1;
+    width: 23;
+}
+#initial_setup_user_wallet_label {
+    padding: 0 1;
+    width: 23;
+}
+#initial_setup_db4e_group_input {
+    width: 10;
+}
+#initial_setup_vendor_dir_input {
+    width: 30;
+}
+#initial_setup_user_wallet_input {
+    width: 75;
+}
+
+.form_intro {
+    border: round;
+}
+
+Button {
     align: center middle;
-    width: 35%;
+    height: 3;
+    border: round;
+    width: 20;
 }
 

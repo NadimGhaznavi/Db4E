@@ -6,17 +6,14 @@ db4e/Panes/InitialSetup.py
    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
    License: GPL 3.0
 """
-from textual.widgets import Label, MarkdownViewer
-from textual.containers import Container
+from textual.widgets import Label, MarkdownViewer, Input, Button
+from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
 from textual.message import Message
 
+from db4e.Messages.SubmitFormData import SubmitFormData
 
-STATIC_CONTENT = """\
-# Initial Setup
-
-Welcome to the *Database 4 Everything* initial setup screen. 
-In order to continue, you will need to enter the following information:
+STATIC_CONTENT = """Welcome to the *Database 4 Everything* initial setup screen. 
 
 | Field                | Description                                        | Example          |
 | -------------------- | ---------------------------------------------------|----------------- |
@@ -30,16 +27,12 @@ into this directory.
 
 Additionally, the `/etc/sudoers` will be updated to allow Db4E to start and stop Monero, P2Pool
 and XMRig. `Systemd` services will be added for these three elements and a *Db4E* service will also
-be installed. Finally, the *sticky bit* will be set on the XMRig executible so it runs as root so
-that it can access MSRs for performance purposes.
+be installed. Finally, the *sticky bit* will be set on the XMRig executible so it runs as root to
+access MSRs for optimal performance.
 
 You must have *sudo* access to the root user account. This is normally already setup in a default 
 Linux installation. You will be prompted for your password, since the installer runs as root.
 """
-
-from textual.containers import Vertical
-from db4e.Widgets.LabeledInput import LabeledInput
-from db4e.Widgets.LabeledButton import LabeledButton
 
 class InitialSetup(Container):
 
@@ -49,24 +42,32 @@ class InitialSetup(Container):
             self.component = component
             self.msg = msg
 
+
     def compose(self) -> ComposeResult:
-        yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="markdown")
+        yield Vertical(
+            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
+
+            Vertical(
+                Horizontal(
+                    Label("Linux Group:", id="initial_setup_db4e_group_label"),
+                    Input(id="initial_setup_db4e_group_input", compact=True)),
+                Horizontal(
+                    Label("Deployment Directory:", id="initial_setup_vendor_dir_label"),
+                    Input(id="initial_setup_vendor_dir_input", compact=True)),
+                Horizontal(
+                    Label("Wallet:", id="initial_setup_user_wallet_label"), 
+                    Input(id="initial_setup_user_wallet_input", compact=True)),
+                id="initial_setup_form"),
+
+            Button(label="Proceed", id="initial_setup_button"))
 
     async def on_mount(self):
-        print('Welcome:on_mount()')
         self.post_message(self.UpdateTopBar(component="Database 4 Everything", msg="Initial Setup"))
 
-        yield Vertical(
-            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="markdown"),
-            LabeledInput(label="Monero wallet", placeholder="48aTDJfRH2JLc...", id="user_wallet_input"),
-            LabeledInput(label="Linux group", placeholder="db4e", id="db4e_group_input"),
-            LabeledInput(label="Deployment directory", placeholder="/opt/db4e", id="vendor_dir_input"),
-            LabeledButton(label="Proceed", id="proceed_button"),
-        )
-
-    async def on_labeled_input_changed(self, message: LabeledInput.Changed):
-        print(f"Input {message.sender.id} changed to: {message.value}")
-
-    async def on_themed_button_pressed(self, message: LabeledButton.Pressed):
-        print(f"Button {message.sender.id} pressed!")
-        # proceed with validation, etc.
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        form_data = {
+            "wallet": self.query_one("#initial_setup_user_wallet_input", Input).value,
+            "group": self.query_one("#initial_setup_db4e_group_input", Input).value,
+            "vendor_dir": self.query_one("#initial_setup_vendor_dir_input", Input).value,
+        }
+        self.app.post_message(SubmitFormData(form_data))

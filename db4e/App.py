@@ -11,10 +11,11 @@ import os
 import sys
 from dataclasses import dataclass, field, fields
 from importlib import metadata
-from loguru import logger
 from textual import events
 from textual.app import App
 from textual.theme import Theme as TextualTheme
+from textual.widgets import Footer
+from textual.message import Message
 from rich.theme import Theme as RichTheme
 from rich.traceback import Traceback
 
@@ -26,8 +27,6 @@ except Exception:
     __version__ = "N/A"
 
 
-from functools import partial
-from textual.command import Provider
 from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.Clock import Clock
 from db4e.Widgets.DetailPane import DetailPane
@@ -36,10 +35,12 @@ from db4e.Modules.ConfigMgr import ConfigMgr, Config
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Panes.Welcome import Welcome
 from db4e.Panes.InitialSetup import InitialSetup
+from db4e.Messages.SubmitFormData import SubmitFormData
 
 class Db4EApp(App):
     TITLE = "Db4E"
     CSS_PATH = "Db4E.tcss"
+    BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
 
     def __init__(self, ini: Config, **kwargs):
         super().__init__(**kwargs)
@@ -124,44 +125,28 @@ class Db4EApp(App):
         yield NavPane(initialized=initialized_flag)
         yield DetailPane(initialized=initialized_flag)
         yield Clock()
+        yield Footer()
+
+    ### App.py is the message hub
+
+    #async def on_message(self, message: Message) -> None:
+    async def on_submit_form(self, message: SubmitFormData) -> None:
+        results = await self.deployment_mgr.initial_setup(message.form_data)
 
     # Panes updating the TopBar...
     def on_welcome_update_top_bar(self, message: Welcome.UpdateTopBar):
         self.update_topbar(message.component, message.msg)
-
     def on_initial_setup_update_top_bar(self, message: InitialSetup.UpdateTopBar):
         self.update_topbar(message.component, message.msg)
-
+    # TopBar update
     def update_topbar(self, component: str, message: str) -> None:
         if self.topbar:
-            self.topbar.set_component(message.component)
-            self.topbar.set_msg(message.msg)
+            self.topbar.set_component(component)
+            self.topbar.set_msg(message)
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
-
-def setup_logger(ini: Config):
-    logger.remove()
-
-    # If we're not using daemon mode, we want to essentially disable logging
-    if not ini.config['db4e']['op'] == 'run_daemon':
-        return
-
-    logger.level("DEBUG", color="<magenta>")
-    logger.level("INFO", color="<blue>")
-    logger.level("WARNING", color="<yellow>")
-    logger.level("ERROR", color="<red>")
-    log_format = "<dim>{time:MM-DD-YYYY HH:mm:ss}</dim> <b><level>[{level}]</level></b> {message}"
-    log_level = "INFO"
-    log_file = ini['db4e']['service_log_file']
-
-    # Add terminal & file logging
-    logger.add(sys.stdout, format=log_format, backtrace=True, colorize=True, level=log_level)
-    logger.add(log_file, format=log_format, backtrace=True, level=log_level)
-
-    # Exit when critical is used
-    logger.add(lambda _: sys.exit(1), level="CRITICAL")
 
 def main():
     # Set environment variables for better color support
@@ -170,7 +155,6 @@ def main():
 
     config_manager = ConfigMgr(__version__)
     config = config_manager.get_config()
-    setup_logger(config)
     app = Db4EApp(config)
     app.run()
 

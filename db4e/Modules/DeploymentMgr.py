@@ -62,3 +62,6 @@ class DeploymentMgr:
    def get_deployment_by_instance(self, component, instance):
       if instance == 'db4e core':
          return self.get_deployment('db4e')
+      
+   def initial_setup(self, form_data):
+      print(form_data) 

@@ -34,11 +34,9 @@ class TopBar(Container):
             self.topbar_component.update("")
 
     def set_component(self, component):
-        print('TopBar:set_component()')
         self.tb_component = component
 
     def set_msg(self, msg):
-        print('TopBar:set_msg()')
         self.tb_msg = msg
 
     def watch_tb_component(self):
