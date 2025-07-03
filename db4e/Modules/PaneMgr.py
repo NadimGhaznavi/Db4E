@@ -1,5 +1,5 @@
 """
-db4e/Modules/PaneManager.py
+db4e/Modules/PaneMgr.py
 
    Database 4 Everything
    Author: Nadim-Daniel Ghaznavi 
@@ -7,13 +7,56 @@ db4e/Modules/PaneManager.py
    License: GPL 3.0
 """
 
-from db4e.Panes.Welcome import Welcome
-from db4e.Panes.InitialSetup import InitialSetup
+from dataclasses import dataclass, field
+from textual.css.query import NoMatches
+from textual.widget import Widget
+from textual.widgets import ContentSwitcher
+from textual.reactive import reactive
 
-class PaneMgr:
+from db4e.Modules.ConfigMgr import Config
+from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Messages.UpdateTopBar import UpdateTopBar
 
-    def get_pane(self, pane_name):
-        if pane_name == 'Welcome':
-            return Welcome(id=pane_name)
-        elif pane_name == 'InitialSetup':
-            return InitialSetup(id=pane_name)
+@dataclass
+class PaneState:
+    name: str = ""
+    data: dict = field(default_factory=dict)
+
+class PaneMgr(Widget):
+    pane_state = reactive(PaneState(), always_update=True)
+
+    def __init__(self, config: Config, catalogue: PaneCatalogue, initialized_flag: bool):
+        super().__init__()
+        self.config = config
+        self.catalogue = catalogue
+        self.initialized_flag = initialized_flag
+
+    def compose(self):
+        with ContentSwitcher(initial=self.pane_state.name, id="content_switcher"):
+            for pane_name in self.catalogue.registry:
+                yield self.catalogue.get_pane(pane_name)
+
+    async def on_mount(self) -> None:
+        initial = PaneState(name='Welcome' if self.initialized_flag else 'InitialSetup', data={})
+        self.set_pane(initial.name, initial.data)
+
+    def set_pane(self, name: str, data: dict | None = None):
+        self.pane_state = PaneState(name, data)
+
+    def watch_pane_state(self, old: PaneState, new: PaneState):
+        try:
+            content_switcher = self.query_one("#content_switcher", ContentSwitcher)
+        except NoMatches:
+            return
+        
+        content_switcher.current = new.name
+
+        # Pass data to the pane if it has a set_data method
+        target = content_switcher.get_child_by_id(new.name)
+        if new.data and hasattr(target, "set_data"):
+            target.set_data(new.data)
+
+        # Create a message to update the TopBar's title and sub_title
+        title, sub_title = self.catalogue.get_metadata(new.name)
+        self.post_message(UpdateTopBar(self, title=title, sub_title=sub_title))
+

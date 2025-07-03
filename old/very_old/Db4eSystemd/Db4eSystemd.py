@@ -32,7 +32,7 @@ import time
 # Where the DB4E modules live
 lib_dir = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(lib_dir)
-
+ 
 # Import DB4E modules
 
 # How long to wait until timing out

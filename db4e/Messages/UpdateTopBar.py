@@ -1,5 +1,5 @@
 """
-db4e/Messages/SubmitFormData.py
+db4e/Messages/UpdateTopBar.py
 
    Database 4 Everything
    Author: Nadim-Daniel Ghaznavi 
@@ -7,13 +7,14 @@ db4e/Messages/SubmitFormData.py
    License: GPL 3.0
 
 Usage example:
-    await self.post_message(SubmitFormData(self, resultData))
+    await self.post_message(UpdateTopBar(self, "Database 4 Everything ", "Welcome"))
 """
 
 from textual.widget import Widget
 from textual.message import Message
 
-class SubmitFormData(Message):
-    def __init__(self, sender: Widget, form_data: dict) -> None:
+class UpdateTopBar(Message):
+    def __init__(self, sender: Widget, title: str, sub_title: str) -> None:
         super().__init__()
-        self.form_data = form_data
+        self.title = title
+        self.sub_title = sub_title

@@ -6,6 +6,8 @@ db4e/Modules/DeploymentManager.py
    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
    License: GPL 3.0
 """
+
+import os, shutil
 from datetime import datetime, timezone
 import getpass
 
@@ -54,14 +56,13 @@ class DeploymentMgr:
       if not rec:
          return False
         
-      rec = self.db.get_new_rec(component)
-      self.add_deployment(rec)
-      # Call ourself, now there will be a record
-      return self.get_deployment(component) 
-
    def get_deployment_by_instance(self, component, instance):
       if instance == 'db4e core':
          return self.get_deployment('db4e')
       
-   def initial_setup(self, form_data):
-      print(form_data) 
+
+   def update_deployent(self, rec):
+      component = rec['component']
+      if component == 'db4e':
+         filter = {'doc_type': 'deployment', 'component': 'db4e'}
+         self.db.update_one(self, self.col_name, filter, rec)

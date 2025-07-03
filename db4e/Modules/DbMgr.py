@@ -35,11 +35,11 @@ class DbMgr:
       # Connect to MongoDB
       db_uri = f'mongodb://{db_server}:{db_port}'
       try:
-            self._client = MongoClient(db_uri)
+         self._client = MongoClient(db_uri)
       except ConnectionFailure as e:
-            # TODO factor in the old Db4eLogger code....
-            #self.log.critical(f'Connection failed: {e}. Retrying in {retry_timeout} seconds...')
-            time.sleep(retry_timeout)
+         # TODO factor in the old Db4eLogger code....
+         #self.log.critical(f'Connection failed: {e}. Retrying in {retry_timeout} seconds...')
+         time.sleep(retry_timeout)
       
       self.db4e = self._client[self.db_name]
 
@@ -51,8 +51,8 @@ class DbMgr:
    def ensure_indexes(self):
       log_col = self.get_collection(self.log_collection)
       if "timestamp_1" not in log_col.index_information():
-            log_col.create_index("timestamp")
-            # TODO self.log.debug("Created index on 'timestamp' for log collection.")
+         log_col.create_index("timestamp")
+         # TODO self.log.debug("Created index on 'timestamp' for log collection.")
 
    def find_one(self, col_name, filter):
       col = self.get_collection(col_name)
@@ -63,7 +63,7 @@ class DbMgr:
 
    def get_new_rec(self, rec_type):
       if rec_type == 'db4e':
-            return DB4E_RECORD
+         return DB4E_RECORD
 
    def init_db(self):
       # Make sure the 'db4e' database, core collections and indexes exist.
@@ -73,18 +73,22 @@ class DbMgr:
       metrics_col = self.metrics_collection
       db_col_names = self.db4e.list_collection_names()
       for aCol in [ db_col, log_col, depl_col, metrics_col ]:
-            if aCol not in db_col_names:
-               try:
-                  self.db4e.create_collection(aCol)
-                  if aCol == log_col:
-                        log_col = self.get_collection(log_col)
-                        log_col.create_index('timestamp')
-               except CollectionInvalid:
-                  # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
-                  pass
-               # TODO self.log.debug(f'Created DB collection ({aCol})')
-            self.ensure_indexes()
+         if aCol not in db_col_names:
+            try:
+               self.db4e.create_collection(aCol)
+               if aCol == log_col:
+                  log_col = self.get_collection(log_col)
+                  log_col.create_index('timestamp')
+            except CollectionInvalid:
+               # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
+               pass
+            # TODO self.log.debug(f'Created DB collection ({aCol})')
+         self.ensure_indexes()
 
    def insert_one(self, col_name, jdoc):
       collection = self.get_collection(col_name)
       return collection.insert_one(jdoc)
+   
+   def update_one(self, col_name, filter, new_values):
+      collection = self.get_collection(col_name)
+      return collection.update_one(filter, new_values)

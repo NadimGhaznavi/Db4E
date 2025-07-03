@@ -15,16 +15,6 @@ from textual.message import Message
 
 class Welcome(Container):
 
-    class UpdateTopBar(Message):
-        def __init__(self, component: str, msg: str) -> None:
-            self.component = component
-            self.msg = msg
-            super().__init__()
-
     def compose(self) -> ComposeResult:
         yield Label('Welcome Pane')
         yield Static('Welcome Pane - Static')
-
-    async def on_mount(self):
-        print('Welcome:on_mount()')
-        self.post_message(self.UpdateTopBar(component="Welcome", msg="Monero XMR Mining Dashboard"))

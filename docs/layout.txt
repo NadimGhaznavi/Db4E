@@ -33,7 +33,7 @@
 └───────────────┘
 
 ┌────────────────────────────────────────────────────────────┐
-│ TopBar: [Db4E vX.Y.Z]  [Hostname]  [Contextual Help Msg]   │
+│ Db4E v0.1.31[pane_title] - [pane_sub_title]                │
 ├────────────────────────────────────────────────────────────┤
 │ Menu (Left Pane)          │  DetailPane (Right Pane)       │
 │ TreeView-like structure   │  Displays info for selected    │

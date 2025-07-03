@@ -41,8 +41,8 @@ TopBar {
 }
 
 #topbar_title {
-    align: center middle;
-    width: 35%;
+    content-align: center middle;
+    width: 100%;
 }
 
 #tree_deployments {

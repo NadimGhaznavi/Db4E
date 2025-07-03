@@ -11,11 +11,10 @@ import os
 import sys
 from dataclasses import dataclass, field, fields
 from importlib import metadata
-from textual import events
 from textual.app import App
 from textual.theme import Theme as TextualTheme
 from textual.widgets import Footer
-from textual.message import Message
+from textual.containers import Vertical
 from rich.theme import Theme as RichTheme
 from rich.traceback import Traceback
 
@@ -33,116 +32,114 @@ from db4e.Widgets.DetailPane import DetailPane
 from db4e.Widgets.NavPane import NavPane
 from db4e.Modules.ConfigMgr import ConfigMgr, Config
 from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Panes.Welcome import Welcome
-from db4e.Panes.InitialSetup import InitialSetup
+from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Modules.PaneMgr import PaneMgr
+from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.SwitchPane import SwitchPane
+from db4e.Messages.UpdateTopBar import UpdateTopBar
 
+RICH_THEME =RichTheme(
+    {
+        "white": "#e9e9e9",
+        "green": "#54efae",
+        "yellow": "#f6ff8f",
+        "dark_yellow": "#e6d733",
+        "red": "#fd8383",
+        "purple": "#b565f3",
+        "dark_gray": "#969aad",
+        "b dark_gray": "b #969aad",
+        "highlight": "#91abec",
+        "label": "#c5c7d2",
+        "b label": "b #c5c7d2",
+        "light_blue": "#bbc8e8",
+        "b white": "b #e9e9e9",
+        "b highlight": "b #91abec",
+        "b light_blue": "b #bbc8e8",
+        "recording": "#ff5e5e",
+        "b recording": "b #ff5e5e",
+        "panel_border": "#6171a6",
+        "table_border": "#333f62",
+    }
+)
+TEXTUAL_THEME = TextualTheme(
+    name="custom",
+    primary="white",
+    variables={
+        "white": "#e9e9e9",
+        "green": "#54efae",
+        "yellow": "#f6ff8f",
+        "dark_yellow": "#e6d733",
+        "red": "#fd8383",
+        "purple": "#b565f3",
+        "dark_gray": "#969aad",
+        "b_dark_gray": "b #969aad",
+        "highlight": "#91abec",
+        "label": "#c5c7d2",
+        "b_label": "b #c5c7d2",
+        "light_blue": "#bbc8e8",
+        "b_white": "b #e9e9e9",
+        "b_highlight": "b #91abec",
+        "b_light_blue": "b #bbc8e8",
+        "recording": "#ff5e5e",
+        "b_recording": "b #ff5e5e",
+        "panel_border": "#6171a6",
+        "table_border": "#333f62",
+    },
+)
 class Db4EApp(App):
     TITLE = "Db4E"
     CSS_PATH = "Db4E.tcss"
     BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
 
-    def __init__(self, ini: Config, **kwargs):
+    def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
-        self.ini = ini
-        self.deployment_mgr = DeploymentMgr(ini)
-        theme = RichTheme(
-            {
-                "white": "#e9e9e9",
-                "green": "#54efae",
-                "yellow": "#f6ff8f",
-                "dark_yellow": "#e6d733",
-                "red": "#fd8383",
-                "purple": "#b565f3",
-                "dark_gray": "#969aad",
-                "b dark_gray": "b #969aad",
-                "highlight": "#91abec",
-                "label": "#c5c7d2",
-                "b label": "b #c5c7d2",
-                "light_blue": "#bbc8e8",
-                "b white": "b #e9e9e9",
-                "b highlight": "b #91abec",
-                "b light_blue": "b #bbc8e8",
-                "recording": "#ff5e5e",
-                "b recording": "b #ff5e5e",
-                "panel_border": "#6171a6",
-                "table_border": "#333f62",
-            }
-        )
+        self.config = config
+        self.depl_mgr = DeploymentMgr(config)
+        self.install_mgr = InstallMgr(config)
+        self.pane_catalogue = PaneCatalogue()
+        self.initialized_flag = True if self.depl_mgr.is_initialized() else False
+        self.pane_mgr = PaneMgr(
+            config=config, catalogue=self.pane_catalogue, initialized_flag=self.initialized_flag)
+        
+        # Setup the themes
+        theme = RICH_THEME
         self.console.push_theme(theme)
         self.console.set_window_title(self.TITLE)
-        theme = TextualTheme(
-            name="custom",
-            primary="white",
-            variables={
-                "white": "#e9e9e9",
-                "green": "#54efae",
-                "yellow": "#f6ff8f",
-                "dark_yellow": "#e6d733",
-                "red": "#fd8383",
-                "purple": "#b565f3",
-                "dark_gray": "#969aad",
-                "b_dark_gray": "b #969aad",
-                "highlight": "#91abec",
-                "label": "#c5c7d2",
-                "b_label": "b #c5c7d2",
-                "light_blue": "#bbc8e8",
-                "b_white": "b #e9e9e9",
-                "b_highlight": "b #91abec",
-                "b_light_blue": "b #bbc8e8",
-                "recording": "#ff5e5e",
-                "b_recording": "b #ff5e5e",
-                "panel_border": "#6171a6",
-                "table_border": "#333f62",
-            },
-        )
+        theme = TEXTUAL_THEME
         self.register_theme(theme)
         self.theme = "custom"
 
-        if ini.config['db4e']['op'] == 'run_daemon':
-            refresh_interval = ini.config['db4e']['refresh_interval']
-            log_file = ini.config['db4e']['service_log_file']
-            logger.info(
-                f"Starting Db4E v{__version__} in daemon mode with a refresh "
-                f"interval of {refresh_interval}s"
-            )
-            logger.info(f"Log file: {log_file}")
-
-    async def on_key(self, event: events.Key):
-        if len(self.screen_stack) > 1:
-            return
-
-        await self.process_key_event(event.key)
+    def compose(self):
+        self.topbar = TopBar(app_version=__version__)
+        yield self.topbar
+        yield Vertical(
+            NavPane(initialized=self.initialized_flag),
+            Clock()
+        )
+        yield self.pane_mgr
+        yield Footer()
 
     async def process_key_event(self, key):
         if key == "q":
             self.app.exit()
 
-    def compose(self):
-        self.topbar = TopBar(app_version=__version__)
-        initialized_flag = self.deployment_mgr.is_initialized()
-        yield self.topbar
-        yield NavPane(initialized=initialized_flag)
-        yield DetailPane(initialized=initialized_flag)
-        yield Clock()
-        yield Footer()
+    ### App receives all messages and calls methods to dispatch them
+    async def on_submit_form_data(self, message: SubmitFormData) -> None:
+        # Every form sends it's data here, we need to route the messages
+        target_module = message.form_data['to_module']
+        target_method = message.form_data['to_method']
+        if target_module == 'InstallMgr':
+            if target_method == 'initial_setup':
+                results = await self.install_mgr.initial_setup(message.form_data)
+                print(f"App:on_submit_form_data(): Got the data {results}")
+                self.post_message(SwitchPane(self, pane_id="InstallResults", data=results))
 
-    ### App.py is the message hub
+    async def on_update_top_bar(self, message: UpdateTopBar) -> None:
+        self.topbar.set_state(title=message.title, sub_title=message.sub_title )
 
-    #async def on_message(self, message: Message) -> None:
-    async def on_submit_form(self, message: SubmitFormData) -> None:
-        results = await self.deployment_mgr.initial_setup(message.form_data)
-
-    # Panes updating the TopBar...
-    def on_welcome_update_top_bar(self, message: Welcome.UpdateTopBar):
-        self.update_topbar(message.component, message.msg)
-    def on_initial_setup_update_top_bar(self, message: InitialSetup.UpdateTopBar):
-        self.update_topbar(message.component, message.msg)
-    # TopBar update
-    def update_topbar(self, component: str, message: str) -> None:
-        if self.topbar:
-            self.topbar.set_component(component)
-            self.topbar.set_msg(message)
+    async def on_switch_pane(self, message: SwitchPane) -> None:
+        self.pane_mgr.set_pane(message.pane_id, message.data)
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()

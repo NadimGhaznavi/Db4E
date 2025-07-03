@@ -13,6 +13,8 @@ from textual.message import Message
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 
+#from db4e.Messages.SubmitFormData import SubmitFormData
+
 STATIC_CONTENT = """Welcome to the *Database 4 Everything* initial setup screen. 
 
 | Field                | Description                                        | Example          |
@@ -34,14 +36,9 @@ You must have *sudo* access to the root user account. This is normally already s
 Linux installation. You will be prompted for your password, since the installer runs as root.
 """
 
+MAX_GROUP_LENGTH = 20
+
 class InitialSetup(Container):
-
-    class UpdateTopBar(Message):
-        def __init__(self, component: str, msg: str) -> None:
-            super().__init__()
-            self.component = component
-            self.msg = msg
-
 
     def compose(self) -> ComposeResult:
         yield Vertical(
@@ -50,24 +47,23 @@ class InitialSetup(Container):
             Vertical(
                 Horizontal(
                     Label("Linux Group:", id="initial_setup_db4e_group_label"),
-                    Input(id="initial_setup_db4e_group_input", compact=True)),
+                    Input(id="initial_setup_db4e_group_input", restrict=r"[a-z0-9]*", max_length=MAX_GROUP_LENGTH, compact=True)),
                 Horizontal(
                     Label("Deployment Directory:", id="initial_setup_vendor_dir_label"),
-                    Input(id="initial_setup_vendor_dir_input", compact=True)),
+                    Input(id="initial_setup_vendor_dir_input", restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True)),
                 Horizontal(
                     Label("Wallet:", id="initial_setup_user_wallet_label"), 
-                    Input(id="initial_setup_user_wallet_input", compact=True)),
+                    Input(id="initial_setup_user_wallet_input", restrict=r"[a-zA-Z0-9]*", compact=True)),
                 id="initial_setup_form"),
 
             Button(label="Proceed", id="initial_setup_button"))
 
-    async def on_mount(self):
-        self.post_message(self.UpdateTopBar(component="Database 4 Everything", msg="Initial Setup"))
-
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {
-            "wallet": self.query_one("#initial_setup_user_wallet_input", Input).value,
-            "group": self.query_one("#initial_setup_db4e_group_input", Input).value,
+            "to_module": "InstallMgr",
+            "to_method": "initial_setup",
+            "user_wallet": self.query_one("#initial_setup_user_wallet_input", Input).value,
+            "db4e_group": self.query_one("#initial_setup_db4e_group_input", Input).value,
             "vendor_dir": self.query_one("#initial_setup_vendor_dir_input", Input).value,
         }
-        self.app.post_message(SubmitFormData(form_data))
+        self.app.post_message(SubmitFormData(self, form_data))
