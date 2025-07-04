@@ -29,9 +29,6 @@ class InstallMgr:
     async def initial_setup(self, form_data: dict) -> dict:
         # Track the progress of the initial install
         results = []
-        results.append({'Monero wallet': {'status': 'warn', 'msg': 'Old Monero wallet record'}})
-        results.append({'Monero wallet': {'status': 'good', 'msg': 'Updated Monero wallet'}})
-        return results
         # Validate the data
         user_wallet = form_data['user_wallet']
         db4e_group = form_data['db4e_group']
@@ -84,7 +81,6 @@ class InstallMgr:
         # Additional config settings
         bin_dir              = self.ini.config['db4e']['bin_dir']
         conf_dir             = self.ini.config['db4e']['conf_dir']
-        db4e_config          = self.ini.config['db4e']['config']
         db4e_dir             = self.ini.config['db4e']['db4e_dir']
         db4e_service_file    = self.ini.config['db4e']['service_file']
         initial_setup_script = self.ini.config['db4e']['setup_script']
@@ -233,10 +229,6 @@ class InstallMgr:
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
-        # db4e configuration file
-        fq_db4e_config    = os.path.join(db4e_dir, conf_dir, db4e_config)
-        shutil.copy(fq_db4e_config, os.path.join(vendor_dir, db4e_vendor_dir, conf_dir))
-        
         # Copy in the Monero daemon, P2Pool and XMRig binaries and startup scripts
         shutil.copy(fq_p2pool, os.path.join(vendor_dir, p2pool_dir, bin_dir))
         shutil.copy(fq_p2pool_start_script, os.path.join(vendor_dir, p2pool_dir, bin_dir))
@@ -245,7 +237,7 @@ class InstallMgr:
         shutil.copy(fq_xmrig, os.path.join(vendor_dir, xmrig_dir, bin_dir))
 
         # Run the bin/db4e-installer.sh
-        fq_initial_setup = os.path.join(os.path.dirname(__file__), '..', bin_dir, initial_setup_script)
+        fq_initial_setup = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', bin_dir, initial_setup_script))
         try:
             cmd_result = subprocess.run(
                 ['sudo', fq_initial_setup, db4e_dir, db4e_user, db4e_group, vendor_dir],
@@ -266,7 +258,7 @@ class InstallMgr:
             shutil.rmtree(tmp_dir)
 
         except Exception as e:
-            self.info_msg.set_text(f"Service install failed: {str(e)}")
+            results.append({'Db4E core': {'status': 'error', 'msg': f'Fatal error: {e}'}})
 
         # Build the db4e deployment record
         db4e_rec['enable'] = True
@@ -275,5 +267,5 @@ class InstallMgr:
         db4e_rec['user'] = db4e_user
         db4e_rec['vendor_dir'] = vendor_dir
         # Update the repo deployment record
-        self.update_one('db4e', db4e_rec)
+        self.db.update_one('db4e', db4e_rec)
         return results

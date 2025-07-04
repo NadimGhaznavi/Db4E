@@ -28,12 +28,10 @@ class DeploymentMgr:
       rec['doc_type'] = 'deployment'
       rec['updated'] = datetime.now(timezone.utc)
       # Get the component version from the static YAML config file
-      rec['version'] = self.ini.config[rec['component']]['version']
       if rec['component'] == 'db4e':
          rec['user'] = getpass.getuser()
-         rec['vendor_dir'] = self.ini.config['db4e']['vendor_name']
-         rec['group'] = self.ini.config['db4e']['group']
-         rec['user_wallet'] = self.ini.config['db4e']['user_wallet']
+      else:
+         rec['version'] = self.ini.config[rec['component']]['version']
       self.db.insert_one(self.col_name, rec)
 
    def is_initialized(self):

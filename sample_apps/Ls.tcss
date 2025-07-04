@@ -1,0 +1,51 @@
+LsApp {
+    background: black;
+    border: round green;
+}
+
+LsForm {
+    height: 3;
+    border: round green;
+    width: 60;
+}
+
+LsHeader{
+    height: 3;
+    border: round green;
+    width: 60;
+}
+LsOutput {
+    height: 5fr;
+    border: round green;
+    width: 60;
+}
+
+#contents {
+    height: 10;
+}
+
+#input_screen {
+    width: 60;
+    padding: 0 1;
+}
+
+#input_field {
+    width: 28;
+}
+
+#input_title {
+    width: 100%;
+    content-align: center middle;
+}
+
+#input_button {
+    width: 7;
+}
+
+#ls_app {
+    width: 62;
+}
+
+#output {
+    height: 10;
+}

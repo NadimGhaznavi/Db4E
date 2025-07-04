@@ -90,7 +90,6 @@ TEXTUAL_THEME = TextualTheme(
 class Db4EApp(App):
     TITLE = "Db4E"
     CSS_PATH = "Db4E.tcss"
-    BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
 
     def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
@@ -118,22 +117,18 @@ class Db4EApp(App):
             Clock()
         )
         yield self.pane_mgr
-        yield Footer()
 
-    async def process_key_event(self, key):
-        if key == "q":
-            self.app.exit()
+    ### Message handling happens here...
 
-    ### App receives all messages and calls methods to dispatch them
     async def on_submit_form_data(self, message: SubmitFormData) -> None:
         # Every form sends it's data here, we need to route the messages
         target_module = message.form_data['to_module']
         target_method = message.form_data['to_method']
+
         if target_module == 'InstallMgr':
             if target_method == 'initial_setup':
                 results = await self.install_mgr.initial_setup(message.form_data)
-                print(f"App:on_submit_form_data(): Got the data {results}")
-                self.post_message(SwitchPane(self, pane_id="InstallResults", data=results))
+                self.pane_mgr.set_pane("InstallResults", results)
 
     async def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title )
@@ -154,7 +149,6 @@ def main():
     config = config_manager.get_config()
     app = Db4EApp(config)
     app.run()
-
 
 if __name__ == "__main__":
     main()

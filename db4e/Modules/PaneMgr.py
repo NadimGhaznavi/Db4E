@@ -30,11 +30,15 @@ class PaneMgr(Widget):
         self.config = config
         self.catalogue = catalogue
         self.initialized_flag = initialized_flag
+        self.panes = {}
 
     def compose(self):
         with ContentSwitcher(initial=self.pane_state.name, id="content_switcher"):
             for pane_name in self.catalogue.registry:
-                yield self.catalogue.get_pane(pane_name)
+                # Instantiate each pane once, store a reference
+                pane = self.catalogue.get_pane(pane_name)
+                self.panes[pane_name] = pane
+                yield pane
 
     async def on_mount(self) -> None:
         initial = PaneState(name='Welcome' if self.initialized_flag else 'InitialSetup', data={})
@@ -42,6 +46,11 @@ class PaneMgr(Widget):
 
     def set_pane(self, name: str, data: dict | None = None):
         self.pane_state = PaneState(name, data)
+        # If the pane supports set_data, update it with new data
+        if data and name in self.panes:
+            pane = self.panes[name]
+            if hasattr(pane, "set_data"):
+                pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
         try:
@@ -50,11 +59,6 @@ class PaneMgr(Widget):
             return
         
         content_switcher.current = new.name
-
-        # Pass data to the pane if it has a set_data method
-        target = content_switcher.get_child_by_id(new.name)
-        if new.data and hasattr(target, "set_data"):
-            target.set_data(new.data)
 
         # Create a message to update the TopBar's title and sub_title
         title, sub_title = self.catalogue.get_metadata(new.name)

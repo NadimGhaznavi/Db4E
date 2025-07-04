@@ -21,6 +21,11 @@ DetailPane {
     row-span: 2;
 }
 
+InstallResults {
+    padding: 0 2;
+    border: round;
+}
+
 NavPane {
     height: 9fr;
     padding: 0 2;
