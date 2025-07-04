@@ -237,7 +237,8 @@ class InstallMgr:
         shutil.copy(fq_xmrig, os.path.join(vendor_dir, xmrig_dir, bin_dir))
 
         # Run the bin/db4e-installer.sh
-        fq_initial_setup = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', bin_dir, initial_setup_script))
+        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        fq_initial_setup = os.path.join(db4e_install_dir, bin_dir, initial_setup_script)
         try:
             cmd_result = subprocess.run(
                 ['sudo', fq_initial_setup, db4e_dir, db4e_user, db4e_group, vendor_dir],
@@ -253,7 +254,7 @@ class InstallMgr:
                 results.append({'Db4E core': {'status': 'error', 'msg': f'Service install failed.\n\n{stderr}'}})
                 return results
             
-            installer_output = f'Installer output:\n{stdout}'
+            installer_output = f'{stdout}'
             results.append({'Db4E core': {'status': 'good', 'msg': installer_output}})
             shutil.rmtree(tmp_dir)
 
@@ -263,9 +264,9 @@ class InstallMgr:
         # Build the db4e deployment record
         db4e_rec['enable'] = True
         db4e_rec['group'] = db4e_group
-        db4e_rec['install_dir'] = db4e_dir
+        db4e_rec['install_dir'] = db4e_install_dir
         db4e_rec['user'] = db4e_user
         db4e_rec['vendor_dir'] = vendor_dir
         # Update the repo deployment record
-        self.db.update_one('db4e', db4e_rec)
+        self.depl_mgr.update_deployent(db4e_rec)
         return results

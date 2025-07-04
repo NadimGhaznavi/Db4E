@@ -38,6 +38,8 @@ from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Messages.SwitchPane import SwitchPane
 from db4e.Messages.UpdateTopBar import UpdateTopBar
+from db4e.Messages.RefreshNavPane import RefreshNavPane
+from db4e.Messages.NavLeafSelected import NavLeafSelected
 
 RICH_THEME =RichTheme(
     {
@@ -120,21 +122,33 @@ class Db4EApp(App):
 
     ### Message handling happens here...
 
+    # Every form sends it's data here, we need to route the messages
     async def on_submit_form_data(self, message: SubmitFormData) -> None:
-        # Every form sends it's data here, we need to route the messages
         target_module = message.form_data['to_module']
         target_method = message.form_data['to_method']
 
         if target_module == 'InstallMgr':
             if target_method == 'initial_setup':
                 results = await self.install_mgr.initial_setup(message.form_data)
-                self.pane_mgr.set_pane("InstallResults", results)
+                self.pane_mgr.set_pane(name="InstallResults", data=results)
 
+    # The individual Detail panes use this to update the TopBar
     async def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title )
 
+    # This is how the Detail panes is selected and loaded, including any data
     async def on_switch_pane(self, message: SwitchPane) -> None:
-        self.pane_mgr.set_pane(message.pane_id, message.data)
+        self.pane_mgr.set_pane(message.pane_name, message.data)
+
+    # NavPane selections are routed here
+    async def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
+        category = message.parent
+        instance = message.leaf
+        print(f"Got it: {repr(category)}/{repr(instance)}")
+        if category == 'Deployments' and instance == 'Db4E Core':
+            db4e_data = self.depl_mgr.get_deployment('db4e')
+            print(f"db4e_data: {db4e_data}")
+            self.pane_mgr.set_pane(name="Db4E", data=db4e_data)
 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()

@@ -12,9 +12,9 @@ from textual.app import ComposeResult
 from textual.widgets import Static
 from textual.containers import Container
 
+from db4e.Messages.RefreshNavPane import RefreshNavPane
+
 class InstallResults(Container):
-    def ccompose(self) -> ComposeResult:
-        yield Static()
 
     def set_data(self, task_list):
 
@@ -33,4 +33,4 @@ class InstallResults(Container):
                     table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
 
         self.mount(Static(table))
-
+        self.app.post_message(RefreshNavPane(self))

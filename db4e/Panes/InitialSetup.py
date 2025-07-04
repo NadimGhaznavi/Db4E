@@ -9,9 +9,9 @@ db4e/Panes/InitialSetup.py
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
-from textual.message import Message
 
 from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.RefreshNavPane import RefreshNavPane
 
 #from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -67,3 +67,4 @@ class InitialSetup(Container):
             "vendor_dir": self.query_one("#initial_setup_vendor_dir_input", Input).value,
         }
         self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(RefreshNavPane(self))

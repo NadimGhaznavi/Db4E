@@ -91,4 +91,4 @@ class DbMgr:
    
    def update_one(self, col_name, filter, new_values):
       collection = self.get_collection(col_name)
-      return collection.update_one(filter, new_values)
+      return collection.update_one(filter, {'$set' : new_values})

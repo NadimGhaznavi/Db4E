@@ -14,8 +14,8 @@ from textual.widget import Widget
 from textual.message import Message
 
 class SwitchPane(Message):
-    def __init__(self, sender: Widget, pane_id: str, data: dict = None):
+    def __init__(self, sender: Widget, pane_name: str, data: dict = None):
         super().__init__()
-        self.pane_id = pane_id
+        self.pane_name = str(pane_name)
         self.data = data
 

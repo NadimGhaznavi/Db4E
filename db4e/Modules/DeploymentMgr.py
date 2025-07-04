@@ -42,10 +42,19 @@ class DeploymentMgr:
          return False
 
    def get_deployment(self, component):
+      print(f"DeploymentMgr:get_deployment(): {component}")
       # Ask the db for the component record
-      rec = self.db.find_one(self.col_name, {'doc_type': 'deployment', 'component': component})
-      # Found it, so return it.
-      if rec:
+      db_rec = self.db.find_one(self.col_name, {'doc_type': 'deployment', 'component': component})
+      # rec is a cursor object.
+      if db_rec:
+         rec = {}
+         component = db_rec['component']
+         if component == 'db4e':
+            rec['group'] = db_rec['group']
+            rec['install_dir'] = db_rec['install_dir']
+            rec['user'] = db_rec['user']
+            rec['user_wallet'] = db_rec['user_wallet']
+            rec['vendor_dir'] = db_rec['vendor_dir']
          return rec
       # No record for this deployment exists
 
@@ -58,9 +67,8 @@ class DeploymentMgr:
       if instance == 'db4e core':
          return self.get_deployment('db4e')
       
-
    def update_deployent(self, rec):
       component = rec['component']
       if component == 'db4e':
          filter = {'doc_type': 'deployment', 'component': 'db4e'}
-         self.db.update_one(self, self.col_name, filter, rec)
+         self.db.update_one(self.col_name, filter, rec)

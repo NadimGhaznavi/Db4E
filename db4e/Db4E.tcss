@@ -12,6 +12,7 @@ Clock {
     padding: 0 2;
     border: round;
     align: center middle;
+    background: black;
 }
 
 DetailPane {
@@ -19,17 +20,22 @@ DetailPane {
     padding: 0 2;
     border: round;
     row-span: 2;
+    background: black;
 }
 
+Db4E,
+Welcome,
 InstallResults {
     padding: 0 2;
     border: round;
+    background: black;
 }
 
 NavPane {
     height: 9fr;
     padding: 0 2;
     border: round;
+    background: black;
 }
 
 TopBar {
@@ -37,6 +43,7 @@ TopBar {
     padding: 0 2;
     border: round;
     dock: top;
+    background: black
 }
 
 #labeled_input_label {

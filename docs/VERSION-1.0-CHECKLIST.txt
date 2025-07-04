@@ -1,0 +1,44 @@
+VERSION-1.0-CHECKLIST.txt
+
+- [ ] Security architecture doc
+    - Overview of privilege requirements
+    - sudoers config and rationale
+    - SUID bits and why they're needed (e.g., XMRig)
+    - Attack surface and mitigation
+    - Data protection (DB encryption? backups?)
+    - Logging and audit trails
+    - User permissions and role separation
+
+- [ ] Mongo schema review
+    - Schema correctness & validation rules
+    - Indexes for performance
+    - Backup & restore procedures
+
+- [ ] Mongo indexes
+    - Critical queries identified and indexed
+    - Regular maintenance plan
+
+- [ ] User Guide
+    - Installation instructions
+    - Configuration explanation
+    - Typical workflows (e.g., deployment, update)
+    - Troubleshooting tips
+
+- [ ] Code quality & testing
+    - Unit tests coverage
+    - Integration tests for main flows
+    - Manual QA checklist
+
+- [ ] UI/UX
+    - NavPane routing tested
+    - Forms validation
+    - Responsiveness & edge cases tested
+
+- [ ] Versioning & update strategy
+    - Version numbering scheme documented
+    - Upgrade path tested with existing installations
+
+- [ ] Licensing & legal
+    - Confirm all dependencies have compatible licenses
+    - Include GPL 3.0 license file
+
