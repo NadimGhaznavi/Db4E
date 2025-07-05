@@ -46,11 +46,29 @@ TopBar {
     background: black
 }
 
-#labeled_input_label {
-    align: right middle;
-    height: 1;
-    width: 25;
+#db4e_update_form {
+    height: 7;
+    border: round;
 }
+
+
+#db4e_user_name_label,
+#db4e_group_name_label,
+#db4e_install_dir_name_label,
+#db4e_vendor_dir_name_label,
+#db4e_user_wallet_name_label {
+    padding: 0 1;
+    width: 23;
+}
+#db4e_vendor_dir_input {
+    width: 30;
+}
+#db4e_user_wallet_input {
+    width: 75;
+}
+
+
+
 
 #topbar_title {
     content-align: center middle;
@@ -69,14 +87,8 @@ TopBar {
     height: 5;
     border: round;
 }
-#initial_setup_db4e_group_label {
-    padding: 0 1;
-    width: 23;
-}
-#initial_setup_vendor_dir_label {
-    padding: 0 1;
-    width: 23;
-}
+#initial_setup_db4e_group_label,
+#initial_setup_vendor_dir_label,
 #initial_setup_user_wallet_label {
     padding: 0 1;
     width: 23;

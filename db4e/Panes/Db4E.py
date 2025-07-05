@@ -19,6 +19,7 @@ On this screen uou can update your *Monero wallet* and relocate the *deployment 
 class Db4E(Container):
 
     def set_data(self, db4e_rec):
+        print(f"Db4E:set_data(): {db4e_rec}")
 
         rec_2_biz = {
             'group': 'Db4E Group',
@@ -39,7 +40,7 @@ class Db4E(Container):
         user_wallet_name = rec_2_biz['user_wallet']
         user_wallet = db4e_rec['user_wallet']
 
-        yield Vertical(
+        md = Vertical(
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
             Vertical(
@@ -50,17 +51,18 @@ class Db4E(Container):
                     Label(db4e_group_name, id="db4e_group_name_label"),
                     Label(db4e_group, id="db4e_group")),
                 Horizontal(
-                    Label(install_dir_name, id="install_dir_name_label"),
+                    Label(install_dir_name, id="db4e_install_dir_name_label"),
                     Label(install_dir, id="install_dir")),
                 Horizontal(
-                    Label(vendor_dir_name, id="vendor_dir_name_label"),
-                    Input(id="db4e_vendor_dir_input", restrict=r"/[a-zA-Z0-9/_.\- ]*", value=vendor_dir, compact=True)),
+                    Label(vendor_dir_name, id="db4e_vendor_dir_name_label"),
+                    Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", value=vendor_dir, compact=True, id="db4e_vendor_dir_input")),
                 Horizontal(
-                    Label(user_wallet_name, id="user_wallet_name_label"),
-                    Input(id="db4e_user_wallet_input", restrict=r"[a-zA-Z0-9]*", value=user_wallet, compact=True)),
+                    Label(user_wallet_name, id="db4e_user_wallet_name_label"),
+                    Input(restrict=r"[a-zA-Z0-9]*", value=user_wallet, compact=True, id="db4e_user_wallet_input")),
                 id="db4e_update_form"),
 
             Button(label="Update", id="db4e_update_button"))
+        self.mount(md)
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {

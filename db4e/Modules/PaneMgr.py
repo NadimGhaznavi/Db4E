@@ -47,10 +47,11 @@ class PaneMgr(Widget):
     def set_pane(self, name: str, data: dict | None = None):
         self.pane_state = PaneState(name, data)
         # If the pane supports set_data, update it with new data
-        print(f"PaneMgr:set_pane(): {name}, {data}")
+        print(f"PaneMgr:set_pane(): name: {name}")
         if data and name in self.panes:
             pane = self.panes[name]
             if hasattr(pane, "set_data"):
+                print(f"PaneMgr: set_pane(): data {data}")
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
