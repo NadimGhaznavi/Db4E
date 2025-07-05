@@ -5,13 +5,6 @@ layout: default
 
 # Welcome
 
-<div id="wrapper">
-  <div id="areaChart">
-  </div>
-  <div id="barChart">
-  </div>
- </div>
-
 This is the home of **Db4E**, the **Database 4 Everything** project — A unified Monero XMR mining dashboard for deployment, operation and real-time analytics.
 
 Db4E aims to be simple enough for new miners and flexible enough for advanced users. It’s still under active development, but the foundations are solid — and thanks to the [Textual Rapid Application Framework](https://textual.textualize.io/), progress is astonishingly fast.
