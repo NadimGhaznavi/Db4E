@@ -61,7 +61,7 @@ class InstallMgr:
         if error_flag:
             return results
         
-        results.append(DB4E_LABEL, WARN_FIELD, "DEBUG")
+        results.append(result_row(DB4E_LABEL, GOOD_FIELD, "You filled out the form!"))
         return results
         # Handle the case where a Mongo 'db4e' record already exists e.g. if the user
         # is running Db4E from a fresh installation.

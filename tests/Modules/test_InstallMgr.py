@@ -11,3 +11,4 @@ from db4e.Modules.InstallMgr import InstallMgr
 def test_configmgr_init(config):
     install_mgr = InstallMgr(config)
     assert install_mgr is not None
+
