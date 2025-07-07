@@ -1,0 +1,2 @@
+* Add GitHub Branching Strategy to project website
+* Add a Testing Strategy to project website

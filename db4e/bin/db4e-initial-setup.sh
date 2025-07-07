@@ -1,11 +1,16 @@
 #!/bin/bash
-
+#
 # db4e/bin/db4e-initial-setup.sh
-
-#   Database 4 Everything
-#   Author: Nadim-Daniel Ghaznavi 
-#   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-#   License: GPL 3.0
+#
+# Initial setup script. Run by the InstallMgr with sudo.
+#
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+#    License: GPL 3.0
+#
+#####################################################################
 
 DB4E_DIR="$1"
 DB4E_USER="$2"
@@ -15,12 +20,6 @@ VENDOR_DIR="$4"
 if [ -z "$VENDOR_DIR" ]; then
     echo "Usage: $0 <db4e_directory> <db4e_user> <db4e_group> <vendor_dir>"
     exit 1
-fi
-
-# Delete the old group if this env var was set
-if [ ! -z "$DB4E_OLD_GROUP" ]; then
-    groupdel "$DB4E_OLD_GROUP"
-    echo "Deleted old group ($DB4E_OLD_GROUP)"
 fi
 
 # Create the db4e (system) group

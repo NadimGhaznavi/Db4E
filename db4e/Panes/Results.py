@@ -1,10 +1,10 @@
 """
-db4e/Panes/InstallResults.py
+db4e/Panes/Results.py
 
-   Database 4 Everything
-   Author: Nadim-Daniel Ghaznavi 
-   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-   License: GPL 3.0
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
 """
 from rich import box
 from rich.table import Table
@@ -14,7 +14,7 @@ from textual.containers import Container
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 
-class InstallResults(Container):
+class Results(Container):
 
     def set_data(self, task_list):
 
@@ -32,5 +32,6 @@ class InstallResults(Container):
                 elif msg_dict["status"] == "error":
                     table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
 
+        self.remove_children()
         self.mount(Static(table))
         self.app.post_message(RefreshNavPane(self))
