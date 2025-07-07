@@ -1,10 +1,10 @@
 """
 db4e/Panes/Db4E.py
 
-   Database 4 Everything
-   Author: Nadim-Daniel Ghaznavi 
-   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-   License: GPL 3.0
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
 """
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
@@ -68,8 +68,9 @@ class Db4E(Container):
         form_data = {
             "to_module": "DeploymentMgr",
             "to_method": "update_deployment",
-            "user_wallet": self.query_one("#initial_setup_user_wallet_input", Input).value,
-            "vendor_dir": self.query_one("#initial_setup_vendor_dir_input", Input).value,
+            "component": "db4e",
+            "user_wallet": self.query_one("#db4e_user_wallet_input", Input).value,
+            "vendor_dir": self.query_one("#db4e_vendor_dir_input", Input).value,
         }
         self.app.post_message(SubmitFormData(self, form_data))
 

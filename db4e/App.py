@@ -1,11 +1,12 @@
-#!/usr/bin/env python3
+"""
+db4e/App.py
 
-# db4e/App.py
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
+"""
 
-#   Database 4 Everything
-#   Author: Nadim-Daniel Ghaznavi 
-#   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-#   License: GPL 3.0
 
 import os
 import sys
@@ -35,6 +36,7 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.InstallMgr import InstallMgr
+from db4e.Modules.MessageRouter import MessageRouter
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Messages.SwitchPane import SwitchPane
 from db4e.Messages.UpdateTopBar import UpdateTopBar
@@ -99,6 +101,7 @@ class Db4EApp(App):
         self.depl_mgr = DeploymentMgr(config)
         self.install_mgr = InstallMgr(config)
         self.pane_catalogue = PaneCatalogue()
+        self.msg_router = MessageRouter(config)
         self.initialized_flag = True if self.depl_mgr.is_initialized() else False
         self.pane_mgr = PaneMgr(
             config=config, catalogue=self.pane_catalogue, initialized_flag=self.initialized_flag)
@@ -124,13 +127,11 @@ class Db4EApp(App):
 
     # Every form sends it's data here, we need to route the messages
     async def on_submit_form_data(self, message: SubmitFormData) -> None:
-        target_module = message.form_data['to_module']
-        target_method = message.form_data['to_method']
-
-        if target_module == 'InstallMgr':
-            if target_method == 'initial_setup':
-                results = await self.install_mgr.initial_setup(message.form_data)
-                self.pane_mgr.set_pane(name="InstallResults", data=results)
+        module = message.form_data["to_module"]
+        method = message.form_data["to_method"]
+        results = await self.msg_router.dispatch(module, method, message.form_data)
+        pane_name = self.msg_router.get_pane(module=module, method=method)
+        self.pane_mgr.set_pane(name=pane_name, data=results)
 
     # The individual Detail panes use this to update the TopBar
     async def on_update_top_bar(self, message: UpdateTopBar) -> None:
@@ -144,12 +145,12 @@ class Db4EApp(App):
     async def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
         category = message.parent
         instance = message.leaf
-        print(f"Got it: {repr(category)}/{repr(instance)}")
         if category == 'Deployments' and instance == 'Db4E Core':
             db4e_data = self.depl_mgr.get_deployment('db4e')
             print(f"db4e_data: {db4e_data}")
             self.pane_mgr.set_pane(name="Db4E", data=db4e_data)
 
+    # Catchall 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))

@@ -1,3 +1,12 @@
+"""
+db4e/Widgets/Clock.py
+
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
+"""
+
 from datetime import datetime
 from textual.widgets import Label
 from textual.widget import Widget

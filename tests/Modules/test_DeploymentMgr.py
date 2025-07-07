@@ -1,4 +1,11 @@
-import pytest
+"""
+tests/Modules/test_DeploymentMgr.py
+
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
+"""
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 
 def test_configmgr_init(config):

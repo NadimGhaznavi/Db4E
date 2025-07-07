@@ -16,6 +16,7 @@ from textual.reactive import reactive
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Messages.UpdateTopBar import UpdateTopBar
+from db4e.Constants.Panes import INITIAL_SETUP_PANE, WELCOME_PANE, RESULTS_PANE
 
 @dataclass
 class PaneState:
@@ -33,6 +34,7 @@ class PaneMgr(Widget):
         self.panes = {}
 
     def compose(self):
+        print(f"PaneMgr:compose(): {self.pane_state}")
         with ContentSwitcher(initial=self.pane_state.name, id="content_switcher"):
             for pane_name in self.catalogue.registry:
                 # Instantiate each pane once, store a reference
@@ -41,17 +43,20 @@ class PaneMgr(Widget):
                 yield pane
 
     async def on_mount(self) -> None:
-        initial = PaneState(name='Welcome' if self.initialized_flag else 'InitialSetup', data={})
+        print(f"PaneMgr:on_mount(): {self.pane_state}")
+        initial = PaneState(name=WELCOME_PANE if self.initialized_flag else INITIAL_SETUP_PANE, data={})
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
-        self.pane_state = PaneState(name, data)
+        if not self.initialized_flag and name != RESULTS_PANE:
+            self.pane_state = PaneState(INITIAL_SETUP_PANE, data)
+        else:
+            self.pane_state = PaneState(name, data)
         # If the pane supports set_data, update it with new data
-        print(f"PaneMgr:set_pane(): name: {name}")
+        print(f"PaneMgr:set_pane(): {self.pane_state}")
         if data and name in self.panes:
             pane = self.panes[name]
             if hasattr(pane, "set_data"):
-                print(f"PaneMgr: set_pane(): data {data}")
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):

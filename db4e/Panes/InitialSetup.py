@@ -1,10 +1,10 @@
 """
 db4e/Panes/InitialSetup.py
 
-   Database 4 Everything
-   Author: Nadim-Daniel Ghaznavi 
-   Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-   License: GPL 3.0
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    License: GPL 3.0
 """
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
@@ -12,6 +12,7 @@ from textual.app import ComposeResult
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Messages.RefreshNavPane import RefreshNavPane
+from db4e.Constants.Fields import GROUP_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD
 
 #from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -19,9 +20,9 @@ STATIC_CONTENT = """Welcome to the *Database 4 Everything* initial setup screen.
 
 | Field                | Description                                        | Example          |
 | -------------------- | ---------------------------------------------------|----------------- |
-| Monero wallet        | Where your mining payments will be sent            | 48aTDJfRH2JLc... |
 | Linux group          | A Linux group name                                 | db4e             |
 | Deployment directory | A directory for programs, configuration files etc. | /opt/db4e        |
+| Monero wallet        | Where your mining payments will be sent            | 48aTDJfRH2JLc... |
 
 The *Linux group* will be created and the user who is running this program will be added. The 
 *deployment directory* will be created and *Monero*, *P2Pool* and *XMRig* will be installed
@@ -62,9 +63,9 @@ class InitialSetup(Container):
         form_data = {
             "to_module": "InstallMgr",
             "to_method": "initial_setup",
-            "user_wallet": self.query_one("#initial_setup_user_wallet_input", Input).value,
-            "db4e_group": self.query_one("#initial_setup_db4e_group_input", Input).value,
-            "vendor_dir": self.query_one("#initial_setup_vendor_dir_input", Input).value,
+            USER_WALLET_FIELD: self.query_one("#initial_setup_user_wallet_input", Input).value,
+            GROUP_FIELD: self.query_one("#initial_setup_db4e_group_input", Input).value,
+            VENDOR_DIR_FIELD: self.query_one("#initial_setup_vendor_dir_input", Input).value,
         }
         self.app.post_message(SubmitFormData(self, form_data))
         self.app.post_message(RefreshNavPane(self))

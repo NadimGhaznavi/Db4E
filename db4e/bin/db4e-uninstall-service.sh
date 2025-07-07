@@ -6,28 +6,11 @@
 # with using sudo. The *db4e* application does NOT keep or 
 # store your root user password.
 #
-#####################################################################
-
-
-#####################################################################
 #
-#  This file is part of *db4e*, the *Database 4 Everything* project
-#  <https://github.com/NadimGhaznavi/db4e>, developed independently
-#  by Nadim-Daniel Ghaznavi. Copyright (c) 2024-2025 NadimGhaznavi
-#  <https://github.com/NadimGhaznavi/db4e>.
-# 
-#  This program is free software: you can redistribute it and/or 
-#  modify it under the terms of the GNU General Public License as 
-#  published by the Free Software Foundation, version 3.
-# 
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-#  General Public License for more details.
-#
-#  You should have received a copy (LICENSE.txt) of the GNU General 
-#  Public License along with this program. If not, see 
-#  <http://www.gnu.org/licenses/>.
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+#    License: GPL 3.0
 #
 #####################################################################
  
