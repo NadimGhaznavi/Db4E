@@ -134,6 +134,17 @@ git push origin main --tags
 
 ---
 
+# Merge Release Branch into Dev
+
+```
+git checkout dev
+git pull origin dev
+git merge release/v1.3.0 -m "Sync release v1.3.0 back into dev"
+git push origin dev
+```
+
+---
+
 # Bug Fixes
 
 The same process is used for bug fixes, except the branch name is different. The branch name would then be *bugfix/v1.3.1*.
