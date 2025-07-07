@@ -54,10 +54,16 @@ In the example below, the current project release is v1.2.3.
 
 All work happens within a *development* branch.
 
-Create the dev branch:
+The dev branch already exists.
 
 ```
-git checkout -b dev
+git branch | grep dev
+```
+
+Should output:
+
+```
+dev
 ```
 
 ---
@@ -67,6 +73,8 @@ git checkout -b dev
 A new branch is created off the *development* branch to house the feature.
 
 ```
+git checkout dev
+git pull origin dev
 git checkout -b feature/foo
 ```
 
@@ -81,21 +89,16 @@ Once the work is complete, the changes are committed into the *feature/foo* bran
 ```
 git add . -v
 git commit -m "New foo feature"
-git push
+git push origin feature/foo
 ```
 
-Still in the *feature/foo* branch, the developer creates the test files, confirms that they work and then commits them into the *feature/foo* branch.
-
-```
-git add . -v
-git commit -m "Tests for foo"
-git push
-```
+# Merge Feature Branch into Dev
 
 Finally, the *feature/foo* branch is merged into the *dev* branch.
 
 ```
 git checkout dev
+git pull origin dev
 git merge feature/foo -m "New foo feature"
 git push origin dev
 ```
@@ -107,26 +110,21 @@ git push origin dev
 With the project version at *v1.2.3*, a *release/v1.3.0* branch is created off the *dev* branch.
 
 ```
+git checkout dev
+git pull origin dev
 git checkout -b release/v1.3.0
+git push origin release/v1.3.0
 ```
 
 In the *release/v1.3.0* branch, the `version` field of the `pyproject.toml` file is changed from *v1.2.3* to *v1.3.0* and the change is committed.
 
 ```
 git add pyproject.toml
-git commit -m "Release v1.3.0"
-git push
+git commit -m "Bump version to v1.3.0"
+git push origin release/v1.3.0
 ```
 
-The *release/v1.3.0* is merged into the *dev* branch.
-
-```
-git checkout dev
-git merge release/v1.3.0 -m "Release v1.3.0"
-git push
-```
-
-Now that the tested *foo* feature is in the *dev* branch, it's time to merge back into the *main* branch.
+# Merge Release Branch into Main
 
 ```
 git checkout main

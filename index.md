@@ -51,6 +51,12 @@ Db4E runs on [Debian Linux](https://www.debian.org/) and includes the following 
 
 ---
 
+# Release Management
+
+Refer to the [Git Branching Strategy](/pages/Git-Branching-Strategy.html) page for details.
+
+---
+
 # Coming Soon
 
 * 📈  Rich historical data tracking for mining performance and yield.
