@@ -129,6 +129,7 @@ git push origin release/v1.3.0
 ```
 git checkout main
 git merge release/v1.3.0 -m "Release v1.3.0"
+git tag -a v0.17.5 -m "Release v0.17.5"
 git push origin main --tags
 ```
 
