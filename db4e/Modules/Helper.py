@@ -8,7 +8,21 @@ db4e/Modules/Helper.py
 
 Helper functions that are used in multiple modules   
 """
-from db4e.Constants.Fields import GOOD_FIELD, ERROR_FIELD, WARN_FIELD
+import os, grp, getpass
+
+from db4e.Constants.Fields import(
+    GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, USER_FIELD, WARN_FIELD
+)
+
+def get_effective_identity():
+    """Return the effective user and group for the account running Db3e"""
+    # User account
+    user = getpass.getuser()
+    # User's group
+    effective_gid = os.getegid()
+    group_entry = grp.getgrgid(effective_gid)
+    group = group_entry.gr_name
+    return { USER_FIELD: user, GROUP_FIELD: group }
 
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
