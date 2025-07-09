@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Adopting a new `pages/Git-Commit-Standard` 
 
+### Changed
+- Updated the Getting Started page
+- Moved the Mongo install howto
+
 ## [0.18.0] - 2025-07-08
 
 ### Added
