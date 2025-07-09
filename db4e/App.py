@@ -43,8 +43,9 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, TERM_ENVIRON_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD
+    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, INITIAL_SETUP_FIELD, 
+    INSTALL_MGR_FIELD, TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
+    TO_METHOD_FIELD
 )
 from db4e.Constants.Labels import DB4E_LABEL, DEPLOYMENTS_LABEL
 from db4e.Constants.Panes import DB4E_PANE
@@ -151,6 +152,9 @@ class Db4EApp(App):
         module = message.form_data[TO_MODULE_FIELD]
         method = message.form_data[TO_METHOD_FIELD]
         results = await self.msg_router.dispatch(module, method, message.form_data)
+        # Set initialized flag only if InstallMgr.initial_setup just ran
+        if module == INSTALL_MGR_FIELD and method == INITIAL_SETUP_FIELD:
+            self.pane_mgr.set_initialized(True)
         pane_name = self.msg_router.get_pane(module=module, method=method)
         await self.pane_mgr.set_pane(name=pane_name, data=results)
 
