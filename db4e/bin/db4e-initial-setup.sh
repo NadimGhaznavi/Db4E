@@ -22,17 +22,9 @@ if [ -z "$VENDOR_DIR" ]; then
     exit 1
 fi
 
-# Create the db4e (system) group
-groupadd -r $DB4E_GROUP
-echo "Created the db4e group: $DB4E_GROUP"
-
-# Create the db4e user
-usermod -a -G $DB4E_GROUP $DB4E_USER
-echo "Added user ($DB4E_USER) to the new group ($DB4E_GROUP)"
-
 # Update the sudoers file
 DB4E_SUDOERS="/etc/sudoers.d/db4e"
-echo "# Grant the db4e user permission to start and stop db4d, P2Pool and monerod" >> $DB4E_SUDOERS
+echo "# Grant the db4e user permission to start and stop db4d, P2Pool and monerod" > $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl start db4e" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl stop db4e" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable db4e" >> $DB4E_SUDOERS
@@ -48,27 +40,46 @@ echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable xmrig@*" >> $DB4E_SUD
 chgrp sudo "$SUDOERS_DROPIN"
 chmod 440 "$SUDOERS_DROPIN"
 
+# Validae the 
 visudo -c -f $DB4E_SUDOERS > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "ERROR: Invalid sudoers file ($DB4E_SUDOERS), aborting"
     rm $DB4E_SUDOERS
     exit 1
 fi
-cp /etc/sudoers /etc/sudoers.db4e
-mv /tmp/sudoers /etc/sudoers
-echo "Updated /etc/sudoers, original is backed up as /etc/sudoers.db4e"
+echo "Created custom sudo file ($DB4E_SUDOERS)"
 
-# Install the db4e, P2Pool and Monerod systemd files
-TMP_DIR=/tmp/db4e
-mv $TMP_DIR/db4e.service /etc/systemd/system
+TMP_DIR=$DB4E_TMP_DIR
+SYSTEMD_DIR=/etc/systemd/system
+
+# Install the Db4E service definition file
+mv $TMP_DIR/db4e.service $SYSTEMD_DIR
+chown root:root $SYSTEMD_DIR/db4e.service
+chmod 0644 $SYSTEMD_DIR/db4e.service
 echo "Installed the db4e systemd service"
-mv $TMP_DIR/p2pool@.service /etc/systemd/system
-mv $TMP_DIR/p2pool@.socket /etc/systemd/system
-echo "Installed the P2Pool systemd service"
-mv $TMP_DIR/monerod@.service /etc/systemd/system
-mv $TMP_DIR/monerod@.socket /etc/systemd/system
+
+# Install the Monero daemon service definition file
+mv $TMP_DIR/monerod@.service $SYSTEMD_DIR
+mv $TMP_DIR/monerod@.socket $SYSTEMD_DIR
+chown root:root $SYSTEMD_DIR/monerod@.service
+chown root:root $SYSTEMD_DIR/monerod@.socket
+chmod 0644 $SYSTEMD_DIR/monerod@.service
+chmod 0644 $SYSTEMD_DIR/monerod@.socket
 echo "Installed the Monero daemon systemd service"
-mv $TMP_DIR/xmrig@.service /etc/systemd/system
+
+# Install the P2Pool service definition file
+mv $TMP_DIR/p2pool@.service $SYSTEMD_DIR
+mv $TMP_DIR/p2pool@.socket $SYSTEMD_DIR
+chown root:root $SYSTEMD_DIR/p2pool@.service
+chown root:root $SYSTEMD_DIR/p2pool@.socket
+chmod 0644 $SYSTEMD_DIR/p2pool@.service
+chmod 0644 $SYSTEMD_DIR/p2pool@.socket
+echo "Installed the P2Pool systemd service"
+
+# Install the XMRig service definition file
+mv $TMP_DIR/xmrig@.service $SYSTEMD_DIR
+chown root:root $SYSTEMD_DIR/xmrig@.service
+chmod 0644 $SYSTEMD_DIR/xmrig@.service
 echo "Installed the XMRig miner systemd service"
 
 systemctl daemon-reload
