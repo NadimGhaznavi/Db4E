@@ -33,8 +33,8 @@ class MessageRouter:
     def get_pane(self, module: str, method: str):
         return self._panes.get((module, method))
 
-    def dispatch(self, module: str, method: str, payload: dict):
+    async def dispatch(self, module: str, method: str, payload: dict):
         handler = self.get_handler(module, method)
         if not handler:
             raise ValueError(f"No handler for ({module}, {method})")
-        return handler(payload)
+        return await handler(payload)
