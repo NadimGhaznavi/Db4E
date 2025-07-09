@@ -166,6 +166,16 @@ git push origin dev
 
 ---
 
+# Trigger Jekyll Site Rebuild
+
+To trigger a Jekyll site rebuild:
+
+* Go to the Db4E GitHub repository's [Actions](https://github.com/NadimGhaznavi/Db4E/actions) tab.
+* Look for "Rebuild GitHub Pages Site" in the left-hand list
+* Click it, then click the "Run workflow" dropdown
+
+---
+
 # Bug Fixes
 
 The same process is used for bug fixes, except the branch name is different. The branch name would then be *bugfix/v1.3.1*.
