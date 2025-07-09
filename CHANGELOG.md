@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Added
+- Workflow to manually trigger a rebuild of the project's Jekyll site
+
+## Changed
+- Added a link to an updated 'Getting Started' page
+- Added information on triggering the Jekyll site rebuild in the Git 'Branching Strategy' page.
+
 ## [0.18.1] - 2025-07-09
 
 ### Added
