@@ -2,197 +2,145 @@
 title: Getting Started
 ---
 
-# Introduction
+# 📜 Introduction
 
-This page will guide you through the process of setting up the *Database 4 Everything* on your system.
-
----
-
-# Pre-Requisites
-
-## Debian Linux
-
-While *db4e* is certified for [Debian](https://debian.org) [12 Bookworm](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso) Linux, it should work with minimal tweaks on any Linux distribution.
-
-This guide assumes a *minimal* Debian (NetInst) install with only:
-
-  * SSH server
-  * Standard system utilities
-
--selected.
-
-## Additional Software
-
-Some standard packages are required to setup and run *db4e*:
-
-```
-sudo apt-get install gnupg curl libhwloc15 rsync python3.11-venv libzmq5 pip
-```
-
-* The *gnupg* and *curl* packages are needed to install MongoDB
-* The *libhwloc15* package is required to run XMRig
-* *rsync* is used by the `db4e-update-repo.sh` script
-* The *python3.11-venv* and *pip* packages are required to install the db4e Python venv environment
-* The *libzmq5* package is required to run P2Pool
-
-## Root Access
-
-The *db4e* application does *NOT* require root access to run. However, root access is required to:
-
-* Install Pre-Requisite Linux packages
-* Install MongoDB
-* Run the XMRig miner 
-* Configure *db4e* as a system service
-
-You will only be required to use the root password when you install the package pre-requisites and to install the *db4e* service. For optimal performance, the included XMRig miner needs to access Model-Specific Registers (MSRs). This requires root access. To handle this *db4e* sets the SUID bit on the XMRig binary.
-
-The *db4e* applicaiton **NEVER** stores the root password.
-
-### Dedicated db4e Account
-
-**PRO TIP:** The *best practise* is to created a dedicated Linux *db4e* account named `db4e`. Have that account own the *db4e* code and the *GitHub Pages* repository. This is optional.
+This guide will walk you through setting up **Database 4 Everything (Db4E)** on your system, from installing dependencies to launching the application.
 
 ---
 
-# Install MongoDB 
+# 📝 Prerequisites
 
-MongoDB does not ship with Debian, however the good folks at Mongo run their own repository. See [Installing MongoDB](/pages/Installing-MongoDB.html) for detailed instructions on setting up repository access and installing MongoDB.
+## ✅ Debian Linux
 
----
+Db4E is certified for [Debian 12 “Bookworm”](https://debian.org) and works best on a clean, minimal installation.  
+We recommend the [NetInst ISO](https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso) with only the following option selected during setup:
 
-# Create a GitHub Account
+- Standard system utilities
 
-If you don't already have one, you can get a free GitHub account.
-
-* Navigate to [https://github.com](https://github.com) and click on the *Sign up* button.
-
----
-
-# Create a Repository
-
-Next you'll need to create a GitHub repository. This will host the *db4e* website.
-
-* Navigate to [https://github.com](https://github.com) and click on the *Sign in* button.
-* Once you've signed in, click on your account icon in the top-right corner to access the drop down menu. 
-* Click on *Your repositories* menu item
-* On the *Repositories* page click on the *New* button.
-* Choose a name for your repository, e.g. *xmr*.
-* Add a description, e.g. *Monero XMR Mining Farm*
-* Select *GNU General Public Licence v3.0* to be inline with *db4e*'s licensing.
-* Click on the *Create repository* button.
+Db4E should also run on other modern Linux distributions with minimal changes.
 
 ---
 
-# Setup GitHub Pages
+## 📥 Required Packages
 
-You need to configure the repository as a *GitHub Pages* site. Once you've created your repository...
+Before installing Db4E, make sure the following packages are installed:
 
-* Click on the *Settings* gear, near the top-right corner of the repository screen.
-* Under the *Code and Automation* section, select *Pages*.
-* Change the *Branch* from *None* to *main* and click the *Save* button.
-* Optionally put in a custom domain (e.g. *xmr.osoyalce.com*). **NOTE:** You will need to be able to create DNS records in the domain for this to work.
+```bash
+sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
+```
+
+### 📦 Why they're needed
+
+* `gnupg`, `curl` — for installing MongoDB
+* `libhwloc15` — required by XMRig
+* `python3.11-venv`, `pip` — for Python virtual environment and installing Db4E
+* `libzmq5` — required by P2Pool
 
 ---
 
-# Generate a SSH Key
+## 🕵️ Dedicated db4e Account (Optional)
 
-SSH keys are used to authenticate to GitHub. This is so you can upload report data to your website. Login to *GitHub*. The SSH key that's needed is the one associated with the user who will be running the *db4e* application (e.g. *sally*, or *db4e*). The account's public key is in the user's home directory:
-
-Check if you already have a SSH key:
-
-```
-ls -l ~/.ssh/id_rsa.pub 
-```
-
-If you do not already have an ssh-key you can easily generate one with the `ssh-keygen` command:
-
-```
-ssh-keygen -b 10240
-```
-
-When prompted:
-
-```
-Enter file in which to save the key (/home/sally/.ssh/id_rsa): 
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
-```
-
--simply hit enter (default path, empty passphrase).
+**Pro Tip**: For security and isolation, we recommend creating a dedicated Linux user for Db4E (e.g., `db4e`). This step is optional, but considered a best practice.
 
 ---
 
-# Import Key into GitHub
+# 🗃️ Install MongoDB
 
-Next you'll want to import the **public** part of your new key to GitHub. This file is `~/.ssh/id_rsa.pub`.
-
-* Once you've logged into *GitHub*, click on your account icon in the top-right corner to access the drop down menu. 
-* Click on *Settings* (not the repository settings).
-* Click on *SSH and GPG keys*.
-* Click on the *New SSH key* button.
-* Enter a name for the key, e.g. *db4e on my_server*.
-* Next you'll want to cut-and-paste the contents of the public key file (~/.ssh/id_rsa.pub) into the *Key* box in GitHub.
-* Finally, click the *Add SSH key* button
-
-To test that this worked, go the command line of your machine and issue the command below:
-
-```
-ssh -T git@github.com
-```
-
-Sample output:
-
-```
-Hi SallyKolodny! You've successfully authenticated, but GitHub does not provide shell access.
-```
-
+MongoDB is not included in Debian’s default repositories.
+See the [Installing MongoDB](/pages/Installing-MongoDB.html) page for full instructions on setting up the official MongoDB Community Edition repository and installing the database.
 
 ---
 
-# Clone the db4e Repository
+# 🔧 Set Up a Python Virtual Environment
 
-Use the command below to clone the *db4e* repository.
+Db4E is distributed as a [PyPI package](https://pypi.org/project/db4e/). It's recommended to install it inside a virtual environment:
 
-```
-git clone git@github.com:NadimGhaznavi/db4e
+```bash
+python3 -m venv db4e
+. db4e/bin/activate
 ```
 
 ---
 
-# Launch the db4e-os Tool
+# ✅ Install Db4E
 
-Optionally, for ease of use, I recommend adding the `bin` directory to your path. For example, if you cloned *db4e* into your home directory, `/home/sally/db4e`, then add this line to the bottom of your `.bashrc` file:
+Once your virtual environment is activated:
 
+```bash
+pip install db4e
 ```
-export PATH=$PATH:/home/sally/db4e/bin
-```
-
-You can launch the db4e-os tool by running the shell wrapper:
-
-```
-db4e/bin/db4e-os.sh
-```
-
-The first time you run the tool it will create a Python *venv* environment that's required to run *db4e*.
-
-**IMPORTANT NOTE:** This is **beta** code: The software is not fully operational and is under active development.
 
 ---
 
-# MongoDB Backups
+# 🧩 Initial Install & Setup
 
-A comprehensive backup of MongoDb has been implemented by running `db4e.sh -b`. The code will backup the MongoDB databases into your local *GitHub Pages website* in the `backups` directory. Currently the script keeps 7 backups before rotating them out. The implementation also pushes the backups to GitHub so you have off-site storage for free!
+Launch Db4E from your virtual environment:
 
-**PRO-TIP**: Create a cronjob to schedule daily backups. E.g.
-
-```
-# Do a daily DB backup at noon
-0 12 * * * /opt/prod/db4e/bin/db4e.sh -b
+```bash
+db4e
 ```
 
+On first launch, you’ll be guided through the Initial Install screen.
+
+You’ll be asked to provide:
+
+* Your Monero wallet address (for mining payouts)
+* A **deployment directory** (used to store binaries, configuration files, logs etc.)
+
+Once you click **Proceed**, Db4E will perform an environment setup using elevated privileges via `sudo`.
 
 
+## ⚙️ What the Installer Does
 
+The `db4e-initial-setup.sh` script performs the following:
 
+* Creates a custom sudoers entry (`/etc/sudoers.d/db4e`) to allow system control of Monero, P2Pool, and XMRig without prompting for a password
+* Installs systemd service definitions for all Db4E-managed components under `/etc/systemd/system/`
+* Sets XMRig ownership to `root` and sets the `suid` bit so it can access CPU MSRs (model-specific registers) for optimized performance
 
+---
 
+# 🔐 Sudo Configuration (Temporary)
+
+For the Initial Install to complete successfully, your user must be able to execute `sudo` commands without being prompted for a password.
+
+If you’re using the default Debian sudo configuration:
+
+```bash
+%sudo    ALL=(ALL:ALL) ALL
+```
+
+You must temporarily change it to:
+
+```bash
+%sudo    ALL=(ALL:ALL) NOPASSWD: ALL
+```
+
+⚠️ **Important**: After completing the Initial Install, you can safely revert this change.
+
+---
+
+# 🚀 Launch Db4E
+
+To launch the application from your virtual environment:
+
+```bash
+db4e
+```
+
+Db4E will start in terminal UI (TUI) mode. If setup was successful, you’ll see the main dashboard interface.
+
+---
+
+# 🚧 What’s Next
+
+The current release sets up the core environment and provides a functional TUI interface.
+
+Coming soon:
+
+- Remote and local Monero daemon configuration
+- P2Pool and XMRig deployment management
+- Performance monitoring and system health checks
+
+Stay tuned — these features are actively in development.  
+In the meantime, you can follow updates on the [Blog](https://blog.osoyalce.com/) or join the discussion on [GitHub Discussions](https://github.com/NadimGhaznavi/db4e/discussions).
