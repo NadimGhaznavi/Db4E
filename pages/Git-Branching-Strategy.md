@@ -116,10 +116,11 @@ git checkout -b release/v1.3.0
 git push origin release/v1.3.0
 ```
 
-Update the `pyproject.toml` and increase the version to 1.3.0.
+* Update the `pyproject.toml` and increase the version to 1.3.0.
+* Update the CHANGELOG.md to reflect the new release
 
 ```
-git add pyproject.toml
+git add pyproject.toml CHANGELOG.md
 git commit -m "Bump version to v1.3.0"
 git push origin release/v1.3.0
 ```
