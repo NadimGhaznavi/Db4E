@@ -53,7 +53,9 @@ Db4E runs on [Debian Linux](https://www.debian.org/) and includes the following 
 
 # Release Management
 
-Refer to the [Git Branching Strategy](/pages/Git-Branching-Strategy.html) page for details.
+For details on how development and releases are structured, see the  
+[Git Branching Strategy](/pages/Git-Branching-Strategy.html) and  
+[Git Commit Standard](/pages/Git-Commit-Standard.html).
 
 ---
 
@@ -70,7 +72,7 @@ Refer to the [Git Branching Strategy](/pages/Git-Branching-Strategy.html) page f
 
 # Community Feedback
 
-*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page.
+*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page or checkout my [Blog](https://blog.osoyalce.com/).
 
 ---
 
