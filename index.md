@@ -59,6 +59,12 @@ For details on how development and releases are structured, see the
 
 ---
 
+# Getting Started
+
+Refer to the [Getting Started](pages/Getting-Started.html) for detailed step on deploying Db4E.
+
+---
+
 # Coming Soon
 
 * 📈  Rich historical data tracking for mining performance and yield.
