@@ -116,10 +116,11 @@ git checkout -b release/v1.3.0
 git push origin release/v1.3.0
 ```
 
-In the *release/v1.3.0* branch, the `version` field of the `pyproject.toml` file is changed from *v1.2.3* to *v1.3.0* and the change is committed.
+* Update the `pyproject.toml` and increase the version to 1.3.0.
+* Update the CHANGELOG.md to reflect the new release
 
 ```
-git add pyproject.toml
+git add pyproject.toml CHANGELOG.md
 git commit -m "Bump version to v1.3.0"
 git push origin release/v1.3.0
 ```
@@ -129,6 +130,7 @@ git push origin release/v1.3.0
 ```
 git checkout main
 git merge release/v1.3.0 -m "Release v1.3.0"
+git tag -a v0.17.5 -m "Release v0.17.5"
 git push origin main --tags
 ```
 

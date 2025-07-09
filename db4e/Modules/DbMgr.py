@@ -56,7 +56,6 @@ class DbMgr:
             time.sleep(retry_timeout)
       
         self.db4e = self._client[self.db_name]
-
         # Used for backups
         self.db4e_dir = None
         self.repo_dir = None
@@ -104,4 +103,6 @@ class DbMgr:
    
     def update_one(self, col_name, filter, new_values):
         collection = self.get_collection(col_name)
+        # Remove the "_id" field if it's present
+        new_values.pop("_id", None)
         return collection.update_one(filter, {'$set' : new_values})

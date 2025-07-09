@@ -16,7 +16,7 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 
 class Results(Container):
 
-    def set_data(self, task_list):
+    async def set_data(self, task_list):
 
         table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
         table.add_column("Component", width=25)

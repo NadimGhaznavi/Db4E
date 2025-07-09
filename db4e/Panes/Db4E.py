@@ -9,8 +9,15 @@ db4e/Panes/Db4E.py
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
-
 from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Constants.Fields import (
+    COMPONENT_FIELD, DB4E_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, GROUP_FIELD, 
+    INSTALL_DIR_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_DEPLOYMENT_FIELD, 
+    USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD
+)
+from db4e.Constants.Labels import (
+    DB4E_GROUP_LABEL, DB4E_USER_LABEL, DEPLOYMENT_DIR_LABEL, INSTALL_DIR_LABEL, MONERO_WALLET_LABEL, PROCEED_LABEL, UPDATE_LABEL
+)
 
 STATIC_CONTENT = """Welcome to the *Database 4 Everything Db4E Core* configuration screen.
 On this screen uou can update your *Monero wallet* and relocate the *deployment directory*.
@@ -18,27 +25,28 @@ On this screen uou can update your *Monero wallet* and relocate the *deployment 
 
 class Db4E(Container):
 
-    def set_data(self, db4e_rec):
+    async def set_data(self, db4e_rec):
         print(f"Db4E:set_data(): {db4e_rec}")
 
+        # Record name to human readible name mapping
         rec_2_biz = {
-            'group': 'Db4E Group',
-            'install_dir': 'Install Directory',
-            'user': 'Db4E User',
-            'user_wallet': 'Monero Wallet',
-            'vendor_dir': 'Deployment Directory'
+            GROUP_FIELD: DB4E_GROUP_LABEL,
+            INSTALL_DIR_FIELD: INSTALL_DIR_LABEL,
+            USER_FIELD: DB4E_USER_LABEL,
+            USER_WALLET_FIELD: MONERO_WALLET_LABEL,
+            VENDOR_DIR_FIELD: DEPLOYMENT_DIR_LABEL
         }
 
-        db4e_user_name = rec_2_biz['user']
-        db4e_user = db4e_rec['user']
-        db4e_group_name = rec_2_biz['group']
-        db4e_group = db4e_rec['group']
-        install_dir_name = rec_2_biz['install_dir']
-        install_dir = db4e_rec['install_dir']
-        vendor_dir_name = rec_2_biz['vendor_dir']
-        vendor_dir = db4e_rec['vendor_dir']
-        user_wallet_name = rec_2_biz['user_wallet']
-        user_wallet = db4e_rec['user_wallet']
+        db4e_user_name = rec_2_biz[USER_FIELD]
+        db4e_user = db4e_rec[USER_FIELD] or ""
+        db4e_group_name = rec_2_biz[GROUP_FIELD]
+        db4e_group = db4e_rec[GROUP_FIELD] or ""
+        install_dir_name = rec_2_biz[INSTALL_DIR_FIELD]
+        install_dir = db4e_rec[INSTALL_DIR_FIELD] or "" 
+        vendor_dir_name = rec_2_biz[VENDOR_DIR_FIELD]
+        vendor_dir = db4e_rec[VENDOR_DIR_FIELD] or ""
+        user_wallet_name = rec_2_biz[USER_WALLET_FIELD]
+        user_wallet = db4e_rec[USER_WALLET_FIELD] or ""
 
         md = Vertical(
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
@@ -61,16 +69,18 @@ class Db4E(Container):
                     Input(restrict=r"[a-zA-Z0-9]*", value=user_wallet, compact=True, id="db4e_user_wallet_input")),
                 id="db4e_update_form"),
 
-            Button(label="Update", id="db4e_update_button"))
+            Button(label=UPDATE_LABEL, id="db4e_update_button"))
+        self.remove_children()
         self.mount(md)
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {
-            "to_module": "DeploymentMgr",
-            "to_method": "update_deployment",
-            "component": "db4e",
-            "user_wallet": self.query_one("#db4e_user_wallet_input", Input).value,
-            "vendor_dir": self.query_one("#db4e_vendor_dir_input", Input).value,
+            USER_WALLET_FIELD: self.query_one("#db4e_user_wallet_input", Input).value,
+            VENDOR_DIR_FIELD: self.query_one("#db4e_vendor_dir_input", Input).value,
+            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+            TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+            COMPONENT_FIELD: DB4E_FIELD,
+            FORM_DATA_FIELD: True,
         }
         self.app.post_message(SubmitFormData(self, form_data))
 

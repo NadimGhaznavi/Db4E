@@ -84,23 +84,24 @@ TopBar {
 }
 
 #initial_setup_form {
-    height: 5;
+    height: 6;
     border: round;
 }
-#initial_setup_db4e_group_label,
+#initial_setup_user_name_label,
+#initial_setup_group_name_label,
 #initial_setup_vendor_dir_label,
 #initial_setup_user_wallet_label {
     padding: 0 1;
     width: 23;
-}
-#initial_setup_db4e_group_input {
-    width: 10;
 }
 #initial_setup_vendor_dir_input {
     width: 30;
 }
 #initial_setup_user_wallet_input {
     width: 75;
+}
+#initial_setup_buttons {
+    height: 3;
 }
 
 .form_intro {

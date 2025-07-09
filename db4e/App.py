@@ -42,6 +42,15 @@ from db4e.Messages.SwitchPane import SwitchPane
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
+from db4e.Constants.Fields import (
+    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, TERM_ENVIRON_FIELD, 
+    TO_MODULE_FIELD, TO_METHOD_FIELD
+)
+from db4e.Constants.Labels import DB4E_LABEL, DEPLOYMENTS_LABEL
+from db4e.Constants.Panes import DB4E_PANE
+from db4e.Constants.Defaults import (
+    APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT
+)
 
 RICH_THEME =RichTheme(
     {
@@ -92,8 +101,8 @@ TEXTUAL_THEME = TextualTheme(
     },
 )
 class Db4EApp(App):
-    TITLE = "Db4E"
-    CSS_PATH = "Db4E.tcss"
+    TITLE = APP_TITLE_DEFAULT
+    CSS_PATH = CSS_PATH_DEFAULT
 
     def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
@@ -125,30 +134,33 @@ class Db4EApp(App):
 
     ### Message handling happens here...
 
-    # Every form sends it's data here, we need to route the messages
-    async def on_submit_form_data(self, message: SubmitFormData) -> None:
-        module = message.form_data["to_module"]
-        method = message.form_data["to_method"]
-        results = await self.msg_router.dispatch(module, method, message.form_data)
-        pane_name = self.msg_router.get_pane(module=module, method=method)
-        self.pane_mgr.set_pane(name=pane_name, data=results)
-
-    # The individual Detail panes use this to update the TopBar
-    async def on_update_top_bar(self, message: UpdateTopBar) -> None:
-        self.topbar.set_state(title=message.title, sub_title=message.sub_title )
-
-    # This is how the Detail panes is selected and loaded, including any data
-    async def on_switch_pane(self, message: SwitchPane) -> None:
-        self.pane_mgr.set_pane(message.pane_name, message.data)
-
     # NavPane selections are routed here
     async def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
         category = message.parent
         instance = message.leaf
-        if category == 'Deployments' and instance == 'Db4E Core':
-            db4e_data = self.depl_mgr.get_deployment('db4e')
-            print(f"db4e_data: {db4e_data}")
-            self.pane_mgr.set_pane(name="Db4E", data=db4e_data)
+        if category == DEPLOYMENTS_LABEL and instance == DB4E_LABEL:
+            db4e_data = self.depl_mgr.get_deployment(DB4E_FIELD)
+            await self.pane_mgr.set_pane(name=DB4E_PANE, data=db4e_data)
+
+    # Exit the app
+    async def on_quit(self) -> None:
+        self.exit()
+    
+    # Every form sends it's data here, we need to route the messages
+    async def on_submit_form_data(self, message: SubmitFormData) -> None:
+        module = message.form_data[TO_MODULE_FIELD]
+        method = message.form_data[TO_METHOD_FIELD]
+        results = await self.msg_router.dispatch(module, method, message.form_data)
+        pane_name = self.msg_router.get_pane(module=module, method=method)
+        await self.pane_mgr.set_pane(name=pane_name, data=results)
+
+    # This is how the a pane is selected and loaded, including any data
+    async def on_switch_pane(self, message: SwitchPane) -> None:
+        await self.pane_mgr.set_pane(message.pane_name, message.data)
+
+    # The individual Detail panes use this to update the TopBar
+    async def on_update_top_bar(self, message: UpdateTopBar) -> None:
+        self.topbar.set_state(title=message.title, sub_title=message.sub_title )
 
     # Catchall 
     def _handle_exception(self, error: Exception) -> None:
@@ -157,8 +169,8 @@ class Db4EApp(App):
 
 def main():
     # Set environment variables for better color support
-    os.environ["TERM"] = "xterm-256color"
-    os.environ["COLORTERM"] = "truecolor"
+    os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
+    os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
 
     config_manager = ConfigMgr(__version__)
     config = config_manager.get_config()
