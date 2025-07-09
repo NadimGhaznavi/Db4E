@@ -1,49 +1,38 @@
-from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer
-from textual.containers import Horizontal
+import inspect
 
-from components.nav_tree import NavTree
-from components.detail_pane import DetailPane
-from messages import TreeItemSelected
+async def set_pane(self, name: str, data: dict | None = None):
+    if not self.initialized_flag and name != RESULTS_PANE:
+        self.pane_state = PaneState(INITIAL_SETUP_PANE, data)
+    elif name == RESULTS_PANE and not data:
+        self.pane_state = PaneState(WELCOME_PANE, {})
+    else:
+        self.pane_state = PaneState(name, data)
 
+    print(f"PaneMgr:set_pane(): {self.pane_state}")
+    if data and name in self.panes:
+        pane = self.panes[name]
+        if hasattr(pane, "set_data"):
+            method = pane.set_data
+            if inspect.iscoroutinefunction(method):
+                await method(data)
+            else:
+                method(data)
 
-class Db4eApp(App):
-    CSS_PATH = "app.tcss"
+---
 
-    BINDINGS = [
-        ("ctrl+n", "new_deployment", "New Deployment"),
-    ]
+async def on_mount(self) -> None:
+    initial = PaneState(name=WELCOME_PANE if self.initialized_flag else INITIAL_SETUP_PANE, data={})
+    if initial.name == INITIAL_SETUP_PANE:
+        initial.data = get_effective_identity()
+    await self.set_pane(initial.name, initial.data)
 
-    def compose(self) -> ComposeResult:
-        yield Header()
-        yield Horizontal(
-            NavTree(),
-            DetailPane(),
-        )
-        yield Footer()
+---
 
-    def on_tree_item_selected(self, message: TreeItemSelected) -> None:
-        self.update_footer_for_context(message.label_path)
+Optional:
 
-    def update_footer_for_context(self, context: str) -> None:
-        self.clear_bindings()
-        if context == "Deployments":
-            self.add_binding("ctrl+n", "new_deployment", "New Deployment")
-        else:
-            self.add_binding("e", "edit", "Edit")
-            self.add_binding("x", "toggle_enable", "Enable/Disable")
-            self.add_binding("delete", "delete", "Delete")
+async def maybe_await(func, *args, **kwargs):
+    if inspect.iscoroutinefunction(func):
+        return await func(*args, **kwargs)
+    return func(*args, **kwargs)
 
-    def action_new_deployment(self) -> None:
-        # Placeholder: Launch a form/modal or prefill right pane
-        self.console.log("New deployment triggered.")
-
-    def action_edit(self) -> None:
-        self.console.log("Edit triggered.")
-
-    def action_toggle_enable(self) -> None:
-        self.console.log("Enable/Disable triggered.")
-
-    def action_delete(self) -> None:
-        self.console.log("Delete triggered.")
 
