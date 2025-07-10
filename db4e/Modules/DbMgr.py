@@ -67,6 +67,10 @@ class DbMgr:
             log_col.create_index("timestamp")
             # TODO self.log.debug("Created index on 'timestamp' for log collection.")
 
+    def find_many(self, col_name, filter):
+        col = self.get_collection(col_name)
+        return col.find(filter)
+
     def find_one(self, col_name, filter):
         col = self.get_collection(col_name)
         return col.find_one(filter)
@@ -97,7 +101,7 @@ class DbMgr:
             # TODO self.log.debug(f'Created DB collection ({aCol})')
         self.ensure_indexes()
 
-    def insert_one(self, col_name, jdoc):
+    async def insert_one(self, col_name, jdoc):
         collection = self.get_collection(col_name)
         return collection.insert_one(jdoc)
    
