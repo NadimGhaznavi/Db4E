@@ -64,10 +64,10 @@ class InstallMgr:
         results, db4e_rec = self._check_or_create_db4e_rec()
 
         # Intitialize the db4e_rec
-        results, db4e_rec = self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
+        results, db4e_rec = await self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
 
         # Confirm that the user actually filled out the form.
-        results, db4e_rec, abort_install = self._check_form_data(
+        results, db4e_rec, abort_install = await self._check_form_data(
             user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec)
         if abort_install:
             return results
@@ -110,13 +110,13 @@ class InstallMgr:
         results = self._copy_xmrig_file(vendor_dir=vendor_dir, results=results)
 
         # Run the installer (with sudo)
-        results = self._run_sudo_installer(
+        results = await self._run_sudo_installer(
             vendor_dir=vendor_dir, results=results, db4e_rec=db4e_rec)
 
         # Return the results
         return results
 
-    def _check_form_data(
+    async def _check_form_data(
             self, user_wallet: str, 
             vendor_dir: str, 
             db4e_rec: dict):
@@ -153,7 +153,7 @@ class InstallMgr:
                 DB4E_LABEL, GOOD_FIELD, 
                 f"Click on Db4e Core to try again"))
             return (results, db4e_rec, abort_install)
-        self.depl_mgr.update_deployment(db4e_rec)
+        await self.depl_mgr.update_deployment(db4e_rec)
         return (results, db4e_rec, abort_install)
 
 
@@ -432,11 +432,10 @@ class InstallMgr:
             tmp_obj = tempfile.TemporaryDirectory()
             self.tmp_dir = tmp_obj.name  # Store path string
             self._tmp_obj = tmp_obj      # Keep a reference to the object
-        print(f"InstallMgr:_get_tmp_dir(): {self.tmp_dir}")
         return self.tmp_dir
 
 
-    def _init_db4e_rec(self, db4e_rec, results):
+    async def _init_db4e_rec(self, db4e_rec, results):
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
@@ -448,7 +447,7 @@ class InstallMgr:
         db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         db4e_rec[INSTALL_DIR_FIELD] = db4e_install_dir
         
-        self.depl_mgr.add_deployment(db4e_rec)
+        await self.depl_mgr.add_deployment(db4e_rec)
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
             f"Created new {DB4E_LABEL} deployment record"
@@ -473,7 +472,7 @@ class InstallMgr:
             content = content.replace(f'[[{key}]]', str(val))
         return content
 
-    def _run_sudo_installer(self, vendor_dir, db4e_rec, results):
+    async def _run_sudo_installer(self, vendor_dir, db4e_rec, results):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
@@ -502,6 +501,7 @@ class InstallMgr:
             # Check the return code
             if cmd_result.returncode != 0:
                 results.append(result_row(DB4E_LABEL, ERROR_FIELD, f'Service install failed.\n\n{stderr}'))
+                shutil.rmtree(tmp_dir)
                 return results
             
             installer_output = f'{stdout}'
@@ -514,6 +514,6 @@ class InstallMgr:
         # Build the db4e deployment record
         db4e_rec[ENABLE_FIELD] = True
         # Update the repo deployment record
-        self.depl_mgr.update_deployment(db4e_rec)
+        await self.depl_mgr.update_deployment(db4e_rec)
         return results
     

@@ -24,8 +24,11 @@ DetailPane {
 }
 
 Db4E,
-Welcome,
-InstallResults {
+InstallResults,
+MonerodRemote,
+NewMonerod,
+NewMonerodType,
+Welcome {
     padding: 0 2;
     border: round;
     background: black;
@@ -51,7 +54,6 @@ TopBar {
     border: round;
 }
 
-
 #db4e_user_name_label,
 #db4e_group_name_label,
 #db4e_install_dir_name_label,
@@ -66,9 +68,6 @@ TopBar {
 #db4e_user_wallet_input {
     width: 75;
 }
-
-
-
 
 #topbar_title {
     content-align: center middle;
@@ -101,6 +100,58 @@ TopBar {
     width: 75;
 }
 #initial_setup_buttons {
+    height: 3;
+}
+
+#monerod_remote_update_form {
+    height: 6;
+    border: round;
+}
+#monerod_remote_instance_label,
+#monerod_remote_ip_addr_label,
+#monerod_remote_rpc_bind_port_label,
+#monerod_remote_zmq_pub_port_label {
+    padding: 0 1;
+    width: 23;
+    height: 1;
+}
+
+#new_monerod_form {
+    height: 6;
+    border: round;
+}
+#new_monerod_instance_label,
+#new_monerod_ip_addr_label,
+#new_monerod_rpc_bind_port_label,
+#new_monerd_zmq_pub_port_label {
+    padding: 0 1;
+    width: 21;
+}
+#new_monerod_instance_input {
+    width: 20;
+}
+#new_monerod_ip_addr_input {
+    width: 30;
+}
+#new_monerod_rpc_bind_port_input {
+    width: 7;
+}
+#new_monerod_zmq_pub_port_input {
+    width: 7;
+}
+
+#new_monerod_type_form {
+    height: 6;
+    border: round;
+}
+#new_monerod_type_radioset {
+    border: round;
+}
+#new_monerod_type_monerod,
+#new_monerod_type_remote_monerod {
+    width: 26;
+}
+#new_monerod_type_button {
     height: 3;
 }
 

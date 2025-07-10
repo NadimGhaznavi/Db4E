@@ -13,15 +13,25 @@ from db4e.Panes.Welcome import Welcome
 from db4e.Panes.InitialSetup import InitialSetup
 from db4e.Panes.Results import Results
 from db4e.Panes.Db4E import Db4E
-from db4e.Constants.Labels import (
-    DB4E_LABEL, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL, RESULTS_LABEL, WELCOME_LABEL
-)
-from db4e.Constants.Panes import DB4E_PANE, INITIAL_SETUP_PANE, RESULTS_PANE, WELCOME_PANE
+from db4e.Panes.MonerodRemote import MonerodRemote
+from db4e.Panes.NewMonerodType import NewMonerodType
+from db4e.Panes.NewMonerod import NewMonerod
 
+from db4e.Constants.Labels import (
+    CONFIG_LABEL, DB4E_LABEL, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL, NEW_LABEL, 
+    MONEROD_LABEL, MONEROD_REMOTE_LABEL, RESULTS_LABEL, WELCOME_LABEL
+)
+from db4e.Constants.Panes import (
+    DB4E_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE, NEW_MONEROD_PANE, 
+    NEW_MONEROD_TYPE_PANE, RESULTS_PANE, WELCOME_PANE
+)
 
 REGISTRY = {
     DB4E_PANE: (Db4E, DB4E_LONG_LABEL, DB4E_LABEL),
     INITIAL_SETUP_PANE: (InitialSetup, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL),
+    MONEROD_REMOTE: (MonerodRemote, MONEROD_REMOTE_LABEL, CONFIG_LABEL),
+    NEW_MONEROD_TYPE_PANE: (NewMonerodType, NEW_LABEL, MONEROD_LABEL),
+    NEW_MONEROD_PANE: (NewMonerod, NEW_LABEL, MONEROD_LABEL),
     RESULTS_PANE: (Results, DB4E_LONG_LABEL, RESULTS_LABEL),
     WELCOME_PANE: (Welcome, DB4E_LONG_LABEL, WELCOME_LABEL),
 }

@@ -43,11 +43,16 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, TERM_ENVIRON_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD
+    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, MONEROD_FIELD, 
+    TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
+    TO_METHOD_FIELD
 )
-from db4e.Constants.Labels import DB4E_LABEL, DEPLOYMENTS_LABEL
-from db4e.Constants.Panes import DB4E_PANE
+from db4e.Constants.Labels import (
+    DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, NEW_LABEL
+)
+from db4e.Constants.Panes import (
+    DB4E_PANE, MONEROD_REMOTE, NEW_MONEROD_TYPE_PANE
+)
 from db4e.Constants.Defaults import (
     APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT
 )
@@ -111,9 +116,11 @@ class Db4EApp(App):
         self.install_mgr = InstallMgr(config)
         self.pane_catalogue = PaneCatalogue()
         self.msg_router = MessageRouter(config)
-        self.initialized_flag = True if self.depl_mgr.is_initialized() else False
+        self._initialized = self.is_initialized()
         self.pane_mgr = PaneMgr(
-            config=config, catalogue=self.pane_catalogue, initialized_flag=self.initialized_flag)
+            config=config, catalogue=self.pane_catalogue, initialized_flag=self._initialized)
+        self.nav_pane = NavPane(initialized_flag=self._initialized, config=config)
+        self.set_initialized(self._initialized)
         
         # Setup the themes
         theme = RICH_THEME
@@ -127,10 +134,14 @@ class Db4EApp(App):
         self.topbar = TopBar(app_version=__version__)
         yield self.topbar
         yield Vertical(
-            NavPane(initialized=self.initialized_flag),
+            self.nav_pane,
             Clock()
         )
         yield self.pane_mgr
+
+    def is_initialized(self) -> bool:
+        initialized_flag = self.depl_mgr.is_initialized()
+        return initialized_flag
 
     ### Message handling happens here...
 
@@ -141,18 +152,41 @@ class Db4EApp(App):
         if category == DEPLOYMENTS_LABEL and instance == DB4E_LABEL:
             db4e_data = self.depl_mgr.get_deployment(DB4E_FIELD)
             await self.pane_mgr.set_pane(name=DB4E_PANE, data=db4e_data)
+        elif category == MONEROD_SHORT_LABEL and instance == NEW_LABEL:
+            await self.pane_mgr.set_pane(name=NEW_MONEROD_TYPE_PANE)
+        elif category == MONEROD_SHORT_LABEL:
+            monerod_data = self.depl_mgr.get_deployment_by_instance(
+                component=MONEROD_FIELD, instance=instance)
+            await self.pane_mgr.set_pane(name=MONEROD_REMOTE, data=monerod_data)
 
     # Exit the app
     async def on_quit(self) -> None:
         self.exit()
     
-    # Every form sends it's data here, we need to route the messages
+    # Every form sends the form data here
     async def on_submit_form_data(self, message: SubmitFormData) -> None:
         module = message.form_data[TO_MODULE_FIELD]
         method = message.form_data[TO_METHOD_FIELD]
         results = await self.msg_router.dispatch(module, method, message.form_data)
+        #print(f"App:on_submit_form_data(): {results}")
+        if not self._initialized:
+            # Avoid running this code every time a form is submitted
+            initialized_flag = self.depl_mgr.is_initialized()
+            if initialized_flag:
+                self._initialized = True
+                self.pane_mgr.set_initialized(True)
+                self.nav_pane.set_initialized(True)
+                self.nav_pane.refresh_nav_pane()
+        # The MessageRouter routes the form results to the right module, and provides
+        # the pane name that handles the results
         pane_name = self.msg_router.get_pane(module=module, method=method)
         await self.pane_mgr.set_pane(name=pane_name, data=results)
+        self.nav_pane.refresh_nav_pane()
+
+    # Handle requests to refresh the NavPane
+    async def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
+        self.nav_pane.set_initialized(self._initialized)
+        self.nav_pane.refresh_nav_pane()
 
     # This is how the a pane is selected and loaded, including any data
     async def on_switch_pane(self, message: SwitchPane) -> None:
@@ -161,6 +195,11 @@ class Db4EApp(App):
     # The individual Detail panes use this to update the TopBar
     async def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title )
+
+    def set_initialized(self, flag: bool) -> None:
+        self.pane_mgr.set_initialized(flag)
+        self.nav_pane.set_initialized(flag)
+        self.nav_pane.refresh_nav_pane()
 
     # Catchall 
     def _handle_exception(self, error: Exception) -> None:

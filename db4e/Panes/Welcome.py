@@ -24,7 +24,7 @@ class Welcome(Container):
         highlights.add_column("[cyan]Description[/]")
         highlights.add_row("🎉", "[green]PyPI Release[/]", "[green]First official PyPI production release — now you can `pip install db4e`![/]")
         highlights.add_row("🛠️", "[green]Deployment Manager[/]", "[green]Smooth vendor directory handling and update workflows.[/]")
-        highlights.add_row("🖥️", "[green]Textual TUI[/]", "[green]Fully integrated Textual-based TUI with interactive forms — no more manual command-line config.[/]")
+        highlights.add_row("🖥️", "[green]Textual TUI[/]", "[green]Fully integrated Textual-based TUI with interactive forms.[/]")
         highlights.add_row("🔒", "[green]Security[/]", "[green]Built-in security architecture with sudoers-based privilege management.[/]")
         highlights.add_row("🧩", "[green]Modular Design[/]", "[green]Future-proof upgrades of Monerod, P2Pool, and XMRig.[/]")
         highlights.add_row("✅", "[green]Git Workflow[/]", "[green]Active development in Git branches, keeping `main` clean and stable.[/]")

@@ -73,10 +73,12 @@ class InitialSetup(Container):
                     Label(group, id="db4e_group")),
                 Horizontal(
                     Label(DEPLOYMENT_DIR_LABEL, id="initial_setup_vendor_dir_label"),
-                    Input(id="initial_setup_vendor_dir_input", restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True)),
+                    Input(id="initial_setup_vendor_dir_input", 
+                          restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True)),
                 Horizontal(
                     Label(MONERO_WALLET_LABEL, id="initial_setup_user_wallet_label"), 
-                    Input(id="initial_setup_user_wallet_input", restrict=r"[a-zA-Z0-9]*", compact=True)),
+                    Input(id="initial_setup_user_wallet_input", 
+                          restrict=r"[a-zA-Z0-9]*", compact=True)),
                 id="initial_setup_form"),
 
             Horizontal(
@@ -96,7 +98,7 @@ class InitialSetup(Container):
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
                 FORM_DATA_FIELD: True,
             }
-            self.app.post_message(SubmitFormData(self, form_data))
             self.app.post_message(RefreshNavPane(self))
+            self.app.post_message(SubmitFormData(self, form_data))
         else:
             self.app.post_message(Quit(self))
