@@ -7,6 +7,13 @@ Screen {
     grid-gutter: 0 1;
 }
 
+Button {
+    align: center middle;
+    height: 3;
+    border: round;
+    width: 20;
+}
+
 Clock {
     height: 3;
     padding: 0 2;
@@ -171,10 +178,6 @@ TopBar {
     border: round;
 }
 
-Button {
-    align: center middle;
-    height: 3;
-    border: round;
-    width: 20;
+.hidden {
+    display: none;
 }
-
