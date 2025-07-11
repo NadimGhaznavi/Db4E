@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.19.0]
+## [Unreleased]
+
+## Added
+- Added new constants to `Constants/Labels`, `Constants/Fields` and `Constants/Panes`
+
+## Changed
+- Minor refactor of `Panes/NewMonerod` and `Panes/Db4E`; Replaced positional parameter with named parameters
+- Added support for "Edit Remote Monero Daemon Deployment" flow
+- Updated `Db4E.tcss` to support layout and styling for "Edit Remote Monero Daemon Deployment"
+- Updated `Modules/DbMgr`, `Modules/PaneCatalogue`, `Panes/MonerodRemote`, `Widgets/NavPane` to support "Remote Monero Daemon Edit" flow
+
+## Fixed
+- Removed duplicate successful Modules/DeploymentMgr results message
+
+---
+
+## [0.19.0] - 2025-07-09
 
 ## Added
 - Additional constants in `Constants/Labels`, `Constants/Fields`, and `Constants/Panes`
@@ -18,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fully replaced magic strings with constants in `Widgets/NavPane`; complete refactor for clarity and maintainability
 - Replaced magic strings with constants in `Modules/MessageRouter`; added `DeploymentMgr:new_deployment` registration
 - Refactored `App` to support end-to-end "Remote Monero Daemon Deployment" flow
-- Updated `Db4e.tcss` to support layout and styling for "Remote Monero Daemon Deployment"
+- Updated `Db4E.tcss` to support layout and styling for "Remote Monero Daemon Deployment"
 - Updated `DbMgr`, `DeploymentMgr`, `InstallMgr`, `MessageRouter`, and `PaneCatalogue` to support the new deployment type
 - Enhanced `Widgets/NavPane` to display and control "Remote Monero Daemon Deployment" instances
 
