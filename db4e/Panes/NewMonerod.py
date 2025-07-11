@@ -68,12 +68,12 @@ class NewMonerod(Container):
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         form_data = {
+            COMPONENT_FIELD: MONEROD_REMOTE_FIELD,
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
             INSTANCE_FIELD: self.query_one("#new_monerod_instance_input", Input).value,
             IP_ADDR_FIELD: self.query_one("#new_monerod_ip_addr_input", Input).value,
             RPC_BIND_PORT_FIELD: self.query_one("#new_monerod_rpc_bind_port_input", Input).value,
             ZMQ_PUB_PORT_FIELD: self.query_one("#new_monerod_zmq_pub_port_input", Input).value,
-            COMPONENT_FIELD: MONEROD_REMOTE_FIELD,
         }
         self.app.post_message(SubmitFormData(self, form_data))
