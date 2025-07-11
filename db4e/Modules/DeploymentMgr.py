@@ -177,10 +177,6 @@ class DeploymentMgr(Container):
                         MONERO_WALLET_LABEL, GOOD_FIELD, 
                         f"Updated {MONERO_WALLET_LABEL} in {DB4E_LABEL} deployment record"))
                 if update_data[VENDOR_DIR_FIELD] != db4e_rec[VENDOR_DIR_FIELD]:
-                    results += self.update_vendor_dir(
-                        update_data[VENDOR_DIR_FIELD], 
-                        db4e_rec[VENDOR_DIR_FIELD],
-                        results=results)
                     self.db.update_one(self.col_name, filter, update_data)
                     results.append(result_row(
                         DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
