@@ -43,7 +43,7 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, MONEROD_FIELD, 
+    COLORTERM_ENVIRON_FIELD, DB4E_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
     TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
     TO_METHOD_FIELD
 )
@@ -51,7 +51,7 @@ from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, NEW_LABEL
 )
 from db4e.Constants.Panes import (
-    DB4E_PANE, MONEROD_REMOTE, NEW_MONEROD_TYPE_PANE
+    DB4E_PANE, MONEROD_REMOTE_PANE, NEW_MONEROD_TYPE_PANE
 )
 from db4e.Constants.Defaults import (
     APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT
@@ -157,7 +157,7 @@ class Db4EApp(App):
         elif category == MONEROD_SHORT_LABEL:
             monerod_data = self.depl_mgr.get_deployment_by_instance(
                 component=MONEROD_FIELD, instance=instance)
-            await self.pane_mgr.set_pane(name=MONEROD_REMOTE, data=monerod_data)
+            await self.pane_mgr.set_pane(name=MONEROD_REMOTE_PANE, data=monerod_data)
 
     # Exit the app
     async def on_quit(self) -> None:

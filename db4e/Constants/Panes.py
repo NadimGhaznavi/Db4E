@@ -9,7 +9,7 @@ db4e/Constants/Panes.py
 
 DB4E_PANE = "Db4E"
 INITIAL_SETUP_PANE = "InitialSetup"
-MONEROD_REMOTE = "MonerodRemote"
+MONEROD_REMOTE_PANE = "MonerodRemote"
 NEW_MONEROD_TYPE_PANE = "NewMonerodType"
 NEW_MONEROD_PANE = "NewMonerod"
 RESULTS_PANE = "Results"
