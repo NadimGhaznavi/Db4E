@@ -73,7 +73,9 @@ class DbMgr:
 
     def find_one(self, col_name, filter):
         col = self.get_collection(col_name)
-        return col.find_one(filter)
+        rec = col.find_one(filter)
+        #print(f"DbMgr:find_one(): {col_name}/{filter} > {rec}")
+        return rec
 
     def get_collection(self, col_name):
         return self.db4e[col_name]

@@ -75,12 +75,12 @@ class Db4E(Container):
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {
-            USER_WALLET_FIELD: self.query_one("#db4e_user_wallet_input", Input).value,
-            VENDOR_DIR_FIELD: self.query_one("#db4e_vendor_dir_input", Input).value,
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
             COMPONENT_FIELD: DB4E_FIELD,
             FORM_DATA_FIELD: True,
+            USER_WALLET_FIELD: self.query_one("#db4e_user_wallet_input", Input).value,
+            VENDOR_DIR_FIELD: self.query_one("#db4e_vendor_dir_input", Input).value,
         }
-        self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(SubmitFormData(self, form_data=form_data))
 

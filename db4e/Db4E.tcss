@@ -7,6 +7,13 @@ Screen {
     grid-gutter: 0 1;
 }
 
+Button {
+    align: center middle;
+    height: 3;
+    border: round;
+    width: 20;
+}
+
 Clock {
     height: 3;
     padding: 0 2;
@@ -115,6 +122,18 @@ TopBar {
     width: 23;
     height: 1;
 }
+#monerd_remote_instance {
+    width: 20
+}
+#monerod_remote_ip_addr {
+    width: 30;
+}
+#monerod_remote_rpc_bind_port {
+    width: 7;
+}
+#monerod_remote_zmq_pub_port {
+    width: 7;
+}
 
 #new_monerod_form {
     height: 6;
@@ -159,10 +178,6 @@ TopBar {
     border: round;
 }
 
-Button {
-    align: center middle;
-    height: 3;
-    border: round;
-    width: 20;
+.hidden {
+    display: none;
 }
-

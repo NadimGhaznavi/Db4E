@@ -18,18 +18,17 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import result_row
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import (
-    DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, MONEROD_REMOTE_LABEL, 
-    DEPLOYMENT_DIR_LABEL, 
-    INSTANCE_LABEL, IP_ADDR_LABEL, MONERO_WALLET_LABEL, RPC_BIND_PORT_LABEL,
-    ZMQ_PUB_PORT_LABEL)
+    DB4E_LABEL, DEPLOYMENT_MGR_LABEL, DEPLOYMENT_DIR_LABEL, INSTANCE_LABEL, 
+    IP_ADDR_LABEL, MONERO_WALLET_LABEL,  MONEROD_LABEL, MONEROD_REMOTE_LABEL, 
+    RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, DEPLOYMENT_FIELD, DEPLOYMENT_TYPE_FIELD,
-    ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, GROUP_FIELD, INSTALL_DIR_FIELD, 
-    INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
-    TO_MODULE_FIELD, 
-    TO_METHOD_FIELD, UPDATED_FIELD, 
-    USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD,
-    ZMQ_PUB_PORT_FIELD)
+    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, DEPLOYMENT_FIELD, 
+    DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, 
+    GROUP_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
+    MONEROD_FIELD, MONEROD_REMOTE_FIELD, ORIG_INSTANCE_FIELD, 
+    RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
+    UPDATED_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, 
+    VERSION_FIELD, WARN_FIELD, ZMQ_PUB_PORT_FIELD)
 
 # The Mongo collection that houses the deployment records
 DEPL_COL = 'depl'
@@ -50,6 +49,8 @@ class DeploymentMgr(Container):
         rec[DOC_TYPE_FIELD] = DEPLOYMENT_FIELD
         rec[UPDATED_FIELD] = datetime.now(timezone.utc)
         if rec[COMPONENT_FIELD] == DB4E_FIELD:
+            component_label = DB4E_LABEL
+            instance = None
             rec[USER_FIELD] = getpass.getuser()
             rec[INSTALL_DIR_FIELD] = self.db4e_dir
         elif rec[COMPONENT_FIELD] == MONEROD_REMOTE_FIELD:
@@ -92,10 +93,12 @@ class DeploymentMgr(Container):
         else:
             rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
         await self.db.insert_one(self.col_name, rec)
+        if instance:
+            results_message = f"Added new {component_label} deployment record ({instance})"
+        else:
+            results_message = f"Added new {component_label} deployment record"
         results.append(result_row(
-            DB4E_LABEL, GOOD_FIELD,
-            f"Added new {component_label} deployment record ({instance})"
-        ))
+            DB4E_LABEL, GOOD_FIELD, results_message))
         return results
         #self.post_message(RefreshNavPane(self))
 
@@ -127,6 +130,7 @@ class DeploymentMgr(Container):
         # No record for this deployment exists
         
     def get_deployment_by_instance(self, component, instance):
+        #print(f"DeploymentMgr:get_deployment_by_instance(): {component}/{instance}")
         if instance == DB4E_LABEL:
             return self.get_deployment(DB4E_FIELD)
         elif component == MONEROD_FIELD:
@@ -136,12 +140,22 @@ class DeploymentMgr(Container):
 
     def get_deployments(self, component):
         if component == MONEROD_FIELD:
-            db_recs = self.db.find_many(self.col_name, {COMPONENT_FIELD: MONEROD_FIELD})
+            db_recs = self.db.find_many(
+                self.col_name, {COMPONENT_FIELD: MONEROD_FIELD})
             recs = {}
             for db_rec in db_recs:
                 recs[db_rec[INSTANCE_FIELD]] = {}
                 recs[db_rec[INSTANCE_FIELD]][INSTANCE_FIELD] = db_rec[INSTANCE_FIELD]
             return recs
+        elif component == MONEROD_REMOTE_FIELD:
+            db_recs = self.db.find_many(
+                self.col_name, {COMPONENT_FIELD: MONEROD_REMOTE_FIELD})
+            recs = {}
+            for db_rec in db_recs:
+                recs[db_rec[INSTANCE_FIELD]] = {}
+                recs[db_rec[INSTANCE_FIELD]][INSTANCE_FIELD] = db_rec[INSTANCE_FIELD]
+            return recs
+
         
     def get_new_rec(self, rec_type):
         return self.db.get_new_rec(rec_type)
@@ -155,39 +169,101 @@ class DeploymentMgr(Container):
         return False
     
     async def new_deployment(self, form_data):
-        print(f"DeploymentMgr:new_deployment(): {form_data}")
+        #print(f"DeploymentMgr:new_deployment(): {form_data}")
         if form_data[DEPLOYMENT_TYPE_FIELD] == "new_monerod_type_monerod":
             return {'type': 'local'}
         elif form_data[DEPLOYMENT_TYPE_FIELD] == "new_monerod_type_remote_monerod":
             return self.get_new_rec(MONEROD_REMOTE_FIELD)
 
-    async def update_deployment(self, update_data):
-        print(f"DeploymentMgr:update_deployment(): {update_data}")
+    async def update_db4e_deployment(self, update_data):
         results = []
-        if update_data[COMPONENT_FIELD] == DB4E_FIELD:
-            filter = {DOC_TYPE_FIELD: DEPLOYMENT_FIELD, COMPONENT_FIELD: DB4E_FIELD}
-            if FORM_DATA_FIELD in update_data:
-                del update_data[FORM_DATA_FIELD]
-                del update_data[TO_MODULE_FIELD]
-                del update_data[TO_METHOD_FIELD]
-                db4e_rec = self.get_deployment(DB4E_FIELD)
-                if update_data[USER_WALLET_FIELD] != db4e_rec[USER_WALLET_FIELD]:
-                    self.db.update_one(self.col_name, filter, update_data)
-                    results.append(result_row(
-                        MONERO_WALLET_LABEL, GOOD_FIELD, 
-                        f"Updated {MONERO_WALLET_LABEL} in {DB4E_LABEL} deployment record"))
-                if update_data[VENDOR_DIR_FIELD] != db4e_rec[VENDOR_DIR_FIELD]:
-                    results += self.update_vendor_dir(
-                        update_data[VENDOR_DIR_FIELD], 
-                        db4e_rec[VENDOR_DIR_FIELD],
-                        results=results)
-                    self.db.update_one(self.col_name, filter, update_data)
-                    results.append(result_row(
-                        DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
-                        f"Updated {DEPLOYMENT_DIR_LABEL} in {DB4E_LABEL} deployment record"))
-                return results
+        update_flag = False
+        filter = {DOC_TYPE_FIELD: DEPLOYMENT_FIELD, COMPONENT_FIELD: DB4E_FIELD}
+        if FORM_DATA_FIELD in update_data:
+            del update_data[FORM_DATA_FIELD]
+            del update_data[TO_MODULE_FIELD]
+            del update_data[TO_METHOD_FIELD]
+            db4e_rec = self.get_deployment(DB4E_FIELD)
+            if update_data[USER_WALLET_FIELD] != db4e_rec[USER_WALLET_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    MONERO_WALLET_LABEL, GOOD_FIELD, 
+                    f"Updated {MONERO_WALLET_LABEL} in {DB4E_LABEL} deployment record"))
+            if update_data[VENDOR_DIR_FIELD] != db4e_rec[VENDOR_DIR_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
+                    f"Updated {DEPLOYMENT_DIR_LABEL} in {DB4E_LABEL} deployment record"))
+            if update_flag:
+                self.db.update_one(
+                    col_name=self.col_name, filter=filter, new_values=update_data)
             else:
-                self.db.update_one(self.col_name, filter, update_data)
+                results.append(result_row(
+                    DB4E_LABEL, WARN_FIELD,
+                    "Nothing to update"
+                ))
+            return results
+        else:
+            self.db.update_one(self.col_name, filter, update_data)
+
+    async def update_deployment(self, update_data):
+        if update_data[COMPONENT_FIELD] == DB4E_FIELD:
+            return await self.update_db4e_deployment(update_data=update_data)
+        elif update_data[COMPONENT_FIELD] == MONEROD_FIELD:
+            return await self.update_monerod_deployment(update_data=update_data)
+        else:
+            results = []
+            results.append(result_row(
+                DEPLOYMENT_MGR_LABEL, ERROR_FIELD,
+                f"{DEPLOYMENT_MGR_LABEL}:update_deployment(): No handler for component ({update_data[COMPONENT_FIELD]})"
+            ))
+            return results
+
+    async def update_monerod_deployment(self, update_data):
+        results = []
+        update_flag = False
+        if FORM_DATA_FIELD in update_data:
+            del update_data[FORM_DATA_FIELD]
+            del update_data[TO_MODULE_FIELD]
+            del update_data[TO_METHOD_FIELD]
+            orig_instance = update_data[ORIG_INSTANCE_FIELD]
+            monerod_rec = self.get_deployment_by_instance(
+                MONEROD_FIELD, update_data[ORIG_INSTANCE_FIELD])
+            print(f"DeploymentMgr:update_monerod_deployment() {monerod_rec}")
+            if update_data[INSTANCE_FIELD] != monerod_rec[INSTANCE_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    INSTANCE_LABEL, GOOD_FIELD,
+                    f"Updated {INSTANCE_LABEL} in {MONEROD_LABEL} deployment record"))
+            if update_data[IP_ADDR_FIELD] != monerod_rec[IP_ADDR_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    IP_ADDR_LABEL, GOOD_FIELD,
+                    f"Updated {IP_ADDR_LABEL} in {MONEROD_LABEL} deployment record"))
+            if update_data[RPC_BIND_PORT_FIELD] != monerod_rec[RPC_BIND_PORT_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    RPC_BIND_PORT_LABEL, GOOD_FIELD,
+                    f"Updated {RPC_BIND_PORT_LABEL} in {MONEROD_LABEL} deployment record"))
+            if update_data[ZMQ_PUB_PORT_FIELD] != monerod_rec[ZMQ_PUB_PORT_FIELD]:
+                update_flag = True
+                results.append(result_row(
+                    ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
+                    f"Updated {ZMQ_PUB_PORT_LABEL} in {MONEROD_LABEL} deployment record"))
+            if update_flag:
+                self.db.update_one(
+                    filter={COMPONENT_FIELD: MONEROD_FIELD, INSTANCE_FIELD: orig_instance},
+                    col_name=self.col_name, new_values=update_data)
+            else:
+                results.append(result_row(
+                    MONEROD_LABEL, WARN_FIELD,
+                    "Nothing to update"
+                ))
+                return results
+            return results
+
+
+
       
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
         if os.path.exists(new_dir):
