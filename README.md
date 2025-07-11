@@ -46,6 +46,20 @@ Db4E runs on [Debian Linux](https://www.debian.org/) and includes the following 
 
 ---
 
+# Release Management
+
+For details on how development and releases are structured, see the  
+[Git Branching Strategy](/pages/Git-Branching-Strategy.html) and  
+[Git Commit Standard](/pages/Git-Commit-Standard.html).
+
+---
+
+# Getting Started
+
+Refer to the [Getting Started](pages/Getting-Started.html) for detailed step on deploying Db4E.
+
+---
+
 # Coming Soon
 
 * 📈  Rich historical data tracking for mining performance and yield.
@@ -59,7 +73,7 @@ Db4E runs on [Debian Linux](https://www.debian.org/) and includes the following 
 
 # Community Feedback
 
-*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page.
+*Questions? Ideas? Feedback?* Please go to the *db4e* project's [Discussions](https://github.com/NadimGhaznavi/db4e/discussions) page or checkout my [Blog](https://blog.osoyalce.com/).
 
 ---
 
