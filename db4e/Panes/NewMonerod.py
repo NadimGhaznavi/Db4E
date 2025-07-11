@@ -76,4 +76,4 @@ class NewMonerod(Container):
             RPC_BIND_PORT_FIELD: self.query_one("#new_monerod_rpc_bind_port_input", Input).value,
             ZMQ_PUB_PORT_FIELD: self.query_one("#new_monerod_zmq_pub_port_input", Input).value,
         }
-        self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(SubmitFormData(self, form_data=form_data))
