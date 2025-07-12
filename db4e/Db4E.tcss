@@ -33,7 +33,10 @@ DetailPane {
 Db4E,
 MonerodRemote,
 NewMonerod,
-NewMonerodType {
+NewMonerodType,
+P2PoolRemote,
+NewP2Pool,
+NewP2PoolType {
     padding: 0 2;
     border: round;
     background: black;
@@ -207,25 +210,26 @@ TopBar {
     width: 7;
 }
 
-#new_monerod_type_form {
+#new_monerod_type_form,
+#new_p2pool_type_form {
     height: 6;
     border: round;
 }
-#new_monerod_type_radioset {
+#new_monerod_type_radioset,
+#new_p2pool_type_radioset {
     border: round;
 }
 #new_monerod_type_monerod,
-#new_monerod_type_remote_monerod {
+#new_monerod_type_remote_monerod,
+#new_p2pool_type_p2pool,
+#new_p2pool_type_remote_p2pool {
     width: 26;
 }
-#new_monerod_type_button {
+#new_monerod_type_button,
+#new_p2pool_type_button {
     height: 3;
 }
 
-#new_p2pool_type_form {
-    height: 5;
-    border: round;
-}
 #new_p2pool_instance_label,
 #new_p2pool_ip_addr_label,
 #new_p2pool_stratum_port_label {
