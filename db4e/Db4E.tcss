@@ -31,11 +31,9 @@ DetailPane {
 }
 
 Db4E,
-InstallResults,
 MonerodRemote,
 NewMonerod,
-NewMonerodType,
-Welcome {
+NewMonerodType {
     padding: 0 2;
     border: round;
     background: black;
@@ -46,6 +44,15 @@ NavPane {
     padding: 0 2;
     border: round;
     background: black;
+}
+
+Results,
+Welcome {
+    padding: 0 2;
+    border: round;
+    background: black;
+    overflow: auto;
+    height: 1fr;
 }
 
 TopBar {
@@ -122,7 +129,7 @@ TopBar {
     width: 23;
     height: 1;
 }
-#monerd_remote_instance {
+#monerod_remote_instance {
     width: 20
 }
 #monerod_remote_ip_addr {
@@ -132,6 +139,27 @@ TopBar {
     width: 7;
 }
 #monerod_remote_zmq_pub_port {
+    width: 7;
+}
+
+#p2pool_remote_update_form {
+    height: 6;
+    border: round;
+}
+#p2pool_remote_instance_label,
+#p2pool_remote_ip_addr_label,
+#p2pool_remote_stratum_port_label {
+    padding: 0 1;
+    width: 23;
+    height: 1;
+}
+#p2pool_remote_instance {
+    width: 20
+}
+#p2pool_remote_ip_addr {
+    width: 30;
+}
+#p2pool_remote_stratum_port {
     width: 7;
 }
 
@@ -159,6 +187,26 @@ TopBar {
     width: 7;
 }
 
+#new_p2pool_form {
+    height: 6;
+    border: round;
+}
+#new_p2pool_instance_label,
+#new_p2pool_ip_addr_label,
+#new_p2pool_stratum_port_label {
+    padding: 0 1;
+    width: 21;
+}
+#new_stratum_instance_input {
+    width: 20;
+}
+#new_stratum_ip_addr_input {
+    width: 30;
+}
+#new_p2pool_stratum_port_input {
+    width: 7;
+}
+
 #new_monerod_type_form {
     height: 6;
     border: round;
@@ -172,6 +220,26 @@ TopBar {
 }
 #new_monerod_type_button {
     height: 3;
+}
+
+#new_p2pool_type_form {
+    height: 5;
+    border: round;
+}
+#new_p2pool_instance_label,
+#new_p2pool_ip_addr_label,
+#new_p2pool_stratum_port_label {
+    padding: 0 1;
+    width: 21;
+}
+#new_p2pool_instance_input {
+    width: 20;
+}
+#new_p2pool_ip_addr_input {
+    width: 30;
+}
+#new_p2pool_stratum_port_input {
+    width: 7;
 }
 
 .form_intro {
