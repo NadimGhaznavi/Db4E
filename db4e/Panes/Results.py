@@ -9,14 +9,15 @@ db4e/Panes/Results.py
 from rich import box
 from rich.table import Table
 from textual.app import ComposeResult
-from textual.widgets import Static
-from textual.containers import Container
+from textual.widgets import Static, MarkdownViewer
+from textual.containers import Container, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 
-class Results(Container):
+class Results(Static):
 
-    async def set_data(self, task_list):
+    def set_data(self, task_list):
+
 
         table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
         table.add_column("Component", width=25)
