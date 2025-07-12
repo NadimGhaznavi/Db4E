@@ -15,7 +15,8 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
-    FORM_DATA_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
+    COMPONENT_FIELD, DB4E_FIELD, FORM_DATA_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, 
+    INSTALL_MGR_FIELD, 
     TO_METHOD_FIELD, TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD,
     USER_WALLET_FIELD
 )
@@ -58,7 +59,7 @@ MAX_GROUP_LENGTH = 20
 
 class InitialSetup(Container):
 
-    async def set_data(self, account_info: dict):
+    def set_data(self, account_info: dict):
         user = account_info[USER_FIELD]
         group = account_info[GROUP_FIELD]
         md = Vertical(
@@ -88,15 +89,17 @@ class InitialSetup(Container):
 
         self.mount(md)
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        event.stop()
         button_id = event.button.id
         if button_id == "initial_setup_proceed_button":        
             form_data = {
-                USER_WALLET_FIELD: self.query_one("#initial_setup_user_wallet_input", Input).value,
-                VENDOR_DIR_FIELD: self.query_one("#initial_setup_vendor_dir_input", Input).value,
                 TO_MODULE_FIELD: INSTALL_MGR_FIELD,
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
+                COMPONENT_FIELD: DB4E_FIELD,
                 FORM_DATA_FIELD: True,
+                USER_WALLET_FIELD: self.query_one("#initial_setup_user_wallet_input", Input).value,
+                VENDOR_DIR_FIELD: self.query_one("#initial_setup_vendor_dir_input", Input).value,
             }
             self.app.post_message(RefreshNavPane(self))
             self.app.post_message(SubmitFormData(self, form_data))

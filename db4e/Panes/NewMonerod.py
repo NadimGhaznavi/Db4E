@@ -13,25 +13,27 @@ from textual.widgets import Label, Input, Button, MarkdownViewer
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, 
-    IP_ADDR_FIELD, MONEROD_REMOTE_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
+    IP_ADDR_FIELD, LOCAL_FIELD, MONEROD_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
     TO_MODULE_FIELD, TO_METHOD_FIELD, ZMQ_PUB_PORT_FIELD,
 )
 from db4e.Constants.Labels import (
-    INSTANCE_LABEL, IP_ADDR_LABEL, PROCEED_LABEL, RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL
+    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL, 
+    RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL
 )
 from db4e.Constants.Defaults import (
     RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
 )
 
-STATIC_CONTENT = """This screen provides a form for creating a new Monero Daemon deployment."""
 
 class NewMonerod(Container):
 
-    async def set_data(self, rec):
+    def set_data(self, rec):
         self.mount(Label(str(rec)))
 
         if rec.get(REMOTE_FIELD):
             # Remote Monero daemon deployment form
+            STATIC_CONTENT = "This screen provides a form for creating a new "
+            STATIC_CONTENT += f"{MONEROD_REMOTE_LABEL} deployment."
 
             md = Vertical(
                 MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
@@ -57,20 +59,43 @@ class NewMonerod(Container):
 
                 Horizontal(
                     Button(label=PROCEED_LABEL, id="new_monerod_proceed_button"),
-                    id="new_monerod_buttons"))
+                    id="new_monerod_buttons"),
+                Input(id="new_monerod_type", value=REMOTE_FIELD, classes="hidden"))
+            
             self.remove_children()
             self.mount(md)
 
         else:
-            self.remove_children()
-            self.mount(Label('Not yet implemented'))
+            # Local Monero daemon deployment form
+            STATIC_CONTENT = "This screen provides a form for creating a new "
+            STATIC_CONTENT += f"{MONEROD_LABEL} deployment."
+            md = Vertical(
+                MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
+                Vertical(
+                    Label('🚧 Coming Soon 🚧')
+                ),
+
+                Horizontal(
+                    Input(id="new_monerod_type", value=LOCAL_FIELD, classes="hidden")
+                )   
+            )
+            
+            self.remove_children()
+            self.mount(md)
+
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
+        if self.query_one("#new_monerod_type", Input).value == REMOTE_FIELD:
+            remote_value = True
+        else:
+            remote_value = False
         form_data = {
-            COMPONENT_FIELD: MONEROD_REMOTE_FIELD,
+            COMPONENT_FIELD: MONEROD_FIELD,
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+            REMOTE_FIELD: remote_value,
             INSTANCE_FIELD: self.query_one("#new_monerod_instance_input", Input).value,
             IP_ADDR_FIELD: self.query_one("#new_monerod_ip_addr_input", Input).value,
             RPC_BIND_PORT_FIELD: self.query_one("#new_monerod_rpc_bind_port_input", Input).value,

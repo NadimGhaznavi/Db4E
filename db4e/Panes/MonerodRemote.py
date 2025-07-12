@@ -12,13 +12,14 @@ from textual.widgets import Label, MarkdownViewer, Button, Input
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, INSTANCE_FIELD, 
-    IP_ADDR_FIELD, MONEROD_FIELD, ORIG_INSTANCE_FIELD, RPC_BIND_PORT_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD
+    COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD,  DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, 
+    INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, ORIG_INSTANCE_FIELD, 
+    RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
+    UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD
 )
 from db4e.Constants.Labels import (
-    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL, RPC_BIND_PORT_LABEL,
-    UPDATE_LABEL, ZMQ_PUB_PORT_LABEL
+    DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL, 
+    RPC_BIND_PORT_LABEL, UPDATE_LABEL, ZMQ_PUB_PORT_LABEL
 )
 
 STATIC_CONTENT = f"This screen allows you to view and edit the deployment "
@@ -26,7 +27,7 @@ STATIC_CONTENT += f"settings for the {MONEROD_REMOTE_LABEL} deployment."
 
 class MonerodRemote(Container):
 
-    async def set_data(self, depl_config):
+    def set_data(self, depl_config):
 
         instance = depl_config[INSTANCE_FIELD]
         ip_addr = depl_config[IP_ADDR_FIELD]
@@ -39,7 +40,7 @@ class MonerodRemote(Container):
             Vertical(
                 Horizontal(
                     Label(INSTANCE_LABEL, id="monerod_remote_instance_label"),
-                    Input(id="monerd_remote_instance",
+                    Input(id="monerod_remote_instance",
                           restrict=f"[a-zA-Z0-9_\-]*", value=instance, compact=True)),
                 Horizontal(
                     Label(IP_ADDR_LABEL, id="monerod_remote_ip_addr_label"),
@@ -56,20 +57,35 @@ class MonerodRemote(Container):
                 id="monerod_remote_update_form"),
 
             Input(id="monerod_remote_orig_instance", value=instance, classes="hidden"),
-            Button(label=UPDATE_LABEL, id="monerod_remote_update_button"))
+
+            Horizontal(
+                Button(label=UPDATE_LABEL, id="monerod_remote_update_button"),
+                Button(label=DELETE_LABEL, id="monerod_remote_delete_button")
+            ))
         self.remove_children()
         self.mount(md)
         
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        form_data = {
-            COMPONENT_FIELD: MONEROD_FIELD,
-            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-            FORM_DATA_FIELD: True,
-            INSTANCE_FIELD: self.query_one("#monerd_remote_instance", Input).value,
-            ORIG_INSTANCE_FIELD: self.query_one("#monerod_remote_orig_instance", Input).value,
-            IP_ADDR_FIELD: self.query_one("#monerod_remote_ip_addr", Input).value,
-            RPC_BIND_PORT_FIELD: self.query_one("#monerod_remote_rpc_bind_port", Input).value,
-            ZMQ_PUB_PORT_FIELD: self.query_one("#monerod_remote_zmq_pub_port", Input).value,
-        }
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        event.stop()
+        button_id = event.button.id
+        if button_id == "monerod_remote_update_button":
+            form_data = {
+                COMPONENT_FIELD: MONEROD_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                FORM_DATA_FIELD: True,
+                INSTANCE_FIELD: self.query_one("#monerod_remote_instance", Input).value,
+                ORIG_INSTANCE_FIELD: self.query_one("#monerod_remote_orig_instance", Input).value,
+                IP_ADDR_FIELD: self.query_one("#monerod_remote_ip_addr", Input).value,
+                RPC_BIND_PORT_FIELD: self.query_one("#monerod_remote_rpc_bind_port", Input).value,
+                ZMQ_PUB_PORT_FIELD: self.query_one("#monerod_remote_zmq_pub_port", Input).value,
+            }
+        else:
+            form_data = {
+                COMPONENT_FIELD: MONEROD_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
+                COMPONENT_FIELD: MONEROD_FIELD,
+                INSTANCE_FIELD: self.query_one("#monerod_remote_instance", Input).value,
+            }
         self.app.post_message(SubmitFormData(self, form_data=form_data))
