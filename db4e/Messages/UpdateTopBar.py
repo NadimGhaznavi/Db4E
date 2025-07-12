@@ -7,7 +7,7 @@ db4e/Messages/UpdateTopBar.py
     License: GPL 3.0
 
 Usage example:
-    await self.post_message(UpdateTopBar(self, "Database 4 Everything ", "Welcome"))
+    self.post_message(UpdateTopBar(self, "Database 4 Everything ", "Welcome"))
 """
 
 from textual.widget import Widget

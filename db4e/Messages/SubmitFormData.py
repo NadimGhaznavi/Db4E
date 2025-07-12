@@ -7,7 +7,7 @@ db4e/Messages/SubmitFormData.py
     License: GPL 3.0
 
 Usage example:
-    await self.post_message(SubmitFormData(self, resultData))
+    self.post_message(SubmitFormData(self, resultData))
 """
 
 from textual.widget import Widget

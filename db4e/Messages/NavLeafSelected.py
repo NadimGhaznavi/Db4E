@@ -7,7 +7,7 @@ db4e/Messages/NavLeafSelected.py
     License: GPL 3.0
 
 Usage example:
-    await self.post_message(NavLeafSelected(self)
+    self.post_message(NavLeafSelected(self)
 """
 
 from textual.widget import Widget
