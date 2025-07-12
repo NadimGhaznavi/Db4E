@@ -93,6 +93,7 @@ class NavPane(Container):
             # Only allow XMRig deployments if a P2Pool deployment exists
             if len(p2pool_node.children) > 1:
                 xmrig_node.add_leaf(NEW_LABEL)
+            xmrig_node.expand()
 
     def set_initialized(self, value: bool) -> None:
         self._initialized = value
