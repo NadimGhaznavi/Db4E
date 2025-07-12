@@ -25,5 +25,5 @@ class FormButton(Widget):
     def compose(self) -> ComposeResult:
         yield Button(self.label, id=self.id, compact=True)
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        await self.post_message(self.Pressed(self))
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.post_message(self.Pressed(self))

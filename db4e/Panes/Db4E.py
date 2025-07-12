@@ -6,6 +6,7 @@ db4e/Panes/Db4E.py
     Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
     License: GPL 3.0
 """
+from textual import on
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
@@ -25,7 +26,7 @@ On this screen uou can update your *Monero wallet* and relocate the *deployment 
 
 class Db4E(Container):
 
-    async def set_data(self, db4e_rec):
+    def set_data(self, db4e_rec):
         print(f"Db4E:set_data(): {db4e_rec}")
 
         # Record name to human readible name mapping
@@ -73,7 +74,9 @@ class Db4E(Container):
         self.remove_children()
         self.mount(md)
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        event.stop()
+        print("Db4E:on_button_pressed(): NEVER GETS PRINTED!!!")
         form_data = {
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
@@ -82,5 +85,6 @@ class Db4E(Container):
             USER_WALLET_FIELD: self.query_one("#db4e_user_wallet_input", Input).value,
             VENDOR_DIR_FIELD: self.query_one("#db4e_vendor_dir_input", Input).value,
         }
+        print(f"Db4E:on_button_pressed() {form_data}")
         self.app.post_message(SubmitFormData(self, form_data=form_data))
 

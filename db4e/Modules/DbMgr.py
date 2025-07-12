@@ -61,6 +61,10 @@ class DbMgr:
         self.repo_dir = None
         self.init_db()             
 
+    def delete_one(self, col_name, dbquery):
+        col = self.get_collection(col_name)
+        return col.delete_one(dbquery)
+
     def ensure_indexes(self):
         log_col = self.get_collection(self.log_collection)
         if "timestamp_1" not in log_col.index_information():
@@ -103,7 +107,7 @@ class DbMgr:
             # TODO self.log.debug(f'Created DB collection ({aCol})')
         self.ensure_indexes()
 
-    async def insert_one(self, col_name, jdoc):
+    def insert_one(self, col_name, jdoc):
         collection = self.get_collection(col_name)
         return collection.insert_one(jdoc)
    

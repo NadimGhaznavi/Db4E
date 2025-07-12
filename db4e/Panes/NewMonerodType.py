@@ -16,9 +16,8 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    DEPLOYMENT_MGR_FIELD, DEPLOYMENT_TYPE_FIELD,
-    NEW_DEPLOYMENT_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD,
+    GET_NEW_REC_FIELD, MONEROD_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -50,12 +49,17 @@ class NewMonerodType(Container):
             with Horizontal(id="new_monerod_type_button"):
                 yield Button(label=PROCEED_LABEL, id="new_monerod_type_proceed_button")
 
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
+    def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#new_monerod_type_radioset", RadioSet)
         selected = radio_set.pressed_button
+        if selected.id == "new_monerod_type_remote_monerod":
+            remote_value = True
+        else:
+            remote_value = False
         form_data = {
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: NEW_DEPLOYMENT_FIELD,
-            DEPLOYMENT_TYPE_FIELD: selected.id
+            TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+            COMPONENT_FIELD: MONEROD_FIELD,
+            REMOTE_FIELD: remote_value
         }
         self.app.post_message(SubmitFormData(self, form_data))

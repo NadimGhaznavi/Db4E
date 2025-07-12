@@ -7,7 +7,7 @@ db4e/Messages/RefreshNavPane.py
     License: GPL 3.0
 
 Usage example:
-    await self.post_message(RefreshNavPane(self)
+    self.post_message(RefreshNavPane(self)
 """
 
 from textual.widget import Widget

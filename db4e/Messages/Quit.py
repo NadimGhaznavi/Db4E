@@ -7,7 +7,7 @@ db4e/Messages/Quit.py
     License: GPL 3.0
 
 Usage example:
-    await self.post_message(Quit(self))
+    self.post_message(Quit(self))
 """
 
 from textual.widget import Widget

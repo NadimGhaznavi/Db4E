@@ -8,13 +8,12 @@ db4e/Panes/Welcome.py
 """
 from rich import box
 from rich.table import Table
-from textual.widgets import Static, MarkdownViewer
-from textual.containers import Container
+from textual.widgets import Static
 from textual.app import ComposeResult
 
 #from db4e.Messages.TopBarUpdate import TopBarUpdate
 
-class Welcome(Container):
+class Welcome(Static):
 
     def compose(self) -> ComposeResult:
         

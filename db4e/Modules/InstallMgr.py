@@ -12,14 +12,17 @@ from datetime import datetime, timezone
 import tempfile
 import subprocess
 
+from textual.containers import Container
+
+from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Helper import result_row, get_effective_identity
 from db4e.Constants.Fields import (
-    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, CONF_DIR_FIELD, DB4E_FIELD, 
-    DB4E_DIR_FIELD, ENABLE_FIELD, ERROR_FIELD, GOOD_FIELD, GROUP_FIELD, 
-    INSTALL_DIR_FIELD, LOG_DIR_FIELD, MONEROD_FIELD, P2POOL_FIELD, 
+    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, COMPONENT_FIELD, CONF_DIR_FIELD, 
+    DB4E_FIELD, DB4E_DIR_FIELD, ENABLE_FIELD, ERROR_FIELD, GOOD_FIELD, 
+    GROUP_FIELD, INSTALL_DIR_FIELD, LOG_DIR_FIELD, MONEROD_FIELD, P2POOL_FIELD, 
     PROCESS_FIELD, RUN_DIR_FIELD, SETUP_SCRIPT_FIELD, SERVICE_FILE_FIELD, 
     SOCKET_FILE_FIELD, START_SCRIPT_FIELD, SYSTEMD_DIR_FIELD, 
     TEMPLATE_DIR_FIELD, TMP_DIR_ENVIRON_FIELD, USER_FIELD, USER_WALLET_FIELD, 
@@ -44,15 +47,17 @@ DB4E_OLD_GROUP_ENVIRON = DB4E_OLD_GROUP_ENVIRON_DEFAULT
 TMP_DIR = TMP_DIR_DEFAULT
 SUDO_CMD = SUDO_CMD_DEFAULT
 
-class InstallMgr:
+class InstallMgr(Container):
     
     def __init__(self, config: Config):
+        super().__init__()
         self.ini = config
         self.depl_mgr = DeploymentMgr(config)
         self.db = DbMgr(config)
+        self.col_name = DEPLOYMENT_COL_DEFAULT
         self.tmp_dir = None
 
-    async def initial_setup(self, form_data: dict) -> dict:
+    def initial_setup(self, form_data: dict) -> dict:
         # Track the progress of the initial install
         abort_install = False
 
@@ -64,11 +69,12 @@ class InstallMgr:
         results, db4e_rec = self._check_or_create_db4e_rec()
 
         # Intitialize the db4e_rec
-        results, db4e_rec = await self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
+        results, db4e_rec = self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
 
         # Confirm that the user actually filled out the form.
-        results, db4e_rec, abort_install = await self._check_form_data(
-            user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec)
+        results, db4e_rec, abort_install = self._check_form_data(
+            user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec, 
+            results=results)
         if abort_install:
             return results
         
@@ -78,6 +84,13 @@ class InstallMgr:
         )
         if abort_install:
             return results
+
+        # The 'db4e' record has been created, the user wallet and vendor dir
+        # have been set
+        self.db.update_one(
+            col_name=self.col_name, filter={COMPONENT_FIELD: DB4E_FIELD}, 
+            new_values=db4e_rec)
+        self.post_message(RefreshNavPane(self))
 
         # Setup Db4E
         self._generate_db4e_service_file(vendor_dir=vendor_dir)
@@ -110,18 +123,18 @@ class InstallMgr:
         results = self._copy_xmrig_file(vendor_dir=vendor_dir, results=results)
 
         # Run the installer (with sudo)
-        results = await self._run_sudo_installer(
+        results = self._run_sudo_installer(
             vendor_dir=vendor_dir, results=results, db4e_rec=db4e_rec)
 
         # Return the results
         return results
 
-    async def _check_form_data(
+    def _check_form_data(
             self, user_wallet: str, 
             vendor_dir: str, 
-            db4e_rec: dict):
-        results = []
-        abort_install = False
+            db4e_rec: dict,
+            results: list,
+            abort_install = False):
 
         if not user_wallet:
             results.append(result_row(
@@ -153,9 +166,26 @@ class InstallMgr:
                 DB4E_LABEL, GOOD_FIELD, 
                 f"Click on Db4e Core to try again"))
             return (results, db4e_rec, abort_install)
-        await self.depl_mgr.update_deployment(db4e_rec)
+        self.depl_mgr.update_deployment(db4e_rec)
         return (results, db4e_rec, abort_install)
 
+
+    def _check_or_create_db4e_rec(self):
+        results = []
+        db4e_rec = self.depl_mgr.get_deployment(DB4E_FIELD)
+        if db4e_rec:
+            results.append(result_row(
+                DB4E_LABEL, WARN_FIELD,
+                f"Found existing {DB4E_LABEL} deployment record"
+            ))
+        else: # No record, so get a new one
+            db4e_rec = self.depl_mgr.get_new_rec({COMPONENT_FIELD: DB4E_FIELD})
+            self.db.insert_one(self.col_name, db4e_rec)
+            results.append(result_row(
+                DB4E_LABEL, GOOD_FIELD,
+                f"Created {DB4E_LABEL} deployment record"
+            ))
+        return (results, db4e_rec)
 
     def _create_vendor_dir(self, vendor_dir: str, results: list):
         abort_install = False
@@ -191,18 +221,6 @@ class InstallMgr:
                 f'Failed to create directory ({vendor_dir}\n{e}'))
             abort_install = True
         return (results, abort_install)
-
-    def _check_or_create_db4e_rec(self):
-        results = []
-        db4e_rec = self.depl_mgr.get_deployment(DB4E_FIELD)
-        if db4e_rec:
-            results.append(result_row(
-                DB4E_LABEL, WARN_FIELD,
-                f"Found existing {DB4E_LABEL} deployment record"
-            ))
-        else: # No record, so get a new one
-            db4e_rec = self.depl_mgr.get_new_rec(DB4E_FIELD)
-        return (results, db4e_rec)
 
     # Copy monerod files
     def _copy_monerod_files(self, vendor_dir, results):
@@ -435,23 +453,18 @@ class InstallMgr:
         return self.tmp_dir
 
 
-    async def _init_db4e_rec(self, db4e_rec, results):
+    def _init_db4e_rec(self, db4e_rec, results):
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
         group = effective_id[GROUP_FIELD]
-
         db4e_rec[USER_FIELD] = user
         db4e_rec[GROUP_FIELD] = group
+
         # Determine the Db4E install dir
         db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         db4e_rec[INSTALL_DIR_FIELD] = db4e_install_dir
         
-        await self.depl_mgr.add_deployment(db4e_rec)
-        results.append(result_row(
-            DB4E_LABEL, GOOD_FIELD,
-            f"Created new {DB4E_LABEL} deployment record"
-        ))
         results.append(result_row(
             DB4E_USER_LABEL, GOOD_FIELD,
             f"Added user ({user}) to the {DB4E_LABEL} deployment record"))
@@ -472,7 +485,7 @@ class InstallMgr:
             content = content.replace(f'[[{key}]]', str(val))
         return content
 
-    async def _run_sudo_installer(self, vendor_dir, db4e_rec, results):
+    def _run_sudo_installer(self, vendor_dir, db4e_rec, results):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
@@ -505,7 +518,8 @@ class InstallMgr:
                 return results
             
             installer_output = f'{stdout}'
-            results.append(result_row(DB4E_LABEL, GOOD_FIELD, installer_output))
+            for line in installer_output.split('\n'):
+                results.append(result_row(DB4E_LABEL, GOOD_FIELD, line))
             shutil.rmtree(tmp_dir)
 
         except Exception as e:
@@ -514,6 +528,6 @@ class InstallMgr:
         # Build the db4e deployment record
         db4e_rec[ENABLE_FIELD] = True
         # Update the repo deployment record
-        await self.depl_mgr.update_deployment(db4e_rec)
+        self.depl_mgr.update_deployment(db4e_rec)
         return results
     

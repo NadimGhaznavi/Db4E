@@ -31,7 +31,7 @@ class PaneMgr(Widget):
         super().__init__()
         self.config = config
         self.catalogue = catalogue
-        self._initialized_flag = initialized_flag
+        self._initialized = initialized_flag
         self.panes = {}
 
     def compose(self):
@@ -42,17 +42,18 @@ class PaneMgr(Widget):
                 self.panes[pane_name] = pane
                 yield pane
 
-    async def on_mount(self) -> None:
-        initial = PaneState(name=WELCOME_PANE if self._initialized_flag else INITIAL_SETUP_PANE, data={})
+    def on_mount(self) -> None:
+        initial = PaneState(name=WELCOME_PANE if self._initialized else INITIAL_SETUP_PANE, data={})
         if initial.name == INITIAL_SETUP_PANE:
             initial.data = get_effective_identity()
-        await self.set_pane(initial.name, initial.data)
+        self.set_pane(initial.name, initial.data)
 
     def set_initialized(self, value: bool) -> None:
-        self._initialized_flag = value
+        self._initialized = value
 
-    async def set_pane(self, name: str, data: dict | None = None):
-        if not self._initialized_flag and name != RESULTS_PANE:
+    def set_pane(self, name: str, data: dict | None = None):
+        #print(f"PaneMgr:set_pane(): {name}/{data}")
+        if not self._initialized and name != RESULTS_PANE:
             self.pane_state = PaneState(INITIAL_SETUP_PANE, data)
         elif name == RESULTS_PANE and not data:
             self.pane_state = PaneState(WELCOME_PANE, {})
@@ -62,7 +63,7 @@ class PaneMgr(Widget):
         if data and name in self.panes:
             pane = self.panes[name]
             if hasattr(pane, "set_data"):
-                await pane.set_data(data)
+                pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
         try:

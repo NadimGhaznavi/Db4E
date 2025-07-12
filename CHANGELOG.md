@@ -5,37 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.21.0] - 2025-07-12
+
+### Added
+- Added styling to `Db4E.tcss` for new P2Pool panes
+- Added additional constants to `Labels`, `Fields` and `Panes`
+- Added `delete_one` to `Modules/DbMgr` for CRUD
+- Added `NewP2Pool`, `NewP2PoolType` and `P2PoolRemote` panes
+- Added `delete` for 'Remote Monero Daemon Deployments' in `DeploymentMgr`
+- Added support for 'Remote P2Pool Deployments' to `DeploymentMgr`
+
+### Changed
+- Removed async / await from the codebase.
+- Minor refactoring of `Welcome` and `Results` panes
+- Changed `InitialSetup`, `MonerodRemote`, `NewMonerodType` form structure for the architectural changes to the `Modules/MessageRouter`
+- Major architectural change in `Modules/MessageRouter` to support additional routing based on 'component' parameter
+
+### Fixed
+- Removed unused themes from `App`
+- Formalized and cleaned up `initialization` logic in the app and the components
+
 ---
 
 ## [0.20.0] - 2025-07-11
 
-## Added
+### Added
 - Added new constants to `Constants/Labels`, `Constants/Fields` and `Constants/Panes`
 
-## Changed
+### Changed
 - Minor refactor of `Panes/NewMonerod` and `Panes/Db4E`; Replaced positional parameter with named parameters
 - Added support for "Edit Remote Monero Daemon Deployment" flow
 - Updated `Db4E.tcss` to support layout and styling for "Edit Remote Monero Daemon Deployment"
 - Updated `Modules/DbMgr`, `Modules/PaneCatalogue`, `Panes/MonerodRemote`, `Widgets/NavPane` to support "Remote Monero Daemon Edit" flow
 
-## Fixed
+### Fixed
 - Removed duplicate successful Modules/DeploymentMgr results message
 
 ---
 
 ## [0.19.1] - 2025-07-10
 
-## Changed
+### Changed
 -Updated README
 
 ---
 
 ## [0.19.0] - 2025-07-09
 
-## Added
+### Added
 - Additional constants in `Constants/Labels`, `Constants/Fields`, and `Constants/Panes`
 
-## Changed
+### Changed
 - Fully replaced magic strings with constants in `Widgets/NavPane`; complete refactor for clarity and maintainability
 - Replaced magic strings with constants in `Modules/MessageRouter`; added `DeploymentMgr:new_deployment` registration
 - Refactored `App` to support end-to-end "Remote Monero Daemon Deployment" flow
@@ -43,17 +64,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `DbMgr`, `DeploymentMgr`, `InstallMgr`, `MessageRouter`, and `PaneCatalogue` to support the new deployment type
 - Enhanced `Widgets/NavPane` to display and control "Remote Monero Daemon Deployment" instances
 
-## Fixed
+### Fixed
 - `App` now correctly calls `PaneMgr.set_initialized(True)` after `InstallMgr.initial_setup()` completes
 
 ---
 
 ## [0.18.2] - 2025-07-09
 
-## Added
+### Added
 - Workflow to manually trigger a rebuild of the project's Jekyll site
 
-## Changed
+### Changed
 - Added a link to an updated 'Getting Started' page
 - Added information on triggering the Jekyll site rebuild in the Git 'Branching Strategy' page
 
