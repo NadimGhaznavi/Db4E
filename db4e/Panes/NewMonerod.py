@@ -28,7 +28,6 @@ from db4e.Constants.Defaults import (
 class NewMonerod(Container):
 
     def set_data(self, rec):
-        self.mount(Label(str(rec)))
 
         if rec.get(REMOTE_FIELD):
             # Remote Monero daemon deployment form
