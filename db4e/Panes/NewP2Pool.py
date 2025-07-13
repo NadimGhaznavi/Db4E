@@ -27,7 +27,6 @@ from db4e.Constants.Defaults import (
 class NewP2Pool(Container):
 
     def set_data(self, rec):
-        self.mount(Label(str(rec)))
 
         if rec.get(REMOTE_FIELD):
             # Remote P2Pool daemon deployment form
