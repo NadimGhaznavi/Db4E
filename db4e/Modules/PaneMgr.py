@@ -17,7 +17,9 @@ from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.Helper import get_effective_identity
 from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Constants.Panes import INITIAL_SETUP_PANE, WELCOME_PANE, RESULTS_PANE
+from db4e.Constants.Panes import (
+    INITIAL_SETUP_PANE, NEW_P2POOL_PANE, NEW_XMRIG_PANE, RESULTS_PANE, WELCOME_PANE)
+from db4e.Constants.Fields import SET_DATA_FIELD, RESET_DATA_FIELD
 
 @dataclass
 class PaneState:
@@ -62,7 +64,7 @@ class PaneMgr(Widget):
         # If the pane supports set_data, update it with new data
         if data and name in self.panes:
             pane = self.panes[name]
-            if hasattr(pane, "set_data"):
+            if hasattr(pane, SET_DATA_FIELD):
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
@@ -71,7 +73,12 @@ class PaneMgr(Widget):
         except NoMatches:
             return
         content_switcher.current = new.name
-        # Create a message to update the TopBar's title and sub_title
+        #print(f"PaneMgr: {new.name}")
+        pane = self.catalogue.get_pane(new.name)
+        if hasattr(pane, RESET_DATA_FIELD):
+            pane.reset_data()
+
         title, sub_title = self.catalogue.get_metadata(new.name)
+        # Create a message to update the TopBar's title and sub_title
         self.post_message(UpdateTopBar(self, title=title, sub_title=sub_title))
 

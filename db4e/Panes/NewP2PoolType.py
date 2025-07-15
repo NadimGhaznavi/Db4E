@@ -15,8 +15,8 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD, 
-    REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD, 
+    P2POOL_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -33,28 +33,34 @@ class NewP2PoolType(Container):
 
     def compose(self):
         
-        with Vertical(id="new_p2pool_vertical"):
+        with Vertical():
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
-            with Vertical(id="new_p2pool_type_form"):
-                with RadioSet(id="new_p2pool_type_radioset"):
-                    yield RadioButton(P2POOL_LABEL, id="new_p2pool_type_p2pool", value=True)
-                    yield RadioButton(P2POOL_REMOTE_LABEL, id="new_p2pool_type_remote_p2pool")
+            with Vertical(id="depl_type_form"):
+                with RadioSet(id="type_radioset"):
+                    yield RadioButton(P2POOL_LABEL, id="local", value=True)
+                    yield RadioButton(P2POOL_REMOTE_LABEL, id="remote")
 
-            with Horizontal(id="new_p2pool_type_button"):
-                yield Button(label=PROCEED_LABEL, id="new_p2pool_type_proceed_button")
+            with Horizontal():
+                yield Button(label=PROCEED_LABEL)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        radio_set = self.query_one("#new_p2pool_type_radioset", RadioSet)
+        radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
-        if selected.id == "new_p2pool_type_remote_p2pool":
-            remote_value = True
+        if selected.id == "remote":
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
+                COMPONENT_FIELD: P2POOL_FIELD,
+                REMOTE_FIELD: True
+            }
         else:
-            remote_value = False
-        form_data = {
-            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: GET_NEW_REC_FIELD,
-            COMPONENT_FIELD: P2POOL_FIELD,
-            REMOTE_FIELD: remote_value
-        }
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                COMPONENT_FIELD: P2POOL_FIELD,
+                REMOTE_FIELD: False
+            }
+
+
         self.app.post_message(SubmitFormData(self, form_data))

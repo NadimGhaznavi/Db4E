@@ -16,6 +16,8 @@ from db4e.Panes.Db4E import Db4E
 from db4e.Panes.MonerodRemote import MonerodRemote
 from db4e.Panes.NewMonerodType import NewMonerodType
 from db4e.Panes.NewMonerod import NewMonerod
+from db4e.Panes.NewRemoteMonerod import NewRemoteMonerod
+from db4e.Panes.NewRemoteP2Pool import NewRemoteP2Pool
 from db4e.Panes.P2PoolRemote import P2PoolRemote
 from db4e.Panes.NewP2PoolType import NewP2PoolType
 from db4e.Panes.NewP2Pool import NewP2Pool
@@ -31,7 +33,8 @@ from db4e.Constants.Labels import (
 from db4e.Constants.Panes import (
     DB4E_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE_PANE, NEW_MONEROD_PANE, 
     NEW_MONEROD_TYPE_PANE, NEW_P2POOL_PANE, NEW_P2POOL_TYPE_PANE, 
-    P2POOL_REMOTE_PANE, RESULTS_PANE, WELCOME_PANE, NEW_XMRIG_PANE, XMRIG_PANE
+    NEW_REMOTE_MONEROD_PANE, NEW_REMOTE_P2POOL_PANE, P2POOL_REMOTE_PANE, 
+    RESULTS_PANE, WELCOME_PANE, NEW_XMRIG_PANE, XMRIG_PANE
 )
 
 REGISTRY = {
@@ -41,6 +44,8 @@ REGISTRY = {
     P2POOL_REMOTE_PANE: (P2PoolRemote, P2POOL_REMOTE_LABEL, CONFIG_LABEL),
     NEW_MONEROD_TYPE_PANE: (NewMonerodType, MONEROD_LABEL, NEW_LABEL),
     NEW_MONEROD_PANE: (NewMonerod, MONEROD_LABEL, NEW_LABEL),
+    NEW_REMOTE_MONEROD_PANE: (NewRemoteMonerod, MONEROD_REMOTE_LABEL, NEW_LABEL),
+    NEW_REMOTE_P2POOL_PANE: (NewRemoteP2Pool, P2POOL_REMOTE_LABEL, NEW_LABEL),
     NEW_P2POOL_TYPE_PANE: (NewP2PoolType, P2POOL_LABEL, NEW_LABEL),
     NEW_P2POOL_PANE: (NewP2Pool, P2POOL_LABEL, NEW_LABEL),
     NEW_XMRIG_PANE: (NewXMRig, XMRIG_LABEL, NEW_LABEL),

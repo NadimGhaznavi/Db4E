@@ -12,12 +12,11 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, DELETE_DEPLOYMENT_FIELD, GET_NEW_REC_FIELD, 
-    INSTALL_MGR_FIELD, DEPLOYMENT_MGR_FIELD, INITIAL_SETUP_FIELD, MONEROD_FIELD, 
-    P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD
-)
+    GET_NEW_REMOTE_REC_FIELD, INSTALL_MGR_FIELD, DEPLOYMENT_MGR_FIELD, INITIAL_SETUP_FIELD, 
+    MONEROD_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Panes import (
-    RESULTS_PANE, NEW_MONEROD_PANE, NEW_P2POOL_PANE
-)
+    RESULTS_PANE, NEW_MONEROD_PANE, NEW_P2POOL_PANE, NEW_REMOTE_MONEROD_PANE,
+    NEW_REMOTE_P2POOL_PANE)
 
 class MessageRouter:
     def __init__(self, config: Config):
@@ -35,6 +34,8 @@ class MessageRouter:
                       self.depl_mgr.update_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_FIELD,
                       self.depl_mgr.get_new_rec, NEW_MONEROD_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD,
+                      self.depl_mgr.get_new_rec, NEW_REMOTE_MONEROD_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.depl_mgr.add_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_FIELD,
@@ -43,6 +44,8 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD,
                       self.depl_mgr.get_new_rec, NEW_P2POOL_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, P2POOL_FIELD,
+                      self.depl_mgr.get_new_rec, NEW_REMOTE_P2POOL_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.depl_mgr.add_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_FIELD,

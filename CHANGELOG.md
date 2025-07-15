@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated dependency on Textual to v4.0.0; `poetry lock`
 ---
 
+## [0.23.1] - 2025-07-15
+
+### Added
+- Split the flow to route remote deployments to remote panes
+- Added P2PoolRemote and MonerodRemote panes to handle the split
+- Added additional constants to support the split
+- Added additional message routes to support the split"
+
+### Changed
+- Minor code refactoring improvements
+- Removed `Db4E.tcss` styling redundancies
+
+---
+
 ## [0.23.0] - 2025-07-15
 
 ### Changed

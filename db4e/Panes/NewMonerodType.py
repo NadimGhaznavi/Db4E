@@ -16,8 +16,8 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD,
-    GET_NEW_REC_FIELD, MONEROD_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
+    GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -41,7 +41,7 @@ class NewMonerodType(Container):
         with Vertical():
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
-            with Vertical(id="monerod_type_form"):
+            with Vertical(id="depl_type_form"):
                 with RadioSet(id="type_radioset"):
                     yield RadioButton(MONEROD_LABEL, id="local", classes="radio_button_type", value=True)
                     yield RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes="radio_button_type")
@@ -53,13 +53,17 @@ class NewMonerodType(Container):
         radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
         if selected.id == "remote":
-            remote_value = True
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
+                COMPONENT_FIELD: MONEROD_FIELD,
+                REMOTE_FIELD: True
+            }
         else:
-            remote_value = False
-        form_data = {
-            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: GET_NEW_REC_FIELD,
-            COMPONENT_FIELD: MONEROD_FIELD,
-            REMOTE_FIELD: remote_value
-        }
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                COMPONENT_FIELD: MONEROD_FIELD,
+                REMOTE_FIELD: False
+            }
         self.app.post_message(SubmitFormData(self, form_data))

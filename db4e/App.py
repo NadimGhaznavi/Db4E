@@ -128,8 +128,14 @@ class Db4EApp(App):
                 component=XMRIG_FIELD, instance=instance)
             xmrig_data[RADIO_MAP] = get_radio_map(rec=xmrig_data, depl_mgr=self.depl_mgr)
             p2pool_rec = self.depl_mgr.get_deployment_by_id(xmrig_data[P2POOL_ID_FIELD])
-            xmrig_data[P2POOL_INSTANCE] = p2pool_rec[INSTANCE_FIELD]
+            if p2pool_rec:
+                xmrig_data[P2POOL_INSTANCE] = p2pool_rec[INSTANCE_FIELD]
+            else:
+                xmrig_data[P2POOL_INSTANCE] = ""
             self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
+
+        else:
+            raise ValueError(f"No handler for {category}/{instance}")
 
     # Exit the app
     def on_quit(self) -> None:
