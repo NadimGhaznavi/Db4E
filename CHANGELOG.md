@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor code refactoring improvements
 - Removed `Db4E.tcss` styling redundancies
 
+### Fixed
+- If Db4e vendor_dir updated, update the directory on the filesystem
+- Properly update the user_wallet and vendor directory in the DB
+
 ---
 
 ## [0.23.0] - 2025-07-15

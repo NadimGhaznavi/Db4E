@@ -291,7 +291,7 @@ class DeploymentMgr(Container):
     def update_db4e_deployment(self, update_data):
         results = []
         update_flag = False
-        filter = {DOC_TYPE_FIELD: DEPLOYMENT_FIELD, COMPONENT_FIELD: DB4E_FIELD}
+        filter = {COMPONENT_FIELD: DB4E_FIELD}
         if FORM_DATA_FIELD in update_data:
             del update_data[FORM_DATA_FIELD]
             del update_data[TO_MODULE_FIELD]
@@ -314,6 +314,10 @@ class DeploymentMgr(Container):
                 ))
             elif update_data[VENDOR_DIR_FIELD] != db4e_rec[VENDOR_DIR_FIELD]:
                 update_flag = True
+                update_flag, results = self.update_vendor_dir(
+                    new_dir=update_data[VENDOR_DIR_FIELD],
+                    old_dir=db4e_rec[VENDOR_DIR_FIELD],
+                    results=results)
                 results.append(result_row(
                     DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
                     f"Updated {DEPLOYMENT_DIR_LABEL} in {DB4E_LABEL} deployment record"))
@@ -470,6 +474,7 @@ class DeploymentMgr(Container):
         return results
       
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
+        update_flag = True
         if os.path.exists(new_dir):
             # The new vendor dir exists, make a backup
             timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
@@ -480,6 +485,7 @@ class DeploymentMgr(Container):
                     DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
                     f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})'))
             except PermissionError as e:
+                update_flag = False
                 results.append(result_row(
                     DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
                     f'Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}'))
@@ -490,7 +496,8 @@ class DeploymentMgr(Container):
                 DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
                 f'Moved old deployment directory ({old_dir}) to ({new_dir})'))
         except (PermissionError, FileNotFoundError) as e:
+            update_flag = False
             results.append(result_row(
                 DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
                 f'Failed to move ({old_dir}) to ({new_dir})\n{e}'))
-        return results
+        return (update_flag, results)

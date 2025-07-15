@@ -19,59 +19,50 @@ from db4e.Constants.Labels import (
     DB4E_GROUP_LABEL, DB4E_USER_LABEL, DEPLOYMENT_DIR_LABEL, INSTALL_DIR_LABEL, MONERO_WALLET_LABEL, PROCEED_LABEL, UPDATE_LABEL
 )
 
-STATIC_CONTENT = """Welcome to the *Database 4 Everything Db4E Core* configuration screen.
-On this screen uou can update your *Monero wallet* and relocate the *deployment directory*.
-"""
 
 class Db4E(Container):
 
-    def set_data(self, db4e_rec):
-        #print(f"Db4E:set_data(): {db4e_rec}")
+    user_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="user_name_input")
+    group_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="group_name_input")
+    install_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="install_dir_input")
+    vendor_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input")
+    user_wallet_input = Input(restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input")
 
-        # Record name to human readible name mapping
-        rec_2_biz = {
-            GROUP_FIELD: DB4E_GROUP_LABEL,
-            INSTALL_DIR_FIELD: INSTALL_DIR_LABEL,
-            USER_FIELD: DB4E_USER_LABEL,
-            USER_WALLET_FIELD: MONERO_WALLET_LABEL,
-            VENDOR_DIR_FIELD: DEPLOYMENT_DIR_LABEL
-        }
-
-        db4e_user_name = rec_2_biz[USER_FIELD]
-        db4e_user = db4e_rec[USER_FIELD] or ""
-        db4e_group_name = rec_2_biz[GROUP_FIELD]
-        db4e_group = db4e_rec[GROUP_FIELD] or ""
-        install_dir_name = rec_2_biz[INSTALL_DIR_FIELD]
-        install_dir = db4e_rec[INSTALL_DIR_FIELD] or "" 
-        vendor_dir_name = rec_2_biz[VENDOR_DIR_FIELD]
-        vendor_dir = db4e_rec[VENDOR_DIR_FIELD] or ""
-        user_wallet_name = rec_2_biz[USER_WALLET_FIELD]
-        user_wallet = db4e_rec[USER_WALLET_FIELD] or ""
-
-        md = Vertical(
+    def compose(self):
+        STATIC_CONTENT = """Welcome to the *Database 4 Everything Db4E Core* configuration screen.
+        On this screen uou can update your *Monero wallet* and relocate the *deployment directory*.
+        """
+        yield Vertical(
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
             Vertical(
                 Horizontal(
-                    Label(db4e_user_name, id="user_name_label"),
-                    Label(db4e_user, id="db4e_user")),
+                    Label(DB4E_USER_LABEL, id="user_name_label"),
+                    self.user_name_input),
                 Horizontal(
-                    Label(db4e_group_name, id="group_name_label"),
-                    Label(db4e_group, id="db4e_group")),
+                    Label(DB4E_GROUP_LABEL, id="group_name_label"),
+                    self.group_name_input),
                 Horizontal(
-                    Label(install_dir_name, id="install_dir_label"),
-                    Label(install_dir, id="install_dir")),
+                    Label(INSTALL_DIR_LABEL, id="install_dir_label"),
+                    self.install_dir_input),
                 Horizontal(
-                    Label(vendor_dir_name, id="vendor_dir_label"),
-                    Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", value=vendor_dir, compact=True, id="db4e_vendor_dir_input")),
+                    Label(DEPLOYMENT_DIR_LABEL, id="vendor_dir_label"),
+                    self.vendor_dir_input),
                 Horizontal(
-                    Label(user_wallet_name, id="user_wallet_label"),
-                    Input(restrict=r"[a-zA-Z0-9]*", value=user_wallet, compact=True, id="db4e_user_wallet_input")),
+                    Label(MONERO_WALLET_LABEL, id="user_wallet_label"),
+                    self.user_wallet_input),
                 id="db4e_update_form"),
 
             Button(label=UPDATE_LABEL))
-        self.remove_children()
-        self.mount(md)
+
+    def set_data(self, db4e_rec):
+        #print(f"Db4E:set_data(): {db4e_rec}")
+
+        self.user_name_input.value = db4e_rec[USER_FIELD] or ""
+        self.group_name_input.value = db4e_rec[GROUP_FIELD] or ""
+        self.install_dir_input.value = db4e_rec[INSTALL_DIR_FIELD] or "" 
+        self.vendor_dir_input.value = db4e_rec[VENDOR_DIR_FIELD] or ""
+        self.user_wallet_input.value = db4e_rec[USER_WALLET_FIELD] or ""
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
