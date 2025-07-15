@@ -20,8 +20,8 @@ from db4e.Constants.Labels import (
     NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL
 )
 from db4e.Constants.Fields import (
-    DB4E_FIELD, MONEROD_FIELD, P2POOL_FIELD, USER_WALLET_FIELD, 
-    VENDOR_DIR_FIELD
+    DB4E_FIELD, MONEROD_FIELD, P2POOL_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD,
+    XMRIG_FIELD
 )
 
 class NavPane(Container):
@@ -90,9 +90,13 @@ class NavPane(Container):
 
             # Only display XMRig if a P2Pool deployment exists
             xmrig_node = self.depls.root.add(XMRIG_SHORT_LABEL)
+            instances = self.depl_mgr.get_deployment_instances(XMRIG_FIELD)
+            for instance in instances:
+                xmrig_node.add_leaf(instance)
             # Only allow XMRig deployments if a P2Pool deployment exists
             if len(p2pool_node.children) > 1:
                 xmrig_node.add_leaf(NEW_LABEL)
+            xmrig_node.expand()
 
     def set_initialized(self, value: bool) -> None:
         self._initialized = value

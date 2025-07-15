@@ -79,7 +79,6 @@ class P2PoolRemote(Container):
                 COMPONENT_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
-                COMPONENT_FIELD: P2POOL_FIELD,
                 INSTANCE_FIELD: self.query_one("#p2pool_remote_instance", Input).value,
             }            
 

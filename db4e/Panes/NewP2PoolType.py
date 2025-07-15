@@ -8,17 +8,15 @@ db4e/Panes/NewP2PoolType.py
 """
 
 from textual.containers import Container, Vertical, Horizontal
-from textual.app import ComposeResult
-from textual.widgets import Button, Label, MarkdownViewer, RadioButton, RadioSet, Static
+from textual.widgets import Button, MarkdownViewer, RadioButton, RadioSet
 
 from db4e.Constants.Labels import (
-    DEPLOYMENTS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, P2POOL_SHORT_LABEL,
+    DEPLOYMENTS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL,
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, DEPLOYMENT_TYPE_FIELD,
-    GET_NEW_REC_FIELD, P2POOL_FIELD, REMOTE_FIELD,
-    TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD, 
+    REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -35,7 +33,7 @@ class NewP2PoolType(Container):
 
     def compose(self):
         
-        with Vertical():
+        with Vertical(id="new_p2pool_vertical"):
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
             with Vertical(id="new_p2pool_type_form"):

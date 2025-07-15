@@ -112,6 +112,7 @@ class DbMgr:
         return collection.insert_one(jdoc)
    
     def update_one(self, col_name, filter, new_values):
+        #print(f"{col_name}/{filter}/{new_values}")
         collection = self.get_collection(col_name)
         # Remove the "_id" field if it's present
         new_values.pop("_id", None)
