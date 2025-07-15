@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.22.0] - 2025-07-14
 
 ### Added
-- Added logic to `App` to support new XMRig deployment
+- Added logic to `App` to support new *XMRig deployment*
 - Added a `Panes/NewXMRig` pane
 - Added a route to `Modules/MessageRouter` for adding a new XMRig deployment
 - Added an entry to the `Modules/PaneCatalogue` for adding a new XMRig deployment
+- Added additional constants to `Constants/Fields`, `Constants/Labels` and `Contants/Panes`
+- Added support for new *XMRig deployment* to `DbMgr`, `DeploymentMgr`, `Helper`, `MessageRouter` and `PaneCatalogue` modules
+- Updated `NewMonerod`, `NewP2Pool`, `NewP2PoolType`, `P2PoolRemote` and `XMRig` panes
 
 ### Changed
 
