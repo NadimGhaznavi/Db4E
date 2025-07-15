@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+- Streamlined the code in the `MonerodRemote`, `NewMonerod` and `NewMonerodType` panes. 
+- Reused some `Db4E.tcss` tags between panes
+
+---
+
 ## [0.22.2] - 2025-07-14
 
 ### Fixed
@@ -24,8 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added additional constants to `Constants/Fields`, `Constants/Labels` and `Contants/Panes`
 - Added support for new *XMRig deployment* to `DbMgr`, `DeploymentMgr`, `Helper`, `MessageRouter` and `PaneCatalogue` modules
 - Updated `NewMonerod`, `NewP2Pool`, `NewP2PoolType`, `P2PoolRemote` and `XMRig` panes
-
-### Changed
 
 ### Fixed
 - Fixed `Panes/NewP2PoolType` layout in `Db4E.tcss`
