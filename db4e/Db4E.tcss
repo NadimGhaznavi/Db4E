@@ -102,12 +102,13 @@ RadioButton {
 }
 
 #initial_setup_form,
-#monerod_remote_update_form,
-#p2pool_remote_update_form,
-#new_p2pool_form,
-#new_monerod_type_form,
+#monerod_remote_form,
+#monerod_type_form,
+#monerod_form,
 #new_p2pool_type_form,
-#new_monerod_form {
+#new_p2pool_form,
+#p2pool_remote_update_form
+{
     height: 6;
     border: round;
 }
@@ -121,35 +122,30 @@ RadioButton {
 #initial_setup_group_name_label,
 #initial_setup_vendor_dir_label,
 #initial_setup_user_wallet_label,
-#monerod_remote_instance_label,
-#monerod_remote_ip_addr_label,
-#monerod_remote_rpc_bind_port_label,
-#monerod_remote_zmq_pub_port_label,
+#instance_label,
+#ip_addr_label,
 #p2pool_remote_instance_label,
 #p2pool_remote_ip_addr_label,
 #p2pool_remote_stratum_port_label,
 #new_p2pool_instance_label,
 #new_p2pool_ip_addr_label,
 #new_p2pool_stratum_port_label,
-#new_monerod_instance_label,
-#new_monerod_ip_addr_label,
-#new_monerod_rpc_bind_port_label,
-#new_monerd_zmq_pub_port_label,
 #new_p2pool_instance_label,
 #new_p2pool_ip_addr_label,
 #new_p2pool_stratum_port_label,
-#instance_label,
 #num_threads_label,
-#p2pool_label {
+#p2pool_label,
+#rpc_bind_port_label,
+#zmq_pub_port_label
+ {
     padding: 0 1;
     width: 23;
 }
 
 #db4e_vendor_dir_input,
 #initial_setup_vendor_dir_input,
-#monerod_remote_ip_addr,
+#ip_addr_input,
 #p2pool_remote_ip_addr,
-#new_monerod_ip_addr_input,
 #new_stratum_ip_addr_input,
 #new_p2pool_ip_addr_input {
     width: 30;
@@ -160,32 +156,26 @@ RadioButton {
     width: 75;
 }
 
-#monerod_remote_instance,
 #p2pool_remote_instance,
 #new_stratum_instance_input,
-#new_monerod_instance_input,
 #new_p2pool_instance_input,
 #instance_input {
     width: 20
 }
 
-#monerod_remote_rpc_bind_port,
-#monerod_remote_zmq_pub_port,
-#new_monerod_rpc_bind_port_input,
+#new_p2pool_stratum_port_input,
+#num_threads_input,
 #p2pool_remote_stratum_port,
-#new_monerod_zmq_pub_port_input,
-#new_p2pool_stratum_port_input,
-#new_p2pool_stratum_port_input,
-#num_threads_input {  
+#rpc_bind_port_input,
+#zmq_pub_port_input,
+{  
     width: 7;
 }
 
-#new_monerod_type_radioset,
+#type_radioset,
 #new_p2pool_type_radioset {
     border: round;
 }
-#new_monerod_type_monerod,
-#new_monerod_type_remote_monerod,
 #new_p2pool_type_p2pool,
 #new_p2pool_type_remote_p2pool {
     width: 26;
@@ -199,6 +189,10 @@ RadioButton {
 #tree_deployments,
 #tree_metrics {
     height: auto;
+}
+
+.radio_button_type {
+    width: 26;
 }
 
 .form_intro {

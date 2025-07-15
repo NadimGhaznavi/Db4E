@@ -24,9 +24,14 @@ from db4e.Constants.Defaults import (
     RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
 )
 
-
 class NewMonerod(Container):
 
+    instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
+    ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
+    rpc_bind_port_input = Input(id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True)
+    zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
+    monerod_type_input = Input(id="monerod_type_input", classes="hidden")
+    
     def set_data(self, rec):
 
         if rec.get(REMOTE_FIELD):
@@ -34,32 +39,33 @@ class NewMonerod(Container):
             STATIC_CONTENT = "This screen provides a form for creating a new "
             STATIC_CONTENT += f"{MONEROD_REMOTE_LABEL} deployment."
 
+            self.rpc_bind_port_input.value = str(RPC_BIND_PORT_DEFAULT)
+            self.zmq_pub_port_input.value = str(ZMQ_PUB_PORT_DEFAULT)
+            self.monerod_type_input.value = REMOTE_FIELD
+
             md = Vertical(
                 MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
                 Vertical(
                     Horizontal(
-                        Label(INSTANCE_LABEL, id="new_monerod_instance_label"),
-                        Input(id="new_monerod_instance_input", 
-                            restrict=f"[a-zA-Z0-9_\-]*", compact=True)),
+                        Label(INSTANCE_LABEL, id="instance_label"),
+                        self.instance_input),
                     Horizontal(
-                        Label(IP_ADDR_LABEL, id="new_monerod_ip_addr_label"),
-                        Input(id="new_monerod_ip_addr_input", 
-                            restrict=f"[a-z0-9._\-]*", compact=True)),
+                        Label(IP_ADDR_LABEL, id="ip_addr_label"),
+                        self.ip_addr_input),
                     Horizontal(
-                        Label(RPC_BIND_PORT_LABEL, id="new_monerod_rpc_bind_port_label"),
-                        Input(id="new_monerod_rpc_bind_port_input", 
-                            restrict=f"[0-9]*", value=str(RPC_BIND_PORT_DEFAULT), compact=True)),
+                        Label(RPC_BIND_PORT_LABEL, id="rpc_bind_port_label"),
+                        self.rpc_bind_port_input),
                     Horizontal(
-                        Label(ZMQ_PUB_PORT_LABEL, id="new_monerd_zmq_pub_port_label"),
-                        Input(id="new_monerod_zmq_pub_port_input",
-                            restrict=f"[0-9]*", value=str(ZMQ_PUB_PORT_DEFAULT), compact=True)),    
-                    id="new_monerod_form"),
+                        Label(ZMQ_PUB_PORT_LABEL, id="zmq_pub_port_label"),
+                        self.zmq_pub_port_input),    
+                    id="monerod_remote_form"),
 
                 Horizontal(
-                    Button(label=PROCEED_LABEL, id="new_monerod_proceed_button"),
-                    id="new_monerod_buttons"),
-                Input(id="new_monerod_type", value=REMOTE_FIELD, classes="hidden"))
+                    Button(label=PROCEED_LABEL, id="proceed_button"),
+                    id="buttons"),
+
+                self.monerod_type_input)
             
             self.remove_children()
             self.mount(md)
@@ -76,7 +82,7 @@ class NewMonerod(Container):
                 ),
 
                 Horizontal(
-                    Input(id="new_monerod_type", value=LOCAL_FIELD, classes="hidden")
+                    Input(id="monerod_type", value=LOCAL_FIELD, classes="hidden")
                 )   
             )
             
@@ -85,8 +91,7 @@ class NewMonerod(Container):
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        button_id = event.button.id
-        if self.query_one("#new_monerod_type", Input).value == REMOTE_FIELD:
+        if self.query_one("#monerod_type_input", Input).value == REMOTE_FIELD:
             remote_value = True
         else:
             remote_value = False
@@ -95,9 +100,9 @@ class NewMonerod(Container):
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
             REMOTE_FIELD: remote_value,
-            INSTANCE_FIELD: self.query_one("#new_monerod_instance_input", Input).value,
-            IP_ADDR_FIELD: self.query_one("#new_monerod_ip_addr_input", Input).value,
-            RPC_BIND_PORT_FIELD: self.query_one("#new_monerod_rpc_bind_port_input", Input).value,
-            ZMQ_PUB_PORT_FIELD: self.query_one("#new_monerod_zmq_pub_port_input", Input).value,
+            INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+            IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+            RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
+            ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
         }
         self.app.post_message(SubmitFormData(self, form_data=form_data))
