@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated dependency on Textual to v4.0.0; `poetry lock`
 ---
 
+## [0.23.2] - 2025-07-15
+
+### Changed
+- Refactor InitialSetup pane to use compose instead of set_data + mount
+- Refactor Db4E to use compose instead of set_data + mount
+
+---
+
 ## [0.23.1] - 2025-07-15
 
 ### Added
@@ -22,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Minor code refactoring improvements
 - Removed `Db4E.tcss` styling redundancies
+
+### Fixed
+- If Db4e vendor_dir updated, update the directory on the filesystem
+- Properly update the user_wallet and vendor directory in the DB
 
 ---
 
