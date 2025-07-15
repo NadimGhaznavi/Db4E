@@ -20,17 +20,17 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENT_MGR_LABEL, DEPLOYMENT_DIR_LABEL, INSTANCE_LABEL, 
     IP_ADDR_LABEL, MONERO_WALLET_LABEL,  MONEROD_LABEL, MONEROD_REMOTE_LABEL, 
-    P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
-    ZMQ_PUB_PORT_LABEL)
+    NUM_THREADS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL, 
+    STRATUM_PORT_LABEL, XMRIG_LABEL, ZMQ_PUB_PORT_LABEL)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, DEPLOYMENT_FIELD, 
     DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, 
-    GROUP_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
-    MONEROD_FIELD, MONEROD_REMOTE_FIELD, ORIG_INSTANCE_FIELD, 
-    P2POOL_FIELD, P2POOL_REMOTE_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
-    STRATUM_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
+    GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
+    MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
+    P2POOL_FIELD, P2POOL_ID_FIELD, P2POOL_REMOTE_FIELD, REMOTE_FIELD, 
+    RPC_BIND_PORT_FIELD, STRATUM_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
     UPDATED_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, 
-    VERSION_FIELD, WARN_FIELD, ZMQ_PUB_PORT_FIELD)
+    VERSION_FIELD, WARN_FIELD, XMRIG_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Defaults import DEPLOYMENT_COL_DEFAULT
 
 
@@ -76,7 +76,6 @@ class DeploymentMgr(Container):
         if fatal_error:
             return (rec, component_label, instance, fatal_error)
         db_rec = self.get_new_rec({COMPONENT_FIELD: MONEROD_REMOTE_FIELD})
-        db_rec[UPDATED_FIELD] = rec[UPDATED_FIELD]
         db_rec[INSTANCE_FIELD] = rec[INSTANCE_FIELD]
         db_rec[IP_ADDR_FIELD] = rec[IP_ADDR_FIELD]
         db_rec[RPC_BIND_PORT_FIELD] = rec[RPC_BIND_PORT_FIELD]
@@ -112,10 +111,44 @@ class DeploymentMgr(Container):
         if fatal_error:
             return (rec, component_label, instance, results, fatal_error)
         db_rec = self.get_new_rec({COMPONENT_FIELD: P2POOL_REMOTE_FIELD})
-        db_rec[UPDATED_FIELD] = rec[UPDATED_FIELD]
         db_rec[INSTANCE_FIELD] = rec[INSTANCE_FIELD]
         db_rec[IP_ADDR_FIELD] = rec[IP_ADDR_FIELD]
         db_rec[STRATUM_PORT_FIELD] = rec[STRATUM_PORT_FIELD]
+        db_rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
+        rec = db_rec
+        return (rec, component_label, instance, results, fatal_error)
+
+    def add_xmrig_deployment(self, rec):
+        print(f"DeploymentMgr:add_xmrig_deployment(): {rec}")
+        results = []
+        fatal_error = False
+        # Check that the user filled out the form
+        if not rec[INSTANCE_FIELD]:
+            results.append(result_row(
+                INSTANCE_LABEL, ERROR_FIELD,
+                f"Missing required field: {INSTANCE_LABEL}"
+            ))
+            fatal_error = True
+        if not rec[NUM_THREADS_FIELD]:
+            results.append(result_row(
+                NUM_THREADS_LABEL, ERROR_FIELD,
+                f"Missing required field: {NUM_THREADS_LABEL}"
+            ))
+            fatal_error = True
+        if not rec[P2POOL_ID_FIELD]:
+            results.append(result_row(
+                P2POOL_LABEL, ERROR_FIELD,
+                f"Missing required field: {P2POOL_LABEL}"
+            ))
+            fatal_error = True
+        component_label = XMRIG_LABEL
+        instance = rec[INSTANCE_FIELD]
+        if fatal_error:
+            return (rec, component_label, instance, results, fatal_error)
+        db_rec = self.get_new_rec({COMPONENT_FIELD: XMRIG_FIELD})
+        db_rec[INSTANCE_FIELD] = rec[INSTANCE_FIELD]
+        db_rec[NUM_THREADS_FIELD] = rec[NUM_THREADS_FIELD]
+        db_rec[P2POOL_ID_FIELD] = rec[P2POOL_ID_FIELD]
         db_rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
         rec = db_rec
         return (rec, component_label, instance, results, fatal_error)
@@ -154,6 +187,13 @@ class DeploymentMgr(Container):
                     f"🚧 {P2POOL_LABEL} deployment coming soon 🚧"
                 ))
                 return results
+            
+        # Add a XMRig deployment
+        elif rec[COMPONENT_FIELD] == XMRIG_FIELD:
+            (rec, component_label, instance, results,
+             fatal_error) = self.add_xmrig_deployment(rec)
+            if fatal_error:
+                return results
 
         self.db.insert_one(self.col_name, rec)
         if instance:
@@ -171,15 +211,6 @@ class DeploymentMgr(Container):
         self.db.delete_one(
             self.col_name, {COMPONENT_FIELD: component, INSTANCE_FIELD: instance})
         return [(result_row(DB4E_LABEL, GOOD_FIELD, "Deleted deployment record"))]
-
-    def is_initialized(self):
-        rec = self.db.find_one(self.col_name, {COMPONENT_FIELD: DB4E_FIELD})
-        if rec:
-            print("DeploymentMgr:is_initialized(): True")
-            return True
-        else:
-            print("DeploymentMgr:is_initialized(): False")
-            return False
 
     def get_deployment(self, component):
         #print(f"DeploymentMgr:get_deployment(): {component}")
@@ -200,19 +231,27 @@ class DeploymentMgr(Container):
             return rec
         return None
         # No record for this deployment exists
-        
+
+    def get_deployment_by_id(self, id):
+        return self.db.find_one(col_name=self.col_name, filter={'_id': id})
+
     def get_deployment_by_instance(self, component, instance):
         #print(f"DeploymentMgr:get_deployment_by_instance(): {component}/{instance}")
         if instance == DB4E_LABEL:
             return self.get_deployment(DB4E_FIELD)
-        elif component == MONEROD_FIELD:
+        else:
             return self.db.find_one(
                 col_name=self.col_name, 
-                filter={COMPONENT_FIELD: MONEROD_FIELD, INSTANCE_FIELD: instance})
-        elif component == P2POOL_FIELD:
-            return self.db.find_one(
-                col_name=self.col_name,
-                filter={COMPONENT_FIELD: P2POOL_FIELD, INSTANCE_FIELD: instance})
+                filter={COMPONENT_FIELD: component, INSTANCE_FIELD: instance})
+
+    def get_deployment_ids_and_instances(self, component):
+        db_recs = self.db.find_many(
+            self.col_name, {COMPONENT_FIELD: component})
+        result_list = []
+        for db_rec in db_recs:
+            result_list.append((db_rec[INSTANCE_FIELD], db_rec[ID_FIELD]))
+        result_list.sort()
+        return result_list
 
     def get_deployment_instances(self, component):
         db_recs = self.db.find_many(
@@ -234,6 +273,13 @@ class DeploymentMgr(Container):
         }
         record_key = key_map.get((component, is_remote), component)
         return self.db.get_new_rec(record_key)
+
+    def is_initialized(self):
+        rec = self.db.find_one(self.col_name, {COMPONENT_FIELD: DB4E_FIELD})
+        if rec:
+            return True
+        else:
+            return False
 
     def new_deployment(self, form_data):
         #print(f"DeploymentMgr:new_deployment(): {form_data}")
@@ -290,6 +336,8 @@ class DeploymentMgr(Container):
             return self.update_monerod_deployment(update_data=update_data)
         elif update_data[COMPONENT_FIELD] == P2POOL_FIELD:
             return self.update_p2pool_deployment(update_data=update_data)
+        elif update_data[COMPONENT_FIELD] == XMRIG_FIELD:
+            return self.update_xmrig_deployment(update_data=update_data)
         else:
             results = []
             results.append(result_row(
@@ -308,7 +356,7 @@ class DeploymentMgr(Container):
             orig_instance = update_data[ORIG_INSTANCE_FIELD]
             monerod_rec = self.get_deployment_by_instance(
                 MONEROD_FIELD, update_data[ORIG_INSTANCE_FIELD])
-            print(f"DeploymentMgr:update_monerod_deployment() {monerod_rec}")
+            #print(f"DeploymentMgr:update_monerod_deployment() {monerod_rec}")
             if update_data[INSTANCE_FIELD] != monerod_rec[INSTANCE_FIELD]:
                 update_flag = True
                 results.append(result_row(
@@ -330,6 +378,7 @@ class DeploymentMgr(Container):
                     ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
                     f"Updated {ZMQ_PUB_PORT_LABEL} in {MONEROD_LABEL} deployment record"))
             if update_flag:
+                del update_data[ORIG_INSTANCE_FIELD]
                 self.db.update_one(
                     filter={COMPONENT_FIELD: MONEROD_FIELD, INSTANCE_FIELD: orig_instance},
                     col_name=self.col_name, new_values=update_data)
@@ -368,6 +417,7 @@ class DeploymentMgr(Container):
                     STRATUM_PORT_LABEL, GOOD_FIELD,
                     f"Updated {STRATUM_PORT_LABEL} in {P2POOL_LABEL} deployment record"))
             if update_flag:
+                del update_data[ORIG_INSTANCE_FIELD]
                 self.db.update_one(
                     filter={COMPONENT_FIELD: P2POOL_FIELD, INSTANCE_FIELD: orig_instance},
                     col_name=self.col_name, new_values=update_data)
@@ -378,6 +428,46 @@ class DeploymentMgr(Container):
                 ))
                 return results
             return results
+      
+    def update_xmrig_deployment(self, update_data):
+        #print(f"{update_data}")
+        results = []
+        update_flag = False
+        del update_data[TO_MODULE_FIELD]
+        del update_data[TO_METHOD_FIELD]
+        orig_instance = update_data[ORIG_INSTANCE_FIELD]
+        xmrig_rec = self.get_deployment_by_instance(
+            XMRIG_FIELD, update_data[ORIG_INSTANCE_FIELD])
+        #print(f"DeploymentMgr:update_p2pool_deployment() {p2pool_rec}")
+        if update_data[INSTANCE_FIELD] != xmrig_rec[INSTANCE_FIELD]:
+            update_flag = True
+            results.append(result_row(
+                INSTANCE_LABEL, GOOD_FIELD,
+                f"Updated {INSTANCE_LABEL} in {XMRIG_LABEL} deployment record"))
+        if update_data[NUM_THREADS_FIELD] != xmrig_rec[NUM_THREADS_FIELD]:
+            update_flag = True
+            results.append(result_row(
+                NUM_THREADS_LABEL, GOOD_FIELD,
+                f"Updated {NUM_THREADS_LABEL} in {XMRIG_FIELD} deployment record"))
+        if update_data[P2POOL_ID_FIELD] != xmrig_rec[P2POOL_ID_FIELD]:
+            update_flag = True
+            results.append(result_row(
+                P2POOL_LABEL, GOOD_FIELD,
+                f"Updated {P2POOL_LABEL} in {XMRIG_FIELD} deployment record"))
+        if update_flag:
+            #print(f"filter: {COMPONENT_FIELD}: {XMRIG_FIELD}, {INSTANCE_FIELD}: {orig_instance}")
+            #print(f"new_values: {update_data}")
+            del update_data[ORIG_INSTANCE_FIELD]
+            self.db.update_one(
+                filter={COMPONENT_FIELD: XMRIG_FIELD, INSTANCE_FIELD: orig_instance},
+                col_name=self.col_name, new_values=update_data)
+        else:
+            results.append(result_row(
+                XMRIG_LABEL, WARN_FIELD,
+                "Nothing to update"
+            ))
+            return results
+        return results
       
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
         if os.path.exists(new_dir):

@@ -12,6 +12,7 @@ Button {
     height: 3;
     border: round;
     width: 20;
+    background: black;
 }
 
 Clock {
@@ -27,18 +28,6 @@ DetailPane {
     padding: 0 2;
     border: round;
     row-span: 2;
-    background: black;
-}
-
-Db4E,
-MonerodRemote,
-NewMonerod,
-NewMonerodType,
-P2PoolRemote,
-NewP2Pool,
-NewP2PoolType {
-    padding: 0 2;
-    border: round;
     background: black;
 }
 
@@ -66,8 +55,60 @@ TopBar {
     background: black
 }
 
+MarkdownViewer {
+    background: black;
+}
+
+Db4E,
+MonerodRemote,
+NewMonerod,
+NewMonerodType,
+P2PoolRemote,
+NewP2Pool,
+NewP2PoolType,
+NewXMRig,
+XMRig, {
+    padding: 0 2;
+    border: round;
+    background: black;
+    overflow: auto;
+}
+
 #db4e_update_form {
     height: 7;
+    border: round;
+}
+
+RadioSet {
+    border: round;
+    width: 30;
+    background: black;
+}
+
+RadioButton {
+    border: none;
+}
+
+#xmrig_edit_form {
+    border: round;
+    height: 4;
+}
+#radio_set_box {
+    border: round;
+    height: auto;
+}
+#pane {
+    overflow: auto;
+}
+
+#initial_setup_form,
+#monerod_remote_update_form,
+#p2pool_remote_update_form,
+#new_p2pool_form,
+#new_monerod_type_form,
+#new_p2pool_type_form,
+#new_monerod_form {
+    height: 6;
     border: round;
 }
 
@@ -75,146 +116,70 @@ TopBar {
 #db4e_group_name_label,
 #db4e_install_dir_name_label,
 #db4e_vendor_dir_name_label,
-#db4e_user_wallet_name_label {
-    padding: 0 1;
-    width: 23;
-}
-#db4e_vendor_dir_input {
-    width: 30;
-}
-#db4e_user_wallet_input {
-    width: 75;
-}
-
-#topbar_title {
-    content-align: center middle;
-    width: 100%;
-}
-
-#tree_deployments {
-    height: auto;
-}
-
-#tree_metrics {
-    height: auto;
-}
-
-#initial_setup_form {
-    height: 6;
-    border: round;
-}
+#db4e_user_wallet_name_label,
 #initial_setup_user_name_label,
 #initial_setup_group_name_label,
 #initial_setup_vendor_dir_label,
-#initial_setup_user_wallet_label {
-    padding: 0 1;
-    width: 23;
-}
-#initial_setup_vendor_dir_input {
-    width: 30;
-}
-#initial_setup_user_wallet_input {
-    width: 75;
-}
-#initial_setup_buttons {
-    height: 3;
-}
-
-#monerod_remote_update_form {
-    height: 6;
-    border: round;
-}
+#initial_setup_user_wallet_label,
 #monerod_remote_instance_label,
 #monerod_remote_ip_addr_label,
 #monerod_remote_rpc_bind_port_label,
-#monerod_remote_zmq_pub_port_label {
-    padding: 0 1;
-    width: 23;
-    height: 1;
-}
-#monerod_remote_instance {
-    width: 20
-}
-#monerod_remote_ip_addr {
-    width: 30;
-}
-#monerod_remote_rpc_bind_port {
-    width: 7;
-}
-#monerod_remote_zmq_pub_port {
-    width: 7;
-}
-
-#p2pool_remote_update_form {
-    height: 6;
-    border: round;
-}
+#monerod_remote_zmq_pub_port_label,
 #p2pool_remote_instance_label,
 #p2pool_remote_ip_addr_label,
-#p2pool_remote_stratum_port_label {
-    padding: 0 1;
-    width: 23;
-    height: 1;
-}
-#p2pool_remote_instance {
-    width: 20
-}
-#p2pool_remote_ip_addr {
-    width: 30;
-}
-#p2pool_remote_stratum_port {
-    width: 7;
-}
-
-#new_monerod_form {
-    height: 6;
-    border: round;
-}
+#p2pool_remote_stratum_port_label,
+#new_p2pool_instance_label,
+#new_p2pool_ip_addr_label,
+#new_p2pool_stratum_port_label,
 #new_monerod_instance_label,
 #new_monerod_ip_addr_label,
 #new_monerod_rpc_bind_port_label,
-#new_monerd_zmq_pub_port_label {
-    padding: 0 1;
-    width: 21;
-}
-#new_monerod_instance_input {
-    width: 20;
-}
-#new_monerod_ip_addr_input {
-    width: 30;
-}
-#new_monerod_rpc_bind_port_input {
-    width: 7;
-}
-#new_monerod_zmq_pub_port_input {
-    width: 7;
-}
-
-#new_p2pool_form {
-    height: 6;
-    border: round;
-}
+#new_monerd_zmq_pub_port_label,
 #new_p2pool_instance_label,
 #new_p2pool_ip_addr_label,
-#new_p2pool_stratum_port_label {
+#new_p2pool_stratum_port_label,
+#instance_label,
+#num_threads_label,
+#p2pool_label {
     padding: 0 1;
-    width: 21;
+    width: 23;
 }
-#new_stratum_instance_input {
-    width: 20;
-}
-#new_stratum_ip_addr_input {
+
+#db4e_vendor_dir_input,
+#initial_setup_vendor_dir_input,
+#monerod_remote_ip_addr,
+#p2pool_remote_ip_addr,
+#new_monerod_ip_addr_input,
+#new_stratum_ip_addr_input,
+#new_p2pool_ip_addr_input {
     width: 30;
 }
-#new_p2pool_stratum_port_input {
+
+#db4e_user_wallet_input,
+#initial_setup_user_wallet_input {
+    width: 75;
+}
+
+#monerod_remote_instance,
+#p2pool_remote_instance,
+#new_stratum_instance_input,
+#new_monerod_instance_input,
+#new_p2pool_instance_input,
+#instance_input {
+    width: 20
+}
+
+#monerod_remote_rpc_bind_port,
+#monerod_remote_zmq_pub_port,
+#new_monerod_rpc_bind_port_input,
+#p2pool_remote_stratum_port,
+#new_monerod_zmq_pub_port_input,
+#new_p2pool_stratum_port_input,
+#new_p2pool_stratum_port_input,
+#num_threads_input {  
     width: 7;
 }
 
-#new_monerod_type_form,
-#new_p2pool_type_form {
-    height: 6;
-    border: round;
-}
 #new_monerod_type_radioset,
 #new_p2pool_type_radioset {
     border: round;
@@ -225,25 +190,15 @@ TopBar {
 #new_p2pool_type_remote_p2pool {
     width: 26;
 }
-#new_monerod_type_button,
-#new_p2pool_type_button {
-    height: 3;
+
+#topbar_title {
+    content-align: center middle;
+    width: 100%;
 }
 
-#new_p2pool_instance_label,
-#new_p2pool_ip_addr_label,
-#new_p2pool_stratum_port_label {
-    padding: 0 1;
-    width: 21;
-}
-#new_p2pool_instance_input {
-    width: 20;
-}
-#new_p2pool_ip_addr_input {
-    width: 30;
-}
-#new_p2pool_stratum_port_input {
-    width: 7;
+#tree_deployments,
+#tree_metrics {
+    height: auto;
 }
 
 .form_intro {

@@ -1,0 +1,25 @@
+from textual.containers import Vertical
+from textual.widgets import RadioSet, RadioButton, Static
+
+def set_data(self, p2_list):
+    # Clear prior content
+    self.remove_children()
+
+    # Informational header
+    self.mount(Static("Select a P2Pool deployment:", id="header"))
+
+    # Create RadioSet (mutually exclusive group)
+    radio_group = RadioSet()
+
+    # Create Vertical wrapper (optional styling/layout)
+    wrapper = Vertical(id="p2pool-choices")
+
+    # Build radio buttons per instance
+    for idx, (name, objid) in enumerate(p2_list):
+        rb = RadioButton(label=name, value=str(objid), id=f"rb-{idx}")
+        wrapper.mount(rb)      # mount each radio button
+        radio_group.mount(rb)  # also mount into group for selection logic
+
+    # Finally mount the group (and wrapper if using both)
+    self.mount(wrapper)
+    self.mount(radio_group)

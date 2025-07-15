@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [Unreleased]
+
+### Added
+- Added logic to `App` to support new XMRig deployment
+- Added a `Panes/NewXMRig` pane
+- Added a route to `Modules/MessageRouter` for adding a new XMRig deployment
+- Added an entry to the `Modules/PaneCatalogue` for adding a new XMRig deployment
+
+### Changed
+
+### Fixed
+- Fixed `Panes/NewP2PoolType` layout in `Db4E.tcss`
+
+---
 
 ## [0.21.0] - 2025-07-12
 
