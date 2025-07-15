@@ -108,32 +108,27 @@ RadioButton {
     height: 6;
     border: round; }
 
-#db4e_user_name_label,
-#db4e_group_name_label,
-#db4e_install_dir_name_label,
-#db4e_vendor_dir_name_label,
-#db4e_user_wallet_name_label,
-#initial_setup_user_name_label,
-#initial_setup_group_name_label,
-#initial_setup_vendor_dir_label,
-#initial_setup_user_wallet_label,
+#group_name_label,
+#install_dir_label,
 #instance_label,
 #ip_addr_label,
 #num_threads_label,
 #rpc_bind_port_label,
 #stratum_port_label,
+#user_name_label,
+#user_wallet_label,
+#vendor_dir_label,
 #zmq_pub_port_label {
     padding: 0 1;
     width: 23; }
 
-#db4e_vendor_dir_input,
-#initial_setup_vendor_dir_input,
 #ip_addr_input,
-#stratum_port_input {
+#stratum_port_input,
+#vendor_dir_input,
+{
     width: 30; }
 
-#db4e_user_wallet_input,
-#initial_setup_user_wallet_input {
+#user_wallet_input {
     width: 75; }
 
 #instance_input {

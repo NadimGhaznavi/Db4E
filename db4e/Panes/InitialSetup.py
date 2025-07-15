@@ -8,7 +8,6 @@ db4e/Panes/InitialSetup.py
 """
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
-from textual.app import ComposeResult
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Messages.RefreshNavPane import RefreshNavPane
@@ -67,39 +66,39 @@ class InitialSetup(Container):
 
             Vertical(
                 Horizontal(
-                    Label(USER_LABEL, id="initial_setup_user_name_label"),
+                    Label(USER_LABEL, id="user_name_label"),
                     Label(user, id="db4e_user")),
                 Horizontal(
-                    Label(GROUP_LABEL, id="initial_setup_group_name_label"),
+                    Label(GROUP_LABEL, id="group_name_label"),
                     Label(group, id="db4e_group")),
                 Horizontal(
-                    Label(DEPLOYMENT_DIR_LABEL, id="initial_setup_vendor_dir_label"),
-                    Input(id="initial_setup_vendor_dir_input", 
+                    Label(DEPLOYMENT_DIR_LABEL, id="vendor_dir_label"),
+                    Input(id="vendor_dir_input", 
                           restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True)),
                 Horizontal(
-                    Label(MONERO_WALLET_LABEL, id="initial_setup_user_wallet_label"), 
-                    Input(id="initial_setup_user_wallet_input", 
+                    Label(MONERO_WALLET_LABEL, id="user_wallet_label"), 
+                    Input(id="user_wallet_input", 
                           restrict=r"[a-zA-Z0-9]*", compact=True)),
                 id="initial_setup_form"),
 
             Horizontal(
-                Button(label=PROCEED_LABEL, id="initial_setup_proceed_button"),
-                Button(label=ABORT_LABEL, id="initial_setup_abort_button"),
-                id="initial_setup_buttons"))
+                Button(label=PROCEED_LABEL, id="proceed_button"),
+                Button(label=ABORT_LABEL, id="abort_button"),
+                id="buttons"))
 
         self.mount(md)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
         button_id = event.button.id
-        if button_id == "initial_setup_proceed_button":        
+        if button_id == "proceed_button":        
             form_data = {
                 TO_MODULE_FIELD: INSTALL_MGR_FIELD,
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
                 COMPONENT_FIELD: DB4E_FIELD,
                 FORM_DATA_FIELD: True,
-                USER_WALLET_FIELD: self.query_one("#initial_setup_user_wallet_input", Input).value,
-                VENDOR_DIR_FIELD: self.query_one("#initial_setup_vendor_dir_input", Input).value,
+                USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
+                VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
             }
             self.app.post_message(RefreshNavPane(self))
             self.app.post_message(SubmitFormData(self, form_data))

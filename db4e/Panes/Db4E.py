@@ -9,7 +9,6 @@ db4e/Panes/Db4E.py
 from textual import on
 from textual.widgets import Label, MarkdownViewer, Input, Button
 from textual.containers import Container, Vertical, Horizontal
-from textual.app import ComposeResult
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
     COMPONENT_FIELD, DB4E_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, GROUP_FIELD, 
@@ -27,7 +26,7 @@ On this screen uou can update your *Monero wallet* and relocate the *deployment 
 class Db4E(Container):
 
     def set_data(self, db4e_rec):
-        print(f"Db4E:set_data(): {db4e_rec}")
+        #print(f"Db4E:set_data(): {db4e_rec}")
 
         # Record name to human readible name mapping
         rec_2_biz = {
@@ -54,37 +53,35 @@ class Db4E(Container):
 
             Vertical(
                 Horizontal(
-                    Label(db4e_user_name, id="db4e_user_name_label"),
+                    Label(db4e_user_name, id="user_name_label"),
                     Label(db4e_user, id="db4e_user")),
                 Horizontal(
-                    Label(db4e_group_name, id="db4e_group_name_label"),
+                    Label(db4e_group_name, id="group_name_label"),
                     Label(db4e_group, id="db4e_group")),
                 Horizontal(
-                    Label(install_dir_name, id="db4e_install_dir_name_label"),
+                    Label(install_dir_name, id="install_dir_label"),
                     Label(install_dir, id="install_dir")),
                 Horizontal(
-                    Label(vendor_dir_name, id="db4e_vendor_dir_name_label"),
+                    Label(vendor_dir_name, id="vendor_dir_label"),
                     Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", value=vendor_dir, compact=True, id="db4e_vendor_dir_input")),
                 Horizontal(
-                    Label(user_wallet_name, id="db4e_user_wallet_name_label"),
+                    Label(user_wallet_name, id="user_wallet_label"),
                     Input(restrict=r"[a-zA-Z0-9]*", value=user_wallet, compact=True, id="db4e_user_wallet_input")),
                 id="db4e_update_form"),
 
-            Button(label=UPDATE_LABEL, id="db4e_update_button"))
+            Button(label=UPDATE_LABEL))
         self.remove_children()
         self.mount(md)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
-        print("Db4E:on_button_pressed(): NEVER GETS PRINTED!!!")
         form_data = {
             TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
             COMPONENT_FIELD: DB4E_FIELD,
             FORM_DATA_FIELD: True,
-            USER_WALLET_FIELD: self.query_one("#db4e_user_wallet_input", Input).value,
-            VENDOR_DIR_FIELD: self.query_one("#db4e_vendor_dir_input", Input).value,
+            USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
+            VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
         }
-        print(f"Db4E:on_button_pressed() {form_data}")
         self.app.post_message(SubmitFormData(self, form_data=form_data))
 
