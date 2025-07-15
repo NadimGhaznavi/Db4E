@@ -32,73 +32,22 @@ class NewMonerod(Container):
     zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
     remote_flag = bool
 
+
+    def compose(self):
+        # Local Monero daemon deployment form
+        STATIC_CONTENT = "This screen provides a form for creating a new "
+        STATIC_CONTENT += f"{MONEROD_LABEL} deployment."
+
+        yield Vertical(
+            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
+            Label('🚧 Coming Soon 🚧'))
+                    
     def reset_data(self):
         self.instance_input.value = ""
         self.ip_addr_input.value = ""
         self.rpc_bind_port_input.value = str(RPC_BIND_PORT_DEFAULT)
         self.zmq_pub_port_input.value = str(ZMQ_PUB_PORT_DEFAULT)
 
-    def set_data(self, rec):
-        self.remote_flag = rec.get(REMOTE_FIELD)
-
-        if self.remote_flag:
-            # Remote Monero daemon deployment form
-            STATIC_CONTENT = "This screen provides a form for creating a new "
-            STATIC_CONTENT += f"{MONEROD_REMOTE_LABEL} deployment."
-
-            self.rpc_bind_port_input.value = str(RPC_BIND_PORT_DEFAULT)
-            self.zmq_pub_port_input.value = str(ZMQ_PUB_PORT_DEFAULT)
-
-            md = Vertical(
-                MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
-
-                Vertical(
-                    Horizontal(
-                        Label(INSTANCE_LABEL, id="instance_label"),
-                        self.instance_input),
-                    Horizontal(
-                        Label(IP_ADDR_LABEL, id="ip_addr_label"),
-                        self.ip_addr_input),
-                    Horizontal(
-                        Label(RPC_BIND_PORT_LABEL, id="rpc_bind_port_label"),
-                        self.rpc_bind_port_input),
-                    Horizontal(
-                        Label(ZMQ_PUB_PORT_LABEL, id="zmq_pub_port_label"),
-                        self.zmq_pub_port_input),    
-                    id="monerod_remote_form"),
-
-                Horizontal(
-                    Button(label=PROCEED_LABEL, id="proceed_button"),
-                    id="buttons"))
-            
-            self.remove_children()
-            self.mount(md)
-
-        else:
-            # Local Monero daemon deployment form
-            STATIC_CONTENT = "This screen provides a form for creating a new "
-            STATIC_CONTENT += f"{MONEROD_LABEL} deployment."
-
-            md = Vertical(
-                MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
-                Label('🚧 Coming Soon 🚧'))
-                        
-            self.remove_children()
-            self.mount(md)
-
-    def get_remote(self):
-        return self.remote_flag
-    
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if self.remote_flag:
-            form_data = {
-                COMPONENT_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-                REMOTE_FIELD: True,
-                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-                IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
-                RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
-                ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
-            }
-            self.app.post_message(SubmitFormData(self, form_data=form_data))
+        pass
+        # self.app.post_message(SubmitFormData(self, form_data=form_data))

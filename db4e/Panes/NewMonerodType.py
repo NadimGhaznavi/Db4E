@@ -16,8 +16,8 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD,
-    GET_NEW_REC_FIELD, MONEROD_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
+    GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -53,13 +53,17 @@ class NewMonerodType(Container):
         radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
         if selected.id == "remote":
-            remote_value = True
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
+                COMPONENT_FIELD: MONEROD_FIELD,
+                REMOTE_FIELD: True
+            }
         else:
-            remote_value = False
-        form_data = {
-            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: GET_NEW_REC_FIELD,
-            COMPONENT_FIELD: MONEROD_FIELD,
-            REMOTE_FIELD: remote_value
-        }
+            form_data = {
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                COMPONENT_FIELD: MONEROD_FIELD,
+                REMOTE_FIELD: False
+            }
         self.app.post_message(SubmitFormData(self, form_data))
