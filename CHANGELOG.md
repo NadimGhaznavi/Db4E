@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unrleased]
 
+### Added
+- Split the flow to route remote deployments to remote panes
+- Added P2PoolRemote and MonerodRemote panes to handle the split
+- Added additional constants to support the split
+- Added additional message routes to support the split"
+
 ### Changed
 - Minor code refactoring improvements
 - Removed `Db4E.tcss` styling redundancies
