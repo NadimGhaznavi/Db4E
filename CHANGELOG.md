@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unrleased]
+
+### Changed
+- Minor code refactoring improvements
+- Removed `Db4E.tcss` styling redundancies
+
+---
+
 ## [0.23.0] - 2025-07-15
 
 ### Changed
