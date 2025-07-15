@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.23.2] - 2025-07-15
 
 ### Changed
 - Refactor InitialSetup pane to use compose instead of set_data + mount
