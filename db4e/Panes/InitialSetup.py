@@ -15,8 +15,7 @@ from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
     COMPONENT_FIELD, DB4E_FIELD, FORM_DATA_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, 
-    INSTALL_MGR_FIELD, 
-    TO_METHOD_FIELD, TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD,
+    INSTALL_MGR_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD,
     USER_WALLET_FIELD
 )
 from db4e.Constants.Labels import (
@@ -58,27 +57,28 @@ MAX_GROUP_LENGTH = 20
 
 class InitialSetup(Container):
 
-    def set_data(self, account_info: dict):
-        user = account_info[USER_FIELD]
-        group = account_info[GROUP_FIELD]
-        md = Vertical(
+    user_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="user_name_input")
+    group_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="group_name_input")
+    vendor_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input")
+    user_wallet_input = Input(restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input")
+
+    def compose(self):
+        yield Vertical(
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
             Vertical(
                 Horizontal(
                     Label(USER_LABEL, id="user_name_label"),
-                    Label(user, id="db4e_user")),
+                    self.user_name_input),
                 Horizontal(
                     Label(GROUP_LABEL, id="group_name_label"),
-                    Label(group, id="db4e_group")),
+                    self.group_name_input),
                 Horizontal(
                     Label(DEPLOYMENT_DIR_LABEL, id="vendor_dir_label"),
-                    Input(id="vendor_dir_input", 
-                          restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True)),
+                    self.vendor_dir_input),
                 Horizontal(
                     Label(MONERO_WALLET_LABEL, id="user_wallet_label"), 
-                    Input(id="user_wallet_input", 
-                          restrict=r"[a-zA-Z0-9]*", compact=True)),
+                    self.user_wallet_input),
                 id="initial_setup_form"),
 
             Horizontal(
@@ -86,7 +86,9 @@ class InitialSetup(Container):
                 Button(label=ABORT_LABEL, id="abort_button"),
                 id="buttons"))
 
-        self.mount(md)
+    def set_data(self, account_info: dict):
+        self.user_name_input.value = account_info[USER_FIELD]
+        self.group_name_input.value = account_info[GROUP_FIELD]
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
