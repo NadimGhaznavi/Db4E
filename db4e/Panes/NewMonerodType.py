@@ -41,18 +41,18 @@ class NewMonerodType(Container):
         with Vertical():
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
-            with Vertical(id="new_monerod_type_form"):
-                with RadioSet(id="new_monerod_type_radioset"):
-                    yield RadioButton(MONEROD_LABEL, id="new_monerod_type_monerod", value=True)
-                    yield RadioButton(MONEROD_REMOTE_LABEL, id="new_monerod_type_remote_monerod")
+            with Vertical(id="monerod_type_form"):
+                with RadioSet(id="type_radioset"):
+                    yield RadioButton(MONEROD_LABEL, id="local", classes="radio_button_type", value=True)
+                    yield RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes="radio_button_type")
 
-            with Horizontal(id="new_monerod_type_button"):
-                yield Button(label=PROCEED_LABEL, id="new_monerod_type_proceed_button")
+            with Horizontal():
+                yield Button(label=PROCEED_LABEL)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        radio_set = self.query_one("#new_monerod_type_radioset", RadioSet)
+        radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
-        if selected.id == "new_monerod_type_remote_monerod":
+        if selected.id == "remote":
             remote_value = True
         else:
             remote_value = False
