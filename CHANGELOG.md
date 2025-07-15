@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated dependency on Textual to v4.0.0; `poetry lock`
 ---
 
+## [0.22.2] - 2025-07-14
+
+### Fixed
+- Updated poetry lock file to support upgrade of Textual to v4.0.0
+
+---
+
 ## [0.22.0] - 2025-07-14
 
 ### Added
