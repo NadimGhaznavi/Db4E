@@ -34,6 +34,7 @@ class XMRig(Container):
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True)
     orig_instance_input = Input(id="orig_instance_input", classes="hidden")
+    p2pool_missing_label = Label("")
 
     def compose(self):
         # Remote P2Pool daemon deployment form
@@ -54,7 +55,8 @@ class XMRig(Container):
 
             Vertical(
                 Label(P2POOL_LABEL, id="p2pool_label"),
-                self.radio_set, 
+                self.radio_set,
+                self.p2pool_missing_label,
                 id="radio_set_box"),
 
             self.orig_instance_input,
@@ -80,13 +82,15 @@ class XMRig(Container):
         self.orig_instance_input.value = rec[INSTANCE_FIELD]
         self.num_threads_input.value = rec[NUM_THREADS_FIELD]
         self.p2pool_instance = rec[P2POOL_INSTANCE]
-        print(rec[RADIO_MAP])
         self.set_p2pool_instances(rec[RADIO_MAP])
         instance_list = []
         for instance in rec[RADIO_MAP].keys():
             instance_list.append(instance)
         instance_list = self.radio_button_list + instance_list
         self.radio_button_list = [*instance_list]
+        print(len(instance_list))
+        if len(instance_list) == 0:
+            self.p2pool_missing_label.value = "Create new P2Pool deployment"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

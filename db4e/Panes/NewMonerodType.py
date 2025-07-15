@@ -41,7 +41,7 @@ class NewMonerodType(Container):
         with Vertical():
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
-            with Vertical(id="monerod_type_form"):
+            with Vertical(id="depl_type_form"):
                 with RadioSet(id="type_radioset"):
                     yield RadioButton(MONEROD_LABEL, id="local", classes="radio_button_type", value=True)
                     yield RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes="radio_button_type")

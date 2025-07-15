@@ -28,7 +28,6 @@ class MonerodRemote(Container):
     ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
     rpc_bind_port_input = Input(id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True)
     zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
-    orig_instance_input = Input(id="orig_instance_input", classes="hidden")
 
     def compose(self):
         # Remote Monero daemon deployment form
@@ -53,8 +52,6 @@ class MonerodRemote(Container):
                     self.zmq_pub_port_input),
                 id="monerod_remote_form"),
 
-            self.orig_instance_input,
-
             Horizontal(
                 Button(label=UPDATE_LABEL, id="update_button"),
                 Button(label=DELETE_LABEL, id="delete_button"),
@@ -64,14 +61,14 @@ class MonerodRemote(Container):
 
     def set_data(self, rec):
 
+        self.orig_instance = rec[INSTANCE_FIELD]
+
         self.instance_input.value = rec[INSTANCE_FIELD]
-        self.orig_instance_input.value = rec[INSTANCE_FIELD]
         self.ip_addr_input.value = rec[IP_ADDR_FIELD]
         self.rpc_bind_port_input.value = str(rec[RPC_BIND_PORT_FIELD])
         self.zmq_pub_port_input.value = str(rec[ZMQ_PUB_PORT_FIELD])
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        event.stop()
         button_id = event.button.id
         if button_id == "update_button":
             form_data = {
@@ -79,8 +76,8 @@ class MonerodRemote(Container):
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
                 FORM_DATA_FIELD: True,
+                ORIG_INSTANCE_FIELD: self.orig_instance,
                 INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-                ORIG_INSTANCE_FIELD: self.query_one("#orig_instance_input", Input).value,
                 IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
                 RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
                 ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
@@ -91,6 +88,6 @@ class MonerodRemote(Container):
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 COMPONENT_FIELD: MONEROD_FIELD,
-                INSTANCE_FIELD: self.query_one("#orig_instance_input", Input).value,
+                INSTANCE_FIELD: self.orig_instance
             }
         self.app.post_message(SubmitFormData(self, form_data=form_data))

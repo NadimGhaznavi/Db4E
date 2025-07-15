@@ -33,21 +33,21 @@ class NewP2PoolType(Container):
 
     def compose(self):
         
-        with Vertical(id="new_p2pool_vertical"):
+        with Vertical():
             yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
 
-            with Vertical(id="new_p2pool_type_form"):
-                with RadioSet(id="new_p2pool_type_radioset"):
-                    yield RadioButton(P2POOL_LABEL, id="new_p2pool_type_p2pool", value=True)
-                    yield RadioButton(P2POOL_REMOTE_LABEL, id="new_p2pool_type_remote_p2pool")
+            with Vertical(id="depl_type_form"):
+                with RadioSet(id="type_radioset"):
+                    yield RadioButton(P2POOL_LABEL, id="local", value=True)
+                    yield RadioButton(P2POOL_REMOTE_LABEL, id="remote")
 
-            with Horizontal(id="new_p2pool_type_button"):
-                yield Button(label=PROCEED_LABEL, id="new_p2pool_type_proceed_button")
+            with Horizontal():
+                yield Button(label=PROCEED_LABEL)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        radio_set = self.query_one("#new_p2pool_type_radioset", RadioSet)
+        radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
-        if selected.id == "new_p2pool_type_remote_p2pool":
+        if selected.id == "remote":
             remote_value = True
         else:
             remote_value = False

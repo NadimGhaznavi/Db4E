@@ -28,10 +28,10 @@ from db4e.Constants.Defaults import (
 
 class NewXMRig(Container):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._p_dict = {}
-        self.radio_set = RadioSet(id="radio_set")
+    p_dict = {}
+    instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
+    num_threads_input = Input(id="num_threads_input", restrict=f"[0-9]*", compact=True)
+    radio_set = RadioSet(id="radio_set")
 
     def compose(self):
         # Remote P2Pool daemon deployment form
@@ -47,12 +47,10 @@ class NewXMRig(Container):
             Vertical(
                 Horizontal(
                     Label(INSTANCE_LABEL, id="instance_label"),
-                    Input(id="instance_input", 
-                        restrict=f"[a-zA-Z0-9_\-]*", compact=True)),
+                    self.instance_input),
                 Horizontal(
                     Label(NUM_THREADS_LABEL, id="num_threads_label"),
-                    Input(id="num_threads_input", 
-                        restrict=f"[0-9]*", compact=True)),
+                    self.num_threads_input),
                 id="xmrig_edit_form"),
 
             Vertical(
@@ -67,13 +65,17 @@ class NewXMRig(Container):
         id="pane")
 
     def get_p2pool_id(self, instance=None):
-        return self._p_dict[instance] if instance else None
+        return self.p_dict[instance] if instance else None
 
     def get_p2pool_instances(self):
-        return self._p_dict
+        return self.p_dict
+
+    def reset_data(self):
+        self.instance_input.value = ""
+        self.num_threads_input.value = ""
 
     def set_p2pool_instances(self, p_dict):
-        self._p_dict = p_dict
+        self.p_dict = p_dict
         self.refresh()
 
     def set_data(self, rec):

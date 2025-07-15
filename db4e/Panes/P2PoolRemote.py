@@ -21,65 +21,65 @@ from db4e.Constants.Labels import (
     STRATUM_PORT_LABEL, UPDATE_LABEL
 )
 
-STATIC_CONTENT = f"This screen allows you to view and edit the deployment "
-STATIC_CONTENT += f"settings for the {P2POOL_REMOTE_LABEL} deployment."
-
 class P2PoolRemote(Container):
 
-    def set_data(self, depl_config):
+    instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
+    ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
+    stratum_port_input = Input(id="stratum_port_input", restrict=f"[0-9]*", compact=True)
 
-        instance = depl_config[INSTANCE_FIELD]
-        ip_addr = depl_config[IP_ADDR_FIELD]
-        stratum_port = depl_config[STRATUM_PORT_FIELD]
+    def compose(self):
+        # Remote P2Pool deployment form
+        STATIC_CONTENT = f"This screen allows you to view and edit the deployment "
+        STATIC_CONTENT += f"settings for the {P2POOL_REMOTE_LABEL} deployment."
 
-        md = Vertical(
+        yield Vertical(
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
             Vertical(
                 Horizontal(
-                    Label(INSTANCE_LABEL, id="p2pool_remote_instance_label"),
-                    Input(id="p2pool_remote_instance",
-                          restrict=f"[a-zA-Z0-9_\-]*", value=instance, compact=True)),
+                    Label(INSTANCE_LABEL, id="instance_label"),
+                    self.instance_input),
                 Horizontal(
-                    Label(IP_ADDR_LABEL, id="p2pool_remote_ip_addr_label"),
-                    Input(id="p2pool_remote_ip_addr",
-                          restrict=f"[a-z0-9._\-]*", value=ip_addr, compact=True)),
+                    Label(IP_ADDR_LABEL, id="ip_addr_label"),
+                    self.ip_addr_input),
                 Horizontal(
-                    Label(STRATUM_PORT_LABEL, id="p2pool_remote_stratum_port_label"),
-                    Input(id="p2pool_remote_stratum_port",
-                          restrict=f"[0-9]*", value=str(stratum_port), compact=True)),
-                id="p2pool_remote_update_form"),
-
-            Input(id="p2pool_remote_orig_instance", value=instance, classes="hidden"),
+                    Label(STRATUM_PORT_LABEL, id="stratum_port_label"),
+                    self.stratum_port_input),
+                id="p2pool_remote_form"),
 
             Horizontal(
-                Button(label=UPDATE_LABEL, id="p2pool_remote_update_button"),
-                Button(label=DELETE_LABEL, id="p2pool_remote_delete_button")
+                Button(label=UPDATE_LABEL, id="update_button"),
+                Button(label=DELETE_LABEL, id="delete_button")
             ))
-        self.remove_children()
-        self.mount(md)
+
+    def set_data(self, rec):
+
+        self.orig_instance = rec[INSTANCE_FIELD]
+
+        self.instance_input.value = rec[INSTANCE_FIELD]
+        self.ip_addr_input.value = rec[IP_ADDR_FIELD]
+        self.stratum_port_input.value = rec[STRATUM_PORT_FIELD]
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        event.stop()
         button_id = event.button.id
-        if button_id == "p2pool_remote_update_button":
+        if button_id == "update_button":
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
                 FORM_DATA_FIELD: True,
                 REMOTE_FIELD: True,
-                INSTANCE_FIELD: self.query_one("#p2pool_remote_instance", Input).value,
-                ORIG_INSTANCE_FIELD: self.query_one("#p2pool_remote_orig_instance", Input).value,
-                IP_ADDR_FIELD: self.query_one("#p2pool_remote_ip_addr", Input).value,
-                STRATUM_PORT_FIELD: self.query_one("#p2pool_remote_stratum_port", Input).value,
+                ORIG_INSTANCE_FIELD: self.orig_instance,
+                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                STRATUM_PORT_FIELD: self.query_one("#stratum_port_input", Input).value,
             }
         else:
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
-                INSTANCE_FIELD: self.query_one("#p2pool_remote_instance", Input).value,
+                INSTANCE_FIELD: self.orig_instance
             }            
 
         self.app.post_message(SubmitFormData(self, form_data=form_data))

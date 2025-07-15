@@ -30,18 +30,24 @@ class NewMonerod(Container):
     ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
     rpc_bind_port_input = Input(id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True)
     zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
-    monerod_type_input = Input(id="monerod_type_input", classes="hidden")
-    
-    def set_data(self, rec):
+    remote_flag = bool
 
-        if rec.get(REMOTE_FIELD):
+    def reset_data(self):
+        self.instance_input.value = ""
+        self.ip_addr_input.value = ""
+        self.rpc_bind_port_input.value = str(RPC_BIND_PORT_DEFAULT)
+        self.zmq_pub_port_input.value = str(ZMQ_PUB_PORT_DEFAULT)
+
+    def set_data(self, rec):
+        self.remote_flag = rec.get(REMOTE_FIELD)
+
+        if self.remote_flag:
             # Remote Monero daemon deployment form
             STATIC_CONTENT = "This screen provides a form for creating a new "
             STATIC_CONTENT += f"{MONEROD_REMOTE_LABEL} deployment."
 
             self.rpc_bind_port_input.value = str(RPC_BIND_PORT_DEFAULT)
             self.zmq_pub_port_input.value = str(ZMQ_PUB_PORT_DEFAULT)
-            self.monerod_type_input.value = REMOTE_FIELD
 
             md = Vertical(
                 MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
@@ -63,9 +69,7 @@ class NewMonerod(Container):
 
                 Horizontal(
                     Button(label=PROCEED_LABEL, id="proceed_button"),
-                    id="buttons"),
-
-                self.monerod_type_input)
+                    id="buttons"))
             
             self.remove_children()
             self.mount(md)
@@ -74,35 +78,27 @@ class NewMonerod(Container):
             # Local Monero daemon deployment form
             STATIC_CONTENT = "This screen provides a form for creating a new "
             STATIC_CONTENT += f"{MONEROD_LABEL} deployment."
+
             md = Vertical(
                 MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
-
-                Vertical(
-                    Label('🚧 Coming Soon 🚧')
-                ),
-
-                Horizontal(
-                    Input(id="monerod_type", value=LOCAL_FIELD, classes="hidden")
-                )   
-            )
-            
+                Label('🚧 Coming Soon 🚧'))
+                        
             self.remove_children()
             self.mount(md)
 
-
+    def get_remote(self):
+        return self.remote_flag
+    
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if self.query_one("#monerod_type_input", Input).value == REMOTE_FIELD:
-            remote_value = True
-        else:
-            remote_value = False
-        form_data = {
-            COMPONENT_FIELD: MONEROD_FIELD,
-            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-            TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-            REMOTE_FIELD: remote_value,
-            INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-            IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
-            RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
-            ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
-        }
-        self.app.post_message(SubmitFormData(self, form_data=form_data))
+        if self.remote_flag:
+            form_data = {
+                COMPONENT_FIELD: MONEROD_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                REMOTE_FIELD: True,
+                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
+                ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
+            }
+            self.app.post_message(SubmitFormData(self, form_data=form_data))
