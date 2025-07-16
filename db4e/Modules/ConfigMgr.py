@@ -7,7 +7,7 @@ db4e/Modules/ConfigManager.py
     License: GPL 3.0
 """
 
-import sys
+import os, sys
 import argparse
 
 from db4e.Constants.Defaults import (
@@ -33,13 +33,13 @@ from db4e.Constants.Fields import (
     APP_VERSION_FIELD, DB_FIELD, DB_NAME_FIELD, DB4E_FIELD, MINING_COL_FIELD, OP_FIELD, API_DIR_FIELD, BACKUP_DIR_FIELD, 
     BACKUP_SCRIPT_FIELD, BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, CONF_DIR_FIELD, CONFIG_FIELD, 
     DB4E_DIR_FIELD, DB4E_REFRESH_FIELD, DEPLOYMENT_COL_FIELD, DESC_FIELD, DEV_DIR_FIELD, 
-    LOG_COLLECTION_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, LOG_RETENTION_DAYS_FIELD, 
+    INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, LOG_COLLECTION_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, LOG_RETENTION_DAYS_FIELD, 
     MAX_BACKUPS_FIELD, METRICS_COLLECTION_FIELD, MINING_COL_FIELD, MONEROD_FIELD, NAME_FIELD, 
-    P2POOL_FIELD, PERMISSIONS_FIELD, PORT_FIELD, PROCESS_FIELD, PYPI_REPO_FIELD, 
+    NUM_THREADS_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, PERMISSIONS_FIELD, PORT_FIELD, PROCESS_FIELD, PYPI_REPO_FIELD, 
     RETRY_TIMEOUT_FIELD, RUN_DIR_FIELD, RUN_UI_FIELD, SERVER_FIELD, SERVICE_FILE_FIELD, 
     SERVICE_LOG_FILE_FIELD, SETUP_SCRIPT_FIELD, SERVICE_INSTALL_SCRIPT_FIELD, 
     SERVICE_UNINSTALL_SCRIPT_FIELD, SOCKET_FILE_FIELD, SRC_DIR_FIELD, START_SCRIPT_FIELD, 
-    STDIN_PIPE_FIELD, SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, 
+    STRATUM_PORT_FIELD, STDIN_PIPE_FIELD, SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, 
     XMRIG_FIELD
 )
 from db4e.Constants.Labels import DB4E_LONG_LABEL, MONEROD_LABEL, P2POOL_LABEL, XMRIG_LABEL
@@ -62,6 +62,43 @@ class ConfigMgr:
         else:
             ini.config['db4e']['op'] = 'run_ui'
         self.ini = ini
+
+    def gen_xmrig_config(self, rec: dict, depl_mgr):
+        # Generate a XMRig configuration file
+        instance = rec[INSTANCE_FIELD]
+        num_threads = rec[NUM_THREADS_FIELD]
+        p2pool_id = rec[P2POOL_ID_FIELD]
+
+        conf_dir        = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
+        tmpl_dir        = self.ini.config[DB4E_FIELD][TEMPLATE_DIR_FIELD]
+        config          = self.ini.config[XMRIG_FIELD][CONFIG_FIELD]
+        version         = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
+
+        xmrig_dir = XMRIG_FIELD + '-' + str(version)
+        db4e_rec = depl_mgr.get_deployment(component=DB4E_FIELD)
+        db4e_dir = db4e_rec[INSTALL_DIR_FIELD]
+        vendor_dir = db4e_rec[VENDOR_DIR_FIELD]
+
+        tmpl_config = os.path.join(db4e_dir, tmpl_dir, xmrig_dir, conf_dir, config)
+        fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.json')
+
+        # The XMRig deploymet has references to the upstream P2Pool deployment
+        p2pool_rec = depl_mgr.get_deployment_by_id(p2pool_id)
+        url_entry = p2pool_rec[IP_ADDR_FIELD] + ':' + str(p2pool_rec[STRATUM_PORT_FIELD])
+
+        # Populate the config templace placeholders
+        placeholders = {
+            'MINER_NAME': instance,
+            'NUM_THREADS': ','.join(['-1'] * int(num_threads)),
+            'URL': url_entry
+        }
+        with open(tmpl_config, 'r') as f:
+            config_contents = f.read()
+            for key, val in placeholders.items():
+                config_contents = config_contents.replace(f'[[{key}]]', str(val))
+        with open(fq_config, 'w') as f:
+            f.write(config_contents)
+        return fq_config
 
     def get_config(self):
         return self.ini

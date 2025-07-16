@@ -13,7 +13,7 @@ import getpass
 
 from textual.containers import Container
 
-from db4e.Modules.ConfigMgr import Config
+from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import result_row
 from db4e.Messages.RefreshNavPane import RefreshNavPane
@@ -23,7 +23,7 @@ from db4e.Constants.Labels import (
     NUM_THREADS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL, 
     STRATUM_PORT_LABEL, XMRIG_LABEL, ZMQ_PUB_PORT_LABEL)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, DEPLOYMENT_FIELD, 
+    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, CONFIG_FIELD, DEPLOYMENT_FIELD, 
     DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, 
     GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
     MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
@@ -39,6 +39,7 @@ class DeploymentMgr(Container):
     def __init__(self, config: Config):
         super().__init__()
         self.ini = config
+        self.conf_mgr = ConfigMgr(app_version='UNUSED')
         self.db = DbMgr(config)
         self.col_name = DEPLOYMENT_COL_DEFAULT
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -151,6 +152,12 @@ class DeploymentMgr(Container):
         db_rec[P2POOL_ID_FIELD] = rec[P2POOL_ID_FIELD]
         db_rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
         rec = db_rec
+        conf_file = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
+        rec[CONFIG_FIELD] = conf_file
+        results.append(result_row(
+            XMRIG_FIELD, GOOD_FIELD,
+            f"Created config file: {conf_file}"
+        ))
         return (rec, component_label, instance, results, fatal_error)
 
     def add_deployment(self, rec):
