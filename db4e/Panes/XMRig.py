@@ -7,6 +7,8 @@ db4e/Panes/XMRig.py
     License: GPL 3.0
 """
 
+from rich import box
+from rich.table import Table
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import (
@@ -14,13 +16,13 @@ from textual.widgets import (
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, CONFIG_FIELD, DELETE_DEPLOYMENT_FIELD, 
-    DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
+    COMPONENT_FIELD, CONFIG_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, 
+    HEALTH_MSG_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
     P2POOL_INSTANCE, P2POOL_ID_FIELD, RADIO_MAP, REMOTE_FIELD, TO_MODULE_FIELD, 
     TO_METHOD_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
-    CONFIG_LABEL, DELETE_LABEL, INSTANCE_LABEL, P2POOL_LABEL, NUM_THREADS_LABEL, 
-    UPDATE_LABEL, XMRIG_LABEL)
+    CONFIG_LABEL, DELETE_LABEL, HEALTH_LABEL, INSTANCE_LABEL, P2POOL_LABEL, 
+    NUM_THREADS_LABEL, UPDATE_LABEL, XMRIG_LABEL)
 
 class XMRig(Container):
 
@@ -34,8 +36,25 @@ class XMRig(Container):
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True)
     orig_instance_input = Input(id="orig_instance_input", classes="hidden")
-    p2pool_missing_label = Static("")
     config_static = Static("", id="config_static")
+    health_msgs = Static()
+
+    def build_health_status(self, results):
+        table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
+        table.add_column("Component", width=25)
+        table.add_column("Message")
+
+        for task in results:
+            print(task)
+            for category, msg_dict in task.items():
+                message = msg_dict["msg"]
+                if msg_dict["status"] == "good":
+                    table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
+                elif msg_dict["status"] == "warn":
+                    table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+                elif msg_dict["status"] == "error":
+                    table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+        self.health_msgs.update(table)
 
     def compose(self):
         # Remote P2Pool daemon deployment form
@@ -61,8 +80,12 @@ class XMRig(Container):
             Vertical(
                 Label(P2POOL_LABEL, id="p2pool_label"),
                 self.radio_set,
-                self.p2pool_missing_label,
                 id="radio_set_box"),
+
+            Vertical(
+                self.health_msgs,
+                id="health_box",
+            ),
 
             self.orig_instance_input,
 
@@ -90,13 +113,12 @@ class XMRig(Container):
         self.config_static.update(rec[CONFIG_FIELD])
         self.set_p2pool_instances(rec[RADIO_MAP])
         instance_list = []
+        self.radio_button_list = []
         for instance in rec[RADIO_MAP].keys():
             instance_list.append(instance)
         instance_list = self.radio_button_list + instance_list
         self.radio_button_list = [*instance_list]
-        print(len(instance_list))
-        if len(instance_list) == 0:
-            self.p2pool_missing_label.update("No P2Pool deployment found")
+        self.build_health_status(rec[HEALTH_MSG_FIELD])
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

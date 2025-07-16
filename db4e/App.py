@@ -37,26 +37,24 @@ from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.Helper import get_radio_map
 from db4e.Modules.MessageRouter import MessageRouter
+from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, INSTANCE_FIELD, MONEROD_FIELD, 
-    P2POOL_FIELD, P2POOL_ID_FIELD, P2POOL_INSTANCE, RADIO_MAP, REMOTE_FIELD, TERM_ENVIRON_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD, XMRIG_FIELD
-)
+    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, HEALTH_STATUS_FIELD, 
+    HEALTH_MSG_FIELD, INSTANCE_FIELD, MONEROD_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, 
+    P2POOL_INSTANCE, RADIO_MAP, REMOTE_FIELD, TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
+    TO_METHOD_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL,
-    XMRIG_SHORT_LABEL
-)
+    XMRIG_SHORT_LABEL)
 from db4e.Constants.Panes import (
     DB4E_PANE, MONEROD_REMOTE_PANE, NEW_MONEROD_TYPE_PANE, NEW_P2POOL_TYPE_PANE,
-    NEW_XMRIG_PANE, P2POOL_REMOTE_PANE, XMRIG_PANE
-)
+    NEW_XMRIG_PANE, P2POOL_REMOTE_PANE, XMRIG_PANE)
 from db4e.Constants.Defaults import (
-    APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT
-)
+    APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT)
 
 class Db4EApp(App):
     TITLE = APP_TITLE_DEFAULT
@@ -69,6 +67,7 @@ class Db4EApp(App):
         self.install_mgr = InstallMgr(config)
         self.pane_catalogue = PaneCatalogue()
         self.msg_router = MessageRouter(config)
+        self.health_mgr = HealthMgr(self.depl_mgr)
 
         initialized_flag = self.depl_mgr.is_initialized()
         self.pane_mgr = PaneMgr(
@@ -124,6 +123,7 @@ class Db4EApp(App):
             self.pane_mgr.set_pane(name=NEW_XMRIG_PANE, data=xmrig_data)
 
         elif category == XMRIG_SHORT_LABEL:
+            instance = instance[2:] # Strip health status indicator from instance label
             xmrig_data = self.depl_mgr.get_deployment_by_instance(
                 component=XMRIG_FIELD, instance=instance)
             xmrig_data[RADIO_MAP] = get_radio_map(rec=xmrig_data, depl_mgr=self.depl_mgr)
@@ -132,6 +132,9 @@ class Db4EApp(App):
                 xmrig_data[P2POOL_INSTANCE] = p2pool_rec[INSTANCE_FIELD]
             else:
                 xmrig_data[P2POOL_INSTANCE] = ""
+            state, results = self.health_mgr.check_xmrig(instance=instance)
+            xmrig_data[HEALTH_STATUS_FIELD] = state
+            xmrig_data[HEALTH_MSG_FIELD] = results
             self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
 
         else:
