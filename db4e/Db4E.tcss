@@ -37,6 +37,9 @@ NavPane {
     border: round;
     background: black; }
 
+Static {
+    background: black; }
+
 Tree {
     background: black; }
 
@@ -45,14 +48,17 @@ TopBar {
     padding: 0 2;
     border: round;
     dock: top;
-    background: black }
+    background: black; }
 
 MarkdownViewer {
     background: black; }
 
 RadioSet {
-    border: round; }
+    border: round; 
+    background: black; }
 
+Vertical {
+    background: black; }
 
 /* Panes */
 
@@ -103,6 +109,9 @@ RadioButton {
 
 #pane {
     overflow: auto; }
+
+#health_box {
+    border: round; }
 
 #depl_type_form,
 #initial_setup_form,
