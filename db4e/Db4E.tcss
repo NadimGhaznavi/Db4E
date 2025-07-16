@@ -92,7 +92,7 @@ RadioButton {
 
 #xmrig_edit_form {
     border: round;
-    height: 4; }
+    height: 5; }
 
 #radio_set_box {
     border: round;
@@ -108,6 +108,7 @@ RadioButton {
     height: 6;
     border: round; }
 
+#config_label,
 #group_name_label,
 #install_dir_label,
 #instance_label,
