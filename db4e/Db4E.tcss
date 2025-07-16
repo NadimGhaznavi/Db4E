@@ -37,53 +37,38 @@ NavPane {
     border: round;
     background: black; }
 
-Static {
-    background: black; }
-
-Tree {
-    background: black; }
-
 TopBar {
     height: 3;
     padding: 0 2;
     border: round;
     dock: top;
-    background: black; }
+    background: black }
 
 MarkdownViewer {
     background: black; }
 
 RadioSet {
-    border: round; 
-    background: black; }
+    border: round; }
 
-Vertical {
-    background: black; }
 
 /* Panes */
-
-Results,
-Welcome {
-    padding: 0 2;
-    border: round;
-    background: black;
-    overflow: auto;
-    height: 1fr; }
 
 Db4E,
 MonerodRemote,
 NewMonerod,
 NewMonerodType,
-P2PoolRemote,
 NewP2Pool,
 NewP2PoolType,
 NewXMRig,
+P2PoolRemote,
+Results,
+Welcome,
 XMRig, {
+    height: 1fr; 
     padding: 0 2;
     border: round;
     background: black;
     overflow: auto; }
-
 
 /* Page elements */
 
@@ -101,7 +86,7 @@ RadioButton {
 
 #xmrig_edit_form {
     border: round;
-    height: 5; }
+    height: 4; }
 
 #radio_set_box {
     border: round;
@@ -110,9 +95,6 @@ RadioButton {
 #pane {
     overflow: auto; }
 
-#health_box {
-    border: round; }
-
 #depl_type_form,
 #initial_setup_form,
 #monerod_remote_form,
@@ -120,7 +102,6 @@ RadioButton {
     height: 6;
     border: round; }
 
-#config_label,
 #group_name_label,
 #install_dir_label,
 #instance_label,

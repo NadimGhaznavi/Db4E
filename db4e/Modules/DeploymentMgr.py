@@ -15,7 +15,7 @@ from textual.containers import Container
 
 from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Helper import result_row
+from db4e.Modules.Helper import result_row, is_valid_ip_or_hostname
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENT_MGR_LABEL, DEPLOYMENT_DIR_LABEL, INSTANCE_LABEL, 
@@ -54,18 +54,27 @@ class DeploymentMgr(Container):
                 f"Missing required field: {INSTANCE_LABEL}"
             ))
             fatal_error = True
+
         if not rec[IP_ADDR_FIELD]:
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Missing required field: {IP_ADDR_LABEL}"
             ))
             fatal_error = True
+        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+            results.append(result_row(
+                IP_ADDR_LABEL, ERROR_FIELD,
+                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
+            ))
+            fatal_error = True
+
         if not rec[RPC_BIND_PORT_FIELD]:
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {RPC_BIND_PORT_LABEL}"
             ))
             fatal_error = True
+
         if not rec[ZMQ_PUB_PORT_FIELD]:
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, ERROR_FIELD,
@@ -74,6 +83,7 @@ class DeploymentMgr(Container):
             fatal_error = True
         component_label = MONEROD_REMOTE_LABEL
         instance = rec[INSTANCE_FIELD]
+
         if fatal_error:
             return (rec, component_label, instance, fatal_error)
         db_rec = self.get_new_rec({COMPONENT_FIELD: MONEROD_REMOTE_FIELD})
@@ -95,18 +105,27 @@ class DeploymentMgr(Container):
                 f"Missing required field: {INSTANCE_LABEL}"
             ))
             fatal_error = True
+
         if not rec[IP_ADDR_FIELD]:
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Missing required field: {IP_ADDR_LABEL}"
             ))
             fatal_error = True
+        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+            results.append(result_row(
+                IP_ADDR_LABEL, ERROR_FIELD,
+                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
+            ))
+            fatal_error = True
+
         if not rec[STRATUM_PORT_FIELD]:
             results.append(result_row(
                 STRATUM_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {STRATUM_PORT_LABEL}"
             ))
             fatal_error = True
+
         component_label = P2POOL_REMOTE_LABEL
         instance = rec[INSTANCE_FIELD]
         if fatal_error:

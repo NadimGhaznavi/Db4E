@@ -82,11 +82,6 @@ class XMRig(Container):
                 self.radio_set,
                 id="radio_set_box"),
 
-            Vertical(
-                self.health_msgs,
-                id="health_box",
-            ),
-
             self.orig_instance_input,
 
             Horizontal(
@@ -94,6 +89,11 @@ class XMRig(Container):
                 Button(label=DELETE_LABEL, id="delete_button"),
                 id="buttons"),
             
+            Vertical(
+                self.health_msgs,
+                id="health_box",
+            ),
+
         id="pane")
 
     def get_p2pool_id(self, instance=None):
@@ -113,7 +113,6 @@ class XMRig(Container):
         self.config_static.update(rec[CONFIG_FIELD])
         self.set_p2pool_instances(rec[RADIO_MAP])
         instance_list = []
-        self.radio_button_list = []
         for instance in rec[RADIO_MAP].keys():
             instance_list.append(instance)
         instance_list = self.radio_button_list + instance_list

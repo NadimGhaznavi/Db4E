@@ -43,7 +43,7 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, HEALTH_STATUS_FIELD, 
+    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, 
     HEALTH_MSG_FIELD, INSTANCE_FIELD, MONEROD_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, 
     P2POOL_INSTANCE, RADIO_MAP, REMOTE_FIELD, TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
     TO_METHOD_FIELD, XMRIG_FIELD)
@@ -92,7 +92,7 @@ class Db4EApp(App):
     # NavPane selections are routed here
     def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
         category = message.parent
-        instance = message.leaf
+        instance = message.leaf[2:] # Strip off the status unicode + ' ' 
         #print(f"Db4eApp:on_nav_leaf_selected(): {category}/{instance}")
         if category == DEPLOYMENTS_LABEL and instance == DB4E_LABEL:
             db4e_data = self.depl_mgr.get_deployment(DB4E_FIELD)
@@ -104,6 +104,8 @@ class Db4EApp(App):
         elif category == MONEROD_SHORT_LABEL:
             monerod_data = self.depl_mgr.get_deployment_by_instance(
                 component=MONEROD_FIELD, instance=instance)
+            state, results = self.health_mgr.check_p2pool(instance=instance)
+            monerod_data[HEALTH_MSG_FIELD] = results
             if monerod_data[REMOTE_FIELD]:
                 self.pane_mgr.set_pane(name=MONEROD_REMOTE_PANE, data=monerod_data)
 
@@ -113,6 +115,8 @@ class Db4EApp(App):
         elif category == P2POOL_SHORT_LABEL:
             p2pool_data = self.depl_mgr.get_deployment_by_instance(
                 component=P2POOL_FIELD, instance=instance)
+            state, results = self.health_mgr.check_p2pool(instance=instance)
+            p2pool_data[HEALTH_MSG_FIELD] = results
             if p2pool_data[REMOTE_FIELD]:
                 self.pane_mgr.set_pane(name=P2POOL_REMOTE_PANE, data=p2pool_data)
 
@@ -123,7 +127,6 @@ class Db4EApp(App):
             self.pane_mgr.set_pane(name=NEW_XMRIG_PANE, data=xmrig_data)
 
         elif category == XMRIG_SHORT_LABEL:
-            instance = instance[2:] # Strip health status indicator from instance label
             xmrig_data = self.depl_mgr.get_deployment_by_instance(
                 component=XMRIG_FIELD, instance=instance)
             xmrig_data[RADIO_MAP] = get_radio_map(rec=xmrig_data, depl_mgr=self.depl_mgr)
@@ -133,7 +136,6 @@ class Db4EApp(App):
             else:
                 xmrig_data[P2POOL_INSTANCE] = ""
             state, results = self.health_mgr.check_xmrig(instance=instance)
-            xmrig_data[HEALTH_STATUS_FIELD] = state
             xmrig_data[HEALTH_MSG_FIELD] = results
             self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
 
