@@ -37,6 +37,9 @@ NavPane {
     border: round;
     background: black; }
 
+Tree {
+    background: black; }
+
 TopBar {
     height: 3;
     padding: 0 2;
