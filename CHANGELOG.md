@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- New `Modules/HealthMgr` module to perform health checks
+- New constants in `Labels` and `Fields` to support health checks
+
+## Changed
+- Changed background of `Static` and `Tree` widgets to black
+- Added support for health checks to `Db4eApp`, `Panes/XMrig`, `Widgets/NavPane`
+
+---
+
 ## [0.23.2] - 2025-07-15
 
 ### Added
