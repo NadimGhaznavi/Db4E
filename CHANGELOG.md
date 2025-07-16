@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.2] - 2025-07-15
 
+### Added
+- Generate a XMRig configuration file in `Modules/ConfigMgr`
+- Add a call to `ConfigMgr:gen_xmrig_config()` to `Modules/DeploymentMgr`
+- Added a read-only field, `Configuration`, to the `XMRig` pane showing the full path to the config file
+
 ### Changed
 - Refactor InitialSetup pane to use compose instead of set_data + mount
 - Refactor Db4E to use compose instead of set_data + mount
+
+### Fixed
+- Set read-only Db4E fields to be read-only
 
 ---
 
