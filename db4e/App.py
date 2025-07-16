@@ -91,9 +91,9 @@ class Db4EApp(App):
 
     # NavPane selections are routed here
     def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
-        category = message.parent
+        category = message.parent[2:]
         instance = message.leaf[2:] # Strip off the status unicode + ' ' 
-        #print(f"Db4eApp:on_nav_leaf_selected(): {category}/{instance}")
+        print(f"Db4eApp:on_nav_leaf_selected(): {category}/{instance}")
         if category == DEPLOYMENTS_LABEL and instance == DB4E_LABEL:
             db4e_data = self.depl_mgr.get_deployment(DB4E_FIELD)
             self.pane_mgr.set_pane(name=DB4E_PANE, data=db4e_data)
@@ -140,7 +140,7 @@ class Db4EApp(App):
             self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
 
         else:
-            raise ValueError(f"No handler for {category}/{instance}")
+            print(ValueError(f"No handler for {category}/{instance}"))
 
     # Exit the app
     def on_quit(self) -> None:

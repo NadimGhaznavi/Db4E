@@ -24,9 +24,9 @@ ICON = {
     'DEPL': '💻 ',
     'GIFT': '🎉 ',
     'MON': '🌿 ',
-    'NEW': '🔧',
+    'NEW': '🔧 ',
     'P2P': '🌊 ',
-    'XMR': '⛏️ '
+    'XMR': '⛏️'
 }
 
 STATE_ICON = {
