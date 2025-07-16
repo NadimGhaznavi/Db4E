@@ -6,7 +6,7 @@ db4e/Panes/InitialSetup.py
     Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
     License: GPL 3.0
 """
-from textual.widgets import Label, MarkdownViewer, Input, Button
+from textual.widgets import Label, MarkdownViewer, Input, Button, Static
 from textual.containers import Container, Vertical, Horizontal
 
 from db4e.Messages.SubmitFormData import SubmitFormData
@@ -57,8 +57,8 @@ MAX_GROUP_LENGTH = 20
 
 class InitialSetup(Container):
 
-    user_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="user_name_input")
-    group_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="group_name_input")
+    user_name_static = Static("", id="user_name_input")
+    group_name_static = Static("", id="group_name_input")
     vendor_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input")
     user_wallet_input = Input(restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input")
 
@@ -69,10 +69,10 @@ class InitialSetup(Container):
             Vertical(
                 Horizontal(
                     Label(USER_LABEL, id="user_name_label"),
-                    self.user_name_input),
+                    self.user_name_static),
                 Horizontal(
                     Label(GROUP_LABEL, id="group_name_label"),
-                    self.group_name_input),
+                    self.group_name_static),
                 Horizontal(
                     Label(DEPLOYMENT_DIR_LABEL, id="vendor_dir_label"),
                     self.vendor_dir_input),
@@ -87,8 +87,8 @@ class InitialSetup(Container):
                 id="buttons"))
 
     def set_data(self, account_info: dict):
-        self.user_name_input.value = account_info[USER_FIELD]
-        self.group_name_input.value = account_info[GROUP_FIELD]
+        self.user_name_static.update(account_info[USER_FIELD])
+        self.group_name_static.update(account_info[GROUP_FIELD])
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
