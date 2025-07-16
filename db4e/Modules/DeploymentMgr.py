@@ -13,9 +13,9 @@ import getpass
 
 from textual.containers import Container
 
-from db4e.Modules.ConfigMgr import Config
+from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Helper import result_row
+from db4e.Modules.Helper import result_row, is_valid_ip_or_hostname
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENT_MGR_LABEL, DEPLOYMENT_DIR_LABEL, INSTANCE_LABEL, 
@@ -23,7 +23,7 @@ from db4e.Constants.Labels import (
     NUM_THREADS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL, 
     STRATUM_PORT_LABEL, XMRIG_LABEL, ZMQ_PUB_PORT_LABEL)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, DEPLOYMENT_FIELD, 
+    DB4E_FIELD, DOC_TYPE_FIELD, COMPONENT_FIELD, CONFIG_FIELD, DEPLOYMENT_FIELD, 
     DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, 
     GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
     MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
@@ -39,6 +39,7 @@ class DeploymentMgr(Container):
     def __init__(self, config: Config):
         super().__init__()
         self.ini = config
+        self.conf_mgr = ConfigMgr(app_version='UNUSED')
         self.db = DbMgr(config)
         self.col_name = DEPLOYMENT_COL_DEFAULT
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -53,18 +54,27 @@ class DeploymentMgr(Container):
                 f"Missing required field: {INSTANCE_LABEL}"
             ))
             fatal_error = True
+
         if not rec[IP_ADDR_FIELD]:
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Missing required field: {IP_ADDR_LABEL}"
             ))
             fatal_error = True
+        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+            results.append(result_row(
+                IP_ADDR_LABEL, ERROR_FIELD,
+                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
+            ))
+            fatal_error = True
+
         if not rec[RPC_BIND_PORT_FIELD]:
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {RPC_BIND_PORT_LABEL}"
             ))
             fatal_error = True
+
         if not rec[ZMQ_PUB_PORT_FIELD]:
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, ERROR_FIELD,
@@ -73,6 +83,7 @@ class DeploymentMgr(Container):
             fatal_error = True
         component_label = MONEROD_REMOTE_LABEL
         instance = rec[INSTANCE_FIELD]
+
         if fatal_error:
             return (rec, component_label, instance, fatal_error)
         db_rec = self.get_new_rec({COMPONENT_FIELD: MONEROD_REMOTE_FIELD})
@@ -94,18 +105,27 @@ class DeploymentMgr(Container):
                 f"Missing required field: {INSTANCE_LABEL}"
             ))
             fatal_error = True
+
         if not rec[IP_ADDR_FIELD]:
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Missing required field: {IP_ADDR_LABEL}"
             ))
             fatal_error = True
+        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+            results.append(result_row(
+                IP_ADDR_LABEL, ERROR_FIELD,
+                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
+            ))
+            fatal_error = True
+
         if not rec[STRATUM_PORT_FIELD]:
             results.append(result_row(
                 STRATUM_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {STRATUM_PORT_LABEL}"
             ))
             fatal_error = True
+
         component_label = P2POOL_REMOTE_LABEL
         instance = rec[INSTANCE_FIELD]
         if fatal_error:
@@ -151,6 +171,9 @@ class DeploymentMgr(Container):
         db_rec[P2POOL_ID_FIELD] = rec[P2POOL_ID_FIELD]
         db_rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
         rec = db_rec
+        results, conf_file = self.conf_mgr.gen_xmrig_config(
+            rec=rec, depl_mgr=self, results=results)
+        rec[CONFIG_FIELD] = conf_file
         return (rec, component_label, instance, results, fatal_error)
 
     def add_deployment(self, rec):
@@ -437,27 +460,40 @@ class DeploymentMgr(Container):
         #print(f"{update_data}")
         results = []
         update_flag = False
+        update_config_flag = False
         del update_data[TO_MODULE_FIELD]
         del update_data[TO_METHOD_FIELD]
         orig_instance = update_data[ORIG_INSTANCE_FIELD]
         xmrig_rec = self.get_deployment_by_instance(
             XMRIG_FIELD, update_data[ORIG_INSTANCE_FIELD])
         #print(f"DeploymentMgr:update_p2pool_deployment() {p2pool_rec}")
+
         if update_data[INSTANCE_FIELD] != xmrig_rec[INSTANCE_FIELD]:
             update_flag = True
+            update_config_flag = True
             results.append(result_row(
                 INSTANCE_LABEL, GOOD_FIELD,
                 f"Updated {INSTANCE_LABEL} in {XMRIG_LABEL} deployment record"))
+
         if update_data[NUM_THREADS_FIELD] != xmrig_rec[NUM_THREADS_FIELD]:
             update_flag = True
             results.append(result_row(
                 NUM_THREADS_LABEL, GOOD_FIELD,
                 f"Updated {NUM_THREADS_LABEL} in {XMRIG_FIELD} deployment record"))
+
         if update_data[P2POOL_ID_FIELD] != xmrig_rec[P2POOL_ID_FIELD]:
             update_flag = True
+            update_config_flag = True
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,
                 f"Updated {P2POOL_LABEL} in {XMRIG_FIELD} deployment record"))
+
+        if update_config_flag:            
+            results = self.conf_mgr.del_config(config_file=xmrig_rec[CONFIG_FIELD], results=results)
+            results, conf_file = self.conf_mgr.gen_xmrig_config(
+                rec=update_data, depl_mgr=self, results=results)
+            update_data[CONFIG_FIELD] = conf_file
+
         if update_flag:
             #print(f"filter: {COMPONENT_FIELD}: {XMRIG_FIELD}, {INSTANCE_FIELD}: {orig_instance}")
             #print(f"new_values: {update_data}")

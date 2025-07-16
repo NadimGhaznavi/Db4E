@@ -9,6 +9,8 @@ db4e/Modules/Helper.py
 Helper functions that are used in multiple modules   
 """
 import os, grp, getpass
+import socket, ipaddress
+import re
 
 from textual.widgets import RadioSet, RadioButton
 
@@ -44,3 +46,18 @@ def get_radio_map(rec, depl_mgr):
         radio_map[instance] = id
     return radio_map
     
+def is_port_open(ip_addr, port_num):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(10)  # Set aLine timeout for the connection attempt
+            result = sock.connect_ex((ip_addr, int(port_num)))
+            return result == 0
+    except socket.gaierror:
+        return False  # Handle cases like invalid hostname
+    
+def is_valid_ip_or_hostname(host: str) -> str:
+    try:
+        socket.getaddrinfo(host, None)  # works for IPv4/IPv6
+        return True
+    except socket.gaierror:
+        return False

@@ -53,28 +53,22 @@ RadioSet {
 
 /* Panes */
 
-Results,
-Welcome {
-    padding: 0 2;
-    border: round;
-    background: black;
-    overflow: auto;
-    height: 1fr; }
-
 Db4E,
 MonerodRemote,
 NewMonerod,
 NewMonerodType,
-P2PoolRemote,
 NewP2Pool,
 NewP2PoolType,
 NewXMRig,
+P2PoolRemote,
+Results,
+Welcome,
 XMRig, {
+    height: 1fr; 
     padding: 0 2;
     border: round;
     background: black;
     overflow: auto; }
-
 
 /* Page elements */
 

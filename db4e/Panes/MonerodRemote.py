@@ -6,9 +6,11 @@ db4e/Panes/MonerodRemote.py
     Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
     License: GPL 3.0
 """
+from rich import box
+from rich.table import Table
 
 from textual.containers import Container, Vertical, Horizontal
-from textual.widgets import Label, MarkdownViewer, Button, Input
+from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
@@ -28,7 +30,25 @@ class MonerodRemote(Container):
     ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
     rpc_bind_port_input = Input(id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True)
     zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
+    health_msgs = Static()
 
+    def build_health_status(self, results):
+        table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
+        table.add_column("Component", width=25)
+        table.add_column("Message")
+
+        for task in results:
+            print(task)
+            for category, msg_dict in task.items():
+                message = msg_dict["msg"]
+                if msg_dict["status"] == "good":
+                    table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
+                elif msg_dict["status"] == "warn":
+                    table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+                elif msg_dict["status"] == "error":
+                    table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+        self.health_msgs.update(table)
+        
     def compose(self):
         # Remote Monero daemon deployment form
         STATIC_CONTENT = f"This screen allows you to view and edit the deployment "
@@ -57,7 +77,10 @@ class MonerodRemote(Container):
                 Button(label=DELETE_LABEL, id="delete_button"),
                 id="buttons"),
 
-        id="pane")
+            Vertical(
+                self.health_msgs,
+                id="health_box",
+            ))            
 
     def set_data(self, rec):
 
@@ -67,6 +90,7 @@ class MonerodRemote(Container):
         self.ip_addr_input.value = rec[IP_ADDR_FIELD]
         self.rpc_bind_port_input.value = str(rec[RPC_BIND_PORT_FIELD])
         self.zmq_pub_port_input.value = str(rec[ZMQ_PUB_PORT_FIELD])
+        self.build_health_status(rec[HEALTH_MSG_FIELD])
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

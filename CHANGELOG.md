@@ -11,11 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated dependency on Textual to v4.0.0; `poetry lock`
 ---
 
+## [0.24.0] - 2025-07-16
+
+### Added
+- New `Modules/HealthMgr` module to perform health checks
+- New constants in `Labels` and `Fields` to support health checks
+- New `is_port_open` and `is_valid_ip_or_hostname` functions to support health checks
+- New detailed health check results in `MonerodRemote`, `P2PoolRemote` and `XMRig` panes
+
+## Changed
+- Changed background of `Static` and `Tree` widgets to black
+- Added support for health checks to `Db4eApp`, `Widgets/NavPane` and `DeploymentMgr`
+
+## Fixed
+- Minor tweaks to `Db4E.tcss`
+
+---
+
 ## [0.23.2] - 2025-07-15
+
+### Added
+- Generate a XMRig configuration file in `Modules/ConfigMgr`
+- Add a call to `ConfigMgr:gen_xmrig_config()` to `Modules/DeploymentMgr`
+- Added a read-only field, `Configuration`, to the `XMRig` pane showing the full path to the config file
+- Created `ConfigMgr:del_config()` to delete a configuration file and return results
 
 ### Changed
 - Refactor InitialSetup pane to use compose instead of set_data + mount
 - Refactor Db4E to use compose instead of set_data + mount
+- Modified `Modules/DeploymentMgr` to update the XMRig configuration file if the XMRig instance changes or if it's reconfigured to use a different P2Pool deployment
+
+### Fixed
+- Set read-only Db4E fields to be read-only
 
 ---
 

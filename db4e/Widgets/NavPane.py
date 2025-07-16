@@ -15,24 +15,35 @@ from textual.containers import Container, Vertical
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.ConfigMgr import Config
+from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, METRICS_LABEL, MONEROD_SHORT_LABEL,
     NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL
 )
 from db4e.Constants.Fields import (
-    DB4E_FIELD, MONEROD_FIELD, P2POOL_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD,
-    XMRIG_FIELD
+    DB4E_FIELD, ERROR_FIELD, GOOD_FIELD, MONEROD_FIELD, P2POOL_FIELD, 
+    USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD
 )
 
+NEW_ICON = '🔧 '
+
 class NavPane(Container):
+
+    state_map = {
+        GOOD_FIELD: '🟢 ',
+        WARN_FIELD: '🟡 ',
+        ERROR_FIELD: '🔴 ',
+    }
+
     def __init__(self, config: Config):
         super().__init__()
         self.depl_mgr = DeploymentMgr(config)
+        self.health_mgr = HealthMgr(self.depl_mgr)
         self._initialized = False
 
         self.depls = Tree(DEPLOYMENTS_LABEL, id="tree_deployments")
         self.depls.root.add_leaf(DB4E_LABEL)
-        self.depls.guide_depth = 3
+        self.depls.guide_depth = 2
         self.depls.root.expand()
 
         #self.metrics = Tree(METRICS_LABEL, id="tree_metrics")
@@ -75,27 +86,29 @@ class NavPane(Container):
             monero_node = self.depls.root.add(MONEROD_SHORT_LABEL)
             instances = self.depl_mgr.get_deployment_instances(MONEROD_FIELD)
             for instance in instances:
-                monero_node.add_leaf(instance)
-            monero_node.add_leaf(NEW_LABEL)
+                state, results = self.health_mgr.check_monerod(instance=instance)
+                monero_node.add_leaf(self.state_map[state] + instance)
+            monero_node.add_leaf(NEW_ICON + NEW_LABEL)
             monero_node.expand()
 
+            # The P2Pool tree
             p2pool_node = self.depls.root.add(P2POOL_SHORT_LABEL)
             instances = self.depl_mgr.get_deployment_instances(P2POOL_FIELD)
             for instance in instances:
-                p2pool_node.add_leaf(instance)
-            # Only allow P2Pool deployments if a Monero daemon deployment exists
-            if len(monero_node.children) > 1:
-                p2pool_node.add_leaf(NEW_LABEL)
+                state, results = self.health_mgr.check_p2pool(instance=instance)
+                p2pool_node.add_leaf(self.state_map[state] + instance)
+            p2pool_node.add_leaf(NEW_ICON + NEW_LABEL)
             p2pool_node.expand()
 
             # Only display XMRig if a P2Pool deployment exists
             xmrig_node = self.depls.root.add(XMRIG_SHORT_LABEL)
             instances = self.depl_mgr.get_deployment_instances(XMRIG_FIELD)
             for instance in instances:
-                xmrig_node.add_leaf(instance)
+                state, results = self.health_mgr.check_xmrig(instance=instance)
+                xmrig_node.add_leaf(self.state_map[state] + instance)
             # Only allow XMRig deployments if a P2Pool deployment exists
             if len(p2pool_node.children) > 1:
-                xmrig_node.add_leaf(NEW_LABEL)
+                xmrig_node.add_leaf(NEW_ICON + NEW_LABEL)
             xmrig_node.expand()
 
     def set_initialized(self, value: bool) -> None:

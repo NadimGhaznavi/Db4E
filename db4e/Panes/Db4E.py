@@ -7,7 +7,7 @@ db4e/Panes/Db4E.py
     License: GPL 3.0
 """
 from textual import on
-from textual.widgets import Label, MarkdownViewer, Input, Button
+from textual.widgets import Label, MarkdownViewer, Input, Button, Static
 from textual.containers import Container, Vertical, Horizontal
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
@@ -22,9 +22,9 @@ from db4e.Constants.Labels import (
 
 class Db4E(Container):
 
-    user_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="user_name_input")
-    group_name_input = Input(restrict=r"/[a-zA-Z0-9]*", compact=True, id="group_name_input")
-    install_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="install_dir_input")
+    user_name_static = Static("", id="user_name_input")
+    group_name_static = Static("", id="group_name_input")
+    install_dir_static = Static("", id="install_dir_input")
     vendor_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input")
     user_wallet_input = Input(restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input")
 
@@ -38,13 +38,13 @@ class Db4E(Container):
             Vertical(
                 Horizontal(
                     Label(DB4E_USER_LABEL, id="user_name_label"),
-                    self.user_name_input),
+                    self.user_name_static),
                 Horizontal(
                     Label(DB4E_GROUP_LABEL, id="group_name_label"),
-                    self.group_name_input),
+                    self.group_name_static),
                 Horizontal(
                     Label(INSTALL_DIR_LABEL, id="install_dir_label"),
-                    self.install_dir_input),
+                    self.install_dir_static),
                 Horizontal(
                     Label(DEPLOYMENT_DIR_LABEL, id="vendor_dir_label"),
                     self.vendor_dir_input),
@@ -58,9 +58,9 @@ class Db4E(Container):
     def set_data(self, db4e_rec):
         #print(f"Db4E:set_data(): {db4e_rec}")
 
-        self.user_name_input.value = db4e_rec[USER_FIELD] or ""
-        self.group_name_input.value = db4e_rec[GROUP_FIELD] or ""
-        self.install_dir_input.value = db4e_rec[INSTALL_DIR_FIELD] or "" 
+        self.user_name_static.update(db4e_rec[USER_FIELD] or "")
+        self.group_name_static.update(db4e_rec[GROUP_FIELD] or "")
+        self.install_dir_static.update(db4e_rec[INSTALL_DIR_FIELD] or "" )
         self.vendor_dir_input.value = db4e_rec[VENDOR_DIR_FIELD] or ""
         self.user_wallet_input.value = db4e_rec[USER_WALLET_FIELD] or ""
 
