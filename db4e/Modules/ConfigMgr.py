@@ -10,6 +10,7 @@ db4e/Modules/ConfigManager.py
 import os, sys
 import argparse
 
+from db4e.Modules.Helper import result_row
 from db4e.Constants.Defaults import (
     API_DIR_DEFAULT, BACKUP_DIR_DEFAULT, BACKUP_SCRIPT_DEFAULT, BIN_DIR_DEFAULT, 
     BLOCKCHAIN_DIR_DEFAULT, CONF_DIR_DEFAULT, DB_NAME_DEFAULT, DB_PORT_DEFAULT, 
@@ -33,14 +34,14 @@ from db4e.Constants.Fields import (
     APP_VERSION_FIELD, DB_FIELD, DB_NAME_FIELD, DB4E_FIELD, MINING_COL_FIELD, OP_FIELD, API_DIR_FIELD, BACKUP_DIR_FIELD, 
     BACKUP_SCRIPT_FIELD, BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, CONF_DIR_FIELD, CONFIG_FIELD, 
     DB4E_DIR_FIELD, DB4E_REFRESH_FIELD, DEPLOYMENT_COL_FIELD, DESC_FIELD, DEV_DIR_FIELD, 
-    INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, LOG_COLLECTION_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, LOG_RETENTION_DAYS_FIELD, 
+    GOOD_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, LOG_COLLECTION_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, LOG_RETENTION_DAYS_FIELD, 
     MAX_BACKUPS_FIELD, METRICS_COLLECTION_FIELD, MINING_COL_FIELD, MONEROD_FIELD, NAME_FIELD, 
     NUM_THREADS_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, PERMISSIONS_FIELD, PORT_FIELD, PROCESS_FIELD, PYPI_REPO_FIELD, 
     RETRY_TIMEOUT_FIELD, RUN_DIR_FIELD, RUN_UI_FIELD, SERVER_FIELD, SERVICE_FILE_FIELD, 
     SERVICE_LOG_FILE_FIELD, SETUP_SCRIPT_FIELD, SERVICE_INSTALL_SCRIPT_FIELD, 
     SERVICE_UNINSTALL_SCRIPT_FIELD, SOCKET_FILE_FIELD, SRC_DIR_FIELD, START_SCRIPT_FIELD, 
     STRATUM_PORT_FIELD, STDIN_PIPE_FIELD, SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, 
-    XMRIG_FIELD
+    WARN_FIELD, XMRIG_FIELD
 )
 from db4e.Constants.Labels import DB4E_LONG_LABEL, MONEROD_LABEL, P2POOL_LABEL, XMRIG_LABEL
 class ConfigMgr:
@@ -63,7 +64,21 @@ class ConfigMgr:
             ini.config['db4e']['op'] = 'run_ui'
         self.ini = ini
 
-    def gen_xmrig_config(self, rec: dict, depl_mgr):
+    def del_config(self, config_file: str, results):
+        try:
+            os.remove(config_file)
+            results.append(result_row(
+                XMRIG_LABEL, GOOD_FIELD,
+                f"Removed old configration file: {config_file}"
+            ))
+        except OSError as e:
+            result_row.append(result_row(
+                XMRIG_LABEL, WARN_FIELD,
+                f"Unable to remove {config_file} {e} "
+            ))
+        return results
+
+    def gen_xmrig_config(self, rec: dict, depl_mgr, results):
         # Generate a XMRig configuration file
         instance = rec[INSTANCE_FIELD]
         num_threads = rec[NUM_THREADS_FIELD]
@@ -98,7 +113,11 @@ class ConfigMgr:
                 config_contents = config_contents.replace(f'[[{key}]]', str(val))
         with open(fq_config, 'w') as f:
             f.write(config_contents)
-        return fq_config
+        results.append(result_row(
+            XMRIG_FIELD, GOOD_FIELD,
+            f"Created config file: {fq_config}"
+        ))
+        return (results, fq_config)
 
     def get_config(self):
         return self.ini

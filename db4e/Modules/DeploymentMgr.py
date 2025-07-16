@@ -152,12 +152,9 @@ class DeploymentMgr(Container):
         db_rec[P2POOL_ID_FIELD] = rec[P2POOL_ID_FIELD]
         db_rec[VERSION_FIELD] = self.ini.config[rec[COMPONENT_FIELD]][VERSION_FIELD]
         rec = db_rec
-        conf_file = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
+        results, conf_file = self.conf_mgr.gen_xmrig_config(
+            rec=rec, depl_mgr=self, results=results)
         rec[CONFIG_FIELD] = conf_file
-        results.append(result_row(
-            XMRIG_FIELD, GOOD_FIELD,
-            f"Created config file: {conf_file}"
-        ))
         return (rec, component_label, instance, results, fatal_error)
 
     def add_deployment(self, rec):
@@ -444,27 +441,40 @@ class DeploymentMgr(Container):
         #print(f"{update_data}")
         results = []
         update_flag = False
+        update_config_flag = False
         del update_data[TO_MODULE_FIELD]
         del update_data[TO_METHOD_FIELD]
         orig_instance = update_data[ORIG_INSTANCE_FIELD]
         xmrig_rec = self.get_deployment_by_instance(
             XMRIG_FIELD, update_data[ORIG_INSTANCE_FIELD])
         #print(f"DeploymentMgr:update_p2pool_deployment() {p2pool_rec}")
+
         if update_data[INSTANCE_FIELD] != xmrig_rec[INSTANCE_FIELD]:
             update_flag = True
+            update_config_flag = True
             results.append(result_row(
                 INSTANCE_LABEL, GOOD_FIELD,
                 f"Updated {INSTANCE_LABEL} in {XMRIG_LABEL} deployment record"))
+
         if update_data[NUM_THREADS_FIELD] != xmrig_rec[NUM_THREADS_FIELD]:
             update_flag = True
             results.append(result_row(
                 NUM_THREADS_LABEL, GOOD_FIELD,
                 f"Updated {NUM_THREADS_LABEL} in {XMRIG_FIELD} deployment record"))
+
         if update_data[P2POOL_ID_FIELD] != xmrig_rec[P2POOL_ID_FIELD]:
             update_flag = True
+            update_config_flag = True
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,
                 f"Updated {P2POOL_LABEL} in {XMRIG_FIELD} deployment record"))
+
+        if update_config_flag:            
+            results = self.conf_mgr.del_config(config_file=xmrig_rec[CONFIG_FIELD], results=results)
+            results, conf_file = self.conf_mgr.gen_xmrig_config(
+                rec=update_data, depl_mgr=self, results=results)
+            update_data[CONFIG_FIELD] = conf_file
+
         if update_flag:
             #print(f"filter: {COMPONENT_FIELD}: {XMRIG_FIELD}, {INSTANCE_FIELD}: {orig_instance}")
             #print(f"new_values: {update_data}")
