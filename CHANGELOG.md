@@ -12,10 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - New `Modules/HealthMgr` module to perform health checks
 - New constants in `Labels` and `Fields` to support health checks
+- New `is_port_open` and `is_valid_ip_or_hostname` functions to support health checks
+- New detailed health check results in `MonerodRemote`, `P2PoolRemote` and `XMRig` panes
 
 ## Changed
 - Changed background of `Static` and `Tree` widgets to black
-- Added support for health checks to `Db4eApp`, `Panes/XMrig`, `Widgets/NavPane`
+- Added support for health checks to `Db4eApp`, `Widgets/NavPane` and `DeploymentMgr`
+
+## Fixed
+- Minor tweaks to `Db4E.tcss`
 
 ---
 
