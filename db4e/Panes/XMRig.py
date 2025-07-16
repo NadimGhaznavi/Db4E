@@ -10,16 +10,16 @@ db4e/Panes/XMRig.py
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import (
-    Label, Input, Button, MarkdownViewer, RadioSet, RadioButton)
+    Label, Input, Button, MarkdownViewer, RadioSet, RadioButton, Static)
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD, 
+    COMPONENT_FIELD, CONFIG_FIELD, DELETE_DEPLOYMENT_FIELD, 
     DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
     P2POOL_INSTANCE, P2POOL_ID_FIELD, RADIO_MAP, REMOTE_FIELD, TO_MODULE_FIELD, 
     TO_METHOD_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
-    DELETE_LABEL, INSTANCE_LABEL, P2POOL_LABEL, NUM_THREADS_LABEL, 
+    CONFIG_LABEL, DELETE_LABEL, INSTANCE_LABEL, P2POOL_LABEL, NUM_THREADS_LABEL, 
     UPDATE_LABEL, XMRIG_LABEL)
 
 class XMRig(Container):
@@ -34,7 +34,8 @@ class XMRig(Container):
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True)
     orig_instance_input = Input(id="orig_instance_input", classes="hidden")
-    p2pool_missing_label = Label("")
+    p2pool_missing_label = Static("")
+    config_static = Static("", id="config_static")
 
     def compose(self):
         # Remote P2Pool daemon deployment form
@@ -45,6 +46,10 @@ class XMRig(Container):
             MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
 
             Vertical(
+                Horizontal(
+                    Label(CONFIG_LABEL, id="config_label"),
+                    self.config_static,
+                ),
                 Horizontal(
                     Label(INSTANCE_LABEL, id="instance_label"),
                     self.instance_input),
@@ -82,6 +87,7 @@ class XMRig(Container):
         self.orig_instance_input.value = rec[INSTANCE_FIELD]
         self.num_threads_input.value = rec[NUM_THREADS_FIELD]
         self.p2pool_instance = rec[P2POOL_INSTANCE]
+        self.config_static.update(rec[CONFIG_FIELD])
         self.set_p2pool_instances(rec[RADIO_MAP])
         instance_list = []
         for instance in rec[RADIO_MAP].keys():
@@ -90,7 +96,7 @@ class XMRig(Container):
         self.radio_button_list = [*instance_list]
         print(len(instance_list))
         if len(instance_list) == 0:
-            self.p2pool_missing_label.value = "Create new P2Pool deployment"
+            self.p2pool_missing_label.update("No P2Pool deployment found")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
