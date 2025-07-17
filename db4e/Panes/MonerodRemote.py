@@ -70,7 +70,7 @@ class MonerodRemote(Container):
                 Horizontal(
                     Label(ZMQ_PUB_PORT_LABEL, id="zmq_pub_port_label"),
                     self.zmq_pub_port_input),
-                id="monerod_remote_form"),
+                classes="form_box"),
 
             Horizontal(
                 Button(label=UPDATE_LABEL, id="update_button"),

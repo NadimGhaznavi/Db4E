@@ -21,33 +21,27 @@ from db4e.Constants.Fields import (
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
-STATIC_CONTENT = f"Welcome to the {MONEROD_LABEL} {DEPLOYMENTS_LABEL} screen. "
-STATIC_CONTENT += f"On this screen you can choose to deploy a *local* or *remote* "
-STATIC_CONTENT += f"{MONEROD_LABEL} {DEPLOYMENTS_LABEL}.\n\nA *local* {MONEROD_LABEL} "
-STATIC_CONTENT += f"will run on this machine. The full blockchain will be downloaded "
-STATIC_CONTENT += f"from the {MONEROD_SHORT_LABEL} network. This is a time consuming "
-STATIC_CONTENT += f"process, that will likely take around two weeks to complete. The "
-STATIC_CONTENT += f"blockchain data is also quite large, taking up over 270 Gb of "
-STATIC_CONTENT += f" space.\n\n"
-STATIC_CONTENT += f"A *remote* {MONEROD_LABEL} {DEPLOYMENTS_LABEL} points at a " 
-STATIC_CONTENT += f"{MONEROD_LABEL} that has already been setup. For this type of "
-STATIC_CONTENT += f"deployment you will need to know the hostname of the remote system "
-STATIC_CONTENT += f"and port numbers that the remote deployment uses."
-
 class NewMonerodType(Container):
 
     def compose(self):
-        
-        with Vertical():
-            yield MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro")
+        INTRO = f"Welcome to the {MONEROD_LABEL} {DEPLOYMENTS_LABEL} screen. "
+        INTRO += f"On this screen you can choose to deploy a *local* or *remote* "
+        INTRO += f"{MONEROD_LABEL} {DEPLOYMENTS_LABEL}.\n\nA *local* {MONEROD_LABEL} "
+        INTRO += f"will run on this machine. Remote deployments connect to a "
+        INTRO += f"{MONEROD_LABEL} running on a remote machine."
+       
+        yield Vertical(
+            Vertical(
+                Label(INTRO, classes="form_intro")),
+            
+            Vertical(
+                RadioSet(
+                    RadioButton(MONEROD_LABEL, id="local", classes="radio_button_type", value=True),
+                    RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes="radio_button_type"),
+                    ),
+                classes="radio_set"),
 
-            with Vertical(id="depl_type_form"):
-                with RadioSet(id="type_radioset"):
-                    yield RadioButton(MONEROD_LABEL, id="local", classes="radio_button_type", value=True)
-                    yield RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes="radio_button_type")
-
-            with Horizontal():
-                yield Button(label=PROCEED_LABEL)
+            Button(label=PROCEED_LABEL, classes="update_button"))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)

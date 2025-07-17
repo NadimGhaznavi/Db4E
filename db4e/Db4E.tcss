@@ -37,6 +37,9 @@ NavPane {
     border: round;
     background: black; }
 
+Tree {
+    background: black; }
+
 TopBar {
     height: 3;
     padding: 0 2;
@@ -76,11 +79,6 @@ XMRig, {
     height: 7;
     border: round; }
 
-#type_radioset {
-    border: round;
-    width: 30;
-    background: black; }
-
 RadioButton {
     border: none; }
 
@@ -109,7 +107,6 @@ RadioButton {
 #num_threads_label,
 #rpc_bind_port_label,
 #stratum_port_label,
-#user_name_label,
 #user_wallet_label,
 #vendor_dir_label,
 #zmq_pub_port_label {
@@ -150,8 +147,43 @@ RadioButton {
 .radio_button_type {
     width: 26; }
 
-.form_intro {
-    border: round; }
-
 .hidden {
     display: none; }
+
+/* Detail Pane */
+
+.form_box {
+    padding: 0 2;
+    border: round;
+    width: 100%;
+}
+
+.form_intro {
+    padding: 0 2;
+    border: round; 
+    width: 100%; }
+
+.form_input {
+    color: yellow;
+}
+
+.form_label {
+    color: cyan;
+    text-style: bold;
+    padding: 0 2;
+    width: 23;
+}
+
+.static_content {
+    color: cyan;
+}
+
+.update_button {
+    color: yellow;
+}
+
+.radio_set {
+    border: round;
+    width: 30;
+    height: auto;
+    background: black; }
