@@ -5,10 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.22.1] - 2025-07-14
+---
+
+## [0.24.1] - 2026-07-16
 
 ### Fixed
-- Updated dependency on Textual to v4.0.0; `poetry lock`
+- Fixed NavPane unicode.
+
 ---
 
 ## [0.24.0] - 2025-07-16
@@ -19,11 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `is_port_open` and `is_valid_ip_or_hostname` functions to support health checks
 - New detailed health check results in `MonerodRemote`, `P2PoolRemote` and `XMRig` panes
 
-## Changed
+### Changed
 - Changed background of `Static` and `Tree` widgets to black
 - Added support for health checks to `Db4eApp`, `Widgets/NavPane` and `DeploymentMgr`
 
-## Fixed
+### Fixed
 - Minor tweaks to `Db4E.tcss`
 
 ---
@@ -39,14 +42,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactor InitialSetup pane to use compose instead of set_data + mount
 - Refactor Db4E to use compose instead of set_data + mount
-- Modified `Modules/DeploymentMgr` to update the XMRig configuration file if the XMRig instance changes or if it's reconfigured to use a different P2Pool deployment
+- Modified `Modules/DeploymentMgr` to update the XMRig configuration file if
+- the XMRig instance changes or if it's reconfigured to use a different P2Pool deployment
 
 ### Fixed
-- Set read-only Db4E fields to be read-only
+ Set read-only Db4E fields to be read-only
 
 ---
 
-## [0.23.1] - 2025-07-15
+## [0.23.1] - 2025-07-16
+
+### Added 
+- Unicode to brighten up the NavPane
+
 
 ### Added
 - Split the flow to route remote deployments to remote panes

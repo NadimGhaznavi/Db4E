@@ -35,12 +35,12 @@ class NewMonerod(Container):
 
     def compose(self):
         # Local Monero daemon deployment form
-        STATIC_CONTENT = "This screen provides a form for creating a new "
-        STATIC_CONTENT += f"{MONEROD_LABEL} deployment."
+        INTRO = "This screen provides a form for creating a new "
+        INTRO += f"[bold cyan]{MONEROD_LABEL}[/] deployment."
 
         yield Vertical(
-            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
-            Label('🚧 Coming Soon 🚧'))
+            Label(INTRO, classes="form_intro"),
+            Label('🚧 [cyan]Coming Soon[/] 🚧', classes="form_box"))
                     
     def reset_data(self):
         self.instance_input.value = ""

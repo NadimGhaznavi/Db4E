@@ -8,15 +8,17 @@ db4e/Panes/Welcome.py
 """
 from rich import box
 from rich.table import Table
-from textual.widgets import Static
+from textual.widgets import Label
+from textual.containers import Container, Vertical
 from textual.app import ComposeResult
 
 #from db4e.Messages.TopBarUpdate import TopBarUpdate
 
-class Welcome(Static):
+class Welcome(Container):
 
     def compose(self) -> ComposeResult:
         
+
         highlights = Table(title="[cyan b]Db4E Features Today[/]", show_header=True, box=box.SIMPLE, border_style="green", padding=(0, 1))
         highlights.add_column("", width=2, no_wrap=True)
         highlights.add_column("[cyan]Feature[/]", style="bold", no_wrap=True)
@@ -39,6 +41,9 @@ class Welcome(Static):
         coming.add_row("🐞", "[green]Testing + CI/CD[/]", "[green]Full unit + integration testing suite and CI/CD integration.[/]")
         coming.add_row("🕵️", "[green]Community[/]", "[green]Community building and open contributions — feedback welcomed![/]")
 
-        yield Static(highlights)
-        yield Static(coming)
+        yield Vertical (
+            Label(highlights),
+            Label(coming),
+            id="welcome_pane"
+        )
 
