@@ -44,48 +44,108 @@ class DeploymentMgr(Container):
         self.col_name = DEPLOYMENT_COL_DEFAULT
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+    def add_deployment(self, rec):
+        #print(f"DeploymentMgr:add_deployment(): {rec}")
+        results = []
+        fatal_error = False
+        print(rec)
+        if self.get_deployment_by_instance(
+            component=rec[COMPONENT_FIELD], instance=rec[INSTANCE_FIELD]):
+            results.append(result_row(
+                DB4E_LABEL, ERROR_FIELD,
+                f"A deployment with that name ({rec[INSTANCE_FIELD]}) already exists"
+            ))
+            return results
+
+        # Add a Monero daemon deployment
+        if rec[COMPONENT_FIELD] == MONEROD_FIELD:
+            if rec[REMOTE_FIELD]: # Remote deployment
+                (rec, component_label, instance, results,
+                fatal_error) = self.add_remote_monerod_deployment(rec)
+                if fatal_error:
+                    return results
+            else: # Local deployment
+                results.append(result_row(
+                    MONEROD_REMOTE_LABEL, WARN_FIELD,
+                    f"🚧 {MONEROD_REMOTE_FIELD} deployment coming soon 🚧"
+                ))
+                return results
+        
+        # Add a P2Pool deployment
+        elif rec[COMPONENT_FIELD] == P2POOL_FIELD:
+            if rec[REMOTE_FIELD]: # Remote deployment
+                (rec, component_label, instance, results,
+                fatal_error) = self.add_remote_p2pool_deployment(rec)
+                if fatal_error:
+                    return results
+            else: # Local deployment
+                results.append(result_row(
+                    P2POOL_LABEL, WARN_FIELD,
+                    f"🚧 {P2POOL_LABEL} deployment coming soon 🚧"
+                ))
+                return results
+            
+        # Add a XMRig deployment
+        elif rec[COMPONENT_FIELD] == XMRIG_FIELD:
+            (rec, component_label, instance, results,
+             fatal_error) = self.add_xmrig_deployment(rec)
+            if fatal_error:
+                return results
+
+        rec[UPDATED_FIELD] = datetime.now(timezone.utc)
+        self.db.insert_one(self.col_name, rec)
+        if instance:
+            results_message = f"Added new {component_label} deployment record ({instance})"
+        else:
+            results_message = f"Added new {component_label} deployment record"
+        results.append(result_row(
+            DB4E_LABEL, GOOD_FIELD, results_message))
+        return results
+        #self.post_message(RefreshNavPane(self))
+
     def add_remote_monerod_deployment(self, rec):
         results = []
         fatal_error = False
         # Check that the user actually filled out the form
         if not rec[INSTANCE_FIELD]:
+            fatal_error = True
             results.append(result_row(
                 INSTANCE_LABEL, ERROR_FIELD,
                 f"Missing required field: {INSTANCE_LABEL}"
             ))
-            fatal_error = True
 
         if not rec[IP_ADDR_FIELD]:
+            fatal_error = True
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Missing required field: {IP_ADDR_LABEL}"
             ))
-            fatal_error = True
+
         elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+            fatal_error = True
             results.append(result_row(
                 IP_ADDR_LABEL, ERROR_FIELD,
                 f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
             ))
-            fatal_error = True
 
         if not rec[RPC_BIND_PORT_FIELD]:
+            fatal_error = True
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {RPC_BIND_PORT_LABEL}"
             ))
-            fatal_error = True
 
         if not rec[ZMQ_PUB_PORT_FIELD]:
+            fatal_error = True
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, ERROR_FIELD,
                 f"Missing required field: {ZMQ_PUB_PORT_LABEL}"
             ))
-            fatal_error = True
         component_label = MONEROD_REMOTE_LABEL
         instance = rec[INSTANCE_FIELD]
 
         if fatal_error:
-            return (rec, component_label, instance, fatal_error)
+            return (rec, component_label, instance, results, fatal_error)
         db_rec = self.get_new_rec({COMPONENT_FIELD: MONEROD_REMOTE_FIELD})
         db_rec[INSTANCE_FIELD] = rec[INSTANCE_FIELD]
         db_rec[IP_ADDR_FIELD] = rec[IP_ADDR_FIELD]
@@ -175,66 +235,6 @@ class DeploymentMgr(Container):
             rec=rec, depl_mgr=self, results=results)
         rec[CONFIG_FIELD] = conf_file
         return (rec, component_label, instance, results, fatal_error)
-
-    def add_deployment(self, rec):
-        #print(f"DeploymentMgr:add_deployment(): {rec}")
-        results = []
-        fatal_error = False
-        print(rec)
-        if self.get_deployment_by_instance(
-            component=rec[COMPONENT_FIELD], instance=rec[INSTANCE_FIELD]):
-            results.append(result_row(
-                DB4E_LABEL, ERROR_FIELD,
-                f"A deployment with that name ({rec[INSTANCE_FIELD]}) already exists"
-            ))
-            return results
-
-
-        # Add a Monero daemon deployment
-        if rec[COMPONENT_FIELD] == MONEROD_FIELD:
-            if rec[REMOTE_FIELD]: # Remote deployment
-                (rec, component_label, instance, results,
-                fatal_error) = self.add_remote_monerod_deployment(rec)
-                if fatal_error:
-                    return results
-            else: # Local deployment
-                results.append(result_row(
-                    MONEROD_REMOTE_LABEL, WARN_FIELD,
-                    f"🚧 {MONEROD_REMOTE_FIELD} deployment coming soon 🚧"
-                ))
-                return results
-        
-        # Add a P2Pool deployment
-        elif rec[COMPONENT_FIELD] == P2POOL_FIELD:
-            if rec[REMOTE_FIELD]: # Remote deployment
-                (rec, component_label, instance, results,
-                fatal_error) = self.add_remote_p2pool_deployment(rec)
-                if fatal_error:
-                    return results
-            else: # Local deployment
-                results.append(result_row(
-                    P2POOL_LABEL, WARN_FIELD,
-                    f"🚧 {P2POOL_LABEL} deployment coming soon 🚧"
-                ))
-                return results
-            
-        # Add a XMRig deployment
-        elif rec[COMPONENT_FIELD] == XMRIG_FIELD:
-            (rec, component_label, instance, results,
-             fatal_error) = self.add_xmrig_deployment(rec)
-            if fatal_error:
-                return results
-
-        rec[UPDATED_FIELD] = datetime.now(timezone.utc)
-        self.db.insert_one(self.col_name, rec)
-        if instance:
-            results_message = f"Added new {component_label} deployment record ({instance})"
-        else:
-            results_message = f"Added new {component_label} deployment record"
-        results.append(result_row(
-            DB4E_LABEL, GOOD_FIELD, results_message))
-        return results
-        #self.post_message(RefreshNavPane(self))
 
     def del_deployment(self, rec_data):
         component = rec_data[COMPONENT_FIELD]
