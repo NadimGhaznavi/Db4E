@@ -10,16 +10,21 @@ db4e/Panes/XMRig.py
 from rich import box
 from rich.table import Table
 from textual.reactive import reactive
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import (
-    Label, Input, Button, MarkdownViewer, RadioSet, RadioButton, Static)
+    Label, Input, Button, RadioSet, RadioButton, Static)
 
+from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, CONFIG_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, 
-    HEALTH_MSG_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
-    P2POOL_INSTANCE, P2POOL_ID_FIELD, RADIO_MAP, REMOTE_FIELD, TO_MODULE_FIELD, 
-    TO_METHOD_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, CONFIG_FIELD, 
+    DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_3_FIELD, 
+    FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, 
+    HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, 
+    ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, P2POOL_ID_FIELD, PANE_BOX_FIELD, 
+    RADIO_SET_FIELD, RADIO_MAP, RED_BUTTON_FIELD, REMOTE_FIELD, STATIC_CONTENT_FIELD, 
+    TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, 
+    XMRIG_FIELD)
 from db4e.Constants.Labels import (
     CONFIG_LABEL, DELETE_LABEL, HEALTH_LABEL, INSTANCE_LABEL, P2POOL_LABEL, 
     NUM_THREADS_LABEL, UPDATE_LABEL, XMRIG_LABEL)
@@ -27,74 +32,54 @@ from db4e.Constants.Labels import (
 class XMRig(Container):
 
     radio_button_list = reactive(list, always_update=True)
-    radio_set = RadioSet(id="radio_set")
+    radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
 
     p2pool_instance = ""
     instance_map = {}
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
+        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        classes=FORM_INPUT_15_FIELD)
     num_threads_input = Input(
-        id="num_threads_input", restrict=f"[0-9]*", compact=True)
-    orig_instance_input = Input(id="orig_instance_input", classes="hidden")
-    config_static = Static("", id="config_static")
+        id="num_threads_input", restrict=f"[0-9]*", compact=True,
+        classes=FORM_INPUT_7_FIELD)
+    config_static = Label("", id="config_static", classes=STATIC_CONTENT_FIELD)
     health_msgs = Static()
-
-    def build_health_status(self, results):
-        table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
-        table.add_column("Component", width=25)
-        table.add_column("Message")
-
-        for task in results:
-            print(task)
-            for category, msg_dict in task.items():
-                message = msg_dict["msg"]
-                if msg_dict["status"] == "good":
-                    table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
-                elif msg_dict["status"] == "warn":
-                    table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-                elif msg_dict["status"] == "error":
-                    table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
-        self.health_msgs.update(table)
 
     def compose(self):
         # Remote P2Pool daemon deployment form
-        STATIC_CONTENT = "This screen provides a form for viewing and/or updating a "
-        STATIC_CONTENT += f"{XMRIG_LABEL} deployment."
+        INTRO = "This screen provides a form for viewing and/or updating a " \
+            f"{XMRIG_LABEL} deployment."
 
         yield Vertical(
-            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
+            ScrollableContainer(
+                Label(INTRO, classes="form_intro"),
 
-            Vertical(
-                Horizontal(
-                    Label(CONFIG_LABEL, id="config_label"),
-                    self.config_static,
-                ),
-                Horizontal(
-                    Label(INSTANCE_LABEL, id="instance_label"),
-                    self.instance_input),
-                Horizontal(
-                    Label(NUM_THREADS_LABEL, id="num_threads_label"),
-                    self.num_threads_input),
-                id="xmrig_edit_form"),
+                Vertical(
+                    Horizontal(
+                        Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
+                        self.instance_input),
+                    Horizontal(
+                        Label(NUM_THREADS_LABEL, classes=FORM_LABEL_FIELD),
+                        self.num_threads_input),
+                    Horizontal(
+                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
+                        self.config_static),
+                    classes=FORM_3_FIELD),
 
-            Vertical(
-                Label(P2POOL_LABEL, id="p2pool_label"),
-                self.radio_set,
-                id="radio_set_box"),
+                Vertical(
+                    self.radio_set),
 
-            self.orig_instance_input,
-
-            Horizontal(
-                Button(label=UPDATE_LABEL, id="update_button"),
-                Button(label=DELETE_LABEL, id="delete_button"),
-                id="buttons"),
-            
-            Vertical(
-                self.health_msgs,
-                id="health_box",
-            ),
-
-        id="pane")
+                Vertical(
+                    Horizontal(
+                        Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
+                        Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
+                        classes=BUTTON_ROW_FIELD)),
+                
+                Vertical(
+                    self.health_msgs,
+                    classes=HEALTH_BOX_FIELD,
+                )
+            ), classes=PANE_BOX_FIELD)
 
     def get_p2pool_id(self, instance=None):
         return self.instance_map[instance]
@@ -103,25 +88,32 @@ class XMRig(Container):
         return self.instance_map
 
     def set_p2pool_instances(self, instance_map):
+        print(f"XMRig:set_p2pool_instances:(): {instance_map}")
         self.instance_map = instance_map
 
     def set_data(self, rec):
+        print(f"XMRig:set_data(): {rec}")
         self.instance_input.value = rec[INSTANCE_FIELD]
-        self.orig_instance_input.value = rec[INSTANCE_FIELD]
-        self.num_threads_input.value = rec[NUM_THREADS_FIELD]
-        self.p2pool_instance = rec[P2POOL_INSTANCE]
+        self.orig_instance = rec[INSTANCE_FIELD]
+        self.num_threads_input.value = str(rec[NUM_THREADS_FIELD])
         self.config_static.update(rec[CONFIG_FIELD])
+
         self.set_p2pool_instances(rec[RADIO_MAP])
-        instance_list = []
-        for instance in rec[RADIO_MAP].keys():
-            instance_list.append(instance)
-        instance_list = self.radio_button_list + instance_list
-        self.radio_button_list = [*instance_list]
-        self.build_health_status(rec[HEALTH_MSG_FIELD])
+        self.p2pool_instance = rec[P2POOL_INSTANCE]  # Save it to use during watch
+
+        # Trigger RadioButton recreation via reactive update
+        self.radio_button_list = list(rec[RADIO_MAP].keys())
+
+        if rec[HEALTH_MSG_FIELD]:
+            self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        if button_id == "update_button":
+        if button_id == UPDATE_BUTTON_FIELD:
+            if self.orig_instance:
+                to_method = UPDATE_DEPLOYMENT_FIELD
+            else:
+                to_method = ADD_DEPLOYMENT_FIELD
             radio_set = self.query_one("#radio_set", RadioSet)
             is_radiobutton = radio_set.pressed_button
             p2pool_instance = None
@@ -131,12 +123,12 @@ class XMRig(Container):
             form_data = {
                 COMPONENT_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                TO_METHOD_FIELD: to_method,
                 REMOTE_FIELD: False,
+                ORIG_INSTANCE_FIELD: self.orig_instance,
+                P2POOL_ID_FIELD: p2pool_id,
                 INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-                ORIG_INSTANCE_FIELD: self.query_one("#orig_instance_input", Input).value,
                 NUM_THREADS_FIELD: self.query_one("#num_threads_input", Input).value,
-                P2POOL_ID_FIELD: p2pool_id
             }
         else:
             form_data = {
@@ -154,4 +146,4 @@ class XMRig(Container):
             radio_button = RadioButton(instance)
             self.radio_set.mount(radio_button)
             if instance == self.p2pool_instance:
-                radio_button.value = True
+                radio_button.value = instance

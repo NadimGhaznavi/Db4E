@@ -9,6 +9,8 @@ db4e/Templates/db/MongoRecords.py
 This module contains templates for the Mongo deployment record types.
 """
 
+from datetime import datetime
+
 from db4e.Constants.Defaults import (
     ANY_IP_DEFAULT, DONATION_WALLET_DEFAULT, IN_PEERS_DEFAULT, LOCALHOST_DEFAULT, 
     LOG_LEVEL_DEFAULT, MAX_LOG_FILES_DEFAULT, MAX_LOG_SIZE_DEFAULT, MONEROD_CONFIG_DEFAULT, 
@@ -36,30 +38,30 @@ from db4e.Constants.Fields import (
 Db4E_Record_Template = {
     COMPONENT_FIELD: DB4E_FIELD,
     DONATION_WALLET_FIELD: DONATION_WALLET_DEFAULT,
-    ENABLE_FIELD: None,
-    GROUP_FIELD: None,
-    INSTALL_DIR_FIELD: None,
+    ENABLE_FIELD: True,
+    GROUP_FIELD: "",
+    INSTALL_DIR_FIELD: "",
     NAME_FIELD: DB4E_LABEL,
-    OP_FIELD: None,
-    STATUS_FIELD: None,
-    UPDATED_FIELD: None,
-    USER_FIELD: None,
-    USER_WALLET_FIELD: None,
-    VENDOR_DIR_FIELD: None,
-    VERSION_FIELD: None,
+    OP_FIELD: "",
+    STATUS_FIELD: "",
+    UPDATED_FIELD: "",
+    USER_FIELD: "",
+    USER_WALLET_FIELD: "",
+    VENDOR_DIR_FIELD: "",
+    VERSION_FIELD: "",
     }
 # Remote Monero Daemon Instance
 MoneroD_Remote_Record_Template = {
     COMPONENT_FIELD: MONEROD_FIELD,
-    ENABLE_FIELD: None,
-    INSTANCE_FIELD: None,
-    IP_ADDR_FIELD: None,
+    ENABLE_FIELD: True,
+    INSTANCE_FIELD: "",
+    IP_ADDR_FIELD: "",
     NAME_FIELD: MONEROD_LABEL,
-    OP_FIELD: None,
+    OP_FIELD: "",
     REMOTE_FIELD: True,
     RPC_BIND_PORT_FIELD: RPC_BIND_PORT_DEFAULT,
-    STATUS_FIELD: None,
-    UPDATED_FIELD: None,
+    STATUS_FIELD: "",
+    UPDATED_FIELD: "",
     ZMQ_PUB_PORT_FIELD: ZMQ_PUB_PORT_DEFAULT,
     }
 
@@ -96,15 +98,15 @@ MoneroD_Record_Template = {
 
 P2Pool_Remote_Record_Template = {
     COMPONENT_FIELD: P2POOL_FIELD,
-    ENABLE_FIELD: None,
-    INSTANCE_FIELD: None,
-    IP_ADDR_FIELD: None,
+    ENABLE_FIELD: "",
+    INSTANCE_FIELD: "",
+    IP_ADDR_FIELD: "",
     NAME_FIELD: P2POOL_LABEL,
-    OP_FIELD: None,
+    OP_FIELD: "",
     REMOTE_FIELD: True,
-    STATUS_FIELD: None,
+    STATUS_FIELD: "",
     STRATUM_PORT_FIELD: STRATUM_PORT_DEFAULT,
-    UPDATED_FIELD: None,
+    UPDATED_FIELD: "",
     }
 
 P2Pool_Record_Template = {
@@ -132,15 +134,15 @@ P2Pool_Record_Template = {
 
 XMRig_Record_Template = {
     COMPONENT_FIELD: XMRIG_FIELD,
-    CONFIG_FIELD: None,
-    ENABLE_FIELD: None,
-    INSTANCE_FIELD: None,
+    CONFIG_FIELD: "",
+    ENABLE_FIELD: "",
+    INSTANCE_FIELD: "",
     NAME_FIELD: XMRIG_LABEL,
-    NUM_THREADS_FIELD: None,
-    OP_FIELD: None,
-    P2POOL_ID_FIELD: None,
+    NUM_THREADS_FIELD: "",
+    OP_FIELD: "",
+    P2POOL_ID_FIELD: "",
     REMOTE_FIELD: False,
     STATUS_FIELD: SERVICE_STATUS_DEFAULT,
-    UPDATED_FIELD: None,
-    VERSION_FIELD: None,
+    UPDATED_FIELD: "",
+    VERSION_FIELD: "",
     }

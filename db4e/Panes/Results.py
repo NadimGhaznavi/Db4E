@@ -9,12 +9,25 @@ db4e/Panes/Results.py
 from rich import box
 from rich.table import Table
 from textual.app import ComposeResult
-from textual.widgets import Static, MarkdownViewer
-from textual.containers import Container, Vertical
+from textual.widgets import Static
+from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-
+from db4e.Constants.Fields import PANE_BOX_FIELD
 class Results(Static):
+
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.results = Static()
+
+
+    def compose(self):
+        yield Vertical(
+            ScrollableContainer(
+                self.results
+            ),
+            classes=PANE_BOX_FIELD)
 
     def set_data(self, task_list):
 
@@ -31,8 +44,8 @@ class Results(Static):
                 elif msg_dict["status"] == "warn":
                     table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
                 elif msg_dict["status"] == "error":
-                    table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+                    table.add_row(f"💥 [bold yellow]{category}[/]", f"[bold yellow]{message}[/]")
 
-        self.remove_children()
-        self.mount(Static(table))
+        self.results.remove_children()
+        self.results.update(table)
         self.app.post_message(RefreshNavPane(self))

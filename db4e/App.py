@@ -43,16 +43,16 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, 
-    HEALTH_MSG_FIELD, INSTANCE_FIELD, MONEROD_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, 
-    P2POOL_INSTANCE, RADIO_MAP, REMOTE_FIELD, TERM_ENVIRON_FIELD, TO_MODULE_FIELD, 
-    TO_METHOD_FIELD, XMRIG_FIELD)
+    COLORTERM_ENVIRON_FIELD, COMPONENT_FIELD, DB4E_FIELD, HEALTH_MSG_FIELD, 
+    INSTANCE_FIELD, MONEROD_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, P2POOL_INSTANCE, 
+    RADIO_MAP, REMOTE_FIELD, TERM_ENVIRON_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
+    XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL,
     XMRIG_SHORT_LABEL)
 from db4e.Constants.Panes import (
-    DB4E_PANE, MONEROD_REMOTE_PANE, NEW_MONEROD_TYPE_PANE, NEW_P2POOL_TYPE_PANE,
-    NEW_XMRIG_PANE, P2POOL_REMOTE_PANE, XMRIG_PANE)
+    DB4E_PANE, MONEROD_REMOTE_PANE, MONEROD_TYPE_PANE, P2POOL_TYPE_PANE,
+    XMRIG_PANE, P2POOL_REMOTE_PANE, XMRIG_PANE)
 from db4e.Constants.Defaults import (
     APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT)
 
@@ -68,12 +68,15 @@ class Db4EApp(App):
         self.pane_catalogue = PaneCatalogue()
         self.msg_router = MessageRouter(config)
         self.health_mgr = HealthMgr(self.depl_mgr)
+        self._initialized = False
 
         initialized_flag = self.depl_mgr.is_initialized()
+        print(initialized_flag)
         self.pane_mgr = PaneMgr(
-            config=config, catalogue=self.pane_catalogue, initialized_flag=initialized_flag)
+            config=config, catalogue=self.pane_catalogue, 
+            initialized_flag=initialized_flag)
         self.nav_pane = NavPane(config=config)
-        self.set_initialized(initialized_flag)
+        self.set_initialized()
         
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
@@ -85,6 +88,7 @@ class Db4EApp(App):
         yield self.pane_mgr
 
     def is_initialized(self) -> bool:
+        print(f"App:is_initialized(): {self._initialized}")
         return self._initialized
 
     ### Message handling happens here...
@@ -93,25 +97,32 @@ class Db4EApp(App):
     def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
         category = message.parent[2:]
         instance = message.leaf[2:] # Strip off the status unicode + ' ' 
-        print(f"Db4eApp:on_nav_leaf_selected(): {category}/{instance}")
+        print(f"App:on_nav_leaf_selected(): {category}/{instance}")
+
+        # Db4E Core > Update
         if category == DEPLOYMENTS_LABEL and instance == DB4E_LABEL:
             db4e_data = self.depl_mgr.get_deployment(DB4E_FIELD)
+            print(f"App:on_nav_leaf_selected(): data: {db4e_data}")
             self.pane_mgr.set_pane(name=DB4E_PANE, data=db4e_data)
 
+        # Create a new Monero deployment
         elif category == MONEROD_SHORT_LABEL and instance == NEW_LABEL:
-            self.pane_mgr.set_pane(name=NEW_MONEROD_TYPE_PANE)
+            self.pane_mgr.set_pane(name=MONEROD_TYPE_PANE)
 
+        # Edit an existing Monero deployment
         elif category == MONEROD_SHORT_LABEL:
             monerod_data = self.depl_mgr.get_deployment_by_instance(
                 component=MONEROD_FIELD, instance=instance)
-            state, results = self.health_mgr.check_p2pool(instance=instance)
+            state, results = self.health_mgr.check_monerod(instance=instance)
             monerod_data[HEALTH_MSG_FIELD] = results
             if monerod_data[REMOTE_FIELD]:
                 self.pane_mgr.set_pane(name=MONEROD_REMOTE_PANE, data=monerod_data)
 
+        # Create a new P2Pool deployment
         elif category == P2POOL_SHORT_LABEL and instance == NEW_LABEL:
-            self.pane_mgr.set_pane(name=NEW_P2POOL_TYPE_PANE)
+            self.pane_mgr.set_pane(name=P2POOL_TYPE_PANE)
 
+        # Edit an existing P2Pool deployment
         elif category == P2POOL_SHORT_LABEL:
             p2pool_data = self.depl_mgr.get_deployment_by_instance(
                 component=P2POOL_FIELD, instance=instance)
@@ -120,22 +131,35 @@ class Db4EApp(App):
             if p2pool_data[REMOTE_FIELD]:
                 self.pane_mgr.set_pane(name=P2POOL_REMOTE_PANE, data=p2pool_data)
 
+        # Create a new XMRig deployment
         elif category == XMRIG_SHORT_LABEL and instance == NEW_LABEL:
             rec_data = {COMPONENT_FIELD: XMRIG_FIELD, REMOTE_FIELD: False}
             xmrig_data = self.depl_mgr.get_new_rec(rec_data=rec_data)
-            xmrig_data[P2POOL_FIELD] = self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-            self.pane_mgr.set_pane(name=NEW_XMRIG_PANE, data=xmrig_data)
+            xmrig_data[P2POOL_FIELD] = \
+                self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
+            xmrig_data[RADIO_MAP] = get_radio_map(rec=xmrig_data, depl_mgr=self.depl_mgr)
+            p2pool_rec = self.depl_mgr.get_deployment_by_id(xmrig_data[P2POOL_ID_FIELD])
+            if p2pool_rec:
+                xmrig_data[P2POOL_INSTANCE] = p2pool_rec[INSTANCE_FIELD]
+                state, results = self.health_mgr.check_xmrig(instance=instance)
+            else:
+                xmrig_data[P2POOL_INSTANCE] = ""
+                results = []
+            xmrig_data[HEALTH_MSG_FIELD] = results or []
+            self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
 
+        # Edit an existing XMRig deployment
         elif category == XMRIG_SHORT_LABEL:
+            results = []
             xmrig_data = self.depl_mgr.get_deployment_by_instance(
                 component=XMRIG_FIELD, instance=instance)
             xmrig_data[RADIO_MAP] = get_radio_map(rec=xmrig_data, depl_mgr=self.depl_mgr)
             p2pool_rec = self.depl_mgr.get_deployment_by_id(xmrig_data[P2POOL_ID_FIELD])
             if p2pool_rec:
                 xmrig_data[P2POOL_INSTANCE] = p2pool_rec[INSTANCE_FIELD]
+                state, results = self.health_mgr.check_xmrig(instance=instance)
             else:
                 xmrig_data[P2POOL_INSTANCE] = ""
-            state, results = self.health_mgr.check_xmrig(instance=instance)
             xmrig_data[HEALTH_MSG_FIELD] = results
             self.pane_mgr.set_pane(name=XMRIG_PANE, data=xmrig_data)
 
@@ -148,14 +172,13 @@ class Db4EApp(App):
     
     # Every form sends the form data here
     def on_submit_form_data(self, message: SubmitFormData) -> None:
-        #print(f"App:on_submit_form_data(): {message.form_data}")
+        print(f"App:on_submit_form_data(): {message.form_data}")
         module = message.form_data[TO_MODULE_FIELD]
         method = message.form_data[TO_METHOD_FIELD]
         results, pane_name = self.msg_router.dispatch(module, method, message.form_data)
-
+    
         if not self.is_initialized():
-            flag = self.depl_mgr.is_initialized()
-            self.set_initialized(flag)
+            self.set_initialized()
 
         self.pane_mgr.set_pane(name=pane_name, data=results)
         self.nav_pane.refresh_nav_pane()
@@ -169,9 +192,11 @@ class Db4EApp(App):
     def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title )
 
-    def set_initialized(self, flag: bool) -> None:
-        self._initialized = flag
+    def set_initialized(self) -> None:
+        flag = self.depl_mgr.is_initialized()
         self.pane_mgr.set_initialized(flag)
+        self.nav_pane.check_initialized()
+        print(f"App:set_initialized(): initialized: {flag}")
 
     # Catchall 
     def _handle_exception(self, error: Exception) -> None:

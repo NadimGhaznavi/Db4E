@@ -1,5 +1,5 @@
 """
-db4e/Panes/NewP2Pool.py
+db4e/Panes/P2Pool.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -7,14 +7,12 @@ db4e/Panes/NewP2Pool.py
     License: GPL 3.0
 """
 
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, ScrollableContainer, Vertical
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, 
-    IP_ADDR_FIELD, P2POOL_FIELD, REMOTE_FIELD, STRATUM_PORT_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD,
+    FORM_INTRO_FIELD, PANE_BOX_FIELD
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, 
@@ -24,7 +22,7 @@ from db4e.Constants.Defaults import (
     STRATUM_PORT_DEFAULT
 )
 
-class NewP2Pool(Container):
+class P2Pool(Container):
 
     instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
     ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
@@ -34,12 +32,14 @@ class NewP2Pool(Container):
     def compose(self):
 
         # Local P2Pool daemon deployment form
-        STATIC_CONTENT = "This screen provides a form for creating a new "
-        STATIC_CONTENT += f"{P2POOL_LABEL} deployment."
+        INTRO = "This screen provides a form for creating a new " \
+            f"{P2POOL_LABEL} deployment."
 
         yield Vertical(
-            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
-            Label('🚧 Coming Soon 🚧'))
+            ScrollableContainer(
+                Label(INTRO, classes=FORM_INTRO_FIELD),
+                Label('🚧 Coming Soon 🚧', classes="form_box")),
+                classes=PANE_BOX_FIELD)
 
     def reset_data(self):
         self.instance_input.value = ""

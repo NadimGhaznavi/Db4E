@@ -7,12 +7,8 @@ Screen {
     grid-rows: 13fr 1fr;
     grid-gutter: 0 1; }
 
-
-/* Widgets */
-
 Button {
     align: center middle;
-    height: 3;
     border: round;
     width: 20;
     background: black; }
@@ -24,20 +20,10 @@ Clock {
     align: center middle;
     background: black; }
 
-DetailPane {
-    height: 1fr;
-    padding: 0 2;
-    border: round;
-    row-span: 2;
-    background: black; }
-
 NavPane {
     height: 9fr;
     padding: 0 2;
     border: round;
-    background: black; }
-
-Tree {
     background: black; }
 
 TopBar {
@@ -50,91 +36,10 @@ TopBar {
 MarkdownViewer {
     background: black; }
 
-RadioSet {
-    border: round; }
-
-
-/* Panes */
-
-Db4E,
-MonerodRemote,
-NewMonerod,
-NewMonerodType,
-NewP2Pool,
-NewP2PoolType,
-NewXMRig,
-P2PoolRemote,
-Results,
-Welcome,
-XMRig, {
-    height: 1fr; 
-    padding: 0 2;
-    border: round;
-    background: black;
-    overflow: auto; }
-
 /* Page elements */
 
-#db4e_update_form {
-    height: 7;
-    border: round; }
-
-RadioButton {
-    border: none; }
-
-#xmrig_edit_form {
-    border: round;
-    height: 4; }
-
-#radio_set_box {
-    border: round;
-    height: auto; }
-
-#pane {
-    overflow: auto; }
-
-#depl_type_form,
-#initial_setup_form,
-#monerod_remote_form,
-#p2pool_remote_form {
-    height: 6;
-    border: round; }
-
-#group_name_label,
-#install_dir_label,
-#instance_label,
-#ip_addr_label,
-#num_threads_label,
-#rpc_bind_port_label,
-#stratum_port_label,
-#user_wallet_label,
-#vendor_dir_label,
-#zmq_pub_port_label {
-    padding: 0 1;
-    width: 23; }
-
-#install_dir_input {
-    width: 60; }
-
-#ip_addr_input,
-#stratum_port_input,
-#vendor_dir_input,
-{
-    width: 30; }
-
-#user_wallet_input {
-    width: 75; }
-
-#group_name_input,
-#instance_input,
-#user_name_input {
-    width: 20; }
-
-#num_threads_input,
-#rpc_bind_port_input,
-#stratum_port_input,
-#zmq_pub_port_input, {  
-    width: 7; }
+Tree {
+    background: black; }
 
 #topbar_title {
     content-align: center middle;
@@ -144,46 +49,123 @@ RadioButton {
 #tree_metrics {
     height: auto; }
 
-.radio_button_type {
-    width: 26; }
 
-.hidden {
-    display: none; }
+/* Button Row */
+.button_row {
+    height: 3;
+}
 
-/* Detail Pane */
 
-.form_box {
+/* Forms with X rows */
+
+.form_3 {
     padding: 0 2;
     border: round;
     width: 100%;
-}
+    height: 5; 
+    background: black; }
+
+.form_4 {
+    padding: 0 2;
+    border: round;
+    width: 100%;
+    height: 6; 
+    background: black; }
+
+.form_5 {
+    padding: 0 2;
+    border: round;
+    width: 100%;
+    height: 7; }
+
+/* Intro text at the top */
 
 .form_intro {
     padding: 0 2;
     border: round; 
     width: 100%; }
 
-.form_input {
-    color: yellow;
-}
 
+/* Input fields with width X */
+
+.form_input_7 {
+    color: yellow;
+    padding: 0 1; 
+    width: 9; }
+
+.form_input_15 {
+    color: yellow;
+    padding: 0 1;
+    width: 15; }
+
+.form_input_30 {
+    color: yellow;
+    padding: 0 1;
+    width: 30; }
+
+.form_input_40 {
+    color: yellow;
+    padding: 0 1;
+    width: 40; }
+
+.form_input_70 {
+    color: yellow;
+    padding: 0 1;
+    width: 70; }
+    
 .form_label {
-    color: cyan;
-    text-style: bold;
-    padding: 0 2;
-    width: 23;
+    color:cyan;
+    padding: 0 1;
+    width: 25; }
+
+
+/* Health Box */
+
+.health_box {
+    border: round;
+    padding: 0 1;
 }
 
-.static_content {
-    color: cyan;
+
+/* Hidden field definition */
+
+.hidden {
+    display: none; }
+
+
+/* Entire Detail Pane */
+
+.pane_box {
+    border: round;
+    padding: 0 1;
+    background: black;
 }
 
-.update_button {
-    color: yellow;
-}
+
+/* Radio Button Width */
+
+.radio_button_type {
+    width: 26; 
+    background: black; }
+
 
 .radio_set {
     border: round;
     width: 30;
-    height: auto;
     background: black; }
+
+.static_content {
+    color: #78ff78; 
+    padding: 0 1; }
+
+.yellow_button {
+    color: yellow;
+    text-style: bold; }
+
+.green_button {
+    color: #54d754;
+    text-style: bold; }
+
+.red_button {
+    color: #c44242;
+    text-style: bold; }

@@ -24,9 +24,19 @@ from db4e.Constants.Fields import (
     MONEROD_REMOTE_FIELD, P2POOL_FIELD, PORT_FIELD, RETRY_TIMEOUT_FIELD, 
     P2POOL_REMOTE_FIELD, SERVER_FIELD, XMRIG_FIELD)
 
+def as_worker(method):
+    def wrapper(self, *args, use_worker=True, **kwargs):
+        if use_worker and self._runner:
+            def blocking():
+                return method(self, *args, use_worker=False, **kwargs)
+            return self._runner.run_worker(blocking, exclusive=False, thread_name="dbmgr")
+        return method(self, *args, use_worker=False, **kwargs)
+    return wrapper
+
 class DbMgr:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, runner=None):
         self.ini = config
+        self._runner = runner
         # MongoDB settings
         retry_timeout            = self.ini.config[DB_FIELD][RETRY_TIMEOUT_FIELD]
         db_server                = self.ini.config[DB_FIELD][SERVER_FIELD]
@@ -61,7 +71,8 @@ class DbMgr:
         self.repo_dir = None
         self.init_db()             
 
-    def delete_one(self, col_name, dbquery):
+    @as_worker
+    def delete_one(self, col_name, dbquery, use_worker=True):
         col = self.get_collection(col_name)
         return col.delete_one(dbquery)
 
@@ -69,18 +80,33 @@ class DbMgr:
         log_col = self.get_collection(self.log_collection)
         if "timestamp_1" not in log_col.index_information():
             log_col.create_index("timestamp")
-            # TODO self.log.debug("Created index on 'timestamp' for log collection.")
 
-    def find_many(self, col_name, filter):
+    @as_worker
+    def find_many(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
         return col.find(filter)
 
-    def find_one(self, col_name, filter):
+    @as_worker
+    def find_one(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
-        rec = col.find_one(filter)
-        #print(f"DbMgr:find_one(): {col_name}/{filter} > {rec}")
-        return rec
+        return col.find_one(filter)
 
+    @as_worker
+    def insert_one(self, col_name, jdoc, use_worker=True):
+        col = self.get_collection(col_name)
+        return col.insert_one(jdoc)
+
+    @as_worker
+    def update_one(self, col_name, filter, new_values, use_worker=True):
+        collection = self.get_collection(col_name)
+        new_values.pop("_id", None)
+        return collection.update_one(filter, {'$set': new_values})
+
+    @as_worker
+    def insert_one(self, col_name, jdoc, use_worker=True):
+        col = self.get_collection(col_name)
+        return col.insert_one(jdoc)
+    
     def get_collection(self, col_name):
         return self.db4e[col_name]
 
@@ -107,13 +133,7 @@ class DbMgr:
             # TODO self.log.debug(f'Created DB collection ({aCol})')
         self.ensure_indexes()
 
-    def insert_one(self, col_name, jdoc):
-        collection = self.get_collection(col_name)
-        return collection.insert_one(jdoc)
+
    
-    def update_one(self, col_name, filter, new_values):
-        #print(f"{col_name}/{filter}/{new_values}")
-        collection = self.get_collection(col_name)
-        # Remove the "_id" field if it's present
-        new_values.pop("_id", None)
-        return collection.update_one(filter, {'$set' : new_values})
+
+

@@ -13,15 +13,14 @@ from db4e.Panes.Welcome import Welcome
 from db4e.Panes.InitialSetup import InitialSetup
 from db4e.Panes.Results import Results
 from db4e.Panes.Db4E import Db4E
+from db4e.Panes.MonerodType import MonerodType
+from db4e.Panes.Monerod import Monerod
 from db4e.Panes.MonerodRemote import MonerodRemote
-from db4e.Panes.NewMonerodType import NewMonerodType
-from db4e.Panes.NewMonerod import NewMonerod
-from db4e.Panes.NewRemoteMonerod import NewRemoteMonerod
-from db4e.Panes.NewRemoteP2Pool import NewRemoteP2Pool
+
 from db4e.Panes.P2PoolRemote import P2PoolRemote
-from db4e.Panes.NewP2PoolType import NewP2PoolType
-from db4e.Panes.NewP2Pool import NewP2Pool
-from db4e.Panes.NewXMRig import NewXMRig
+from db4e.Panes.P2PoolType import P2PoolType
+from db4e.Panes.P2Pool import P2Pool
+from db4e.Panes.XMRig import XMRig
 from db4e.Panes.XMRig import XMRig
 
 
@@ -31,24 +30,21 @@ from db4e.Constants.Labels import (
     RESULTS_LABEL, WELCOME_LABEL, XMRIG_LABEL
 )
 from db4e.Constants.Panes import (
-    DB4E_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE_PANE, NEW_MONEROD_PANE, 
-    NEW_MONEROD_TYPE_PANE, NEW_P2POOL_PANE, NEW_P2POOL_TYPE_PANE, 
-    NEW_REMOTE_MONEROD_PANE, NEW_REMOTE_P2POOL_PANE, P2POOL_REMOTE_PANE, 
-    RESULTS_PANE, WELCOME_PANE, NEW_XMRIG_PANE, XMRIG_PANE
+    DB4E_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE_PANE, MONEROD_PANE, 
+    MONEROD_TYPE_PANE, P2POOL_PANE, P2POOL_TYPE_PANE, 
+    P2POOL_REMOTE_PANE, RESULTS_PANE, WELCOME_PANE, XMRIG_PANE
 )
 
 REGISTRY = {
     DB4E_PANE: (Db4E, DB4E_LONG_LABEL, DB4E_LABEL),
     INITIAL_SETUP_PANE: (InitialSetup, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL),
+    MONEROD_TYPE_PANE: (MonerodType, MONEROD_LABEL, NEW_LABEL),
+    MONEROD_PANE: (Monerod, MONEROD_LABEL, NEW_LABEL),
     MONEROD_REMOTE_PANE: (MonerodRemote, MONEROD_REMOTE_LABEL, CONFIG_LABEL),
+    P2POOL_TYPE_PANE: (P2PoolType, P2POOL_LABEL, NEW_LABEL),
+    P2POOL_PANE: (P2Pool, P2POOL_LABEL, NEW_LABEL),
     P2POOL_REMOTE_PANE: (P2PoolRemote, P2POOL_REMOTE_LABEL, CONFIG_LABEL),
-    NEW_MONEROD_TYPE_PANE: (NewMonerodType, MONEROD_LABEL, NEW_LABEL),
-    NEW_MONEROD_PANE: (NewMonerod, MONEROD_LABEL, NEW_LABEL),
-    NEW_REMOTE_MONEROD_PANE: (NewRemoteMonerod, MONEROD_REMOTE_LABEL, NEW_LABEL),
-    NEW_REMOTE_P2POOL_PANE: (NewRemoteP2Pool, P2POOL_REMOTE_LABEL, NEW_LABEL),
-    NEW_P2POOL_TYPE_PANE: (NewP2PoolType, P2POOL_LABEL, NEW_LABEL),
-    NEW_P2POOL_PANE: (NewP2Pool, P2POOL_LABEL, NEW_LABEL),
-    NEW_XMRIG_PANE: (NewXMRig, XMRIG_LABEL, NEW_LABEL),
+    XMRIG_PANE: (XMRig, XMRIG_LABEL, NEW_LABEL),
     RESULTS_PANE: (Results, DB4E_LONG_LABEL, RESULTS_LABEL),
     WELCOME_PANE: (Welcome, DB4E_LONG_LABEL, WELCOME_LABEL),
     XMRIG_PANE: (XMRig, XMRIG_LABEL, CONFIG_LABEL),

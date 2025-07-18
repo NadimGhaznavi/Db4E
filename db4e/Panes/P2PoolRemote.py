@@ -9,74 +9,67 @@ db4e/Panes/P2PoolRemote.py
 from rich import box
 from rich.table import Table
 
-from textual.containers import Container, Vertical, Horizontal
+from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
+from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, 
-    HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, P2POOL_FIELD, ORIG_INSTANCE_FIELD, 
-    REMOTE_FIELD, STRATUM_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
-    UPDATE_DEPLOYMENT_FIELD
-)
+    ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, 
+    DELETE_BUTTON_FIELD,DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, FORM_3_FIELD, 
+    FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, 
+    FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
+    P2POOL_FIELD, ORIG_INSTANCE_FIELD, PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, 
+    STRATUM_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, 
+    UPDATE_DEPLOYMENT_FIELD)
 from db4e.Constants.Labels import (
     DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_REMOTE_LABEL, 
-    STRATUM_PORT_LABEL, UPDATE_LABEL
-)
+    STRATUM_PORT_LABEL, UPDATE_LABEL)
 
 class P2PoolRemote(Container):
 
-    instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
-    ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
-    stratum_port_input = Input(id="stratum_port_input", restrict=f"[0-9]*", compact=True)
+    instance_input = Input(
+        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
+        classes=FORM_INPUT_15_FIELD)
+    ip_addr_input = Input(
+        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
+        classes=FORM_INPUT_30_FIELD)
+    stratum_port_input = Input(
+        id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
+        classes=FORM_INPUT_7_FIELD)
     health_msgs = Static()
 
-    def build_health_status(self, results):
-        table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
-        table.add_column("Component", width=25)
-        table.add_column("Message")
-
-        for task in results:
-            print(task)
-            for category, msg_dict in task.items():
-                message = msg_dict["msg"]
-                if msg_dict["status"] == "good":
-                    table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
-                elif msg_dict["status"] == "warn":
-                    table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-                elif msg_dict["status"] == "error":
-                    table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
-        self.health_msgs.update(table)
-        
     def compose(self):
         # Remote P2Pool deployment form
-        STATIC_CONTENT = f"This screen allows you to view and edit the deployment "
-        STATIC_CONTENT += f"settings for the {P2POOL_REMOTE_LABEL} deployment."
+        INTRO = f"This screen allows you to view and edit the deployment " + \
+            f"settings for the {P2POOL_REMOTE_LABEL} deployment."
 
         yield Vertical(
-            MarkdownViewer(STATIC_CONTENT, show_table_of_contents=False, classes="form_intro"),
+            ScrollableContainer(
+                Label(INTRO, classes=FORM_INTRO_FIELD),
 
-            Vertical(
-                Horizontal(
-                    Label(INSTANCE_LABEL, id="instance_label"),
-                    self.instance_input),
-                Horizontal(
-                    Label(IP_ADDR_LABEL, id="ip_addr_label"),
-                    self.ip_addr_input),
-                Horizontal(
-                    Label(STRATUM_PORT_LABEL, id="stratum_port_label"),
-                    self.stratum_port_input),
-                id="p2pool_remote_form"),
+                Vertical(
+                    Horizontal(
+                        Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
+                        self.instance_input),
+                    Horizontal(
+                        Label(IP_ADDR_LABEL, classes=FORM_LABEL_FIELD),
+                        self.ip_addr_input),
+                    Horizontal(
+                        Label(STRATUM_PORT_LABEL, classes=FORM_LABEL_FIELD),
+                        self.stratum_port_input),
+                    classes=FORM_3_FIELD),
 
-            Horizontal(
-                Button(label=UPDATE_LABEL, id="update_button"),
-                Button(label=DELETE_LABEL, id="delete_button")
-            ),
-      
-            Vertical(
-                self.health_msgs,
-                id="health_box",
-            ))            
+                Horizontal(
+                    Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
+                    Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD)
+                ),
+        
+                Vertical(
+                    self.health_msgs,
+                    id="health_box",
+                )),
+                classes=PANE_BOX_FIELD)  
 
     def set_data(self, rec):
 
@@ -84,16 +77,23 @@ class P2PoolRemote(Container):
 
         self.instance_input.value = rec[INSTANCE_FIELD]
         self.ip_addr_input.value = rec[IP_ADDR_FIELD]
-        self.stratum_port_input.value = rec[STRATUM_PORT_FIELD]
-        self.build_health_status(rec[HEALTH_MSG_FIELD])
+        self.stratum_port_input.value = str(rec[STRATUM_PORT_FIELD])
+        if HEALTH_MSG_FIELD in rec:
+            self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        if button_id == "update_button":
+        if button_id == UPDATE_BUTTON_FIELD:
+            if self.orig_instance:
+                # There was an original instance, so this is an update
+                to_method = UPDATE_DEPLOYMENT_FIELD
+            else:
+                # No original instance, this is a new deployment
+                to_method = ADD_DEPLOYMENT_FIELD
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                TO_METHOD_FIELD: to_method,
                 FORM_DATA_FIELD: True,
                 REMOTE_FIELD: True,
                 ORIG_INSTANCE_FIELD: self.orig_instance,
@@ -101,12 +101,14 @@ class P2PoolRemote(Container):
                 IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
                 STRATUM_PORT_FIELD: self.query_one("#stratum_port_input", Input).value,
             }
-        else:
+        elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 INSTANCE_FIELD: self.orig_instance
-            }            
-
+            }
+        else:
+            raise ValueError(f"No handler for {button_id}")
         self.app.post_message(SubmitFormData(self, form_data=form_data))
+        

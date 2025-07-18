@@ -9,12 +9,12 @@ db4e/Panes/Db4E.py
 
 from textual import on
 from textual.widgets import Label, MarkdownViewer, Input, Button, Static
-from textual.containers import Container, Vertical, Horizontal
+from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
     COMPONENT_FIELD, DB4E_FIELD, DEPLOYMENT_MGR_FIELD, FORM_DATA_FIELD, GROUP_FIELD, 
-    INSTALL_DIR_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_DEPLOYMENT_FIELD, 
-    USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD)
+    INSTALL_DIR_FIELD, PANE_BOX_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, 
+    UPDATE_DEPLOYMENT_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD)
 from db4e.Constants.Labels import (
     DB4E_GROUP_LABEL, DB4E_USER_LABEL, DEPLOYMENT_DIR_LABEL, INSTALL_DIR_LABEL, 
     MONERO_WALLET_LABEL, UPDATE_LABEL)
@@ -25,35 +25,39 @@ class Db4E(Container):
     user_name_label = Label("", classes="static_content")
     group_name_label = Label("", classes="static_content")
     install_dir_label = Label("", classes="static_content")
-    vendor_dir_input = Input(restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", classes="form_input")
-    user_wallet_input = Input(restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", classes="form_input")
+    vendor_dir_input = Input(
+        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", classes="form_input_30")
+    user_wallet_input = Input(
+        restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", classes="form_input_70")
 
     def compose(self):
-        INTRO = "Welcome to the [bold green]Database 4 Everything Core[/] [green bold]configuration "
-        INTRO += "screen[/]. On this screen you can update your [cyan]Monero Wallet[/] and "
-        INTRO += "relocate the [cyan]Deployment Directory[/]. "
+        INTRO = "Welcome to the [bold green]Database 4 Everything Core[/] [green bold]" \
+            f"configuration screen[/]. On this screen you can update your [cyan]Monero " \
+            f"Wallet[/] and relocate the [cyan]Deployment Directory[/]. "
         yield Vertical(
-            Label(INTRO, classes="form_intro"),
+            ScrollableContainer(
+                Label(INTRO, classes="form_intro"),
 
-            Vertical(
-                Horizontal(
-                    Label(DB4E_USER_LABEL, classes="form_label"),
-                    self.user_name_label),
-                Horizontal(
-                    Label(DB4E_GROUP_LABEL, classes="form_label"),
-                    self.group_name_label),
-                Horizontal(
-                    Label(INSTALL_DIR_LABEL, classes="form_label"),
-                    self.install_dir_label),
-                Horizontal(
-                    Label(DEPLOYMENT_DIR_LABEL, classes="form_label"),
-                    self.vendor_dir_input),
-                Horizontal(
-                    Label(MONERO_WALLET_LABEL, classes="form_label"),
-                    self.user_wallet_input),
-                id="db4e_update_form"),
+                Vertical(
+                    Horizontal(
+                        Label(DB4E_USER_LABEL, classes="form_label"),
+                        self.user_name_label),
+                    Horizontal(
+                        Label(DB4E_GROUP_LABEL, classes="form_label"),
+                        self.group_name_label),
+                    Horizontal(
+                        Label(INSTALL_DIR_LABEL, classes="form_label"),
+                        self.install_dir_label),
+                    Horizontal(
+                        Label(DEPLOYMENT_DIR_LABEL, classes="form_label"),
+                        self.vendor_dir_input),
+                    Horizontal(
+                        Label(MONERO_WALLET_LABEL, classes="form_label"),
+                        self.user_wallet_input),
+                    classes="form_5"),
 
-            Button(label=UPDATE_LABEL, classes="update_button"))
+                Button(label=UPDATE_LABEL, classes="update_button")),
+            classes=PANE_BOX_FIELD)
 
     def set_data(self, db4e_rec):
         #print(f"Db4E:set_data(): {db4e_rec}")

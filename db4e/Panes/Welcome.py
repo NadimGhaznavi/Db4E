@@ -9,10 +9,10 @@ db4e/Panes/Welcome.py
 from rich import box
 from rich.table import Table
 from textual.widgets import Label
-from textual.containers import Container, Vertical
+from textual.containers import Container, ScrollableContainer, Vertical
 from textual.app import ComposeResult
 
-#from db4e.Messages.TopBarUpdate import TopBarUpdate
+from db4e.Constants.Fields import PANE_BOX_FIELD
 
 class Welcome(Container):
 
@@ -41,9 +41,11 @@ class Welcome(Container):
         coming.add_row("🐞", "[green]Testing + CI/CD[/]", "[green]Full unit + integration testing suite and CI/CD integration.[/]")
         coming.add_row("🕵️", "[green]Community[/]", "[green]Community building and open contributions — feedback welcomed![/]")
 
-        yield Vertical (
-            Label(highlights),
-            Label(coming),
-            id="welcome_pane"
+        yield Vertical(
+            ScrollableContainer (
+                Label(highlights),
+                Label(coming),
+                classes=PANE_BOX_FIELD,
+            )
         )
-
+        

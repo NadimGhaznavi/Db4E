@@ -15,8 +15,8 @@ from db4e.Constants.Fields import (
     GET_NEW_REMOTE_REC_FIELD, INSTALL_MGR_FIELD, DEPLOYMENT_MGR_FIELD, INITIAL_SETUP_FIELD, 
     MONEROD_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Panes import (
-    RESULTS_PANE, NEW_MONEROD_PANE, NEW_P2POOL_PANE, NEW_REMOTE_MONEROD_PANE,
-    NEW_REMOTE_P2POOL_PANE)
+    RESULTS_PANE, MONEROD_PANE, P2POOL_PANE, MONEROD_REMOTE_PANE,
+    P2POOL_REMOTE_PANE)
 
 class MessageRouter:
     def __init__(self, config: Config):
@@ -28,30 +28,38 @@ class MessageRouter:
 
     def load_routes(self):
         # CRUD operations...
+        
+        # Db4e Core
         self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_FIELD, DB4E_FIELD, 
                       self.install_mgr.initial_setup, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD, 
                       self.depl_mgr.update_deployment, RESULTS_PANE)
+        
+        # Monerod
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_FIELD,
-                      self.depl_mgr.get_new_rec, NEW_MONEROD_PANE)
+                      self.depl_mgr.get_new_rec, MONEROD_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD,
-                      self.depl_mgr.get_new_rec, NEW_REMOTE_MONEROD_PANE)
+                      self.depl_mgr.get_new_rec, MONEROD_REMOTE_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.depl_mgr.add_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.depl_mgr.update_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.depl_mgr.del_deployment, RESULTS_PANE)
+        
+        # P2Pool
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD,
-                      self.depl_mgr.get_new_rec, NEW_P2POOL_PANE)
+                      self.depl_mgr.get_new_rec, P2POOL_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, P2POOL_FIELD,
-                      self.depl_mgr.get_new_rec, NEW_REMOTE_P2POOL_PANE)
+                      self.depl_mgr.get_new_rec, P2POOL_REMOTE_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.depl_mgr.add_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.depl_mgr.update_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.depl_mgr.del_deployment, RESULTS_PANE)
+        
+        # XMRig
         self.register(DEPLOYMENT_MGR_FIELD, ADD_DEPLOYMENT_FIELD, XMRIG_FIELD,
                       self.depl_mgr.add_deployment, RESULTS_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD,
@@ -69,7 +77,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, module: str, method: str, payload: dict):
-        #print(f"MessageRouter:dispatch(): {module}/{method}/{payload}")
+        print(f"MessageRouter:dispatch(): {module}/{method}/{payload}")
         component = payload.get("component", "")
         handler = self.get_handler(module, method, component)
         if not handler:
