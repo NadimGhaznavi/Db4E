@@ -18,7 +18,7 @@ from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.Helper import get_effective_identity
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Constants.Panes import (
-    INITIAL_SETUP_PANE, NEW_P2POOL_PANE, NEW_XMRIG_PANE, RESULTS_PANE, WELCOME_PANE)
+    INITIAL_SETUP_PANE, P2POOL_PANE, XMRIG_PANE, RESULTS_PANE, WELCOME_PANE)
 from db4e.Constants.Fields import SET_DATA_FIELD, RESET_DATA_FIELD
 
 @dataclass

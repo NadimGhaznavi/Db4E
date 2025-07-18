@@ -12,12 +12,33 @@ import os, grp, getpass
 import socket, ipaddress
 import re
 
+from rich import box
+from rich.table import Table
+
 from textual.widgets import RadioSet, RadioButton
 
 from db4e.Constants.Fields import(
     COMPONENT_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, MONEROD_FIELD, 
     P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD
 )
+
+def gen_results_table(results):
+    #print(f"Helper:gen_results_table(): Results list:")
+    table = Table(show_header=True, header_style="bold cyan", style="bold green", box=box.SIMPLE)
+    table.add_column("Component", width=25)
+    table.add_column("Message")
+
+    for item in results:
+        #print(item)
+        for category, msg_dict in item.items():
+            message = msg_dict["msg"]
+            if msg_dict["status"] == "good":
+                table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
+            elif msg_dict["status"] == "warn":
+                table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+            elif msg_dict["status"] == "error":
+                table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+    return table
 
 def get_effective_identity():
     """Return the effective user and group for the account running Db3e"""
@@ -47,6 +68,9 @@ def get_radio_map(rec, depl_mgr):
     return radio_map
     
 def is_port_open(ip_addr, port_num):
+    #print(f"Helper:is_port_open(): {ip_addr}/{port_num}")
+    if not is_valid_ip_or_hostname(ip_addr):
+        return False
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(10)  # Set aLine timeout for the connection attempt

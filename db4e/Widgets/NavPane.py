@@ -4,7 +4,7 @@ from typing import Callable, Dict, List, Tuple
 from textual.reactive import reactive
 from textual.widgets import Label, Tree
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical
+from textual.containers import Container, Vertical, ScrollableContainer
 
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Modules.DeploymentMgr import DeploymentMgr
@@ -67,9 +67,10 @@ class NavPane(Container):
         self._initialized = bool(rec and rec.get(VENDOR_DIR_FIELD) and rec.get(USER_WALLET_FIELD))
 
     def compose(self) -> ComposeResult:
-        yield Vertical(self.depls, id="navpane")
+        yield Vertical(ScrollableContainer(self.depls, id="navpane"))
 
     def is_initialized(self) -> bool:
+        print(f"NavPane:is_initialized(): {self._initialized}")
         return self._initialized
 
     def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
@@ -79,12 +80,12 @@ class NavPane(Container):
 
     def refresh_nav_pane(self) -> None:
         self.check_initialized()
-
+        print(f"NavPane:refresh_nave_pane(): initialized: {self.check_initialized()}")
+        self.depls.root.remove_children()
+        self.depls.root.add_leaf(ICON['CORE'] + DB4E_LABEL)
         if not self.is_initialized():
             return
 
-        self.depls.root.remove_children()
-        self.depls.root.add_leaf(ICON['CORE'] + DB4E_LABEL)
 
         new_label = ICON['NEW'] + NEW_LABEL
         for svc in self.services:

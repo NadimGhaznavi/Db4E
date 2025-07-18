@@ -30,7 +30,6 @@ class HealthMgr:
         results = []
         overall_state = GOOD_FIELD
         monerod_rec = self.depl_mgr.get_deployment_by_instance(MONEROD_FIELD, instance)
-        
         if is_port_open(monerod_rec[IP_ADDR_FIELD], monerod_rec[RPC_BIND_PORT_FIELD]):
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, GOOD_FIELD,
@@ -59,7 +58,8 @@ class HealthMgr:
         results = []
         overall_state = GOOD_FIELD
         p2pool_rec = self.depl_mgr.get_deployment_by_instance(P2POOL_FIELD, instance)
-        
+        if not p2pool_rec:
+            return(overall_state, results)
         if is_port_open(p2pool_rec[IP_ADDR_FIELD], p2pool_rec[STRATUM_PORT_FIELD]):
             results.append(result_row(
                 STRATUM_PORT_LABEL, GOOD_FIELD,
@@ -99,11 +99,21 @@ class HealthMgr:
                 P2POOL_LABEL, GOOD_FIELD,
                 f"Found upstream P2Pool deployment: {p2pool_rec[INSTANCE_FIELD]}"
             ))
+            p2_overall_state, p2p_results = self.check_p2pool(p2pool_rec[INSTANCE_FIELD])
+            if p2_overall_state != GOOD_FIELD:
+                results.append(result_row(
+                    P2POOL_LABEL, WARN_FIELD,
+                    f"Upstream P2Pool deployment ({p2pool_rec[INSTANCE_FIELD]}) has issues..."
+                ))
+                overall_state = p2_overall_state
+                results.extend(p2p_results)
         else:
             results.append(result_row(
                 P2POOL_LABEL, ERROR_FIELD,
                 f"Missing upstream P2Pool deployment"
             ))
             overall_state = ERROR_FIELD
+
+
         # overall_state used in NavPane, results used in XMRig and other panes
         return (overall_state, results)
