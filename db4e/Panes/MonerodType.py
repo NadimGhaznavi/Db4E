@@ -25,12 +25,11 @@ from db4e.Messages.SubmitFormData import SubmitFormData
 class MonerodType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the [bold cyan]{MONEROD_LABEL} {DEPLOYMENTS_LABEL}[/] " \
-            f"screen. On this screen you can choose to deploy a [cyan]local[/] or " \
-            f"[cyan]remote[/] {MONEROD_LABEL} {DEPLOYMENTS_LABEL}.\n\nA [cyan]local[/] " \
-            f"{MONEROD_LABEL} node will run on this machine. [cyan]Remote[/] " \
-            f"deployments connect to a {MONEROD_LABEL} node that is already running " \
-            f"on a remote machine."
+        INTRO = f"Welcome to the [yellow]New - {MONEROD_LABEL}[/] screen. Use to create " \
+            f"a new [cyan]local[/] or [cyan]remote[/] {MONEROD_LABEL} deployment.\n\n" \
+            f"A [cyan]local {MONEROD_LABEL}[/] deployment will setup a " \
+            f"[cyan]{MONEROD_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
+            f"connect to a [cyan]{MONEROD_LABEL}[/] running on a remote machine."
        
         yield Vertical(
             ScrollableContainer(

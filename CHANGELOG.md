@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.25.1] - 2025-07-18
+
+## Fixed
+- XMRig > New > crash
+
+---
+
 ## [0.25.0] - 2025-07-18
 
 ## Changed
