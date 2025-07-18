@@ -7,16 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] 
+
+### Changed
+- Updated the stock banner header on all files
+
+### Fixed
+- Added stock banner header to files that were missing it
+
+---
+
 ## [0.25.1] - 2025-07-18
 
-## Fixed
+### Fixed
 - XMRig > New > crash
 
 ---
 
 ## [0.25.0] - 2025-07-18
 
-## Changed
+### Changed
 - Refactor code to improve efficiency and better styling and layout
 
 ---
@@ -36,11 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `is_port_open` and `is_valid_ip_or_hostname` functions to support health checks
 - New detailed health check results in `MonerodRemote`, `P2PoolRemote` and `XMRig` panes
 
-## Changed
+### Changed
 - Changed background of `Static` and `Tree` widgets to black
 - Added support for health checks to `Db4eApp`, `Widgets/NavPane` and `DeploymentMgr`
 
-## Fixed
+### Fixed
 - Minor tweaks to `Db4E.tcss`
 
 ---
