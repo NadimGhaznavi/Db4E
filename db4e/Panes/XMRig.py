@@ -3,7 +3,8 @@ db4e/Panes/XMRig.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
@@ -47,8 +48,9 @@ class XMRig(Container):
 
     def compose(self):
         # Remote P2Pool daemon deployment form
-        INTRO = "This screen provides a form for viewing and/or updating a " \
-            f"{XMRIG_LABEL} deployment."
+        INTRO = f"View and edit the deployment settings for the " \
+            f"[cyan]{XMRIG_LABEL}[/] deployment here."
+
 
         yield Vertical(
             ScrollableContainer(

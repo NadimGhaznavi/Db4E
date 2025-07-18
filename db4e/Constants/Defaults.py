@@ -3,7 +3,8 @@ db4e/Constants/Defaults.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
@@ -29,6 +30,7 @@ DB4E_OLD_GROUP_ENVIRON_DEFAULT = "DB4E_OLD_GROUP"
 DB4E_PROCESS_DEFAULT = "db4e"
 DB4E_REFRESH_DEFAULT = 15
 DB4E_SERVICE_FILE_DEFAULT = "db4e.service"
+DB4E_START_SCRIPT_DEFAULT = "db4e-service.sh"
 DB4E_UNINSTALL_SCRIPT_DEFAULT = "db4e-uninstall-service.sh"
 DEPLOYMENT_COL_DEFAULT = "depl"
 DEV_DIR_DEFAULT = "dev"

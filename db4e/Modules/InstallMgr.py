@@ -3,7 +3,8 @@ db4e/Modules/InstallMgr.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
@@ -68,6 +69,15 @@ class InstallMgr(Container):
         # Intitialize the db4e_rec
         results, db4e_rec = self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
 
+        # Create the Db4E vendor directories
+        self._create_db4e_dirs(vendor_dir=vendor_dir)
+
+        # Copy in the Db4E start script
+        results = self._copy_db4e_files(vendor_dir=vendor_dir, results=results)
+
+        # Generate the Db4E service file (installed by the sudo installer)
+        self._generate_db4e_service_file(vendor_dir=vendor_dir)
+
         # Confirm that the user actually filled out the form.
         results, db4e_rec, abort_install = self._check_form_data(
             user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec, 
@@ -88,10 +98,6 @@ class InstallMgr(Container):
             col_name=self.col_name, filter={COMPONENT_FIELD: DB4E_FIELD}, 
             new_values=db4e_rec)
         self.post_message(RefreshNavPane(self))
-
-        # Setup Db4E
-        self._generate_db4e_service_file(vendor_dir=vendor_dir)
-
         # Create the Monero daemon vendor directories
         self._create_monerod_dirs(vendor_dir=vendor_dir)
 
@@ -106,9 +112,6 @@ class InstallMgr(Container):
 
         # Generate the P2Pool service files (installed by the sudo installer)
         self._generate_p2pool_service_files(vendor_dir=vendor_dir)
-
-        # Copy in the P2Pool daemon and start script
-        results = self._copy_p2pool_files(vendor_dir=vendor_dir, results=results)
 
         # Create the XMRig miner vendor directories
         self._create_xmrig_dirs(vendor_dir=vendor_dir)
@@ -184,41 +187,24 @@ class InstallMgr(Container):
             ))
         return (results, db4e_rec)
 
-    def _create_vendor_dir(self, vendor_dir: str, results: list):
-        abort_install = False
-
-        if os.path.exists(vendor_dir):
-            results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
-                f'Found existing deployment directory ({vendor_dir})'))
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            backup_vendor_dir = vendor_dir + '.' + timestamp
-            try:
-                os.rename(vendor_dir, backup_vendor_dir)
-                results.append(result_row(
-                    DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
-                    f'Backed up old deployment directory ({backup_vendor_dir})'))
-            except (PermissionError, OSError, FileNotFoundError) as e:
-                results.append(result_row(
-                    DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
-                    'Failed to backup old deployment directory ' +
-                    f'({backup_vendor_dir})\n{e}'))
-                abort_install = True
-                return (results, abort_install) # Abort the install
-
-        try:
-            os.makedirs(vendor_dir)
-            results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
-                f"Created {DEPLOYMENT_DIR_LABEL} ({vendor_dir})"))        
-        except (PermissionError, FileNotFoundError, FileExistsError) as e:
-            results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
-                f'Failed to create directory ({vendor_dir}\n{e}'))
-            abort_install = True
-        return (results, abort_install)
-
+    # Copy Db4E files
+    def _copy_db4e_files(self, vendor_dir, results):
+        bin_dir              = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
+        db4e_start_script = self.ini.config[DB4E_FIELD][START_SCRIPT_FIELD]
+        db4e_version      = self.ini.config[DB4E_FIELD][VERSION_FIELD]
+        db4e_dir = DB4E_FIELD + '-' + str(db4e_version)
+        # Template directory
+        tmpl_dir = self._get_templates_dir()
+        # Copy in the Db4E service startup script
+        fq_dst_db4e_bin_dir = os.path.join(vendor_dir, db4e_dir, bin_dir)
+        shutil.copy(
+            os.path.join(tmpl_dir, db4e_dir, bin_dir, db4e_start_script), 
+            fq_dst_db4e_bin_dir)
+        results.append(result_row(
+            DB4E_LABEL, GOOD_FIELD,
+            f"Installed {db4e_start_script} into {fq_dst_db4e_bin_dir}"
+        ))
+        
     # Copy monerod files
     def _copy_monerod_files(self, vendor_dir, results):
         bin_dir              = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
@@ -287,6 +273,15 @@ class InstallMgr(Container):
         ))
         return results
 
+    def _create_db4e_dirs(self, vendor_dir):
+        bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
+        log_dir = self.ini.config[DB4E_FIELD][LOG_DIR_FIELD]
+        db4e_version = self.ini.config[DB4E_FIELD][VERSION_FIELD]
+        db4e_dir = DB4E_FIELD + '-' + str(db4e_version)
+        os.mkdir(os.path.join(vendor_dir, db4e_dir))
+        for sub_dir in [bin_dir, log_dir]:
+            os.mkdir(os.path.join(vendor_dir, db4e_dir, sub_dir))
+
     def _create_monerod_dirs(self, vendor_dir):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         conf_dir = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
@@ -309,6 +304,41 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(vendor_dir, p2pool_dir))
         for sub_dir in [bin_dir, conf_dir, run_dir]:
             os.mkdir(os.path.join(vendor_dir, p2pool_dir, sub_dir))
+
+    def _create_vendor_dir(self, vendor_dir: str, results: list):
+        abort_install = False
+
+        if os.path.exists(vendor_dir):
+            results.append(result_row(
+                DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
+                f'Found existing deployment directory ({vendor_dir})'))
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            backup_vendor_dir = vendor_dir + '.' + timestamp
+            try:
+                os.rename(vendor_dir, backup_vendor_dir)
+                results.append(result_row(
+                    DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
+                    f'Backed up old deployment directory ({backup_vendor_dir})'))
+            except (PermissionError, OSError, FileNotFoundError) as e:
+                results.append(result_row(
+                    DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
+                    'Failed to backup old deployment directory ' +
+                    f'({backup_vendor_dir})\n{e}'))
+                abort_install = True
+                return (results, abort_install) # Abort the install
+
+        try:
+            os.makedirs(vendor_dir)
+            results.append(result_row(
+                DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
+                f"Created {DEPLOYMENT_DIR_LABEL} ({vendor_dir})"))        
+        except (PermissionError, FileNotFoundError, FileExistsError) as e:
+            results.append(result_row(
+                DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
+                f'Failed to create directory ({vendor_dir}\n{e}'))
+            abort_install = True
+        return (results, abort_install)
 
     def _create_xmrig_dirs(self, vendor_dir):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
