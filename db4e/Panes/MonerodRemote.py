@@ -15,13 +15,13 @@ from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD, DELETE_BUTTON_FIELD, 
-    DEPLOYMENT_MGR_FIELD, FORM_4_FIELD, FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, 
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, 
-    HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, ORIG_INSTANCE_FIELD, 
-    PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, 
-    ZMQ_PUB_PORT_FIELD)
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD, 
+    DELETE_BUTTON_FIELD, DEPLOYMENT_MGR_FIELD, FORM_4_FIELD, FORM_INPUT_7_FIELD, 
+    FORM_INPUT_15_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, 
+    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
+    MONEROD_FIELD, ORIG_INSTANCE_FIELD, PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, 
+    RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, 
+    UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (
     DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL, 
     UPDATE_LABEL, RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL)
@@ -29,14 +29,18 @@ from db4e.Constants.Labels import (
 class MonerodRemote(Container):
 
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, classes=FORM_INPUT_15_FIELD)
+        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
+        classes=FORM_INPUT_15_FIELD)
     ip_addr_input = Input(
-        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True, classes=FORM_INPUT_30_FIELD)
+        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True, 
+        classes=FORM_INPUT_30_FIELD)
     rpc_bind_port_input = Input(
-        id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True, classes=FORM_INPUT_7_FIELD)
+        id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True, 
+        classes=FORM_INPUT_7_FIELD)
     zmq_pub_port_input = Input(
-        id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True, classes=FORM_INPUT_7_FIELD)
-    health_msgs = Label(classes="health_box")
+        id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True, 
+        classes=FORM_INPUT_7_FIELD)
+    health_msgs = Label()
 
     def compose(self):
         # Remote Monero daemon deployment form
@@ -63,14 +67,15 @@ class MonerodRemote(Container):
                     classes=FORM_4_FIELD),
 
                 Vertical(
+                    self.health_msgs,
+                    classes=HEALTH_BOX_FIELD),
+
+                Vertical(
                     Horizontal(
                         Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
                         Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
-                        id="buttons")),
+                        classes=BUTTON_ROW_FIELD))),
 
-                Vertical(
-                    self.health_msgs,
-                )),
             classes=PANE_BOX_FIELD)     
 
     def set_data(self, rec):

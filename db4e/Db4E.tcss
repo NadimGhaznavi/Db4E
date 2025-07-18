@@ -122,6 +122,7 @@ Tree {
 /* Health Box */
 
 .health_box {
+    height: auto;
     border: round;
     padding: 0 1;
 }
@@ -145,9 +146,20 @@ Tree {
 /* Radio Button Width */
 
 .radio_button_type {
-    width: 26; 
-    background: black; }
+    height: 1;
+    width: 30;
+    background: black;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
 
+.radio_button_type:focus,
+.radio_button_type:hover {
+    height: 1;
+    padding: 0;
+    margin: 0;
+}
 
 .radio_set {
     border: round;

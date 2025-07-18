@@ -22,9 +22,9 @@ from db4e.Constants.Fields import (
     FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, 
     HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, 
     ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, P2POOL_ID_FIELD, PANE_BOX_FIELD, 
-    RADIO_SET_FIELD, RADIO_MAP, RED_BUTTON_FIELD, REMOTE_FIELD, STATIC_CONTENT_FIELD, 
-    TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, 
-    XMRIG_FIELD)
+    RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD, RADIO_MAP, RED_BUTTON_FIELD, REMOTE_FIELD, 
+    STATIC_CONTENT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, 
+    UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     CONFIG_LABEL, DELETE_LABEL, HEALTH_LABEL, INSTANCE_LABEL, P2POOL_LABEL, 
     NUM_THREADS_LABEL, UPDATE_LABEL, XMRIG_LABEL)
@@ -70,16 +70,16 @@ class XMRig(Container):
                     self.radio_set),
 
                 Vertical(
+                    self.health_msgs,
+                    classes=HEALTH_BOX_FIELD),
+
+                Vertical(
                     Horizontal(
                         Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
                         Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
-                        classes=BUTTON_ROW_FIELD)),
+                        classes=BUTTON_ROW_FIELD))),
                 
-                Vertical(
-                    self.health_msgs,
-                    classes=HEALTH_BOX_FIELD,
-                )
-            ), classes=PANE_BOX_FIELD)
+            classes=PANE_BOX_FIELD)
 
     def get_p2pool_id(self, instance=None):
         return self.instance_map[instance]
@@ -143,7 +143,7 @@ class XMRig(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.get_p2pool_instances().keys():
-            radio_button = RadioButton(instance)
+            radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
             self.radio_set.mount(radio_button)
             if instance == self.p2pool_instance:
                 radio_button.value = instance
