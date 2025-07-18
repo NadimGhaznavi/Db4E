@@ -42,7 +42,7 @@ class P2PoolRemote(Container):
     def compose(self):
         # Remote P2Pool deployment form
         INTRO = f"This screen allows you to view and edit the deployment " + \
-            f"settings for the {P2POOL_REMOTE_LABEL} deployment."
+            f"settings for the [cyan]{P2POOL_REMOTE_LABEL}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(

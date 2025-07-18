@@ -24,11 +24,11 @@ from db4e.Messages.SubmitFormData import SubmitFormData
 class P2PoolType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the [cyan bold]{P2POOL_LABEL} {DEPLOYMENTS_LABEL}[/] screen. " \
-            f"On this screen you can choose to deploy a [cyan]local[/] or [cyan]remote[/] " \
-            f"{P2POOL_LABEL} {DEPLOYMENTS_LABEL}.\n\nA [cyan]local[/] {P2POOL_LABEL} " \
-            f"will run on this machine. A [cyan]remote[/] {P2POOL_LABEL} " \
-            f"{DEPLOYMENTS_LABEL} points at a {P2POOL_LABEL} that has already been setup."
+        INTRO = f"Welcome to the [yellow]New - {P2POOL_LABEL}[/] screen. Use to create " \
+            f"a new [cyan]local[/] or [cyan]remote[/] {P2POOL_LABEL} deployment.\n\n" \
+            f"A [cyan]local {P2POOL_LABEL}[/] deployment will setup a " \
+            f"[cyan]{P2POOL_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
+            f"connect to a [cyan]{P2POOL_LABEL}[/] running on a remote machine."
                     
         yield Vertical (
             ScrollableContainer(

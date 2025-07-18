@@ -19,12 +19,12 @@ from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, CONFIG_FIELD, 
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_3_FIELD, 
-    FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, 
-    HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, NUM_THREADS_FIELD, 
-    ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, P2POOL_ID_FIELD, PANE_BOX_FIELD, 
-    RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD, RADIO_MAP, RED_BUTTON_FIELD, REMOTE_FIELD, 
-    STATIC_CONTENT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, 
-    UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
+    FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, 
+    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, 
+    NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, P2POOL_ID_FIELD, 
+    PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD, RADIO_MAP, RED_BUTTON_FIELD, 
+    REMOTE_FIELD, STATIC_CONTENT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
+    UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     CONFIG_LABEL, DELETE_LABEL, HEALTH_LABEL, INSTANCE_LABEL, P2POOL_LABEL, 
     NUM_THREADS_LABEL, UPDATE_LABEL, XMRIG_LABEL)
@@ -52,7 +52,7 @@ class XMRig(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes="form_intro"),
+                Label(INTRO, classes=FORM_INTRO_FIELD),
 
                 Vertical(
                     Horizontal(
@@ -82,7 +82,9 @@ class XMRig(Container):
             classes=PANE_BOX_FIELD)
 
     def get_p2pool_id(self, instance=None):
-        return self.instance_map[instance]
+        if instance and instance in self.instance_map:
+            return self.instance_map[instance]
+        return False
 
     def get_p2pool_instances(self):
         return self.instance_map
