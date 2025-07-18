@@ -12,12 +12,12 @@
 #
 #####################################################################
 
-# Assume this file lives in $DB4E_INSTALL_DIR/bin/
-BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DB4E_DIR="$BIN_DIR/.."
+# The pip installed Python environment
+PYTHON="[[PYTHON]]"
 
-VENV="$DB4E_DIR/venv"
-PYTHON="$VENV/bin/python"
-MAIN_SCRIPT="$BIN_DIR/db4e.py -s "
+# The Db4E directory
+INSTALL_DIR="[[INSTALL_DIR]]"
 
-$MAIN_SCRIPT
+# The actual service
+$PYTHON $INSTALL_DIR/bin/db4e -s
+

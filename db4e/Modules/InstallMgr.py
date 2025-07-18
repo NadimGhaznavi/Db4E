@@ -12,6 +12,7 @@ import os, shutil
 from datetime import datetime, timezone
 import tempfile
 import subprocess
+import stat
 
 from textual.containers import Container
 
@@ -26,18 +27,20 @@ from db4e.Constants.Fields import (
     GROUP_FIELD, INSTALL_DIR_FIELD, LOG_DIR_FIELD, MONEROD_FIELD, P2POOL_FIELD, 
     PROCESS_FIELD, RUN_DIR_FIELD, SETUP_SCRIPT_FIELD, SERVICE_FILE_FIELD, 
     SOCKET_FILE_FIELD, START_SCRIPT_FIELD, SYSTEMD_DIR_FIELD, 
-    TEMPLATE_DIR_FIELD, TMP_DIR_ENVIRON_FIELD, USER_FIELD, USER_WALLET_FIELD, 
-    VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD)
+    TEMPLATE_FIELD, TEMPLATE_DIR_FIELD, TMP_DIR_ENVIRON_FIELD, USER_FIELD, 
+    USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.SystemdTemplates import (
     DB4E_USER_PLACEHOLDER, DB4E_GROUP_PLACEHOLDER, DB4E_DIR_PLACEHOLDER,
-    MONEROD_DIR_PLACEHOLDER, P2POOL_DIR_PLACEHOLDER, XMRIG_DIR_PLACEHOLDER)
+    INSTALL_DIR_PLACEHOLDER, MONEROD_DIR_PLACEHOLDER, P2POOL_DIR_PLACEHOLDER, 
+    PYTHON_PLACEHOLDER, XMRIG_DIR_PLACEHOLDER)
 from db4e.Constants.Labels import (
     DB4E_GROUP_LABEL, DB4E_LABEL, DB4E_USER_LABEL, DEPLOYMENT_DIR_LABEL, 
     INSTALL_DIR_LABEL, MONEROD_LABEL, MONERO_WALLET_LABEL, P2POOL_LABEL, 
     STARTUP_SCRIPT, XMRIG_LABEL)
 from db4e.Constants.Defaults import (
-    DB4E_OLD_GROUP_ENVIRON_DEFAULT, DEPLOYMENT_COL_DEFAULT, SUDO_CMD_DEFAULT, 
-    TMP_DIR_DEFAULT)
+    DB4E_OLD_GROUP_ENVIRON_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, 
+    SUDO_CMD_DEFAULT, TMP_DIR_DEFAULT)
+from db4e.Constants.SystemdTemplates import DB4E_DIR_PLACEHOLDER
 
 # The Mongo collection that houses the deployment records
 DEPL_COL = DEPLOYMENT_COL_DEFAULT
@@ -112,6 +115,9 @@ class InstallMgr(Container):
 
         # Generate the P2Pool service files (installed by the sudo installer)
         self._generate_p2pool_service_files(vendor_dir=vendor_dir)
+
+        # Copy in the P2Pool daemon and start script
+        results = self._copy_p2pool_files(vendor_dir=vendor_dir, results=results)
 
         # Create the XMRig miner vendor directories
         self._create_xmrig_dirs(vendor_dir=vendor_dir)
@@ -195,16 +201,26 @@ class InstallMgr(Container):
         db4e_src_dir = DB4E_FIELD
         db4e_dest_dir = DB4E_FIELD + '-' + str(db4e_version)
         # Template directory
-        tmpl_dir = self._get_templates_dir()
-        # Copy in the Db4E service startup script
-        fq_dst_db4e_bin_dir = os.path.join(vendor_dir, db4e_dest_dir, bin_dir)
-        shutil.copy(
-            os.path.join(tmpl_dir, db4e_src_dir, bin_dir, db4e_start_script), 
-            fq_dst_db4e_bin_dir)
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
+        # Substitute placeholder in the db4e-service.sh script
+        install_dir = self.depl_mgr.get_dir(INSTALL_DIR_FIELD)
+        python = self.depl_mgr.get_dir(PYTHON_DEFAULT)
+        placeholders = {
+            PYTHON_PLACEHOLDER: python,
+            INSTALL_DIR_PLACEHOLDER: install_dir}
+        fq_src_script =  os.path.join(tmpl_dir, db4e_src_dir, bin_dir, db4e_start_script)
+        fq_dest_script = os.path.join(vendor_dir, db4e_dest_dir, bin_dir, db4e_start_script)
+        script_contents = self._replace_placeholders(fq_src_script, placeholders)
+        with open(fq_dest_script, 'w') as f:
+            f.write(script_contents)        
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
-            f"Installed {db4e_start_script} into {fq_dst_db4e_bin_dir}"
+            f"Installed {fq_src_script} as {fq_dest_script}"
         ))
+        # Make it executable
+        current_permissions = os.stat(fq_dest_script).st_mode
+        new_permissions = current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+        os.chmod(fq_dest_script, new_permissions)
         return results
         
     # Copy monerod files
@@ -215,22 +231,28 @@ class InstallMgr(Container):
         monerod_version      = self.ini.config[MONEROD_FIELD][VERSION_FIELD]
         monerod_dir = MONEROD_FIELD + '-' + str(monerod_version)
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         # Copy in the Monero daemon and startup scripts
-        fq_dst_monerod_bin_dir = os.path.join(vendor_dir, monerod_dir, bin_dir)
+        fq_dst_bin_dir =  os.path.join(vendor_dir, monerod_dir, bin_dir)
+        fq_dst_monerod_dest_script = os.path.join(
+            vendor_dir, monerod_dir, bin_dir, monerod_start_script)
         fq_src_monerod = os.path.join(tmpl_dir, monerod_dir, bin_dir, monerod_binary)
+        shutil.copy(fq_src_monerod, fq_dst_bin_dir)
+        results.append(result_row(
+            MONEROD_LABEL, GOOD_FIELD,
+            f"Installed {MONEROD_LABEL} as {fq_dst_monerod_dest_script}"
+        ))
         fq_src_monerod_start_script = os.path.join(
             tmpl_dir, monerod_dir, bin_dir, monerod_start_script)
-        shutil.copy(fq_src_monerod, fq_dst_monerod_bin_dir)
+        shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Installed {MONEROD_LABEL} into {fq_dst_monerod_bin_dir}"
+            f"Installed {MONEROD_LABEL} {STARTUP_SCRIPT}: {fq_dst_monerod_dest_script}"
         ))
-        shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_bin_dir)
-        results.append(result_row(
-            MONEROD_LABEL, GOOD_FIELD,
-            f"Installed {MONEROD_LABEL} {STARTUP_SCRIPT} into {fq_dst_monerod_bin_dir}"
-        ))
+        # Make it executable
+        current_permissions = os.stat(fq_dst_monerod_dest_script).st_mode
+        new_permissions = current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+        os.chmod(fq_dst_monerod_dest_script, new_permissions)
         return results
 
     def _copy_p2pool_files(self, vendor_dir, results):
@@ -238,23 +260,28 @@ class InstallMgr(Container):
         p2pool_binary = self.ini.config[P2POOL_FIELD][PROCESS_FIELD]
         p2pool_start_script  = self.ini.config[P2POOL_FIELD][START_SCRIPT_FIELD]
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         # P2Pool directory
         p2pool_version = self.ini.config[P2POOL_FIELD][VERSION_FIELD]
         p2pool_dir = P2POOL_FIELD +'-' + str(p2pool_version)
         # Copy in the P2Pool daemon and startup script
         fq_src_p2pool = os.path.join(tmpl_dir, p2pool_dir, bin_dir, p2pool_binary)
+        fq_dst_bin_dir = os.path.join(vendor_dir, p2pool_dir, bin_dir)
         fq_src_p2pool_start_script  = os.path.join(tmpl_dir, p2pool_dir, bin_dir, p2pool_start_script)
-        fq_dst_p2pool_bin_dir = os.path.join(vendor_dir, p2pool_dir, bin_dir)
-        shutil.copy(fq_src_p2pool, fq_dst_p2pool_bin_dir)
+        fq_dst_p2pool_start_script = os.path.join(vendor_dir, p2pool_dir, bin_dir, p2pool_start_script)
+        shutil.copy(fq_src_p2pool, fq_dst_bin_dir)
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Installed {P2POOL_LABEL} into {fq_dst_p2pool_bin_dir}"
+            f"Installed {P2POOL_LABEL}: {fq_dst_bin_dir}/{p2pool_binary}"
         ))
-        shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_bin_dir)
+        shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_start_script)
+        # Make it executable
+        current_permissions = os.stat(fq_dst_p2pool_start_script).st_mode
+        new_permissions = current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+        os.chmod(fq_dst_p2pool_start_script, new_permissions)
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Installed {P2POOL_LABEL} {STARTUP_SCRIPT} into {fq_dst_p2pool_bin_dir}"
+            f"Installed {P2POOL_LABEL} {STARTUP_SCRIPT}: {fq_dst_p2pool_start_script}"
         ))
         return results
 
@@ -265,7 +292,7 @@ class InstallMgr(Container):
         xmrig_version = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
         xmrig_dir = XMRIG_FIELD + '-' + str(xmrig_version)
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, xmrig_dir, bin_dir)
         fq_src_xmrig = os.path.join(tmpl_dir, xmrig_dir, bin_dir, xmrig_binary)
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
@@ -284,6 +311,9 @@ class InstallMgr(Container):
         os.makedirs(os.path.join(vendor_dir, db4e_dir))
         for sub_dir in [bin_dir, log_dir]:
             os.mkdir(os.path.join(vendor_dir, db4e_dir, sub_dir))
+        os.symlink(
+            os.path.join(db4e_dir), 
+            os.path.join(vendor_dir, DB4E_FIELD))
 
     def _create_monerod_dirs(self, vendor_dir):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
@@ -297,6 +327,9 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(vendor_dir, blockchain_dir))
         for sub_dir in [bin_dir, conf_dir, run_dir, log_dir]:
             os.mkdir(os.path.join(vendor_dir, monerod_dir, sub_dir))
+        os.symlink(
+            os.path.join(monerod_dir), 
+            os.path.join(vendor_dir, MONEROD_FIELD))
 
     def _create_p2pool_dirs(self, vendor_dir):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
@@ -307,6 +340,9 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(vendor_dir, p2pool_dir))
         for sub_dir in [bin_dir, conf_dir, run_dir]:
             os.mkdir(os.path.join(vendor_dir, p2pool_dir, sub_dir))
+        os.symlink(
+            os.path.join(p2pool_dir), 
+            os.path.join(vendor_dir, P2POOL_FIELD))
 
     def _create_vendor_dir(self, vendor_dir: str, results: list):
         abort_install = False
@@ -351,6 +387,9 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(vendor_dir, xmrig_dir))
         for sub_dir in [bin_dir, conf_dir]:
             os.mkdir(os.path.join(vendor_dir, xmrig_dir, sub_dir))
+        os.symlink(
+            os.path.join(xmrig_dir), 
+            os.path.join(vendor_dir, XMRIG_FIELD))
 
     # Update the db4e service template with deployment values
     def _generate_db4e_service_file(self, vendor_dir):
@@ -359,7 +398,7 @@ class InstallMgr(Container):
         group = effective_id[GROUP_FIELD]
         systemd_dir = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
         db4e_service_file = self.ini.config[DB4E_FIELD][SERVICE_FILE_FIELD]
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         tmp_dir = self._get_tmp_dir()
         fq_db4e_dir = os.path.join(vendor_dir, DB4E_FIELD)
         placeholders = {
@@ -384,7 +423,7 @@ class InstallMgr(Container):
         user = effective_id[USER_FIELD]
         group = effective_id[GROUP_FIELD]
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         # Substitution placeholders in the service template files
@@ -414,7 +453,7 @@ class InstallMgr(Container):
         user = effective_id[USER_FIELD]
         group = effective_id[GROUP_FIELD]
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         # P2Pool directory
@@ -448,7 +487,7 @@ class InstallMgr(Container):
         user = effective_id[USER_FIELD]
         group = effective_id[GROUP_FIELD]
         # Template directory
-        tmpl_dir = self._get_templates_dir()
+        tmpl_dir = self.depl_mgr.get_dir(TEMPLATE_FIELD)
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         # XMRig directory

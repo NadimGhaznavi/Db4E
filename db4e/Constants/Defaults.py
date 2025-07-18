@@ -69,6 +69,7 @@ P2POOL_VERSION_DEFAULT = "4.8"
 PRIORITY_NODE_1_DEFAULT = "p2pmd.xmrvsbeast.com"
 PRIORITY_NODE_2_DEFAULT = "nodes.hashvault.pro"
 PYPI_REPO_DEFAULT = 'https://pypi.org/pypi/db4e/json'
+PYTHON_DEFAULT = "python"
 RPC_BIND_PORT_DEFAULT = 18081
 RUN_DIR_DEFAULT = "run"
 SERVICE_STATUS_DEFAULT = "stopped"

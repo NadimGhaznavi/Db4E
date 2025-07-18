@@ -24,15 +24,19 @@ from db4e.Constants.Labels import (
     NUM_THREADS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL, 
     STRATUM_PORT_LABEL, XMRIG_LABEL, ZMQ_PUB_PORT_LABEL)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, COMPONENT_FIELD, CONFIG_FIELD, DEPLOYMENT_FIELD, 
-    DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, 
-    GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
-    MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, 
-    P2POOL_FIELD, P2POOL_ID_FIELD, P2POOL_REMOTE_FIELD, REMOTE_FIELD, 
-    RPC_BIND_PORT_FIELD, STRATUM_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, 
-    UPDATED_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, 
-    VERSION_FIELD, WARN_FIELD, XMRIG_FIELD, ZMQ_PUB_PORT_FIELD)
-from db4e.Constants.Defaults import DEPLOYMENT_COL_DEFAULT
+    BIN_DIR_FIELD, DB4E_FIELD, COMPONENT_FIELD, CONFIG_FIELD,
+    DEPLOYMENT_TYPE_FIELD, ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD,
+    GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
+    MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD,
+    P2POOL_FIELD, P2POOL_ID_FIELD, P2POOL_REMOTE_FIELD, PYTHON_FIELD,
+    REMOTE_FIELD, RPC_BIND_PORT_FIELD, STRATUM_PORT_FIELD, TEMPLATE_FIELD, 
+    TO_MODULE_FIELD,TO_METHOD_FIELD, UPDATED_FIELD, USER_FIELD, USER_WALLET_FIELD,
+    VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD,
+    ZMQ_PUB_PORT_FIELD
+)
+from db4e.Constants.Defaults import (
+    BIN_DIR_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT)
+                                     
 
 
 class DeploymentMgr(Container):
@@ -293,6 +297,23 @@ class DeploymentMgr(Container):
             instance_list.append(db_rec[INSTANCE_FIELD])
         instance_list.sort()
         return instance_list or []
+    
+    def get_dir(self, aDir: str) -> str:
+        print(f"DB4E_DIR: {os.path.abspath(os.path.join('..', '..'))}")
+        if aDir == DB4E_FIELD:
+            return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        elif aDir == PYTHON_FIELD:
+            python = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
+                             BIN_DIR_DEFAULT, PYTHON_DEFAULT))
+            return python
+        elif aDir == INSTALL_DIR_FIELD:
+            return os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
+        elif aDir == TEMPLATE_FIELD:
+            return os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '..', '..', DB4E_FIELD, TEMPLATES_DIR_DEFAULT)
+            )
         
     def get_new_rec(self, rec_data: dict) -> str:
         component = rec_data.get(COMPONENT_FIELD)
@@ -478,7 +499,7 @@ class DeploymentMgr(Container):
                     f"Created {DEPLOYMENT_DIR_LABEL}: {new_dir}"
                 ))
             except (PermissionError, OSError) as e:
-                update_flag = FAlse
+                update_flag = False
                 results.append(result_row(
                     DEPLOYMENT_DIR_LABEL, ERROR_FIELD,
                     f"Failed to create {DEPLOYMENT_DIR_LABEL}: {e}"

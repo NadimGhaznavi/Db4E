@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # db4e/bin/db4e-initial-setup.sh
 #
@@ -91,6 +91,8 @@ systemctl start db4e
 echo "Started the db4e service"
 
 # Set SUID bit on the xmrig binary for performance reasons
-chown root:"$DB4E_GROUP" "$VENDOR_DIR/xmrig-*/bin/xmrig"
-chmod 4750 "$VENDOR_DIR/xmrig-*/bin/xmrig"
+chown root:"$DB4E_GROUP" "$VENDOR_DIR/xmrig/bin/xmrig"
+chmod 4750 "$VENDOR_DIR/xmrig/bin/xmrig"
+echo chown root:"$DB4E_GROUP" "$VENDOR_DIR/xmrig/bin/xmrig"
+echo chmod 4750 "$VENDOR_DIR/xmrig/bin/xmrig"
 echo "Set the SUID bit on the xmrig binary"
