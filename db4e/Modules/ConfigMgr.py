@@ -163,6 +163,7 @@ class Config:
                 SYSTEMD_DIR_FIELD: SYSTEMD_DIR_DEFAULT,
                 TEMPLATE_DIR_FIELD: TEMPLATES_DIR_DEFAULT,
                 VENDOR_DIR_FIELD: VENDOR_DIR_DEFAULT,
+                VERSION_FIELD: DB4E_VERSION_DEFAULT,
             },
             DB_FIELD: {
                 BACKUP_DIR_FIELD: BACKUP_DIR_DEFAULT,
