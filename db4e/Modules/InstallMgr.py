@@ -69,15 +69,6 @@ class InstallMgr(Container):
         # Intitialize the db4e_rec
         results, db4e_rec = self._init_db4e_rec(db4e_rec=db4e_rec, results=results)
 
-        # Create the Db4E vendor directories
-        self._create_db4e_dirs(vendor_dir=vendor_dir)
-
-        # Copy in the Db4E start script
-        results = self._copy_db4e_files(vendor_dir=vendor_dir, results=results)
-
-        # Generate the Db4E service file (installed by the sudo installer)
-        self._generate_db4e_service_file(vendor_dir=vendor_dir)
-
         # Confirm that the user actually filled out the form.
         results, db4e_rec, abort_install = self._check_form_data(
             user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec, 
@@ -91,6 +82,15 @@ class InstallMgr(Container):
         )
         if abort_install:
             return results
+
+        # Create the Db4E vendor directories
+        self._create_db4e_dirs(vendor_dir=vendor_dir)
+
+        # Copy in the Db4E start script
+        results = self._copy_db4e_files(vendor_dir=vendor_dir, results=results)
+
+        # Generate the Db4E service file (installed by the sudo installer)
+        self._generate_db4e_service_file(vendor_dir=vendor_dir)
 
         # The 'db4e' record has been created, the user wallet and vendor dir
         # have been set
@@ -192,18 +192,20 @@ class InstallMgr(Container):
         bin_dir              = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         db4e_start_script = self.ini.config[DB4E_FIELD][START_SCRIPT_FIELD]
         db4e_version      = self.ini.config[DB4E_FIELD][VERSION_FIELD]
-        db4e_dir = DB4E_FIELD + '-' + str(db4e_version)
+        db4e_src_dir = DB4E_FIELD
+        db4e_dest_dir = DB4E_FIELD + '-' + str(db4e_version)
         # Template directory
         tmpl_dir = self._get_templates_dir()
         # Copy in the Db4E service startup script
-        fq_dst_db4e_bin_dir = os.path.join(vendor_dir, db4e_dir, bin_dir)
+        fq_dst_db4e_bin_dir = os.path.join(vendor_dir, db4e_dest_dir, bin_dir)
         shutil.copy(
-            os.path.join(tmpl_dir, db4e_dir, bin_dir, db4e_start_script), 
+            os.path.join(tmpl_dir, db4e_src_dir, bin_dir, db4e_start_script), 
             fq_dst_db4e_bin_dir)
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
             f"Installed {db4e_start_script} into {fq_dst_db4e_bin_dir}"
         ))
+        return results
         
     # Copy monerod files
     def _copy_monerod_files(self, vendor_dir, results):
@@ -274,11 +276,12 @@ class InstallMgr(Container):
         return results
 
     def _create_db4e_dirs(self, vendor_dir):
+        print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         log_dir = self.ini.config[DB4E_FIELD][LOG_DIR_FIELD]
         db4e_version = self.ini.config[DB4E_FIELD][VERSION_FIELD]
         db4e_dir = DB4E_FIELD + '-' + str(db4e_version)
-        os.mkdir(os.path.join(vendor_dir, db4e_dir))
+        os.makedirs(os.path.join(vendor_dir, db4e_dir))
         for sub_dir in [bin_dir, log_dir]:
             os.mkdir(os.path.join(vendor_dir, db4e_dir, sub_dir))
 
