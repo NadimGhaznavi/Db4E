@@ -33,18 +33,19 @@ from db4e.Constants.Labels import (
 class MonerodRemote(Container):
 
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
+        compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
         classes=FORM_INPUT_30_FIELD)
     ip_addr_input = Input(
-        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True, 
+        compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
         classes=FORM_INPUT_30_FIELD)
     rpc_bind_port_input = Input(
-        id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True, 
+        compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
         classes=FORM_INPUT_30_FIELD)
     zmq_pub_port_input = Input(
-        id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True, 
+        compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
         classes=FORM_INPUT_30_FIELD)
     health_msgs = Label()
+    orig_instance = ""
 
     def compose(self):
         # Remote Monero daemon deployment form
@@ -110,7 +111,7 @@ class MonerodRemote(Container):
                 TO_METHOD_FIELD: to_method,
                 REMOTE_FIELD: True,
                 ORIG_INSTANCE_FIELD: self.orig_instance,
-                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                INSTANCE_FIELD: self.orig_instance,
                 IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
                 RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
                 ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,

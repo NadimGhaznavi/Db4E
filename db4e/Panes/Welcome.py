@@ -15,32 +15,34 @@ from textual.app import ComposeResult
 
 from db4e.Constants.Fields import PANE_BOX_FIELD
 
+color = "#9cae41"
+
 class Welcome(Container):
 
     def compose(self) -> ComposeResult:
         
 
-        highlights = Table(title="[cyan b]Db4E Features Today[/]", show_header=True, box=box.SIMPLE, border_style="green", padding=(0, 1))
+        highlights = Table(title="[#31b8e6 b]Db4E Features Today[/]", show_header=True, box=box.SIMPLE, border_style="#67732a", padding=(0, 1))
         highlights.add_column("", width=2, no_wrap=True)
-        highlights.add_column("[cyan]Feature[/]", style="bold", no_wrap=True)
-        highlights.add_column("[cyan]Description[/]")
-        highlights.add_row("🎉", "[green]PyPI Release[/]", "[green]First official PyPI production release — now you can `pip install db4e`![/]")
-        highlights.add_row("🛠️", "[green]Deployment Manager[/]", "[green]Smooth vendor directory handling and update workflows.[/]")
-        highlights.add_row("🖥️", "[green]Textual TUI[/]", "[green]Fully integrated Textual-based TUI with interactive forms.[/]")
-        highlights.add_row("🔒", "[green]Security[/]", "[green]Built-in security architecture with sudoers-based privilege management.[/]")
-        highlights.add_row("🧩", "[green]Modular Design[/]", "[green]Future-proof upgrades of Monerod, P2Pool, and XMRig.[/]")
-        highlights.add_row("✅", "[green]Git Workflow[/]", "[green]Active development in Git branches, keeping `main` clean and stable.[/]")
+        highlights.add_column("[#31b8e6]Feature[/]", style="bold", no_wrap=True)
+        highlights.add_column("[#31b8e6]Description[/]")
+        highlights.add_row("🎉", "[#9cae41]PyPI Release[/]", "[#9cae41]First official PyPI production release — now you can `pip install db4e`![/]")
+        highlights.add_row("🛠️", "[#9cae41]Deployment Manager[/]", "[#9cae41]Smooth vendor directory handling and update workflows.[/]")
+        highlights.add_row("🖥️", "[#9cae41]Textual TUI[/]", "[#9cae41]Fully integrated Textual-based TUI with interactive forms.[/]")
+        highlights.add_row("🔒", "[#9cae41]Security[/]", "[#9cae41]Built-in security architecture with sudoers-based privilege management.[/]")
+        highlights.add_row("🧩", "[#9cae41]Modular Design[/]", "[#9cae41]Future-proof upgrades of Monerod, P2Pool, and XMRig.[/]")
+        highlights.add_row("✅", "[#9cae41]Git Workflow[/]", "[#9cae41]Active development in Git branches, keeping `main` clean and stable.[/]")
 
-        coming = Table(title="[cyan b]Coming Soon[/]", show_header=True, box=box.SIMPLE, border_style="green", padding=(0, 1))
+        coming = Table(title="[#31b8e6 b]Coming Soon[/]", show_header=True, box=box.SIMPLE, border_style="#67732a", padding=(0, 1))
         coming.add_column("", width=2, no_wrap=True)
-        coming.add_column("[cyan]Feature[/]", style="bold", no_wrap=True)
-        coming.add_column("[cyan]Description[/]")
-        coming.add_row("📈", "[green]Historical Data[/]", "[green]Rich historical data tracking for mining performance and yield.[/]")
-        coming.add_row("🧙", "[green]Terminal Analytics[/]", "[green]Plotext-based terminal analytics directly in the TUI.[/]")
-        coming.add_row("📢", "[green]Version Checker[/]", "[green]PyPI release checking — automatic version notifications.[/]")
-        coming.add_row("🔒", "[green]Security Docs[/]", "[green]Full security architecture documentation.[/]")
-        coming.add_row("🐞", "[green]Testing + CI/CD[/]", "[green]Full unit + integration testing suite and CI/CD integration.[/]")
-        coming.add_row("🕵️", "[green]Community[/]", "[green]Community building and open contributions — feedback welcomed![/]")
+        coming.add_column("[#31b8e6]Feature[/]", style="bold", no_wrap=True)
+        coming.add_column("[#31b8e6]Description[/]")
+        coming.add_row("📈", "[#9cae41]Historical Data[/]", "[#9cae41]Rich historical data tracking for mining performance and yield.[/]")
+        coming.add_row("🧙", "[#9cae41]Terminal Analytics[/]", "[#9cae41]Plotext-based terminal analytics directly in the TUI.[/]")
+        coming.add_row("📢", "[#9cae41]Version Checker[/]", "[#9cae41]PyPI release checking — automatic version notifications.[/]")
+        coming.add_row("🔒", "[#9cae41]Security Docs[/]", "[#9cae41]Full security architecture documentation.[/]")
+        coming.add_row("🐞", "[#9cae41]Testing + CI/CD[/]", "[#9cae41]Full unit + integration testing suite and CI/CD integration.[/]")
+        coming.add_row("🕵️", "[#9cae41]Community[/]", "[#9cae41]Community building and open contributions — feedback welcomed![/]")
 
         yield Vertical(
             ScrollableContainer (

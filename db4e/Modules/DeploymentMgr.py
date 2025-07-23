@@ -209,7 +209,7 @@ class DeploymentMgr(Container):
                 f"Missing required field: {NUM_THREADS_LABEL}"
             ))
             fatal_error = True
-        if not rec[P2POOL_ID_FIELD]:
+        if not rec[PARENT_ID_FIELD]:
             results.append(result_row(
                 P2POOL_LABEL, ERROR_FIELD,
                 f"Missing required field: {P2POOL_LABEL}"
@@ -229,6 +229,38 @@ class DeploymentMgr(Container):
             rec=rec, depl_mgr=self, results=results)
         rec[CONFIG_FIELD] = conf_file
         return (rec, component_label, instance, results, fatal_error)
+
+    def create_vendor_dir(self, new_dir: str, results: list):
+        update_flag = True
+        if os.path.exists(new_dir):
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
+            backup_vendor_dir = new_dir + '.' + timestamp
+            try:
+                os.rename(new_dir, backup_vendor_dir)
+                results.append(result_row(
+                    VENDOR_DIR_LABEL, WARN_FIELD, 
+                    f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})"))
+            except (PermissionError, OSError) as e:
+                update_flag = False
+                results.append(result_row(
+                    VENDOR_DIR_LABEL, ERROR_FIELD, 
+                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}"))
+                return (update_flag, results)
+            
+        try:
+            os.makedirs(new_dir)
+            results.append(result_row(
+                VENDOR_DIR_LABEL, GOOD_FIELD, 
+                f"Created new {VENDOR_DIR_FIELD}: {new_dir}"))
+        except (PermissionError, OSError) as e:
+            results.append(result_row(
+                VENDOR_DIR_LABEL, ERROR_FIELD, 
+                f"Unable to create new {VENDOR_DIR_FIELD}: {new_dir}, aborting deployment directory update:\n{e}"))
+            update_flag = False
+
+        return (update_flag, results)
+
+
 
     def del_deployment(self, rec_data):
         component = rec_data[COMPONENT_FIELD]
@@ -367,10 +399,17 @@ class DeploymentMgr(Container):
                 ))
             elif update_data[VENDOR_DIR_FIELD] != rec[VENDOR_DIR_FIELD]:
                 update_flag = True
-                update_flag, results = self.update_vendor_dir(
-                    new_dir=update_data[VENDOR_DIR_FIELD],
-                    old_dir=rec[VENDOR_DIR_FIELD],
-                    results=results)
+                if not rec[VENDOR_DIR_FIELD]:
+                    update_flag, results = self.create_vendor_dir(
+                        new_dir=update_data[VENDOR_DIR_FIELD],
+                        results=results
+                    )
+
+                else:
+                    update_flag, results = self.update_vendor_dir(
+                        new_dir=update_data[VENDOR_DIR_FIELD],
+                        old_dir=rec[VENDOR_DIR_FIELD],
+                        results=results)
                 rec[VENDOR_DIR_FIELD] = update_data[VENDOR_DIR_FIELD]
 
             if update_flag:
@@ -400,14 +439,9 @@ class DeploymentMgr(Container):
         elif component == XMRIG_FIELD:
             return self.update_xmrig_deployment(update_data)
         else:
-            rec = update_data.copy()
-            results = [result_row(
-                DEPLOYMENT_MGR_FIELD, ERROR_FIELD,
+            raise ValueError(
                 f"{DEPLOYMENT_MGR_FIELD}:update_deployment(): No handler for component " \
-                f"({component})"
-            )]
-            return rec, results
-
+                f"({component})")
 
     def update_monerod_deployment(self, update_data):
         results = []
@@ -528,8 +562,11 @@ class DeploymentMgr(Container):
         print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
-        if not old_dir or not new_dir:
-            raise ValueError(f"update_vendor_dir(): Missing old or new directory")        
+        if old_dir == new_dir:
+            return
+
+        if not new_dir:
+            raise ValueError(f"update_vendor_dir(): Missing new directory")        
 
         # The target vendor dir exists, make a backup
         if os.path.exists(new_dir):
@@ -548,6 +585,13 @@ class DeploymentMgr(Container):
                     f'Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}'))
                 return (update_flag, results)
 
+        # No need to move if old_dir is empty (first-time initialization)
+        if not old_dir:
+            results.append(result_row(
+                VENDOR_DIR_LABEL, GOOD_FIELD,
+                f"Created new {VENDOR_DIR_FIELD}: {new_dir}"))
+            return (update_flag, results)
+        
         # Move the vendor_dir to the new location
         try:
             os.rename(old_dir, new_dir)

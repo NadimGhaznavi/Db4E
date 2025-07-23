@@ -16,6 +16,7 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, 
     IP_ADDR_FIELD, LOCAL_FIELD, MONEROD_FIELD, PANE_BOX_FIELD, REMOTE_FIELD, 
     RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, ZMQ_PUB_PORT_FIELD,
+    FORM_INPUT_30_FIELD
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL, 
@@ -25,13 +26,24 @@ from db4e.Constants.Defaults import (
     RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
 )
 
+color = "#9cae41"
+hi = "#d7e556"
+
 class Monerod(Container):
 
-    instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
-    ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)
-    rpc_bind_port_input = Input(id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True)
-    zmq_pub_port_input = Input(id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True)
-    remote_flag = bool
+    instance_input = Input(
+        compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
+        classes=FORM_INPUT_30_FIELD)
+    ip_addr_input = Input(
+        compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
+        classes=FORM_INPUT_30_FIELD)
+    rpc_bind_port_input = Input(
+        compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
+        classes=FORM_INPUT_30_FIELD)
+    zmq_pub_port_input = Input(
+        compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
+        classes=FORM_INPUT_30_FIELD)
+    health_msgs = Label
 
 
     def compose(self):

@@ -19,18 +19,22 @@ from db4e.Constants.Labels import (
 from db4e.Constants.Fields import (
     COMPONENT_FIELD, FORM_INTRO_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
     MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
+    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, GREEN_BUTTON_FIELD,
+    RADIO_SET_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
+
+color = "#9cae41"
+hi = "cyan"
 
 class MonerodType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the new [yellow]{MONEROD_LABEL}[/] screen. Use to create " \
-            f"a new [cyan]local[/] or [cyan]remote[/] {MONEROD_LABEL} deployment.\n\n" \
-            f"A [cyan]local {MONEROD_LABEL}[/] deployment will setup a " \
-            f"[cyan]{MONEROD_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
-            f"connect to a [cyan]{MONEROD_LABEL}[/] running on a remote machine."
+        INTRO = f"Welcome to the new [b {hi}]{MONEROD_LABEL}[/] screen. Use to create " \
+            f"a new [{hi}]local[/] or [{hi}]remote[/] {MONEROD_LABEL} deployment.\n\n" \
+            f"A [{hi}]local {MONEROD_LABEL}[/] deployment will setup a " \
+            f"[{hi}]{MONEROD_LABEL}[/] on this machine. [{hi}]Remote[/] deployments " \
+            f"connect to a [{hi}]{MONEROD_LABEL}[/] running on a remote machine."
        
         yield Vertical(
             ScrollableContainer(
@@ -40,10 +44,10 @@ class MonerodType(Container):
                     RadioSet(
                         RadioButton("Local " + MONEROD_LABEL, classes=RADIO_BUTTON_TYPE_FIELD, value=True),
                         RadioButton(MONEROD_REMOTE_LABEL, id="remote", classes=RADIO_BUTTON_TYPE_FIELD),
-                        id="type_radioset", classes="radio_set",
+                        id="type_radioset", classes=RADIO_SET_FIELD,
                         )),
 
-                Button(label=PROCEED_LABEL, classes="update_button")),
+                Button(label=PROCEED_LABEL, classes=GREEN_BUTTON_FIELD)),
                 classes=PANE_BOX_FIELD)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

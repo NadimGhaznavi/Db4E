@@ -57,6 +57,9 @@ BUTTON_CONFIG = [
     },
 ]
 
+color = "#9cae41"
+hi = "#d7e556"
+
 class XMRig(Container):
 
     radio_button_list = reactive(list, always_update=True)
@@ -75,8 +78,8 @@ class XMRig(Container):
 
     def compose(self):
         # Remote P2Pool daemon deployment form
-        INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{XMRIG_LABEL}[/] deployment here."
+        INTRO = f"[{color}]View and edit the deployment settings for the " \
+            f"[{hi}]{XMRIG_LABEL}[/] deployment here."
 
 
         yield Vertical(

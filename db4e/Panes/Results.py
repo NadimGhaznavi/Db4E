@@ -10,14 +10,17 @@ db4e/Panes/Results.py
 from rich import box
 from rich.table import Table
 from textual.app import ComposeResult
-from textual.widgets import Static
+from textual.widgets import Static, Label
 from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
+from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
-    GOOD_FIELD, MESSAGE_FIELD, PANE_BOX_FIELD, STATUS_FIELD, WARN_FIELD, ERROR_FIELD)
+    PANE_BOX_FIELD, HEALTH_MSG_FIELD)
 
 class Results(Static):
+
+    results = Label()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -30,24 +33,7 @@ class Results(Static):
             ),
             classes=PANE_BOX_FIELD)
 
-    def set_data(self, task_list):
-
-        table = Table(show_header=True, header_style="bold cyan", style="bold green", 
-                      box=box.SIMPLE)
-        table.add_column("Component", width=25)
-        table.add_column("Message")
-
-        for task in task_list:
-            for category, msg_dict in task.items():
-                message = msg_dict[MESSAGE_FIELD]
-                if msg_dict[STATUS_FIELD] == GOOD_FIELD:
-                    table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
-                elif msg_dict[STATUS_FIELD] == WARN_FIELD:
-                    table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-                elif msg_dict[STATUS_FIELD] == ERROR_FIELD:
-                    table.add_row(f"💥 [bold yellow]{category}[/]", 
-                                  f"[bold yellow]{message}[/]")
-
-        self.results.remove_children()
-        self.results.update(table)
+    def set_data(self, results_data):
+        self.results.update(
+            gen_results_table(results=results_data.get(HEALTH_MSG_FIELD, [])))
         self.app.post_message(RefreshNavPane(self))

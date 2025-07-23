@@ -97,7 +97,7 @@ class Db4EApp(App):
         #print(f"App:is_initialized(): {self._initialized}")
         return self._initialized
 
-    ### Message handling happens here...
+    ### Message handling happens here...#31b8e6;
 
     # NavPane selections are routed here
     def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:

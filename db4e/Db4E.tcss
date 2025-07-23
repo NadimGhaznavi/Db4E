@@ -1,6 +1,7 @@
 /* Root screen layout */
 
 Screen {
+    background: black;
     layout: grid;
     grid-size: 2;
     grid-columns: 1fr 4fr;
@@ -9,27 +10,31 @@ Screen {
 
 Button {
     align: center middle;
-    border: round;
+    border: round #67732a;
     width: 20;
     background: black; }
 
 Clock {
     height: 3;
     padding: 0 2;
-    border: round;
+    border: round #67732a;
     align: center middle;
     background: black; }
 
 NavPane {
     height: 9fr;
     padding: 0 2;
-    border: round;
+    border: round #67732a;
     background: black; }
+
+RadioButton {
+    color: #31b8e6;
+}
 
 TopBar {
     height: 3;
     padding: 0 2;
-    border: round;
+    border: round #67732a;
     dock: top;
     background: black }
 
@@ -39,6 +44,7 @@ MarkdownViewer {
 /* Page elements */
 
 Tree {
+    color: #31b8e6;
     background: black; }
 
 #topbar_title {
@@ -60,29 +66,41 @@ Tree {
 
 .form_3 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #67732a;
     width: 100%;
     height: 5; 
     background: black; }
 
 .form_4 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #67732a;
     width: 100%;
     height: 6; 
     background: black; }
 
 .form_5 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #67732a;
     width: 100%;
     height: 7; }
+
+/* A central informational box */
+.info_msg {
+    padding: 1 2;
+    color: #31b8e6;
+    border: round #67732a;
+    width: 100%;
+}
 
 /* Intro text at the top */
 
 .form_intro {
+    color: #31b8e6;
     padding: 0 2;
-    border: round;
+    border: round #67732a;
     width: 100%; }
 
 
@@ -114,7 +132,8 @@ Tree {
     width: 70; }
     
 .form_label {
-    color:cyan;
+    color: #31b8e6;
+    text-style: bold;
     padding: 0 1;
     width: 25; }
 
@@ -123,7 +142,7 @@ Tree {
 
 .health_box {
     height: auto;
-    border: round;
+    border: round #67732a;
     padding: 0 1;
 }
 
@@ -137,7 +156,7 @@ Tree {
 /* Entire Detail Pane */
 
 .pane_box {
-    border: round;
+    border: round #67732a;
     padding: 0 1;
     background: black;
 }
@@ -147,7 +166,7 @@ Tree {
 
 .radio_button_type {
     height: 1;
-    width: 30;
+    width: 40;
     background: black;
     padding: 0;
     margin: 0;
@@ -162,12 +181,12 @@ Tree {
 }
 
 .radio_set {
-    border: round;
+    border: round #67732a;
     width: 30;
     background: black; }
 
 .static_content {
-    color: #78ff78; 
+    color: #31b8e6;
     padding: 0 1; }
 
 .yellow_button {
@@ -175,7 +194,7 @@ Tree {
     text-style: bold; }
 
 .green_button {
-    color: #54d754;
+    color: #b5cb48;
     text-style: bold; }
 
 .red_button {

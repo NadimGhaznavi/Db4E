@@ -143,11 +143,17 @@ class OpsMgr:
 
         if component == XMRIG_FIELD:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
+            parent_status, parent_results = self.health_mgr.check(
+                component=parent_rec[COMPONENT_FIELD], rec=parent_rec
+            )
 
         elif component == P2POOL_FIELD and not updata_data[REMOTE_FIELD]:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
+            parent_status, parent_results = self.health_mgr.check(
+                component=parent_rec[COMPONENT_FIELD], rec=parent_rec
+            )
 
         status, health_results = self.health_mgr.check(
             component=component, rec=rec, parent_rec=parent_rec)
-        results += health_results
+        results = results + health_results + parent_results
         return self.set_status(rec=rec, status=status, results=results)        

@@ -9,6 +9,7 @@ db4e/Constants/Panes.py
 """
 
 DB4E_PANE = "Db4E"
+DONATIONS_PANE = "Donations"
 INITIAL_SETUP_PANE = "InitialSetup"
 MONEROD_TYPE_PANE = "MonerodType"
 MONEROD_PANE = "Monerod"

@@ -52,7 +52,7 @@ class Db4E(Container):
     health_msgs = Static()
 
     def compose(self):
-        INTRO = f"[{color}]Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
+        INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
             f"[{hi}]configuration screen[/]. On this screen you can update your " \
             f"[{hi}]Monero Wallet[/] and relocate the [{hi}]Deployment Directory[/]. "
         yield Vertical(

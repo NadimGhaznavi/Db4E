@@ -22,7 +22,7 @@ class TopBarState:
     title: str = ""
     sub_title: str = ""
 
-hi = "#d7e556"
+hi = "#31b8e6"
 
 class TopBar(Container):
     tb_state = reactive(TopBarState(), always_update=True)
@@ -30,7 +30,7 @@ class TopBar(Container):
     def __init__(self, sender = "", title: str = "", sub_title: str = "", app_version: str ="", **kwargs):
         super().__init__(**kwargs)
         self.sender = sender
-        self.tb_version = Label(Text.from_markup(f"[b {hi}]Db4E[/] [{hi}]v{app_version}[/]"), id="topbar_version")
+        self.tb_version = Label(Text.from_markup(f"[b {hi}]Db4E[/] v[{hi}]{app_version}[/]"), id="topbar_version")
         self.tb_title = Label(Text.from_markup(f"[b {hi}]{title} - {sub_title}[/]"), id="topbar_title")
 
     def set_state(self, title: str, sub_title: str):
