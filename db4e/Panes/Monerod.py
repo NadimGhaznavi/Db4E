@@ -8,7 +8,7 @@ db4e/Panes/Monerod.py
     License: GPL 3.0
 """
 
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
 from db4e.Messages.SubmitFormData import SubmitFormData
@@ -16,7 +16,7 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, 
     IP_ADDR_FIELD, LOCAL_FIELD, MONEROD_FIELD, PANE_BOX_FIELD, REMOTE_FIELD, 
     RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, ZMQ_PUB_PORT_FIELD,
-    FORM_INPUT_30_FIELD
+    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_1_FIELD
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL, 
@@ -52,9 +52,13 @@ class Monerod(Container):
             f"[bold cyan]{MONEROD_LABEL}[/] deployment."
 
         yield Vertical(
-            Label(INTRO, classes="form_intro"),
-            Label('🚧 [cyan]Coming Soon[/] 🚧', classes="form_box"),
-            classes=PANE_BOX_FIELD)
+            ScrollableContainer(
+                Label(INTRO, classes=FORM_INTRO_FIELD),
+
+                Vertical(
+                    Label('🚧 [cyan]Coming Soon[/] 🚧'),
+                    classes=FORM_1_FIELD),                    ),
+                classes=PANE_BOX_FIELD)
                     
     def reset_data(self):
         self.instance_input.value = ""

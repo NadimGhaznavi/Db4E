@@ -32,10 +32,10 @@ class Donations(Container):
                 Label(INTRO, classes="form_intro"),
 
                 Vertical(
-                    Label(f"[cyan]{DB4E_LONG_LABEL}[/] project donation wallet:"),
+                    Label(f"[cyan]{DB4E_LONG_LABEL}[/] project Monero donation wallet:"),
                     Label(f"[{hi}]{DONATION_WALLET_DEFAULT}[/]"), 
                     Label(),
-                    Label('🚧 Coming Soon: [cyan]Paypal[/] 🚧', classes="form_box"),
+                    Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes="form_box"),
                     classes=INFO_MSG_FIELD)),
             classes=PANE_BOX_FIELD)
                     
