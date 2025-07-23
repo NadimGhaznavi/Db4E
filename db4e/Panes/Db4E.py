@@ -49,7 +49,7 @@ class Db4E(Container):
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=UIType.INPUT_30)
     user_wallet_input = Input(id="user_wallet_input",
         restrict=r"[a-zA-Z0-9]*", compact=True, classes=UIType.INPUT_70)
-    health_msgs = Static()
+    health_msgs = Label()
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \

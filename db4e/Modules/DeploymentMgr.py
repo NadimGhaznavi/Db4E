@@ -380,21 +380,18 @@ class DeploymentMgr(Container):
 
             # Track field changes
             if not update_data.get(USER_WALLET_FIELD):
-                results.append(result_row(
-                    USER_WALLET_LABEL, ERROR_FIELD,
-                    f"Missing {USER_WALLET_LABEL}"
-                ))
+                pass
             elif update_data[USER_WALLET_FIELD] != rec[USER_WALLET_FIELD]:
                 update_flag = True
                 results.append(result_row(
-                    USER_WALLET_LABEL, GOOD_FIELD,
+                    f"[bold]{USER_WALLET_LABEL}[/]", GOOD_FIELD,
                     f"Updated {USER_WALLET_LABEL} in {DB4E_LABEL} deployment record"
                 ))
                 rec[USER_WALLET_FIELD] = update_data[USER_WALLET_FIELD]
 
             if not update_data.get(VENDOR_DIR_FIELD):
                 results.append(result_row(
-                    VENDOR_DIR_LABEL, ERROR_FIELD,
+                    f"[bold]{VENDOR_DIR_LABEL}[/]", ERROR_FIELD,
                     f"Missing {VENDOR_DIR_LABEL}"
                 ))
             elif update_data[VENDOR_DIR_FIELD] != rec[VENDOR_DIR_FIELD]:

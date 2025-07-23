@@ -47,14 +47,14 @@ class HealthMgr:
         if vendor_dir == "":
             results.append(result_row(
                 f"[bold]{VENDOR_DIR_LABEL}[/]", ERROR_FIELD,
-                f"Missing {VENDOR_DIR_LABEL}"
+                f"[{hi}]{VENDOR_DIR_LABEL}[/] missing"
             ))
             overall_state = ERROR_FIELD
         
         elif os.path.isdir(vendor_dir):
             results.append(result_row(
                 f"[bold]{VENDOR_DIR_LABEL}[/]", GOOD_FIELD,
-                f"{VENDOR_DIR_LABEL} exists: [{hi}]{vendor_dir}"
+                f"[{hi}]{VENDOR_DIR_LABEL}[/] exists: [{hi}]{vendor_dir}[/]"
             ))
 
         else:
@@ -70,12 +70,12 @@ class HealthMgr:
         if wallet:        
             results.append(result_row(
                 f"[bold]{USER_WALLET_LABEL}[/]", GOOD_FIELD,
-                f"Found wallet address: [{hi}]{wallet[:11]}...[/]"
+                f"[{hi}]{USER_WALLET_LABEL}[/] exists: [{hi}]{wallet[:11]}...[/]"
             ))
         else:
             results.append(result_row(
-                USER_WALLET_LABEL, ERROR_FIELD,
-                f"Wallet address is missing"
+                f"[bold]{USER_WALLET_LABEL}[/]", ERROR_FIELD,
+                f"[{hi}]{USER_WALLET_LABEL}[/] missing"
             ))
             if overall_state != ERROR_FIELD:
                 overall_state = WARN_FIELD

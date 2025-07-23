@@ -111,7 +111,7 @@ class MonerodRemote(Container):
                 TO_METHOD_FIELD: to_method,
                 REMOTE_FIELD: True,
                 ORIG_INSTANCE_FIELD: self.orig_instance,
-                INSTANCE_FIELD: self.orig_instance,
+                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
                 IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
                 RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
                 ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,

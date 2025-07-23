@@ -135,11 +135,11 @@ class OpsMgr:
     
 
     def update_deployment(self, updata_data):
-        rec, results = self.depl_mgr.update_deployment(update_data=updata_data)
-
+        component = updata_data[COMPONENT_FIELD]
         parent_results = []
-        component = rec[COMPONENT_FIELD]
         parent_rec = None
+
+        rec, results = self.depl_mgr.update_deployment(update_data=updata_data)
 
         if component == XMRIG_FIELD:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
