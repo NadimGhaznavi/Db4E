@@ -380,6 +380,7 @@ class DeploymentMgr(Container):
                     DB4E_LABEL, WARN_FIELD,
                     "Nothing to update"
                 ))
+            print(f"DeploymentMgr:update_db4e_deployment(): results: {results}")
             return rec, results
         
         else:
@@ -405,7 +406,7 @@ class DeploymentMgr(Container):
                 f"{DEPLOYMENT_MGR_FIELD}:update_deployment(): No handler for component " \
                 f"({component})"
             )]
-            return self.set_status(rec=rec, status=Status.ERROR, results=results)
+            return rec, results
 
 
     def update_monerod_deployment(self, update_data):
@@ -524,34 +525,14 @@ class DeploymentMgr(Container):
         return rec, results
       
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
+        print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
-        if not old_dir:
-            try:
-                os.makedirs(new_dir)
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, GOOD_FIELD,
-                    f"Created {VENDOR_DIR_LABEL}: {new_dir}"
-                ))
-            except (PermissionError, OSError) as e:
-                update_flag = False
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, ERROR_FIELD,
-                    f"Failed to create {VENDOR_DIR_LABEL}: {e}"
-                ))
-            return (update_flag, results)
+        if not old_dir or not new_dir:
+            raise ValueError(f"update_vendor_dir(): Missing old or new directory")        
 
-        if not new_dir:
-            # Vendor dir field is empty
-            update_flag = False
-            results.append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD,
-                f"Missing {VENDOR_DIR_LABEL} field"
-            ))
-            return (update_flag, results)
-
+        # The target vendor dir exists, make a backup
         if os.path.exists(new_dir):
-            # The new vendor dir exists, make a backup
             timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
@@ -567,6 +548,19 @@ class DeploymentMgr(Container):
                     f'Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}'))
                 return (update_flag, results)
 
+        # Move the vendor_dir to the new location
+        try:
+            os.rename(old_dir, new_dir)
+            results.append(result_row(
+                VENDOR_DIR_LABEL, GOOD_FIELD, 
+                f'Moved vendor dir from ({old_dir}) to ({new_dir})'))
+        except (PermissionError, OSError) as e:
+            results.append(result_row(
+                VENDOR_DIR_LABEL, ERROR_FIELD, 
+                f'Unable to move vendor dir from ({old_dir}) to ({new_dir}), aborting deployment directory update:\n{e}'))
+            update_flag = False
+
+        print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return (update_flag, results)
 
     def update_xmrig_deployment(self, update_data):

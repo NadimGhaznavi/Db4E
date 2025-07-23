@@ -93,9 +93,10 @@ class DbMgr:
         return col.find_one(filter)
 
     def get_new_rec(self, rec_type):
-        print(f"DbMgr:get_new_rec(): rec_type: {rec_type}")
-        return self.templates.get(deepcopy(rec_type))
-
+        rec = self.templates.get(deepcopy(rec_type))
+        print(f"DbMgr:get_new_rec(): {rec_type}: {rec}")
+        return rec
+    
     @as_worker
     def insert_one(self, col_name, jdoc, use_worker=True):
         col = self.get_collection(col_name)

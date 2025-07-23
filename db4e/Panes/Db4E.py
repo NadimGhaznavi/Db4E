@@ -28,6 +28,9 @@ from db4e.Constants.Labels import (
     USER_WALLET_LABEL, VENDOR_DIR_LABEL
 )
 
+color = "#9cae41"
+hi = "#d7e556"
+
 class UIType:
     STATIC = STATIC_CONTENT_FIELD
     INPUT_30 = FORM_INPUT_30_FIELD
@@ -49,9 +52,9 @@ class Db4E(Container):
     health_msgs = Static()
 
     def compose(self):
-        INTRO = "Welcome to the [bold green]Database 4 Everything Core[/] [green bold]" \
-            f"configuration screen[/]. On this screen you can update your [cyan]Monero " \
-            f"Wallet[/] and relocate the [cyan]Deployment Directory[/]. "
+        INTRO = f"[{color}]Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
+            f"[{hi}]configuration screen[/]. On this screen you can update your " \
+            f"[{hi}]Monero Wallet[/] and relocate the [{hi}]Deployment Directory[/]. "
         yield Vertical(
             ScrollableContainer(
                 Label(INTRO, classes=UIType.INTRO),

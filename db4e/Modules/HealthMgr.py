@@ -48,7 +48,7 @@ class HealthMgr:
         else:
             results.append(result_row(
                 VENDOR_DIR_LABEL, WARN_FIELD,
-                f"{VENDOR_DIR_LABEL} missing"
+                f"{VENDOR_DIR_LABEL} ({vendor_dir}) not found"
             ))
             overall_state = WARN_FIELD
 

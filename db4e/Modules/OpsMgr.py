@@ -110,8 +110,10 @@ class OpsMgr:
         rec = self.db.get_new_rec(MONEROD_REMOTE_FIELD)
         rec[STATUS_FIELD] = PENDING_FIELD
         rec[REMOTE_FIELD] = True
-        return rec
-
+        status, results = self.health_mgr.check(
+                component=rec[COMPONENT_FIELD], rec=rec)
+        return self.set_status(rec=rec, status=status, results=results)
+    
     def set_status(self, rec, status=None, results=None):
         #print(f"OpsMgr:set_status(): rec: {rec}, status: {status}, results: {results}")
         # If no status is explicitly given, infer from results
@@ -134,14 +136,18 @@ class OpsMgr:
 
     def update_deployment(self, updata_data):
         rec, results = self.depl_mgr.update_deployment(update_data=updata_data)
+
         parent_results = []
         component = rec[COMPONENT_FIELD]
         parent_rec = None
+
         if component == XMRIG_FIELD:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
+
         elif component == P2POOL_FIELD and not updata_data[REMOTE_FIELD]:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
-        status, results = self.health_mgr.check(
+
+        status, health_results = self.health_mgr.check(
             component=component, rec=rec, parent_rec=parent_rec)
-        results += parent_results
+        results += health_results
         return self.set_status(rec=rec, status=status, results=results)        
