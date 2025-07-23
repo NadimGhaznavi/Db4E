@@ -12,20 +12,18 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Constants.Labels import (
-    DEPLOYMENTS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL,
-    PROCEED_LABEL
-)
+    P2POOL_LABEL, P2POOL_REMOTE_LABEL,PROCEED_LABEL)
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD, 
-    GREEN_BUTTON_FIELD, P2POOL_FIELD, PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
-)
+    COMPONENT_FIELD, OPS_MGR_FIELD, GET_NEW_REC_FIELD,
+    GET_NEW_REMOTE_REC_FIELD, GREEN_BUTTON_FIELD, P2POOL_FIELD,
+    PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
 from db4e.Messages.SubmitFormData import SubmitFormData
 
 
 class P2PoolType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the [yellow]New - {P2POOL_LABEL}[/] screen. Use to create " \
+        INTRO = f"Welcome to the new [yellow]{P2POOL_LABEL}[/] screen. Use to create " \
             f"a new [cyan]local[/] or [cyan]remote[/] {P2POOL_LABEL} deployment.\n\n" \
             f"A [cyan]local {P2POOL_LABEL}[/] deployment will setup a " \
             f"[cyan]{P2POOL_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
@@ -50,14 +48,14 @@ class P2PoolType(Container):
         selected = radio_set.pressed_button
         if selected and selected.id == "remote":
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
                 COMPONENT_FIELD: P2POOL_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REC_FIELD,
                 COMPONENT_FIELD: P2POOL_FIELD,
                 REMOTE_FIELD: False

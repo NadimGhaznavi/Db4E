@@ -1,0 +1,8 @@
+{
+    "editor.rulers": [
+        72,
+        80,
+        90
+    ],
+    "aws.telemetry": false
+}

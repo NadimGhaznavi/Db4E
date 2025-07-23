@@ -7,6 +7,7 @@ db4e/Panes/MonerodRemote.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
+from copy import deepcopy
 from rich import box
 from rich.table import Table
 
@@ -16,31 +17,33 @@ from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, DELETE_DEPLOYMENT_FIELD, 
-    DELETE_BUTTON_FIELD, DEPLOYMENT_MGR_FIELD, FORM_4_FIELD, FORM_INPUT_7_FIELD, 
-    FORM_INPUT_15_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, 
-    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, 
-    MONEROD_FIELD, ORIG_INSTANCE_FIELD, PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, 
-    RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, 
-    UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
+    ADD_REMOTE_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
+    DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
+    FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
+    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD,
+    IP_ADDR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD, ORIG_INSTANCE_FIELD,
+    PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD,
+    TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
+    UPDATE_REMOTE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (
-    DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL, 
-    UPDATE_LABEL, RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL)
+    DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL,
+    RPC_BIND_PORT_LABEL, UPDATE_LABEL, ZMQ_PUB_PORT_LABEL
+)
 
 class MonerodRemote(Container):
 
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
-        classes=FORM_INPUT_15_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     ip_addr_input = Input(
         id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True, 
         classes=FORM_INPUT_30_FIELD)
     rpc_bind_port_input = Input(
         id="rpc_bind_port_input", restrict=f"[0-9]*", compact=True, 
-        classes=FORM_INPUT_7_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     zmq_pub_port_input = Input(
         id="zmq_pub_port_input", restrict=f"[0-9]*", compact=True, 
-        classes=FORM_INPUT_7_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     health_msgs = Label()
 
     def compose(self):
@@ -74,34 +77,36 @@ class MonerodRemote(Container):
 
                 Vertical(
                     Horizontal(
-                        Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
-                        Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
+                        Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, 
+                               classes=GREEN_BUTTON_FIELD),
+                        Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, 
+                               classes=RED_BUTTON_FIELD),
                         classes=BUTTON_ROW_FIELD))),
 
             classes=PANE_BOX_FIELD)     
 
     def set_data(self, rec):
-
+        print(f"MonerodRemote:set_data(): rec: {rec}")
+        rec = deepcopy(rec)
         self.orig_instance = rec[INSTANCE_FIELD]
         self.instance_input.value = (rec[INSTANCE_FIELD])
         self.ip_addr_input.value = (rec[IP_ADDR_FIELD])
         self.rpc_bind_port_input.value = (str(rec[RPC_BIND_PORT_FIELD]))
         self.zmq_pub_port_input.value = (str(rec[ZMQ_PUB_PORT_FIELD]))
-        if HEALTH_MSG_FIELD in rec:
-            self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
+        self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         if button_id == UPDATE_BUTTON_FIELD:
-            if self.orig_instance:
+            if len(self.orig_instance) > 0:
                 # There was an original instance, so this is an update
-                to_method = UPDATE_DEPLOYMENT_FIELD
+                to_method = UPDATE_REMOTE_DEPLOYMENT_FIELD
             else:
                 # No original instance, this is a new deployment
-                to_method = ADD_DEPLOYMENT_FIELD
+                to_method = ADD_REMOTE_DEPLOYMENT_FIELD
             form_data = {
                 COMPONENT_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: to_method,
                 REMOTE_FIELD: True,
                 ORIG_INSTANCE_FIELD: self.orig_instance,

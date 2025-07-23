@@ -73,9 +73,9 @@ class DbMgr:
         self.init_db()             
 
     @as_worker
-    def delete_one(self, col_name, dbquery, use_worker=True):
+    def delete_one(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
-        return col.delete_one(dbquery)
+        return col.delete_one(filter)
 
     def ensure_indexes(self):
         log_col = self.get_collection(self.log_collection)
@@ -85,17 +85,21 @@ class DbMgr:
     @as_worker
     def find_many(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
-        return col.find(filter)
+        return list(col.find(filter))
 
     @as_worker
     def find_one(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
         return col.find_one(filter)
 
+    def get_new_rec(self, rec_type):
+        print(f"DbMgr:get_new_rec(): rec_type: {rec_type}")
+        return self.templates.get(deepcopy(rec_type))
+
     @as_worker
     def insert_one(self, col_name, jdoc, use_worker=True):
         col = self.get_collection(col_name)
-        return col.insert_one(jdoc)
+        return col.insert_one(deepcopy(jdoc))
 
     @as_worker
     def update_one(self, col_name, filter, new_values, use_worker=True):
@@ -110,9 +114,6 @@ class DbMgr:
     
     def get_collection(self, col_name):
         return self.db4e[col_name]
-
-    def get_new_rec(self, rec_type):
-        return deepcopy(self.templates.get(rec_type))
 
     def init_db(self):
         # Make sure the 'db4e' database, core collections and indexes exist.

@@ -13,25 +13,67 @@ import re
 import socket
 import ipaddress
 
-from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Helper import result_row, is_port_open
 from db4e.Constants.Fields import(
     CONFIG_FIELD, ERROR_FIELD, GOOD_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD,
-    RPC_BIND_PORT_FIELD, P2POOL_FIELD, P2POOL_ID_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, 
-    XMRIG_FIELD, ZMQ_PUB_PORT_FIELD)
+    RPC_BIND_PORT_FIELD, P2POOL_FIELD, PARENT_ID_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, 
+    XMRIG_FIELD, ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD, DB4E_FIELD)
 from db4e.Constants.Labels import(
-    CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, ZMQ_PUB_PORT_LABEL)
+    CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
+    ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL)
 
 class HealthMgr:
 
-    def __init__(self, depl_mgr: DeploymentMgr):
-        self.depl_mgr = depl_mgr
+    def check(self, component, rec, parent_rec=None):
+        if component == DB4E_FIELD:
+            return self.check_db4e(rec)
+        elif component == MONEROD_FIELD:
+            return self.check_monerod(rec)
+        elif component == P2POOL_FIELD:
+            return self.check_p2pool(rec, parent_rec)
+        elif component == XMRIG_FIELD:
+            return self.check_xmrig(rec, parent_rec)
 
-    def check_monerod(self, instance):
+    def check_db4e(self, rec):
         results = []
         overall_state = GOOD_FIELD
-        monerod_rec = self.depl_mgr.get_deployment_by_instance(MONEROD_FIELD, instance)
-        if is_port_open(monerod_rec[IP_ADDR_FIELD], monerod_rec[RPC_BIND_PORT_FIELD]):
+
+        # Example: check if vendor dir exists
+        vendor_dir = rec.get(VENDOR_DIR_FIELD, "")
+        if os.path.isdir(vendor_dir):
+            results.append(result_row(
+                VENDOR_DIR_LABEL, GOOD_FIELD,
+                f"{VENDOR_DIR_LABEL} exists: [cyan]{vendor_dir}[/]"
+            ))
+        else:
+            results.append(result_row(
+                VENDOR_DIR_LABEL, WARN_FIELD,
+                f"{VENDOR_DIR_LABEL} missing"
+            ))
+            overall_state = WARN_FIELD
+
+        # Example: check if wallet address looks valid
+        wallet = rec.get(USER_WALLET_FIELD)
+        #if wallet and wallet.startswith("4") and len(wallet) >= 95:
+        if wallet:        
+            results.append(result_row(
+                USER_WALLET_LABEL, GOOD_FIELD,
+                f"Wallet address appears valid: [cyan]{wallet[:8]}[/]..."
+            ))
+        else:
+            results.append(result_row(
+                USER_WALLET_LABEL, WARN_FIELD,
+                f"Wallet address appears invalid or missing"
+            ))
+            if overall_state != ERROR_FIELD:
+                overall_state = WARN_FIELD
+
+        return (overall_state, results)
+
+    def check_monerod(self, rec):
+        results = []
+        overall_state = GOOD_FIELD
+        if is_port_open(rec[IP_ADDR_FIELD], rec[RPC_BIND_PORT_FIELD]):
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {RPC_BIND_PORT_LABEL} successful"
@@ -42,7 +84,7 @@ class HealthMgr:
                 f"Connection to {RPC_BIND_PORT_LABEL} failed"
             ))
             overall_state = WARN_FIELD
-        if is_port_open(monerod_rec[IP_ADDR_FIELD], monerod_rec[ZMQ_PUB_PORT_FIELD]):
+        if is_port_open(rec[IP_ADDR_FIELD], rec[ZMQ_PUB_PORT_FIELD]):
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {ZMQ_PUB_PORT_LABEL} successful"
@@ -55,13 +97,12 @@ class HealthMgr:
             overall_state = WARN_FIELD
         return (overall_state, results)
 
-    def check_p2pool(self, instance):
+    def check_p2pool(self, rec, parent_rec):
         results = []
         overall_state = GOOD_FIELD
-        p2pool_rec = self.depl_mgr.get_deployment_by_instance(P2POOL_FIELD, instance)
-        if not p2pool_rec:
+        if not rec:
             return(overall_state, results)
-        if is_port_open(p2pool_rec[IP_ADDR_FIELD], p2pool_rec[STRATUM_PORT_FIELD]):
+        if is_port_open(rec[IP_ADDR_FIELD], rec[STRATUM_PORT_FIELD]):
             results.append(result_row(
                 STRATUM_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {STRATUM_PORT_LABEL} successful"
@@ -75,26 +116,23 @@ class HealthMgr:
         return (overall_state, results)
         
 
-    def check_xmrig(self, instance):
+    def check_xmrig(self, rec, p2pool_rec):
         results = []
         overall_state = GOOD_FIELD
-        xmrig_rec = self.depl_mgr.get_deployment_by_instance(XMRIG_FIELD, instance)
-        
         # Check that the XMRig configuration file exists
-        if os.path.exists(xmrig_rec[CONFIG_FIELD]):
+        if os.path.exists(rec[CONFIG_FIELD]):
             results.append(result_row(
                 CONFIG_LABEL, GOOD_FIELD,
-                f"{xmrig_rec[CONFIG_FIELD]}"
+                f"{rec[CONFIG_FIELD]}"
             ))
         else:
             results.append(result_row(
                 CONFIG_LABEL, WARN_FIELD,
-                f"Not found: {xmrig_rec[CONFIG_FIELD]}"
+                f"Not found: {rec[CONFIG_FIELD]}"
             ))
             overall_state = WARN_FIELD
 
         # Check that upstream P2Pool deployment exists
-        p2pool_rec = self.depl_mgr.get_deployment_by_id(xmrig_rec[P2POOL_ID_FIELD])
         if p2pool_rec:
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,

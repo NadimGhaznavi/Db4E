@@ -9,6 +9,7 @@ db4e/Modules/PaneMgr.py
 """
 import inspect
 from dataclasses import dataclass, field
+from copy import deepcopy
 from textual.css.query import NoMatches
 from textual.widget import Widget
 from textual.widgets import ContentSwitcher

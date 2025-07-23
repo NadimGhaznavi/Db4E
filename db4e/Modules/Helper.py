@@ -56,13 +56,13 @@ def result_row(label: str, status: str, msg:str ):
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
 
-def get_radio_map(rec, depl_mgr):
+def gen_radio_map(rec, ops_mgr):
     component_map = {
         P2POOL_FIELD: MONEROD_FIELD,
         XMRIG_FIELD: P2POOL_FIELD
     }
     component = rec[COMPONENT_FIELD]
-    instances = depl_mgr.get_deployment_ids_and_instances(component_map[component])
+    instances = ops_mgr.get_deployment_ids_and_instances(component_map[component])
     radio_map = {}
     for (instance, id) in instances:
         radio_map[instance] = id

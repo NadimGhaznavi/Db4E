@@ -16,28 +16,28 @@ from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, DELETE_BUTTON_FIELD, 
-    DELETE_DEPLOYMENT_FIELD, DELETE_BUTTON_FIELD,DEPLOYMENT_MGR_FIELD, HEALTH_BOX_FIELD, 
-    FORM_DATA_FIELD, FORM_3_FIELD, FORM_INPUT_7_FIELD, FORM_INPUT_15_FIELD, 
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, 
-    HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, P2POOL_FIELD, ORIG_INSTANCE_FIELD, 
-    PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, STRATUM_PORT_FIELD, TO_MODULE_FIELD, 
-    TO_METHOD_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD)
+    ADD_REMOTE_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
+    DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, FORM_3_FIELD, FORM_DATA_FIELD,
+    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD,
+    HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
+    ORIG_INSTANCE_FIELD, OPS_MGR_FIELD, P2POOL_FIELD, PANE_BOX_FIELD,
+    RED_BUTTON_FIELD, REMOTE_FIELD, STRATUM_PORT_FIELD, TO_METHOD_FIELD,
+    TO_MODULE_FIELD, UPDATE_BUTTON_FIELD, UPDATE_REMOTE_DEPLOYMENT_FIELD)
 from db4e.Constants.Labels import (
-    DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_REMOTE_LABEL, 
-    STRATUM_PORT_LABEL, UPDATE_LABEL)
+    DELETE_LABEL, UPDATE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL,
+    P2POOL_REMOTE_LABEL, STRATUM_PORT_LABEL)
 
 class P2PoolRemote(Container):
 
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
-        classes=FORM_INPUT_15_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     ip_addr_input = Input(
         id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
         classes=FORM_INPUT_30_FIELD)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
-        classes=FORM_INPUT_7_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     health_msgs = Static()
 
     def compose(self):
@@ -64,15 +64,17 @@ class P2PoolRemote(Container):
                 Vertical(
                     self.health_msgs,
                     classes=HEALTH_BOX_FIELD,
-                )),
+                ),
 
                 Horizontal(
-                    Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, classes=GREEN_BUTTON_FIELD),
-                    Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
+                    Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, 
+                           classes=GREEN_BUTTON_FIELD),
+                    Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD, 
+                           classes=RED_BUTTON_FIELD),
                     classes=BUTTON_ROW_FIELD
                 ),
         
-                classes=PANE_BOX_FIELD)  
+                classes=PANE_BOX_FIELD))
 
     def set_data(self, rec):
 
@@ -89,13 +91,13 @@ class P2PoolRemote(Container):
         if button_id == UPDATE_BUTTON_FIELD:
             if self.orig_instance:
                 # There was an original instance, so this is an update
-                to_method = UPDATE_DEPLOYMENT_FIELD
+                to_method = UPDATE_REMOTE_DEPLOYMENT_FIELD
             else:
                 # No original instance, this is a new deployment
-                to_method = ADD_DEPLOYMENT_FIELD
+                to_method = ADD_REMOTE_DEPLOYMENT_FIELD
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: to_method,
                 FORM_DATA_FIELD: True,
                 REMOTE_FIELD: True,
@@ -107,7 +109,7 @@ class P2PoolRemote(Container):
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
                 COMPONENT_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 INSTANCE_FIELD: self.orig_instance
             }

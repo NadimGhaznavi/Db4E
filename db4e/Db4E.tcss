@@ -82,7 +82,7 @@ Tree {
 
 .form_intro {
     padding: 0 2;
-    border: round; 
+    border: round;
     width: 100%; }
 
 

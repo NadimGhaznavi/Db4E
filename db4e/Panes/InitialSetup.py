@@ -21,10 +21,13 @@ from db4e.Constants.Fields import (
     PROCEED_BUTTON_FIELD, RED_BUTTON_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, 
     TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD, USER_WALLET_FIELD)
 from db4e.Constants.Labels import (
-    ABORT_LABEL, GROUP_LABEL, DEPLOYMENT_DIR_LABEL, MONERO_WALLET_LABEL, 
+    ABORT_LABEL, GROUP_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, 
     PROCEED_LABEL, USER_LABEL)
 
 MAX_GROUP_LENGTH = 20
+
+color = "#9cae41"
+hi = "#d7e556"
 
 class InitialSetup(Container):
 
@@ -38,9 +41,9 @@ class InitialSetup(Container):
         classes=FORM_INPUT_70_FIELD)
 
     def compose(self):
-        INTRO = "Welcome to the [bold cyan]Database 4 Everything[/] initial " \
-        f"installation screen. Access to Db4E will be restricted to the [cyan]user[/] " \
-        f"and [cyan]group[/] shown below."
+        INTRO = f"[{color}]Welcome to the [bold {hi}]Database 4 Everything[/] initial " \
+        f"installation screen. Access to Db4E will be restricted to the [{hi}]user[/] " \
+        f"and [{hi}]group[/] shown below.[/]"
 
         yield Vertical(
             ScrollableContainer(
@@ -54,10 +57,10 @@ class InitialSetup(Container):
                         Label(GROUP_LABEL, classes=FORM_LABEL_FIELD),
                         self.group_name_static),
                     Horizontal(
-                        Label(DEPLOYMENT_DIR_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(VENDOR_DIR_LABEL, classes=FORM_LABEL_FIELD),
                         self.vendor_dir_input),
                     Horizontal(
-                        Label(MONERO_WALLET_LABEL,classes=FORM_LABEL_FIELD), 
+                        Label(USER_WALLET_LABEL,classes=FORM_LABEL_FIELD), 
                         self.user_wallet_input),
                     classes=FORM_4_FIELD),
 
@@ -67,8 +70,9 @@ class InitialSetup(Container):
                             classes=GREEN_BUTTON_FIELD),
                         Button(label=ABORT_LABEL, id=ABORT_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
                         classes="button_row")),
+                classes="page_box"),
 
-                classes="pane_box"))
+            classes="pane_box")
 
     def set_data(self, account_info: dict):
         self.user_name_static.update(account_info[USER_FIELD])

@@ -17,16 +17,16 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, FORM_INTRO_FIELD, GET_NEW_REC_FIELD, 
-    GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD, 
-    REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
+    COMPONENT_FIELD, FORM_INTRO_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
+    MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
+    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
 class MonerodType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the [yellow]New - {MONEROD_LABEL}[/] screen. Use to create " \
+        INTRO = f"Welcome to the new [yellow]{MONEROD_LABEL}[/] screen. Use to create " \
             f"a new [cyan]local[/] or [cyan]remote[/] {MONEROD_LABEL} deployment.\n\n" \
             f"A [cyan]local {MONEROD_LABEL}[/] deployment will setup a " \
             f"[cyan]{MONEROD_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
@@ -51,14 +51,14 @@ class MonerodType(Container):
         selected = radio_set.pressed_button
         if selected.id == REMOTE_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
                 COMPONENT_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REC_FIELD,
                 COMPONENT_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: False

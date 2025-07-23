@@ -20,22 +20,26 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.HealthMgr import HealthMgr
+from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.Helper import result_row, get_effective_identity
 from db4e.Constants.Fields import (
-    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, COMPONENT_FIELD, CONF_DIR_FIELD, 
-    DB4E_FIELD, DB4E_DIR_FIELD, ENABLE_FIELD, ERROR_FIELD, GOOD_FIELD, 
-    GROUP_FIELD, INSTALL_DIR_FIELD, LOG_DIR_FIELD, MONEROD_FIELD, P2POOL_FIELD, 
-    PROCESS_FIELD, RUN_DIR_FIELD, SETUP_SCRIPT_FIELD, SERVICE_FILE_FIELD, 
-    SOCKET_FILE_FIELD, START_SCRIPT_FIELD, SYSTEMD_DIR_FIELD, 
-    TEMPLATE_FIELD, TEMPLATE_DIR_FIELD, TMP_DIR_ENVIRON_FIELD, USER_FIELD, 
-    USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD)
+    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, COMPONENT_FIELD, CONF_DIR_FIELD,
+    DB4E_DIR_FIELD, DB4E_FIELD, ENABLE_FIELD, ERROR_FIELD, GOOD_FIELD,
+    GROUP_FIELD, INSTALL_DIR_FIELD, INITIAL_SETUP_FIELD, LOG_DIR_FIELD,
+    MONEROD_FIELD, P2POOL_FIELD, PROCESS_FIELD, RUN_DIR_FIELD,
+    SERVICE_FILE_FIELD, SOCKET_FILE_FIELD, START_SCRIPT_FIELD,
+    SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, TEMPLATE_FIELD,
+    TMP_DIR_ENVIRON_FIELD, USER_FIELD, USER_WALLET_FIELD,
+    VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD
+)
 from db4e.Constants.SystemdTemplates import (
     DB4E_USER_PLACEHOLDER, DB4E_GROUP_PLACEHOLDER, DB4E_DIR_PLACEHOLDER,
     INSTALL_DIR_PLACEHOLDER, MONEROD_DIR_PLACEHOLDER, P2POOL_DIR_PLACEHOLDER, 
     PYTHON_PLACEHOLDER, XMRIG_DIR_PLACEHOLDER)
 from db4e.Constants.Labels import (
-    DB4E_GROUP_LABEL, DB4E_LABEL, DB4E_USER_LABEL, DEPLOYMENT_DIR_LABEL, 
-    INSTALL_DIR_LABEL, MONEROD_LABEL, MONERO_WALLET_LABEL, P2POOL_LABEL, 
+    DB4E_GROUP_LABEL, DB4E_LABEL, DB4E_USER_LABEL, VENDOR_DIR_LABEL, 
+    INSTALL_DIR_LABEL, MONEROD_LABEL, USER_WALLET_LABEL, P2POOL_LABEL, 
     STARTUP_SCRIPT, XMRIG_LABEL)
 from db4e.Constants.Defaults import (
     DB4E_OLD_GROUP_ENVIRON_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, 
@@ -53,7 +57,9 @@ class InstallMgr(Container):
     def __init__(self, config: Config):
         super().__init__()
         self.ini = config
-        self.depl_mgr = DeploymentMgr(config)
+        self.depl_mgr = DeploymentMgr(config=config)
+        self.health_mgr = HealthMgr()
+        self.ops_mgr = OpsMgr(config=config)
         self.db = DbMgr(config)
         self.col_name = DEPLOYMENT_COL_DEFAULT
         self.tmp_dir = None
@@ -77,14 +83,16 @@ class InstallMgr(Container):
             user_wallet=user_wallet, vendor_dir=vendor_dir, db4e_rec=db4e_rec, 
             results=results)
         if abort_install:
-            return results
+            status, results = self.health_mgr.check(DB4E_FIELD, db4e_rec)
+            return self.ops_mgr.set_status(rec=db4e_rec, status=status, results=results)            
         
         # Create the vendor directory
         results, abort_install = self._create_vendor_dir(
             vendor_dir=vendor_dir, results=results
         )
         if abort_install:
-            return results
+            status, results = self.health_mgr.check(DB4E_FIELD, db4e_rec)
+            return self.ops_mgr.set_status(rec=db4e_rec, status=status, results=results)
 
         # Create the Db4E vendor directories
         self._create_db4e_dirs(vendor_dir=vendor_dir)
@@ -133,8 +141,9 @@ class InstallMgr(Container):
             vendor_dir=vendor_dir, results=results, db4e_rec=db4e_rec)
 
         # Return the results
-        return results
-
+        status, results = self.health_mgr.check(DB4E_FIELD, db4e_rec)
+        return self.ops_mgr.set_status(rec=db4e_rec, status=status, results=results)
+        
     def _check_form_data(
             self, user_wallet: str, 
             vendor_dir: str, 
@@ -144,26 +153,26 @@ class InstallMgr(Container):
 
         if not user_wallet:
             results.append(result_row(
-                MONERO_WALLET_LABEL, ERROR_FIELD, 
-                f"Missing {MONERO_WALLET_LABEL}"))
+                USER_WALLET_LABEL, ERROR_FIELD, 
+                f"Missing {USER_WALLET_LABEL}"))
             abort_install = True
         else:
             db4e_rec[USER_WALLET_FIELD] = user_wallet
             user_wallet_short = user_wallet[0:6] + '...'
             results.append(result_row(
-                MONERO_WALLET_LABEL, GOOD_FIELD, 
+                USER_WALLET_LABEL, GOOD_FIELD, 
                 f"Added wallet ({user_wallet_short}) to the {DB4E_LABEL} " + 
                 "deployment record"))
 
         if not vendor_dir:
             results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
-                f"Missing {DEPLOYMENT_DIR_LABEL}"))
+                VENDOR_DIR_LABEL, ERROR_FIELD, 
+                f"Missing {VENDOR_DIR_LABEL}"))
             abort_install = True
         else:
             db4e_rec[VENDOR_DIR_FIELD] = vendor_dir
             results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
+                VENDOR_DIR_LABEL, GOOD_FIELD, 
                 f"Added deployment directory ({vendor_dir}) to the {DB4E_LABEL} " +
                 "deployment record"))
 
@@ -185,7 +194,7 @@ class InstallMgr(Container):
                 f"Found existing {DB4E_LABEL} deployment record"
             ))
         else: # No record, so get a new one
-            db4e_rec = self.depl_mgr.get_new_rec({COMPONENT_FIELD: DB4E_FIELD})
+            db4e_rec = self.db.get_new_rec(DB4E_FIELD)
             self.db.insert_one(self.col_name, db4e_rec)
             results.append(result_row(
                 DB4E_LABEL, GOOD_FIELD,
@@ -303,7 +312,7 @@ class InstallMgr(Container):
         return results
 
     def _create_db4e_dirs(self, vendor_dir):
-        print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
+        #print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         log_dir = self.ini.config[DB4E_FIELD][LOG_DIR_FIELD]
         db4e_version = self.ini.config[DB4E_FIELD][VERSION_FIELD]
@@ -349,7 +358,7 @@ class InstallMgr(Container):
 
         if os.path.exists(vendor_dir):
             results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
+                VENDOR_DIR_LABEL, WARN_FIELD, 
                 f'Found existing deployment directory ({vendor_dir})'))
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -357,11 +366,11 @@ class InstallMgr(Container):
             try:
                 os.rename(vendor_dir, backup_vendor_dir)
                 results.append(result_row(
-                    DEPLOYMENT_DIR_LABEL, WARN_FIELD, 
+                    VENDOR_DIR_LABEL, WARN_FIELD, 
                     f'Backed up old deployment directory ({backup_vendor_dir})'))
             except (PermissionError, OSError, FileNotFoundError) as e:
                 results.append(result_row(
-                    DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
+                    VENDOR_DIR_LABEL, ERROR_FIELD, 
                     'Failed to backup old deployment directory ' +
                     f'({backup_vendor_dir})\n{e}'))
                 abort_install = True
@@ -370,11 +379,11 @@ class InstallMgr(Container):
         try:
             os.makedirs(vendor_dir)
             results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, GOOD_FIELD, 
-                f"Created {DEPLOYMENT_DIR_LABEL} ({vendor_dir})"))        
+                VENDOR_DIR_LABEL, GOOD_FIELD, 
+                f"Created {VENDOR_DIR_LABEL} ({vendor_dir})"))        
         except (PermissionError, FileNotFoundError, FileExistsError) as e:
             results.append(result_row(
-                DEPLOYMENT_DIR_LABEL, ERROR_FIELD, 
+                VENDOR_DIR_LABEL, ERROR_FIELD, 
                 f'Failed to create directory ({vendor_dir}\n{e}'))
             abort_install = True
         return (results, abort_install)
@@ -566,7 +575,7 @@ class InstallMgr(Container):
         db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         # Additional config settings
         db4e_dir             = self.ini.config[DB4E_FIELD][DB4E_DIR_FIELD]
-        initial_setup_script = self.ini.config[DB4E_FIELD][SETUP_SCRIPT_FIELD]
+        initial_setup_script = self.ini.config[DB4E_FIELD][INITIAL_SETUP_FIELD]
         # Set the location of the temp dir in an environment variable
         env_setting = f"{TMP_DIR_ENVIRON_FIELD}={self.tmp_dir}"
         # Run the bin/db4e-installer.sh
