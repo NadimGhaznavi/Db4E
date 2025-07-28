@@ -17,7 +17,7 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
-    ABORT_BUTTON_FIELD, COMPONENT_FIELD, DB4E_FIELD, FORM_5_FIELD, FORM_DATA_FIELD, 
+    ABORT_BUTTON_FIELD, ELEMENT_TYPE_FIELD, DB4E_FIELD, FORM_5_FIELD, FORM_DATA_FIELD, 
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
     GREEN_BUTTON_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
     PROCEED_BUTTON_FIELD, RED_BUTTON_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, 
@@ -103,7 +103,7 @@ class InitialSetup(Container):
             form_data = {
                 TO_MODULE_FIELD: INSTALL_MGR_FIELD,
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
-                COMPONENT_FIELD: DB4E_FIELD,
+                ELEMENT_TYPE_FIELD: DB4E_FIELD,
                 FORM_DATA_FIELD: True,
                 USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
                 VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,

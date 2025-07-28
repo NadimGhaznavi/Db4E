@@ -13,14 +13,14 @@ from textual.app import ComposeResult
 from textual.widgets import Button, Label, MarkdownViewer, RadioButton, RadioSet, Static
 
 from db4e.Constants.Labels import (
-    DEPLOYMENTS_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, MONEROD_SHORT_LABEL,
+    MONEROD_LABEL, MONEROD_REMOTE_LABEL, MONEROD_SHORT_LABEL,
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, FORM_INTRO_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
+    FORM_INTRO_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
     MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
     REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, GREEN_BUTTON_FIELD,
-    RADIO_SET_FIELD
+    RADIO_SET_FIELD, ELEMENT_TYPE_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -57,14 +57,14 @@ class MonerodType(Container):
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
-                COMPONENT_FIELD: MONEROD_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REC_FIELD,
-                COMPONENT_FIELD: MONEROD_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: False
             }
         self.app.post_message(SubmitFormData(self, form_data))

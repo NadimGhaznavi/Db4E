@@ -19,12 +19,13 @@ from db4e.Constants.SoftwareSystems import (
     P2Pool_Remote_Template, P2Pool_Template, XMRig_Template
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DB4E_FIELD, DB_FIELD, DB_NAME_FIELD, DEPLOYMENT_COL_FIELD, ID_FIELD,
+    DB4E_FIELD, DB_FIELD, DB_NAME_FIELD, DEPLOYMENT_COL_FIELD,
+    ELEMENT_TYPE_FIELD,
     LOG_COLLECTION_FIELD, LOG_RETENTION_DAYS_FIELD, MAX_BACKUPS_FIELD,
     METRICS_COLLECTION_FIELD, MINING_COL_FIELD, MONEROD_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, PORT_FIELD,
     RETRY_TIMEOUT_FIELD, SERVER_FIELD, XMRIG_FIELD, TEMPLATES_COLLECTION_FIELD,
-    FIELD_FIELD, SOFTWARE_SYSTEM_FIELD, ELEMENT_TYPE_FIELD )
+    ELEMENT_TYPE_FIELD )
 
 def as_worker(method):
     def wrapper(self, *args, use_worker=True, **kwargs):
@@ -100,7 +101,7 @@ class DbMgr:
         return col.find_one(filter)
 
     def get_new_rec(self, rec_type):
-        rec = self.find_one(self.tmpl_col, {FIELD_FIELD: rec_type})
+        rec = self.find_one(self.tmpl_col, {ELEMENT_TYPE_FIELD: rec_type})
         if rec:
             rec.pop("_id", None)
         return deepcopy(rec) if rec else None
@@ -134,8 +135,7 @@ class DbMgr:
             P2Pool_Remote_Template, P2Pool_Template, XMRig_Template]
         for template in templates:
             # Only one doc of each component type ever gets created
-            elem_type = template[FIELD_FIELD]  
-            query = {FIELD_FIELD: template[FIELD_FIELD]}
+            query = {ELEMENT_TYPE_FIELD: template[ELEMENT_TYPE_FIELD]}
             if not self.exists(self.tmpl_col, query):
                 self.insert_one(self.tmpl_col, template)
 
@@ -143,7 +143,7 @@ class DbMgr:
     def insert_one(self, col_name, jdoc, use_worker=True):
         elem_type = ""
         if ELEMENT_TYPE_FIELD in jdoc:
-            elem_type = jdoc[FIELD_FIELD]
+            elem_type = jdoc[ELEMENT_TYPE_FIELD]
         print(f"DbMgr:insert_one(): col: {col_name}, doc: {elem_type}")
         col = self.get_collection(col_name)
         return col.insert_one(deepcopy(jdoc))

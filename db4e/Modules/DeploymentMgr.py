@@ -19,7 +19,7 @@ from db4e.Modules.Helper import (
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
-    NUM_THREADS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, RPC_BIND_PORT_LABEL,
+    NUM_THREADS_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL,
     STRATUM_PORT_LABEL, USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_LABEL,
     ZMQ_PUB_PORT_LABEL,
 )
@@ -31,7 +31,7 @@ from db4e.Constants.Fields import (
     REMOTE_FIELD, RESULTS_FIELD, RPC_BIND_PORT_FIELD, STATUS_FIELD, STRATUM_PORT_FIELD,
     TEMPLATE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATED_FIELD, USER_FIELD,
     USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD,
-    ZMQ_PUB_PORT_FIELD, FIELD_FIELD
+    ZMQ_PUB_PORT_FIELD, ELEMENT_TYPE_FIELD
 )
 from db4e.Constants.Defaults import (
     BIN_DIR_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
@@ -51,7 +51,7 @@ class DeploymentMgr(Container):
         print(f"DeploymentMgr:add_deployment(): {rec}")
         results = []
         fatal_error = False
-        elem_type = rec[FIELD_FIELD]
+        elem_type = rec[ELEMENT_TYPE_FIELD]
 
         # Add the Db4E Core deployment
         if elem_type == DB4E_FIELD:
@@ -266,7 +266,7 @@ class DeploymentMgr(Container):
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
-            db_rec = self.db.find_one(self.col_name, {FIELD_FIELD: DB4E_FIELD})
+            db_rec = self.db.find_one(self.col_name, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
             # rec is a cursor object.
             if db_rec:
                 return db_rec
@@ -321,7 +321,7 @@ class DeploymentMgr(Container):
     def update_db4e_deployment(self, rec):
         results = []
         update_flag = False
-        filter = {FIELD_FIELD: DB4E_FIELD}
+        filter = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
         orig_rec = self.get_deployment(DB4E_FIELD)
 
         if FORM_DATA_FIELD in rec:
@@ -374,7 +374,7 @@ class DeploymentMgr(Container):
 
     def update_deployment(self, rec):
         #print(f"DeploymentMgr:update_deployment(): {rec}")
-        elem_type = rec[FIELD_FIELD]
+        elem_type = rec[ELEMENT_TYPE_FIELD]
         if elem_type == DB4E_FIELD:
             return self.update_db4e_deployment(rec)
         elif elem_type == MONEROD_FIELD:

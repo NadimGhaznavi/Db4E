@@ -22,12 +22,7 @@ from db4e.Constants.Fields import (
     DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
     NEW_FIELD, P2POOL_FIELD, REMOTE_FIELD, UPDATE_DEPLOYMENT_FIELD,
-    UPDATE_REMOTE_DEPLOYMENT_FIELD, XMRIG_FIELD
-)
-
-from db4e.Constants.Labels import (
-    DB4E_LABEL, DEPLOYMENTS_LABEL, MONEROD_SHORT_LABEL, NEW_LABEL,
-    P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL,
+    UPDATE_REMOTE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD
 )
 
 from db4e.Constants.Panes import (
@@ -126,10 +121,10 @@ class MessageRouter:
             raise ValueError(f"No route matched: {module_or_route}")
 
         # Normal dispatch
-        component = payload.get("component", "")
-        handler = self.get_handler(module_or_route, method, component)
+        elem_type = payload.get(ELEMENT_TYPE_FIELD, "")
+        handler = self.get_handler(module_or_route, method, elem_type)
         if not handler:
-            raise ValueError(f"MessageRouter:dispatch():No handler for module/route: ({module_or_route}, method: {method}, component: {component})")
+            raise ValueError(f"MessageRouter:dispatch():No handler for: module/route: {module_or_route}, method: {method}, elem_type: {elem_type}")
 
         callback, pane = handler
         result = callback(payload)

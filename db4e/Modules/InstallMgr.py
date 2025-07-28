@@ -29,8 +29,8 @@ from db4e.Constants.Fields import (
     MONEROD_FIELD, P2POOL_FIELD, PROCESS_FIELD, RUN_DIR_FIELD,
     SERVICE_FILE_FIELD, SOCKET_FILE_FIELD, START_SCRIPT_FIELD,
     SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, TEMPLATE_FIELD, HEALTH_MSGS_FIELD, 
-    TMP_DIR_ENVIRON_FIELD, USER_FIELD, USER_WALLET_FIELD, FIELD_FIELD,
-    VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD
+    TMP_DIR_ENVIRON_FIELD, USER_FIELD, USER_WALLET_FIELD, 
+    VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD, 
 )
 from db4e.Constants.SystemdTemplates import (
     DB4E_USER_PLACEHOLDER, DB4E_GROUP_PLACEHOLDER, DB4E_DIR_PLACEHOLDER,
@@ -298,8 +298,9 @@ class InstallMgr(Container):
         for sub_dir in [bin_dir, log_dir]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
         # Create a symlink
+        os.chdir(vendor_dir)
         os.symlink(
-            os.path.join(db4e_with_version), 
+            os.path.join(db4e_with_version),
             os.path.join(DB4E_FIELD))
         # Create a health message, the directories will be logged later...
         results.append(result_row(
@@ -333,8 +334,9 @@ class InstallMgr(Container):
         for sub_dir in [bin_dir, conf_dir, run_dir, log_dir]:
             os.mkdir(os.path.join(fq_monerod_dir, sub_dir))
 
+        os.chdir(vendor_dir)
         os.symlink(
-            os.path.join(monerod_with_version), 
+            os.path.join(monerod_with_version),
             os.path.join(MONEROD_FIELD))
         # Create a health message, the directories will be logged later...
         results.append(result_row(
@@ -363,8 +365,9 @@ class InstallMgr(Container):
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,
                 f"Created {P2POOL_LABEL} directory: ({fq_p2pool_dir}/{sub_dir})"))
+        os.chdir(vendor_dir)
         os.symlink(
-            os.path.join(p2pool_with_version), 
+            os.path.join(p2pool_with_version),
             os.path.join(P2POOL_FIELD))
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
@@ -413,13 +416,13 @@ class InstallMgr(Container):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         conf_dir = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
         xmrig_version = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
-        xmrig_dir = XMRIG_FIELD + '-' + str(xmrig_version)
-        os.mkdir(os.path.join(vendor_dir, xmrig_dir))
+        xmrig_with_version = XMRIG_FIELD + '-' + str(xmrig_version)
+        fq_xmrig_dir = os.path.join(vendor_dir, xmrig_with_version)
+        os.mkdir(os.path.join(fq_xmrig_dir))
         for sub_dir in [bin_dir, conf_dir]:
-            os.mkdir(os.path.join(vendor_dir, xmrig_dir, sub_dir))
-        os.symlink(
-            os.path.join(xmrig_dir), 
-            os.path.join(vendor_dir, XMRIG_FIELD))
+            os.mkdir(os.path.join(fq_xmrig_dir, sub_dir))
+        os.chdir(vendor_dir)
+        os.symlink(xmrig_with_version, XMRIG_FIELD)
 
     # Update the db4e service template with deployment values
     def _generate_db4e_service_file(self, vendor_dir):

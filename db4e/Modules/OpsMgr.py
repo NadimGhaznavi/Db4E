@@ -18,7 +18,7 @@ from db4e.Constants.Fields import (
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, 
     PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, P2POOL_FIELD, P2POOL_INSTANCE, 
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
-    INSTALL_DIR_FIELD, TEMPLATE_FIELD,
+    INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD,
     FIELD_FIELD, P2POOL_REMOTE_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
 from db4e.Constants.Defaults import (
@@ -39,7 +39,7 @@ class OpsMgr:
         results = []
         parent_rec = None
         instance = None
-        elem_type = rec[FIELD_FIELD]
+        elem_type = rec[ELEMENT_TYPE_FIELD]
         if INSTANCE_FIELD in rec:
             instance = rec[INSTANCE_FIELD]
             existing_rec = self.depl_mgr.get_deployment(
@@ -71,7 +71,7 @@ class OpsMgr:
     def get_deployments(self) -> list[dict]:
         deployments = self.depl_mgr.get_deployments()  # ← now returns full recs
         for rec in deployments:
-            elem_type = rec[FIELD_FIELD]
+            elem_type = rec[ELEMENT_TYPE_FIELD]
             parent_rec = None
             if elem_type in (XMRIG_FIELD, P2POOL_FIELD) and PARENT_ID_FIELD in rec:
                 parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
@@ -102,7 +102,7 @@ class OpsMgr:
         print(f"OpsMgr:get_new_rec(): rec_request: {rec_request}")
 
         # Db4E Core template
-        elem_type = rec_request[FIELD_FIELD]
+        elem_type = rec_request[ELEMENT_TYPE_FIELD]
         if elem_type == DB4E_FIELD:
             rec = self.db.get_new_rec(DB4E_FIELD)
             rec = self.health_mgr.check(rec)
@@ -149,7 +149,7 @@ class OpsMgr:
 
     def update_deployment(self, rec):
         print(f"OpsMgr:update_deployment(): update_data: {rec}")
-        elem_type = rec[FIELD_FIELD]
+        elem_type = rec[ELEMENT_TYPE_FIELD]
         parent_rec = None
 
         rec = self.depl_mgr.update_deployment(rec=rec)
@@ -158,7 +158,7 @@ class OpsMgr:
         elem_type == P2POOL_FIELD and not rec[REMOTE_FIELD]:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
             parent_rec = self.health_mgr.check(
-                elem_type=parent_rec[FIELD_FIELD], rec=parent_rec
+                elem_type=parent_rec[ELEMENT_TYPE_FIELD], rec=parent_rec
             )
 
         return self.health_mgr.check(
