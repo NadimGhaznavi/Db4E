@@ -13,7 +13,7 @@ from textual.widgets import Label, Input, Button, MarkdownViewer
 
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, PANE_BOX_FIELD
+    FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_1_FIELD
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, 
@@ -34,12 +34,15 @@ class P2Pool(Container):
 
         # Local P2Pool daemon deployment form
         INTRO = "This screen provides a form for creating a new " \
-            f"{P2POOL_LABEL} deployment."
+            f"[bold cyan]{P2POOL_LABEL}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
                 Label(INTRO, classes=FORM_INTRO_FIELD),
-                Label('🚧 Coming Soon 🚧', classes="form_box")),
+
+                Vertical(
+                    Label('🚧 [cyan]Coming Soon[/] 🚧'),
+                    classes=FORM_1_FIELD)),
                 classes=PANE_BOX_FIELD)
 
     def reset_data(self):

@@ -57,7 +57,7 @@ class Monerod(Container):
 
                 Vertical(
                     Label('🚧 [cyan]Coming Soon[/] 🚧'),
-                    classes=FORM_1_FIELD),                    ),
+                    classes=FORM_1_FIELD)),
                 classes=PANE_BOX_FIELD)
                     
     def reset_data(self):
