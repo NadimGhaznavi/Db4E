@@ -8,7 +8,7 @@ db4e/Panes/InitialSetup.py
     License: GPL 3.0
 """
 import os
-from textual.widgets import Label, Input, Button
+from textual.widgets import Label, Input, Button, Static
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
 from db4e.Modules.Helper import get_effective_identity, gen_results_table
@@ -80,18 +80,19 @@ class InitialSetup(Container):
                         classes="button_row")),
                 classes="page_box"),
 
+            Vertical(self.health_msgs),
+
             classes="pane_box")
 
     def on_mount(self):
+        print(f"InitialSetup:on_mount()")
         eid = get_effective_identity()
         self.user_name_static.update(eid[USER_FIELD])
         self.group_name_static.update(eid[GROUP_FIELD])
         self.install_dir_static.update(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-        if HEALTH_MSGS_FIELD in self.rec:
-            self.health_msgs.update(gen_results_table(self.rec[HEALTH_MSGS_FIELD]))
 
     def set_data(self, rec):
-        print(f"InitialSetup:set_data(): rec: {rec}")
+        print(f"InitialSetup:set_data(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
         self.rec = rec
         self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 

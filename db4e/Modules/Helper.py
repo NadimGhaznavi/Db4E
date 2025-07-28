@@ -47,6 +47,7 @@ def gen_results_table(results):
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
             elif msg_dict["status"] == "error":
                 table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+    print(f"Helper:gen_results_table(): Results table:")
     return table
 
 def get_component_value(data, field_name):

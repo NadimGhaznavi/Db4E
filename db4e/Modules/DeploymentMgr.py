@@ -37,8 +37,6 @@ from db4e.Constants.Defaults import (
     BIN_DIR_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
 )
                                      
-
-
 class DeploymentMgr(Container):
     
     def __init__(self, config: Config):
@@ -78,7 +76,7 @@ class DeploymentMgr(Container):
             
         # Add a XMRig deployment
         elif elem_type == XMRIG_FIELD:
-            rec, results, fatal_error = self.add_xmrig_deployment(rec)
+            return self.add_xmrig_deployment(rec)
 
         # Catchall
         else:
@@ -90,25 +88,11 @@ class DeploymentMgr(Container):
             results_message = f"Added new deployment record"
             results.append(result_row(
                 DB4E_LABEL, GOOD_FIELD, results_message))
-        return rec, results
+        return rec
     
     def add_db4e_deployment(self, rec):
-        results = []
-        # Check that the user actually filled out the form
-        if not get_component_value(rec, VENDOR_DIR_FIELD):
-            results.append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD,
-                f"Missing required field: {VENDOR_DIR_LABEL}"
-            ))
-        if not get_component_value(rec, USER_WALLET_FIELD):
-            results.append(result_row(
-                USER_WALLET_LABEL, ERROR_FIELD,
-                f"Missing required field: {USER_WALLET_LABEL}"
-            ))
-        rec[HEALTH_MSGS_FIELD] += results
         self.db.insert_one(self.col_name, rec)
         return rec
-
 
     def add_monerod_deployment(self, rec):
         print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
@@ -348,15 +332,8 @@ class DeploymentMgr(Container):
 
             ## Track field changes
             
-            # Missing user wallet
-            if not rec.get(USER_WALLET_FIELD):
-                results.append(result_row(
-                    f"[bold]{USER_WALLET_LABEL}[/]", ERROR_FIELD,
-                    f"Missing {USER_WALLET_LABEL}"
-                ))
-
             # Updating user wallet
-            elif rec[USER_WALLET_FIELD] != orig_rec[USER_WALLET_FIELD]:
+            if rec[USER_WALLET_FIELD] != orig_rec[USER_WALLET_FIELD]:
                 update_flag = True
                 results.append(result_row(
                     f"[bold]{USER_WALLET_LABEL}[/]", GOOD_FIELD,
@@ -364,15 +341,8 @@ class DeploymentMgr(Container):
                     f"{rec[USER_WALLET_FIELD][6:]}...) in {DB4E_LABEL} deployment record"
                 ))
 
-            # Missing user wallet
-            if not rec.get(VENDOR_DIR_FIELD):
-                results.append(result_row(
-                    f"[bold]{VENDOR_DIR_LABEL}[/]", ERROR_FIELD,
-                    f"Missing {VENDOR_DIR_LABEL}"
-                ))
-
             # Updating vendor dir
-            elif rec[VENDOR_DIR_FIELD] != orig_rec[VENDOR_DIR_FIELD]:
+            if rec[VENDOR_DIR_FIELD] != orig_rec[VENDOR_DIR_FIELD]:
                 update_flag = True
                 if not rec[VENDOR_DIR_FIELD]:
                     update_flag, results = self.create_vendor_dir(

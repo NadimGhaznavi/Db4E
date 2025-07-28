@@ -137,11 +137,10 @@ class InstallMgr(Container):
 
         # Run the installer (with sudo)
         results = self._run_sudo_installer(
-            vendor_dir=vendor_dir, results=results, db4e_rec=db4e_rec)
+            vendor_dir=vendor_dir, results=results, db4e_rec=rec)
 
         # Return the results
-        status, results = self.health_mgr.check(DB4E_FIELD, db4e_rec)
-        return self.ops_mgr.set_status(rec=db4e_rec, status=status, results=results)
+        return rec
         
     def _check_form_data(
             self, user_wallet: str, 
@@ -151,9 +150,6 @@ class InstallMgr(Container):
         abort_install = False
         if not user_wallet:
             abort_install = True
-            rec[HEALTH_MSGS_FIELD].append(result_row(
-                USER_WALLET_LABEL, ERROR_FIELD, 
-                f"Missing {USER_WALLET_LABEL}"))
         else:
             rec[USER_WALLET_FIELD] = user_wallet
             user_wallet_short = user_wallet[0:6] + '...'
@@ -164,9 +160,6 @@ class InstallMgr(Container):
 
         if not vendor_dir:
             abort_install = True
-            rec[HEALTH_MSGS_FIELD].append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD, 
-                f"Missing {VENDOR_DIR_LABEL}"))
         else:
             rec[VENDOR_DIR_FIELD] = vendor_dir
             rec[HEALTH_MSGS_FIELD].append(result_row(
@@ -555,11 +548,11 @@ class InstallMgr(Container):
             rec[HEALTH_MSGS_FIELD] += results
             return rec
         rec = self.db.get_new_rec(rec_type=DB4E_FIELD)
+        print(f"InstallMgr:_get_or_create_db4e_rec(): Created new rec: {rec}")
         rec = self.ops_mgr.add_deployment(rec)
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
             f"Created {DB4E_LABEL} deployment record"))   
-        print(f"InstallMgr:_get_or_create_db4e_rec(): Created new rec: {rec}")
         rec[HEALTH_MSGS_FIELD] += results
         return rec
 
@@ -569,25 +562,6 @@ class InstallMgr(Container):
         return os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', templates_dir))
     
-    def _get_or_create_db4e_rec(self):
-        results = []
-        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
-        if rec:
-            results.append(result_row(
-                DB4E_LABEL, WARN_FIELD,
-                f"Found existing {DB4E_LABEL} deployment record"
-            ))
-            print(f"InstallMgr:_get_or_create_db4e_rec(): Found existing rec: {rec}")
-            return (results, rec)
-        rec = self.db.get_new_rec(rec_type=DB4E_FIELD)
-        rec = self.ops_mgr.add_deployment(rec)
-        results.append(result_row(
-            DB4E_LABEL, GOOD_FIELD,
-            f"Created {DB4E_LABEL} deployment record"))   
-        print(f"InstallMgr:_get_or_create_db4e_rec(): Created new rec: {rec}")
-        rec[HEALTH_MSGS_FIELD] += results
-        return rec
-
     def _get_tmp_dir(self):
         # Helper function
         if not self.tmp_dir:

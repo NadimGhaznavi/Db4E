@@ -56,7 +56,7 @@ class MessageRouter:
     def load_routes(self):
         # Db4e core
         self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_FIELD, DB4E_FIELD,
-                      self.install_mgr.initial_setup, DB4E_PANE)
+                      self.install_mgr.initial_setup, INITIAL_SETUP_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD,
                       self.ops_mgr.update_deployment, DB4E_PANE)
 
@@ -129,7 +129,7 @@ class MessageRouter:
         component = payload.get("component", "")
         handler = self.get_handler(module_or_route, method, component)
         if not handler:
-            raise ValueError(f"No handler for ({module_or_route}, {method}, {component})")
+            raise ValueError(f"MessageRouter:dispatch():No handler for module/route: ({module_or_route}, method: {method}, component: {component})")
 
         callback, pane = handler
         result = callback(payload)
