@@ -15,7 +15,7 @@ from db4e.Constants.Labels import (
     P2POOL_LABEL, P2POOL_REMOTE_LABEL,PROCEED_LABEL)
 from db4e.Constants.Fields import (
     ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_REC_FIELD,
-    GET_NEW_REMOTE_REC_FIELD, GREEN_BUTTON_FIELD, P2POOL_FIELD,
+    GREEN_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
     PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -51,8 +51,8 @@ class P2PoolType(Container):
         if selected and selected.id == "remote":
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 REMOTE_FIELD: True
             }
         else:

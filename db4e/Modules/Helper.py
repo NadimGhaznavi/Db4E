@@ -33,7 +33,7 @@ class Status:
 
 def gen_results_table(results):
     #print(f"Helper:gen_results_table(): Results list:")
-    table = Table(show_header=True, header_style="bold #31b8e6", style="bold green", box=box.SIMPLE)
+    table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
     table.add_column("Component", width=25)
     table.add_column("Message")
 

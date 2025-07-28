@@ -13,7 +13,7 @@ import re
 import socket
 import ipaddress
 
-from db4e.Modules.Helper import result_row, is_port_open
+from db4e.Modules.Helper import result_row, is_port_open, get_component_value
 from db4e.Constants.Fields import(
     CONFIG_FIELD, ERROR_FIELD, GOOD_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD,
     RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, STATUS_FIELD,
@@ -29,6 +29,9 @@ class HealthMgr:
 
     def check(self, rec, parent_rec=None):
         elem_type = rec.get(ELEMENT_TYPE_FIELD, "")
+        print(f"HealthMgr:check(): elem_type: {elem_type}")
+        print(f"HealthMgr:check(): rec: {rec}")
+        print(f"HealthMgr:check(): elem_type: {elem_type}")
 
         if elem_type == DB4E_FIELD:
             return self.check_db4e(rec)
@@ -98,9 +101,14 @@ class HealthMgr:
         return rec
 
     def check_monerod_remote(self, rec):
+        print(f"HealthMgr:check_monerod_remote(): rec: {rec}")
         results = []
         overall_state = GOOD_FIELD
-        if is_port_open(rec[IP_ADDR_FIELD], rec[RPC_BIND_PORT_FIELD]):
+        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
+        rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
+        zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
+
+        if is_port_open(ip_addr, rpc_bind_port):
             results.append(result_row(
                 RPC_BIND_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {RPC_BIND_PORT_LABEL} successful"
@@ -111,7 +119,7 @@ class HealthMgr:
                 f"Connection to {RPC_BIND_PORT_LABEL} failed"
             ))
             overall_state = WARN_FIELD
-        if is_port_open(rec[IP_ADDR_FIELD], rec[ZMQ_PUB_PORT_FIELD]):
+        if is_port_open(ip_addr, zmq_pub_port):
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {ZMQ_PUB_PORT_LABEL} successful"
@@ -124,6 +132,7 @@ class HealthMgr:
             overall_state = WARN_FIELD
         rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
+        print(f"HealthMgr:check_monerod_remote(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
         return rec
 
 
@@ -135,9 +144,13 @@ class HealthMgr:
     def check_p2pool_remote(self, rec):
         results = []
         overall_state = GOOD_FIELD
+        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
+        stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
+
         if not rec:
             return(overall_state, results)
-        if is_port_open(rec[IP_ADDR_FIELD], rec[STRATUM_PORT_FIELD]):
+
+        if is_port_open(ip_addr, stratum_port):
             results.append(result_row(
                 STRATUM_PORT_LABEL, GOOD_FIELD,
                 f"Connection to {STRATUM_PORT_LABEL} successful"

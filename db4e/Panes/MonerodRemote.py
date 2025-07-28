@@ -14,17 +14,17 @@ from rich.table import Table
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
-from db4e.Modules.Helper import gen_results_table
+from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_REMOTE_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD,
     IP_ADDR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD, ORIG_INSTANCE_FIELD,
     PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
-    UPDATE_REMOTE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
+    UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (
     DELETE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_REMOTE_LABEL,
     RPC_BIND_PORT_LABEL, UPDATE_LABEL, ZMQ_PUB_PORT_LABEL
@@ -88,12 +88,11 @@ class MonerodRemote(Container):
 
     def set_data(self, rec):
         print(f"MonerodRemote:set_data(): rec: {rec}")
-        rec = deepcopy(rec)
-        self.orig_instance = rec[INSTANCE_FIELD]
-        self.instance_input.value = (rec[INSTANCE_FIELD])
-        self.ip_addr_input.value = (rec[IP_ADDR_FIELD])
-        self.rpc_bind_port_input.value = (str(rec[RPC_BIND_PORT_FIELD]))
-        self.zmq_pub_port_input.value = (str(rec[ZMQ_PUB_PORT_FIELD]))
+        self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
+        self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
+        self.ip_addr_input.value = get_component_value(rec, IP_ADDR_FIELD)
+        self.rpc_bind_port_input.value = str(get_component_value(rec, RPC_BIND_PORT_FIELD))
+        self.zmq_pub_port_input.value = str(get_component_value(rec, ZMQ_PUB_PORT_FIELD))
         self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -101,10 +100,10 @@ class MonerodRemote(Container):
         if button_id == UPDATE_BUTTON_FIELD:
             if len(self.orig_instance) > 0:
                 # There was an original instance, so this is an update
-                to_method = UPDATE_REMOTE_DEPLOYMENT_FIELD
+                to_method = UPDATE_DEPLOYMENT_FIELD
             else:
                 # No original instance, this is a new deployment
-                to_method = ADD_REMOTE_DEPLOYMENT_FIELD
+                to_method = ADD_DEPLOYMENT_FIELD
             form_data = {
                 COMPONENT_FIELD: MONEROD_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,

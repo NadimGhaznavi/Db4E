@@ -17,12 +17,12 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.OpsMgr import OpsMgr
 
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, ADD_REMOTE_DEPLOYMENT_FIELD, DB4E_FIELD, 
-    DELETE_DEPLOYMENT_FIELD, DELETE_REMOTE_DEPLOYMENT_FIELD,
-    DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
+    ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
+    DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
     NEW_FIELD, P2POOL_FIELD, REMOTE_FIELD, UPDATE_DEPLOYMENT_FIELD,
-    UPDATE_REMOTE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD
+    XMRIG_FIELD, ELEMENT_TYPE_FIELD,
+    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD
 )
 
 from db4e.Constants.Panes import (
@@ -66,13 +66,13 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, MONEROD_PANE)
 
         # MoneroD - remote
-        self.register(OPS_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, MONEROD_FIELD,
+        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.get_new_rec, MONEROD_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, ADD_REMOTE_DEPLOYMENT_FIELD, MONEROD_FIELD,
+        self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, MONEROD_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_REMOTE_DEPLOYMENT_FIELD, MONEROD_FIELD,
+        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.update_deployment, MONEROD_REMOTE_PANE)
-        self.register(DEPLOYMENT_MGR_FIELD, DELETE_REMOTE_DEPLOYMENT_FIELD, MONEROD_FIELD,
+        self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.depl_mgr.del_deployment, MONEROD_REMOTE_PANE)
 
         # P2Pool - local
@@ -86,13 +86,13 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, P2POOL_PANE)
 
         # P2Pool - remote
-        self.register(OPS_MGR_FIELD, GET_NEW_REMOTE_REC_FIELD, P2POOL_FIELD,
+        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.get_new_rec, P2POOL_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, ADD_REMOTE_DEPLOYMENT_FIELD, P2POOL_FIELD,
+        self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, P2POOL_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_REMOTE_DEPLOYMENT_FIELD, P2POOL_FIELD,
+        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.update_deployment, P2POOL_REMOTE_PANE)
-        self.register(DEPLOYMENT_MGR_FIELD, DELETE_REMOTE_DEPLOYMENT_FIELD, P2POOL_FIELD,
+        self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.depl_mgr.del_deployment, P2POOL_REMOTE_PANE)
 
         # XMRig

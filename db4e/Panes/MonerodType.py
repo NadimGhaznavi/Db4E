@@ -17,10 +17,10 @@ from db4e.Constants.Labels import (
     PROCEED_LABEL
 )
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD,
+    FORM_INTRO_FIELD, GET_NEW_REC_FIELD,
     MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
     REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, GREEN_BUTTON_FIELD,
-    RADIO_SET_FIELD, ELEMENT_TYPE_FIELD
+    RADIO_SET_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD
 )
 from db4e.Messages.SubmitFormData import SubmitFormData
 
@@ -56,8 +56,8 @@ class MonerodType(Container):
         if selected.id == REMOTE_FIELD:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                 REMOTE_FIELD: True
             }
         else:

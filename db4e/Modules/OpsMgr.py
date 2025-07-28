@@ -101,43 +101,11 @@ class OpsMgr:
 
         # Db4E Core template
         elem_type = rec_request[ELEMENT_TYPE_FIELD]
-        if elem_type == DB4E_FIELD:
-            rec = self.db.get_new_rec(DB4E_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
+        rec = self.db.get_new_rec(elem_type)
+        rec = self.health_mgr.check(rec)
+        print(f"OpsMgr:get_new_rec(): final rec: {rec}")
+        return rec
 
-        # Monero template
-        elif elem_type == MONEROD_FIELD:
-            rec = self.db.get_new_rec(MONEROD_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
-
-        # Remote Monero template
-        elif elem_type == MONEROD_REMOTE_FIELD:
-            rec = self.db.get_new_rec(MONEROD_REMOTE_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
-        
-        # P2Pool template
-        elif elem_type == P2POOL_FIELD:
-            rec = self.db.get_new_rec(P2POOL_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
-
-        # Remote P2Pool template
-        elif elem_type == P2POOL_REMOTE_FIELD:
-            rec = self.db.get_new_rec(P2POOL_REMOTE_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
-
-        # XMRig template        
-        elif elem_type == XMRIG_FIELD:
-            rec = self.db.get_new_rec(XMRIG_FIELD)
-            rec = self.health_mgr.check(rec)
-            return rec
-
-        else:
-            raise ValueError(f"OpsMgr:get_new_rec(): No handler for: {rec_request}")
 
     def UNUSED_get_new_xmrig_rec(self, rec: dict) -> dict:
         rec = self.db.get_new_rec(XMRIG_FIELD)
