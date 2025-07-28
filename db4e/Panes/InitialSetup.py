@@ -29,7 +29,7 @@ from db4e.Constants.Labels import (
 MAX_GROUP_LENGTH = 20
 
 color = "#9cae41"
-hi = "#d7e556"
+hi = "cyan"
 
 class InitialSetup(Container):
 

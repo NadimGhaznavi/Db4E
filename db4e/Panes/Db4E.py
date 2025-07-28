@@ -29,7 +29,7 @@ from db4e.Constants.Labels import (
 )
 
 color = "#9cae41"
-hi = "#d7e556"
+hi = "cyan"
 
 class UIType:
     STATIC = STATIC_CONTENT_FIELD
