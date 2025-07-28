@@ -16,8 +16,9 @@ import ipaddress
 from db4e.Modules.Helper import result_row, is_port_open
 from db4e.Constants.Fields import(
     CONFIG_FIELD, ERROR_FIELD, GOOD_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD,
-    RPC_BIND_PORT_FIELD, P2POOL_FIELD, PARENT_ID_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, 
-    XMRIG_FIELD, ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD, DB4E_FIELD)
+    RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, STATUS_FIELD,
+    XMRIG_FIELD, ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD, DB4E_FIELD,
+    HEALTH_MSGS_FIELD)
 from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
     ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL)
@@ -26,18 +27,17 @@ hi = "#31b8e6"
 
 class HealthMgr:
 
-    def check(self, component, rec, parent_rec=None):
-        if component == DB4E_FIELD:
+    def check(self, elem_type, rec, parent_rec=None):
+        if elem_type == DB4E_FIELD:
             return self.check_db4e(rec)
-        elif component == MONEROD_FIELD:
+        elif elem_type == MONEROD_FIELD:
             return self.check_monerod(rec)
-        elif component == P2POOL_FIELD:
+        elif elem_type == P2POOL_FIELD:
             return self.check_p2pool(rec, parent_rec)
-        elif component == XMRIG_FIELD:
+        elif elem_type == XMRIG_FIELD:
             return self.check_xmrig(rec, parent_rec)
 
     def check_db4e(self, rec):
-        print(f"HealthMgr:check_db4e(): rec: {rec}")
         results = []
         overall_state = GOOD_FIELD
 
@@ -80,8 +80,10 @@ class HealthMgr:
             if overall_state != ERROR_FIELD:
                 overall_state = WARN_FIELD
 
-        print(f"HealthMgr:check_db4e(): overall_state: {overall_state}\n{results}")
-        return (overall_state, results)
+        print(f"HealthMgr:check_db4e(): overall_state: rec:\n{rec}\noverall_state: {overall_state}\n{results}")
+        rec[STATUS_FIELD] = overall_state
+        rec[HEALTH_MSGS_FIELD] = results
+        return rec
 
     def check_monerod(self, rec):
         results = []
@@ -108,7 +110,10 @@ class HealthMgr:
                 f"Connection to {ZMQ_PUB_PORT_LABEL} failed"
             ))
             overall_state = WARN_FIELD
-        return (overall_state, results)
+        rec[STATUS_FIELD] = overall_state
+        rec[HEALTH_MSGS_FIELD] = results
+        return rec
+
 
     def check_p2pool(self, rec, parent_rec):
         results = []
@@ -126,7 +131,9 @@ class HealthMgr:
                 f"Connection to {STRATUM_PORT_LABEL} failed"
             ))
             overall_state = WARN_FIELD
-        return (overall_state, results)
+        rec[STATUS_FIELD] = overall_state
+        rec[HEALTH_MSGS_FIELD] = results
+        return rec
         
 
     def check_xmrig(self, rec, p2pool_rec):
@@ -168,4 +175,6 @@ class HealthMgr:
 
 
         # overall_state used in NavPane, results used in XMRig and other panes
-        return (overall_state, results)
+        rec[STATUS_FIELD] = overall_state
+        rec[HEALTH_MSGS_FIELD] = results
+        return rec

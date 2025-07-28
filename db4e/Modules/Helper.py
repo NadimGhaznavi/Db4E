@@ -20,8 +20,16 @@ from textual.widgets import RadioSet, RadioButton
 
 from db4e.Constants.Fields import(
     COMPONENT_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, MONEROD_FIELD, 
-    P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD
-)
+    P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
+    FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD,
+    PENDING_FIELD, ENABLE_FIELD)
+
+class Status:
+    ACTIVE = ACTIVE_FIELD
+    ENABLED = ENABLE_FIELD
+    ERROR = ERROR_FIELD
+    WARNING = WARN_FIELD
+    PENDING = PENDING_FIELD
 
 def gen_results_table(results):
     #print(f"Helper:gen_results_table(): Results list:")
@@ -40,6 +48,28 @@ def gen_results_table(results):
             elif msg_dict["status"] == "error":
                 table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
     return table
+
+def get_component_value(data, field_name):
+    """
+    Generic helper to get any component value by field name.
+    
+    Args:
+        data (dict): Dictionary containing components with field/value pairs
+        field_name (str): The field name to search for
+        
+    Returns:
+        any or None: The component value, or None if not found
+    """
+    if not isinstance(data, dict) or 'components' not in data:
+        return None
+    
+    components = data.get(COMPONENTS_FIELD, [])
+    
+    for component in components:
+        if isinstance(component, dict) and component.get(FIELD_FIELD) == field_name:
+            return component.get(VALUE_FIELD)
+    
+    return None
 
 def get_effective_identity():
     """Return the effective user and group for the account running Db3e"""
@@ -68,6 +98,28 @@ def gen_radio_map(rec, ops_mgr):
         radio_map[instance] = id
     return radio_map
     
+def get_remote_state(data):
+    """
+    Parse out the remote state from a data structure.
+    
+    Args:
+        data (dict): Dictionary containing components with field/value pairs
+        
+    Returns:
+        bool or None: The remote state value, or None if not found
+    """
+    if not isinstance(data, dict) or 'components' not in data:
+        return None
+    
+    components = data.get(COMPONENTS_FIELD, [])
+    
+    for component in components:
+        if isinstance(component, dict) and component.get(FIELD_FIELD) == REMOTE_FIELD:
+            return component.get(VALUE_FIELD)
+    
+    return None
+
+
 def is_port_open(ip_addr, port_num):
     #print(f"Helper:is_port_open(): {ip_addr}/{port_num}")
     if not is_valid_ip_or_hostname(ip_addr):
@@ -86,3 +138,10 @@ def is_valid_ip_or_hostname(host: str) -> str:
         return True
     except socket.gaierror:
         return False
+
+def update_component_values(rec, updates):
+    for component in rec.get(COMPONENTS_FIELD, []):
+        field = component.get(FIELD_FIELD)
+        if field in updates:
+            component[VALUE_FIELD] = updates[field]
+    return rec

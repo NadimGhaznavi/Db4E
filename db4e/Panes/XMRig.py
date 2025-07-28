@@ -21,7 +21,7 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, CONFIG_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_3_FIELD, FORM_INPUT_15_FIELD, FORM_INPUT_7_FIELD, FORM_INTRO_FIELD,
-    FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD,
+    FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD,
     INSTANCE_FIELD, NEW_BUTTON_FIELD, NUM_THREADS_FIELD, OPS_MGR_FIELD,
     ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, PANE_BOX_FIELD, PARENT_ID_FIELD,
     RADIO_BUTTON_TYPE_FIELD, RADIO_MAP_FIELD, RADIO_SET_FIELD, RED_BUTTON_FIELD,
@@ -146,8 +146,7 @@ class XMRig(Container):
         # Trigger RadioButton recreation via reactive update
         self.radio_button_list = list(rec[RADIO_MAP_FIELD].keys())
 
-        if rec[HEALTH_MSG_FIELD]:
-            self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
+        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

@@ -20,7 +20,7 @@ from db4e.Constants.Fields import (
     ADD_REMOTE_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
-    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD,
+    GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD,
     IP_ADDR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD, ORIG_INSTANCE_FIELD,
     PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
@@ -94,7 +94,7 @@ class MonerodRemote(Container):
         self.ip_addr_input.value = (rec[IP_ADDR_FIELD])
         self.rpc_bind_port_input.value = (str(rec[RPC_BIND_PORT_FIELD]))
         self.zmq_pub_port_input.value = (str(rec[ZMQ_PUB_PORT_FIELD]))
-        self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
+        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

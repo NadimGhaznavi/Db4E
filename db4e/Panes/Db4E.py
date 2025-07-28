@@ -12,13 +12,13 @@ from textual import on
 from textual.widgets import Label, MarkdownViewer, Input, Button, Static
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 
-from db4e.Modules.Helper import gen_results_table
+from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    BUTTON_ROW_FIELD, COMPONENT_FIELD, DB4E_FIELD, DEPLOYMENT_MGR_FIELD,
+    BUTTON_ROW_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD,
     FORM_5_FIELD, FORM_DATA_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
     FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, GROUP_FIELD,
-    HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTALL_DIR_FIELD, PANE_BOX_FIELD,
+    HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTALL_DIR_FIELD, PANE_BOX_FIELD,
     STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
     UPDATE_DEPLOYMENT_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD,
     OPS_MGR_FIELD
@@ -91,20 +91,19 @@ class Db4E(Container):
 
     def set_data(self, rec):
         #print(f"Db4E:set_data(): {rec}")
-
-        self.user_name_label.update(rec[USER_FIELD] or "")
-        self.group_name_label.update(rec[GROUP_FIELD] or "")
-        self.install_dir_label.update(rec[INSTALL_DIR_FIELD] or "" )
-        self.vendor_dir_input.value = rec[VENDOR_DIR_FIELD] or ""
-        self.user_wallet_input.value = rec[USER_WALLET_FIELD] or ""
-        self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
+        self.user_name_label.update(get_component_value(rec, USER_FIELD))
+        self.group_name_label.update(get_component_value(rec, GROUP_FIELD))
+        self.install_dir_label.update(get_component_value(rec, INSTALL_DIR_FIELD))
+        self.vendor_dir_input.value = get_component_value(rec, VENDOR_DIR_FIELD)
+        self.user_wallet_input.value = get_component_value(rec, USER_WALLET_FIELD)
+        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
         form_data = {
             TO_MODULE_FIELD: OPS_MGR_FIELD,
             TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-            COMPONENT_FIELD: DB4E_FIELD,
+            ELEMENT_TYPE_FIELD: DB4E_FIELD,
             FORM_DATA_FIELD: True,
             USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
             VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,

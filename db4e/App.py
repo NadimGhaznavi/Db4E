@@ -34,8 +34,6 @@ from db4e.Widgets.Clock import Clock
 from db4e.Widgets.NavPane import NavPane
 from db4e.Modules.ConfigMgr import ConfigMgr, Config
 from db4e.Modules.Db4eService import Db4eService
-from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
@@ -61,25 +59,15 @@ class Db4EApp(App):
         op = self.ini.config[DB4E_FIELD][OP_FIELD]
         if op == RUN_UI_FIELD:
             self.ops_mgr = OpsMgr(config=config)
-            self.install_mgr = InstallMgr(config=config)
-            self.pane_catalogue = PaneCatalogue()
             self.msg_router = MessageRouter(config=config)
-            self.depl_mgr = DeploymentMgr(config=config)
-            self._initialized = False
-            initialized_flag = self.depl_mgr.is_initialized()
             self.pane_mgr = PaneMgr(
-                config=config, catalogue=self.pane_catalogue, 
-                initialized_flag=initialized_flag)
+                config=config, catalogue=PaneCatalogue())
             self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
-            self.set_initialized()
         elif op == RUN_SERVICE_FIELD:
             self.ops_mgr = OpsMgr(config=config)
-            initialized_flag = self.depl_mgr.is_initialized()
-            self.pane_catalogue = PaneCatalogue()
             self.msg_router = MessageRouter(config=config)
             self.pane_mgr = PaneMgr(
-                config=config, catalogue=self.pane_catalogue, 
-                initialized_flag=initialized_flag)
+                config=config, catalogue=PaneCatalogue())
             self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
             self.service = Db4eService(config=config)
             self.service.start()
@@ -93,12 +81,7 @@ class Db4EApp(App):
         )
         yield self.pane_mgr
 
-    def is_initialized(self) -> bool:
-        #print(f"App:is_initialized(): {self._initialized}")
-        return self._initialized
-
     ### Message handling happens here...#31b8e6;
-
     # NavPane selections are routed here
     def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
         route = f"nav:select:{message.parent}:{message.leaf}"
@@ -116,8 +99,6 @@ class Db4EApp(App):
             message.form_data[TO_METHOD_FIELD],
             message.form_data
         )
-        if not self.is_initialized():
-            self.set_initialized()
         self.pane_mgr.set_pane(name=pane, data=data)
         self.nav_pane.refresh_nav_pane()
 
@@ -130,13 +111,6 @@ class Db4EApp(App):
     def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title )
 
-    def set_initialized(self) -> None:
-        flag = self.depl_mgr.is_initialized()
-        self.pane_mgr.set_initialized(flag)
-        self.nav_pane.check_initialized()
-        self._initialized = flag
-        #print(f"App:set_initialized(): initialized: {flag}")
-
     # Catchall 
     def _handle_exception(self, error: Exception) -> None:
         self.bell()
@@ -147,8 +121,8 @@ def main():
     os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
     os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
 
-    config_manager = ConfigMgr(__version__)
-    config = config_manager.get_config()
+    config_mgr = ConfigMgr(__version__)
+    config = config_mgr.get_config()
     app = Db4EApp(config)
     app.run()
 

@@ -31,7 +31,7 @@ from db4e.Constants.Labels import (
 )
 
 from db4e.Constants.Panes import (
-    DB4E_PANE, DONATIONS_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, MONEROD_TYPE_PANE,
+    DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, MONEROD_TYPE_PANE,
     P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE,
 )
 
@@ -146,6 +146,15 @@ class MessageRouter:
 
     # --- Navigation routes ---
 
+    # Db4E Core
+    @route("nav:select:deployments:db4e")
+    def nav_db4e(self):
+        if self.depl_mgr.is_initialized():
+            rec = self.ops_mgr.get_deployment(DB4E_FIELD)
+            return DB4E_PANE, rec
+        else:
+            return INITIAL_SETUP_PANE, None
+
     # MoneroD
     @route("nav:select:monerod:{instance}")
     def nav_monerod_instance(self, instance: str):
@@ -177,13 +186,6 @@ class MessageRouter:
     def nav_xmrig_instance(self, instance: str):
         rec = self.ops_mgr.get_deployment(component=XMRIG_FIELD, instance=instance)
         return XMRIG_PANE, rec
-
-    # Db4E Core
-    @route("nav:select:deployments:db4e")
-    def nav_db4e(self):
-        if self.depl_mgr.is_initialized():
-            rec = self.ops_mgr.get_deployment(DB4E_FIELD)
-            return DB4E_PANE, rec
 
     # Donations
     @route("nav:select:deployments:donations")

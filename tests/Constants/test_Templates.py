@@ -7,7 +7,7 @@ tests/Constants/test_Templates.py
     License: GPL 3.0
 """
 
-from db4e.Constants.MongoRecords import (
+from db4e.Constants.SoftwareSystems import (
     Db4E_Record_Template,
     MoneroD_Remote_Record_Template,
     MoneroD_Record_Template,

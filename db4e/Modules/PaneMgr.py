@@ -31,11 +31,10 @@ class PaneState:
 class PaneMgr(Widget):
     pane_state = reactive(PaneState(), always_update=True)
 
-    def __init__(self, config: Config, catalogue: PaneCatalogue, initialized_flag: bool):
+    def __init__(self, config: Config, catalogue: PaneCatalogue):
         super().__init__()
         self.config = config
         self.catalogue = catalogue
-        self._initialized = initialized_flag
         self.panes = {}
 
     def compose(self):
@@ -44,25 +43,23 @@ class PaneMgr(Widget):
                 # Instantiate each pane once, store a reference
                 pane = self.catalogue.get_pane(pane_name)
                 self.panes[pane_name] = pane
+                print(f"PaneMgr:compose(): {pane_name}")
                 yield pane
 
     def on_mount(self) -> None:
-        initial = PaneState(name=WELCOME_PANE if self._initialized else INITIAL_SETUP_PANE, data={})
-        if initial.name == INITIAL_SETUP_PANE:
-            initial.data = get_effective_identity()
+        initial = PaneState(name=WELCOME_PANE)
         self.set_pane(initial.name, initial.data)
 
-    def set_initialized(self, value: bool) -> None:
-        self._initialized = value
-
     def set_pane(self, name: str, data: dict | None = None):
-        #print(f"PaneMgr:set_pane(): {name}/{data}")
-        if not self._initialized and name != RESULTS_PANE:
+        print(f"PaneMgr:set_pane(): {name}/{data}")
+        """
+        if name != RESULTS_PANE:
             self.pane_state = PaneState(INITIAL_SETUP_PANE, data)
         elif name == RESULTS_PANE and not data:
             self.pane_state = PaneState(WELCOME_PANE, {})
         else:
-            self.pane_state = PaneState(name, data)
+        """
+        self.pane_state = PaneState(name, data)
         # If the pane supports set_data, update it with new data
         if data and name in self.panes:
             pane = self.panes[name]

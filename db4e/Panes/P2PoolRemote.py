@@ -19,7 +19,7 @@ from db4e.Constants.Fields import (
     ADD_REMOTE_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, FORM_3_FIELD, FORM_DATA_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD,
-    HEALTH_BOX_FIELD, HEALTH_MSG_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
+    HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
     ORIG_INSTANCE_FIELD, OPS_MGR_FIELD, P2POOL_FIELD, PANE_BOX_FIELD,
     RED_BUTTON_FIELD, REMOTE_FIELD, STRATUM_PORT_FIELD, TO_METHOD_FIELD,
     TO_MODULE_FIELD, UPDATE_BUTTON_FIELD, UPDATE_REMOTE_DEPLOYMENT_FIELD)
@@ -83,7 +83,7 @@ class P2PoolRemote(Container):
         self.instance_input.value = rec[INSTANCE_FIELD]
         self.ip_addr_input.value = rec[IP_ADDR_FIELD]
         self.stratum_port_input.value = str(rec[STRATUM_PORT_FIELD])
-        if HEALTH_MSG_FIELD in rec:
+        if HEALTH_MSGS_FIELD in rec:
             self.health_msgs.update(gen_results_table(rec[HEALTH_MSG_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:

@@ -8,7 +8,7 @@ tests/Modules/test_DbMgr.py
 """
 from unittest.mock import MagicMock, patch
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Constants.MongoRecords import Db4E_Record_Template
+from db4e.Constants.SoftwareSystems import Db4E_Record_Template
 
 def test_dbmgr_init(config):
     db_mgr = DbMgr(config)

@@ -26,7 +26,7 @@ from db4e.Constants.Fields import (
     INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, STATUS_FIELD,
     UNKNOWN_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
-    DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, METRICS_LABEL,
+    DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
     MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
 
 # Icon dictionary keys
@@ -36,6 +36,7 @@ GIFT = 'GIFT'
 MON = 'MON'
 NEW = 'NEW'
 P2P = 'P2P'
+SETUP = 'SETUP'
 XMR = 'XMR'
 
 ICON = {
@@ -45,6 +46,7 @@ ICON = {
     MON: '🌿 ',
     NEW: '🔧 ',
     P2P: '🌊 ',
+    SETUP: '⚙️ ',
     XMR: '⛏️'
 }
 
@@ -101,7 +103,7 @@ class NavPane(Container):
         self.refresh_nav_pane()
 
     def check_initialized(self):
-        rec = self.ops_mgr.get_deployment(component=DB4E_FIELD)
+        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
         self._initialized = bool(rec and rec.get(VENDOR_DIR_FIELD) and \
                                  rec.get(USER_WALLET_FIELD))
         return self._initialized
@@ -149,16 +151,18 @@ class NavPane(Container):
         self.check_initialized()
         self.depls.root.remove_children()
 
-        # Add Db4E Core root node
+        # Db4E Core root node
         core_item = NavItem(DB4E_LABEL, DB4E_FIELD, ICON[CORE])
-        self.depls.root.add_leaf(str(core_item), data=core_item)
+        setup_item = NavItem(INITIAL_SETUP_LABEL, DB4E_FIELD, ICON[SETUP])
 
         if not self.is_initialized():
             # Add Donations link
             donate_item = NavItem(DONATIONS_LABEL, DONATIONS_FIELD, ICON[GIFT])
+            self.depls.root.add_leaf(str(setup_item), data=setup_item)
             self.depls.root.add_leaf(str(donate_item), data=donate_item)
             return
 
+        self.depls.root.add_leaf(str(core_item), data=core_item)
         all_recs = self.get_cached_deployments()  # Cached call
         #print(f"NavPane:refresh_nav_pane(): all_recs {all_recs}")
 
