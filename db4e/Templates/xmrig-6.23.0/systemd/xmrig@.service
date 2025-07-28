@@ -11,7 +11,7 @@
 #####################################################################
 
 [Unit]
-Description=The XMRig miner
+Description=The XMRig miner (%i)
 After=network.target
 Wants=network.target
 
@@ -27,4 +27,3 @@ Group=[[DB4E_GROUP]]
 
 [Install]
 WantedBy=multi-user.target
-

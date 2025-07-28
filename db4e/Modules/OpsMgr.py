@@ -19,7 +19,7 @@ from db4e.Constants.Fields import (
     PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, P2POOL_FIELD, P2POOL_INSTANCE, 
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
     INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD,
-    FIELD_FIELD, P2POOL_REMOTE_FIELD)
+    MONEROD_FIELD, P2POOL_REMOTE_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
 from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, 
@@ -52,8 +52,7 @@ class OpsMgr:
                 rec[HEALTH_MSGS_FIELD] += results
                 return rec
         rec = self.depl_mgr.add_deployment(rec)
-        rec = self.health_mgr.check(
-            elem_type=elem_type, rec=rec, parent_rec=parent_rec)
+        rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         return rec
 
     def get_deployment(self, elem_type, instance=None):
@@ -66,7 +65,7 @@ class OpsMgr:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
             rec[PARENT_INSTANCE_FIELD] = parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
             rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, ops_mgr=self)
-        return self.health_mgr.check(elem_type=elem_type, rec=rec, parent_rec=parent_rec)
+        return self.health_mgr.check(rec=rec, parent_rec=parent_rec)
 
     def get_deployments(self) -> list[dict]:
         deployments = self.depl_mgr.get_deployments()  # ← now returns full recs
@@ -76,8 +75,7 @@ class OpsMgr:
             if elem_type in (XMRIG_FIELD, P2POOL_FIELD) and PARENT_ID_FIELD in rec:
                 parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
                 rec[PARENT_INSTANCE_FIELD] = parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
-            rec = self.health_mgr.check(
-                elem_type=elem_type, rec=rec, parent_rec=parent_rec)
+            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         return deployments
 
     def get_dir(self, aDir: str) -> str:
@@ -108,9 +106,21 @@ class OpsMgr:
             rec = self.health_mgr.check(rec)
             return rec
 
+        # Monero template
+        elif elem_type == MONEROD_FIELD:
+            rec = self.db.get_new_rec(MONEROD_FIELD)
+            rec = self.health_mgr.check(rec)
+            return rec
+
         # Remote Monero template
         elif elem_type == MONEROD_REMOTE_FIELD:
             rec = self.db.get_new_rec(MONEROD_REMOTE_FIELD)
+            rec = self.health_mgr.check(rec)
+            return rec
+        
+        # P2Pool template
+        elif elem_type == P2POOL_FIELD:
+            rec = self.db.get_new_rec(P2POOL_FIELD)
             rec = self.health_mgr.check(rec)
             return rec
 
@@ -157,11 +167,8 @@ class OpsMgr:
         if elem_type == XMRIG_FIELD or \
         elem_type == P2POOL_FIELD and not rec[REMOTE_FIELD]:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
-            parent_rec = self.health_mgr.check(
-                elem_type=parent_rec[ELEMENT_TYPE_FIELD], rec=parent_rec
-            )
+            parent_rec = self.health_mgr.check(rec=parent_rec)
 
-        return self.health_mgr.check(
-            elem_type=elem_type, rec=rec, parent_rec=parent_rec)
+        return self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         
         

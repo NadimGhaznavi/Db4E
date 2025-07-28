@@ -156,18 +156,16 @@ class MessageRouter:
         print(f"MessageRouter:nav_monerod_instance(): instance: {instance}")
         if instance == NEW_FIELD:
             return MONEROD_TYPE_PANE
-        rec = self.ops_mgr.get_deployment(component=MONEROD_FIELD, instance=instance)
+        rec = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=instance)
         pane = MONEROD_REMOTE_PANE if rec[REMOTE_FIELD] else MONEROD_PANE
         return pane, rec
 
     # P2Pool
-    @route("nav:select:p2pool:new")
-    def nav_p2pool_new(self):
-        return P2POOL_TYPE_PANE
-
     @route("nav:select:p2pool:{instance}")
     def nav_p2pool_instance(self, instance: str):
-        rec = self.ops_mgr.get_deployment(component=P2POOL_FIELD, instance=instance)
+        if instance == NEW_FIELD:
+            return P2POOL_TYPE_PANE
+        rec = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=instance)
         pane = P2POOL_REMOTE_PANE if rec[REMOTE_FIELD] else P2POOL_PANE
         return pane, rec
 
@@ -179,7 +177,7 @@ class MessageRouter:
 
     @route("nav:select:xmrig:{instance}")
     def nav_xmrig_instance(self, instance: str):
-        rec = self.ops_mgr.get_deployment(component=XMRIG_FIELD, instance=instance)
+        rec = self.ops_mgr.get_deployment(elem_type=XMRIG_FIELD, instance=instance)
         return XMRIG_PANE, rec
 
     # Donations

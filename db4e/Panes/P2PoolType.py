@@ -19,15 +19,17 @@ from db4e.Constants.Fields import (
     PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
 from db4e.Messages.SubmitFormData import SubmitFormData
 
+color = "#9cae41"
+hi = "cyan"
 
 class P2PoolType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the new [yellow]{P2POOL_LABEL}[/] screen. Use to create " \
-            f"a new [cyan]local[/] or [cyan]remote[/] {P2POOL_LABEL} deployment.\n\n" \
-            f"A [cyan]local {P2POOL_LABEL}[/] deployment will setup a " \
-            f"[cyan]{P2POOL_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
-            f"connect to a [cyan]{P2POOL_LABEL}[/] running on a remote machine."
+        INTRO = f"Welcome to the new [b {hi}]{P2POOL_LABEL}[/] screen. Use to create " \
+            f"a new [{hi}]local[/] or [{hi}]remote[/] {P2POOL_LABEL} deployment.\n\n" \
+            f"A [{hi}]local {P2POOL_LABEL}[/] deployment will setup a " \
+            f"[{hi}]{P2POOL_LABEL}[/] on this machine. [{hi}]Remote[/] deployments " \
+            f"connect to a [{hi}]{P2POOL_LABEL}[/] running on a remote machine."
                     
         yield Vertical (
             ScrollableContainer(

@@ -15,7 +15,7 @@ from pymongo.errors import ConnectionFailure, CollectionInvalid
 
 from db4e.Modules.ConfigMgr import Config
 from db4e.Constants.SoftwareSystems import (
-    Db4E_Template, Machine_Template, MoneroD_Remote_Template, MoneroD_Template,
+    Db4E_Template, MoneroD_Remote_Template, MoneroD_Template,
     P2Pool_Remote_Template, P2Pool_Template, XMRig_Template
 )
 from db4e.Constants.Fields import (
@@ -131,7 +131,7 @@ class DbMgr:
     def init_templates(self):        
         # Components
         templates = [
-            Db4E_Template, Machine_Template, MoneroD_Remote_Template, MoneroD_Template,
+            Db4E_Template, MoneroD_Remote_Template, MoneroD_Template,
             P2Pool_Remote_Template, P2Pool_Template, XMRig_Template]
         for template in templates:
             # Only one doc of each component type ever gets created

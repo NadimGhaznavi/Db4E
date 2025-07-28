@@ -446,11 +446,12 @@ class InstallMgr(Container):
             f.write(service_contents)
 
     def _generate_tmp_monerod_service_files(self, vendor_dir):
-        monerod_version      = self.ini.config[MONEROD_FIELD][VERSION_FIELD]
-        monerod_dir = MONEROD_FIELD + '-' + str(monerod_version)
+        monerod_dir          = MONEROD_FIELD
         systemd_dir          = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
         monerod_service_file = self.ini.config[MONEROD_FIELD][SERVICE_FILE_FIELD]
         monerod_socket_file  = self.ini.config[MONEROD_FIELD][SOCKET_FILE_FIELD]
+        monerod_version      = self.ini.config[MONEROD_FIELD][VERSION_FIELD]
+        monerod_with_version = MONEROD_FIELD + '-' + str(monerod_version)
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
@@ -465,13 +466,13 @@ class InstallMgr(Container):
             DB4E_USER_PLACEHOLDER: user,
             DB4E_GROUP_PLACEHOLDER: group,
         }
-        fq_monerod_service_file = os.path.join(tmpl_dir, monerod_dir, systemd_dir, monerod_service_file)
+        fq_monerod_service_file = os.path.join(tmpl_dir, monerod_with_version, systemd_dir, monerod_service_file)
         service_contents = self._replace_placeholders(fq_monerod_service_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, monerod_service_file)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
         fq_monerod_socket_file = os.path.join(
-            tmpl_dir, monerod_dir, systemd_dir, monerod_socket_file)
+            tmpl_dir, monerod_with_version, systemd_dir, monerod_socket_file)
         service_contents = self._replace_placeholders(fq_monerod_socket_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, monerod_socket_file)
         with open(tmp_service_file, 'w') as f:
@@ -481,6 +482,8 @@ class InstallMgr(Container):
         systemd_dir          = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
         p2pool_service_file  = self.ini.config[P2POOL_FIELD][SERVICE_FILE_FIELD]
         p2pool_socket_file   = self.ini.config[P2POOL_FIELD][SOCKET_FILE_FIELD]
+        p2pool_version       = self.ini.config[P2POOL_FIELD][VERSION_FIELD]
+        p2pool_with_version  = P2POOL_FIELD + '-' + str(p2pool_version)
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
@@ -490,9 +493,7 @@ class InstallMgr(Container):
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         # P2Pool directory
-        p2pool_version       = self.ini.config[P2POOL_FIELD][VERSION_FIELD]
-        p2pool_dir = P2POOL_FIELD +'-' + str(p2pool_version)
-        fq_p2pool_dir = os.path.join(vendor_dir, p2pool_dir)
+        fq_p2pool_dir = os.path.join(vendor_dir, P2POOL_FIELD)
         # 
         placeholders = {
             P2POOL_DIR_PLACEHOLDER: fq_p2pool_dir,
@@ -500,21 +501,23 @@ class InstallMgr(Container):
             DB4E_GROUP_PLACEHOLDER: group,
         }
         fq_p2pool_service_file  = os.path.join(
-            tmpl_dir, p2pool_dir, systemd_dir, p2pool_service_file)
+            tmpl_dir, p2pool_with_version, systemd_dir, p2pool_service_file)
         service_contents = self._replace_placeholders(fq_p2pool_service_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, p2pool_service_file)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
         fq_p2pool_socket_file   = os.path.join(
-            tmpl_dir, p2pool_dir, systemd_dir, p2pool_socket_file)
+            tmpl_dir, p2pool_with_version, systemd_dir, p2pool_socket_file)
         service_contents = self._replace_placeholders(fq_p2pool_socket_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, p2pool_socket_file)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
     def _generate_xmrig_service_file(self, vendor_dir):
-        systemd_dir = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
-        xmrig_service_file = self.ini.config[XMRIG_FIELD][SERVICE_FILE_FIELD] 
+        systemd_dir        = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
+        xmrig_service_file = self.ini.config[XMRIG_FIELD][SERVICE_FILE_FIELD]
+        xmrig_version      = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
+        xmrig_with_version = XMRIG_FIELD + '-' + str(xmrig_version)
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
@@ -524,16 +527,14 @@ class InstallMgr(Container):
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         # XMRig directory
-        xmrig_version = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
-        xmrig_dir = XMRIG_FIELD + '-' + str(xmrig_version)
-        fq_xmrig_dir = os.path.join(vendor_dir, xmrig_dir)
+        fq_xmrig_dir = os.path.join(vendor_dir, XMRIG_FIELD)
         placeholders = {
             XMRIG_DIR_PLACEHOLDER: fq_xmrig_dir,
             DB4E_USER_PLACEHOLDER: user,
             DB4E_GROUP_PLACEHOLDER: group,
         }
         fq_xmrig_service_file   = os.path.join(
-            tmpl_dir, xmrig_dir, systemd_dir, xmrig_service_file)
+            tmpl_dir, xmrig_with_version, systemd_dir, xmrig_service_file)
         service_contents = self._replace_placeholders(fq_xmrig_service_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, xmrig_service_file)
         with open(tmp_service_file, 'w') as f:
