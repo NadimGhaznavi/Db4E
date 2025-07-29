@@ -225,11 +225,21 @@ class DeploymentMgr(Container):
                 return db_rec
             else:
                 return {}
-
         else:
             rec = self.db.find_one(
                 col_name=self.col_name, 
-                filter={ELEMENT_TYPE_FIELD: elem_type, INSTANCE_FIELD: instance})
+
+                filter = {
+                    ELEMENT_TYPE_FIELD: elem_type,
+                    COMPONENTS_FIELD: {
+                        "$elemMatch": {
+                            FIELD_FIELD: INSTANCE_FIELD,
+                            VALUE_FIELD: instance
+                        }
+                    }
+                }
+            )                
+
             if not rec:
                 return {}
             return rec
@@ -252,7 +262,9 @@ class DeploymentMgr(Container):
         query = {}
         if component is not None:
             query[COMPONENT_FIELD] = component
-        return self.db.find_many(self.col_name, query)
+        results = self.db.find_many(self.col_name, query)
+        print(f"DeploymentMgr:get_deployments(): {results}")
+        return results
         
     def is_initialized(self):
         rec = self.db.find_one(self.col_name, {COMPONENT_FIELD: DB4E_FIELD})

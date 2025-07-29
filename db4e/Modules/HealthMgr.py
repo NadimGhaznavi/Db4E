@@ -29,9 +29,9 @@ class HealthMgr:
 
     def check(self, rec, parent_rec=None):
         elem_type = rec.get(ELEMENT_TYPE_FIELD, "")
-        print(f"HealthMgr:check(): elem_type: {elem_type}")
-        print(f"HealthMgr:check(): rec: {rec}")
-        print(f"HealthMgr:check(): elem_type: {elem_type}")
+        #print(f"HealthMgr:check(): elem_type: {elem_type}")
+        #print(f"HealthMgr:check(): rec: {rec}")
+        #print(f"HealthMgr:check(): elem_type: {elem_type}")
 
         if elem_type == DB4E_FIELD:
             return self.check_db4e(rec)
@@ -90,7 +90,7 @@ class HealthMgr:
                 f"[{hi}]{USER_WALLET_LABEL}[/] missing"
             ))
 
-        print(f"HealthMgr:check_db4e(): overall_state: rec:\n{rec}\noverall_state: {overall_state}\n{results}")
+        #print(f"HealthMgr:check_db4e(): overall_state: rec:\n{rec}\noverall_state: {overall_state}\n{results}")
         rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
         return rec
@@ -101,7 +101,7 @@ class HealthMgr:
         return rec
 
     def check_monerod_remote(self, rec):
-        print(f"HealthMgr:check_monerod_remote(): rec: {rec}")
+        #print(f"HealthMgr:check_monerod_remote(): rec: {rec}")
         results = []
         overall_state = GOOD_FIELD
         ip_addr = get_component_value(rec, IP_ADDR_FIELD)
@@ -132,7 +132,7 @@ class HealthMgr:
             overall_state = WARN_FIELD
         rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
-        print(f"HealthMgr:check_monerod_remote(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
+        #print(f"HealthMgr:check_monerod_remote(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
         return rec
 
 

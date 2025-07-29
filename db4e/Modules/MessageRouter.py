@@ -15,6 +15,7 @@ from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.OpsMgr import OpsMgr
+from db4e.Modules.Helper import get_component_value
 
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
@@ -156,8 +157,16 @@ class MessageRouter:
         print(f"MessageRouter:nav_monerod_instance(): instance: {instance}")
         if instance == NEW_FIELD:
             return MONEROD_TYPE_PANE
-        rec = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=instance)
-        pane = MONEROD_REMOTE_PANE if rec[REMOTE_FIELD] else MONEROD_PANE
+        # See if it's a remote Monero deployment
+        rec = self.ops_mgr.get_deployment(elem_type=MONEROD_REMOTE_FIELD, instance=instance)
+        is_remote = True
+        if not rec:
+            rec = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=instance)
+            is_remote = False
+            if not rec:
+                raise ValueError(f"MessageRouter:nav_monerod_instance(): {instance} not found")
+        print(f"MessageRouter:nav_monerod_instance(): rec: {rec}")
+        pane = MONEROD_REMOTE_PANE if is_remote else MONEROD_PANE
         return pane, rec
 
     # P2Pool
