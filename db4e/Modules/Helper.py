@@ -140,6 +140,30 @@ def is_valid_ip_or_hostname(host: str) -> str:
     except socket.gaierror:
         return False
 
+def set_component_value(element, field_name, value):
+    """
+    Generic helper to set any component value by field name.
+    
+    Args:
+        element (dict): Dictionary containing components with field/value pairs
+        field_name (str): The field name to search for
+        value (any): The value to set
+        
+    Returns:
+        element (possibly updated)
+    """
+    if not isinstance(element, dict) or 'components' not in element:
+        raise ValueError("Helper:set_component_value():Invalid input")
+        
+    components = element.get(COMPONENTS_FIELD, [])
+    
+    for component in components:
+        if isinstance(component, dict) and component.get(FIELD_FIELD) == field_name:
+            component[VALUE_FIELD] = value
+            return element
+            
+    return element
+
 def update_component_values(rec, updates):
     for component in rec.get(COMPONENTS_FIELD, []):
         field = component.get(FIELD_FIELD)

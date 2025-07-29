@@ -58,21 +58,12 @@ class DeploymentMgr(Container):
             return self.add_db4e_deployment(rec)
 
         # Add a Monero daemon deployment
-        elif elem_type == MONEROD_FIELD:
-            if rec[REMOTE_FIELD]: # Remote deployment
-                return self.add_remote_monerod_deployment(rec)
-            else: # Local deployment
-                return self.add_monerod_deployment(rec)
+        elif elem_type == MONEROD_REMOTE_FIELD:
+            return self.add_remote_monerod_deployment(rec)
             
         # Add a P2Pool deployment
-        elif elem_type == P2POOL_FIELD:
-            if get_remote_state(rec): # Remote deployment
-                (rec, results, fatal_error) = self.add_remote_p2pool_deployment(rec)
-            else: # Local deployment
-                results.append(result_row(
-                    P2POOL_LABEL, WARN_FIELD,
-                    f"🚧 {P2POOL_LABEL} deployment coming soon 🚧"
-                ))
+        elif elem_type == P2POOL_REMOTE_FIELD:
+            return self.add_remote_p2pool_deployment(rec)
             
         # Add a XMRig deployment
         elif elem_type == XMRIG_FIELD:
@@ -82,14 +73,6 @@ class DeploymentMgr(Container):
         else:
             raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_type}")
 
-        if not fatal_error:
-            rec[UPDATED_FIELD] = datetime.now(timezone.utc)
-            self.db.insert_one(self.col_name, rec)
-            results_message = f"Added new deployment record"
-            results.append(result_row(
-                DB4E_LABEL, GOOD_FIELD, results_message))
-        return rec
-    
     def add_db4e_deployment(self, rec):
         self.db.insert_one(self.col_name, rec)
         return rec
@@ -106,45 +89,29 @@ class DeploymentMgr(Container):
 
     def add_remote_monerod_deployment(self, rec):
         print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
-        results = []
         update = True
+        instance = get_component_value(rec, INSTANCE_FIELD)
+        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
+        rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
+        zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
+
         # Check that the user actually filled out the form
-        if not rec[INSTANCE_FIELD]:
+        if not instance:
             update = False
-            results.append(result_row(
-                INSTANCE_LABEL, ERROR_FIELD,
-                f"Missing required field: {INSTANCE_LABEL}"
-            ))
+        print(f"DeploymentMgr:add_remote_monerod_deployment(): {instance}/{update}")
 
-        if not rec[IP_ADDR_FIELD]:
+        if not ip_addr:
             update = False
-            results.append(result_row(
-                IP_ADDR_LABEL, ERROR_FIELD,
-                f"Missing required field: {IP_ADDR_LABEL}"
-            ))
 
-        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+        #elif not is_valid_ip_or_hostname(ip_addr):
+        #    update = False
+
+        if not rpc_bind_port:
             update = False
-            results.append(result_row(
-                IP_ADDR_LABEL, ERROR_FIELD,
-                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
-            ))
 
-        if not rec[RPC_BIND_PORT_FIELD]:
+        if not zmq_pub_port:
             update = False
-            results.append(result_row(
-                RPC_BIND_PORT_LABEL, ERROR_FIELD,
-                f"Missing required field: {RPC_BIND_PORT_LABEL}"
-            ))
 
-        if not rec[ZMQ_PUB_PORT_FIELD]:
-            update = False
-            results.append(result_row(
-                ZMQ_PUB_PORT_LABEL, ERROR_FIELD,
-                f"Missing required field: {ZMQ_PUB_PORT_LABEL}"
-            ))
-
-        rec[HEALTH_MSGS_FIELD] += results
         if update:
             self.db.insert_one(self.col_name, rec)
         return rec
@@ -152,35 +119,21 @@ class DeploymentMgr(Container):
     def add_remote_p2pool_deployment(self, rec):
         results = []
         update = True
+        instance = get_component_value(rec, INSTANCE_FIELD)
+        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
+        stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
         # Check that the user actually filled out the form
-        if not rec[INSTANCE_FIELD]:
+        if not instance:
             update = False
-            results.append(result_row(
-                INSTANCE_LABEL, ERROR_FIELD,
-                f"Missing required field: {INSTANCE_LABEL}"
-            ))
 
-        if not rec[IP_ADDR_FIELD]:
+        if not ip_addr:
             update = False
-            results.append(result_row(
-                IP_ADDR_LABEL, ERROR_FIELD,
-                f"Missing required field: {IP_ADDR_LABEL}"
-            ))
-        elif not is_valid_ip_or_hostname(rec[IP_ADDR_FIELD]):
+        elif not is_valid_ip_or_hostname(ip_addr):
             update = False
-            results.append(result_row(
-                IP_ADDR_LABEL, ERROR_FIELD,
-                f"Invalid {IP_ADDR_LABEL}: {rec[IP_ADDR_FIELD]}"
-            ))
 
-        if not rec[STRATUM_PORT_FIELD]:
+        if not stratum_port:
             update = False
-            results.append(result_row(
-                STRATUM_PORT_LABEL, ERROR_FIELD,
-                f"Missing required field: {STRATUM_PORT_LABEL}"
-            ))
 
-        rec[HEALTH_MSGS_FIELD] += results
         if update:
             self.db.insert_one(self.col_name, rec)
         return rec        
@@ -274,9 +227,12 @@ class DeploymentMgr(Container):
                 return {}
 
         else:
-            return self.db.find_one(
+            rec = self.db.find_one(
                 col_name=self.col_name, 
                 filter={ELEMENT_TYPE_FIELD: elem_type, INSTANCE_FIELD: instance})
+            if not rec:
+                return {}
+            return rec
 
         # No record for this deployment exists
 

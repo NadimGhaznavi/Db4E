@@ -12,14 +12,16 @@ from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
-from db4e.Modules.Helper import result_row, gen_radio_map
+from db4e.Modules.Helper import (
+    result_row, gen_radio_map, get_component_value, set_component_value)
 from db4e.Constants.Fields import (
     DB4E_FIELD, ERROR_FIELD, HEALTH_MSGS_FIELD,
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, 
     PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, P2POOL_FIELD, P2POOL_INSTANCE, 
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
     INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD,
-    MONEROD_FIELD, P2POOL_REMOTE_FIELD)
+    MONEROD_FIELD, P2POOL_REMOTE_FIELD, IP_ADDR_FIELD, RPC_BIND_PORT_FIELD,
+    ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
 from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, 
@@ -38,22 +40,32 @@ class OpsMgr:
         print(f"OpsMgr:add_deployment(): {rec}")
         results = []
         parent_rec = None
-        instance = None
         elem_type = rec[ELEMENT_TYPE_FIELD]
-        if INSTANCE_FIELD in rec:
-            instance = rec[INSTANCE_FIELD]
-            existing_rec = self.depl_mgr.get_deployment(
-                elem_type=elem_type, instance=instance)
-            if existing_rec:
-                results.append(result_row(
-                    OPS_MGR_LABEL, ERROR_FIELD,
-                    f"A deployment record with that instance name already exists"
-                ))
-                rec[HEALTH_MSGS_FIELD] += results
-                return rec
-        rec = self.depl_mgr.add_deployment(rec)
-        rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        return rec
+        instance = get_component_value(rec, INSTANCE_FIELD)
+
+        existing_rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
+        if existing_rec:
+            results.append(result_row(
+                OPS_MGR_LABEL, ERROR_FIELD,
+                f"A deployment record with that instance name already exists"
+            ))
+            rec[HEALTH_MSGS_FIELD] = results
+            return rec
+
+        if elem_type == DB4E_FIELD:
+            rec = self.depl_mgr.add_deployment(rec)
+            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
+            return rec
+        
+        if elem_type == MONEROD_REMOTE_FIELD:
+            db_rec = self.get_new_rec(MONEROD_REMOTE_FIELD)
+            db_rec = set_component_value(db_rec, INSTANCE_FIELD, rec[INSTANCE_FIELD])
+            db_rec = set_component_value(db_rec, IP_ADDR_FIELD, rec[IP_ADDR_FIELD])
+            db_rec = set_component_value(db_rec, RPC_BIND_PORT_FIELD, rec[RPC_BIND_PORT_FIELD])
+            db_rec = set_component_value(db_rec, ZMQ_PUB_PORT_FIELD, rec[ZMQ_PUB_PORT_FIELD])
+            rec = self.depl_mgr.add_deployment(db_rec)
+            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
+            return rec
 
     def get_deployment(self, elem_type, instance=None):
         rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
@@ -96,16 +108,17 @@ class OpsMgr:
         else:
             raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")
         
-    def get_new_rec(self, rec_request: str) -> dict:
-        print(f"OpsMgr:get_new_rec(): rec_request: {rec_request}")
+    def get_new_rec(self, data: str) -> dict:
+        print(f"OpsMgr:get_new_rec(): data: {data}")
 
         # Db4E Core template
-        elem_type = rec_request[ELEMENT_TYPE_FIELD]
-        rec = self.db.get_new_rec(elem_type)
-        rec = self.health_mgr.check(rec)
-        print(f"OpsMgr:get_new_rec(): final rec: {rec}")
-        return rec
+        if ELEMENT_TYPE_FIELD in data:
+            elem_type = data[ELEMENT_TYPE_FIELD]
+        else:
+            elem_type = data
 
+        rec = self.db.get_new_rec(elem_type)
+        return rec
 
     def UNUSED_get_new_xmrig_rec(self, rec: dict) -> dict:
         rec = self.db.get_new_rec(XMRIG_FIELD)

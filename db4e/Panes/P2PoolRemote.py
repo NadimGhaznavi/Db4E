@@ -13,15 +13,16 @@ from rich.table import Table
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
-from db4e.Modules.Helper import gen_results_table
+from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, ELEMENT_TYPE_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, FORM_3_FIELD, FORM_DATA_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD,
     HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
-    ORIG_INSTANCE_FIELD, OPS_MGR_FIELD, P2POOL_FIELD, PANE_BOX_FIELD,
-    RED_BUTTON_FIELD, REMOTE_FIELD, STRATUM_PORT_FIELD, TO_METHOD_FIELD,
+    ORIG_INSTANCE_FIELD, OPS_MGR_FIELD, P2POOL_REMOTE_FIELD,
+    P2POOL_FIELD, PANE_BOX_FIELD,
+    RED_BUTTON_FIELD, STRATUM_PORT_FIELD, TO_METHOD_FIELD,
     TO_MODULE_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD)
 from db4e.Constants.Labels import (
     DELETE_LABEL, UPDATE_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL,
@@ -77,30 +78,28 @@ class P2PoolRemote(Container):
                 classes=PANE_BOX_FIELD))
 
     def set_data(self, rec):
-
-        self.orig_instance = rec[INSTANCE_FIELD]
-
-        self.instance_input.value = rec[INSTANCE_FIELD]
-        self.ip_addr_input.value = rec[IP_ADDR_FIELD]
-        self.stratum_port_input.value = str(rec[STRATUM_PORT_FIELD])
-        if HEALTH_MSGS_FIELD in rec:
-            self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
+        self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
+        self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
+        self.ip_addr_input.value = get_component_value(rec, IP_ADDR_FIELD)
+        self.stratum_port_input.value = str(get_component_value(rec, STRATUM_PORT_FIELD))
+        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         if button_id == UPDATE_BUTTON_FIELD:
+
             if self.orig_instance:
                 # There was an original instance, so this is an update
                 to_method = UPDATE_DEPLOYMENT_FIELD
             else:
                 # No original instance, this is a new deployment
                 to_method = ADD_DEPLOYMENT_FIELD
+
             form_data = {
-                COMPONENT_FIELD: P2POOL_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: to_method,
                 FORM_DATA_FIELD: True,
-                REMOTE_FIELD: True,
                 ORIG_INSTANCE_FIELD: self.orig_instance,
                 INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
                 IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
@@ -108,7 +107,7 @@ class P2PoolRemote(Container):
             }
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                COMPONENT_FIELD: P2POOL_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 INSTANCE_FIELD: self.orig_instance

@@ -17,12 +17,12 @@ from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD,
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, ELEMENT_TYPE_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD,
-    IP_ADDR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD, ORIG_INSTANCE_FIELD,
-    PANE_BOX_FIELD, RED_BUTTON_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD,
+    IP_ADDR_FIELD, MONEROD_REMOTE_FIELD, OPS_MGR_FIELD, ORIG_INSTANCE_FIELD,
+    PANE_BOX_FIELD, RED_BUTTON_FIELD, FORM_DATA_FIELD, RPC_BIND_PORT_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
     UPDATE_DEPLOYMENT_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (
@@ -88,39 +88,59 @@ class MonerodRemote(Container):
 
     def set_data(self, rec):
         print(f"MonerodRemote:set_data(): rec: {rec}")
-        self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
-        self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
-        self.ip_addr_input.value = get_component_value(rec, IP_ADDR_FIELD)
-        self.rpc_bind_port_input.value = str(get_component_value(rec, RPC_BIND_PORT_FIELD))
-        self.zmq_pub_port_input.value = str(get_component_value(rec, ZMQ_PUB_PORT_FIELD))
+        if FORM_DATA_FIELD in rec:
+            # Record data coming from a form
+            self.orig_instance = rec[INSTANCE_FIELD]
+            self.instance_input.value = rec[INSTANCE_FIELD]
+            self.ip_addr_input.value = rec[IP_ADDR_FIELD]
+            self.rpc_bind_port_input.value = str(rec[RPC_BIND_PORT_FIELD])
+            self.zmq_pub_port_input.value = str(rec[ZMQ_PUB_PORT_FIELD])
+        else:
+            # Record data coming from the DB
+            self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
+            self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
+            self.ip_addr_input.value = get_component_value(rec, IP_ADDR_FIELD)
+            self.rpc_bind_port_input.value = str(get_component_value(rec, RPC_BIND_PORT_FIELD))
+            self.zmq_pub_port_input.value = str(get_component_value(rec, ZMQ_PUB_PORT_FIELD))
         self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         if button_id == UPDATE_BUTTON_FIELD:
+
             if len(self.orig_instance) > 0:
                 # There was an original instance, so this is an update
-                to_method = UPDATE_DEPLOYMENT_FIELD
+                form_data = {
+                    ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                    FORM_DATA_FIELD: True,
+                    ORIG_INSTANCE_FIELD: self.orig_instance,
+                    INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                    IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                    RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
+                    ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
+                }                
             else:
                 # No original instance, this is a new deployment
-                to_method = ADD_DEPLOYMENT_FIELD
-            form_data = {
-                COMPONENT_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: to_method,
-                REMOTE_FIELD: True,
-                ORIG_INSTANCE_FIELD: self.orig_instance,
-                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-                IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
-                RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
-                ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
-            }
+                form_data = {
+                    ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                    FORM_DATA_FIELD: True,
+                    INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                    IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                    RPC_BIND_PORT_FIELD: self.query_one("#rpc_bind_port_input", Input).value,
+                    ZMQ_PUB_PORT_FIELD: self.query_one("#zmq_pub_port_input", Input).value,
+                }                
+                
+
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                COMPONENT_FIELD: MONEROD_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                 TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
-                COMPONENT_FIELD: MONEROD_FIELD,
+                FORM_DATA_FIELD: True,
                 INSTANCE_FIELD: self.orig_instance
             }
         else:

@@ -144,7 +144,7 @@ class DbMgr:
         elem_type = ""
         if ELEMENT_TYPE_FIELD in jdoc:
             elem_type = jdoc[ELEMENT_TYPE_FIELD]
-        print(f"DbMgr:insert_one(): col: {col_name}, doc: {elem_type}")
+        print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
         return col.insert_one(deepcopy(jdoc))
 

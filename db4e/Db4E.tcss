@@ -115,27 +115,27 @@ Tree {
 /* Input fields with width X */
 
 .form_input_7 {
-    color: yellow;
+    color: #cc6ccc;
     padding: 0 1; 
     width: 9; }
 
 .form_input_15 {
-    color: yellow;
+    color: #cc6ccc;
     padding: 0 1;
     width: 15; }
 
 .form_input_30 {
-    color: yellow;
+    color: #cc6ccc;
     padding: 0 1;
     width: 30; }
 
 .form_input_40 {
-    color: yellow;
+    color: #cc6ccc;
     padding: 0 1;
     width: 40; }
 
 .form_input_70 {
-    color: yellow;
+    color: #cc6ccc;
     padding: 0 1;
     width: 70; }
     
@@ -202,7 +202,7 @@ Tree {
     text-style: bold; }
 
 .green_button {
-    color: #b5cb48;
+    color: #5fc442;
     text-style: bold; }
 
 .red_button {
