@@ -88,7 +88,7 @@ class DeploymentMgr(Container):
 
 
     def add_remote_monerod_deployment(self, rec):
-        print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
+        #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
         update = True
         instance = get_component_value(rec, INSTANCE_FIELD)
         ip_addr = get_component_value(rec, IP_ADDR_FIELD)
@@ -98,7 +98,6 @@ class DeploymentMgr(Container):
         # Check that the user actually filled out the form
         if not instance:
             update = False
-        print(f"DeploymentMgr:add_remote_monerod_deployment(): {instance}/{update}")
 
         if not ip_addr:
             update = False
@@ -117,17 +116,18 @@ class DeploymentMgr(Container):
         return rec
 
     def add_remote_p2pool_deployment(self, rec):
-        results = []
         update = True
         instance = get_component_value(rec, INSTANCE_FIELD)
         ip_addr = get_component_value(rec, IP_ADDR_FIELD)
         stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
+
         # Check that the user actually filled out the form
         if not instance:
             update = False
 
         if not ip_addr:
             update = False
+
         elif not is_valid_ip_or_hostname(ip_addr):
             update = False
 
@@ -197,18 +197,26 @@ class DeploymentMgr(Container):
         return (update_flag, results)
 
 
-
     def del_deployment(self, rec_data):
         print(f"DeploymentMgr:del_deployment(): {rec_data}")
         elem_type = rec_data[ELEMENT_TYPE_FIELD]
-        instance = get_component_value(rec_data, INSTANCE_FIELD)
+        instance = rec_data[INSTANCE_FIELD]
 
         self.db.delete_one(
             col_name=self.col_name,
-            filter={ELEMENT_TYPE_FIELD: elem_type, INSTANCE_FIELD: instance}
+                filter = {
+                    ELEMENT_TYPE_FIELD: elem_type,
+                    COMPONENTS_FIELD: {
+                        "$elemMatch": {
+                            FIELD_FIELD: INSTANCE_FIELD,
+                            VALUE_FIELD: instance
+                        }
+                    }
+                }
         )
         return self.db.get_new_rec(elem_type)
         
+ 
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
@@ -345,6 +353,8 @@ class DeploymentMgr(Container):
             return self.update_monerod_remote_deployment(rec)
         elif elem_type == P2POOL_FIELD:
             return self.update_p2pool_deployment(rec)
+        elif elem_type == P2POOL_REMOTE_FIELD:
+            return self.update_p2pool_remote_deployment(rec)
         elif elem_type == XMRIG_FIELD:
             return self.update_xmrig_deployment(rec)
         else:
@@ -364,13 +374,14 @@ class DeploymentMgr(Container):
             form_data = data
 
             db_rec = self.get_deployment(MONEROD_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
-            print(f"DeploymentMgr:update_monerod_remote_deployment(): db_rec: {db_rec}")
+            #print(f"DeploymentMgr:update_monerod_remote_deployment(): db_rec: {db_rec}")
+
             ## Field-by-field comparison
 
             # Instance
             form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
             form_instance = form_data[INSTANCE_FIELD]
-            print(f"DeploymentMgr:update_monerod_remote_deployment(): {form_orig_instance}/{form_instance}")
+            #print(f"DeploymentMgr:update_monerod_remote_deployment(): {form_orig_instance}/{form_instance}")
             if form_instance != form_orig_instance:
                 db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)            
                 update = True
@@ -418,62 +429,60 @@ class DeploymentMgr(Container):
             return db_rec
 
       
-    def update_p2pool_deployment(self, rec):
+    def update_p2pool_deployment(self, data):
+        pass
+
+    def update_p2pool_remote_deployment(self, data):
         results = []
         update = False
 
-        # Remove frontend metadata (optional)
-        rec.pop(FORM_DATA_FIELD, None)
-        rec.pop(TO_MODULE_FIELD, None)
-        rec.pop(TO_METHOD_FIELD, None)
+        if FORM_DATA_FIELD in data:
+            form_data = data
+            db_rec = self.get_deployment(P2POOL_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
 
-        # Required field
-        orig_instance = rec[ORIG_INSTANCE_FIELD]
-        orig_rec = self.get_deployment(P2POOL_FIELD, orig_instance)
+            ## Field-by-field comparison            
+            # Instance
+            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
+            form_instance = form_data[INSTANCE_FIELD]
+            if form_instance != form_orig_instance:
+                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)
+                update = True
 
-        # Compare fields and update in-place
-        if rec[INSTANCE_FIELD] != orig_instance:
-            update_flag = True
-            results.append(result_row(
-                INSTANCE_LABEL, GOOD_FIELD,
-                f"Updated {INSTANCE_LABEL} ({orig_instance} > {rec[INSTANCE_FIELD]}) " \
-                f"in {P2POOL_LABEL} deployment record"
-            ))
+            # IP Address
+            form_ip_addr = form_data[IP_ADDR_FIELD]
+            db_ip_addr = get_component_value(db_rec, IP_ADDR_FIELD)
+            if form_ip_addr != db_ip_addr:
+                db_rec = set_component_value(db_rec, IP_ADDR_FIELD, form_ip_addr)
+                update = True
 
-        if rec[IP_ADDR_FIELD] != orig_rec[IP_ADDR_FIELD]:
-            update_flag = True
-            results.append(result_row(
-                IP_ADDR_LABEL, GOOD_FIELD,
-                f"Updated {IP_ADDR_LABEL} ({orig_rec[IP_ADDR_FIELD]} > " \
-                f"{rec[IP_ADDR_FIELD]}) in {P2POOL_LABEL} deployment record"
-            ))
+            # Stratum Port
+            form_stratum_port = form_data[STRATUM_PORT_FIELD]
+            db_stratum_port = get_component_value(db_rec, STRATUM_PORT_FIELD)
+            if form_stratum_port != db_stratum_port:
+                db_rec = set_component_value(db_rec, STRATUM_PORT_FIELD, form_stratum_port)
+                update = True
 
-        if rec[STRATUM_PORT_FIELD] != orig_rec[STRATUM_PORT_FIELD]:
-            update_flag = True
-            results.append(result_row(
-                STRATUM_PORT_LABEL, GOOD_FIELD,
-                f"Updated {STRATUM_PORT_LABEL} ({orig_rec[STRATUM_PORT_FIELD]} > " \
-                f"{rec[STRATUM_PORT_FIELD]}) in {P2POOL_LABEL} deployment record"
-            ))
+            if update:
+                self.db.update_one(
+                    col_name=self.col_name,
+                    filter = {
+                        ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                        COMPONENTS_FIELD: {
+                            "$elemMatch": {
+                                FIELD_FIELD: INSTANCE_FIELD,
+                                VALUE_FIELD: form_orig_instance,
+                            }
+                        }
+                    },
+                    new_values=db_rec,
+                )
+            else:
+                results.append(result_row(
+                    P2POOL_LABEL, WARN_FIELD,
+                    f"{form_instance} – Nothing to update"
+                ))
+            return db_rec
 
-        # Done comparing. Pop this temporary attribute off the record
-        rec.pop(ORIG_INSTANCE_FIELD)
-
-        rec[HEALTH_MSGS_FIELD] += results
-
-        if update_flag:
-            self.db.update_one(
-                col_name=self.col_name,
-                filter={COMPONENT_FIELD: P2POOL_FIELD, INSTANCE_FIELD: orig_instance},
-                new_values=rec,
-            )
-        else:
-            results.append(result_row(
-                P2POOL_LABEL, WARN_FIELD,
-                f"{orig_instance} – Nothing to update"
-            ))
-        return rec
-      
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
         print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True

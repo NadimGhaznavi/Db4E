@@ -19,7 +19,7 @@ from db4e.Constants.Fields import (
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, 
     PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, P2POOL_FIELD, P2POOL_INSTANCE, 
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
-    INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD,
+    INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD, STRATUM_PORT_FIELD,
     MONEROD_FIELD, P2POOL_REMOTE_FIELD, IP_ADDR_FIELD, RPC_BIND_PORT_FIELD,
     ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
@@ -51,6 +51,9 @@ class OpsMgr:
             ))
             rec[HEALTH_MSGS_FIELD] = results
             return rec
+        
+        # TODO Make sure the remote monerod and monerod records don't share an instance name.
+        # TODO Same for p2pool.
 
         if elem_type == DB4E_FIELD:
             rec = self.depl_mgr.add_deployment(rec)
@@ -66,7 +69,17 @@ class OpsMgr:
             rec = self.depl_mgr.add_deployment(db_rec)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
             return rec
+        
+        if elem_type == P2POOL_REMOTE_FIELD:
+            db_rec = self.get_new_rec(P2POOL_REMOTE_FIELD)
+            db_rec = set_component_value(db_rec, INSTANCE_FIELD, rec[INSTANCE_FIELD])
+            db_rec = set_component_value(db_rec, IP_ADDR_FIELD, rec[IP_ADDR_FIELD])
+            db_rec = set_component_value(db_rec, STRATUM_PORT_FIELD, rec[STRATUM_PORT_FIELD])
+            rec = self.depl_mgr.add_deployment(db_rec)
+            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
+            return rec
 
+    
     def get_deployment(self, elem_type, instance=None):
         rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if not rec:

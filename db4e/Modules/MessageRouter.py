@@ -21,14 +21,15 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
     DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
-    NEW_FIELD, P2POOL_FIELD, REMOTE_FIELD, UPDATE_DEPLOYMENT_FIELD,
+    NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD,
     XMRIG_FIELD, ELEMENT_TYPE_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD
 )
 
 from db4e.Constants.Panes import (
-    DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, MONEROD_TYPE_PANE,
-    P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE,
+    DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, 
+    MONEROD_TYPE_PANE,
+    P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE, RESULTS_PANE
 )
 
 
@@ -46,13 +47,15 @@ class MessageRouter:
         for _, method in inspect.getmembers(self, inspect.ismethod):
             pattern = getattr(method, "_route_pattern", None)
             if pattern:
-                regex = re.compile("^" + re.sub(r"\{(\w+)\}", r"(?P<\1>[^:]+)", pattern) + "$")
+                regex = re.compile("^" + re.sub(r"\{(\w+)\}", 
+                                                r"(?P<\1>[^:]+)", 
+                                                pattern) + "$")
                 self._route_handlers.append((regex, method))
 
     def load_routes(self):
         # Db4e core
         self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_FIELD, DB4E_FIELD,
-                      self.install_mgr.initial_setup, INITIAL_SETUP_PANE)
+                      self.install_mgr.initial_setup, RESULTS_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD,
                       self.ops_mgr.update_deployment, DB4E_PANE)
 
@@ -172,10 +175,19 @@ class MessageRouter:
     # P2Pool
     @route("nav:select:p2pool:{instance}")
     def nav_p2pool_instance(self, instance: str):
+        print(f"MessageRouter:nav:select:p2pool:{instance}")
         if instance == NEW_FIELD:
             return P2POOL_TYPE_PANE
-        rec = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=instance)
-        pane = P2POOL_REMOTE_PANE if rec[REMOTE_FIELD] else P2POOL_PANE
+        # See if it's a remote Monero deployment
+        rec = self.ops_mgr.get_deployment(elem_type=P2POOL_REMOTE_FIELD, instance=instance)
+        is_remote = True
+        if not rec:
+            rec = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=instance)
+            is_remote = False
+            if not rec:
+                raise ValueError(f"MessageRouter:nav:select:p2pool:{instance} not found")
+        print(f"MessageRouter:nav:select:p2pool:{instance}: rec: {rec}")
+        pane = P2POOL_REMOTE_PANE if is_remote else P2POOL_PANE
         return pane, rec
 
     # XMRig

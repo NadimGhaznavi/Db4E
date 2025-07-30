@@ -15,13 +15,14 @@ from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
 from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, ELEMENT_TYPE_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, FORM_3_FIELD, FORM_DATA_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD,
     HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD,
     ORIG_INSTANCE_FIELD, OPS_MGR_FIELD, P2POOL_REMOTE_FIELD,
-    P2POOL_FIELD, PANE_BOX_FIELD,
+    DEPLOYMENT_MGR_FIELD, PANE_BOX_FIELD,
     RED_BUTTON_FIELD, STRATUM_PORT_FIELD, TO_METHOD_FIELD,
     TO_MODULE_FIELD, UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD)
 from db4e.Constants.Labels import (
@@ -87,32 +88,41 @@ class P2PoolRemote(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         if button_id == UPDATE_BUTTON_FIELD:
-
-            if self.orig_instance:
-                # There was an original instance, so this is an update
-                to_method = UPDATE_DEPLOYMENT_FIELD
+                
+            if len(self.orig_instance) > 0:
+                # There was an original instance, so this is an update            
+                form_data = {
+                    ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                    FORM_DATA_FIELD: True,
+                    ORIG_INSTANCE_FIELD: self.orig_instance,
+                    INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                    IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                    STRATUM_PORT_FIELD: self.query_one("#stratum_port_input", Input).value,
+                }
             else:
                 # No original instance, this is a new deployment
-                to_method = ADD_DEPLOYMENT_FIELD
+                form_data = {
+                    ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                    FORM_DATA_FIELD: True,
+                    INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
+                    IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
+                    STRATUM_PORT_FIELD: self.query_one("#stratum_port_input", Input).value,
+                }
 
-            form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: to_method,
-                FORM_DATA_FIELD: True,
-                ORIG_INSTANCE_FIELD: self.orig_instance,
-                INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
-                IP_ADDR_FIELD: self.query_one("#ip_addr_input", Input).value,
-                STRATUM_PORT_FIELD: self.query_one("#stratum_port_input", Input).value,
-            }
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
+                FORM_DATA_FIELD: True,
                 INSTANCE_FIELD: self.orig_instance
             }
         else:
             raise ValueError(f"No handler for {button_id}")
         self.app.post_message(SubmitFormData(self, form_data=form_data))
+        self.app.post_message(RefreshNavPane(self))
         
