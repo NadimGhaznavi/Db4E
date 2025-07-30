@@ -150,6 +150,7 @@ class DbMgr:
 
     @as_worker
     def update_one(self, col_name, filter, new_values, use_worker=True):
+        print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, new_values:\n{new_values}")
         collection = self.get_collection(col_name)
         new_values.pop("_id", None)
         return collection.update_one(filter, {'$set': new_values})

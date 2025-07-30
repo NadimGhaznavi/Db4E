@@ -15,7 +15,7 @@ from textual.containers import Container
 from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
-    result_row, is_valid_ip_or_hostname, get_remote_state, get_component_value)
+    result_row, is_valid_ip_or_hostname, get_component_value, set_component_value)
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
@@ -199,23 +199,16 @@ class DeploymentMgr(Container):
 
 
     def del_deployment(self, rec_data):
-        component = rec_data[COMPONENT_FIELD]
-        instance = rec_data[INSTANCE_FIELD]
+        print(f"DeploymentMgr:del_deployment(): {rec_data}")
+        elem_type = rec_data[ELEMENT_TYPE_FIELD]
+        instance = get_component_value(rec_data, INSTANCE_FIELD)
 
         self.db.delete_one(
             col_name=self.col_name,
-            filter={COMPONENT_FIELD: component, INSTANCE_FIELD: instance}
+            filter={ELEMENT_TYPE_FIELD: elem_type, INSTANCE_FIELD: instance}
         )
-        cleared_rec = self.db.get_new_rec(component)
-        return [
-            result_row(
-                label=component.upper(),
-                status=GOOD_FIELD,
-                msg=f"Deleted {component} deployment: {instance}"
-            ),
-            cleared_rec
-        ]
-
+        return self.db.get_new_rec(elem_type)
+        
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
@@ -227,7 +220,7 @@ class DeploymentMgr(Container):
                 return {}
         else:
             rec = self.db.find_one(
-                col_name=self.col_name, 
+                col_name = self.col_name, 
 
                 filter = {
                     ELEMENT_TYPE_FIELD: elem_type,
@@ -239,6 +232,7 @@ class DeploymentMgr(Container):
                     }
                 }
             )                
+            print(f"DeploymentMgr:get_deployment(): found: {rec}")
 
             if not rec:
                 return {}
@@ -263,7 +257,7 @@ class DeploymentMgr(Container):
         if component is not None:
             query[COMPONENT_FIELD] = component
         results = self.db.find_many(self.col_name, query)
-        print(f"DeploymentMgr:get_deployments(): {results}")
+        #print(f"DeploymentMgr:get_deployments(): {results}")
         return results
         
     def is_initialized(self):
@@ -347,6 +341,8 @@ class DeploymentMgr(Container):
             return self.update_db4e_deployment(rec)
         elif elem_type == MONEROD_FIELD:
             return self.update_monerod_deployment(rec)
+        elif elem_type == MONEROD_REMOTE_FIELD:
+            return self.update_monerod_remote_deployment(rec)
         elif elem_type == P2POOL_FIELD:
             return self.update_p2pool_deployment(rec)
         elif elem_type == XMRIG_FIELD:
@@ -357,64 +353,69 @@ class DeploymentMgr(Container):
                 f"({elem_type})")
 
     def update_monerod_deployment(self, rec):
+        pass
+
+    def update_monerod_remote_deployment(self, data):
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
         results = []
         update = False
 
-        # Remove frontend routing metadata
-        rec.pop(TO_MODULE_FIELD, None)
-        rec.pop(TO_METHOD_FIELD, None)
+        if FORM_DATA_FIELD in data:
+            form_data = data
 
-        orig_rec = self.get_deployment(MONEROD_FIELD, orig_instance)
-        orig_instance = rec[ORIG_INSTANCE_FIELD]
-        
-        # Field-by-field comparison
-        if rec[INSTANCE_FIELD] != orig_instance:
-            update = True
-            results.append(result_row(
-                INSTANCE_LABEL, GOOD_FIELD,
-                f"Updated {INSTANCE_LABEL} ({orig_instance} > {rec[INSTANCE_FIELD]}) in {MONEROD_LABEL} deployment record"
-            ))
+            db_rec = self.get_deployment(MONEROD_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
+            print(f"DeploymentMgr:update_monerod_remote_deployment(): db_rec: {db_rec}")
+            ## Field-by-field comparison
 
-        if rec[IP_ADDR_FIELD] != orig_rec[IP_ADDR_FIELD]:
-            update = True
-            results.append(result_row(
-                IP_ADDR_LABEL, GOOD_FIELD,
-                f"Updated {IP_ADDR_LABEL} ({orig_rec[IP_ADDR_FIELD]} > " \
-                f"{rec[IP_ADDR_FIELD]}) in {MONEROD_LABEL} deployment record"
-            ))
+            # Instance
+            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
+            form_instance = form_data[INSTANCE_FIELD]
+            print(f"DeploymentMgr:update_monerod_remote_deployment(): {form_orig_instance}/{form_instance}")
+            if form_instance != form_orig_instance:
+                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)            
+                update = True
 
-        if rec[RPC_BIND_PORT_FIELD] != orig_rec[RPC_BIND_PORT_FIELD]:
-            update = True
-            results.append(result_row(
-                RPC_BIND_PORT_LABEL, GOOD_FIELD,
-                f"Updated {RPC_BIND_PORT_LABEL} ({orig_rec[RPC_BIND_PORT_FIELD]} > " \
-                f"{rec[RPC_BIND_PORT_FIELD]}) in {MONEROD_LABEL} deployment record"
-            ))
+            # IP Address
+            form_ip_addr = form_data[IP_ADDR_FIELD]
+            db_ip_addr = get_component_value(db_rec, IP_ADDR_FIELD)
+            if form_ip_addr != db_ip_addr:
+                db_rec = set_component_value(db_rec, IP_ADDR_FIELD, form_ip_addr)
+                update = True
 
-        if rec[ZMQ_PUB_PORT_FIELD] != rec[ZMQ_PUB_PORT_FIELD]:
-            update = True
-            results.append(result_row(
-                ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
-                f"Updated {ZMQ_PUB_PORT_LABEL} ({orig_rec[ZMQ_PUB_PORT_FIELD]} > " \
-                f"{rec[ZMQ_PUB_PORT_FIELD]}) in {MONEROD_LABEL} deployment record"
-            ))
+            # RPC Bind Port
+            form_rpc_bind_port = form_data[RPC_BIND_PORT_FIELD]
+            db_rpc_bind_port = get_component_value(db_rec, RPC_BIND_PORT_FIELD)
+            if form_rpc_bind_port != db_rpc_bind_port:
+                db_rec = set_component_value(db_rec, RPC_BIND_PORT_FIELD, form_rpc_bind_port)
+                update = True
 
-        # Done comparing, drop orig_instance from update
-        rec.pop(ORIG_INSTANCE_FIELD, None)
-        rec[HEALTH_MSGS_FIELD] += results
+            # ZMQ Pub Port
+            form_zmq_pub_port = form_data[ZMQ_PUB_PORT_FIELD]
+            db_zmq_pub_port = get_component_value(db_rec, ZMQ_PUB_PORT_FIELD)
+            if form_zmq_pub_port != db_zmq_pub_port:
+                db_rec = set_component_value(db_rec, ZMQ_PUB_PORT_FIELD, form_zmq_pub_port)
+                update = True
 
-        if update:
-            self.db.update_one(
-                col_name=self.col_name,
-                filter={COMPONENT_FIELD: MONEROD_FIELD, INSTANCE_FIELD: orig_instance},
-                new_values=rec,
-            )
-        else:
-            results.append(result_row(
-                MONEROD_LABEL, WARN_FIELD,
-                f"{orig_instance} – Nothing to update"
-            ))
-        return rec
+            if update:
+                self.db.update_one(
+                    col_name=self.col_name,
+                    filter = {
+                        ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
+                        COMPONENTS_FIELD: {
+                            "$elemMatch": {
+                                FIELD_FIELD: INSTANCE_FIELD,
+                                VALUE_FIELD: form_orig_instance,
+                            }
+                        }
+                    },
+                    new_values=db_rec,
+                )
+            else:
+                results.append(result_row(
+                    MONEROD_LABEL, WARN_FIELD,
+                    f"{form_instance} – Nothing to update"
+                ))
+            return db_rec
 
       
     def update_p2pool_deployment(self, rec):
