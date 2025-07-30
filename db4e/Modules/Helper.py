@@ -19,9 +19,9 @@ from rich.table import Table
 from textual.widgets import RadioSet, RadioButton
 
 from db4e.Constants.Fields import(
-    COMPONENT_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, MONEROD_FIELD, 
+    P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, MONEROD_FIELD, 
     P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
-    FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD,
+    FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD, ELEMENT_TYPE_FIELD,
     PENDING_FIELD, ENABLE_FIELD)
 
 class Status:
@@ -87,16 +87,18 @@ def result_row(label: str, status: str, msg:str ):
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
 
-def gen_radio_map(rec, ops_mgr):
-    component_map = {
-        P2POOL_FIELD: MONEROD_FIELD,
-        XMRIG_FIELD: P2POOL_FIELD
-    }
-    component = rec[COMPONENT_FIELD]
-    instances = ops_mgr.get_deployment_ids_and_instances(component_map[component])
+def gen_radio_map(rec, depl_mgr):
+    elem_type = rec[ELEMENT_TYPE_FIELD]
+
+    if elem_type == XMRIG_FIELD:
+        local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
+        remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
+    instances = local_instances + remote_instances
+    instances.sort()
     radio_map = {}
     for (instance, id) in instances:
         radio_map[instance] = id
+    print(f"Helper:gen_radio_map(): {radio_map}")
     return radio_map
     
 def get_remote_state(data):

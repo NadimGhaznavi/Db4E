@@ -48,7 +48,7 @@ ICON = {
     NEW: '🔧 ',
     P2P: '🌊 ',
     SETUP: '⚙️ ',
-    XMR: '⛏️'
+    XMR: '⛏️  '
 }
 
 STATE_ICON = {
@@ -81,7 +81,7 @@ class NavPane(Container):
 
         # Create the Deployments tree
         self.depls = Tree(ICON[DEPL] + DEPLOYMENTS_LABEL, id="tree_deployments")
-        self.depls.guide_depth = 2
+        self.depls.guide_depth = 3
         self.depls.root.expand()
 
         # Setup the navpane cache so we don't hammer the DB

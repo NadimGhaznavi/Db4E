@@ -39,7 +39,7 @@ class InitialSetup(Container):
     install_dir_static = Label("", classes=STATIC_CONTENT_FIELD)
     vendor_dir_input = Input(
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", 
-        classes=FORM_INPUT_30_FIELD)
+        classes=FORM_INPUT_70_FIELD)
     user_wallet_input = Input(
         restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", 
         classes=FORM_INPUT_70_FIELD)

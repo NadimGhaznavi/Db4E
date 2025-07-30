@@ -15,7 +15,8 @@ from textual.containers import Container
 from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
-    result_row, is_valid_ip_or_hostname, get_component_value, set_component_value)
+    result_row, is_valid_ip_or_hostname, get_component_value, set_component_value,
+    gen_radio_map)
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
@@ -139,29 +140,25 @@ class DeploymentMgr(Container):
         return rec        
 
     def add_xmrig_deployment(self, rec):
-        print(f"DeploymentMgr:add_xmrig_deployment(): {rec}")
-        results = []
         update = True
+        instance = get_component_value(rec, INSTANCE_FIELD)
+        num_threads = get_component_value(rec, NUM_THREADS_FIELD)
+        parent_id = get_component_value(rec, PARENT_ID_FIELD)
+    
         # Check that the user filled out the form
-        if not rec[INSTANCE_FIELD]:
+        if not instance:
             update = False
-            results.append(result_row(
-                INSTANCE_LABEL, ERROR_FIELD,
-                f"Missing required field: {INSTANCE_LABEL}"
-            ))
-        if not rec[NUM_THREADS_FIELD]:
+
+        if not num_threads:
             update = False
-            results.append(result_row(
-                NUM_THREADS_LABEL, ERROR_FIELD,
-                f"Missing required field: {NUM_THREADS_LABEL}"
-            ))
-        if not rec[PARENT_ID_FIELD]:
+
+        if not parent_id:
             update = False
-            results.append(result_row(
-                P2POOL_LABEL, ERROR_FIELD,
-                f"Missing required field: {P2POOL_LABEL}"
-            ))
-        rec[HEALTH_MSGS_FIELD] += results
+
+        # MAke sure we don't inlcude the radio map
+        if RADIO_MAP_FIELD in rec:
+            rec.pop(RADIO_MAP_FIELD)
+
         if update:
             self.db.insert_one(self.col_name, rec)
         return rec
@@ -214,7 +211,12 @@ class DeploymentMgr(Container):
                     }
                 }
         )
-        return self.db.get_new_rec(elem_type)
+        rec = self.db.get_new_rec(elem_type)
+        if elem_type == XMRIG_FIELD:
+            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self)
+            rec[P2POOL_INSTANCE] = ""
+        return rec
+
         
  
     def get_deployment(self, elem_type, instance=None):
@@ -240,7 +242,7 @@ class DeploymentMgr(Container):
                     }
                 }
             )                
-            print(f"DeploymentMgr:get_deployment(): found: {rec}")
+            print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
 
             if not rec:
                 return {}
@@ -251,12 +253,14 @@ class DeploymentMgr(Container):
     def get_deployment_by_id(self, id):
         return self.db.find_one(col_name=self.col_name, filter={'_id': id})
 
-    def get_deployment_ids_and_instances(self, component):
+    def get_deployment_ids_and_instances(self, elem_type):
         db_recs = self.db.find_many(
-            self.col_name, {COMPONENT_FIELD: component})
+            self.col_name, {ELEMENT_TYPE_FIELD: elem_type})
         result_list = []
         for db_rec in db_recs:
-            result_list.append((db_rec[INSTANCE_FIELD], db_rec[ID_FIELD]))
+            print(f"DeploymentMgr:get_deployment_ids_and_instances(): {db_rec}")
+            instance = get_component_value(db_rec, INSTANCE_FIELD)
+            result_list.append((instance, db_rec[ID_FIELD]))
         result_list.sort()
         return result_list or []
 
@@ -269,7 +273,7 @@ class DeploymentMgr(Container):
         return results
         
     def is_initialized(self):
-        rec = self.db.find_one(self.col_name, {COMPONENT_FIELD: DB4E_FIELD})
+        rec = self.db.find_one(self.col_name, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
         if rec:
             #print(f"DeploymentMgr:is_initialized(): True")
             return True

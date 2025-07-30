@@ -169,40 +169,34 @@ class HealthMgr:
     def check_xmrig(self, rec, p2pool_rec):
         results = []
         overall_state = GOOD_FIELD
+        config_file = get_component_value(rec, CONFIG_FIELD)
+
         # Check that the XMRig configuration file exists
-        if os.path.exists(rec[CONFIG_FIELD]):
+        if os.path.exists(config_file):
             results.append(result_row(
                 CONFIG_LABEL, GOOD_FIELD,
-                f"{rec[CONFIG_FIELD]}"
+                f"{config_file}"
             ))
         else:
             results.append(result_row(
                 CONFIG_LABEL, WARN_FIELD,
-                f"Not found: {rec[CONFIG_FIELD]}"
+                f"Not found: {config_file}"
             ))
             overall_state = WARN_FIELD
 
         # Check that upstream P2Pool deployment exists
         if p2pool_rec:
+            p2pool_instance = get_component_value(p2pool_rec, INSTANCE_FIELD)
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,
-                f"Found upstream P2Pool deployment: {p2pool_rec[INSTANCE_FIELD]}"
+                f"Found upstream P2Pool deployment: {p2pool_instance}"
             ))
-            p2_overall_state, p2p_results = self.check_p2pool(p2pool_rec[INSTANCE_FIELD])
-            if p2_overall_state != GOOD_FIELD:
-                results.append(result_row(
-                    P2POOL_LABEL, WARN_FIELD,
-                    f"Upstream P2Pool deployment ({p2pool_rec[INSTANCE_FIELD]}) has issues..."
-                ))
-                overall_state = p2_overall_state
-                results.extend(p2p_results)
         else:
             results.append(result_row(
                 P2POOL_LABEL, ERROR_FIELD,
                 f"Missing upstream P2Pool deployment"
             ))
             overall_state = ERROR_FIELD
-
 
         # overall_state used in NavPane, results used in XMRig and other panes
         rec[STATUS_FIELD] = overall_state

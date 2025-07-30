@@ -191,13 +191,12 @@ class MessageRouter:
         return pane, rec
 
     # XMRig
-    @route("nav:select:xmrig:new")
-    def nav_xmrig_new(self):
-        rec = self.ops_mgr.get_new_rec(XMRIG_FIELD)
-        return XMRIG_PANE, rec
-
     @route("nav:select:xmrig:{instance}")
     def nav_xmrig_instance(self, instance: str):
+        if instance == NEW_FIELD:
+            rec = self.ops_mgr.get_new_rec(XMRIG_FIELD)
+            return XMRIG_PANE, rec
+        
         rec = self.ops_mgr.get_deployment(elem_type=XMRIG_FIELD, instance=instance)
         return XMRIG_PANE, rec
 

@@ -90,7 +90,7 @@ class Db4E(Container):
             classes=PANE_BOX_FIELD))
 
     def set_data(self, rec):
-        #print(f"Db4E:set_data(): {rec}")
+        print(f"Db4E:set_data(): {rec}")
         self.user_name_label.update(get_component_value(rec, USER_FIELD))
         self.group_name_label.update(get_component_value(rec, GROUP_FIELD))
         self.install_dir_label.update(get_component_value(rec, INSTALL_DIR_FIELD))
