@@ -14,6 +14,8 @@ import inspect
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.Helper import get_component_value
 
@@ -21,9 +23,9 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
     DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
-    NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD,
+    NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
     XMRIG_FIELD, ELEMENT_TYPE_FIELD, GET_REC_FIELD,
-    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD
+    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD
 )
 
 from db4e.Constants.Panes import (
@@ -40,6 +42,7 @@ class MessageRouter:
         self.install_mgr = InstallMgr(config=config)
         self.depl_mgr = DeploymentMgr(config=config)
         self.ops_mgr = OpsMgr(config=config)
+        self.pane_mgr = PaneMgr(config=config, catalogue=PaneCatalogue())
         self._route_handlers = []
         self.load_routes()
 
@@ -62,6 +65,12 @@ class MessageRouter:
                       self.install_mgr.initial_setup, RESULTS_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD,
                       self.ops_mgr.update_deployment, DB4E_PANE)
+
+        # MoneroD = Type: local or remote
+        #self.register
+        self.register(PANE_MGR_FIELD, SET_PANE_FIELD, MONEROD_FIELD,
+                      self.pane_mgr.set_pane, MONEROD_TYPE_PANE)
+    
 
         # MoneroD - local
         self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_FIELD,

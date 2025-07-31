@@ -27,11 +27,12 @@ from db4e.Constants.Fields import (
     DEPLOYMENTS_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, STATUS_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
-    OPS_MGR_FIELD, INITIAL_SETUP_FIELD, GET_NEW_REC_FIELD, GET_REC_FIELD,
-    UNKNOWN_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD)
+    OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_REC_FIELD, GET_REC_FIELD,
+    UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
     MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
+from db4e.Constants.Panes import (MONEROD_TYPE_PANE, P2POOL_TYPE_PANE)
 
 # Icon dictionary keys
 CORE = 'CORE'
@@ -152,6 +153,18 @@ class NavPane(Container):
                     TO_METHOD_FIELD: GET_REC_FIELD,
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
+
+            elif NEW_LABEL in leaf_item.label and MONEROD_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{NEW_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: MONEROD_FIELD,
+                    TO_MODULE_FIELD: PANE_MGR_FIELD,
+                    TO_METHOD_FIELD: SET_PANE_FIELD,
+                    NAME_FIELD: MONEROD_TYPE_PANE,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+                
 
             elif parent_item is None:
                 self.post_message(NavLeafSelected(
