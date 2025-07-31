@@ -23,8 +23,6 @@ from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
     ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL)
 
-hi = "#31b8e6"
-
 class HealthMgr:
 
     def check(self, rec, parent_rec=None):
@@ -53,41 +51,40 @@ class HealthMgr:
         overall_state = GOOD_FIELD
 
         # Example: check if vendor dir exists
-        vendor_dir = rec.get(VENDOR_DIR_FIELD, "")
-
+        vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
         if vendor_dir == "":
             overall_state = ERROR_FIELD
             results.append(result_row(
-                f"[bold]{VENDOR_DIR_LABEL}[/]", ERROR_FIELD,
-                f"[{hi}]{VENDOR_DIR_LABEL}[/] missing"
+                f"{VENDOR_DIR_LABEL}", ERROR_FIELD,
+                f"{VENDOR_DIR_LABEL} missing"
             ))
         
         elif os.path.isdir(vendor_dir):
             results.append(result_row(
-                f"[bold]{VENDOR_DIR_LABEL}[/]", GOOD_FIELD,
-                f"[{hi}]{VENDOR_DIR_LABEL}[/] exists: [{hi}]{vendor_dir}[/]"
+                f"{VENDOR_DIR_LABEL}", GOOD_FIELD,
+                f"{VENDOR_DIR_LABEL} exists: {vendor_dir}"
             ))
 
         else:
             overall_state = ERROR_FIELD
             results.append(result_row(
-                f"[bold]{VENDOR_DIR_LABEL}[/]", ERROR_FIELD,
-                f"[{hi}]{vendor_dir}[/] not found"
+                f"{VENDOR_DIR_LABEL}", ERROR_FIELD,
+                f"{vendor_dir} not found"
             ))
 
-        # Example: check if wallet address looks valid
-        wallet = rec.get(USER_WALLET_FIELD)
+        wallet = get_component_value(rec, USER_WALLET_FIELD)
+        # Future sanity check
         #if wallet and wallet.startswith("4") and len(wallet) >= 95:
         if wallet:        
             results.append(result_row(
-                f"[bold]{USER_WALLET_LABEL}[/]", GOOD_FIELD,
-                f"[{hi}]{USER_WALLET_LABEL}[/] exists: [{hi}]{wallet[:11]}...[/]"
+                f"{USER_WALLET_LABEL}", GOOD_FIELD,
+                f"{USER_WALLET_LABEL} exists: {wallet[:11]}..."
             ))
         else:
             overall_state = ERROR_FIELD
             results.append(result_row(
-                f"[bold]{USER_WALLET_LABEL}[/]", ERROR_FIELD,
-                f"[{hi}]{USER_WALLET_LABEL}[/] missing"
+                f"{USER_WALLET_LABEL}", ERROR_FIELD,
+                f"{USER_WALLET_LABEL} missing"
             ))
 
         #print(f"HealthMgr:check_db4e(): overall_state: rec:\n{rec}\noverall_state: {overall_state}\n{results}")
