@@ -118,7 +118,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, module_or_route: str, method: str = None, payload: dict = None):
-        print(f"MessageRouter:dispatch(): module/route: {module_or_route}, method: {method}, payload: {payload}")
+        print(f"MessageRouter:dispatch(): module: {module_or_route}, method: {method}, payload: {payload}")
         if method is None:
             # String route-style dispatch
             for regex, handler in self._route_handlers:

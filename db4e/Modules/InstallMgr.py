@@ -71,20 +71,21 @@ class InstallMgr(Container):
 
         print(f"InstallMgr:initial_setup(): wallet: {user_wallet}, vendor_dir: {vendor_dir}")
 
-        # Check if there's an existing 'db4e' record
+        # 1. Check if there's an existing 'db4e' record
         rec = self._get_or_create_db4e_rec()
-        print(f"InstallMgr:initial_setup(): 0 rec: {Pretty(rec)}")
 
-        # Intitialize the db4e_rec
-        rec = self._init_db4e_rec(rec=rec)
-        print(f"InstallMgr:initial_setup(): 1 rec: {rec}")
+        # 2. Set the Db4E user, group and installation directory
+        rec = self._set_user_group_install_dir(rec=rec)
 
-        # Confirm that the user actually filled out the form.
-        rec, abort_install = self._check_form_data(
-            user_wallet=user_wallet, vendor_dir=vendor_dir, rec=rec)
+        # 3. Check that the user entered their wallet
+        rec, abort_install = self._check_wallet(user_wallet=user_wallet, rec=rec)
         if abort_install:
             return rec
-        print(f"InstallMgr:initial_setup(): 2 rec: {rec}")
+
+        # 4. Check that the user entered a vendor directory
+        rec, abort_install = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
+        if abort_install:
+            return rec
         
         # Create the vendor directory
         results, abort_install = self._create_vendor_dir(
@@ -144,40 +145,37 @@ class InstallMgr(Container):
         # Return the results
         return rec
         
-    def _check_wallet(self, user_wallet:str):
+
+    def _check_wallet(self, user_wallet:str, rec: dict):
         print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
-
-    def _check_form_data(
-            self, user_wallet: str, 
-            vendor_dir: str, 
-            rec: dict):
-        print(f"InstallMgr:_check_form_data(): rec: {rec}")
-
-        abort_install = False
         if not user_wallet:
             abort_install = True
-        else:
-            rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
-            user_wallet_short = user_wallet[0:6] + '...'
-            rec[HEALTH_MSGS_FIELD].append(result_row(
-                USER_WALLET_LABEL, GOOD_FIELD, 
-                f"Added wallet ({user_wallet_short}) to the {DB4E_LABEL} " + 
-                "deployment record"))
+            return rec, abort_install
+        
+        abort_install = False
+        rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
+        user_wallet_short = user_wallet[0:6] + '...'
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            USER_WALLET_LABEL, GOOD_FIELD, 
+            f"Added wallet ({user_wallet_short}) to the {DB4E_LABEL} " + 
+            "deployment record"))
+        return rec, abort_install        
 
+
+    def _check_vendor_dir(self, vendor_dir: str, rec: dict):
+        print(f"InstallMgr:_check_form_data(): rec: {rec}")
         if not vendor_dir:
             abort_install = True
-        else:
-            rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
-            rec[HEALTH_MSGS_FIELD].append(result_row(
-                VENDOR_DIR_LABEL, GOOD_FIELD, 
-                f"Added deployment directory ({vendor_dir}) to the {DB4E_LABEL} " +
-                "deployment record"))
-
-        if abort_install:
             return rec, abort_install
-
+        
+        abort_install = False
+        rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            VENDOR_DIR_LABEL, GOOD_FIELD, 
+            f"Added deployment directory ({vendor_dir}) to the {DB4E_LABEL} " +
+            "deployment record"))
         self.ops_mgr.update_deployment(form_data=rec)
-        return (rec, abort_install)
+        return rec, abort_install
 
     # Copy Db4E files
     def _copy_db4e_files(self, vendor_dir):
@@ -557,7 +555,7 @@ class InstallMgr(Container):
             return rec
         rec = self.db.get_new_rec(rec_type=DB4E_FIELD)
         print(f"InstallMgr:_get_or_create_db4e_rec(): Created new rec: {rec}")
-        rec = self.ops_mgr.add_deployment(rec)
+        rec = self.ops_mgr.depl_mgr.add_deployment(rec)
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
             f"Created {DB4E_LABEL} deployment record"))   
@@ -577,34 +575,6 @@ class InstallMgr(Container):
             self.tmp_dir = tmp_obj.name  # Store path string
             self._tmp_obj = tmp_obj      # Keep a reference to the object
         return self.tmp_dir
-
-
-    def _init_db4e_rec(self, rec):
-        # Use the effective UID/GID for the Db4E user/group
-        effective_id = get_effective_identity()
-        user = effective_id[USER_FIELD]
-        group = effective_id[GROUP_FIELD]
-
-        # Determine the Db4E install dir
-        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-        rec = update_component_values(rec, {
-        USER_FIELD: user,
-        GROUP_FIELD: group,
-        INSTALL_DIR_FIELD: db4e_install_dir})
-        
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            DB4E_USER_LABEL, GOOD_FIELD,
-            f"Added user ({user}) to the {DB4E_LABEL} deployment record"))
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            DB4E_GROUP_LABEL, GOOD_FIELD,
-            f"Added group ({group}) to the {DB4E_LABEL} deployment record"))
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            INSTALL_DIR_LABEL, GOOD_FIELD,
-            f"Added the {DB4E_LABEL} {INSTALL_DIR_LABEL} to the deployment record"))
-        rec = self.ops_mgr.update_deployment(rec)
-        print(f"InstallMgr:_init_db4e_rec(): new rec: {rec}")
-        return rec
 
     def _replace_placeholders(self, path: str, placeholders: dict) -> str:
         if not os.path.exists(path):
@@ -662,3 +632,30 @@ class InstallMgr(Container):
         self.ops_mgr.update_deployment(db4e_rec)
         return results
     
+    def _set_user_group_install_dir(self, rec):
+        # Use the effective UID/GID for the Db4E user/group
+        effective_id = get_effective_identity()
+        user = effective_id[USER_FIELD]
+        group = effective_id[GROUP_FIELD]
+
+        # Determine the Db4E install dir
+        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+        rec = update_component_values(rec, {
+        USER_FIELD: user,
+        GROUP_FIELD: group,
+        INSTALL_DIR_FIELD: db4e_install_dir})
+        
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            DB4E_USER_LABEL, GOOD_FIELD,
+            f"Setting the Db4E user to: {user}"))
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            DB4E_GROUP_LABEL, GOOD_FIELD,
+            f"Setting the Db4E group to: {group}"))
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            INSTALL_DIR_LABEL, GOOD_FIELD,
+            f"Setting the Db4E install directory to: {db4e_install_dir}"))
+        rec = self.ops_mgr.update_deployment(rec)
+        #print(f"InstallMgr:_init_db4e_rec(): new rec: {rec}")
+        return rec
+

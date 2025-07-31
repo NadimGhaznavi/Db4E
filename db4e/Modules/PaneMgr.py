@@ -19,8 +19,7 @@ from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.Helper import get_effective_identity
 from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Constants.Panes import (
-    INITIAL_SETUP_PANE, P2POOL_PANE, XMRIG_PANE, RESULTS_PANE, WELCOME_PANE)
+from db4e.Constants.Panes import (WELCOME_PANE)
 from db4e.Constants.Fields import SET_DATA_FIELD, RESET_DATA_FIELD
 
 @dataclass
@@ -51,7 +50,7 @@ class PaneMgr(Widget):
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
-        print(f"PaneMgr:set_pane(): {name}/{data}")
+        #print(f"PaneMgr:set_pane(): {name}/{data}")
         self.pane_state = PaneState(name, data)
         # If the pane supports set_data, update it with new data
         if data and name in self.panes:

@@ -9,7 +9,6 @@ db4e/Modules/OpsMgr.py
 """
 import os
 
-from rich.pretty import Pretty
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
@@ -39,13 +38,11 @@ class OpsMgr:
         self.depl_col = DEPLOYMENT_COL_DEFAULT
 
     def add_deployment(self, rec: dict):
-        print(f"OpsMgr:add_deployment():")
-        print(Pretty(rec))
         results = []
         parent_rec = None
         elem_type = rec[ELEMENT_TYPE_FIELD]
         instance = get_component_value(rec, INSTANCE_FIELD)
-
+        print(f"OpsMgr:add_deployment(): {elem_type}")
         existing_rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if existing_rec:
             if elem_type != DB4E_FIELD:
