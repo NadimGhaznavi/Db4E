@@ -241,7 +241,7 @@ class DeploymentMgr(Container):
                     }
                 }
             )                
-            print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
+            #print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
 
             if not rec:
                 return {}

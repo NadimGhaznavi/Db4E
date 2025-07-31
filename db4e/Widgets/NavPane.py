@@ -23,7 +23,7 @@ from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
+    REMOTE_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
     DEPLOYMENTS_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, STATUS_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
@@ -65,15 +65,11 @@ STATE_ICON = {
 @dataclass
 class NavItem:
     label: str
-    route_id: str
+    field: str
     icon: str
 
     def __str__(self):
         return self.icon + self.label
-
-    @property
-    def value(self) -> str:
-        return self.route_id
 
 class NavPane(Container):
 
@@ -184,17 +180,38 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
+            elif MONEROD_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
+                record = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=leaf_item.field)
+                remote = get_component_value(record, REMOTE_FIELD)
+                if remote:
+                    form_data = {
+                        ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
+                        TO_MODULE_FIELD: OPS_MGR_FIELD,
+                        TO_METHOD_FIELD: GET_REC_FIELD,
+                        INSTANCE_FIELD: leaf_item.field
+                    }
+                else:
+                    form_data = {
+                        ELEMENT_TYPE_FIELD: MONEROD_FIELD,
+                        TO_MODULE_FIELD: OPS_MGR_FIELD,
+                        TO_METHOD_FIELD: GET_REC_FIELD,
+                        INSTANCE_FIELD: leaf_item.field
+                    }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+                    
+
             elif parent_item is None:
                 self.post_message(NavLeafSelected(
                     self,
-                    parent=DEPLOYMENTS_FIELD,  # the route, not the label
-                    leaf=leaf_item.route_id
+                    parent=DEPLOYMENTS_FIELD,
+                    leaf=leaf_item.field
                 ))
             elif isinstance(leaf_item, NavItem) and isinstance(parent_item, NavItem):
                 self.post_message(NavLeafSelected(
                     self,
-                    parent=parent_item.route_id,  # the route, not the label
-                    leaf=leaf_item.route_id       # the route, not the label
+                    parent=parent_item.field, 
+                    leaf=leaf_item.field
                 ))
                 event.stop()
 

@@ -95,11 +95,24 @@ class OpsMgr:
         
    
     def get_deployment(self, elem_type, instance=None):
+        print(f"OpsMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}")
         if ELEMENT_TYPE_FIELD in elem_type:
+            if INSTANCE_FIELD in elem_type:
+                instance = elem_type[INSTANCE_FIELD]
             elem_type = elem_type[ELEMENT_TYPE_FIELD]
         rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if not rec:
-            return None
+            if elem_type == MONEROD_FIELD:
+                rec = self.depl_mgr.get_deployment(elem_type=MONEROD_REMOTE_FIELD, instance=instance)
+                elem_type = MONEROD_REMOTE_FIELD
+            if elem_type == P2POOL_FIELD:
+                rec = self.depl_mgr.get_deployment(elem_type=P2POOL_REMOTE_FIELD, instance=instance)
+                elem_type = P2POOL_REMOTE_FIELD
+        
+        print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")        
+        if not rec:
+            return {}
+        
         parent_rec = None
         # XMRig and Local P2Pool deployments have upstream dependencies
         remote = get_component_value(rec, REMOTE_FIELD)
@@ -112,7 +125,7 @@ class OpsMgr:
             rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self.depl_mgr)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        print(f"OpsMgr:get_deployment(): rec: {rec}")
+        #print(f"OpsMgr:get_deployment(): rec: {rec}")
         return rec
 
     def get_deployments(self) -> list[dict]:

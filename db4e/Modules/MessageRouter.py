@@ -75,6 +75,8 @@ class MessageRouter:
                       self.ops_mgr.get_new_rec, MONEROD_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.ops_mgr.add_deployment, MONEROD_PANE)
+        self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_FIELD,
+                      self.ops_mgr.get_deployment, MONEROD_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.ops_mgr.update_deployment, MONEROD_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_FIELD,
@@ -85,6 +87,8 @@ class MessageRouter:
                       self.ops_mgr.get_new_rec, MONEROD_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, MONEROD_REMOTE_PANE)
+        self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_REMOTE_FIELD,
+                      self.ops_mgr.get_deployment, MONEROD_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.update_deployment, MONEROD_REMOTE_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
@@ -99,6 +103,8 @@ class MessageRouter:
                       self.ops_mgr.get_new_rec, P2POOL_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.ops_mgr.add_deployment, P2POOL_PANE)
+        self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_FIELD,
+                      self.ops_mgr.get_deployment, P2POOL_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.ops_mgr.update_deployment, P2POOL_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_FIELD,
@@ -109,6 +115,8 @@ class MessageRouter:
                       self.ops_mgr.get_new_rec, P2POOL_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, P2POOL_REMOTE_PANE)
+        self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_REMOTE_FIELD,
+                      self.ops_mgr.get_deployment, P2POOL_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.update_deployment, P2POOL_REMOTE_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
