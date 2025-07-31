@@ -48,7 +48,7 @@ if [ $? -ne 0 ]; then
     rm $DB4E_SUDOERS
     exit 1
 fi
-echo "Created custom sudo file ($DB4E_SUDOERS)"
+echo "As root, installed: $DB4E_SUDOERS"
 
 TMP_DIR=$DB4E_TMP_DIR
 SYSTEMD_DIR=/etc/systemd/system
@@ -57,7 +57,7 @@ SYSTEMD_DIR=/etc/systemd/system
 mv $TMP_DIR/db4e.service $SYSTEMD_DIR
 chown root:root $SYSTEMD_DIR/db4e.service
 chmod 0644 $SYSTEMD_DIR/db4e.service
-echo "Installed the db4e systemd service"
+echo "As root, installed: $SYSTEMD_DIR/db4e.service"
 
 # Install the Monero daemon service definition file
 mv $TMP_DIR/monerod@.service $SYSTEMD_DIR
@@ -66,7 +66,8 @@ chown root:root $SYSTEMD_DIR/monerod@.service
 chown root:root $SYSTEMD_DIR/monerod@.socket
 chmod 0644 $SYSTEMD_DIR/monerod@.service
 chmod 0644 $SYSTEMD_DIR/monerod@.socket
-echo "Installed the Monero daemon systemd service"
+echo "As root, installed: $SYSTEMD_DIR/monerod@.service"
+echo "As root, installed: $SYSTEMD_DIR/monerod@.socket)"
 
 # Install the P2Pool service definition file
 mv $TMP_DIR/p2pool@.service $SYSTEMD_DIR
@@ -75,24 +76,23 @@ chown root:root $SYSTEMD_DIR/p2pool@.service
 chown root:root $SYSTEMD_DIR/p2pool@.socket
 chmod 0644 $SYSTEMD_DIR/p2pool@.service
 chmod 0644 $SYSTEMD_DIR/p2pool@.socket
-echo "Installed the P2Pool systemd service"
+echo "As root, installed: $SYSTEMD_DIR/p2pool@.service"
+echo "As root, installed: $SYSTEMD_DIR/p2pool@.socket"
 
 # Install the XMRig service definition file
 mv $TMP_DIR/xmrig@.service $SYSTEMD_DIR
 chown root:root $SYSTEMD_DIR/xmrig@.service
 chmod 0644 $SYSTEMD_DIR/xmrig@.service
-echo "Installed the XMRig miner systemd service"
+echo "As root, installed: $SYSTEMD_DIR/xmrig@.service"
 
 systemctl daemon-reload
-echo "Reloaded the systemd configuration"
+echo "As root, reloaded the systemd configuration: systemctl daemon-reload"
 systemctl enable db4e
-echo "Configured the db4e service to start at boot time"
+echo "As root, configured the db4e service to start at boot time: systemctl enable db4e"
 systemctl start db4e
-echo "Started the db4e service"
+echo "As root, started the db4e service: systemctl start db4e"
 
 # Set SUID bit on the xmrig binary for performance reasons
 chown root:"$DB4E_GROUP" "$VENDOR_DIR/xmrig/bin/xmrig"
 chmod 4750 "$VENDOR_DIR/xmrig/bin/xmrig"
-echo chown root:"$DB4E_GROUP" "$VENDOR_DIR/xmrig/bin/xmrig"
-echo chmod 4750 "$VENDOR_DIR/xmrig/bin/xmrig"
-echo "Set the SUID bit on the xmrig binary"
+echo "As root, set permissions on: $VENDOR_DIR/xmrig/bin/xmrig"

@@ -91,7 +91,6 @@ class InstallMgr(Container):
         results, abort_install = self._create_vendor_dir(
             vendor_dir=vendor_dir
         )
-        rec[HEALTH_MSGS_FIELD] += results
         if abort_install:
             return rec
         
@@ -118,16 +117,16 @@ class InstallMgr(Container):
         self._generate_tmp_monerod_service_files(vendor_dir=vendor_dir)
 
         # Copy in the Monero daemon and start script
-        results = self._copy_monerod_files(vendor_dir=vendor_dir)
+        results += self._copy_monerod_files(vendor_dir=vendor_dir)
 
         # Create the P2Pool daemon vendor directories
-        results = self._create_p2pool_dirs(vendor_dir=vendor_dir)
+        results += self._create_p2pool_dirs(vendor_dir=vendor_dir)
 
         # Generate the P2Pool service files (installed by the sudo installer)
         self._generate_p2pool_service_files(vendor_dir=vendor_dir)
 
         # Copy in the P2Pool daemon and start script
-        results = self._copy_p2pool_files(vendor_dir=vendor_dir, results=results)
+        results += self._copy_p2pool_files(vendor_dir=vendor_dir, results=results)
 
         # Create the XMRig miner vendor directories
         self._create_xmrig_dirs(vendor_dir=vendor_dir)
@@ -136,13 +135,14 @@ class InstallMgr(Container):
         self._generate_xmrig_service_file(vendor_dir=vendor_dir)
 
         # Copy in the XMRig miner
-        results = self._copy_xmrig_file(vendor_dir=vendor_dir, results=results)
+        results += self._copy_xmrig_file(vendor_dir=vendor_dir, results=results)
 
         # Run the installer (with sudo)
-        results = self._run_sudo_installer(
+        results += self._run_sudo_installer(
             vendor_dir=vendor_dir, results=results, db4e_rec=rec)
 
         # Return the results
+        rec[HEALTH_MSGS_FIELD] += results
         return rec
         
 
@@ -157,8 +157,7 @@ class InstallMgr(Container):
         user_wallet_short = user_wallet[0:6] + '...'
         rec[HEALTH_MSGS_FIELD].append(result_row(
             USER_WALLET_LABEL, GOOD_FIELD, 
-            f"Added wallet ({user_wallet_short}) to the {DB4E_LABEL} " + 
-            "deployment record"))
+            f"Set the Db4E user wallet: {user_wallet_short}"))
         return rec, abort_install        
 
 
@@ -172,8 +171,7 @@ class InstallMgr(Container):
         rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
         rec[HEALTH_MSGS_FIELD].append(result_row(
             VENDOR_DIR_LABEL, GOOD_FIELD, 
-            f"Added deployment directory ({vendor_dir}) to the {DB4E_LABEL} " +
-            "deployment record"))
+            f"Set the Db4E deployment directory: {vendor_dir}"))
         self.ops_mgr.update_deployment(form_data=rec)
         return rec, abort_install
 
@@ -204,7 +202,7 @@ class InstallMgr(Container):
         os.chmod(fq_dest_script, new_permissions)
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
-            f"Installed {fq_dest_script}"))
+            f"Installed: {fq_dest_script}"))
         return results
         
     # Copy monerod files
@@ -226,14 +224,14 @@ class InstallMgr(Container):
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Installed {MONEROD_LABEL} as {fq_dst_monerod_dest_script}"))
+            f"Installed: {fq_dst_monerod_dest_script}"))
         fq_src_monerod_start_script = os.path.join(
             tmpl_dir, monerod_dir, bin_dir, monerod_start_script)
 
         shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Installed {MONEROD_LABEL} {STARTUP_SCRIPT}: {fq_dst_monerod_dest_script}"))
+            f"Installed: {fq_dst_monerod_dest_script}"))
 
         # Make it executable
         current_permissions = os.stat(fq_dst_monerod_dest_script).st_mode
@@ -258,7 +256,7 @@ class InstallMgr(Container):
         shutil.copy(fq_src_p2pool, fq_dst_bin_dir)
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Installed {P2POOL_LABEL}: {fq_dst_bin_dir}/{p2pool_binary}"))
+            f"Installed: {fq_dst_bin_dir}/{p2pool_binary}"))
         shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_start_script)
         # Make it executable
         current_permissions = os.stat(fq_dst_p2pool_start_script).st_mode
@@ -266,7 +264,7 @@ class InstallMgr(Container):
         os.chmod(fq_dst_p2pool_start_script, new_permissions)
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Installed {P2POOL_LABEL} {STARTUP_SCRIPT}: {fq_dst_p2pool_start_script}"))
+            f"Installed: {fq_dst_p2pool_start_script}"))
         return results
 
     def _copy_xmrig_file(self, vendor_dir, results):
@@ -282,7 +280,7 @@ class InstallMgr(Container):
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
         results.append(result_row(
             XMRIG_LABEL, GOOD_FIELD,
-            f"Installed {XMRIG_LABEL} into {fq_dst_xmrig_bin_dir}"))
+            f"Installed: {fq_dst_xmrig_bin_dir}/{xmrig_binary}"))
         return results
 
     def _create_db4e_dirs(self, vendor_dir):
@@ -297,7 +295,7 @@ class InstallMgr(Container):
         os.makedirs(os.path.join(fq_db4e_dir))
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
-            f"Created {DB4E_LABEL} directory ({fq_db4e_dir})"))
+            f"Created directory: {fq_db4e_dir}"))
         # Create the sub-directories
         for sub_dir in [bin_dir, log_dir]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
@@ -309,7 +307,7 @@ class InstallMgr(Container):
         # Create a health message, the directories will be logged later...
         results.append(result_row(
             DB4E_LABEL, GOOD_FIELD,
-            f"Created symlink ({DB4E_FIELD}) to directory ({db4e_with_version})"))
+            f"Created symlink to directory: {DB4E_FIELD} > {db4e_with_version}"))
         return results
 
     def _create_monerod_dirs(self, vendor_dir):
@@ -327,16 +325,20 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(fq_monerod_dir))
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Created {MONEROD_LABEL} directory ({fq_monerod_dir})"))
+            f"Created directory: {fq_monerod_dir}"))
 
         os.mkdir(os.path.join(vendor_dir, blockchain_dir))
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Created {MONEROD_LABEL} blockchain directory ({fq_monerod_dir})"))
+            f"Created Monero blockchain directory: {fq_monerod_dir}"))
 
         # Create the sub-directories
         for sub_dir in [bin_dir, conf_dir, run_dir, log_dir]:
-            os.mkdir(os.path.join(fq_monerod_dir, sub_dir))
+            fq_sub_dir = os.path.join(fq_monerod_dir, sub_dir)
+            os.mkdir(fq_sub_dir)
+            results.append(result_row(
+                MONEROD_LABEL, GOOD_FIELD,
+                f"Created directory: {fq_sub_dir}"))
 
         os.chdir(vendor_dir)
         os.symlink(
@@ -345,7 +347,7 @@ class InstallMgr(Container):
         # Create a health message, the directories will be logged later...
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Created symlink ({MONEROD_FIELD}) to directory ({monerod_with_version})"))
+            f"Created symlink to directory: {MONEROD_FIELD} > {monerod_with_version}"))
         return results
 
     def _create_p2pool_dirs(self, vendor_dir):
@@ -361,21 +363,22 @@ class InstallMgr(Container):
         os.mkdir(os.path.join(fq_p2pool_dir))
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Created {P2POOL_LABEL} directory ({fq_p2pool_dir})"
+            f"Created directory ({fq_p2pool_dir})"
         ))
         # Create the sub directories
         for sub_dir in [bin_dir, conf_dir, run_dir]:
-            os.mkdir(os.path.join(fq_p2pool_dir, sub_dir))
+            fq_sub_dir = os.path.join(fq_p2pool_dir, sub_dir)
+            os.mkdir(fq_sub_dir)
             results.append(result_row(
                 P2POOL_LABEL, GOOD_FIELD,
-                f"Created {P2POOL_LABEL} directory: ({fq_p2pool_dir}/{sub_dir})"))
+                f"Created directory: {fq_sub_dir}"))
         os.chdir(vendor_dir)
         os.symlink(
             os.path.join(p2pool_with_version),
             os.path.join(P2POOL_FIELD))
         results.append(result_row(
             P2POOL_LABEL, GOOD_FIELD,
-            f"Created symlink ({P2POOL_FIELD}) to directory ({p2pool_with_version})"))
+            f"Created symlink to directory: {P2POOL_FIELD} > {p2pool_with_version}"))
         
         return results
 
@@ -387,7 +390,7 @@ class InstallMgr(Container):
         if os.path.exists(vendor_dir):
             results.append(result_row(
                 VENDOR_DIR_LABEL, WARN_FIELD, 
-                f'Found existing deployment directory ({vendor_dir})'))
+                f'Found existing deployment directory: {vendor_dir}'))
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             backup_vendor_dir = vendor_dir + '.' + timestamp
@@ -395,12 +398,12 @@ class InstallMgr(Container):
                 os.rename(vendor_dir, backup_vendor_dir)
                 results.append(result_row(
                     VENDOR_DIR_LABEL, WARN_FIELD, 
-                    f'Backed up old deployment directory ({backup_vendor_dir})'))
+                    f'Backed up old deployment directory: {backup_vendor_dir}'))
             except (PermissionError, OSError, FileNotFoundError) as e:
                 results.append(result_row(
                     VENDOR_DIR_LABEL, ERROR_FIELD, 
-                    'Failed to backup old deployment directory ' +
-                    f'({backup_vendor_dir})\n{e}'))
+                    'Failed to backup old deployment directory: ' +
+                    f'{backup_vendor_dir}\n{e}'))
                 abort_install = True
                 return (results, abort_install) # Abort the install
 
@@ -408,13 +411,14 @@ class InstallMgr(Container):
             os.makedirs(vendor_dir)
             results.append(result_row(
                 VENDOR_DIR_LABEL, GOOD_FIELD, 
-                f"Created {VENDOR_DIR_LABEL} ({vendor_dir})"))        
+                f"Created directory: {vendor_dir}"))        
         except (PermissionError, FileNotFoundError, FileExistsError) as e:
             results.append(result_row(
                 VENDOR_DIR_LABEL, ERROR_FIELD, 
-                f'Failed to create directory ({vendor_dir}\n{e}'))
+                f'Failed to create directory: {vendor_dir}\n{e}'))
             abort_install = True
         return (results, abort_install)
+
 
     def _create_xmrig_dirs(self, vendor_dir):
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
@@ -648,13 +652,13 @@ class InstallMgr(Container):
         
         rec[HEALTH_MSGS_FIELD].append(result_row(
             DB4E_USER_LABEL, GOOD_FIELD,
-            f"Setting the Db4E user to: {user}"))
+            f"Set the Db4E user: {user}"))
         rec[HEALTH_MSGS_FIELD].append(result_row(
             DB4E_GROUP_LABEL, GOOD_FIELD,
-            f"Setting the Db4E group to: {group}"))
+            f"Set the Db4E group: {group}"))
         rec[HEALTH_MSGS_FIELD].append(result_row(
             INSTALL_DIR_LABEL, GOOD_FIELD,
-            f"Setting the Db4E install directory to: {db4e_install_dir}"))
+            f"Set the Db4E install directory: {db4e_install_dir}"))
         rec = self.ops_mgr.update_deployment(rec)
         #print(f"InstallMgr:_init_db4e_rec(): new rec: {rec}")
         return rec
