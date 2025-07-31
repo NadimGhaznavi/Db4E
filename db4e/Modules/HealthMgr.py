@@ -177,6 +177,11 @@ class HealthMgr:
                 CONFIG_LABEL, GOOD_FIELD,
                 f"{config_file}"
             ))
+        elif not config_file:
+            results.append(result_row(
+                CONFIG_LABEL, WARN_FIELD,
+                f"Missing"
+            ))
         else:
             results.append(result_row(
                 CONFIG_LABEL, WARN_FIELD,

@@ -16,7 +16,7 @@ from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
     result_row, is_valid_ip_or_hostname, get_component_value, set_component_value,
-    gen_radio_map)
+    gen_radio_set)
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
@@ -193,7 +193,6 @@ class DeploymentMgr(Container):
 
         return (update_flag, results)
 
-
     def del_deployment(self, rec_data):
         print(f"DeploymentMgr:del_deployment(): {rec_data}")
         elem_type = rec_data[ELEMENT_TYPE_FIELD]
@@ -213,7 +212,7 @@ class DeploymentMgr(Container):
         )
         rec = self.db.get_new_rec(elem_type)
         if elem_type == XMRIG_FIELD:
-            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self)
+            rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self)
             rec[P2POOL_INSTANCE] = ""
         return rec
 
@@ -275,10 +274,13 @@ class DeploymentMgr(Container):
     def is_initialized(self):
         rec = self.db.find_one(self.col_name, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
         if rec:
-            #print(f"DeploymentMgr:is_initialized(): True")
-            return True
+            vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
+            user_wallet = get_component_value(rec, USER_WALLET_FIELD)
+            if vendor_dir and user_wallet:
+                return True
+            else:
+                return False
         else:
-            #print(f"DeploymentMgr:is_initialized(): False")
             return False
 
     def update_deployment(self, rec):

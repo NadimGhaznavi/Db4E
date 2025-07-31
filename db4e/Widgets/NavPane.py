@@ -18,6 +18,7 @@ from textual.containers import Container, Vertical, ScrollableContainer
 
 from db4e.Modules.Helper import get_component_value
 from db4e.Messages.NavLeafSelected import NavLeafSelected
+from db4e.Messages.SubmitFormData import SubmitFormData
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.HealthMgr import HealthMgr
@@ -25,6 +26,8 @@ from db4e.Constants.Fields import (
     COMPONENT_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
     DEPLOYMENTS_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, STATUS_FIELD,
+    ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
+    OPS_MGR_FIELD, INITIAL_SETUP_FIELD, GET_NEW_REC_FIELD, GET_REC_FIELD,
     UNKNOWN_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
@@ -103,10 +106,8 @@ class NavPane(Container):
 
         self.refresh_nav_pane()
 
-    def check_initialized(self):
-        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
-        self._initialized = bool(rec and rec.get(VENDOR_DIR_FIELD) and \
-                                 rec.get(USER_WALLET_FIELD))
+    def check_initialized(self):        
+        self._initialized = self.ops_mgr.is_depl_initialized()
         return self._initialized
 
     def compose(self) -> ComposeResult:
@@ -132,9 +133,27 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_item: NavItem = event.node.data
             parent_item: NavItem = event.node.parent.data
-            print(f"NavPane:on_tree_node_selected(): leaf_item {leaf_item}, parent_item {parent_item}")
+            print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
 
-            if parent_item is None:
+            if INITIAL_SETUP_LABEL in leaf_item.label:
+                print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: DB4E_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+            elif DB4E_LABEL in leaf_item.label:
+                print(f"NavPane:on_tree_node_selected(): {DB4E_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: DB4E_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: GET_REC_FIELD,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+            elif parent_item is None:
                 self.post_message(NavLeafSelected(
                     self,
                     parent=DEPLOYMENTS_FIELD,  # the route, not the label

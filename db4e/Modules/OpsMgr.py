@@ -8,12 +8,14 @@ db4e/Modules/OpsMgr.py
     License: GPL 3.0
 """
 import os
+
+from rich.pretty import Pretty
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.Helper import (
-    result_row, gen_radio_map, get_component_value, set_component_value)
+    result_row, gen_radio_set, get_component_value, set_component_value)
 from db4e.Constants.Fields import (
     DB4E_FIELD, ERROR_FIELD, HEALTH_MSGS_FIELD,
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD,
@@ -37,7 +39,8 @@ class OpsMgr:
         self.depl_col = DEPLOYMENT_COL_DEFAULT
 
     def add_deployment(self, rec: dict):
-        print(f"OpsMgr:add_deployment(): {rec}")
+        print(f"OpsMgr:add_deployment():")
+        print(Pretty(rec))
         results = []
         parent_rec = None
         elem_type = rec[ELEMENT_TYPE_FIELD]
@@ -45,18 +48,18 @@ class OpsMgr:
 
         existing_rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if existing_rec:
-            results.append(result_row(
-                OPS_MGR_LABEL, ERROR_FIELD,
-                f"A deployment record with that instance name already exists"
-            ))
-            rec[HEALTH_MSGS_FIELD] = results
+            if elem_type != DB4E_FIELD:
+                results.append(result_row(
+                    OPS_MGR_LABEL, ERROR_FIELD,
+                    f"A deployment record with that instance name already exists"
+                ))
+                rec[HEALTH_MSGS_FIELD] = results
             return rec
         
         # TODO Make sure the remote monerod and monerod records don't share an instance name.
         # TODO Same for p2pool.
 
         if elem_type == DB4E_FIELD:
-            print(f"OpsMgr:add_deployment(): rec: {rec}")
             rec = self.depl_mgr.add_deployment(rec)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
             return rec
@@ -88,13 +91,15 @@ class OpsMgr:
                 db_rec = set_component_value(db_rec, PARENT_ID_FIELD, rec[PARENT_ID_FIELD])
                 parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
             rec = self.depl_mgr.add_deployment(db_rec)
-            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
+            rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self.depl_mgr)
             rec[PARENT_INSTANCE_FIELD] = parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
             return rec
         
    
     def get_deployment(self, elem_type, instance=None):
+        if ELEMENT_TYPE_FIELD in elem_type:
+            elem_type = elem_type[ELEMENT_TYPE_FIELD]
         rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if not rec:
             return None
@@ -107,9 +112,11 @@ class OpsMgr:
         if elem_type == XMRIG_FIELD or elem_type == P2POOL_FIELD and not remote:
             parent_rec = self.depl_mgr.get_deployment_by_id(id=parent_id)
             rec[PARENT_INSTANCE_FIELD] = parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
-            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
+            rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self.depl_mgr)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        return self.health_mgr.check(rec=rec, parent_rec=parent_rec)
+        rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
+        print(f"OpsMgr:get_deployment(): rec: {rec}")
+        return rec
 
     def get_deployments(self) -> list[dict]:
         deployments = self.depl_mgr.get_deployments()  # ← now returns full recs
@@ -158,25 +165,30 @@ class OpsMgr:
 
     def get_new_xmrig_rec(self, form_data: dict) -> dict:
         rec = self.db.get_new_rec(XMRIG_FIELD)
-        rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
+        rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self.depl_mgr)
         rec[P2POOL_INSTANCE] = ""
         print(f"OpsMgr:get_new_xmrig_rec(): radio_map_field: {rec[RADIO_MAP_FIELD]}")
         return rec
+
+    def is_depl_initialized(self) -> bool:
+        return self.depl_mgr.is_initialized()
 
     def update_deployment(self, form_data):
         print(f"OpsMgr:update_deployment(): update_data: {form_data}")
         elem_type = form_data[ELEMENT_TYPE_FIELD]
         parent_rec = None
 
-        rec = self.depl_mgr.update_deployment(rec=rec)
+        rec = self.depl_mgr.update_deployment(rec=form_data)
 
         if elem_type == XMRIG_FIELD:
             return self.update_xmrig_deployment(self, rec)
         
+        return rec
+        
 
     def update_xmrig_deployment(self, rec):
         print(f"OpsMgr:update_xmrig_deployment(): rec: {rec}")
-        rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
+        rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self.depl_mgr)
         parent_id = get_component_value(rec, PARENT_ID_FIELD)
         p2pool_rec = None
         p2pool_instance = ""

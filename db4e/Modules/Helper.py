@@ -19,10 +19,10 @@ from rich.table import Table
 from textual.widgets import RadioSet, RadioButton
 
 from db4e.Constants.Fields import(
-    P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, MONEROD_FIELD, 
+    P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, 
     P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
     FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD, ELEMENT_TYPE_FIELD,
-    PENDING_FIELD, ENABLE_FIELD)
+    PENDING_FIELD, ENABLE_FIELD, PARENT_ID_FIELD, INSTANCE_FIELD)
 
 class Status:
     ACTIVE = ACTIVE_FIELD
@@ -33,6 +33,9 @@ class Status:
 
 def gen_results_table(results):
     #print(f"Helper:gen_results_table(): Results list:")
+    if not results:
+        return ""
+    
     table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
     table.add_column("Component", width=25)
     table.add_column("Message")
@@ -42,7 +45,7 @@ def gen_results_table(results):
         for category, msg_dict in item.items():
             message = msg_dict["msg"]
             if msg_dict["status"] == "good":
-                table.add_row(f"✅ [green]{category}[/]", f"[green]{message}[/]")
+                table.add_row(f"✅ [bold]{category}[/]", f"{message}")
             elif msg_dict["status"] == "warn":
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
             elif msg_dict["status"] == "error":
@@ -87,19 +90,20 @@ def result_row(label: str, status: str, msg:str ):
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
 
-def gen_radio_map(rec, depl_mgr):
+def gen_radio_set(rec, depl_mgr):
     elem_type = rec[ELEMENT_TYPE_FIELD]
-
+    
     if elem_type == XMRIG_FIELD:
         local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
         remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-    instances = local_instances + remote_instances
-    instances.sort()
-    radio_map = {}
-    for (instance, id) in instances:
-        radio_map[instance] = id
-    print(f"Helper:gen_radio_map(): {radio_map}")
-    return radio_map
+        instances = local_instances + remote_instances
+        instances.sort()
+        
+        radio_set = {}
+        for (instance, id) in instances:
+            radio_set[instance] = id
+
+        return radio_set
     
 def get_remote_state(data):
     """
@@ -167,6 +171,32 @@ def set_component_value(element, field_name, value):
     return element
 
 def update_component_values(rec, updates):
+    """Updates multiple component values in a deployment record from a dictionary.
+
+    This function iterates through the 'components' list of a given record.
+    For each component, it checks if its 'field' name exists as a key in the
+    'updates' dictionary. If it does, the component's 'value' is updated
+    with the corresponding value from the 'updates' dictionary.
+
+    The modification is done in-place on the 'rec' dictionary.
+
+    Args:
+        rec (dict): The deployment record dictionary to update. It is expected
+            to have a 'components' key containing a list of component dicts.
+        updates (dict): A dictionary where keys are the 'field' names to
+            update and values are the new values.
+
+    Returns:
+        dict: The modified deployment record dictionary.
+
+    Usage Example:
+        rec = {
+            'components': [{'field': 'user', 'value': 'old_user'}]
+        }
+        updates = {'user': 'new_user'}
+        updated_rec = update_component_values(rec, updates)
+        # updated_rec['components'][0]['value'] is now 'new_user'
+    """
     for component in rec.get(COMPONENTS_FIELD, []):
         field = component.get(FIELD_FIELD)
         if field in updates:

@@ -149,6 +149,7 @@ Tree {
 /* Health Box */
 
 .health_box {
+    color: #31b8e6;
     height: auto;
     border: round #0c323e;
     padding: 0 1;
@@ -164,6 +165,7 @@ Tree {
 /* Entire Detail Pane */
 
 .pane_box {
+    color: #31b8e6;
     border: round #0c323e;
     padding: 0 1;
     background: black;

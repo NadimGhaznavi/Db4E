@@ -14,12 +14,12 @@ import tempfile
 import subprocess
 import stat
 
+from rich.pretty import Pretty
 from textual.containers import Container
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.Helper import result_row, get_effective_identity, update_component_values
 from db4e.Constants.Fields import (
@@ -56,7 +56,6 @@ class InstallMgr(Container):
     def __init__(self, config: Config):
         super().__init__()
         self.ini = config
-        self.health_mgr = HealthMgr()
         self.ops_mgr = OpsMgr(config=config)
         self.db = DbMgr(config)
         self.col_name = DEPLOYMENT_COL_DEFAULT
@@ -74,15 +73,18 @@ class InstallMgr(Container):
 
         # Check if there's an existing 'db4e' record
         rec = self._get_or_create_db4e_rec()
+        print(f"InstallMgr:initial_setup(): 0 rec: {Pretty(rec)}")
 
         # Intitialize the db4e_rec
         rec = self._init_db4e_rec(rec=rec)
+        print(f"InstallMgr:initial_setup(): 1 rec: {rec}")
 
         # Confirm that the user actually filled out the form.
         rec, abort_install = self._check_form_data(
             user_wallet=user_wallet, vendor_dir=vendor_dir, rec=rec)
         if abort_install:
             return rec
+        print(f"InstallMgr:initial_setup(): 2 rec: {rec}")
         
         # Create the vendor directory
         results, abort_install = self._create_vendor_dir(
@@ -91,8 +93,8 @@ class InstallMgr(Container):
         rec[HEALTH_MSGS_FIELD] += results
         if abort_install:
             return rec
-
-        print(f"InstallMgr:initial_setup(): {rec[HEALTH_MSGS_FIELD]}")
+        
+        print(f"InstallMgr:initial_setup(): 3 rec: {rec}")
         # The 'db4e' record has been created, the user wallet and vendor dir
         # have been set
         self.db.update_one(
@@ -142,16 +144,20 @@ class InstallMgr(Container):
         # Return the results
         return rec
         
+    def _check_wallet(self, user_wallet:str):
+        print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
+
     def _check_form_data(
             self, user_wallet: str, 
             vendor_dir: str, 
             rec: dict):
+        print(f"InstallMgr:_check_form_data(): rec: {rec}")
 
         abort_install = False
         if not user_wallet:
             abort_install = True
         else:
-            rec[USER_WALLET_FIELD] = user_wallet
+            rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
             user_wallet_short = user_wallet[0:6] + '...'
             rec[HEALTH_MSGS_FIELD].append(result_row(
                 USER_WALLET_LABEL, GOOD_FIELD, 
@@ -161,7 +167,7 @@ class InstallMgr(Container):
         if not vendor_dir:
             abort_install = True
         else:
-            rec[VENDOR_DIR_FIELD] = vendor_dir
+            rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
             rec[HEALTH_MSGS_FIELD].append(result_row(
                 VENDOR_DIR_LABEL, GOOD_FIELD, 
                 f"Added deployment directory ({vendor_dir}) to the {DB4E_LABEL} " +
@@ -170,7 +176,7 @@ class InstallMgr(Container):
         if abort_install:
             return rec, abort_install
 
-        self.ops_mgr.update_deployment(rec)
+        self.ops_mgr.update_deployment(form_data=rec)
         return (rec, abort_install)
 
     # Copy Db4E files
@@ -545,10 +551,8 @@ class InstallMgr(Container):
         rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
         if rec:
             results.append(result_row(
-                DB4E_LABEL, WARN_FIELD,
-                f"Found existing {DB4E_LABEL} deployment record"
-            ))
-            print(f"InstallMgr:_get_or_create_db4e_rec(): Found existing rec: {rec}")
+                DB4E_LABEL, GOOD_FIELD,
+                f"Found existing {DB4E_LABEL} deployment record"))   
             rec[HEALTH_MSGS_FIELD] += results
             return rec
         rec = self.db.get_new_rec(rec_type=DB4E_FIELD)
