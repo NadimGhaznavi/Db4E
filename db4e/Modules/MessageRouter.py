@@ -24,7 +24,7 @@ from db4e.Constants.Fields import (
     DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
     NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
-    XMRIG_FIELD, ELEMENT_TYPE_FIELD, GET_REC_FIELD,
+    XMRIG_FIELD, DONATIONS_FIELD, GET_REC_FIELD, ELEMENT_TYPE_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD
 )
 
@@ -67,10 +67,8 @@ class MessageRouter:
                       self.ops_mgr.update_deployment, DB4E_PANE)
 
         # MoneroD = Type: local or remote
-        #self.register
         self.register(PANE_MGR_FIELD, SET_PANE_FIELD, MONEROD_FIELD,
                       self.pane_mgr.set_pane, MONEROD_TYPE_PANE)
-    
 
         # MoneroD - local
         self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_FIELD,
@@ -91,6 +89,10 @@ class MessageRouter:
                       self.ops_mgr.update_deployment, MONEROD_REMOTE_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.depl_mgr.del_deployment, MONEROD_REMOTE_PANE)
+
+        # MoneroD = Type: local or remote
+        self.register(PANE_MGR_FIELD, SET_PANE_FIELD, P2POOL_FIELD,
+                      self.pane_mgr.set_pane, P2POOL_TYPE_PANE)
 
         # P2Pool - local
         self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD,
@@ -119,6 +121,11 @@ class MessageRouter:
                       self.ops_mgr.update_deployment, XMRIG_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, XMRIG_FIELD,
                       self.depl_mgr.del_deployment, XMRIG_PANE)
+        
+        # Donations
+        self.register(PANE_MGR_FIELD, SET_PANE_FIELD, DONATIONS_FIELD,
+                      self.pane_mgr.set_pane, DONATIONS_PANE)
+
 
     def get_handler(self, module: str, method: str, component: str = ""):
         return self.routes.get((module, method, component))

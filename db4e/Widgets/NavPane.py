@@ -32,7 +32,7 @@ from db4e.Constants.Fields import (
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
     MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
-from db4e.Constants.Panes import (MONEROD_TYPE_PANE, P2POOL_TYPE_PANE)
+from db4e.Constants.Panes import (MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE)
 
 # Icon dictionary keys
 CORE = 'CORE'
@@ -164,7 +164,25 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
-                
+            elif NEW_LABEL in leaf_item.label and P2POOL_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{NEW_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                    TO_MODULE_FIELD: PANE_MGR_FIELD,
+                    TO_METHOD_FIELD: SET_PANE_FIELD,
+                    NAME_FIELD: P2POOL_TYPE_PANE,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+            elif DONATIONS_LABEL in leaf_item.label:
+                print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
+                    TO_MODULE_FIELD: PANE_MGR_FIELD,
+                    TO_METHOD_FIELD: SET_PANE_FIELD,
+                    NAME_FIELD: DONATIONS_PANE,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
 
             elif parent_item is None:
                 self.post_message(NavLeafSelected(
