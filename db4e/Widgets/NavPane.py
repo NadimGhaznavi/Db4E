@@ -32,7 +32,8 @@ from db4e.Constants.Fields import (
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
     MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
-from db4e.Constants.Panes import (MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE)
+from db4e.Constants.Panes import (
+    MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE)
 
 # Icon dictionary keys
 CORE = 'CORE'
@@ -132,6 +133,8 @@ class NavPane(Container):
             parent_item: NavItem = event.node.parent.data
             print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
 
+
+            # Initial Setup
             if INITIAL_SETUP_LABEL in leaf_item.label:
                 print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
                 form_data = {
@@ -141,6 +144,7 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
+            # View/Update Db4E Core
             elif DB4E_LABEL in leaf_item.label:
                 print(f"NavPane:on_tree_node_selected(): {DB4E_LABEL}")
                 form_data = {
@@ -150,6 +154,7 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
+            # New Monero (remote) deployment
             elif NEW_LABEL in leaf_item.label and MONEROD_SHORT_LABEL in parent_item.label:
                 print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
@@ -160,6 +165,7 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
+            # New P2Pool (remote) deployment
             elif NEW_LABEL in leaf_item.label and P2POOL_SHORT_LABEL in parent_item.label:
                 print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
@@ -170,16 +176,17 @@ class NavPane(Container):
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
-            elif DONATIONS_LABEL in leaf_item.label:
-                print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
+            # New XMRig deployment
+            elif NEW_LABEL in leaf_item.label and XMRIG_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
-                    ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
-                    TO_MODULE_FIELD: PANE_MGR_FIELD,
-                    TO_METHOD_FIELD: SET_PANE_FIELD,
-                    NAME_FIELD: DONATIONS_PANE,
+                    ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: GET_NEW_REC_FIELD,
                 }
                 self.post_message(SubmitFormData(self, form_data=form_data))
 
+            # View/Update a Monero deployment
             elif MONEROD_SHORT_LABEL in parent_item.label:
                 print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
                 record = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=leaf_item.field)
@@ -199,14 +206,51 @@ class NavPane(Container):
                         INSTANCE_FIELD: leaf_item.field
                     }
                 self.post_message(SubmitFormData(self, form_data=form_data))
-                    
 
-            elif parent_item is None:
-                self.post_message(NavLeafSelected(
-                    self,
-                    parent=DEPLOYMENTS_FIELD,
-                    leaf=leaf_item.field
-                ))
+            # View/Update a P2Pool deployment
+            elif P2POOL_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{leaf_item.label}")
+                record = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=leaf_item.field)
+                remote = get_component_value(record, REMOTE_FIELD)
+                if remote:
+                    form_data = {
+                        ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                        TO_MODULE_FIELD: OPS_MGR_FIELD,
+                        TO_METHOD_FIELD: GET_REC_FIELD,
+                        INSTANCE_FIELD: leaf_item.field
+                    }
+                else:
+                    form_data = {
+                        ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                        TO_MODULE_FIELD: OPS_MGR_FIELD,
+                        TO_METHOD_FIELD: GET_REC_FIELD,
+                        INSTANCE_FIELD: leaf_item.field
+                    }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+            # View/Update a XMRig deployment
+            elif XMRIG_SHORT_LABEL in parent_item.label:
+                print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{leaf_item.label}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: GET_REC_FIELD,
+                    INSTANCE_FIELD: leaf_item.field
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+            # Donations
+            elif DONATIONS_LABEL in leaf_item.label:
+                print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
+                    TO_MODULE_FIELD: PANE_MGR_FIELD,
+                    TO_METHOD_FIELD: SET_PANE_FIELD,
+                    NAME_FIELD: DONATIONS_PANE,
+                }
+                self.post_message(SubmitFormData(self, form_data=form_data))
+
+
             elif isinstance(leaf_item, NavItem) and isinstance(parent_item, NavItem):
                 self.post_message(NavLeafSelected(
                     self,

@@ -105,9 +105,12 @@ class OpsMgr:
             if elem_type == MONEROD_FIELD:
                 rec = self.depl_mgr.get_deployment(elem_type=MONEROD_REMOTE_FIELD, instance=instance)
                 elem_type = MONEROD_REMOTE_FIELD
-            if elem_type == P2POOL_FIELD:
+            elif elem_type == P2POOL_FIELD:
                 rec = self.depl_mgr.get_deployment(elem_type=P2POOL_REMOTE_FIELD, instance=instance)
                 elem_type = P2POOL_REMOTE_FIELD
+            elif elem_type == XMRIG_FIELD:
+                rec = self.depl_mgr.get_deployment(elem_type=XMRIG_FIELD, instance=instance)
+                elem_type = XMRIG_FIELD
         
         print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")        
         if not rec:

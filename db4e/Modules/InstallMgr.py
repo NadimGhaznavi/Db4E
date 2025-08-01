@@ -78,13 +78,12 @@ class InstallMgr(Container):
         rec = self._set_user_group_install_dir(rec=rec)
 
         # 3. Check that the user entered their wallet
-        rec, abort_install = self._check_wallet(user_wallet=user_wallet, rec=rec)
-        if abort_install:
-            return rec
+        rec, no_wallet = self._check_wallet(user_wallet=user_wallet, rec=rec)
 
         # 4. Check that the user entered a vendor directory
-        rec, abort_install = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
-        if abort_install:
+        rec, no_vendor_dir = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
+
+        if no_wallet or no_vendor_dir:
             return rec
         
         # Create the vendor directory
@@ -94,7 +93,6 @@ class InstallMgr(Container):
         if abort_install:
             return rec
         
-        print(f"InstallMgr:initial_setup(): 3 rec: {rec}")
         # The 'db4e' record has been created, the user wallet and vendor dir
         # have been set
         self.db.update_one(
@@ -126,20 +124,20 @@ class InstallMgr(Container):
         self._generate_p2pool_service_files(vendor_dir=vendor_dir)
 
         # Copy in the P2Pool daemon and start script
-        results += self._copy_p2pool_files(vendor_dir=vendor_dir, results=results)
+        results += self._copy_p2pool_files(vendor_dir=vendor_dir)
 
         # Create the XMRig miner vendor directories
-        self._create_xmrig_dirs(vendor_dir=vendor_dir)
+        results += self._create_xmrig_dirs(vendor_dir=vendor_dir)
 
         # Generate the XMRig service file (installed by the sudo installer)
         self._generate_xmrig_service_file(vendor_dir=vendor_dir)
 
         # Copy in the XMRig miner
-        results += self._copy_xmrig_file(vendor_dir=vendor_dir, results=results)
+        results += self._copy_xmrig_file(vendor_dir=vendor_dir)
 
         # Run the installer (with sudo)
         results += self._run_sudo_installer(
-            vendor_dir=vendor_dir, results=results, db4e_rec=rec)
+            vendor_dir=vendor_dir, db4e_rec=rec)
 
         # Return the results
         rec[HEALTH_MSGS_FIELD] += results
@@ -224,7 +222,7 @@ class InstallMgr(Container):
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
         results.append(result_row(
             MONEROD_LABEL, GOOD_FIELD,
-            f"Installed: {fq_dst_monerod_dest_script}"))
+            f"Installed: {fq_dst_bin_dir}/{monerod_binary}"))
         fq_src_monerod_start_script = os.path.join(
             tmpl_dir, monerod_dir, bin_dir, monerod_start_script)
 
@@ -239,7 +237,8 @@ class InstallMgr(Container):
         os.chmod(fq_dst_monerod_dest_script, new_permissions)
         return results
 
-    def _copy_p2pool_files(self, vendor_dir, results):
+    def _copy_p2pool_files(self, vendor_dir):
+        results = []
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         p2pool_binary = self.ini.config[P2POOL_FIELD][PROCESS_FIELD]
         p2pool_start_script  = self.ini.config[P2POOL_FIELD][START_SCRIPT_FIELD]
@@ -267,7 +266,8 @@ class InstallMgr(Container):
             f"Installed: {fq_dst_p2pool_start_script}"))
         return results
 
-    def _copy_xmrig_file(self, vendor_dir, results):
+    def _copy_xmrig_file(self, vendor_dir):
+        results = []
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         xmrig_binary = self.ini.config[XMRIG_FIELD][PROCESS_FIELD]
         # XMRig directory
@@ -421,16 +421,28 @@ class InstallMgr(Container):
 
 
     def _create_xmrig_dirs(self, vendor_dir):
+        results = []
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         conf_dir = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
         xmrig_version = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
         xmrig_with_version = XMRIG_FIELD + '-' + str(xmrig_version)
         fq_xmrig_dir = os.path.join(vendor_dir, xmrig_with_version)
         os.mkdir(os.path.join(fq_xmrig_dir))
+        results.append(result_row(
+            XMRIG_LABEL, GOOD_FIELD,
+            f"Created directory: {fq_xmrig_dir}"))
         for sub_dir in [bin_dir, conf_dir]:
-            os.mkdir(os.path.join(fq_xmrig_dir, sub_dir))
+            fq_sub_dir = os.path.join(fq_xmrig_dir, sub_dir)
+            os.mkdir(fq_sub_dir)
+            results.append(result_row(
+                XMRIG_LABEL, GOOD_FIELD,
+                f"Created directory: {fq_sub_dir}"))
         os.chdir(vendor_dir)
         os.symlink(xmrig_with_version, XMRIG_FIELD)
+        results.append(result_row(
+            XMRIG_LABEL, GOOD_FIELD,
+            f"Created symlink to directory: {XMRIG_FIELD} > {xmrig_with_version}"))
+        return results
 
     # Update the db4e service template with deployment values
     def _generate_db4e_service_file(self, vendor_dir):
@@ -589,8 +601,9 @@ class InstallMgr(Container):
             content = content.replace(f'[[{key}]]', str(val))
         return content
 
-    def _run_sudo_installer(self, vendor_dir, db4e_rec, results):
+    def _run_sudo_installer(self, vendor_dir, db4e_rec):
         print(f"InstallMgr:_run_sudo_installer()")
+        results = []
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         # Use the effective UID/GID for the Db4E user/group
         effective_id = get_effective_identity()

@@ -127,7 +127,10 @@ class XMRig(Container):
         self.config_static.update(get_component_value(rec, CONFIG_FIELD))
 
         self.instance_map = rec[RADIO_MAP_FIELD]
-        self.p2pool_instance = rec[PARENT_INSTANCE_FIELD]  # Save it to use during watch
+        if PARENT_INSTANCE_FIELD in rec:
+            self.p2pool_instance = rec[PARENT_INSTANCE_FIELD]  # Save it to use during watch
+        else:
+            self.p2pool_instance = ""
 
         # Trigger RadioButton recreation via reactive update
         self.radio_button_list = list(self.instance_map.keys())
