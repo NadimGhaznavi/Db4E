@@ -157,6 +157,9 @@ class DeploymentMgr(Container):
         if RADIO_MAP_FIELD in rec:
             rec.pop(RADIO_MAP_FIELD)
 
+        # Generate a config file
+        rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
+
         if update:
             self.db.insert_one(self.col_name, rec)
         return rec

@@ -90,7 +90,7 @@ class OpsMgr:
                 db_rec = set_component_value(db_rec, PARENT_ID_FIELD, rec[PARENT_ID_FIELD])
                 parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
             rec = self.depl_mgr.add_deployment(db_rec)
-            #rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
+            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
             return rec
         
@@ -112,6 +112,7 @@ class OpsMgr:
             elif elem_type == XMRIG_FIELD:
                 rec = self.depl_mgr.get_deployment(elem_type=XMRIG_FIELD, instance=instance)
                 elem_type = XMRIG_FIELD
+
         
         if not rec:
             return {}

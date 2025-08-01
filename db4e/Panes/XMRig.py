@@ -143,6 +143,8 @@ class XMRig(Container):
             p2pool_instance = None
             if is_radiobutton:
                 p2pool_instance = radio_set.pressed_button.label
+                self.p2pool_id = self.instance_map[p2pool_instance]
+
             if self.orig_instance:
                 form_data = {
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
