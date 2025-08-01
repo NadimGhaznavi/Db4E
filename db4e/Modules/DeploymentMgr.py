@@ -16,7 +16,7 @@ from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
     result_row, is_valid_ip_or_hostname, get_component_value, set_component_value,
-    gen_radio_set)
+    gen_radio_map)
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
@@ -50,8 +50,6 @@ class DeploymentMgr(Container):
 
     def add_deployment(self, rec):
         print(f"DeploymentMgr:add_deployment(): {rec}")
-        results = []
-        fatal_error = False
         elem_type = rec[ELEMENT_TYPE_FIELD]
 
         # Add the Db4E Core deployment
@@ -194,9 +192,9 @@ class DeploymentMgr(Container):
         return (update_flag, results)
 
     def del_deployment(self, rec_data):
-        print(f"DeploymentMgr:del_deployment(): {rec_data}")
         elem_type = rec_data[ELEMENT_TYPE_FIELD]
         instance = rec_data[INSTANCE_FIELD]
+        print(f"DeploymentMgr:del_deployment(): {elem_type}/{instance}")
 
         self.db.delete_one(
             col_name=self.col_name,
@@ -212,8 +210,7 @@ class DeploymentMgr(Container):
         )
         rec = self.db.get_new_rec(elem_type)
         if elem_type == XMRIG_FIELD:
-            rec[RADIO_MAP_FIELD] = gen_radio_set(rec=rec, depl_mgr=self)
-            rec[P2POOL_INSTANCE] = ""
+            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self)
         return rec
 
         
@@ -256,11 +253,14 @@ class DeploymentMgr(Container):
         db_recs = self.db.find_many(
             self.col_name, {ELEMENT_TYPE_FIELD: elem_type})
         result_list = []
-        for db_rec in db_recs:
-            print(f"DeploymentMgr:get_deployment_ids_and_instances(): {db_rec}")
+        instance_list = []
+        for db_rec in db_recs:            
             instance = get_component_value(db_rec, INSTANCE_FIELD)
+            instance_list.append(instance)
             result_list.append((instance, db_rec[ID_FIELD]))
         result_list.sort()
+        instance_list.sort()
+        print(f"DeploymentMgr:get_deployment_ids_and_instances(): {instance_list}")
         return result_list or []
 
     def get_deployments(self, component=None) -> list[dict]:
@@ -538,66 +538,66 @@ class DeploymentMgr(Container):
         print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return (update_flag, results)
 
-    def update_xmrig_deployment(self, rec):
-        results = []
-        update_flag = False
-        update_config_flag = False
+    def update_xmrig_deployment(self, data):
+        print(f"DeploymentMgr:update_xmrig_deployment(): {data}")
+        update = False
+        update_config = False
 
-        # Strip frontend metadata
-        rec.pop(TO_MODULE_FIELD, None)
-        rec.pop(TO_METHOD_FIELD, None)
+        if FORM_DATA_FIELD in data:
+            form_data = data
+            db_rec = self.get_deployment(XMRIG_FIELD, form_data[ORIG_INSTANCE_FIELD])
 
-        # Required field
-        orig_instance = rec[ORIG_INSTANCE_FIELD]
-        orig_rec = self.get_deployment(XMRIG_FIELD, orig_instance)
+            ## Field-by-field comparison
+            # Instance
+            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
+            form_instance = form_data[INSTANCE_FIELD]
+            if form_instance != form_orig_instance:
+                update = True
+                update_config = True
+                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)
 
-        # Compare + apply updates
-        if rec[INSTANCE_FIELD] != orig_rec[INSTANCE_FIELD]:
-            update_flag = True
-            update_config_flag = True
-            results.append(result_row(
-                INSTANCE_LABEL, GOOD_FIELD,
-                f"Updated {INSTANCE_LABEL} in {XMRIG_LABEL} deployment record"
-            ))
+            # Num Threads
+            form_num_threads = form_data[NUM_THREADS_FIELD]
+            db_num_threads = get_component_value(db_rec, NUM_THREADS_FIELD)
+            if form_num_threads != db_num_threads:
+                update = True
+                update_config = True
+                db_rec = set_component_value(db_rec, NUM_THREADS_FIELD, form_num_threads)
 
-        if rec[NUM_THREADS_FIELD] != orig_rec[NUM_THREADS_FIELD]:
-            update_flag = True
-            update_config_flag = True
-            results.append(result_row(
-                NUM_THREADS_LABEL, GOOD_FIELD,
-                f"Updated {NUM_THREADS_LABEL} in {XMRIG_LABEL} deployment record"
-            ))
+            # Parent ID
+            form_parent_id = form_data[PARENT_ID_FIELD]
+            db_parent_id = get_component_value(db_rec, PARENT_ID_FIELD)
+            if form_parent_id != db_parent_id:
+                update = True
+                update_config = True
+                db_rec = set_component_value(db_rec, PARENT_ID_FIELD, form_parent_id)
 
-        if rec[PARENT_ID_FIELD] != orig_rec[PARENT_ID_FIELD]:
-            update_flag = True
-            update_config_flag = True
-            results.append(result_row(
-                P2POOL_LABEL, GOOD_FIELD,
-                f"Updated {P2POOL_LABEL} in {XMRIG_LABEL} deployment record"
-            ))
-            rec[PARENT_ID_FIELD] = rec[PARENT_ID_FIELD]
+            # Regenerate config if required
+            if update_config:
+                config_file = get_component_value(db_rec, CONFIG_FIELD)
+                if config_file:
+                    db_rec[HEALTH_MSGS_FIELD] += self.conf_mgr.del_config(config_file=config_file)
+                db_rec = self.conf_mgr.gen_xmrig_config(rec=db_rec, depl_mgr=self)
 
-        # Regenerate config if required
-        if update_config_flag:
-            results = self.conf_mgr.del_config(
-                config_file=rec[CONFIG_FIELD], results=results)
-            results, conf_file = self.conf_mgr.gen_xmrig_config(
-                rec=rec, depl_mgr=self, results=results)
-            rec[CONFIG_FIELD] = conf_file
-
-        rec[HEALTH_MSGS_FIELD] += results
-        rec.pop(ORIG_INSTANCE_FIELD)
-
-        if update_flag:
-            self.db.update_one(
-                col_name=self.col_name,
-                filter={COMPONENT_FIELD: XMRIG_FIELD, INSTANCE_FIELD: orig_instance},
-                new_values=rec
-            )
+            if update:
+                self.db.update_one(
+                    col_name=self.col_name,
+                    filter = {
+                        ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                        COMPONENTS_FIELD: {
+                            "$elemMatch": {
+                                FIELD_FIELD: INSTANCE_FIELD,
+                                VALUE_FIELD: form_orig_instance
+                            }
+                        }
+                    },
+                    new_values=db_rec,
+                )
+            else:
+                db_rec[HEALTH_MSGS_FIELD] += result_row(
+                    XMRIG_LABEL, WARN_FIELD,
+                    f"{form_orig_instance} – Nothing to update"
+                )
+            return db_rec
         else:
-            rec[HEALTH_MSGS_FIELD] += result_row(
-                XMRIG_LABEL, WARN_FIELD,
-                f"{orig_instance} – Nothing to update"
-            )
-        return rec
-      
+            raise ValueError("DeploymentMgr:update_xmrig_deployment(): Missing FORM_DATA_FIELD")

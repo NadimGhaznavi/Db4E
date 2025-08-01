@@ -11,7 +11,7 @@ db4e/Modules/ConfigManager.py
 import os, sys
 import argparse
 
-from db4e.Modules.Helper import result_row
+from db4e.Modules.Helper import result_row, get_component_value, update_component_values
 from db4e.Constants.Defaults import (
     API_DIR_DEFAULT, BACKUP_DIR_DEFAULT, BACKUP_SCRIPT_DEFAULT, BIN_DIR_DEFAULT,
     BLOCKCHAIN_DIR_DEFAULT, CONF_DIR_DEFAULT, DB4E_DIR_DEFAULT,
@@ -50,7 +50,7 @@ from db4e.Constants.Fields import (
     SERVICE_LOG_FILE_FIELD, SERVICE_UNINSTALL_SCRIPT_FIELD, SOCKET_FILE_FIELD,
     SRC_DIR_FIELD, START_SCRIPT_FIELD, STRATUM_PORT_FIELD, STDIN_PIPE_FIELD,
     SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD,
-    WARN_FIELD, XMRIG_FIELD, TEMPLATES_COLLECTION_FIELD
+    WARN_FIELD, XMRIG_FIELD, TEMPLATES_COLLECTION_FIELD, HEALTH_MSGS_FIELD
 )
 from db4e.Constants.Labels import (
     DB4E_LONG_LABEL, MONEROD_LABEL, P2POOL_LABEL, XMRIG_LABEL)
@@ -80,7 +80,8 @@ class ConfigMgr:
             ini.config[DB4E_FIELD][OP_FIELD] = RUN_UI_FIELD
         self.ini = ini
 
-    def del_config(self, config_file: str, results):
+    def del_config(self, config_file: str):
+        results = []
         try:
             os.remove(config_file)
             results.append(result_row(
@@ -94,11 +95,13 @@ class ConfigMgr:
             ))
         return results
 
-    def gen_xmrig_config(self, rec: dict, depl_mgr, results):
+    def gen_xmrig_config(self, rec: dict, depl_mgr):
         # Generate a XMRig configuration file
-        instance = rec[INSTANCE_FIELD]
-        num_threads = rec[NUM_THREADS_FIELD]
-        p2pool_id = rec[PARENT_ID_FIELD]
+        results = []
+        instance = get_component_value(rec, INSTANCE_FIELD)
+        num_threads = get_component_value(rec, NUM_THREADS_FIELD)
+        p2pool_id = get_component_value(rec, PARENT_ID_FIELD)
+        print(f"ConfigMgr:gen_xmrig_config(): p2pool_id: {p2pool_id}")
 
         conf_dir        = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
         tmpl_dir        = self.ini.config[DB4E_FIELD][TEMPLATE_DIR_FIELD]
@@ -106,16 +109,19 @@ class ConfigMgr:
         version         = self.ini.config[XMRIG_FIELD][VERSION_FIELD]
 
         xmrig_dir = XMRIG_FIELD + '-' + str(version)
-        db4e_rec = depl_mgr.get_deployment(component=DB4E_FIELD)
-        db4e_dir = db4e_rec[INSTALL_DIR_FIELD]
-        vendor_dir = db4e_rec[VENDOR_DIR_FIELD]
+        db4e_rec = depl_mgr.get_deployment(elem_type=DB4E_FIELD)
+        db4e_dir = get_component_value(db4e_rec, INSTALL_DIR_FIELD)
+        vendor_dir = get_component_value(db4e_rec, VENDOR_DIR_FIELD)
 
         tmpl_config = os.path.join(db4e_dir, tmpl_dir, xmrig_dir, conf_dir, config)
         fq_config = os.path.join(vendor_dir, xmrig_dir, conf_dir, instance + '.json')
 
         # The XMRig deploymet has references to the upstream P2Pool deployment
         p2pool_rec = depl_mgr.get_deployment_by_id(p2pool_id)
-        url_entry = p2pool_rec[IP_ADDR_FIELD] + ':' + str(p2pool_rec[STRATUM_PORT_FIELD])
+        print(f"ConfigMgr:gen_xmrig_config(): p2pool_rec: {p2pool_rec}")
+        p2pool_ip = get_component_value(p2pool_rec, IP_ADDR_FIELD)
+        stratum_port = get_component_value(p2pool_rec, STRATUM_PORT_FIELD)
+        url_entry = p2pool_ip + ':' + str(stratum_port)
 
         # Populate the config templace placeholders
         placeholders = {
@@ -133,7 +139,9 @@ class ConfigMgr:
             XMRIG_FIELD, GOOD_FIELD,
             f"Created config file: {fq_config}"
         ))
-        return (results, fq_config)
+        rec[HEALTH_MSGS_FIELD] += results
+        rec = update_component_values(rec=rec, updates={CONFIG_FIELD: fq_config})
+        return rec
 
     def get_config(self):
         return self.ini

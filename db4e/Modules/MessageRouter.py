@@ -17,7 +17,6 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.Helper import get_component_value
 
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
@@ -136,12 +135,15 @@ class MessageRouter:
     def get_pane(self, module: str, method: str, component: str = ""):
         return self._panes.get((module, method, component))
 
-    def dispatch(self, db4e_module: str, method: str = None, payload: dict = None):
-        print(f"MessageRouter:dispatch(): module: {db4e_module}, method: {method}, payload: {payload}")
+    def dispatch(self, some_module: str, some_method: str = None, payload: dict = None):
+        print(f"MessageRouter:dispatch(): " \
+              f"module: {some_module}, method: {some_method}, payload: {payload}")
         elem_type = payload.get(ELEMENT_TYPE_FIELD, "")
-        handler = self.get_handler(db4e_module, method, elem_type)
+        handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:
-            raise ValueError(f"MessageRouter:dispatch():No handler for: module: {db4e_module}, method: {method}, elem_type: {elem_type}")
+            raise ValueError(
+                f"MessageRouter:dispatch():No handler for: module: {some_module}, " \
+                f"method: {some_method}, elem_type: {elem_type}")
 
         callback, pane = handler
         result = callback(payload)

@@ -31,27 +31,6 @@ class Status:
     WARNING = WARN_FIELD
     PENDING = PENDING_FIELD
 
-def gen_results_table(results):
-    #print(f"Helper:gen_results_table(): Results list:")
-    if not results:
-        return ""
-    
-    table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
-    table.add_column("Component", width=25)
-    table.add_column("Message")
-
-    for item in results:
-        #print(item)
-        for category, msg_dict in item.items():
-            message = msg_dict["msg"]
-            if msg_dict["status"] == "good":
-                table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict["status"] == "warn":
-                table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict["status"] == "error":
-                table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
-    print(f"Helper:gen_results_table(): Results table:")
-    return table
 
 def get_component_value(data, field_name):
     """
@@ -75,6 +54,7 @@ def get_component_value(data, field_name):
     
     return None
 
+
 def get_effective_identity():
     """Return the effective user and group for the account running Db3e"""
     # User account
@@ -85,26 +65,7 @@ def get_effective_identity():
     group = group_entry.gr_name
     return { USER_FIELD: user, GROUP_FIELD: group }
 
-def result_row(label: str, status: str, msg:str ):
-    """Return a standardized result dict for display in Results pane."""
-    assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
-    return {label: {'status': status, 'msg': msg}}
 
-def gen_radio_set(rec, depl_mgr):
-    elem_type = rec[ELEMENT_TYPE_FIELD]
-    
-    if elem_type == XMRIG_FIELD:
-        local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-        remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-        instances = local_instances + remote_instances
-        instances.sort()
-        
-        radio_set = {}
-        for (instance, id) in instances:
-            radio_set[instance] = id
-
-        return radio_set
-    
 def get_remote_state(data):
     """
     Parse out the remote state from a data structure.
@@ -127,6 +88,45 @@ def get_remote_state(data):
     return None
 
 
+def gen_radio_map(rec, depl_mgr):
+    elem_type = rec[ELEMENT_TYPE_FIELD]
+    
+    if elem_type == XMRIG_FIELD:
+        local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
+        remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
+        instances = local_instances + remote_instances
+        instances.sort()
+        
+        radio_set = {}
+        for (instance, id) in instances:
+            radio_set[instance] = id
+
+        return radio_set
+    
+
+def gen_results_table(results):
+    #print(f"Helper:gen_results_table(): Results list:")
+    if not results:
+        return ""
+    
+    table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
+    table.add_column("Component", width=25)
+    table.add_column("Message")
+
+    for item in results:
+        #print(item)
+        for category, msg_dict in item.items():
+            message = msg_dict["msg"]
+            if msg_dict["status"] == "good":
+                table.add_row(f"✅ [bold]{category}[/]", f"{message}")
+            elif msg_dict["status"] == "warn":
+                table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+            elif msg_dict["status"] == "error":
+                table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
+    print(f"Helper:gen_results_table(): Results table:")
+    return table
+
+
 def is_port_open(ip_addr, port_num):
     #print(f"Helper:is_port_open(): {ip_addr}/{port_num}")
     if not is_valid_ip_or_hostname(ip_addr):
@@ -139,12 +139,20 @@ def is_port_open(ip_addr, port_num):
     except socket.gaierror:
         return False  # Handle cases like invalid hostname
     
+
 def is_valid_ip_or_hostname(host: str) -> str:
     try:
         socket.getaddrinfo(host, None)  # works for IPv4/IPv6
         return True
     except socket.gaierror:
         return False
+    
+
+def result_row(label: str, status: str, msg:str ):
+    """Return a standardized result dict for display in Results pane."""
+    assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
+    return {label: {'status': status, 'msg': msg}}
+
 
 def set_component_value(element, field_name, value):
     """
@@ -169,6 +177,7 @@ def set_component_value(element, field_name, value):
             return element
             
     return element
+
 
 def update_component_values(rec, updates):
     """Updates multiple component values in a deployment record from a dictionary.

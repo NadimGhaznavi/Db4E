@@ -24,7 +24,7 @@ from db4e.Constants.Fields import (
     FORM_3_FIELD, FORM_INPUT_15_FIELD, FORM_INPUT_7_FIELD, FORM_INTRO_FIELD,
     FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD,
     INSTANCE_FIELD, NEW_BUTTON_FIELD, NUM_THREADS_FIELD, OPS_MGR_FIELD,
-    ORIG_INSTANCE_FIELD, P2POOL_INSTANCE, PANE_BOX_FIELD, PARENT_ID_FIELD,
+    ORIG_INSTANCE_FIELD, FORM_DATA_FIELD, PANE_BOX_FIELD, PARENT_ID_FIELD,
     RADIO_BUTTON_TYPE_FIELD, RADIO_MAP_FIELD, RADIO_SET_FIELD, RED_BUTTON_FIELD,
     REMOTE_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
     UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD,
@@ -64,7 +64,6 @@ class XMRig(Container):
     radio_button_list = reactive(list, always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
 
-    p2pool_instance = ""
     instance_map = {}
     config_static = Label("", id="config_static", classes=STATIC_CONTENT_FIELD)
     instance_input = Input(
@@ -120,17 +119,16 @@ class XMRig(Container):
         return False
 
     def set_data(self, rec):
-        print(f"XMRig:set_data(): {rec}")
+        #print(f"XMRig:set_data(): {rec}")
         self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
         self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
         self.num_threads_input.value = str(get_component_value(rec, NUM_THREADS_FIELD))
         self.config_static.update(get_component_value(rec, CONFIG_FIELD))
 
         self.instance_map = rec[RADIO_MAP_FIELD]
-        if PARENT_INSTANCE_FIELD in rec:
-            self.p2pool_instance = rec[PARENT_INSTANCE_FIELD]  # Save it to use during watch
-        else:
-            self.p2pool_instance = ""
+        self.p2pool_id = get_component_value(rec, PARENT_ID_FIELD)
+
+        print(f"XMRig:set_data(): radio_map: {rec[RADIO_MAP_FIELD]}, p2pool_id: {self.p2pool_id}")
 
         # Trigger RadioButton recreation via reactive update
         self.radio_button_list = list(self.instance_map.keys())
@@ -145,15 +143,15 @@ class XMRig(Container):
             p2pool_instance = None
             if is_radiobutton:
                 p2pool_instance = radio_set.pressed_button.label
-            p2pool_id = self.get_p2pool_id(p2pool_instance)
             if self.orig_instance:
                 form_data = {
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                     TO_MODULE_FIELD: OPS_MGR_FIELD,
                     TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
                     REMOTE_FIELD: False,
+                    FORM_DATA_FIELD: True,
                     ORIG_INSTANCE_FIELD: self.orig_instance,
-                    PARENT_ID_FIELD : p2pool_id,
+                    PARENT_ID_FIELD : self.p2pool_id,
                     INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
                     NUM_THREADS_FIELD: self.query_one("#num_threads_input", Input).value,
                 }
@@ -162,8 +160,9 @@ class XMRig(Container):
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                     TO_MODULE_FIELD: OPS_MGR_FIELD,
                     TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                    FORM_DATA_FIELD: True,
                     REMOTE_FIELD: False,
-                    PARENT_ID_FIELD : p2pool_id,
+                    PARENT_ID_FIELD : self.p2pool_id,
                     INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
                     NUM_THREADS_FIELD: self.query_one("#num_threads_input", Input).value,
                 }
@@ -179,17 +178,13 @@ class XMRig(Container):
         self.app.post_message(RefreshNavPane(self))
 
     def watch_radio_button_list(self, old, new):
+        print("XMRig:watch_radio_button_list():")
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.instance_map.keys():
-            if instance == self.p2pool_instance:
-                radio_button = RadioButton(
-                    instance, 
-                    classes=RADIO_BUTTON_TYPE_FIELD,
-                    value=True
-                )
+            if self.p2pool_id == self.instance_map[instance]:
+                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
+                radio_button.value = True
             else:
-                radio_button = RadioButton(
-                    instance, 
-                    classes=RADIO_BUTTON_TYPE_FIELD)
+                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
             self.radio_set.mount(radio_button)

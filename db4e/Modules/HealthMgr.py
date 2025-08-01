@@ -47,11 +47,11 @@ class HealthMgr:
             raise ValueError(f"HealthMgr:check(): No handler for {elem_type}")
 
     def check_db4e(self, rec):
+        #print(f"HealthMgr:check_db4e(): rec: {rec}")
         results = []
         overall_state = GOOD_FIELD
         # Example: check if vendor dir exists
         vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
-        print(f"HealthMgr:check_db4e(): vendor_dir: {vendor_dir}")
         if vendor_dir == "":
             overall_state = ERROR_FIELD
             results.append(result_row(
