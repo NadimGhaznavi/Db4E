@@ -22,7 +22,7 @@ from db4e.Constants.Fields import (
     REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, GREEN_BUTTON_FIELD,
     RADIO_SET_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD
 )
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 
 color = "#9cae41"
 hi = "cyan"
@@ -67,4 +67,4 @@ class MonerodType(Container):
                 ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: False
             }
-        self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(Db4eMsg(self, form_data))

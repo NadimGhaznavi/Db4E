@@ -16,7 +16,7 @@ from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
     result_row, is_valid_ip_or_hostname, get_component_value, set_component_value,
-    gen_radio_map)
+    gen_radio_map, get_effective_identity, update_component_values)
 from db4e.Constants.Fields import *
 from db4e.Constants.Labels import (
     DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
@@ -45,8 +45,9 @@ class DeploymentMgr(Container):
         self.ini = config
         self.conf_mgr = ConfigMgr(app_version='UNUSED')
         self.db = DbMgr(config)
-        self.col_name = DEPLOYMENT_COL_DEFAULT
+        self.depl_col = DEPLOYMENT_COL_DEFAULT
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        self.init_db()
 
     def add_deployment(self, rec):
         print(f"DeploymentMgr:add_deployment(): {rec}")
@@ -54,7 +55,7 @@ class DeploymentMgr(Container):
 
         # Add the Db4E Core deployment
         if elem_type == DB4E_FIELD:
-            return self.add_db4e_deployment(rec)
+            return self.db.insert_one(self.depl_col, rec)
 
         # Add a Monero daemon deployment
         elif elem_type == MONEROD_REMOTE_FIELD:
@@ -71,10 +72,6 @@ class DeploymentMgr(Container):
         # Catchall
         else:
             raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_type}")
-
-    def add_db4e_deployment(self, rec):
-        self.db.insert_one(self.col_name, rec)
-        return rec
 
     def add_monerod_deployment(self, rec):
         print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
@@ -111,7 +108,7 @@ class DeploymentMgr(Container):
             update = False
 
         if update:
-            self.db.insert_one(self.col_name, rec)
+            self.db.insert_one(self.depl_col, rec)
         return rec
 
     def add_remote_p2pool_deployment(self, rec):
@@ -134,7 +131,7 @@ class DeploymentMgr(Container):
             update = False
 
         if update:
-            self.db.insert_one(self.col_name, rec)
+            self.db.insert_one(self.depl_col, rec)
         return rec        
 
     def add_xmrig_deployment(self, rec):
@@ -161,7 +158,7 @@ class DeploymentMgr(Container):
         rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
 
         if update:
-            self.db.insert_one(self.col_name, rec)
+            self.db.insert_one(self.depl_col, rec)
         return rec
 
     def create_vendor_dir(self, new_dir: str, results: list):
@@ -200,7 +197,7 @@ class DeploymentMgr(Container):
         print(f"DeploymentMgr:del_deployment(): {elem_type}/{instance}")
 
         self.db.delete_one(
-            col_name=self.col_name,
+            col_name=self.depl_col,
                 filter = {
                     ELEMENT_TYPE_FIELD: elem_type,
                     COMPONENTS_FIELD: {
@@ -221,7 +218,7 @@ class DeploymentMgr(Container):
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
-            db_rec = self.db.find_one(self.col_name, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
+            db_rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
             # rec is a cursor object.
             if db_rec:
                 return db_rec
@@ -229,7 +226,7 @@ class DeploymentMgr(Container):
                 return {}
         else:
             rec = self.db.find_one(
-                col_name = self.col_name, 
+                col_name = self.depl_col, 
 
                 filter = {
                     ELEMENT_TYPE_FIELD: elem_type,
@@ -250,11 +247,11 @@ class DeploymentMgr(Container):
         # No record for this deployment exists
 
     def get_deployment_by_id(self, id):
-        return self.db.find_one(col_name=self.col_name, filter={'_id': id})
+        return self.db.find_one(col_name=self.depl_col, filter={'_id': id})
 
     def get_deployment_ids_and_instances(self, elem_type):
         db_recs = self.db.find_many(
-            self.col_name, {ELEMENT_TYPE_FIELD: elem_type})
+            self.depl_col, {ELEMENT_TYPE_FIELD: elem_type})
         result_list = []
         instance_list = []
         for db_rec in db_recs:            
@@ -270,12 +267,31 @@ class DeploymentMgr(Container):
         query = {}
         if component is not None:
             query[COMPONENT_FIELD] = component
-        results = self.db.find_many(self.col_name, query)
+        results = self.db.find_many(self.depl_col, query)
         #print(f"DeploymentMgr:get_deployments(): {results}")
         return results
+    
+    def init_db(self):
+        existing_rec = self.get_deployment(DB4E_FIELD)
+        if existing_rec:
+            return existing_rec
+        
+        rec = self.db.get_new_rec(DB4E_FIELD)
+        # Use the effective UID/GID for the Db4E user/group
+        effective_id = get_effective_identity()
+        user = effective_id[USER_FIELD]
+        group = effective_id[GROUP_FIELD]
+        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        rec = update_component_values(rec, {
+            USER_FIELD: user,
+            GROUP_FIELD: group,
+            INSTALL_DIR_FIELD: db4e_install_dir})
+        self.db.insert_one(self.depl_col, rec)
+        return rec
+
         
     def is_initialized(self):
-        rec = self.db.find_one(self.col_name, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
+        rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
         if rec:
             vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
             user_wallet = get_component_value(rec, USER_WALLET_FIELD)
@@ -287,68 +303,70 @@ class DeploymentMgr(Container):
             return False
 
     def update_deployment(self, rec):
-        component = rec[COMPONENT_FIELD]
-        if component == DB4E_FIELD:
+        elem_type = rec[ELEMENT_TYPE_FIELD]
+        if elem_type == DB4E_FIELD:
             return self.update_db4e_deployment(rec=rec)
-        elif component == MONEROD_FIELD:
+        elif elem_type == MONEROD_FIELD:
             return self.update_monerod_deployment(rec=rec)
-        elif component == P2POOL_FIELD:
+        elif elem_type == P2POOL_FIELD:
             return self.update_p2pool_deployment(rec=rec)
-        elif component == XMRIG_FIELD:
+        elif elem_type == XMRIG_FIELD:
             return self.update_xmrig_deployment(rec=rec)
 
-    def update_db4e_deployment(self, rec):
-        results = []
-        update_flag = False
-        filter = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
-        orig_rec = self.get_deployment(DB4E_FIELD)
+    def update_db4e_deployment(self, form_data):
+        query_filter = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
 
-        if FORM_DATA_FIELD in rec:
-            # Remove frontend-only fields
-            rec.pop(FORM_DATA_FIELD, None)
-            rec.pop(TO_MODULE_FIELD, None)
-            rec.pop(TO_METHOD_FIELD, None)
+        if FORM_DATA_FIELD in form_data:
+            form_wallet = form_data[USER_WALLET_FIELD]
+            form_vendor_dir = form_data[VENDOR_DIR_FIELD]
+        else:
+            form_wallet = get_component_value(form_data, USER_WALLET_FIELD)
+            form_vendor_dir = get_component_value(form_data, VENDOR_DIR_FIELD)
+        
+        results = []
+        update_flag = True
+        rec = self.get_deployment(DB4E_FIELD)
+        orig_user_wallet = get_component_value(rec, USER_WALLET_FIELD)
+        orig_vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
+
+        if FORM_DATA_FIELD in form_data:
 
             ## Track field changes
             
             # Updating user wallet
-            if rec[USER_WALLET_FIELD] != orig_rec[USER_WALLET_FIELD]:
-                update_flag = True
-                results.append(result_row(
-                    f"[bold]{USER_WALLET_LABEL}[/]", GOOD_FIELD,
-                    f"Updated {USER_WALLET_LABEL} ({orig_rec[USER_WALLET_FIELD][6:]}... > " \
-                    f"{rec[USER_WALLET_FIELD][6:]}...) in {DB4E_LABEL} deployment record"
-                ))
+            if orig_user_wallet != form_wallet:
+                rec = set_component_value(rec, USER_WALLET_FIELD, form_wallet)
+                self.db.update_one(self.depl_col, query_filter, rec)
+                rec[HEALTH_MSGS_FIELD] += result_row(
+                    USER_WALLET_LABEL, GOOD_FIELD, 
+                    f"Set the Db4E user wallet: {form_wallet}")
 
             # Updating vendor dir
-            if rec[VENDOR_DIR_FIELD] != orig_rec[VENDOR_DIR_FIELD]:
-                update_flag = True
-                if not rec[VENDOR_DIR_FIELD]:
+            if orig_vendor_dir != form_vendor_dir:
+                if not orig_vendor_dir:
                     update_flag, results = self.create_vendor_dir(
-                        new_dir=rec[VENDOR_DIR_FIELD],
+                        new_dir=form_vendor_dir,
                         results=results
                     )
 
                 else:
                     update_flag, results = self.update_vendor_dir(
-                        new_dir=rec[VENDOR_DIR_FIELD],
-                        old_dir=orig_rec[VENDOR_DIR_FIELD],
+                        new_dir=form_vendor_dir,
+                        old_dir=orig_vendor_dir,
                         results=results)
 
+            rec = set_component_value(rec, VENDOR_DIR_FIELD, form_vendor_dir)
             rec[HEALTH_MSGS_FIELD] += results
+
             if update_flag:
-                self.db.update_one(self.col_name, filter, rec)
-            else:
-                results.append(result_row(
-                    DB4E_LABEL, WARN_FIELD,
-                    "Nothing to update"
-                ))
-            print(f"DeploymentMgr:update_db4e_deployment(): results: {results}")
+                self.db.update_one(self.depl_col, query_filter, rec)
+
+            print(f"DeploymentMgr:update_db4e_deployment():")
             return rec
         
         else:
             # If no FORM_DATA_FIELD, treat as direct DB update (system-side, not user form)
-            self.db.update_one(self.col_name, filter, rec)
+            self.db.update_one(self.depl_col, query_filter, rec)
             return rec
 
     def update_deployment(self, rec):
@@ -418,7 +436,7 @@ class DeploymentMgr(Container):
 
             if update:
                 self.db.update_one(
-                    col_name=self.col_name,
+                    col_name=self.depl_col,
                     filter = {
                         ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                         COMPONENTS_FIELD: {
@@ -473,7 +491,7 @@ class DeploymentMgr(Container):
 
             if update:
                 self.db.update_one(
-                    col_name=self.col_name,
+                    col_name=self.depl_col,
                     filter = {
                         ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                         COMPONENTS_FIELD: {
@@ -584,7 +602,7 @@ class DeploymentMgr(Container):
 
             if update:
                 self.db.update_one(
-                    col_name=self.col_name,
+                    col_name=self.depl_col,
                     filter = {
                         ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                         COMPONENTS_FIELD: {

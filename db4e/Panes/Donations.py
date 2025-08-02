@@ -11,7 +11,7 @@ db4e/Panes/Donations.py
 from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Fields import (
     INFO_MSG_FIELD, PANE_BOX_FIELD)
 from db4e.Constants.Labels import (DB4E_LONG_LABEL)
@@ -41,4 +41,4 @@ class Donations(Container):
                     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass
-        # self.app.post_message(SubmitFormData(self, form_data=form_data))
+        # self.app.post_message(Db4eMsg(self, form_data=form_data))

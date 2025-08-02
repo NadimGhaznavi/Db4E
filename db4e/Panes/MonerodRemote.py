@@ -15,7 +15,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Label, MarkdownViewer, Button, Input, Static
 
 from db4e.Modules.Helper import gen_results_table, get_component_value
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, ELEMENT_TYPE_FIELD,
@@ -146,5 +146,5 @@ class MonerodRemote(Container):
             }
         else:
             raise ValueError(f"No handler for {button_id}")
-        self.app.post_message(SubmitFormData(self, form_data=form_data))
+        self.app.post_message(Db4eMsg(self, form_data=form_data))
         self.app.post_message(RefreshNavPane(self))

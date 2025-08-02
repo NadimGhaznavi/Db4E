@@ -47,8 +47,8 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, DB4E_FIELD,
-                      self.ops_mgr.get_new_rec, INITIAL_SETUP_PANE)
+        self.register(PANE_MGR_FIELD, SET_PANE_FIELD, DB4E_FIELD,
+                      self.pane_mgr.set_pane, INITIAL_SETUP_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, DB4E_FIELD,
                       self.ops_mgr.get_deployment, DB4E_PANE)
         self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_FIELD, DB4E_FIELD,

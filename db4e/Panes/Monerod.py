@@ -11,20 +11,12 @@ db4e/Panes/Monerod.py
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, INSTANCE_FIELD, 
-    IP_ADDR_FIELD, LOCAL_FIELD, MONEROD_FIELD, PANE_BOX_FIELD, REMOTE_FIELD, 
-    RPC_BIND_PORT_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, ZMQ_PUB_PORT_FIELD,
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_1_FIELD
-)
-from db4e.Constants.Labels import (
-    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL, 
-    RPC_BIND_PORT_LABEL, ZMQ_PUB_PORT_LABEL
-)
-from db4e.Constants.Defaults import (
-    RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
-)
+    PANE_BOX_FIELD,FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_1_FIELD)
+from db4e.Constants.Labels import MONEROD_LABEL
+from db4e.Constants.Defaults import RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
+
 
 color = "#9cae41"
 hi = "#d7e556"
@@ -68,4 +60,4 @@ class Monerod(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass
-        # self.app.post_message(SubmitFormData(self, form_data=form_data))
+        # self.app.post_message(Db4eMsg(self, form_data=form_data))

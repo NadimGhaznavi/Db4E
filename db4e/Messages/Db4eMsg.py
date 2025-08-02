@@ -13,7 +13,7 @@ Usage example:
 from textual.widget import Widget
 from textual.message import Message
 
-class SubmitFormData(Message):
+class Db4eMsg(Message):
     def __init__(self, sender: Widget, form_data: dict) -> None:
         super().__init__()
         self.form_data = form_data

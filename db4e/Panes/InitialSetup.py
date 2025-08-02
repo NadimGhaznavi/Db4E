@@ -12,7 +12,7 @@ from textual.widgets import Label, Input, Button, Static
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
 from db4e.Modules.Helper import get_effective_identity, gen_results_table
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
@@ -65,11 +65,11 @@ class InitialSetup(Container):
                         Label(INSTALL_DIR_LABEL, classes=FORM_LABEL_FIELD),
                         self.install_dir_static),
                     Horizontal(
-                        Label(VENDOR_DIR_LABEL, classes=FORM_LABEL_FIELD),
-                        self.vendor_dir_input),
-                    Horizontal(
                         Label(USER_WALLET_LABEL,classes=FORM_LABEL_FIELD), 
                         self.user_wallet_input),
+                    Horizontal(
+                        Label(VENDOR_DIR_LABEL, classes=FORM_LABEL_FIELD),
+                        self.vendor_dir_input),
                     classes=FORM_5_FIELD),
 
                 Vertical(
@@ -109,6 +109,6 @@ class InitialSetup(Container):
                 VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
             }
             self.app.post_message(RefreshNavPane(self))
-            self.app.post_message(SubmitFormData(self, form_data))
+            self.app.post_message(Db4eMsg(self, form_data))
         elif button_id == ABORT_BUTTON_FIELD:
             self.app.post_message(Quit(self))

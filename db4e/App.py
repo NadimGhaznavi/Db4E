@@ -38,7 +38,7 @@ from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.MessageRouter import MessageRouter
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.NavLeafSelected import NavLeafSelected
@@ -93,7 +93,7 @@ class Db4EApp(App):
         self.exit()
     
     # Every form sends the form data here
-    def on_submit_form_data(self, message: SubmitFormData) -> None:
+    def on_db4e_msg(self, message: Db4eMsg) -> None:
         data, pane = self.msg_router.dispatch(
             message.form_data[TO_MODULE_FIELD],
             message.form_data[TO_METHOD_FIELD],

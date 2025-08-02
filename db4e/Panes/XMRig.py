@@ -16,10 +16,10 @@ from textual.widgets import (
     Label, Input, Button, RadioSet, RadioButton, Static)
 
 from db4e.Modules.Helper import gen_results_table, get_component_value
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, COMPONENT_FIELD, CONFIG_FIELD,
+    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, CONFIG_FIELD,
     DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_3_FIELD, FORM_INPUT_15_FIELD, FORM_INPUT_7_FIELD, FORM_INTRO_FIELD,
     FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD,
@@ -176,7 +176,7 @@ class XMRig(Container):
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 INSTANCE_FIELD: self.query_one("#instance_input", Input).value,
             }            
-        self.app.post_message(SubmitFormData(self, form_data=form_data))
+        self.app.post_message(Db4eMsg(self, form_data=form_data))
         self.app.post_message(RefreshNavPane(self))
 
     def watch_radio_button_list(self, old, new):

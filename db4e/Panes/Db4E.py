@@ -13,7 +13,7 @@ from textual.widgets import Label, MarkdownViewer, Input, Button, Static
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 
 from db4e.Modules.Helper import gen_results_table, get_component_value
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Fields import (
     BUTTON_ROW_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD,
     FORM_5_FIELD, FORM_DATA_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
@@ -108,5 +108,5 @@ class Db4E(Container):
             USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
             VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
         }
-        self.app.post_message(SubmitFormData(self, form_data=form_data))
+        self.app.post_message(Db4eMsg(self, form_data=form_data))
 

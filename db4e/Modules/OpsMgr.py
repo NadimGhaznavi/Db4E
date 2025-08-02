@@ -14,7 +14,8 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.Helper import (
-    result_row, gen_radio_map, get_component_value, set_component_value)
+    result_row, gen_radio_map, get_component_value, set_component_value, 
+    get_effective_identity, update_component_values)
 from db4e.Constants.Fields import (
     DB4E_FIELD, ERROR_FIELD, HEALTH_MSGS_FIELD,
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD,
@@ -22,7 +23,7 @@ from db4e.Constants.Fields import (
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
     INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD, STRATUM_PORT_FIELD,
     MONEROD_FIELD, P2POOL_REMOTE_FIELD, IP_ADDR_FIELD, RPC_BIND_PORT_FIELD,
-    ZMQ_PUB_PORT_FIELD)
+    ZMQ_PUB_PORT_FIELD, USER_FIELD, GROUP_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
 from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, 
@@ -47,22 +48,19 @@ class OpsMgr:
         print(f"OpsMgr:add_deployment(): {elem_type}")
         existing_rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if existing_rec:
-            if elem_type != DB4E_FIELD:
-                results.append(result_row(
-                    OPS_MGR_LABEL, ERROR_FIELD,
-                    f"A deployment record with that instance name already exists"
-                ))
-                rec[HEALTH_MSGS_FIELD] = results
+            results.append(result_row(
+                OPS_MGR_LABEL, ERROR_FIELD,
+                f"A deployment record with that instance name already exists"
+            ))
+            rec[HEALTH_MSGS_FIELD] = results
             return rec
         
         # TODO Make sure the remote monerod and monerod records don't share an instance name.
         # TODO Same for p2pool.
 
         if elem_type == DB4E_FIELD:
-            rec = self.depl_mgr.add_deployment(rec)
-            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-            return rec
-        
+            raise ValueError(f"OpsMgr:add_deployment(): {elem_type} should already exist")
+
         elif elem_type == MONEROD_REMOTE_FIELD:
             db_rec = self.get_new_rec(MONEROD_REMOTE_FIELD)
             db_rec = set_component_value(db_rec, INSTANCE_FIELD, rec[INSTANCE_FIELD])
@@ -101,24 +99,24 @@ class OpsMgr:
             if INSTANCE_FIELD in elem_type:
                 instance = elem_type[INSTANCE_FIELD]
             elem_type = elem_type[ELEMENT_TYPE_FIELD]
+
         rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
+
         if not rec:
             if elem_type == MONEROD_FIELD:
-                rec = self.depl_mgr.get_deployment(elem_type=MONEROD_REMOTE_FIELD, instance=instance)
+                rec = self.depl_mgr.get_deployment(
+                    elem_type=MONEROD_REMOTE_FIELD, instance=instance)
                 elem_type = MONEROD_REMOTE_FIELD
             elif elem_type == P2POOL_FIELD:
-                rec = self.depl_mgr.get_deployment(elem_type=P2POOL_REMOTE_FIELD, instance=instance)
-                elem_type = P2POOL_REMOTE_FIELD
-            elif elem_type == XMRIG_FIELD:
-                rec = self.depl_mgr.get_deployment(elem_type=XMRIG_FIELD, instance=instance)
-                elem_type = XMRIG_FIELD
-
+                rec = self.depl_mgr.get_deployment(
+                    elem_type=P2POOL_REMOTE_FIELD, instance=instance)
+                elem_type = P2POOL_REMOTE_FIELD        
         
         if not rec:
             return {}
         
-        parent_rec = None
         # XMRig and Local P2Pool deployments have upstream dependencies
+        parent_rec = None
         remote = get_component_value(rec, REMOTE_FIELD)
         parent_id = get_component_value(rec, PARENT_ID_FIELD)
         instance = get_component_value(rec, INSTANCE_FIELD)
@@ -180,10 +178,12 @@ class OpsMgr:
 
         if elem_type == XMRIG_FIELD:
             return self.get_new_xmrig_rec(data)
+        
+        elif elem_type == DB4E_FIELD:
+            return self.get_new_db4e_rec(data)
 
         rec = self.db.get_new_rec(elem_type)
-        return rec
-    
+        return rec    
 
     def get_new_xmrig_rec(self, form_data: dict) -> dict:
         rec = self.db.get_new_rec(XMRIG_FIELD)

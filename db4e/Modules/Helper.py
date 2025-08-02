@@ -31,6 +31,7 @@ class Status:
     WARNING = WARN_FIELD
     PENDING = PENDING_FIELD
 
+error_color = "#935fcf"
 
 def get_component_value(data, field_name):
     """
@@ -122,8 +123,7 @@ def gen_results_table(results):
             elif msg_dict["status"] == "warn":
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
             elif msg_dict["status"] == "error":
-                table.add_row(f"💥 [red]{category}[/]", f"[red]{message}[/]")
-    print(f"Helper:gen_results_table(): Results table:")
+                table.add_row(f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]")
     return table
 
 

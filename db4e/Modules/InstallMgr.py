@@ -23,7 +23,7 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.Helper import result_row, get_effective_identity, update_component_values
 from db4e.Constants.Fields import (
-    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, COMPONENT_FIELD, CONF_DIR_FIELD,
+    BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, ELEMENT_TYPE_FIELD, CONF_DIR_FIELD,
     DB4E_DIR_FIELD, DB4E_FIELD, ENABLE_FIELD, ERROR_FIELD, GOOD_FIELD,
     GROUP_FIELD, INSTALL_DIR_FIELD, INITIAL_SETUP_FIELD, LOG_DIR_FIELD,
     MONEROD_FIELD, P2POOL_FIELD, PROCESS_FIELD, RUN_DIR_FIELD,
@@ -39,7 +39,7 @@ from db4e.Constants.SystemdTemplates import (
 from db4e.Constants.Labels import (
     DB4E_GROUP_LABEL, DB4E_LABEL, DB4E_USER_LABEL, VENDOR_DIR_LABEL, 
     INSTALL_DIR_LABEL, MONEROD_LABEL, USER_WALLET_LABEL, P2POOL_LABEL, 
-    STARTUP_SCRIPT, XMRIG_LABEL)
+    XMRIG_LABEL)
 from db4e.Constants.Defaults import (
     DB4E_OLD_GROUP_ENVIRON_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, 
     SUDO_CMD_DEFAULT, TMP_DIR_DEFAULT)
@@ -71,21 +71,18 @@ class InstallMgr(Container):
 
         print(f"InstallMgr:initial_setup(): wallet: {user_wallet}, vendor_dir: {vendor_dir}")
 
-        # 1. Check if there's an existing 'db4e' record
-        rec = self._get_or_create_db4e_rec()
+        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
 
-        # 2. Set the Db4E user, group and installation directory
-        rec = self._set_user_group_install_dir(rec=rec)
-
-        # 3. Check that the user entered their wallet
-        rec, no_wallet = self._check_wallet(user_wallet=user_wallet, rec=rec)
-
-        # 4. Check that the user entered a vendor directory
-        rec, no_vendor_dir = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
-
-        if no_wallet or no_vendor_dir:
+        # Check that the user entered their wallet
+        rec, abort_install = self._check_wallet(user_wallet=user_wallet, rec=rec)
+        if abort_install:
             return rec
         
+        # Check that the user entered a vendor directory
+        rec, abort_install = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
+        if abort_install:
+            return rec
+
         # Create the vendor directory
         results, abort_install = self._create_vendor_dir(
             vendor_dir=vendor_dir
@@ -93,12 +90,6 @@ class InstallMgr(Container):
         if abort_install:
             return rec
         
-        # The 'db4e' record has been created, the user wallet and vendor dir
-        # have been set
-        self.db.update_one(
-            col_name=self.col_name, filter={COMPONENT_FIELD: DB4E_FIELD}, 
-            new_values=rec)
-
         # Create the Db4E vendor directories
         results += self._create_db4e_dirs(vendor_dir=vendor_dir)
 
@@ -146,31 +137,37 @@ class InstallMgr(Container):
 
     def _check_wallet(self, user_wallet:str, rec: dict):
         print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
+        abort_install = False
+        # User did not provide any wallet
         if not user_wallet:
             abort_install = True
             return rec, abort_install
         
-        abort_install = False
         rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
+        self.db.update_one(
+            col_name=self.col_name, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD}, 
+            new_values=rec)
         user_wallet_short = user_wallet[0:6] + '...'
-        rec[HEALTH_MSGS_FIELD].append(result_row(
+        rec[HEALTH_MSGS_FIELD] = [(result_row(
             USER_WALLET_LABEL, GOOD_FIELD, 
-            f"Set the Db4E user wallet: {user_wallet_short}"))
+            f"Set the Db4E user wallet: {user_wallet_short}"))]
         return rec, abort_install        
 
 
     def _check_vendor_dir(self, vendor_dir: str, rec: dict):
-        print(f"InstallMgr:_check_form_data(): rec: {rec}")
+        print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
+        abort_install = False
         if not vendor_dir:
             abort_install = True
             return rec, abort_install
         
-        abort_install = False
         rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
+        self.db.update_one(
+            col_name=self.col_name, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD}, 
+            new_values=rec)
         rec[HEALTH_MSGS_FIELD].append(result_row(
             VENDOR_DIR_LABEL, GOOD_FIELD, 
             f"Set the Db4E deployment directory: {vendor_dir}"))
-        self.ops_mgr.update_deployment(form_data=rec)
         return rec, abort_install
 
     # Copy Db4E files
@@ -560,24 +557,6 @@ class InstallMgr(Container):
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
-    def _get_or_create_db4e_rec(self):
-        results = []
-        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
-        if rec:
-            results.append(result_row(
-                DB4E_LABEL, GOOD_FIELD,
-                f"Found existing {DB4E_LABEL} deployment record"))   
-            rec[HEALTH_MSGS_FIELD] += results
-            return rec
-        rec = self.db.get_new_rec(rec_type=DB4E_FIELD)
-        print(f"InstallMgr:_get_or_create_db4e_rec(): Created new rec: {rec}")
-        rec = self.ops_mgr.depl_mgr.add_deployment(rec)
-        results.append(result_row(
-            DB4E_LABEL, GOOD_FIELD,
-            f"Created {DB4E_LABEL} deployment record"))   
-        rec[HEALTH_MSGS_FIELD] += results
-        return rec
-
     def _get_templates_dir(self):
         # Helper function
         templates_dir = self.ini.config[DB4E_FIELD][TEMPLATE_DIR_FIELD]
@@ -649,30 +628,5 @@ class InstallMgr(Container):
         self.ops_mgr.update_deployment(db4e_rec)
         return results
     
-    def _set_user_group_install_dir(self, rec):
-        # Use the effective UID/GID for the Db4E user/group
-        effective_id = get_effective_identity()
-        user = effective_id[USER_FIELD]
-        group = effective_id[GROUP_FIELD]
 
-        # Determine the Db4E install dir
-        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-        rec = update_component_values(rec, {
-        USER_FIELD: user,
-        GROUP_FIELD: group,
-        INSTALL_DIR_FIELD: db4e_install_dir})
-        
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            DB4E_USER_LABEL, GOOD_FIELD,
-            f"Set the Db4E user: {user}"))
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            DB4E_GROUP_LABEL, GOOD_FIELD,
-            f"Set the Db4E group: {group}"))
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            INSTALL_DIR_LABEL, GOOD_FIELD,
-            f"Set the Db4E install directory: {db4e_install_dir}"))
-        rec = self.ops_mgr.update_deployment(rec)
-        #print(f"InstallMgr:_init_db4e_rec(): new rec: {rec}")
-        return rec
 

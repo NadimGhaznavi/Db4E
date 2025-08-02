@@ -17,7 +17,7 @@ from db4e.Constants.Fields import (
     ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_REC_FIELD,
     GREEN_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
     PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 
 color = "#9cae41"
 hi = "cyan"
@@ -64,4 +64,4 @@ class P2PoolType(Container):
             }
 
 
-        self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(Db4eMsg(self, form_data))
