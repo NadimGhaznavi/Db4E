@@ -13,10 +13,11 @@ import re
 import socket
 import ipaddress
 
-from db4e.Modules.Helper import result_row, is_port_open, get_component_value
+from db4e.Modules.Helper import (
+    worst_status, result_row, is_port_open, get_component_value)
 from db4e.Constants.Fields import(
     CONFIG_FIELD, ERROR_FIELD, GOOD_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD,
-    RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, STATUS_FIELD,
+    RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD,
     XMRIG_FIELD, ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD, DB4E_FIELD,
     HEALTH_MSGS_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD)
 from db4e.Constants.Labels import(
@@ -49,11 +50,9 @@ class HealthMgr:
     def check_db4e(self, rec):
         #print(f"HealthMgr:check_db4e(): rec: {rec}")
         results = []
-        overall_state = GOOD_FIELD
         # Example: check if vendor dir exists
         vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
         if vendor_dir == "":
-            overall_state = ERROR_FIELD
             results.append(result_row(
                 f"{VENDOR_DIR_LABEL}", ERROR_FIELD,
                 f"{VENDOR_DIR_LABEL} missing"
@@ -66,7 +65,6 @@ class HealthMgr:
             ))
 
         else:
-            overall_state = ERROR_FIELD
             results.append(result_row(
                 f"{VENDOR_DIR_LABEL}", ERROR_FIELD,
                 f"{vendor_dir} not found"
@@ -82,26 +80,22 @@ class HealthMgr:
                 f"{USER_WALLET_LABEL} exists: {wallet[:11]}..."
             ))
         else:
-            overall_state = ERROR_FIELD
             results.append(result_row(
                 f"{USER_WALLET_LABEL}", ERROR_FIELD,
                 f"{USER_WALLET_LABEL} missing"
             ))
 
         #print(f"HealthMgr:check_db4e(): overall_state: rec:\n{rec}\noverall_state: {overall_state}\n{results}")
-        rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
         return rec
 
     def check_monerod(self, rec):
-        rec[STATUS_FIELD] = GOOD_FIELD
         rec[HEALTH_MSGS_FIELD] = []
         return rec
 
     def check_monerod_remote(self, rec):
         #print(f"HealthMgr:check_monerod_remote(): rec: {rec}")
         results = []
-        overall_state = GOOD_FIELD
         ip_addr = get_component_value(rec, IP_ADDR_FIELD)
         rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
         zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
@@ -116,7 +110,6 @@ class HealthMgr:
                 RPC_BIND_PORT_LABEL, WARN_FIELD,
                 f"Connection to {RPC_BIND_PORT_LABEL} failed"
             ))
-            overall_state = WARN_FIELD
         if is_port_open(ip_addr, zmq_pub_port):
             results.append(result_row(
                 ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
@@ -127,53 +120,48 @@ class HealthMgr:
                 ZMQ_PUB_PORT_LABEL, WARN_FIELD,
                 f"Connection to {ZMQ_PUB_PORT_LABEL} failed"
             ))
-            overall_state = WARN_FIELD
-        rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
         #print(f"HealthMgr:check_monerod_remote(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
         return rec
 
 
     def check_p2pool(self, rec, monerod_rec=None):
-        rec[STATUS_FIELD] = GOOD_FIELD
         rec[HEALTH_MSGS_FIELD] = []
         return rec
 
     def check_p2pool_remote(self, rec):
+        if not rec:
+            raise ValueError("HealthMgr:check_p2pool_remote(): rec is None")
+
         results = []
-        overall_state = GOOD_FIELD
         ip_addr = get_component_value(rec, IP_ADDR_FIELD)
         stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
 
-        if not rec:
-            return(overall_state, results)
-
         if is_port_open(ip_addr, stratum_port):
             results.append(result_row(
-                STRATUM_PORT_LABEL, GOOD_FIELD,
+                P2POOL_LABEL, GOOD_FIELD,
                 f"Connection to {STRATUM_PORT_LABEL} successful"
             ))
         else:
             results.append(result_row(
-                STRATUM_PORT_LABEL, WARN_FIELD,
+                P2POOL_LABEL, WARN_FIELD,
                 f"Connection to {STRATUM_PORT_LABEL} failed"
             ))
-            overall_state = WARN_FIELD
-        rec[STATUS_FIELD] = overall_state
         rec[HEALTH_MSGS_FIELD] = results
         return rec
         
 
     def check_xmrig(self, rec, p2pool_rec):
+        rec[HEALTH_MSGS_FIELD] = []
+        print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")
         results = []
-        overall_state = GOOD_FIELD
         config_file = get_component_value(rec, CONFIG_FIELD)
 
         # Check that the XMRig configuration file exists
         if os.path.exists(config_file):
             results.append(result_row(
                 CONFIG_LABEL, GOOD_FIELD,
-                f"{config_file}"
+                f"Found: {config_file}"
             ))
         elif not config_file:
             results.append(result_row(
@@ -185,23 +173,35 @@ class HealthMgr:
                 CONFIG_LABEL, WARN_FIELD,
                 f"Not found: {config_file}"
             ))
-            overall_state = WARN_FIELD
 
         # Check that upstream P2Pool deployment exists
+        p2pool_results = []
+        print(f"DEBUG: About to check if p2pool_rec exists")
+        print(f"DEBUG: p2pool_rec truthiness: {bool(p2pool_rec)}")
+        print(f"DEBUG: p2pool_rec type: {type(p2pool_rec)}")
         if p2pool_rec:
+            print(f"DEBUG: p2pool_rec exists, getting instance...")
             p2pool_instance = get_component_value(p2pool_rec, INSTANCE_FIELD)
-            results.append(result_row(
-                P2POOL_LABEL, GOOD_FIELD,
-                f"Found upstream P2Pool deployment: {p2pool_instance}"
-            ))
-        else:
-            results.append(result_row(
-                P2POOL_LABEL, ERROR_FIELD,
-                f"Missing upstream P2Pool deployment"
-            ))
-            overall_state = ERROR_FIELD
+            print(f"DEBUG: p2pool_instance: {p2pool_instance}")
+            # See if it's healthy
+            print(f"DEBUG: About to call check_p2pool_remote...")
+            p2pool_rec = self.check_p2pool_remote(p2pool_rec)
+            print(f"DEBUG: After check_p2pool_remote, p2pool_rec: {p2pool_rec}")
+            print(f"DEBUG: p2pool_rec type after check: {type(p2pool_rec)}")
+            p2pool_status = worst_status(p2pool_rec[HEALTH_MSGS_FIELD])
+            if p2pool_status != GOOD_FIELD:
+                p2pool_results.append(result_row(
+                    P2POOL_LABEL, WARN_FIELD,
+                    f"Upstream {P2POOL_LABEL} ({p2pool_instance}) has issues"))
+                p2pool_results +=p2pool_rec[HEALTH_MSGS_FIELD]
+            else:
+                p2pool_results.append(result_row(
+                    P2POOL_LABEL, GOOD_FIELD,
+                    f"Upstream {P2POOL_LABEL} ({p2pool_instance}) is healthy"))
+                p2pool_results += p2pool_rec[HEALTH_MSGS_FIELD]
 
         # overall_state used in NavPane, results used in XMRig and other panes
-        rec[STATUS_FIELD] = overall_state
+        results += p2pool_results
         rec[HEALTH_MSGS_FIELD] = results
+        print(f"HealthMgr:check_xmrig(): final rec: {rec}")
         return rec

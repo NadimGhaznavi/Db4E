@@ -128,7 +128,7 @@ class XMRig(Container):
         self.instance_map = rec[RADIO_MAP_FIELD]
         self.p2pool_id = get_component_value(rec, PARENT_ID_FIELD)
 
-        print(f"XMRig:set_data(): radio_map: {rec[RADIO_MAP_FIELD]}, p2pool_id: {self.p2pool_id}")
+        #print(f"XMRig:set_data(): radio_map: {rec[RADIO_MAP_FIELD]}, p2pool_id: {self.p2pool_id}")
 
         # Trigger RadioButton recreation via reactive update
         self.radio_button_list = list(self.instance_map.keys())

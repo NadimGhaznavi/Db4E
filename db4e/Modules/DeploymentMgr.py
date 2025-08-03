@@ -264,7 +264,7 @@ class DeploymentMgr(Container):
             result_list.append((instance, rec[ID_FIELD]))
         result_list.sort()
         instance_list.sort()
-        print(f"DeploymentMgr:get_deployment_ids_and_instances(): {instance_list}")
+        #print(f"DeploymentMgr:get_deployment_ids_and_instances(): {instance_list}")
         return result_list or []
 
 

@@ -210,3 +210,15 @@ def update_component_values(rec, updates):
         if field in updates:
             component[VALUE_FIELD] = updates[field]
     return rec
+
+def worst_status(results):
+    worst_status = GOOD_FIELD
+    for line_item in results:
+        for key in line_item:
+            if line_item[key]["status"] == ERROR_FIELD:
+                return ERROR_FIELD
+            elif line_item[key]["status"] == WARN_FIELD:
+                worst_status = WARN_FIELD
+
+    return worst_status
+    

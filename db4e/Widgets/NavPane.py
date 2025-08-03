@@ -16,7 +16,7 @@ from textual.widgets import Label, Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
-from db4e.Modules.Helper import get_component_value
+from db4e.Modules.Helper import get_component_value, worst_status
 from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.OpsMgr import OpsMgr
@@ -121,7 +121,23 @@ class NavPane(Container):
         now = time.time()
         if now - self._cache_time > self._cache_ttl:
             self._cached_deployments = self.ops_mgr.get_deployments()
+            
+            # Run health checks on each deployment to populate health_msgs
+            for i, deployment in enumerate(self._cached_deployments):
+                # Run the health check which populates health_msgs
+                checked_deployment = self.health_mgr.check(deployment)
+                
+                # Calculate status from the health_msgs
+                if 'health_msgs' in checked_deployment and checked_deployment['health_msgs']:
+                    checked_deployment['status'] = worst_status(checked_deployment['health_msgs'])
+                else:
+                    checked_deployment['status'] = 'unknown'
+                
+                # Update the deployment in the list
+                self._cached_deployments[i] = checked_deployment
+            
             self._cache_time = now
+        
         return self._cached_deployments
     
     def is_initialized(self) -> bool:
@@ -133,7 +149,6 @@ class NavPane(Container):
             leaf_item: NavItem = event.node.data
             parent_item: NavItem = event.node.parent.data
             print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
-
 
             # Initial Setup
             if INITIAL_SETUP_LABEL in leaf_item.label:
@@ -304,11 +319,11 @@ class NavPane(Container):
         for field, icon, label in self.services:
             service_item = NavItem(label, field, icon)
             parent = self.depls.root.add(str(service_item), data=service_item, expand=True)
-            
             for rec in grouped.get(field, []):
                 # Use helper function to get instance name from components
                 instance = get_component_value(rec, INSTANCE_FIELD) or rec.get('name', 'Unknown')
                 state = rec.get('status')
+                #print(f"NavPane:refresh_nav_pane(): instance: {instance}, state: {repr(state)})")
                 instance_item = NavItem(instance, instance, STATE_ICON.get(state, ""))
                 parent.add_leaf(str(instance_item), data=instance_item)
             

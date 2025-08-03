@@ -139,9 +139,8 @@ class OpsMgr:
     def get_deployments(self) -> list[dict]:
         deployments = self.depl_mgr.get_deployments()  # ← now returns full recs
         for rec in deployments:
-            elem_type = rec[ELEMENT_TYPE_FIELD]
             parent_rec = None
-            if elem_type in (XMRIG_FIELD, P2POOL_FIELD) and PARENT_ID_FIELD in rec:
+            if PARENT_ID_FIELD in rec:
                 parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
                 rec[PARENT_INSTANCE_FIELD] = parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
