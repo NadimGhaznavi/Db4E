@@ -24,8 +24,8 @@ from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
     REMOTE_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
-    INITIAL_SETUP_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD,
-    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, STATUS_FIELD,
+    DATA_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
+    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, GET_INITIAL_REC_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
     OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_REC_FIELD, GET_REC_FIELD,
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
@@ -137,12 +137,12 @@ class NavPane(Container):
 
             # Initial Setup
             if INITIAL_SETUP_LABEL in leaf_item.label:
-                print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
+                rec = self.ops_mgr.get_deployment(DB4E_FIELD)
                 form_data = {
                     ELEMENT_TYPE_FIELD: DB4E_FIELD,
-                    TO_MODULE_FIELD: PANE_MGR_FIELD,
-                    TO_METHOD_FIELD: SET_PANE_FIELD,
-                    NAME_FIELD: INITIAL_SETUP_PANE,
+                    TO_MODULE_FIELD: INSTALL_MGR_FIELD,
+                    TO_METHOD_FIELD: INITIAL_SETUP_PROCEED_FIELD,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 

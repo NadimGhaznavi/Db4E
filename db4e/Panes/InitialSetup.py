@@ -11,7 +11,7 @@ import os
 from textual.widgets import Label, Input, Button, Static
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
-from db4e.Modules.Helper import get_effective_identity, gen_results_table
+from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
@@ -84,16 +84,13 @@ class InitialSetup(Container):
 
             classes="pane_box")
 
-    def on_mount(self):
-        print(f"InitialSetup:on_mount()")
-        eid = get_effective_identity()
-        self.user_name_static.update(eid[USER_FIELD])
-        self.group_name_static.update(eid[GROUP_FIELD])
-        self.install_dir_static.update(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
     def set_data(self, rec):
-        print(f"InitialSetup:set_data(): health_msgs: {rec[HEALTH_MSGS_FIELD]}")
+        print(f"InitialSetup:set_data(): rec: {rec}")
         self.rec = rec
+        self.user_name_static.update("foo")
+        self.group_name_static.update("bar")
+        self.install_dir_static.update(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
         self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

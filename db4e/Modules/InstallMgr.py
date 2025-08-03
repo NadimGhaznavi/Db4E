@@ -21,6 +21,7 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.OpsMgr import OpsMgr
+from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Helper import result_row, get_effective_identity, update_component_values
 from db4e.Constants.Fields import (
     BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, ELEMENT_TYPE_FIELD, CONF_DIR_FIELD,
@@ -57,7 +58,7 @@ class InstallMgr(Container):
         super().__init__()
         self.ini = config
         self.ops_mgr = OpsMgr(config=config)
-        self.db = DbMgr(config)
+        self.depl_mgr = DeploymentMgr(config=config)
         self.col_name = DEPLOYMENT_COL_DEFAULT
         self.tmp_dir = None
 
@@ -135,6 +136,12 @@ class InstallMgr(Container):
         return rec
         
 
+    def initial_setup_proceed(self, form_data: dict):
+        rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
+        #print(f"InstallMgr:initial_setup_proceed(): {rec}")
+        return rec
+        
+
     def _check_wallet(self, user_wallet:str, rec: dict):
         print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
         abort_install = False
@@ -144,13 +151,8 @@ class InstallMgr(Container):
             return rec, abort_install
         
         rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
-        self.db.update_one(
-            col_name=self.col_name, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD}, 
-            new_values=rec)
-        user_wallet_short = user_wallet[0:6] + '...'
-        rec[HEALTH_MSGS_FIELD] = [(result_row(
-            USER_WALLET_LABEL, GOOD_FIELD, 
-            f"Set the Db4E user wallet: {user_wallet_short}"))]
+        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
+        self.depl_mgr.update_one(query, rec)
         return rec, abort_install        
 
 
@@ -162,9 +164,8 @@ class InstallMgr(Container):
             return rec, abort_install
         
         rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
-        self.db.update_one(
-            col_name=self.col_name, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD}, 
-            new_values=rec)
+        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
+        self.depl_mgr.update_one(query, rec)
         rec[HEALTH_MSGS_FIELD].append(result_row(
             VENDOR_DIR_LABEL, GOOD_FIELD, 
             f"Set the Db4E deployment directory: {vendor_dir}"))

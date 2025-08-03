@@ -24,7 +24,8 @@ from db4e.Constants.Fields import (
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
     NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
     XMRIG_FIELD, DONATIONS_FIELD, GET_REC_FIELD, ELEMENT_TYPE_FIELD,
-    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD
+    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD, 
+    INITIAL_SETUP_PROCEED_FIELD, GET_INITIAL_REC_FIELD
 )
 
 from db4e.Constants.Panes import (
@@ -47,12 +48,12 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
-        self.register(PANE_MGR_FIELD, SET_PANE_FIELD, DB4E_FIELD,
-                      self.pane_mgr.set_pane, INITIAL_SETUP_PANE)
-        self.register(OPS_MGR_FIELD, GET_REC_FIELD, DB4E_FIELD,
-                      self.ops_mgr.get_deployment, DB4E_PANE)
+        self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_PROCEED_FIELD, DB4E_FIELD,
+                      self.install_mgr.initial_setup_proceed, INITIAL_SETUP_PANE)
         self.register(INSTALL_MGR_FIELD, INITIAL_SETUP_FIELD, DB4E_FIELD,
                       self.install_mgr.initial_setup, RESULTS_PANE)
+        self.register(OPS_MGR_FIELD, GET_REC_FIELD, DB4E_FIELD,
+                      self.ops_mgr.get_deployment, DB4E_PANE)
         self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD,
                       self.ops_mgr.update_deployment, DB4E_PANE)
 

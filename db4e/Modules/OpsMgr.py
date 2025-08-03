@@ -132,7 +132,7 @@ class OpsMgr:
             rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        #print(f"OpsMgr:get_deployment(): rec: {rec}")
+        print(f"OpsMgr:get_deployment(): elem_type: {elem_type}")
         return rec
 
 
@@ -149,20 +149,25 @@ class OpsMgr:
 
 
     def get_dir(self, aDir: str) -> str:
+
         if aDir == DB4E_FIELD:
             return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+        
         elif aDir == PYTHON_FIELD:
             python = os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
                              BIN_DIR_DEFAULT, PYTHON_DEFAULT))
             return python
+        
         elif aDir == INSTALL_DIR_FIELD:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
+        
         elif aDir == TEMPLATE_FIELD:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__), '..', '..', DB4E_FIELD, TEMPLATES_DIR_DEFAULT)
             )
+        
         else:
             raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")
         
@@ -203,7 +208,12 @@ class OpsMgr:
         if elem_type == XMRIG_FIELD:
             return self.update_xmrig_deployment(form_data)
 
-        return self.depl_mgr.update_deployment(rec=form_data)
+        rec = self.depl_mgr.update_deployment(rec=form_data)
+
+        if elem_type == DB4E_FIELD:
+            rec = self.health_mgr.check(rec=rec, parent_rec=None)
+
+        return rec
         
 
     def update_xmrig_deployment(self, rec):

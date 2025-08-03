@@ -15,27 +15,25 @@ from textual.containers import Container
 from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Helper import (
-    result_row, is_valid_ip_or_hostname, get_component_value, set_component_value,
-    gen_radio_map, get_effective_identity, update_component_values)
-from db4e.Constants.Fields import *
+    gen_radio_map, get_component_value, get_effective_identity,
+    is_valid_ip_or_hostname, result_row, set_component_value,
+    update_component_values)
 from db4e.Constants.Labels import (
-    DB4E_LABEL, INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL,
-    NUM_THREADS_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL,
-    STRATUM_PORT_LABEL, USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_LABEL,
-    ZMQ_PUB_PORT_LABEL,
+    DB4E_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL,
+    USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_LABEL
 )
 from db4e.Constants.Fields import (
-    ACTIVE_FIELD, COMPONENT_FIELD, CONFIG_FIELD, DB4E_FIELD, DEPLOYMENT_TYPE_FIELD,
-    ERROR_FIELD, FORM_DATA_FIELD, GOOD_FIELD, GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD,
-    INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD, NUM_THREADS_FIELD,
-    ORIG_INSTANCE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, PARENT_ID_FIELD, PYTHON_FIELD,
-    REMOTE_FIELD, RESULTS_FIELD, RPC_BIND_PORT_FIELD, STATUS_FIELD, STRATUM_PORT_FIELD,
-    TEMPLATE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATED_FIELD, USER_FIELD,
-    USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, WARN_FIELD, XMRIG_FIELD,
-    ZMQ_PUB_PORT_FIELD, ELEMENT_TYPE_FIELD
+    COMPONENT_FIELD, CONFIG_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD, ERROR_FIELD,
+    FORM_DATA_FIELD, GOOD_FIELD, GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD,
+    INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
+    NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, PARENT_ID_FIELD, P2POOL_FIELD,
+    P2POOL_REMOTE_FIELD, RPC_BIND_PORT_FIELD, STRATUM_PORT_FIELD, USER_FIELD,
+    USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
+    ZMQ_PUB_PORT_FIELD, HEALTH_MSGS_FIELD, DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD,
+    FIELD_FIELD, VALUE_FIELD, RADIO_MAP_FIELD
 )
 from db4e.Constants.Defaults import (
-    BIN_DIR_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
+    DEPLOYMENT_COL_DEFAULT
 )
                                      
 class DeploymentMgr(Container):
@@ -49,13 +47,14 @@ class DeploymentMgr(Container):
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.init_db()
 
+
     def add_deployment(self, rec):
         print(f"DeploymentMgr:add_deployment(): {rec}")
         elem_type = rec[ELEMENT_TYPE_FIELD]
 
         # Add the Db4E Core deployment
         if elem_type == DB4E_FIELD:
-            return self.db.insert_one(self.depl_col, rec)
+            return self.insert_one(rec)
 
         # Add a Monero daemon deployment
         elif elem_type == MONEROD_REMOTE_FIELD:
@@ -72,6 +71,7 @@ class DeploymentMgr(Container):
         # Catchall
         else:
             raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_type}")
+
 
     def add_monerod_deployment(self, rec):
         print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
@@ -108,7 +108,7 @@ class DeploymentMgr(Container):
             update = False
 
         if update:
-            self.db.insert_one(self.depl_col, rec)
+            self.insert_one(rec)
         return rec
 
     def add_remote_p2pool_deployment(self, rec):
@@ -131,8 +131,9 @@ class DeploymentMgr(Container):
             update = False
 
         if update:
-            self.db.insert_one(self.depl_col, rec)
+            self.insert_one(rec)
         return rec        
+
 
     def add_xmrig_deployment(self, rec):
         update = True
@@ -158,8 +159,9 @@ class DeploymentMgr(Container):
         rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
 
         if update:
-            self.db.insert_one(self.depl_col, rec)
+            self.insert_one(rec)
         return rec
+
 
     def create_vendor_dir(self, new_dir: str, results: list):
         update_flag = True
@@ -191,6 +193,7 @@ class DeploymentMgr(Container):
 
         return (update_flag, results)
 
+
     def del_deployment(self, rec_data):
         elem_type = rec_data[ELEMENT_TYPE_FIELD]
         instance = rec_data[INSTANCE_FIELD]
@@ -212,16 +215,15 @@ class DeploymentMgr(Container):
         if elem_type == XMRIG_FIELD:
             rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self)
         return rec
-
         
  
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
-            db_rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
+            rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
             # rec is a cursor object.
-            if db_rec:
-                return db_rec
+            if rec:
+                return rec
             else:
                 return {}
         else:
@@ -246,22 +248,25 @@ class DeploymentMgr(Container):
 
         # No record for this deployment exists
 
+
     def get_deployment_by_id(self, id):
         return self.db.find_one(col_name=self.depl_col, filter={'_id': id})
 
+
     def get_deployment_ids_and_instances(self, elem_type):
-        db_recs = self.db.find_many(
+        recs = self.db.find_many(
             self.depl_col, {ELEMENT_TYPE_FIELD: elem_type})
         result_list = []
         instance_list = []
-        for db_rec in db_recs:            
-            instance = get_component_value(db_rec, INSTANCE_FIELD)
+        for rec in recs:            
+            instance = get_component_value(rec, INSTANCE_FIELD)
             instance_list.append(instance)
-            result_list.append((instance, db_rec[ID_FIELD]))
+            result_list.append((instance, rec[ID_FIELD]))
         result_list.sort()
         instance_list.sort()
         print(f"DeploymentMgr:get_deployment_ids_and_instances(): {instance_list}")
         return result_list or []
+
 
     def get_deployments(self, component=None) -> list[dict]:
         query = {}
@@ -271,6 +276,7 @@ class DeploymentMgr(Container):
         #print(f"DeploymentMgr:get_deployments(): {results}")
         return results
     
+
     def init_db(self):
         existing_rec = self.get_deployment(DB4E_FIELD)
         if existing_rec:
@@ -286,10 +292,20 @@ class DeploymentMgr(Container):
             USER_FIELD: user,
             GROUP_FIELD: group,
             INSTALL_DIR_FIELD: db4e_install_dir})
-        self.db.insert_one(self.depl_col, rec)
+        self.insert_one(rec)
         return rec
 
+
+    def insert_one(self, rec):
+        ## Don't put the HEALTH_MSGS_FIELD (the status messages) into the DB
+        # Pop off 
+        if HEALTH_MSGS_FIELD in rec:
+            status = rec.pop(HEALTH_MSGS_FIELD)
+            self.db.insert_one(self.depl_col, rec)
+            rec[HEALTH_MSGS_FIELD] = status
+        return rec
         
+
     def is_initialized(self):
         rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
         if rec:
@@ -302,6 +318,7 @@ class DeploymentMgr(Container):
         else:
             return False
 
+
     def update_deployment(self, rec):
         elem_type = rec[ELEMENT_TYPE_FIELD]
         if elem_type == DB4E_FIELD:
@@ -313,8 +330,9 @@ class DeploymentMgr(Container):
         elif elem_type == XMRIG_FIELD:
             return self.update_xmrig_deployment(rec=rec)
 
+
     def update_db4e_deployment(self, form_data):
-        query_filter = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
+        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
 
         if FORM_DATA_FIELD in form_data:
             form_wallet = form_data[USER_WALLET_FIELD]
@@ -336,10 +354,10 @@ class DeploymentMgr(Container):
             # Updating user wallet
             if orig_user_wallet != form_wallet:
                 rec = set_component_value(rec, USER_WALLET_FIELD, form_wallet)
-                self.db.update_one(self.depl_col, query_filter, rec)
-                rec[HEALTH_MSGS_FIELD] += result_row(
+                self.update_one(query, rec)
+                results.append(result_row(
                     USER_WALLET_LABEL, GOOD_FIELD, 
-                    f"Set the Db4E user wallet: {form_wallet}")
+                    f"Set the Db4E user wallet: {form_wallet}"))
 
             # Updating vendor dir
             if orig_vendor_dir != form_vendor_dir:
@@ -356,18 +374,19 @@ class DeploymentMgr(Container):
                         results=results)
 
             rec = set_component_value(rec, VENDOR_DIR_FIELD, form_vendor_dir)
-            rec[HEALTH_MSGS_FIELD] += results
+            #rec[HEALTH_MSGS_FIELD] += results
 
             if update_flag:
-                self.db.update_one(self.depl_col, query_filter, rec)
+                self.update_one(query, rec)
 
             print(f"DeploymentMgr:update_db4e_deployment():")
             return rec
         
         else:
             # If no FORM_DATA_FIELD, treat as direct DB update (system-side, not user form)
-            self.db.update_one(self.depl_col, query_filter, rec)
+            self.update_one(query, rec)
             return rec
+
 
     def update_deployment(self, rec):
         #print(f"DeploymentMgr:update_deployment(): {rec}")
@@ -389,8 +408,10 @@ class DeploymentMgr(Container):
                 f"{DEPLOYMENT_MGR_FIELD}:update_deployment(): No handler for component " \
                 f"({elem_type})")
 
+
     def update_monerod_deployment(self, rec):
         pass
+
 
     def update_monerod_remote_deployment(self, data):
         print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
@@ -400,8 +421,8 @@ class DeploymentMgr(Container):
         if FORM_DATA_FIELD in data:
             form_data = data
 
-            db_rec = self.get_deployment(MONEROD_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
-            #print(f"DeploymentMgr:update_monerod_remote_deployment(): db_rec: {db_rec}")
+            rec = self.get_deployment(MONEROD_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
+            #print(f"DeploymentMgr:update_monerod_remote_deployment(): rec: {rec}")
 
             ## Field-by-field comparison
 
@@ -410,34 +431,32 @@ class DeploymentMgr(Container):
             form_instance = form_data[INSTANCE_FIELD]
             #print(f"DeploymentMgr:update_monerod_remote_deployment(): {form_orig_instance}/{form_instance}")
             if form_instance != form_orig_instance:
-                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)            
+                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)            
                 update = True
 
             # IP Address
             form_ip_addr = form_data[IP_ADDR_FIELD]
-            db_ip_addr = get_component_value(db_rec, IP_ADDR_FIELD)
+            db_ip_addr = get_component_value(rec, IP_ADDR_FIELD)
             if form_ip_addr != db_ip_addr:
-                db_rec = set_component_value(db_rec, IP_ADDR_FIELD, form_ip_addr)
+                rec = set_component_value(rec, IP_ADDR_FIELD, form_ip_addr)
                 update = True
 
             # RPC Bind Port
             form_rpc_bind_port = form_data[RPC_BIND_PORT_FIELD]
-            db_rpc_bind_port = get_component_value(db_rec, RPC_BIND_PORT_FIELD)
+            db_rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
             if form_rpc_bind_port != db_rpc_bind_port:
-                db_rec = set_component_value(db_rec, RPC_BIND_PORT_FIELD, form_rpc_bind_port)
+                rec = set_component_value(rec, RPC_BIND_PORT_FIELD, form_rpc_bind_port)
                 update = True
 
             # ZMQ Pub Port
             form_zmq_pub_port = form_data[ZMQ_PUB_PORT_FIELD]
-            db_zmq_pub_port = get_component_value(db_rec, ZMQ_PUB_PORT_FIELD)
+            db_zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
             if form_zmq_pub_port != db_zmq_pub_port:
-                db_rec = set_component_value(db_rec, ZMQ_PUB_PORT_FIELD, form_zmq_pub_port)
+                rec = set_component_value(rec, ZMQ_PUB_PORT_FIELD, form_zmq_pub_port)
                 update = True
 
             if update:
-                self.db.update_one(
-                    col_name=self.depl_col,
-                    filter = {
+                query = {
                         ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                         COMPONENTS_FIELD: {
                             "$elemMatch": {
@@ -446,18 +465,25 @@ class DeploymentMgr(Container):
                             }
                         }
                     },
-                    new_values=db_rec,
-                )
+                self.update_one(query, rec)
             else:
                 results.append(result_row(
                     MONEROD_LABEL, WARN_FIELD,
                     f"{form_instance} – Nothing to update"
                 ))
-            return db_rec
+            return rec
 
-      
+
+    def update_one(self, query, rec):
+        if HEALTH_MSGS_FIELD in rec:
+            status = rec.pop(HEALTH_MSGS_FIELD)
+            self.db.update_one(self.depl_col, query, rec)
+            rec[HEALTH_MSGS_FIELD] = status
+        return rec        
+
     def update_p2pool_deployment(self, data):
         pass
+
 
     def update_p2pool_remote_deployment(self, data):
         results = []
@@ -465,34 +491,32 @@ class DeploymentMgr(Container):
 
         if FORM_DATA_FIELD in data:
             form_data = data
-            db_rec = self.get_deployment(P2POOL_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
+            rec = self.get_deployment(P2POOL_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
 
             ## Field-by-field comparison            
             # Instance
             form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
             form_instance = form_data[INSTANCE_FIELD]
             if form_instance != form_orig_instance:
-                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)
+                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)
                 update = True
 
             # IP Address
             form_ip_addr = form_data[IP_ADDR_FIELD]
-            db_ip_addr = get_component_value(db_rec, IP_ADDR_FIELD)
+            db_ip_addr = get_component_value(rec, IP_ADDR_FIELD)
             if form_ip_addr != db_ip_addr:
-                db_rec = set_component_value(db_rec, IP_ADDR_FIELD, form_ip_addr)
+                rec = set_component_value(rec, IP_ADDR_FIELD, form_ip_addr)
                 update = True
 
             # Stratum Port
             form_stratum_port = form_data[STRATUM_PORT_FIELD]
-            db_stratum_port = get_component_value(db_rec, STRATUM_PORT_FIELD)
+            db_stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
             if form_stratum_port != db_stratum_port:
-                db_rec = set_component_value(db_rec, STRATUM_PORT_FIELD, form_stratum_port)
+                rec = set_component_value(rec, STRATUM_PORT_FIELD, form_stratum_port)
                 update = True
 
             if update:
-                self.db.update_one(
-                    col_name=self.depl_col,
-                    filter = {
+                query = {
                         ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                         COMPONENTS_FIELD: {
                             "$elemMatch": {
@@ -501,14 +525,15 @@ class DeploymentMgr(Container):
                             }
                         }
                     },
-                    new_values=db_rec,
-                )
+                self.update_one(query, rec)
+                
             else:
                 results.append(result_row(
                     P2POOL_LABEL, WARN_FIELD,
                     f"{form_instance} – Nothing to update"
                 ))
-            return db_rec
+            return rec
+
 
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
         print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
@@ -559,6 +584,7 @@ class DeploymentMgr(Container):
         print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return (update_flag, results)
 
+
     def update_xmrig_deployment(self, data):
         print(f"DeploymentMgr:update_xmrig_deployment(): {data}")
         update = False
@@ -566,7 +592,7 @@ class DeploymentMgr(Container):
 
         if FORM_DATA_FIELD in data:
             form_data = data
-            db_rec = self.get_deployment(XMRIG_FIELD, form_data[ORIG_INSTANCE_FIELD])
+            rec = self.get_deployment(XMRIG_FIELD, form_data[ORIG_INSTANCE_FIELD])
 
             ## Field-by-field comparison
             # Instance
@@ -575,50 +601,47 @@ class DeploymentMgr(Container):
             if form_instance != form_orig_instance:
                 update = True
                 update_config = True
-                db_rec = set_component_value(db_rec, INSTANCE_FIELD, form_instance)
+                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)
 
             # Num Threads
             form_num_threads = form_data[NUM_THREADS_FIELD]
-            db_num_threads = get_component_value(db_rec, NUM_THREADS_FIELD)
+            db_num_threads = get_component_value(rec, NUM_THREADS_FIELD)
             if form_num_threads != db_num_threads:
                 update = True
                 update_config = True
-                db_rec = set_component_value(db_rec, NUM_THREADS_FIELD, form_num_threads)
+                rec = set_component_value(rec, NUM_THREADS_FIELD, form_num_threads)
 
             # Parent ID
             form_parent_id = form_data[PARENT_ID_FIELD]
-            db_parent_id = get_component_value(db_rec, PARENT_ID_FIELD)
+            db_parent_id = get_component_value(rec, PARENT_ID_FIELD)
             if form_parent_id != db_parent_id:
                 update = True
                 update_config = True
-                db_rec = set_component_value(db_rec, PARENT_ID_FIELD, form_parent_id)
+                rec = set_component_value(rec, PARENT_ID_FIELD, form_parent_id)
 
             # Regenerate config if required
             if update_config:
-                config_file = get_component_value(db_rec, CONFIG_FIELD)
+                config_file = get_component_value(rec, CONFIG_FIELD)
                 if config_file:
-                    db_rec[HEALTH_MSGS_FIELD] += self.conf_mgr.del_config(config_file=config_file)
-                db_rec = self.conf_mgr.gen_xmrig_config(rec=db_rec, depl_mgr=self)
+                    rec[HEALTH_MSGS_FIELD] += self.conf_mgr.del_config(config_file=config_file)
+                rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
 
             if update:
-                self.db.update_one(
-                    col_name=self.depl_col,
-                    filter = {
+                query = {
                         ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                         COMPONENTS_FIELD: {
                             "$elemMatch": {
                                 FIELD_FIELD: INSTANCE_FIELD,
-                                VALUE_FIELD: form_orig_instance
+                                VALUE_FIELD: form_orig_instance,
                             }
                         }
                     },
-                    new_values=db_rec,
-                )
+                self.update_one(query, rec)
             else:
-                db_rec[HEALTH_MSGS_FIELD] += result_row(
+                rec[HEALTH_MSGS_FIELD] += result_row(
                     XMRIG_LABEL, WARN_FIELD,
                     f"{form_orig_instance} – Nothing to update"
                 )
-            return db_rec
+            return rec
         else:
             raise ValueError("DeploymentMgr:update_xmrig_deployment(): Missing FORM_DATA_FIELD")

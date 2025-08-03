@@ -75,6 +75,7 @@ class HealthMgr:
         wallet = get_component_value(rec, USER_WALLET_FIELD)
         # Future sanity check
         #if wallet and wallet.startswith("4") and len(wallet) >= 95:
+        print(f"HealthMgr:check_db4e(): wallet: {wallet}")
         if wallet:        
             results.append(result_row(
                 f"{USER_WALLET_LABEL}", GOOD_FIELD,
