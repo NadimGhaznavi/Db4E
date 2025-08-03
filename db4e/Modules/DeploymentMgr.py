@@ -644,11 +644,6 @@ class DeploymentMgr(Container):
                         }
                     }
                 self.update_one(query, rec)
-            else:
-                rec[HEALTH_MSGS_FIELD] += result_row(
-                    XMRIG_LABEL, WARN_FIELD,
-                    f"{form_orig_instance} – Nothing to update"
-                )
             return rec
         else:
             raise ValueError("DeploymentMgr:update_xmrig_deployment(): Missing FORM_DATA_FIELD")

@@ -89,7 +89,7 @@ class NavPane(Container):
         # Setup the navpane cache so we don't hammer the DB
         self._cached_deployments = []
         self._cache_time = 0
-        self._cache_ttl = 10  # seconds
+        self._cache_ttl = 1  # seconds
 
         # Current state data from Mongo
         self.monerod_recs = None
@@ -113,7 +113,7 @@ class NavPane(Container):
         yield Vertical(ScrollableContainer(self.depls, id="navpane"))
 
     def flush_cache(self):
-        self._cached_deployments = self.ops_mgr.get_deployments()
+        self.get_cached_deployments()
         self._cache_time = time.time()
         self.refresh_nav_pane()
 
@@ -122,19 +122,51 @@ class NavPane(Container):
         if now - self._cache_time > self._cache_ttl:
             self._cached_deployments = self.ops_mgr.get_deployments()
             
-            # Run health checks on each deployment to populate health_msgs
-            for i, deployment in enumerate(self._cached_deployments):
-                # Run the health check which populates health_msgs
-                checked_deployment = self.health_mgr.check(deployment)
+            # Create a lookup map by ID for easy dependency resolution
+            deployment_map = {dep['_id']: dep for dep in self._cached_deployments}
+            
+            # Track which deployments have been checked
+            checked = set()
+            
+            def check_deployment_with_dependencies(deployment):
+                dep_id = deployment['_id']
+                if dep_id in checked:
+                    return deployment_map[dep_id]
                 
-                # Calculate status from the health_msgs
+                # For XMRig, find and check its parent P2Pool first
+                if deployment.get('element_type') == 'xmrig':
+                    parent_id = None
+                    for component in deployment.get('components', []):
+                        if component.get('field') == 'parent_id':
+                            parent_id = component.get('value')
+                            break
+                    
+                    if parent_id and parent_id in deployment_map:
+                        # Recursively check the parent P2Pool first
+                        parent_deployment = check_deployment_with_dependencies(deployment_map[parent_id])
+                        # Pass the checked parent to XMRig health check
+                        checked_deployment = self.health_mgr.check(deployment, parent_deployment)
+                    else:
+                        # No parent found - check without parent
+                        checked_deployment = self.health_mgr.check(deployment, None)
+                else:
+                    # For non-XMRig deployments, check normally
+                    checked_deployment = self.health_mgr.check(deployment)
+                
+                # Calculate status from health_msgs
                 if 'health_msgs' in checked_deployment and checked_deployment['health_msgs']:
                     checked_deployment['status'] = worst_status(checked_deployment['health_msgs'])
                 else:
                     checked_deployment['status'] = 'unknown'
                 
-                # Update the deployment in the list
-                self._cached_deployments[i] = checked_deployment
+                # Update in the map and mark as checked
+                deployment_map[dep_id] = checked_deployment
+                checked.add(dep_id)
+                return checked_deployment
+            
+            # Check all deployments (dependencies will be resolved automatically)
+            for i, deployment in enumerate(self._cached_deployments):
+                self._cached_deployments[i] = check_deployment_with_dependencies(deployment)
             
             self._cache_time = now
         

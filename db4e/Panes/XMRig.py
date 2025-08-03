@@ -180,7 +180,7 @@ class XMRig(Container):
         self.app.post_message(RefreshNavPane(self))
 
     def watch_radio_button_list(self, old, new):
-        print("XMRig:watch_radio_button_list():")
+        #print("XMRig:watch_radio_button_list():")
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.instance_map.keys():

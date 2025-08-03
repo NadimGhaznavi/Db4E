@@ -176,18 +176,10 @@ class HealthMgr:
 
         # Check that upstream P2Pool deployment exists
         p2pool_results = []
-        print(f"DEBUG: About to check if p2pool_rec exists")
-        print(f"DEBUG: p2pool_rec truthiness: {bool(p2pool_rec)}")
-        print(f"DEBUG: p2pool_rec type: {type(p2pool_rec)}")
         if p2pool_rec:
-            print(f"DEBUG: p2pool_rec exists, getting instance...")
             p2pool_instance = get_component_value(p2pool_rec, INSTANCE_FIELD)
-            print(f"DEBUG: p2pool_instance: {p2pool_instance}")
             # See if it's healthy
-            print(f"DEBUG: About to call check_p2pool_remote...")
             p2pool_rec = self.check_p2pool_remote(p2pool_rec)
-            print(f"DEBUG: After check_p2pool_remote, p2pool_rec: {p2pool_rec}")
-            print(f"DEBUG: p2pool_rec type after check: {type(p2pool_rec)}")
             p2pool_status = worst_status(p2pool_rec[HEALTH_MSGS_FIELD])
             if p2pool_status != GOOD_FIELD:
                 p2pool_results.append(result_row(
@@ -203,5 +195,4 @@ class HealthMgr:
         # overall_state used in NavPane, results used in XMRig and other panes
         results += p2pool_results
         rec[HEALTH_MSGS_FIELD] = results
-        print(f"HealthMgr:check_xmrig(): final rec: {rec}")
         return rec

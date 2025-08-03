@@ -33,7 +33,6 @@ from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.Clock import Clock
 from db4e.Widgets.NavPane import NavPane
 from db4e.Modules.ConfigMgr import ConfigMgr, Config
-from db4e.Modules.Db4eService import Db4eService
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
@@ -64,14 +63,8 @@ class Db4EApp(App):
                 config=config, catalogue=PaneCatalogue())
             self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
         elif op == RUN_SERVICE_FIELD:
-            self.ops_mgr = OpsMgr(config=config)
-            self.msg_router = MessageRouter(config=config)
-            self.pane_mgr = PaneMgr(
-                config=config, catalogue=PaneCatalogue())
-            self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
-            self.service = Db4eService(config=config)
-            self.service.start()
-        
+            pass
+
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
         yield self.topbar

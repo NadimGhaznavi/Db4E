@@ -226,7 +226,6 @@ class OpsMgr:
         p2pool_rec = None
         if parent_id:
             p2pool_rec = self.depl_mgr.get_deployment_by_id(parent_id)
-        
         rec = self.health_mgr.check(rec=rec, parent_rec=p2pool_rec)
         return rec
         
