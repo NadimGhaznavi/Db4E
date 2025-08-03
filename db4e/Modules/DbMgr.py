@@ -8,10 +8,11 @@ db4e/Modules/DbManager.py
     License: GPL 3.0
 """
 
-import time
+import sys
 from copy import deepcopy
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, CollectionInvalid
+from pymongo.errors import (
+    ConnectionFailure, CollectionInvalid, ServerSelectionTimeoutError)
 
 from db4e.Modules.ConfigMgr import Config
 from db4e.Constants.SoftwareSystems import (
@@ -40,10 +41,13 @@ class DbMgr:
     def __init__(self, config: Config, runner=None):
         self.ini = config
         self._runner = runner
+        self.db4e = None
+        self._client = None
         # MongoDB settings
         retry_timeout      = self.ini.config[DB_FIELD][RETRY_TIMEOUT_FIELD]
         db_server          = self.ini.config[DB_FIELD][SERVER_FIELD]
         db_port            = self.ini.config[DB_FIELD][PORT_FIELD]
+
         self.max_backups   = self.ini.config[DB_FIELD][MAX_BACKUPS_FIELD]
         self.db_name       = self.ini.config[DB_FIELD][DB_NAME_FIELD]
         self.db_col        = self.ini.config[DB_FIELD][MINING_COL_FIELD]
@@ -64,12 +68,23 @@ class DbMgr:
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'
+
         try:
-            self._client = MongoClient(db_uri)
-        except ConnectionFailure as e:
-            time.sleep(retry_timeout)
+            self._client = MongoClient(db_uri, serverSelectionTimeoutMS=retry_timeout)
+            # Force a connection test
+            self._client.admin.command('ping')
+            self.db4e = self._client[self.db_name]
+
+        except (ConnectionFailure, ServerSelectionTimeoutError) as e:
+            print("\nFatal error: Cannot connect to MongoDB.\n\n"
+                  "See https://db4e.osoyalce.com/pages/Installing-MongoDB.html " \
+                  "for instructions on how to install MongoDB Community Edition.\n")
+            self._client = None
+            self.db4e = None
+            sys.exit(1)
       
         self.db4e = self._client[self.db_name]
+        print(f"DbMgr:__init__(): self.db4e: {self.db4e}")
         # Used for backups
         self.db4e_dir = None
         self.repo_dir = None
