@@ -135,11 +135,6 @@ class ConfigMgr:
                 config_contents = config_contents.replace(f'[[{key}]]', str(val))
         with open(fq_config, 'w') as f:
             f.write(config_contents)
-        results.append(result_row(
-            XMRIG_FIELD, GOOD_FIELD,
-            f"Created config file: {fq_config}"
-        ))
-        rec[HEALTH_MSGS_FIELD] += results
         rec = update_component_values(rec=rec, updates={CONFIG_FIELD: fq_config})
         return rec
 

@@ -210,8 +210,11 @@ class OpsMgr:
 
         rec = self.depl_mgr.update_deployment(rec=form_data)
 
-        if elem_type == DB4E_FIELD:
+        if elem_type == DB4E_FIELD or elem_type == MONEROD_REMOTE_FIELD or \
+            elem_type == P2POOL_REMOTE_FIELD:
             rec = self.health_mgr.check(rec=rec, parent_rec=None)
+
+
 
         return rec
         

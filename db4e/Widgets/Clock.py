@@ -24,7 +24,8 @@ class Clock(Container):
 
     CLOCK_EMOJIS = [
         "🕐", "🕑", "🕒", "🕓", "🕔", "🕕",
-        "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"
+        "🕖", "🕗", "🕘", "🕙", "🕚", "🕛",
+        "🍀"
     ]
 
     def compose(self) -> ComposeResult:
@@ -40,4 +41,4 @@ class Clock(Container):
 
     def watch_cur_datetime(self, time: str) -> None:
         emoji = self.CLOCK_EMOJIS[self.emoji_index]
-        self.label.update(f"{emoji} {time}")
+        self.label.update(f"{time} {emoji}")

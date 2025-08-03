@@ -468,7 +468,7 @@ class DeploymentMgr(Container):
                                 VALUE_FIELD: form_orig_instance,
                             }
                         }
-                    },
+                    }
                 self.update_one(query, rec)
             else:
                 results.append(result_row(
@@ -485,7 +485,7 @@ class DeploymentMgr(Container):
             rec[HEALTH_MSGS_FIELD] = status
         else:
             self.db.update_one(self.depl_col, query, rec)
-            
+
         return rec        
 
     def update_p2pool_deployment(self, data):
@@ -531,7 +531,7 @@ class DeploymentMgr(Container):
                                 VALUE_FIELD: form_orig_instance,
                             }
                         }
-                    },
+                    }
                 self.update_one(query, rec)
                 
             else:
@@ -630,7 +630,7 @@ class DeploymentMgr(Container):
             if update_config:
                 config_file = get_component_value(rec, CONFIG_FIELD)
                 if config_file:
-                    rec[HEALTH_MSGS_FIELD] += self.conf_mgr.del_config(config_file=config_file)
+                    self.conf_mgr.del_config(config_file=config_file)
                 rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
 
             if update:
@@ -642,7 +642,7 @@ class DeploymentMgr(Container):
                                 VALUE_FIELD: form_orig_instance,
                             }
                         }
-                    },
+                    }
                 self.update_one(query, rec)
             else:
                 rec[HEALTH_MSGS_FIELD] += result_row(
