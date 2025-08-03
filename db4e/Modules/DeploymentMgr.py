@@ -347,6 +347,10 @@ class DeploymentMgr(Container):
         orig_user_wallet = get_component_value(rec, USER_WALLET_FIELD)
         orig_vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
 
+        #print(f"DeploymentMgr:update_db4e_deployment():")
+        #print(f"  Old: {orig_user_wallet}/{orig_vendor_dir}")
+        #print(f"  New: {form_wallet}/{form_vendor_dir}")
+
         if FORM_DATA_FIELD in form_data:
 
             ## Track field changes
@@ -373,9 +377,9 @@ class DeploymentMgr(Container):
                         old_dir=orig_vendor_dir,
                         results=results)
 
-            rec = set_component_value(rec, VENDOR_DIR_FIELD, form_vendor_dir)
-            #rec[HEALTH_MSGS_FIELD] += results
+                rec = set_component_value(rec, VENDOR_DIR_FIELD, form_vendor_dir)
 
+            #print(f"DeploymentMgr:update_db4e_deployment(): final rec: {rec}")
             if update_flag:
                 self.update_one(query, rec)
 
@@ -479,6 +483,9 @@ class DeploymentMgr(Container):
             status = rec.pop(HEALTH_MSGS_FIELD)
             self.db.update_one(self.depl_col, query, rec)
             rec[HEALTH_MSGS_FIELD] = status
+        else:
+            self.db.update_one(self.depl_col, query, rec)
+            
         return rec        
 
     def update_p2pool_deployment(self, data):

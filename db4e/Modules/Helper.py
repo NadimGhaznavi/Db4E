@@ -115,7 +115,6 @@ def gen_results_table(results):
     table.add_column("Message")
 
     for item in results:
-        print(item)
         for category, msg_dict in item.items():
             message = msg_dict["msg"]
             if msg_dict["status"] == "good":
