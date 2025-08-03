@@ -107,8 +107,8 @@ def gen_radio_map(rec, depl_mgr):
 
 def gen_results_table(results):
     #print(f"Helper:gen_results_table(): Results list:")
-    if not results:
-        return ""
+    #if not results:
+    #    return ""
     
     table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
     table.add_column("Component", width=25)

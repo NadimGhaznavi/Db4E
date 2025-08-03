@@ -43,7 +43,6 @@ class InitialSetup(Container):
     user_wallet_input = Input(
         restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", 
         classes=FORM_INPUT_70_FIELD)
-    health_msgs = Label()
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything[/] initial " \
@@ -80,8 +79,6 @@ class InitialSetup(Container):
                         classes="button_row")),
                 classes="page_box"),
 
-            Vertical(self.health_msgs),
-
             classes="pane_box")
 
 
@@ -91,7 +88,6 @@ class InitialSetup(Container):
         self.user_name_static.update(get_component_value(rec, USER_FIELD))
         self.group_name_static.update(get_component_value(rec, GROUP_FIELD))
         self.install_dir_static.update(get_component_value(rec, INSTALL_DIR_FIELD))
-        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

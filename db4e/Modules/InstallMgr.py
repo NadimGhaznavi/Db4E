@@ -82,11 +82,17 @@ class InstallMgr(Container):
         # Check that the user entered their wallet
         rec, abort_install = self._check_wallet(user_wallet=user_wallet, rec=rec)
         if abort_install:
+            rec[HEALTH_MSGS_FIELD].append(result_row(
+                DB4E_LABEL, ERROR_FIELD,
+                f"Fatal error, aborting install"))
             return rec
         
         # Check that the user entered a vendor directory
         rec, abort_install = self._check_vendor_dir(vendor_dir=vendor_dir, rec=rec)
         if abort_install:
+            rec[HEALTH_MSGS_FIELD].append(result_row(
+                DB4E_LABEL, ERROR_FIELD,
+                f"Fatal error, aborting install"))
             return rec
 
         # Create the vendor directory
