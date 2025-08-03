@@ -72,7 +72,12 @@ class InstallMgr(Container):
 
         print(f"InstallMgr:initial_setup(): wallet: {user_wallet}, vendor_dir: {vendor_dir}")
 
+        #rec = self.depl_mgr.get_deployment(elem_type=DB4E_FIELD)
         rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
+        rec[HEALTH_MSGS_FIELD] = [result_row(
+            DB4E_LABEL, GOOD_FIELD, 
+            f"Retrieved {DB4E_LABEL} deployment record"
+        )]
 
         # Check that the user entered their wallet
         rec, abort_install = self._check_wallet(user_wallet=user_wallet, rec=rec)
@@ -143,24 +148,34 @@ class InstallMgr(Container):
         
 
     def _check_wallet(self, user_wallet:str, rec: dict):
-        print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
+        #print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
         abort_install = False
         # User did not provide any wallet
         if not user_wallet:
             abort_install = True
+            rec[HEALTH_MSGS_FIELD].append(result_row(
+                USER_WALLET_LABEL, ERROR_FIELD,
+                f"{USER_WALLET_LABEL} missing"))
             return rec, abort_install
         
         rec = update_component_values(rec=rec, updates={USER_WALLET_FIELD: user_wallet})
         query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
         self.depl_mgr.update_one(query, rec)
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            USER_WALLET_LABEL, GOOD_FIELD,
+            f"Set the user wallet: {user_wallet[:7]}..."))
+
         return rec, abort_install        
 
 
     def _check_vendor_dir(self, vendor_dir: str, rec: dict):
-        print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
+        #print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
         abort_install = False
         if not vendor_dir:
             abort_install = True
+            rec[HEALTH_MSGS_FIELD].append(result_row(
+                VENDOR_DIR_LABEL, ERROR_FIELD,
+                f"{VENDOR_DIR_LABEL} missing"))
             return rec, abort_install
         
         rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
@@ -168,7 +183,7 @@ class InstallMgr(Container):
         self.depl_mgr.update_one(query, rec)
         rec[HEALTH_MSGS_FIELD].append(result_row(
             VENDOR_DIR_LABEL, GOOD_FIELD, 
-            f"Set the Db4E deployment directory: {vendor_dir}"))
+            f"Set the {VENDOR_DIR_LABEL}: {vendor_dir}"))
         return rec, abort_install
 
     # Copy Db4E files

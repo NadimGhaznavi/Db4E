@@ -11,14 +11,14 @@ import os
 from textual.widgets import Label, Input, Button, Static
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
-from db4e.Modules.Helper import gen_results_table
+from db4e.Modules.Helper import gen_results_table, get_component_value
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
     ABORT_BUTTON_FIELD, ELEMENT_TYPE_FIELD, DB4E_FIELD, FORM_5_FIELD, FORM_DATA_FIELD, 
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
+    INSTALL_DIR_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
     GREEN_BUTTON_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
     PROCEED_BUTTON_FIELD, RED_BUTTON_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, 
     TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD, USER_WALLET_FIELD, HEALTH_MSGS_FIELD)
@@ -88,9 +88,9 @@ class InitialSetup(Container):
     def set_data(self, rec):
         print(f"InitialSetup:set_data(): rec: {rec}")
         self.rec = rec
-        self.user_name_static.update("foo")
-        self.group_name_static.update("bar")
-        self.install_dir_static.update(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+        self.user_name_static.update(get_component_value(rec, USER_FIELD))
+        self.group_name_static.update(get_component_value(rec, GROUP_FIELD))
+        self.install_dir_static.update(get_component_value(rec, INSTALL_DIR_FIELD))
         self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
