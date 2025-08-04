@@ -4,7 +4,6 @@ version = "0.27.0"
 license = "GPL-3.0-or-later"
 description = "A unified Monero XMR mining dashboard for deployment, operation and real-time analytics."
 authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
-license = "GPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://github.com/NadimGhaznavi/Db4E"
 repository = "https://github.com/NadimGhaznavi/Db4E"
