@@ -113,10 +113,10 @@ class InstallMgr(Container):
         results += self._create_db4e_dirs(vendor_dir=vendor_dir)
 
         # Copy in the Db4E start script
-        results += self._copy_db4e_files(vendor_dir=vendor_dir)
+        #results += self._copy_db4e_files(vendor_dir=vendor_dir)
 
         # Generate the Db4E service file (installed by the sudo installer)
-        self._generate_db4e_service_file(vendor_dir=vendor_dir)
+        self._generate_db4e_service_file()
 
         # Create the Monero daemon vendor directories
         results += self._create_monerod_dirs(vendor_dir=vendor_dir)
@@ -304,7 +304,6 @@ class InstallMgr(Container):
     def _create_db4e_dirs(self, vendor_dir):
         #print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
         results = []
-        bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         log_dir = self.ini.config[DB4E_FIELD][LOG_DIR_FIELD]
         db4e_version = self.ini.config[DB4E_FIELD][VERSION_FIELD]
         db4e_with_version = DB4E_FIELD + '-' + str(db4e_version)
@@ -315,8 +314,11 @@ class InstallMgr(Container):
             DB4E_LABEL, GOOD_FIELD,
             f"Created directory: {fq_db4e_dir}"))
         # Create the sub-directories
-        for sub_dir in [bin_dir, log_dir]:
+        for sub_dir in [log_dir]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
+            results.append(result_row(
+                DB4E_LABEL, GOOD_FIELD,
+                f"Created directory: {fq_db4e_dir}/{sub_dir}"))
         # Create a symlink
         os.chdir(vendor_dir)
         os.symlink(
@@ -474,15 +476,16 @@ class InstallMgr(Container):
         return results
 
     # Update the db4e service template with deployment values
-    def _generate_db4e_service_file(self, vendor_dir):
+    def _generate_db4e_service_file(self):
         effective_id = get_effective_identity()
         user = effective_id[USER_FIELD]
         group = effective_id[GROUP_FIELD]
         systemd_dir = self.ini.config[DB4E_FIELD][SYSTEMD_DIR_FIELD]
         db4e_service_file = self.ini.config[DB4E_FIELD][SERVICE_FILE_FIELD]
-        tmpl_dir = self.ops_mgr.get_dir(TEMPLATE_FIELD)
         tmp_dir = self._get_tmp_dir()
-        fq_db4e_dir = os.path.join(vendor_dir, DB4E_FIELD)
+        tmpl_dir = self.ops_mgr.get_dir(TEMPLATE_FIELD)
+        db4e_dir = self.ops_mgr.get_dir(INSTALL_DIR_FIELD)
+        fq_db4e_dir = os.path.join(db4e_dir)
         placeholders = {
             DB4E_USER_PLACEHOLDER: user,
             DB4E_GROUP_PLACEHOLDER: group,
