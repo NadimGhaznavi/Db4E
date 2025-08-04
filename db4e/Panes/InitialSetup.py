@@ -47,7 +47,8 @@ class InitialSetup(Container):
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything[/] initial " \
         f"installation screen. Access to Db4E will be restricted to the [{hi}]user[/] " \
-        f"and [{hi}]group[/] shown below."
+        f"and [{hi}]group[/] shown below. Use a [bold]fully qualified path[/] for the " \
+        f"[{hi}]{VENDOR_DIR_LABEL}[/]."
 
         yield Vertical(
             ScrollableContainer(

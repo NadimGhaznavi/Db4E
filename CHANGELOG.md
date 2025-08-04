@@ -7,14 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] 
+## [Unreleased]
+
+### Added
+- CRUD operations for XMRig deployments
 
 ### Changed
-- Updated the stock banner header on all files
+- Huge refactoring of the backend, thus the long delay between releases
 
 ### Fixed
-- Added stock banner header to files that were missing it
-- Fixed installation into vendor dir of start scripts and executibles
+- Look and feel, UI feedback loop
 
 ---
 
