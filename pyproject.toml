@@ -1,13 +1,30 @@
 [tool.poetry]
 name = "db4e"
 version = "0.26.0"
-license = "GPL-3.0-or-later"
 description = "A unified Monero XMR mining dashboard for deployment, operation and real-time analytics."
 authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
+license = "GPL-3.0-or-later"
 readme = "README.md"
+homepage = "https://github.com/NadimGhaznavi/Db4E"
+repository = "https://github.com/NadimGhaznavi/Db4E"
+keywords = ["monero", "mining", "textual", "dashboard", "analytics"]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Intended Audience :: Cryptocurrency Miners",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Environment :: Console",
+  "Topic :: System :: Monitoring",
+]
 
 [tool.poetry.dependencies]
-python = "^3.10.20"
+python = ">=3.10,<3.12"
+
+# Core runtime dependencies
 pymongo = "^4.13.2"
 PyYAML = "^6.0.2"
 rich = "^14.0.0"
@@ -20,8 +37,13 @@ requests = "^2.32.3"
 zstandard = "^0.23.0"
 orjson = "^3.10.15"
 psutil = "^7.0.0"
+
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pytest-mock = "^3.14.1"
+
+[tool.poetry.scripts]
+db4e = "db4e.App:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -29,8 +51,3 @@ pythonpath = ["."]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-db4e = "db4e.App:main"
-
-
