@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.26.1] - 2025-08-04
+
+### Changed
+- Updated screenshot of the Db4E console on the [website](https://db4e.osoyalce.com/pages/db4e-tui.py.html)
+
+---
+
 ## [0.26.0] - 2025-08-04
 
 ### Added
