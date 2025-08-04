@@ -175,7 +175,7 @@ class DbMgr:
         elem_type = ""
         if ELEMENT_TYPE_FIELD in jdoc:
             elem_type = jdoc[ELEMENT_TYPE_FIELD]
-        print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
+        #print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
         return col.insert_one(deepcopy(jdoc))
 
@@ -185,7 +185,7 @@ class DbMgr:
         elem_type = ""
         if ELEMENT_TYPE_FIELD in new_values:
             elem_type = new_values[ELEMENT_TYPE_FIELD]
-        print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, type:{elem_type}")
+        #print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, type:{elem_type}")
         collection = self.get_collection(col_name)
         new_values.pop("_id", None)
         return collection.update_one(filter, {'$set': new_values})

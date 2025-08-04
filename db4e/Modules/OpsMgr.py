@@ -45,7 +45,7 @@ class OpsMgr:
         parent_rec = None
         elem_type = rec[ELEMENT_TYPE_FIELD]
         instance = get_component_value(rec, INSTANCE_FIELD)
-        print(f"OpsMgr:add_deployment(): {elem_type}")
+        #print(f"OpsMgr:add_deployment(): {elem_type}")
         existing_rec = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
         if existing_rec:
             results.append(result_row(
@@ -94,7 +94,7 @@ class OpsMgr:
         
    
     def get_deployment(self, elem_type, instance=None):
-        print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")        
+        #print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")        
         if ELEMENT_TYPE_FIELD in elem_type:
             if INSTANCE_FIELD in elem_type:
                 instance = elem_type[INSTANCE_FIELD]
@@ -132,7 +132,7 @@ class OpsMgr:
             rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        print(f"OpsMgr:get_deployment(): elem_type: {elem_type}")
+        #print(f"OpsMgr:get_deployment(): elem_type: {elem_type}")
         return rec
 
 
@@ -172,7 +172,7 @@ class OpsMgr:
         
 
     def get_new_rec(self, data: str) -> dict:
-        print(f"OpsMgr:get_new_rec(): data: {data}")
+        #print(f"OpsMgr:get_new_rec(): data: {data}")
 
         # Db4E Core template
         if ELEMENT_TYPE_FIELD in data:
@@ -201,7 +201,7 @@ class OpsMgr:
 
 
     def update_deployment(self, form_data):
-        print(f"OpsMgr:update_deployment(): update_data: {form_data}")
+        #print(f"OpsMgr:update_deployment(): update_data: {form_data}")
         elem_type = form_data[ELEMENT_TYPE_FIELD]
 
         if elem_type == XMRIG_FIELD:
@@ -219,7 +219,7 @@ class OpsMgr:
         
 
     def update_xmrig_deployment(self, rec):
-        print(f"OpsMgr:update_xmrig_deployment(): rec: {rec}")
+        #print(f"OpsMgr:update_xmrig_deployment(): rec: {rec}")
         rec = self.depl_mgr.update_deployment(rec=rec)
         rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self.depl_mgr)
         parent_id = get_component_value(rec, PARENT_ID_FIELD)

@@ -88,7 +88,7 @@ class MonerodRemote(Container):
             classes=PANE_BOX_FIELD)     
 
     def set_data(self, rec):
-        print(f"MonerodRemote:set_data(): rec: {rec}")
+        #(f"MonerodRemote:set_data(): rec: {rec}")
         if FORM_DATA_FIELD in rec:
             # Record data coming from a form
             self.orig_instance = rec[INSTANCE_FIELD]

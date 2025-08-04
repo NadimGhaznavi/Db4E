@@ -101,7 +101,7 @@ class ConfigMgr:
         instance = get_component_value(rec, INSTANCE_FIELD)
         num_threads = get_component_value(rec, NUM_THREADS_FIELD)
         p2pool_id = get_component_value(rec, PARENT_ID_FIELD)
-        print(f"ConfigMgr:gen_xmrig_config(): p2pool_id: {p2pool_id}")
+        #print(f"ConfigMgr:gen_xmrig_config(): p2pool_id: {p2pool_id}")
 
         conf_dir        = self.ini.config[DB4E_FIELD][CONF_DIR_FIELD]
         tmpl_dir        = self.ini.config[DB4E_FIELD][TEMPLATE_DIR_FIELD]
@@ -118,7 +118,7 @@ class ConfigMgr:
 
         # The XMRig deploymet has references to the upstream P2Pool deployment
         p2pool_rec = depl_mgr.get_deployment_by_id(p2pool_id)
-        print(f"ConfigMgr:gen_xmrig_config(): p2pool_rec: {p2pool_rec}")
+        #print(f"ConfigMgr:gen_xmrig_config(): p2pool_rec: {p2pool_rec}")
         p2pool_ip = get_component_value(p2pool_rec, IP_ADDR_FIELD)
         stratum_port = get_component_value(p2pool_rec, STRATUM_PORT_FIELD)
         url_entry = p2pool_ip + ':' + str(stratum_port)

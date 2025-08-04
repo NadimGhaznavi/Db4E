@@ -137,7 +137,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, some_module: str, some_method: str = None, payload: dict = None):
-        print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
+        #print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(ELEMENT_TYPE_FIELD, "")
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:

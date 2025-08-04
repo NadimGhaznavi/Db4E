@@ -42,7 +42,7 @@ class PaneMgr(Widget):
                 # Instantiate each pane once, store a reference
                 pane = self.catalogue.get_pane(pane_name)
                 self.panes[pane_name] = pane
-                print(f"PaneMgr:compose(): {pane_name}")
+                #print(f"PaneMgr:compose(): {pane_name}")
                 yield pane
 
     def on_mount(self) -> None:

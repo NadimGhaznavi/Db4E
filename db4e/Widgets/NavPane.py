@@ -180,7 +180,7 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_item: NavItem = event.node.data
             parent_item: NavItem = event.node.parent.data
-            print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
+            #print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
 
             # Initial Setup
             if INITIAL_SETUP_LABEL in leaf_item.label:
@@ -195,7 +195,7 @@ class NavPane(Container):
 
             # View/Update Db4E Core
             elif DB4E_LABEL in leaf_item.label:
-                print(f"NavPane:on_tree_node_selected(): {DB4E_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {DB4E_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: DB4E_FIELD,
                     TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -205,7 +205,7 @@ class NavPane(Container):
 
             # New Monero (remote) deployment
             elif NEW_LABEL in leaf_item.label and MONEROD_SHORT_LABEL in parent_item.label:
-                print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{NEW_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                     TO_MODULE_FIELD: PANE_MGR_FIELD,
@@ -216,7 +216,7 @@ class NavPane(Container):
 
             # New P2Pool (remote) deployment
             elif NEW_LABEL in leaf_item.label and P2POOL_SHORT_LABEL in parent_item.label:
-                print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{NEW_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                     TO_MODULE_FIELD: PANE_MGR_FIELD,
@@ -227,7 +227,7 @@ class NavPane(Container):
 
             # New XMRig deployment
             elif NEW_LABEL in leaf_item.label and XMRIG_SHORT_LABEL in parent_item.label:
-                print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{NEW_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                     TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -239,7 +239,7 @@ class NavPane(Container):
 
                 # View/Update a Monero deployment
                 if MONEROD_SHORT_LABEL in parent_item.label:
-                    print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
+                    #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
                     record = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=leaf_item.field)
                     remote = get_component_value(record, REMOTE_FIELD)
                     if remote:
@@ -260,7 +260,7 @@ class NavPane(Container):
 
                 # View/Update a P2Pool deployment
                 elif P2POOL_SHORT_LABEL in parent_item.label:
-                    print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{leaf_item.label}")
+                    #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{leaf_item.label}")
                     record = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=leaf_item.field)
                     remote = get_component_value(record, REMOTE_FIELD)
                     if remote:
@@ -281,7 +281,7 @@ class NavPane(Container):
 
                 # View/Update a XMRig deployment
                 elif XMRIG_SHORT_LABEL in parent_item.label:
-                    print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{leaf_item.label}")
+                    #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{leaf_item.label}")
                     form_data = {
                         ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                         TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -292,7 +292,7 @@ class NavPane(Container):
 
             # Donations
             elif DONATIONS_LABEL in leaf_item.label:
-                print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
+                #print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
                     TO_MODULE_FIELD: PANE_MGR_FIELD,

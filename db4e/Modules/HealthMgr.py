@@ -151,7 +151,7 @@ class HealthMgr:
 
     def check_xmrig(self, rec, p2pool_rec):
         rec[HEALTH_MSGS_FIELD] = []
-        print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")
+        #print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")
         results = []
         config_file = get_component_value(rec, CONFIG_FIELD)
 

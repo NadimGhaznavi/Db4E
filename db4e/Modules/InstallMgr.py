@@ -70,7 +70,7 @@ class InstallMgr(Container):
         user_wallet = form_data[USER_WALLET_FIELD]
         vendor_dir = form_data[VENDOR_DIR_FIELD]
 
-        print(f"InstallMgr:initial_setup(): wallet: {user_wallet}, vendor_dir: {vendor_dir}")
+        #print(f"InstallMgr:initial_setup(): wallet: {user_wallet}, vendor_dir: {vendor_dir}")
 
         #rec = self.depl_mgr.get_deployment(elem_type=DB4E_FIELD)
         rec = self.ops_mgr.get_deployment(elem_type=DB4E_FIELD)
@@ -402,7 +402,7 @@ class InstallMgr(Container):
 
 
     def _create_vendor_dir(self, vendor_dir):
-        print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
+        #print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
         abort_install = False
         results = []
         if os.path.exists(vendor_dir):
@@ -613,7 +613,7 @@ class InstallMgr(Container):
         return content
 
     def _run_sudo_installer(self, vendor_dir, db4e_rec):
-        print(f"InstallMgr:_run_sudo_installer()")
+        #print(f"InstallMgr:_run_sudo_installer()")
         results = []
         bin_dir = self.ini.config[DB4E_FIELD][BIN_DIR_FIELD]
         # Use the effective UID/GID for the Db4E user/group

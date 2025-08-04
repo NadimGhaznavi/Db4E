@@ -49,7 +49,7 @@ class DeploymentMgr(Container):
 
 
     def add_deployment(self, rec):
-        print(f"DeploymentMgr:add_deployment(): {rec}")
+        #print(f"DeploymentMgr:add_deployment(): {rec}")
         elem_type = rec[ELEMENT_TYPE_FIELD]
 
         # Add the Db4E Core deployment
@@ -74,7 +74,7 @@ class DeploymentMgr(Container):
 
 
     def add_monerod_deployment(self, rec):
-        print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
+        #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
         results = []
         results.append(result_row(
             MONEROD_REMOTE_LABEL, WARN_FIELD,
@@ -197,7 +197,7 @@ class DeploymentMgr(Container):
     def del_deployment(self, rec_data):
         elem_type = rec_data[ELEMENT_TYPE_FIELD]
         instance = rec_data[INSTANCE_FIELD]
-        print(f"DeploymentMgr:del_deployment(): {elem_type}/{instance}")
+        #print(f"DeploymentMgr:del_deployment(): {elem_type}/{instance}")
 
         self.db.delete_one(
             col_name=self.depl_col,
@@ -383,7 +383,7 @@ class DeploymentMgr(Container):
             if update_flag:
                 self.update_one(query, rec)
 
-            print(f"DeploymentMgr:update_db4e_deployment():")
+            #print(f"DeploymentMgr:update_db4e_deployment():")
             return rec
         
         else:
@@ -418,7 +418,7 @@ class DeploymentMgr(Container):
 
 
     def update_monerod_remote_deployment(self, data):
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
+        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
         results = []
         update = False
 
@@ -543,7 +543,7 @@ class DeploymentMgr(Container):
 
 
     def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
-        print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
+        #print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
         if old_dir == new_dir:
@@ -588,12 +588,12 @@ class DeploymentMgr(Container):
                 f'Unable to move vendor dir from ({old_dir}) to ({new_dir}), aborting deployment directory update:\n{e}'))
             update_flag = False
 
-        print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
+        #print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return (update_flag, results)
 
 
     def update_xmrig_deployment(self, data):
-        print(f"DeploymentMgr:update_xmrig_deployment(): {data}")
+        #print(f"DeploymentMgr:update_xmrig_deployment(): {data}")
         update = False
         update_config = False
 
