@@ -11,10 +11,17 @@ db4e/server.py
 
 import os
 import time
+from importlib import metadata
+
+try:
+    __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
+    __version__ = metadata.version(__package__ or __name__)
+except Exception:
+    __package_name__ = "Db4E"
+    __version__ = "N/A"
 
 from db4e.Modules.Db4eLogger import Db4eLogger
 from db4e.Modules.ConfigMgr import Config, ConfigMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT)
@@ -45,9 +52,11 @@ class Db4eServer:
 
     def start(self):
         self.log.info("Starting Db4E Server")
+        count = 0
         while True:
+            count += 1
             time.sleep(10)
-            self.log.info("Ticking...")
+            self.log.debug(f"Ticking... {count}...")
 
 
 def main():
