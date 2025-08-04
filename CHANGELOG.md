@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.26.0] - 2025-08-04
 
 ### Added
 - CRUD operations for XMRig deployments
@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Huge refactoring of the backend, thus the long delay between releases
 
 ### Fixed
-- Look and feel, UI feedback loop
+- UI look and feel
+- Error handling
 
 ---
 
