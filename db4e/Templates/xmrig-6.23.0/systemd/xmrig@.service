@@ -1,5 +1,17 @@
+# /etc/systemd/system/xmrig@.service
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# XMRig service definition
+#
+#####################################################################
+
 [Unit]
-Description=The XMRig miner
+Description=The XMRig miner (%i)
 After=network.target
 Wants=network.target
 
@@ -15,4 +27,3 @@ Group=[[DB4E_GROUP]]
 
 [Install]
 WantedBy=multi-user.target
-

@@ -7,17 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.26.0] - 2025-08-04
+
+### Added
+- CRUD operations for XMRig deployments
+
+### Changed
+- Huge refactoring of the backend, thus the long delay between releases
+
+### Fixed
+- UI look and feel
+- Error handling
+
+---
+
 ## [0.25.1] - 2025-07-18
 
-## Fixed
+### Fixed
 - XMRig > New > crash
 
 ---
 
 ## [0.25.0] - 2025-07-18
 
-## Changed
-- Refactored code to improve efficiency and better styling and layout
+### Changed
+- Refactor code to improve efficiency and better styling and layout
 
 ---
 

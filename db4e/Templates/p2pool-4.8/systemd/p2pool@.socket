@@ -1,3 +1,15 @@
+# /etc/systemd/system/p2pool@.socket
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# P2Pool service socket definition
+#
+#####################################################################
+
 [Unit]
 Description=Command FIFO for the P2Pool daemon
 

@@ -3,16 +3,17 @@ db4e/Panes/P2Pool.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
 from textual.containers import Container, ScrollableContainer, Vertical
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
-from db4e.Messages.SubmitFormData import SubmitFormData
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, PANE_BOX_FIELD
+    FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_1_FIELD
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, 
@@ -33,12 +34,15 @@ class P2Pool(Container):
 
         # Local P2Pool daemon deployment form
         INTRO = "This screen provides a form for creating a new " \
-            f"{P2POOL_LABEL} deployment."
+            f"[bold cyan]{P2POOL_LABEL}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
                 Label(INTRO, classes=FORM_INTRO_FIELD),
-                Label('🚧 Coming Soon 🚧', classes="form_box")),
+
+                Vertical(
+                    Label('🚧 [cyan]Coming Soon[/] 🚧'),
+                    classes=FORM_1_FIELD)),
                 classes=PANE_BOX_FIELD)
 
     def reset_data(self):
@@ -48,4 +52,4 @@ class P2Pool(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass
-        #self.app.post_message(SubmitFormData(self, form_data=form_data))
+        #self.app.post_message(Db4eMsg(self, form_data=form_data))

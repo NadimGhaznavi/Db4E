@@ -3,7 +3,8 @@ db4e/Panes/P2PoolType.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
@@ -11,24 +12,24 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Constants.Labels import (
-    DEPLOYMENTS_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL,
-    PROCEED_LABEL
-)
+    P2POOL_LABEL, P2POOL_REMOTE_LABEL,PROCEED_LABEL)
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, GET_NEW_REMOTE_REC_FIELD, 
-    GREEN_BUTTON_FIELD, P2POOL_FIELD, PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD
-)
-from db4e.Messages.SubmitFormData import SubmitFormData
+    ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_REC_FIELD,
+    GREEN_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
+    PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
+from db4e.Messages.Db4eMsg import Db4eMsg
 
+color = "#9cae41"
+hi = "cyan"
 
 class P2PoolType(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the [yellow]New - {P2POOL_LABEL}[/] screen. Use to create " \
-            f"a new [cyan]local[/] or [cyan]remote[/] {P2POOL_LABEL} deployment.\n\n" \
-            f"A [cyan]local {P2POOL_LABEL}[/] deployment will setup a " \
-            f"[cyan]{P2POOL_LABEL}[/] on this machine. [cyan]Remote[/] deployments " \
-            f"connect to a [cyan]{P2POOL_LABEL}[/] running on a remote machine."
+        INTRO = f"Welcome to the new [b {hi}]{P2POOL_LABEL}[/] screen. Use to create " \
+            f"a new [{hi}]local[/] or [{hi}]remote[/] {P2POOL_LABEL} deployment.\n\n" \
+            f"A [{hi}]local {P2POOL_LABEL}[/] deployment will setup a " \
+            f"[{hi}]{P2POOL_LABEL}[/] on this machine. [{hi}]Remote[/] deployments " \
+            f"connect to a [{hi}]{P2POOL_LABEL}[/] running on a remote machine."
                     
         yield Vertical (
             ScrollableContainer(
@@ -49,18 +50,18 @@ class P2PoolType(Container):
         selected = radio_set.pressed_button
         if selected and selected.id == "remote":
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REMOTE_REC_FIELD,
-                COMPONENT_FIELD: P2POOL_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: GET_NEW_REC_FIELD,
-                COMPONENT_FIELD: P2POOL_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 REMOTE_FIELD: False
             }
 
 
-        self.app.post_message(SubmitFormData(self, form_data))
+        self.app.post_message(Db4eMsg(self, form_data))

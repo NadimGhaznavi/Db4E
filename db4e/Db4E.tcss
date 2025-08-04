@@ -1,6 +1,7 @@
 /* Root screen layout */
 
 Screen {
+    background: black;
     layout: grid;
     grid-size: 2;
     grid-columns: 1fr 4fr;
@@ -9,27 +10,31 @@ Screen {
 
 Button {
     align: center middle;
-    border: round;
+    border: round #0c323e;
     width: 20;
     background: black; }
 
 Clock {
     height: 3;
     padding: 0 2;
-    border: round;
+    border: round #0c323e;
     align: center middle;
     background: black; }
 
 NavPane {
     height: 9fr;
     padding: 0 2;
-    border: round;
+    border: round #0c323e;
     background: black; }
+
+RadioButton {
+    color: #31b8e6;
+}
 
 TopBar {
     height: 3;
     padding: 0 2;
-    border: round;
+    border: round #0c323e;
     dock: top;
     background: black }
 
@@ -39,6 +44,7 @@ MarkdownViewer {
 /* Page elements */
 
 Tree {
+    color: #31b8e6;
     background: black; }
 
 #topbar_title {
@@ -58,63 +64,84 @@ Tree {
 
 /* Forms with X rows */
 
+.form_1 {
+    padding: 0 2;
+    color: #31b8e6;
+    border: round #0c323e;
+    width: 100%;
+    height: 3; 
+    background: black; }
+
 .form_3 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #0c323e;
     width: 100%;
     height: 5; 
     background: black; }
 
 .form_4 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #0c323e;
     width: 100%;
     height: 6; 
     background: black; }
 
 .form_5 {
     padding: 0 2;
-    border: round;
+    color: #31b8e6;
+    border: round #0c323e;
     width: 100%;
     height: 7; }
+
+/* A central informational box */
+.info_msg {
+    padding: 0 2;
+    color: #31b8e6;
+    border: round #0c323e;
+    width: 100%;
+}
 
 /* Intro text at the top */
 
 .form_intro {
+    color: #31b8e6;
     padding: 0 2;
-    border: round; 
+    border: round #0c323e;
     width: 100%; }
 
 
 /* Input fields with width X */
 
 .form_input_7 {
-    color: yellow;
+    color: cyan;
     padding: 0 1; 
     width: 9; }
 
 .form_input_15 {
-    color: yellow;
+    color: cyan;
     padding: 0 1;
     width: 15; }
 
 .form_input_30 {
-    color: yellow;
+    color: cyan;
     padding: 0 1;
     width: 30; }
 
 .form_input_40 {
-    color: yellow;
+    color: cyan;
     padding: 0 1;
     width: 40; }
 
 .form_input_70 {
-    color: yellow;
+    color: cyan;
     padding: 0 1;
     width: 70; }
     
 .form_label {
-    color:cyan;
+    color: #31b8e6;
+    text-style: bold;
     padding: 0 1;
     width: 25; }
 
@@ -122,8 +149,9 @@ Tree {
 /* Health Box */
 
 .health_box {
+    color: #31b8e6;
     height: auto;
-    border: round;
+    border: round #0c323e;
     padding: 0 1;
 }
 
@@ -137,7 +165,8 @@ Tree {
 /* Entire Detail Pane */
 
 .pane_box {
-    border: round;
+    color: #31b8e6;
+    border: round #0c323e;
     padding: 0 1;
     background: black;
 }
@@ -147,7 +176,7 @@ Tree {
 
 .radio_button_type {
     height: 1;
-    width: 30;
+    width: 40;
     background: black;
     padding: 0;
     margin: 0;
@@ -162,12 +191,12 @@ Tree {
 }
 
 .radio_set {
-    border: round;
-    width: 30;
+    border: round #0c323e;
+    width: 35;
     background: black; }
 
 .static_content {
-    color: #78ff78; 
+    color: #31b8e6;
     padding: 0 1; }
 
 .yellow_button {
@@ -175,7 +204,7 @@ Tree {
     text-style: bold; }
 
 .green_button {
-    color: #54d754;
+    color: #5fc442;
     text-style: bold; }
 
 .red_button {

@@ -124,8 +124,9 @@ git checkout -b release/v1.3.0
 git push origin release/v1.3.0
 ```
 
-* Update the `pyproject.toml` and increase the version to 1.3.0.
-* Update the CHANGELOG.md to reflect the new release
+* Update the verstion in the `pyproject.toml` to reflect the new release7
+* Update the `CHANGELOG.md` to reflect the changes that went into new release
+* Update the `DB4E_VERSION_DEFAULT` setting in the`Constants/Defaults.py` file
 
 ```
 git add pyproject.toml CHANGELOG.md
@@ -163,16 +164,6 @@ git pull origin dev
 git merge release/v1.3.0 -m "Sync release v1.3.0 back into dev"
 git push origin dev
 ```
-
----
-
-# Trigger Jekyll Site Rebuild
-
-To trigger a Jekyll site rebuild:
-
-* Go to the Db4E GitHub repository's [Actions](https://github.com/NadimGhaznavi/Db4E/actions) tab.
-* Look for "Rebuild GitHub Pages Site" in the left-hand list
-* Click it, then click the "Run workflow" dropdown
 
 ---
 

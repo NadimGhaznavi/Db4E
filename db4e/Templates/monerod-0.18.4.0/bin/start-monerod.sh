@@ -1,4 +1,16 @@
 #!/bin/bash
+#
+# <vendor-dir>/bin/start-monerod.sh
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# Script to start the Monero Blockchain daemon
+#
+#####################################################################
 
 # Read in the settings
 CONFIG_FILE="$1"

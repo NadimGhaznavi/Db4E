@@ -3,7 +3,8 @@ db4e/Constants/Defaults.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
 
@@ -14,12 +15,13 @@ BACKUP_DIR_DEFAULT = "backups"
 BACKUP_SCRIPT_DEFAULT = "db4e-backup.sh"
 BIN_DIR_DEFAULT = "bin"
 BLOCKCHAIN_DIR_DEFAULT = "monero-blockchain"
+CHAIN_DEFAULT = "mini"
 COLORTERM_DEFAULT = "truecolor"
 CONF_DIR_DEFAULT = "conf"
 CSS_PATH_DEFAULT = "Db4E.tcss"
 DB_NAME_DEFAULT = "db4e"
 DB_PORT_DEFAULT = 27017
-DB_RETRY_TIMEOUT_DEFAULT = 15
+DB_RETRY_TIMEOUT_DEFAULT = 3000
 DB_SERVER_DEFAULT = "localhost"
 DB4E_DIR_DEFAULT = "db4e"
 DB4E_INITIAL_SETUP_SCRIPT_DEFAULT = "db4e-initial-setup.sh"
@@ -29,11 +31,14 @@ DB4E_OLD_GROUP_ENVIRON_DEFAULT = "DB4E_OLD_GROUP"
 DB4E_PROCESS_DEFAULT = "db4e"
 DB4E_REFRESH_DEFAULT = 15
 DB4E_SERVICE_FILE_DEFAULT = "db4e.service"
+DB4E_START_SCRIPT_DEFAULT = "db4e-service.sh"
 DB4E_UNINSTALL_SCRIPT_DEFAULT = "db4e-uninstall-service.sh"
+DB4E_VERSION_DEFAULT = "0.26.0"
 DEPLOYMENT_COL_DEFAULT = "depl"
 DEV_DIR_DEFAULT = "dev"
 DONATION_WALLET_DEFAULT = "48aTDJfRH2JLcKW2fz4m9HJeLLVK5rMo1bKiNHFc43Ht2e2kPVh2tmk3Md7npz1WsSU7bpgtX2Xnf59RHCLUEaHfQHwao4j"
 IN_PEERS_DEFAULT = 16
+INITIAL_SETUP_DEFAULT = "db4e-initial-setup.sh"
 LOCALHOST_DEFAULT = "127.0.0.1"
 LOG_DIR_DEFAULT = "logs"
 LOG_LEVEL_DEFAULT = 0
@@ -52,6 +57,8 @@ MONEROD_SOCKET_SERVICE_DEFAULT = "monerod@.socket"
 MONEROD_STDIN_PIPE_DEFAULT = "monerod.stdin"
 MONEROD_START_SCRIPT_DEFAULT = "start-monerod.sh"
 MONEROD_VERSION_DEFAULT = "0.18.4.0"
+NUM_THREADS_DEFAULT = 1
+OPS_COL_DEFAULT = "ops"
 OUT_PEERS_DEFAULT = 16
 P2P_BIND_PORT_DEFAULT = 18080
 P2P_PORT_DEFAULT = 37889
@@ -66,6 +73,7 @@ P2POOL_VERSION_DEFAULT = "4.8"
 PRIORITY_NODE_1_DEFAULT = "p2pmd.xmrvsbeast.com"
 PRIORITY_NODE_2_DEFAULT = "nodes.hashvault.pro"
 PYPI_REPO_DEFAULT = 'https://pypi.org/pypi/db4e/json'
+PYTHON_DEFAULT = "python"
 RPC_BIND_PORT_DEFAULT = 18081
 RUN_DIR_DEFAULT = "run"
 SERVICE_STATUS_DEFAULT = "stopped"
@@ -75,6 +83,7 @@ STRATUM_PORT_DEFAULT = 3333
 SUDO_CMD_DEFAULT = "sudo"
 SYSTEMD_DIR_DEFAULT = "systemd"
 TEMPLATES_DIR_DEFAULT = "Templates"
+TEMPLATES_COLLECTION_DEFAULT = "templates"
 TERM_DEFAULT = "xterm-256color"
 TMP_DIR_DEFAULT = "/tmp"
 VENDOR_DIR_DEFAULT = "vendor"
