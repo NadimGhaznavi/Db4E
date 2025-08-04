@@ -8,14 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 --- 
 
-## [Unreleased]
+## [0.27.0] - 2025-08-04
+
+**Skeleton Db4E Server**
 
 ### Added
 - New `Modules/Db4eLogger` module to handle logging to file and to MongoDb
 - New `db4e/server.py` to house the systemd Db4E server code
 - New `vendor_dir/db4e/logs/db4e.log` file
 - Connected the systemd `db4e.service` directly to `db4e/server.py`
-
 
 ---
 
