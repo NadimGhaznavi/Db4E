@@ -23,7 +23,7 @@ from db4e.Constants.Fields import (
     RADIO_MAP_FIELD, REMOTE_FIELD, XMRIG_FIELD, PYTHON_FIELD,
     INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD, STRATUM_PORT_FIELD,
     MONEROD_FIELD, P2POOL_REMOTE_FIELD, IP_ADDR_FIELD, RPC_BIND_PORT_FIELD,
-    ZMQ_PUB_PORT_FIELD, USER_FIELD, GROUP_FIELD)
+    ZMQ_PUB_PORT_FIELD, USER_FIELD, GROUP_FIELD, VENDOR_DIR_FIELD)
 from db4e.Constants.Labels import (OPS_MGR_LABEL)
 from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, 
@@ -166,6 +166,10 @@ class OpsMgr:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__), '..', '..', DB4E_FIELD, TEMPLATES_DIR_DEFAULT)
             )
+        
+        elif aDir == VENDOR_DIR_FIELD:
+            rec = self.get_deployment(elem_type=DB4E_FIELD)
+            return get_component_value(rec, VENDOR_DIR_FIELD)
         
         else:
             raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")

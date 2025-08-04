@@ -55,15 +55,11 @@ class Db4EApp(App):
     def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
         self.ini = config
-        op = self.ini.config[DB4E_FIELD][OP_FIELD]
-        if op == RUN_UI_FIELD:
-            self.ops_mgr = OpsMgr(config=config)
-            self.msg_router = MessageRouter(config=config)
-            self.pane_mgr = PaneMgr(
-                config=config, catalogue=PaneCatalogue())
-            self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
-        elif op == RUN_SERVICE_FIELD:
-            pass
+        self.ops_mgr = OpsMgr(config=config)
+        self.msg_router = MessageRouter(config=config)
+        self.pane_mgr = PaneMgr(
+            config=config, catalogue=PaneCatalogue())
+        self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)

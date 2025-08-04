@@ -61,17 +61,12 @@ class ConfigMgr:
         parser.add_argument(
             "-b", "--backup", action="store_true", help="Perform a db4e backup.")
         parser.add_argument(
-            "-s", "--service", action="store_true", help="Run db4e as a service.")
-        parser.add_argument(
             "-v", "--version", action="store_true", help="Print the db4e version.")
         args = parser.parse_args()
 
         ini = Config(app_version=app_version)
         if args.backup:
             ini.config[DB4E_FIELD][OP_FIELD] = RUN_BACKUP_FIELD
-
-        elif args.service:
-            ini.config[DB4E_FIELD][OP_FIELD] = RUN_SERVICE_FIELD
 
         elif args.version:
             print(f'Db4e v{app_version}')
@@ -157,6 +152,7 @@ class Config:
                 DEV_DIR_FIELD: DEV_DIR_DEFAULT,
                 INITIAL_SETUP_FIELD: INITIAL_SETUP_DEFAULT,
                 LOG_DIR_FIELD: LOG_DIR_DEFAULT,
+                LOG_FILE_FIELD: DB4E_LOG_FILE_DEFAULT,
                 PROCESS_FIELD: DB4E_PROCESS_DEFAULT,
                 PYPI_REPO_FIELD: PYPI_REPO_DEFAULT,
                 RUN_DIR_FIELD: RUN_DIR_DEFAULT,
