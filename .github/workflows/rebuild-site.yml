@@ -13,5 +13,7 @@ jobs:
 
       - name: Trigger GitHub Pages Build
         run: |
+          git config --global user.email "nghaznavi@gmail.com"
+          git config --global user.name "Nadim Ghaznavi"
           git commit --allow-empty -m "Trigger GitHub Pages rebuild"
           git push
