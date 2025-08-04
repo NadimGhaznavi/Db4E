@@ -83,11 +83,14 @@ class InitialSetup(Container):
 
 
     def set_data(self, rec):
-        print(f"InitialSetup:set_data(): rec: {rec}")
+        #print(f"InitialSetup:set_data(): rec: {rec}")
         self.rec = rec
         self.user_name_static.update(get_component_value(rec, USER_FIELD))
         self.group_name_static.update(get_component_value(rec, GROUP_FIELD))
         self.install_dir_static.update(get_component_value(rec, INSTALL_DIR_FIELD))
+        self.user_wallet_input.value = get_component_value(rec, USER_WALLET_FIELD)
+        self.vendor_dir_input.value = get_component_value(rec, VENDOR_DIR_FIELD)
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

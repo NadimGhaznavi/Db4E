@@ -50,7 +50,6 @@ class HealthMgr:
     def check_db4e(self, rec):
         #print(f"HealthMgr:check_db4e(): rec: {rec}")
         results = []
-        # Example: check if vendor dir exists
         vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
         if vendor_dir == "":
             results.append(result_row(
@@ -73,7 +72,6 @@ class HealthMgr:
         wallet = get_component_value(rec, USER_WALLET_FIELD)
         # Future sanity check
         #if wallet and wallet.startswith("4") and len(wallet) >= 95:
-        print(f"HealthMgr:check_db4e(): wallet: {wallet}")
         if wallet:        
             results.append(result_row(
                 f"{USER_WALLET_LABEL}", GOOD_FIELD,

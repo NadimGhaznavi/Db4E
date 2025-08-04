@@ -95,13 +95,20 @@ class InstallMgr(Container):
                 f"Fatal error, aborting install"))
             return rec
 
-        # Create the vendor directory
+        # Create the vendor directory on the filesystem
         results, abort_install = self._create_vendor_dir(
             vendor_dir=vendor_dir
         )
         if abort_install:
+            rec[HEALTH_MSGS_FIELD] += results
+            rec[HEALTH_MSGS_FIELD].append(result_row(
+                DB4E_LABEL, ERROR_FIELD,
+                f"Fatal error, aborting install"))
             return rec
         
+        # Update the Mongo record
+        rec = self._create_vendor_dir_rec(vendor_dir=vendor_dir, rec=rec)
+
         # Create the Db4E vendor directories
         results += self._create_db4e_dirs(vendor_dir=vendor_dir)
 
@@ -182,16 +189,8 @@ class InstallMgr(Container):
             rec[HEALTH_MSGS_FIELD].append(result_row(
                 VENDOR_DIR_LABEL, ERROR_FIELD,
                 f"{VENDOR_DIR_LABEL} missing"))
-            return rec, abort_install
-        
-        rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
-        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
-        self.depl_mgr.update_one(query, rec)
-        rec[HEALTH_MSGS_FIELD].append(result_row(
-            VENDOR_DIR_LABEL, GOOD_FIELD, 
-            f"Set the {VENDOR_DIR_LABEL}: {vendor_dir}"))
         return rec, abort_install
-
+        
     # Copy Db4E files
     def _copy_db4e_files(self, vendor_dir):
         results = []
@@ -420,11 +419,11 @@ class InstallMgr(Container):
                     f'Backed up old deployment directory: {backup_vendor_dir}'))
             except (PermissionError, OSError, FileNotFoundError) as e:
                 results.append(result_row(
-                    VENDOR_DIR_LABEL, ERROR_FIELD, 
+                    VENDOR_DIR_LABEL, WARN_FIELD, 
                     'Failed to backup old deployment directory: ' +
                     f'{backup_vendor_dir}\n{e}'))
                 abort_install = True
-                return (results, abort_install) # Abort the install
+                return results, abort_install # Abort the install
 
         try:
             os.makedirs(vendor_dir)
@@ -433,10 +432,21 @@ class InstallMgr(Container):
                 f"Created directory: {vendor_dir}"))        
         except (PermissionError, FileNotFoundError, FileExistsError) as e:
             results.append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD, 
+                VENDOR_DIR_LABEL, WARN_FIELD, 
                 f'Failed to create directory: {vendor_dir}\n{e}'))
             abort_install = True
-        return (results, abort_install)
+            return results, abort_install
+
+        return results, abort_install
+
+    def _create_vendor_dir_rec(self, vendor_dir, rec):
+        rec = update_component_values(rec=rec, updates={VENDOR_DIR_FIELD: vendor_dir})
+        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
+        self.depl_mgr.update_one(query, rec)
+        rec[HEALTH_MSGS_FIELD].append(result_row(
+            VENDOR_DIR_LABEL, GOOD_FIELD, 
+            f"Set the {VENDOR_DIR_LABEL}: {vendor_dir}"))
+        return rec
 
 
     def _create_xmrig_dirs(self, vendor_dir):
