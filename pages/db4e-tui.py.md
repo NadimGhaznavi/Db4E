@@ -6,7 +6,7 @@ title: Console Application
 
 The `db4e` command launches a unified Monero XMR mining dashboard for deployment, operation and real-time analytics. It's built using the [Textual](https://textual.textualize.io/) Rapid Application Development framework and offers a modern TUI experience right from your terminal.
 
-![Screenshot of db4e-gui.sh](/images/db4e-tui.png)
+![Screenshot of Db4E](/images/db4e-tui.png)
 
 ---
 
@@ -33,6 +33,11 @@ pip install db4e
 db4e
 ```
 
+---
+
+# After Initial Setup
+
+![Screenshot of Db4E installer](/images/db4e-tui-installer.png)
 
 
 
