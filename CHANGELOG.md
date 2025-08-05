@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Error in `pyproject.tomli` file
 
+### Added
+- Sceenshot of the Db4E installer
+
 --- 
 
 ## [0.27.0] - 2025-08-04
