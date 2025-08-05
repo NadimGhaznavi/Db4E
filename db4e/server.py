@@ -30,7 +30,9 @@ from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, ELEMENT_TYPE_FIELD, XMRIG_FIELD)
+    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, ELEMENT_TYPE_FIELD, XMRIG_FIELD, 
+    INSTANCE_FIELD)
+from db4e.Constants.Labels import XMRIG_LABEL
 
 POLL_INTERVAL = 5
 
@@ -70,8 +72,8 @@ class Db4eServer:
 
     def _handle_xmrig(self, depl):
         enable_flag = depl[ENABLE_FIELD]
-        self.log.critical(f"Found {XMRIG_FIELD} (enabled: {enable_flag})")
-
+        instance = get_component_value(depl, INSTANCE_FIELD)
+        self.log.critical(f"Found {XMRIG_LABEL}: instance {instance}, enabled: {enable_flag}")
 
 
     def start(self):

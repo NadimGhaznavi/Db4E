@@ -17,12 +17,12 @@ from db4e.Modules.Helper import (
     worst_status, result_row, is_port_open, get_component_value)
 from db4e.Constants.Fields import(
     CONFIG_FIELD, ERROR_FIELD, GOOD_FIELD, INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD,
-    RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD,
+    RPC_BIND_PORT_FIELD, P2POOL_FIELD, STRATUM_PORT_FIELD, WARN_FIELD, ENABLE_FIELD,
     XMRIG_FIELD, ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD, USER_WALLET_FIELD, DB4E_FIELD,
     HEALTH_MSGS_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD)
 from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
-    ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL)
+    ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, XMRIG_LABEL)
 
 class HealthMgr:
 
@@ -171,6 +171,20 @@ class HealthMgr:
                 CONFIG_LABEL, WARN_FIELD,
                 f"Not found: {config_file}"
             ))
+        
+        instance = get_component_value(rec, INSTANCE_FIELD)
+        if get_component_value(rec, ENABLE_FIELD):
+            results.append(result_row(
+                XMRIG_LABEL, GOOD_FIELD,
+                f"{XMRIG_LABEL} ({instance}) is enabled"
+            ))
+        
+        else:
+            results.append(result_row(
+                XMRIG_LABEL, WARN_FIELD,
+                f"{XMRIG_LABEL} ({instance}) is disabled"
+            ))
+
 
         # Check that upstream P2Pool deployment exists
         p2pool_results = []

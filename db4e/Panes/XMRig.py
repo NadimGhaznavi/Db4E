@@ -119,7 +119,7 @@ class XMRig(Container):
         return False
 
     def set_data(self, rec):
-        #print(f"XMRig:set_data(): {rec}")
+        print(f"XMRig:set_data(): {rec}")
         self.instance_input.value = get_component_value(rec, INSTANCE_FIELD)
         self.orig_instance = get_component_value(rec, INSTANCE_FIELD)
         self.num_threads_input.value = str(get_component_value(rec, NUM_THREADS_FIELD))
