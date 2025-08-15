@@ -164,7 +164,7 @@ class HealthMgr:
             return False
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(10)  # Set aLine timeout for the connection attempt
+                sock.settimeout(5)  # Set aLine timeout for the connection attempt
                 result = sock.connect_ex((ip_addr, int(port_num)))
                 return result == 0
         except socket.gaierror:

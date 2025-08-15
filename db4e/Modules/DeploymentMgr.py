@@ -33,7 +33,8 @@ from db4e.Constants.Fields import (
     DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD
 )
 from db4e.Constants.Defaults import (
-    DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT
+    DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
+    CONF_DIR_DEFAULT
 )
 
 
@@ -147,10 +148,16 @@ class DeploymentMgr(Container):
 
         if not xmrig.parent():
             update = False
-
+        else:
+            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+            
         if update:
+            tmpl_dir = self.get_dir(TEMPLATE_FIELD)
+            vendor_dir = self.get_dir(VENDOR_DIR_FIELD)
+            xmrig_dir = XMRIG_FIELD + '-' + xmrig.version()
+            tmpl_file = os.path.join(tmpl_dir, xmrig_dir, CONF_DIR_DEFAULT, 'config.json')
+            xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             self.insert_one(xmrig)
-        xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
         print(f"DeploymentMgr:add_xmrig_deployment(): {xmrig.p2pool}")
         return xmrig
 

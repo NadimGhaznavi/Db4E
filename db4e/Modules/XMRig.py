@@ -79,19 +79,6 @@ class XMRig(SoftwareSystem):
         self.config_file.value = fq_config
     
 
-    def gen_radio_map(self, instances):
-        #local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-        #remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-        #instances = local_instances + remote_instances
-        #instances.sort()
-        
-        radio_set = {}
-        for (instance, id) in instances:
-            radio_set[instance] = id
-
-        return radio_set
-    
-
     def instance_map(self, map=None):
         if map:
             self._instance_map = map
