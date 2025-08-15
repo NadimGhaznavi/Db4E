@@ -12,197 +12,194 @@ import os
 from datetime import datetime, timezone
 
 from textual.containers import Container
-from db4e.Modules.ConfigMgr import Config, ConfigMgr
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Helper import (
-    gen_radio_map, get_component_value, get_effective_identity,
-    is_valid_ip_or_hostname, result_row, set_component_value,
-    update_component_values)
+from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
+
 from db4e.Constants.Labels import (
     DB4E_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL,
-    USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_LABEL
+    USER_WALLET_LABEL, VENDOR_DIR_LABEL
 )
 from db4e.Constants.Fields import (
-    COMPONENT_FIELD, CONFIG_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD, ERROR_FIELD,
-    FORM_DATA_FIELD, GOOD_FIELD, GROUP_FIELD, ID_FIELD, INSTALL_DIR_FIELD,
-    INSTANCE_FIELD, IP_ADDR_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
-    NUM_THREADS_FIELD, ORIG_INSTANCE_FIELD, PARENT_ID_FIELD, P2POOL_FIELD,
-    P2POOL_REMOTE_FIELD, RPC_BIND_PORT_FIELD, STRATUM_PORT_FIELD, USER_FIELD,
-    USER_WALLET_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
-    ZMQ_PUB_PORT_FIELD, HEALTH_MSGS_FIELD, DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD,
-    FIELD_FIELD, VALUE_FIELD, RADIO_MAP_FIELD
+    OBJECT_ID_FIELD, PYTHON_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD, ERROR_FIELD,
+    TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD,
+    INSTANCE_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
+    P2POOL_FIELD, P2POOL_REMOTE_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
+    DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD
 )
 from db4e.Constants.Defaults import (
-    DEPLOYMENT_COL_DEFAULT
+    DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT
 )
-                                     
+
+
+
 class DeploymentMgr(Container):
     
-    def __init__(self, config: Config):
+
+    def __init__(self):
         super().__init__()
-        self.ini = config
-        self.conf_mgr = ConfigMgr(app_version='UNUSED')
-        self.db = DbMgr(config)
+        self.db = DbMgr()
+        self.job_queue = JobQueue(db=self.db)
         self.depl_col = DEPLOYMENT_COL_DEFAULT
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        self.init_db()
 
 
-    def add_deployment(self, rec):
+    def add_deployment(self, elem):
         #print(f"DeploymentMgr:add_deployment(): {rec}")
-        elem_type = rec[ELEMENT_TYPE_FIELD]
+        elem_class = type(elem)
 
         # Add the Db4E Core deployment
-        if elem_type == DB4E_FIELD:
-            return self.insert_one(rec)
+        if elem_class == Db4E:
+            return self.insert_one(elem.to_rec())
 
-        # Add a Monero daemon deployment
-        elif elem_type == MONEROD_REMOTE_FIELD:
-            return self.add_remote_monerod_deployment(rec)
+        # Add a remote Monero daemon deployment
+        elif elem_class == MoneroD:
+            return self.add_monerod_deployment(elem)
             
-        # Add a P2Pool deployment
-        elif elem_type == P2POOL_REMOTE_FIELD:
-            return self.add_remote_p2pool_deployment(rec)
+        # Add a remote Monero daemon deployment
+        elif elem_class == MoneroDRemote:
+            return self.add_remote_monerod_deployment(elem)
+
+        # A P2Pool deployment
+        elif elem_class == P2Pool:
+            return self.add_p2pool_deployment(elem)
+
+        # Add a remote P2Pool deployment
+        elif elem_class == P2PoolRemote:
+            return self.add_remote_p2pool_deployment(elem)
             
         # Add a XMRig deployment
-        elif elem_type == XMRIG_FIELD:
-            return self.add_xmrig_deployment(rec)
+        elif elem_class == XMRig:
+            return self.add_xmrig_deployment(elem)
 
         # Catchall
         else:
-            raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_type}")
+            raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_class}")
 
 
-    def add_monerod_deployment(self, rec):
+    def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
         #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
-        results = []
-        results.append(result_row(
-            MONEROD_REMOTE_LABEL, WARN_FIELD,
-            f"🚧 {MONEROD_REMOTE_FIELD} deployment coming soon 🚧"
-        ))
-        rec[HEALTH_MSGS_FIELD] += results
+        monerod.msg(MONEROD_REMOTE_LABEL, WARN_FIELD,
+            f"🚧 {MONEROD_REMOTE_FIELD} deployment coming soon 🚧")
+        return monerod
 
 
-    def add_remote_monerod_deployment(self, rec):
+    def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
         #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
         update = True
-        instance = get_component_value(rec, INSTANCE_FIELD)
-        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
-        rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
-        zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
 
         # Check that the user actually filled out the form
-        if not instance:
+        if not monerod.instance():
             update = False
 
-        if not ip_addr:
+        if not monerod.ip_addr():
             update = False
 
         #elif not is_valid_ip_or_hostname(ip_addr):
         #    update = False
 
-        if not rpc_bind_port:
+        if not monerod.rpc_bind_port():
             update = False
 
-        if not zmq_pub_port:
+        if not monerod.zmq_pub_port():
             update = False
 
         if update:
-            self.insert_one(rec)
-        return rec
+            self.insert_one(monerod)
+        return monerod
+    
 
-    def add_remote_p2pool_deployment(self, rec):
+    def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         update = True
-        instance = get_component_value(rec, INSTANCE_FIELD)
-        ip_addr = get_component_value(rec, IP_ADDR_FIELD)
-        stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
 
         # Check that the user actually filled out the form
-        if not instance:
+        if not p2pool.instance():
             update = False
 
-        if not ip_addr:
+        if not p2pool.ip_addr():
             update = False
 
-        elif not is_valid_ip_or_hostname(ip_addr):
-            update = False
+        #elif not is_valid_ip_or_hostname(p2pool.ip_addr.value):
+        #    update = False
 
-        if not stratum_port:
+        if not p2pool.stratum_port():
             update = False
 
         if update:
-            self.insert_one(rec)
-        return rec        
+            self.insert_one(p2pool)
+        return p2pool
 
 
-    def add_xmrig_deployment(self, rec):
+    def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
         update = True
-        instance = get_component_value(rec, INSTANCE_FIELD)
-        num_threads = get_component_value(rec, NUM_THREADS_FIELD)
-        parent_id = get_component_value(rec, PARENT_ID_FIELD)
     
         # Check that the user filled out the form
-        if not instance:
+        if not xmrig.instance():
             update = False
 
-        if not num_threads:
+        if not xmrig.num_threads():
             update = False
 
-        if not parent_id:
+        if not xmrig.parent():
             update = False
-
-        # MAke sure we don't inlcude the radio map
-        if RADIO_MAP_FIELD in rec:
-            rec.pop(RADIO_MAP_FIELD)
-
-        # Generate a config file
-        rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
 
         if update:
-            self.insert_one(rec)
-        return rec
+            self.insert_one(xmrig)
+        xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+        print(f"DeploymentMgr:add_xmrig_deployment(): {xmrig.p2pool}")
+        return xmrig
 
 
-    def create_vendor_dir(self, new_dir: str, results: list):
+    def create_vendor_dir(self, new_dir: str, db4e: Db4E):
         update_flag = True
         if os.path.exists(new_dir):
             timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, WARN_FIELD, 
-                    f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})"))
+                db4e.msg(VENDOR_DIR_LABEL, WARN_FIELD, 
+                    f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})")
             except (PermissionError, OSError) as e:
                 update_flag = False
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, ERROR_FIELD, 
-                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}"))
-                return (update_flag, results)
+                db4e.msg(VENDOR_DIR_LABEL, ERROR_FIELD, 
+                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}")
+                return db4e, update_flag
             
         try:
             os.makedirs(new_dir)
-            results.append(result_row(
-                VENDOR_DIR_LABEL, GOOD_FIELD, 
-                f"Created new {VENDOR_DIR_FIELD}: {new_dir}"))
+            db4e.msg(VENDOR_DIR_LABEL, GOOD_FIELD, f"Created new {VENDOR_DIR_FIELD}: {new_dir}")
         except (PermissionError, OSError) as e:
-            results.append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD, 
-                f"Unable to create new {VENDOR_DIR_FIELD}: {new_dir}, aborting deployment directory update:\n{e}"))
+            db4e.msg(VENDOR_DIR_LABEL, ERROR_FIELD, 
+                f"Unable to create new {VENDOR_DIR_FIELD}: {new_dir}, aborting deployment directory update:\n{e}")
             update_flag = False
 
-        return (update_flag, results)
+        return db4e, update_flag
 
 
-    def del_deployment(self, rec_data):
-        elem_type = rec_data[ELEMENT_TYPE_FIELD]
-        instance = rec_data[INSTANCE_FIELD]
-        #print(f"DeploymentMgr:del_deployment(): {elem_type}/{instance}")
+    def del_deployment(self, elem):
+
+        elem_class = type(elem)
+
+        class_map = {
+            Db4E: DB4E_FIELD,
+            MoneroD: MONEROD_FIELD,
+            MoneroDRemote: MONEROD_REMOTE_FIELD,
+            P2Pool: P2POOL_FIELD,
+            P2PoolRemote: P2POOL_REMOTE_FIELD,
+            XMRig: XMRIG_FIELD
+        }
+        elem_class = class_map[elem_class]
+        instance = elem.instance()
 
         self.db.delete_one(
             col_name=self.depl_col,
                 filter = {
-                    ELEMENT_TYPE_FIELD: elem_type,
+                    ELEMENT_TYPE_FIELD: elem_class,
                     COMPONENTS_FIELD: {
                         "$elemMatch": {
                             FIELD_FIELD: INSTANCE_FIELD,
@@ -211,21 +208,43 @@ class DeploymentMgr(Container):
                     }
                 }
         )
-        rec = self.db.get_new_rec(elem_type)
-        if elem_type == XMRIG_FIELD:
-            rec[RADIO_MAP_FIELD] = gen_radio_map(rec=rec, depl_mgr=self)
-        return rec
+
+        # Return a blank instance of the same class
+        return elem_class()
         
  
+    def get_component_value(self, data, field_name):
+        """
+        Generic helper to get any component value by field name.
+        
+        Args:
+            data (dict): Dictionary containing components with field/value pairs
+            field_name (str): The field name to search for
+            
+        Returns:
+            any or None: The component value, or None if not found
+        """
+        if not isinstance(data, dict) or 'components' not in data:
+            return None
+        
+        components = data.get(COMPONENTS_FIELD, [])
+        
+        for component in components:
+            if isinstance(component, dict) and component.get(FIELD_FIELD) == field_name:
+                return component.get(VALUE_FIELD)
+        
+        return None
+
+
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
-            rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
+            db4e_rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
             # rec is a cursor object.
-            if rec:
-                return rec
-            else:
-                return {}
+            if not db4e_rec:
+                raise RuntimeError(f"DeploymentMgr:get_deployment(): No {DB4E_FIELD} deployment found")
+            return Db4E(db4e_rec)
+        
         else:
             rec = self.db.find_one(
                 col_name = self.depl_col, 
@@ -242,76 +261,143 @@ class DeploymentMgr(Container):
             )                
             #print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
 
-            if not rec:
-                return {}
-            return rec
+            if elem_type == MONEROD_FIELD:
+                return MoneroD(rec)
 
-        # No record for this deployment exists
+            elif elem_type == MONEROD_REMOTE_FIELD:
+                return MoneroDRemote(rec)
+
+            elif elem_type == P2POOL_FIELD:
+                return P2Pool(rec)
+
+            elif elem_type == P2POOL_REMOTE_FIELD:
+                return P2PoolRemote(rec)
+            
+            elif elem_type == XMRIG_FIELD:
+                return XMRig(rec)
+
+            else:
+                raise ValueError(f"DeploymentMgr:get_deployment(): No handler for {elem_type}")
 
 
     def get_deployment_by_id(self, id):
-        return self.db.find_one(col_name=self.depl_col, filter={'_id': id})
+        rec = self.db.find_one(col_name=self.depl_col, filter={'_id': id})
+        elem_type = rec[ELEMENT_TYPE_FIELD]
+        if elem_type == MONEROD_FIELD:
+            return MoneroD(rec)
+        elif elem_type == MONEROD_REMOTE_FIELD:
+            return MoneroDRemote(rec)
+        elif elem_type == P2POOL_FIELD:
+            return P2Pool(rec)
+        elif elem_type == P2POOL_REMOTE_FIELD:
+            return P2PoolRemote(rec)
+        elif elem_type == XMRIG_FIELD:
+            return XMRig(rec)
+        else:
+            raise ValueError(f"DeploymentMgr:get_deployment_by_id(): No handler for {elem_type}")
+
 
 
     def get_deployment_ids_and_instances(self, elem_type):
         recs = self.db.find_many(
             self.depl_col, {ELEMENT_TYPE_FIELD: elem_type})
-        result_list = []
-        instance_list = []
+        result_map = {}
+        
         for rec in recs:            
-            instance = get_component_value(rec, INSTANCE_FIELD)
-            instance_list.append(instance)
-            result_list.append((instance, rec[ID_FIELD]))
-        result_list.sort()
-        instance_list.sort()
-        #print(f"DeploymentMgr:get_deployment_ids_and_instances(): {instance_list}")
-        return result_list or []
+            instance = self.get_component_value(rec, INSTANCE_FIELD)
+            result_map[instance] = rec[OBJECT_ID_FIELD]
+
+        #print(f"DeploymentMgr:get_deployment_ids_and_instances(): {result_map}")
+        return result_map or {}
 
 
-    def get_deployments(self, component=None) -> list[dict]:
-        query = {}
-        if component is not None:
-            query[COMPONENT_FIELD] = component
-        results = self.db.find_many(self.depl_col, query)
-        #print(f"DeploymentMgr:get_deployments(): {results}")
-        return results
+    def get_deployments(self, elem_type=None) -> list[dict]:
+        if elem_type is None:
+            query = {}
+        else:
+            query= {ELEMENT_TYPE_FIELD: elem_type}
+        recs = self.db.find_many(self.depl_col, query)
+
+        elem_list = []
+        for rec in recs:
+            #print(f"DeploymentMgr:get_deployments(): type: {rec[ELEMENT_TYPE_FIELD]}")
+            elem_type = rec[ELEMENT_TYPE_FIELD]
+            if elem_type == DB4E_FIELD:
+                elem_list.append(Db4E(rec))
+            elif elem_type == MONEROD_FIELD:
+                elem_list.append(MoneroD(rec))
+            elif elem_type == MONEROD_REMOTE_FIELD:
+                elem_list.append(MoneroDRemote(rec))
+            elif elem_type == P2POOL_FIELD:
+                elem_list.append(P2Pool(rec))
+            elif elem_type == P2POOL_REMOTE_FIELD:
+                elem_list.append(P2PoolRemote(rec))
+            elif elem_type == XMRIG_FIELD:
+                elem_list.append(XMRig(rec))
+            #else:
+            #    raise ValueError(f"DeploymentMgr:get_deployments(): No handler for {elem_type}")
+
+        return elem_list
     
 
-    def init_db(self):
-        existing_rec = self.get_deployment(DB4E_FIELD)
-        if existing_rec:
-            return existing_rec
+    def get_dir(self, aDir: str) -> str:
+
+        if aDir == DB4E_FIELD:
+            return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
         
-        rec = self.db.get_new_rec(DB4E_FIELD)
-        # Use the effective UID/GID for the Db4E user/group
-        effective_id = get_effective_identity()
-        user = effective_id[USER_FIELD]
-        group = effective_id[GROUP_FIELD]
-        db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        rec = update_component_values(rec, {
-            USER_FIELD: user,
-            GROUP_FIELD: group,
-            INSTALL_DIR_FIELD: db4e_install_dir})
-        self.insert_one(rec)
-        return rec
+        elif aDir == PYTHON_FIELD:
+            python = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
+                             BIN_DIR_DEFAULT, PYTHON_DEFAULT))
+            return python
+        
+        elif aDir == INSTALL_DIR_FIELD:
+            return os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
+        
+        elif aDir == TEMPLATE_FIELD:
+            return os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '..', '..', DB4E_FIELD, TEMPLATES_DIR_DEFAULT))
+        
+        elif aDir == VENDOR_DIR_FIELD:
+            db4e = self.get_deployment(elem_type=DB4E_FIELD)
+            return db4e.vendor_dir()
+        
+        else:
+            raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")
 
 
-    def insert_one(self, rec):
+    def get_new(self, elem_type):
+        if elem_type == MONEROD_FIELD:
+            return MoneroD()
+        elif elem_type == MONEROD_REMOTE_FIELD:
+            return MoneroDRemote()
+        elif elem_type == P2POOL_FIELD:
+            return P2Pool()
+        elif elem_type == P2POOL_REMOTE_FIELD:
+            return P2PoolRemote()
+        elif elem_type == XMRIG_FIELD:
+            return XMRig()
+        else:
+            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
+
+
+
+    def insert_one(self, elem):
         ## Don't put the HEALTH_MSGS_FIELD (the status messages) into the DB
         # Pop off 
-        if HEALTH_MSGS_FIELD in rec:
-            status = rec.pop(HEALTH_MSGS_FIELD)
-            self.db.insert_one(self.depl_col, rec)
-            rec[HEALTH_MSGS_FIELD] = status
-        return rec
+        msgs = elem.pop_msgs()
+        rec = elem.to_rec()
+        rec.pop("_id", None)
+        self.db.insert_one(self.depl_col, rec)
+        elem.push_msgs(msgs)
+        return elem
         
 
     def is_initialized(self):
-        rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
-        if rec:
-            vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
-            user_wallet = get_component_value(rec, USER_WALLET_FIELD)
-            if vendor_dir and user_wallet:
+        db4e = self.get_deployment(DB4E_FIELD)
+        if db4e:
+            if db4e.vendor_dir() and db4e.user_wallet():
                 return True
             else:
                 return False
@@ -319,230 +405,167 @@ class DeploymentMgr(Container):
             return False
 
 
-    def update_deployment(self, rec):
-        elem_type = rec[ELEMENT_TYPE_FIELD]
-        if elem_type == DB4E_FIELD:
-            return self.update_db4e_deployment(rec=rec)
-        elif elem_type == MONEROD_FIELD:
-            return self.update_monerod_deployment(rec=rec)
-        elif elem_type == P2POOL_FIELD:
-            return self.update_p2pool_deployment(rec=rec)
-        elif elem_type == XMRIG_FIELD:
-            return self.update_xmrig_deployment(rec=rec)
+    def update_deployment(self, elem):
+        if type(elem) == Db4E:
+            return self.update_db4e_deployment(db4e=elem)
+        elif type(elem) == MoneroD:
+            return self.update_monerod_deployment(monerod=elem)
+        elif type(elem) == P2Pool:
+            return self.update_p2pool_deployment(p2pool=elem)
+        elif type(elem) == XMRig:
+            return self.update_xmrig_deployment(xmrig=elem)
 
 
-    def update_db4e_deployment(self, form_data):
-        query = {ELEMENT_TYPE_FIELD: DB4E_FIELD}
-
-        if FORM_DATA_FIELD in form_data:
-            form_wallet = form_data[USER_WALLET_FIELD]
-            form_vendor_dir = form_data[VENDOR_DIR_FIELD]
-        else:
-            form_wallet = get_component_value(form_data, USER_WALLET_FIELD)
-            form_vendor_dir = get_component_value(form_data, VENDOR_DIR_FIELD)
-        
-        results = []
+    def update_db4e_deployment(self, new_db4e: Db4E):
         update_flag = True
-        rec = self.get_deployment(DB4E_FIELD)
-        orig_user_wallet = get_component_value(rec, USER_WALLET_FIELD)
-        orig_vendor_dir = get_component_value(rec, VENDOR_DIR_FIELD)
+
+        # The current record, we'll update this and write it back in
+        db4e = self.get_deployment(DB4E_FIELD)
+
+        # Updating user wallet
+        if db4e.user_wallet != new_db4e.user_wallet:
+            db4e.user_wallet(new_db4e.user_wallet())
+            self.update_one(db4e)
+            db4e.msg(USER_WALLET_LABEL, GOOD_FIELD, f"Set the Db4E user wallet: {db4e.user_wallet()}")
+
+        # Updating vendor dir
+        if db4e.vendor_dir != new_db4e.vendor_dir:
+            if not db4e.vendor_dir():
+                db4e, update_flag = self.create_vendor_dir(
+                    new_dir=new_db4e.vendor_dir(),
+                    db4e=db4e)
+
+            else:
+                db4e, update_flag = self.update_vendor_dir(
+                    new_dir=new_db4e.vendor_dir(),
+                    old_dir=db4e.vendor_dir(),
+                    db4e=db4e)
+
+            db4e.vendor_dir(new_db4e.vendor_dir())
+
+        #print(f"DeploymentMgr:update_db4e_deployment(): final rec: {rec}")
+        if update_flag:
+            self.update_one(db4e)
 
         #print(f"DeploymentMgr:update_db4e_deployment():")
-        #print(f"  Old: {orig_user_wallet}/{orig_vendor_dir}")
-        #print(f"  New: {form_wallet}/{form_vendor_dir}")
-
-        if FORM_DATA_FIELD in form_data:
-
-            ## Track field changes
-            
-            # Updating user wallet
-            if orig_user_wallet != form_wallet:
-                rec = set_component_value(rec, USER_WALLET_FIELD, form_wallet)
-                self.update_one(query, rec)
-                results.append(result_row(
-                    USER_WALLET_LABEL, GOOD_FIELD, 
-                    f"Set the Db4E user wallet: {form_wallet}"))
-
-            # Updating vendor dir
-            if orig_vendor_dir != form_vendor_dir:
-                if not orig_vendor_dir:
-                    update_flag, results = self.create_vendor_dir(
-                        new_dir=form_vendor_dir,
-                        results=results
-                    )
-
-                else:
-                    update_flag, results = self.update_vendor_dir(
-                        new_dir=form_vendor_dir,
-                        old_dir=orig_vendor_dir,
-                        results=results)
-
-                rec = set_component_value(rec, VENDOR_DIR_FIELD, form_vendor_dir)
-
-            #print(f"DeploymentMgr:update_db4e_deployment(): final rec: {rec}")
-            if update_flag:
-                self.update_one(query, rec)
-
-            #print(f"DeploymentMgr:update_db4e_deployment():")
-            return rec
-        
-        else:
-            # If no FORM_DATA_FIELD, treat as direct DB update (system-side, not user form)
-            self.update_one(query, rec)
-            return rec
+        return db4e
 
 
-    def update_deployment(self, rec):
+
+    def update_deployment(self, elem):
         #print(f"DeploymentMgr:update_deployment(): {rec}")
-        elem_type = rec[ELEMENT_TYPE_FIELD]
-        if elem_type == DB4E_FIELD:
-            return self.update_db4e_deployment(rec)
-        elif elem_type == MONEROD_FIELD:
-            return self.update_monerod_deployment(rec)
-        elif elem_type == MONEROD_REMOTE_FIELD:
-            return self.update_monerod_remote_deployment(rec)
-        elif elem_type == P2POOL_FIELD:
-            return self.update_p2pool_deployment(rec)
-        elif elem_type == P2POOL_REMOTE_FIELD:
-            return self.update_p2pool_remote_deployment(rec)
-        elif elem_type == XMRIG_FIELD:
-            return self.update_xmrig_deployment(rec)
+        if type(elem) == Db4E:
+            return self.update_db4e_deployment(elem)
+        elif type(elem) == MoneroD:
+            return self.update_monerod_deployment(elem)
+        elif type(elem) == MoneroDRemote:
+            return self.update_monerod_remote_deployment(elem)
+        elif type(elem) == P2Pool:
+            return self.update_p2pool_deployment(elem)
+        elif type(elem) == P2PoolRemote:
+            return self.update_p2pool_remote_deployment(elem)
+        elif type(elem) == XMRig:
+            return self.update_xmrig_deployment(elem)
         else:
             raise ValueError(
                 f"{DEPLOYMENT_MGR_FIELD}:update_deployment(): No handler for component " \
-                f"({elem_type})")
+                f"({elem})")
 
 
-    def update_monerod_deployment(self, rec):
+    def update_monerod_deployment(self, new_monerod: MoneroD):
         pass
 
 
-    def update_monerod_remote_deployment(self, data):
+    def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
         #print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
-        results = []
         update = False
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod.to_rec()}")
+        monerod = self.get_deployment_by_id(new_monerod.id())
+        if not monerod:
+            raise ValueError(f"DeploymentMgg:update_monerod_remote_deployment(): " \
+                             f"No monerod found for {new_monerod.id()}")
 
-        if FORM_DATA_FIELD in data:
-            form_data = data
+        ## Field-by-field comparison
 
-            rec = self.get_deployment(MONEROD_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
-            #print(f"DeploymentMgr:update_monerod_remote_deployment(): rec: {rec}")
+        # Instance
+        if monerod.instance != new_monerod.instance:
+            monerod.instance(new_monerod.instance())
+            update = True
 
-            ## Field-by-field comparison
+        # IP Address
+        if monerod.ip_addr != new_monerod.ip_addr:
+            monerod.ip_addr(new_monerod.ip_addr())
+            update = True
 
-            # Instance
-            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
-            form_instance = form_data[INSTANCE_FIELD]
-            #print(f"DeploymentMgr:update_monerod_remote_deployment(): {form_orig_instance}/{form_instance}")
-            if form_instance != form_orig_instance:
-                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)            
-                update = True
+        # RPC Bind Port
+        if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+            monerod.rpc_bind_port(new_monerod.rpc_bind_port())
+            update = True
 
-            # IP Address
-            form_ip_addr = form_data[IP_ADDR_FIELD]
-            db_ip_addr = get_component_value(rec, IP_ADDR_FIELD)
-            if form_ip_addr != db_ip_addr:
-                rec = set_component_value(rec, IP_ADDR_FIELD, form_ip_addr)
-                update = True
+        # ZMQ Pub Port
+        if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+            monerod.zmq_pub_port(new_monerod.zmq_pub_port())
+            update = True
 
-            # RPC Bind Port
-            form_rpc_bind_port = form_data[RPC_BIND_PORT_FIELD]
-            db_rpc_bind_port = get_component_value(rec, RPC_BIND_PORT_FIELD)
-            if form_rpc_bind_port != db_rpc_bind_port:
-                rec = set_component_value(rec, RPC_BIND_PORT_FIELD, form_rpc_bind_port)
-                update = True
+        if update:
+            self.update_one(monerod)
 
-            # ZMQ Pub Port
-            form_zmq_pub_port = form_data[ZMQ_PUB_PORT_FIELD]
-            db_zmq_pub_port = get_component_value(rec, ZMQ_PUB_PORT_FIELD)
-            if form_zmq_pub_port != db_zmq_pub_port:
-                rec = set_component_value(rec, ZMQ_PUB_PORT_FIELD, form_zmq_pub_port)
-                update = True
-
-            if update:
-                query = {
-                        ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
-                        COMPONENTS_FIELD: {
-                            "$elemMatch": {
-                                FIELD_FIELD: INSTANCE_FIELD,
-                                VALUE_FIELD: form_orig_instance,
-                            }
-                        }
-                    }
-                self.update_one(query, rec)
-            else:
-                results.append(result_row(
-                    MONEROD_LABEL, WARN_FIELD,
-                    f"{form_instance} – Nothing to update"
-                ))
-            return rec
-
-
-    def update_one(self, query, rec):
-        if HEALTH_MSGS_FIELD in rec:
-            status = rec.pop(HEALTH_MSGS_FIELD)
-            self.db.update_one(self.depl_col, query, rec)
-            rec[HEALTH_MSGS_FIELD] = status
         else:
-            self.db.update_one(self.depl_col, query, rec)
+            monerod.msg(MONEROD_LABEL, WARN_FIELD,
+                f"{monerod.instance()} – Nothing to update"
+            )
+        return monerod
 
-        return rec        
+
+    def update_one(self, elem):
+        # Don't store status messages in the DB
+        msgs = elem.pop_msgs()
+        print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
+        rec = elem.to_rec()
+        
+        if OBJECT_ID_FIELD in rec:
+            del rec[OBJECT_ID_FIELD]
+        self.db.update_one(self.depl_col, { OBJECT_ID_FIELD: elem.id() }, rec)
+        elem.push_msgs(msgs)
+        return elem
+    
 
     def update_p2pool_deployment(self, data):
         pass
 
 
-    def update_p2pool_remote_deployment(self, data):
-        results = []
+    def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
 
-        if FORM_DATA_FIELD in data:
-            form_data = data
-            rec = self.get_deployment(P2POOL_REMOTE_FIELD, form_data[ORIG_INSTANCE_FIELD])
+        p2pool = self.get_deployment_by_id(new_p2pool.id())
+        if not p2pool:
+            raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
+                             f"Nothing found for {new_p2pool.id()}")
 
-            ## Field-by-field comparison            
-            # Instance
-            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
-            form_instance = form_data[INSTANCE_FIELD]
-            if form_instance != form_orig_instance:
-                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)
-                update = True
+        if p2pool.instance != new_p2pool.instance:
+            p2pool.instance(new_p2pool.instance())
+            update = True
 
-            # IP Address
-            form_ip_addr = form_data[IP_ADDR_FIELD]
-            db_ip_addr = get_component_value(rec, IP_ADDR_FIELD)
-            if form_ip_addr != db_ip_addr:
-                rec = set_component_value(rec, IP_ADDR_FIELD, form_ip_addr)
-                update = True
+        # IP Address
+        if p2pool.ip_addr != new_p2pool.ip_addr:
+            p2pool.ip_addr(new_p2pool.ip_addr())
+            update = True
 
-            # Stratum Port
-            form_stratum_port = form_data[STRATUM_PORT_FIELD]
-            db_stratum_port = get_component_value(rec, STRATUM_PORT_FIELD)
-            if form_stratum_port != db_stratum_port:
-                rec = set_component_value(rec, STRATUM_PORT_FIELD, form_stratum_port)
-                update = True
+        # Stratum Port
+        if p2pool.stratum_port != new_p2pool.stratum_port:
+            p2pool.stratum_port(new_p2pool.stratum_port())
+            update = True
 
-            if update:
-                query = {
-                        ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
-                        COMPONENTS_FIELD: {
-                            "$elemMatch": {
-                                FIELD_FIELD: INSTANCE_FIELD,
-                                VALUE_FIELD: form_orig_instance,
-                            }
-                        }
-                    }
-                self.update_one(query, rec)
-                
-            else:
-                results.append(result_row(
-                    P2POOL_LABEL, WARN_FIELD,
-                    f"{form_instance} – Nothing to update"
-                ))
-            return rec
+        if update:
+            self.update_one(p2pool)
+            
+        else:
+            p2pool.msg(P2POOL_LABEL, WARN_FIELD, 
+                       f"{p2pool.instance()} – Nothing to update")
+        return p2pool
 
 
-    def update_vendor_dir(self, new_dir: str, old_dir: str, results: list):
+    def update_vendor_dir(self, new_dir: str, old_dir: str, db4e: Db4E) -> Db4E:
         #print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
@@ -558,92 +581,78 @@ class DeploymentMgr(Container):
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, WARN_FIELD, 
-                    f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})'))
-                return (update_flag, results)
+                db4e.msg(VENDOR_DIR_LABEL, WARN_FIELD, 
+                    f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})')
+                return db4e, update_flag
             except (PermissionError, OSError) as e:
                 update_flag = False
-                results.append(result_row(
-                    VENDOR_DIR_LABEL, ERROR_FIELD, 
-                    f'Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}'))
-                return (update_flag, results)
+                db4e.msg(VENDOR_DIR_LABEL, ERROR_FIELD, 
+                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), " \
+                    f"aborting deployment directory update:\n{e}")
+                return db4e, update_flag
 
         # No need to move if old_dir is empty (first-time initialization)
         if not old_dir:
-            results.append(result_row(
-                VENDOR_DIR_LABEL, GOOD_FIELD,
-                f"Created new {VENDOR_DIR_FIELD}: {new_dir}"))
-            return (update_flag, results)
+            db4e.msg(VENDOR_DIR_LABEL, GOOD_FIELD,
+                f"Crated new {VENDOR_DIR_FIELD}: {new_dir}")
+            return db4e, update_flag
         
         # Move the vendor_dir to the new location
         try:
             os.rename(old_dir, new_dir)
-            results.append(result_row(
-                VENDOR_DIR_LABEL, GOOD_FIELD, 
-                f'Moved vendor dir from ({old_dir}) to ({new_dir})'))
+            db4e.msg(VENDOR_DIR_LABEL, GOOD_FIELD, 
+                f'Moved vendor dir from ({old_dir}) to ({new_dir})')
         except (PermissionError, OSError) as e:
-            results.append(result_row(
-                VENDOR_DIR_LABEL, ERROR_FIELD, 
-                f'Unable to move vendor dir from ({old_dir}) to ({new_dir}), aborting deployment directory update:\n{e}'))
+            db4e.msg(VENDOR_DIR_LABEL, ERROR_FIELD, 
+                f"Unable to move vendor dir from ({old_dir}) to ({new_dir}), " \
+                f"aborting deployment directory update:\n{e}")
             update_flag = False
 
         #print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
-        return (update_flag, results)
+        return db4e, update_flag
+    
 
 
-    def update_xmrig_deployment(self, data):
-        #print(f"DeploymentMgr:update_xmrig_deployment(): {data}")
+    def update_xmrig_deployment(self, new_xmrig: XMRig) -> XMRig:
         update = False
         update_config = False
 
-        if FORM_DATA_FIELD in data:
-            form_data = data
-            rec = self.get_deployment(XMRIG_FIELD, form_data[ORIG_INSTANCE_FIELD])
+        xmrig = self.get_deployment_by_id(new_xmrig.id())
+        if not xmrig:
+            raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
+                             f"Nothing found for {new_xmrig.id()}")
 
-            ## Field-by-field comparison
+
+        if xmrig.enable != new_xmrig.enable:
+            # This is an enable/disable operation
+            xmrig.enable(new_xmrig.enable())
+            update = True
+
+        else:
+            # User clicked "update", do a field-by-field comparison
+
             # Instance
-            form_orig_instance = form_data[ORIG_INSTANCE_FIELD]
-            form_instance = form_data[INSTANCE_FIELD]
-            if form_instance != form_orig_instance:
+            if xmrig.instance != new_xmrig.instance:
+                xmrig.instance(new_xmrig.instance())
                 update = True
                 update_config = True
-                rec = set_component_value(rec, INSTANCE_FIELD, form_instance)
 
             # Num Threads
-            form_num_threads = form_data[NUM_THREADS_FIELD]
-            db_num_threads = get_component_value(rec, NUM_THREADS_FIELD)
-            if form_num_threads != db_num_threads:
+            if xmrig.num_threads != new_xmrig.num_threads:
+                xmrig.num_threads(new_xmrig.num_threads())
                 update = True
                 update_config = True
-                rec = set_component_value(rec, NUM_THREADS_FIELD, form_num_threads)
 
             # Parent ID
-            form_parent_id = form_data[PARENT_ID_FIELD]
-            db_parent_id = get_component_value(rec, PARENT_ID_FIELD)
-            if form_parent_id != db_parent_id:
+            if xmrig.parent_id != new_xmrig.parent_id:
+                xmrig.parent_id(new_xmrig.parent_id())
                 update = True
                 update_config = True
-                rec = set_component_value(rec, PARENT_ID_FIELD, form_parent_id)
 
             # Regenerate config if required
             if update_config:
-                config_file = get_component_value(rec, CONFIG_FIELD)
-                if config_file:
-                    self.conf_mgr.del_config(config_file=config_file)
-                rec = self.conf_mgr.gen_xmrig_config(rec=rec, depl_mgr=self)
+                pass
+                # TODO, send message to server telling it to regenerate the config
 
             if update:
-                query = {
-                        ELEMENT_TYPE_FIELD: XMRIG_FIELD,
-                        COMPONENTS_FIELD: {
-                            "$elemMatch": {
-                                FIELD_FIELD: INSTANCE_FIELD,
-                                VALUE_FIELD: form_orig_instance,
-                            }
-                        }
-                    }
-                self.update_one(query, rec)
-            return rec
-        else:
-            raise ValueError("DeploymentMgr:update_xmrig_deployment(): Missing FORM_DATA_FIELD")
+                self.update_one(xmrig)

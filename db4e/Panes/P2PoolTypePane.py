@@ -1,5 +1,5 @@
 """
-db4e/Panes/P2PoolType.py
+db4e/Panes/P2PoolTypePane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -14,15 +14,15 @@ from textual.widgets import Button, RadioButton, RadioSet, Label
 from db4e.Constants.Labels import (
     P2POOL_LABEL, P2POOL_REMOTE_LABEL,PROCEED_LABEL)
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_REC_FIELD,
-    GREEN_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
+    ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_FIELD,
+    PROCEED_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
     PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
 from db4e.Messages.Db4eMsg import Db4eMsg
 
 color = "#9cae41"
 hi = "cyan"
 
-class P2PoolType(Container):
+class P2PoolTypePane(Container):
 
     def compose(self):
         INTRO = f"Welcome to the new [b {hi}]{P2POOL_LABEL}[/] screen. Use to create " \
@@ -42,7 +42,7 @@ class P2PoolType(Container):
                         id="type_radioset", classes="radio_set",
                     )),
 
-                Button(label=PROCEED_LABEL, classes=GREEN_BUTTON_FIELD)),
+                Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD)),
                 classes=PANE_BOX_FIELD)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -51,14 +51,14 @@ class P2PoolType(Container):
         if selected and selected.id == "remote":
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                TO_METHOD_FIELD: GET_NEW_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                TO_METHOD_FIELD: GET_NEW_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 REMOTE_FIELD: False
             }

@@ -9,24 +9,25 @@ db4e/Modules/DbManager.py
 """
 
 import sys
+from datetime import datetime
 from copy import deepcopy
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import (
     ConnectionFailure, CollectionInvalid, ServerSelectionTimeoutError)
 
-from db4e.Modules.ConfigMgr import Config
-from db4e.Constants.SoftwareSystems import (
-    Db4E_Template, MoneroD_Remote_Template, MoneroD_Template,
-    P2Pool_Remote_Template, P2Pool_Template, XMRig_Template
-)
+from db4e.Modules.XMRig import XMRig
+from db4e.Modules.Db4E import Db4E
 from db4e.Constants.Fields import (
-    DB4E_FIELD, DB_FIELD, DB_NAME_FIELD, DEPLOYMENT_COL_FIELD,
-    ELEMENT_TYPE_FIELD, HEALTH_MSGS_FIELD,
-    LOG_COLLECTION_FIELD, LOG_RETENTION_DAYS_FIELD, MAX_BACKUPS_FIELD,
-    METRICS_COLLECTION_FIELD, MINING_COL_FIELD, MONEROD_FIELD,
-    MONEROD_REMOTE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, PORT_FIELD,
-    RETRY_TIMEOUT_FIELD, SERVER_FIELD, XMRIG_FIELD, TEMPLATES_COLLECTION_FIELD,
-    ELEMENT_TYPE_FIELD )
+    DB4E_FIELD,
+    ELEMENT_TYPE_FIELD, STATUS_FIELD, PENDING_FIELD, PROCESSING_FIELD,
+    ATTEMPTS_FIELD,UPDATED_AT_FIELD,
+    MONEROD_FIELD,
+    MONEROD_REMOTE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD,
+    ELEMENT_TYPE_FIELD)
+from db4e.Constants.Defaults import (OPS_COL_DEFAULT, MINING_COL_DEFAULT, 
+    LOG_COLLECTION_DEFAULT, LOG_RETENTION_DAYS_DEFAULT, MAX_BACKUPS_DEFAULT,
+    METRICS_COLLECTION_DEFAULT, DEPLOYMENT_COL_DEFAULT, TEMPLATES_COLLECTION_DEFAULT,
+    DB_NAME_DEFAULT, DB_PORT_DEFAULT, DB_SERVER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT)
 
 
 def as_worker(method):
@@ -40,33 +41,24 @@ def as_worker(method):
 
 
 class DbMgr:
-    def __init__(self, config: Config, runner=None):
-        self.ini = config
+    def __init__(self, runner=None):
         self._runner = runner
         self.db4e = None
         self._client = None
         # MongoDB settings
-        retry_timeout      = self.ini.config[DB_FIELD][RETRY_TIMEOUT_FIELD]
-        db_server          = self.ini.config[DB_FIELD][SERVER_FIELD]
-        db_port            = self.ini.config[DB_FIELD][PORT_FIELD]
+        retry_timeout      = DB_RETRY_TIMEOUT_DEFAULT
+        db_server          = DB_SERVER_DEFAULT
+        db_port            = DB_PORT_DEFAULT
 
-        self.max_backups   = self.ini.config[DB_FIELD][MAX_BACKUPS_FIELD]
-        self.db_name       = self.ini.config[DB_FIELD][DB_NAME_FIELD]
-        self.db_col        = self.ini.config[DB_FIELD][MINING_COL_FIELD]
-        self.depl_col      = self.ini.config[DB_FIELD][DEPLOYMENT_COL_FIELD]
-        self.log_col       = self.ini.config[DB_FIELD][LOG_COLLECTION_FIELD]
-        self.log_retention = self.ini.config[DB_FIELD][LOG_RETENTION_DAYS_FIELD]
-        self.metrics_col   = self.ini.config[DB_FIELD][METRICS_COLLECTION_FIELD]
-        self.tmpl_col      = self.ini.config[DB_FIELD][TEMPLATES_COLLECTION_FIELD]
-
-        self.templates = {
-            DB4E_FIELD: Db4E_Template,
-            MONEROD_FIELD: MoneroD_Template,
-            MONEROD_REMOTE_FIELD: MoneroD_Remote_Template,
-            P2POOL_FIELD: P2Pool_Template,
-            P2POOL_REMOTE_FIELD: P2Pool_Remote_Template,
-            XMRIG_FIELD: XMRig_Template
-        }
+        self.max_backups   = MAX_BACKUPS_DEFAULT
+        self.db_name       = DB_NAME_DEFAULT
+        self.db_col        = MINING_COL_DEFAULT
+        self.depl_col      = DEPLOYMENT_COL_DEFAULT
+        self.log_col       = LOG_COLLECTION_DEFAULT
+        self.log_retention = LOG_RETENTION_DAYS_DEFAULT
+        self.metrics_col   = METRICS_COLLECTION_DEFAULT
+        self.ops_col       = OPS_COL_DEFAULT
+        self.tmpl_col      = TEMPLATES_COLLECTION_DEFAULT
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'
@@ -86,9 +78,8 @@ class DbMgr:
             sys.exit(1)
       
         self.db4e = self._client[self.db_name]
-        # Used for backups
-        self.db4e_dir = None
-        self.repo_dir = None
+
+        # Initialize the schema if needed
         self.init_db()             
 
 
@@ -122,18 +113,34 @@ class DbMgr:
         return col.find_one(filter)
 
 
+    @as_worker
+    def find_one_and_update(self, col_name, filter, update, return_document=True, use_worker=True):
+        col = self.get_collection(col_name)
+        return col.find_one_and_update(filter, update, return_document=return_document)
+
+
     def get_collection(self, col_name):
         if self.db4e is None:
             raise RuntimeError("MongoDB connection is not initialized.")
         return self.db4e[col_name]
 
 
-    def get_new_rec(self, rec_type):
-        rec = self.find_one(self.tmpl_col, {ELEMENT_TYPE_FIELD: rec_type})
-        if rec:
-            rec.pop("_id", None)
-        return deepcopy(rec) if rec else None
-    
+    def grab_job(self):
+        collection = self.get_collection(self.ops_col)
+        return collection.find_one_and_update(
+            {STATUS_FIELD: PENDING_FIELD},
+            {
+                "$set": {
+                    STATUS_FIELD: PROCESSING_FIELD,
+                    UPDATED_AT_FIELD: datetime.now()
+                },
+                "$inc": {
+                    ATTEMPTS_FIELD: 1
+                }
+            },
+            return_document=ReturnDocument.AFTER
+        )
+
 
     def init_db(self):
         # Make sure the 'db4e' database, core collections and indexes exist.
@@ -153,22 +160,17 @@ class DbMgr:
                 except CollectionInvalid:
                     # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
                     pass
-            # TODO self.log.debug(f'Created DB collection ({aCol})'
-        self.init_templates()
         self.ensure_indexes()
+        db4e_rec = self.find_one(col_name=depl_col, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD})
 
-
-    def init_templates(self):        
-        # Components
-        templates = [
-            Db4E_Template, MoneroD_Remote_Template, MoneroD_Template,
-            P2Pool_Remote_Template, P2Pool_Template, XMRig_Template]
-        for template in templates:
-            # Only one doc of each component type ever gets created
-            query = {ELEMENT_TYPE_FIELD: template[ELEMENT_TYPE_FIELD]}
-            if not self.exists(self.tmpl_col, query):
-                self.insert_one(self.tmpl_col, template)
-
+        # Make sure there's a Db4E deployment record for Db4E
+        if not db4e_rec:
+            db4e = Db4E()
+            print(f"DbMgr:init_db(): db4e: {db4e}")
+            rec = db4e.to_rec()
+            rec.pop("_id", None)
+            self.insert_one(col_name=depl_col, jdoc=db4e.to_rec())
+            
 
     @as_worker
     def insert_one(self, col_name, jdoc, use_worker=True):
@@ -177,6 +179,7 @@ class DbMgr:
             elem_type = jdoc[ELEMENT_TYPE_FIELD]
         #print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
+        jdoc.pop("_id", None)
         return col.insert_one(deepcopy(jdoc))
 
 

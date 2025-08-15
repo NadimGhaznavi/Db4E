@@ -15,7 +15,6 @@ from textual.widget import Widget
 from textual.widgets import ContentSwitcher
 from textual.reactive import reactive
 
-from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.Helper import get_effective_identity
 from db4e.Messages.UpdateTopBar import UpdateTopBar
@@ -30,9 +29,8 @@ class PaneState:
 class PaneMgr(Widget):
     pane_state = reactive(PaneState(), always_update=True)
 
-    def __init__(self, config: Config, catalogue: PaneCatalogue):
+    def __init__(self, catalogue: PaneCatalogue):
         super().__init__()
-        self.config = config
         self.catalogue = catalogue
         self.panes = {}
 

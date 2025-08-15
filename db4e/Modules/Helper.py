@@ -18,11 +18,16 @@ from rich.table import Table
 
 from textual.widgets import RadioSet, RadioButton
 
+from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Constants.Fields import(
     P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, 
     P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
     FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD, ELEMENT_TYPE_FIELD,
-    PENDING_FIELD, ENABLE_FIELD, PARENT_ID_FIELD, INSTANCE_FIELD)
+    PENDING_FIELD, ENABLE_FIELD, STATUS_FIELD, GOOD_FIELD, 
+    MESSAGE_FIELD)
+from db4e.Constants.Defaults import (
+    CONF_DIR_DEFAULT, XMRIG_CONFIG_DEFAULT, XMRIG_VERSION_DEFAULT)
+from db4e.Constants.Labels import XMRIG_LABEL
 
 class Status:
     ACTIVE = ACTIVE_FIELD
@@ -32,6 +37,23 @@ class Status:
     PENDING = PENDING_FIELD
 
 error_color = "#935fcf"
+
+
+def del_config(config_file: str):
+    results = []
+    try:
+        os.remove(config_file)
+        results.append(result_row(
+            XMRIG_LABEL, GOOD_FIELD,
+            f"Removed old configration file: {config_file}"
+        ))
+    except OSError as e:
+        result_row.append(result_row(
+            XMRIG_LABEL, WARN_FIELD,
+            f"Unable to remove {config_file} {e} "
+        ))
+    return results
+
 
 def get_component_value(data, field_name):
     """
@@ -89,7 +111,7 @@ def get_remote_state(data):
     return None
 
 
-def gen_radio_map(rec, depl_mgr):
+def gen_radio_map(rec, depl_mgr: DeploymentMgr):
     elem_type = rec[ELEMENT_TYPE_FIELD]
     
     if elem_type == XMRIG_FIELD:
@@ -112,40 +134,19 @@ def gen_results_table(results):
     
     table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
     table.add_column("Component", width=25)
-    table.add_column("Message")
+    table.add_column("Details")
 
     for item in results:
         for category, msg_dict in item.items():
-            message = msg_dict["msg"]
-            if msg_dict["status"] == "good":
+            message = msg_dict[MESSAGE_FIELD]
+            if msg_dict[STATUS_FIELD] == GOOD_FIELD:
                 table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict["status"] == "warn":
+            elif msg_dict[STATUS_FIELD] == WARN_FIELD:
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict["status"] == "error":
+            elif msg_dict[STATUS_FIELD] == ERROR_FIELD:
                 table.add_row(f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]")
     return table
 
-
-def is_port_open(ip_addr, port_num):
-    #print(f"Helper:is_port_open(): {ip_addr}/{port_num}")
-    if not is_valid_ip_or_hostname(ip_addr):
-        return False
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(10)  # Set aLine timeout for the connection attempt
-            result = sock.connect_ex((ip_addr, int(port_num)))
-            return result == 0
-    except socket.gaierror:
-        return False  # Handle cases like invalid hostname
-    
-
-def is_valid_ip_or_hostname(host: str) -> str:
-    try:
-        socket.getaddrinfo(host, None)  # works for IPv4/IPv6
-        return True
-    except socket.gaierror:
-        return False
-    
 
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
@@ -211,14 +212,5 @@ def update_component_values(rec, updates):
             component[VALUE_FIELD] = updates[field]
     return rec
 
-def worst_status(results):
-    worst_status = GOOD_FIELD
-    for line_item in results:
-        for key in line_item:
-            if line_item[key]["status"] == ERROR_FIELD:
-                return ERROR_FIELD
-            elif line_item[key]["status"] == WARN_FIELD:
-                worst_status = WARN_FIELD
 
-    return worst_status
     

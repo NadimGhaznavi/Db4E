@@ -11,7 +11,6 @@ db4e/Modules/MessageRouter.py
 import re
 import inspect
 
-from db4e.Modules.ConfigMgr import Config
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
@@ -20,12 +19,12 @@ from db4e.Modules.OpsMgr import OpsMgr
 
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
-    DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_REC_FIELD, 
+    DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
     NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
     XMRIG_FIELD, DONATIONS_FIELD, GET_REC_FIELD, ELEMENT_TYPE_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD, 
-    INITIAL_SETUP_PROCEED_FIELD, GET_INITIAL_REC_FIELD
+    INITIAL_SETUP_PROCEED_FIELD, POST_JOB_FIELD, JOB_QUEUE_FIELD
 )
 
 from db4e.Constants.Panes import (
@@ -36,13 +35,13 @@ from db4e.Constants.Panes import (
 
 
 class MessageRouter:
-    def __init__(self, config: Config):
+    def __init__(self):
         self.routes: dict[tuple[str, str, str], tuple[callable, str]] = {}
         self._panes = {}
-        self.install_mgr = InstallMgr(config=config)
-        self.depl_mgr = DeploymentMgr(config=config)
-        self.ops_mgr = OpsMgr(config=config)
-        self.pane_mgr = PaneMgr(config=config, catalogue=PaneCatalogue())
+        self.install_mgr = InstallMgr()
+        self.depl_mgr = DeploymentMgr()
+        self.ops_mgr = OpsMgr()
+        self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self._route_handlers = []
         self.load_routes()
 
@@ -62,8 +61,8 @@ class MessageRouter:
                       self.pane_mgr.set_pane, MONEROD_TYPE_PANE)
 
         # MoneroD - local
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_FIELD,
-                      self.ops_mgr.get_new_rec, MONEROD_PANE)
+        self.register(OPS_MGR_FIELD, GET_NEW_FIELD, MONEROD_FIELD,
+                      self.ops_mgr.get_new, MONEROD_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.ops_mgr.add_deployment, MONEROD_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_FIELD,
@@ -74,8 +73,8 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, MONEROD_PANE)
 
         # MoneroD - remote
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, MONEROD_REMOTE_FIELD,
-                      self.ops_mgr.get_new_rec, MONEROD_REMOTE_PANE)
+        self.register(OPS_MGR_FIELD, GET_NEW_FIELD, MONEROD_REMOTE_FIELD,
+                      self.ops_mgr.get_new, MONEROD_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, MONEROD_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_REMOTE_FIELD,
@@ -90,8 +89,8 @@ class MessageRouter:
                       self.pane_mgr.set_pane, P2POOL_TYPE_PANE)
 
         # P2Pool - local
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_FIELD,
-                      self.ops_mgr.get_new_rec, P2POOL_PANE)
+        self.register(OPS_MGR_FIELD, GET_NEW_FIELD, P2POOL_FIELD,
+                      self.ops_mgr.get_new, P2POOL_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.ops_mgr.add_deployment, P2POOL_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_FIELD,
@@ -102,8 +101,8 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, P2POOL_PANE)
 
         # P2Pool - remote
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, P2POOL_REMOTE_FIELD,
-                      self.ops_mgr.get_new_rec, P2POOL_REMOTE_PANE)
+        self.register(OPS_MGR_FIELD, GET_NEW_FIELD, P2POOL_REMOTE_FIELD,
+                      self.ops_mgr.get_new, P2POOL_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.add_deployment, P2POOL_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_REMOTE_FIELD,
@@ -114,8 +113,8 @@ class MessageRouter:
                       self.depl_mgr.del_deployment, P2POOL_REMOTE_PANE)
 
         # XMRig
-        self.register(OPS_MGR_FIELD, GET_NEW_REC_FIELD, XMRIG_FIELD,
-                      self.ops_mgr.get_new_rec, XMRIG_PANE)
+        self.register(OPS_MGR_FIELD, GET_NEW_FIELD, XMRIG_FIELD,
+                      self.ops_mgr.get_new, XMRIG_PANE)
         self.register(OPS_MGR_FIELD, ADD_DEPLOYMENT_FIELD, XMRIG_FIELD,
                       self.ops_mgr.add_deployment, XMRIG_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, XMRIG_FIELD,
@@ -124,7 +123,20 @@ class MessageRouter:
                       self.ops_mgr.update_deployment, XMRIG_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, XMRIG_FIELD,
                       self.depl_mgr.del_deployment, XMRIG_PANE)
-        
+
+
+        # Client side Job Queue op: submit_job
+        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, XMRIG_FIELD,
+                      self.depl_mgr.job_queue.post_job, XMRIG_PANE)
+        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_FIELD,
+                      self.depl_mgr.job_queue.post_job, P2POOL_PANE)
+        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_REMOTE_FIELD,
+                      self.depl_mgr.job_queue.post_job, P2POOL_REMOTE_PANE)
+        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_FIELD,
+                      self.depl_mgr.job_queue.post_job, MONEROD_PANE)
+        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_REMOTE_FIELD,
+                      self.depl_mgr.job_queue.post_job, MONEROD_PANE)
+
         # Donations
         self.register(PANE_MGR_FIELD, SET_PANE_FIELD, DONATIONS_FIELD,
                       self.pane_mgr.set_pane, DONATIONS_PANE)

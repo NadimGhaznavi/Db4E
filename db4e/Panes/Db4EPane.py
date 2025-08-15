@@ -1,5 +1,5 @@
 """
-db4e/Panes/Db4E.py
+db4e/Panes/Db4EPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -12,11 +12,12 @@ from textual import on
 from textual.widgets import Label, MarkdownViewer, Input, Button, Static
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 
-from db4e.Modules.Helper import gen_results_table, get_component_value
+from db4e.Modules.Db4E import Db4E
 from db4e.Messages.Db4eMsg import Db4eMsg
+from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
     BUTTON_ROW_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD,
-    FORM_5_FIELD, FORM_DATA_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
+    FORM_5_FIELD, ELEMENT_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
     FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, GROUP_FIELD,
     HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTALL_DIR_FIELD, PANE_BOX_FIELD,
     STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
@@ -40,7 +41,7 @@ class UIType:
     FORM_5 = FORM_5_FIELD
 
 
-class Db4E(Container):
+class Db4EPane(Container):
 
     user_name_label = Label("", classes=UIType.STATIC)
     group_name_label = Label("", classes=UIType.STATIC)
@@ -89,24 +90,25 @@ class Db4E(Container):
                 ),
             classes=PANE_BOX_FIELD))
 
-    def set_data(self, rec):
-        print(f"Db4E:set_data(): {rec}")
-        self.user_name_label.update(get_component_value(rec, USER_FIELD))
-        self.group_name_label.update(get_component_value(rec, GROUP_FIELD))
-        self.install_dir_label.update(get_component_value(rec, INSTALL_DIR_FIELD))
-        self.vendor_dir_input.value = get_component_value(rec, VENDOR_DIR_FIELD)
-        self.user_wallet_input.value = get_component_value(rec, USER_WALLET_FIELD)
-        self.health_msgs.update(gen_results_table(rec[HEALTH_MSGS_FIELD]))
+    def set_data(self, db4e: Db4E):
+        print(f"Db4E:set_data(): {db4e}")
+        self.user_name_label.update(db4e.user.value)
+        self.group_name_label.update(db4e.group.value)
+        self.install_dir_label.update(db4e.install_dir.value)
+        self.vendor_dir_input.value = db4e.vendor_dir.value
+        self.user_wallet_input.value = db4e.user_wallet.value
+        self.health_msgs.update(gen_results_table(db4e.pop_msgs()))
+        self.db4e = db4e
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        event.stop()
+        self.db4e.user_wallet.value = self.query_one("#user_wallet_input", Input).value
+        self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
+
         form_data = {
             TO_MODULE_FIELD: OPS_MGR_FIELD,
             TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
             ELEMENT_TYPE_FIELD: DB4E_FIELD,
-            FORM_DATA_FIELD: True,
-            USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
-            VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
+            ELEMENT_FIELD: self.db4e,
         }
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 

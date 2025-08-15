@@ -1,5 +1,5 @@
 """
-db4e/Panes/Results.py
+db4e/Panes/ResultsPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -18,7 +18,7 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
     PANE_BOX_FIELD, HEALTH_MSGS_FIELD)
 
-class Results(Static):
+class ResultsPane(Static):
 
     results = Label()
 
@@ -33,7 +33,7 @@ class Results(Static):
             ),
             classes=PANE_BOX_FIELD)
 
-    def set_data(self, results_data):
-        self.results.update(
-            gen_results_table(results=results_data.get(HEALTH_MSGS_FIELD, [])))
-        self.app.post_message(RefreshNavPane(self))
+    def set_data(self, elem):
+        msgs = elem.pop_msgs()
+        self.results.update(gen_results_table(results=msgs))
+        self.post_message(RefreshNavPane(self))

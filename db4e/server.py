@@ -23,11 +23,13 @@ except Exception:
     __version__ = "N/A"
 
 from db4e.Modules.Db4eLogger import Db4eLogger
-from db4e.Modules.ConfigMgr import Config, ConfigMgr
+from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.OpsMgr import OpsMgr
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Helper import get_component_value
 from db4e.Constants.Defaults import (
-    TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT)
+    TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
     COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, ELEMENT_TYPE_FIELD, XMRIG_FIELD, 
@@ -40,22 +42,29 @@ class Db4eServer:
     """
     Db4E Server
     """
-    def __init__(self, ini = Config):
-        self.ini = ini
+    def __init__(self):
 
         # Get an ops manager
-        self.ops_mgr = OpsMgr(config=ini)
+        self.ops_mgr = OpsMgr()
+
+        # Get a deployment manager
+        self.deployment_mgr = DeploymentMgr()
+
+        # Get a db manager
+        self.db = DbMgr()
 
         # Setup logging
         vendor_dir = self.ops_mgr.get_dir(VENDOR_DIR_FIELD)
-        logs_dir = ini.config[DB4E_FIELD][LOG_DIR_FIELD]
-        log_file = ini.config[DB4E_FIELD][LOG_FILE_FIELD]
+        logs_dir = LOG_DIR_DEFAULT
+        log_file = DB4E_LOG_FILE_DEFAULT
         fq_log_file = os.path.join(vendor_dir, DB4E_FIELD, logs_dir, log_file)    
         self.log = Db4eLogger(
-            config=ini,
             elem_type=DB4E_SERVER_DEFAULT,
             log_file=fq_log_file
         )
+
+        # Get a JobQueue
+        self.job_queue = JobQueue(db=self.db, log=self.log)
 
         self.running = threading.Event()
         self.running.set()
@@ -69,6 +78,14 @@ class Db4eServer:
                 elem_type = depl[ELEMENT_TYPE_FIELD]
                 if elem_type == XMRIG_FIELD:
                     self._handle_xmrig(depl)
+
+    def check_jobs(self):
+        self.log.info("Checking jobs:")
+        jobs = []
+        while self.job_queue.grab_job():
+            self.log.critical("Executing the job")
+            time.sleep(1)
+        
 
     def _handle_xmrig(self, depl):
         enable_flag = depl[ENABLE_FIELD]
@@ -85,6 +102,7 @@ class Db4eServer:
             count += 1
             self.log.debug(f"Ticking... {count}...")
             self.check_deployments()
+            self.check_jobs()
             time.sleep(POLL_INTERVAL)
 
         self.cleanup()
@@ -102,9 +120,7 @@ def main():
     os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
     os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
 
-    config_manager = ConfigMgr(__version__)
-    config = config_manager.get_config()
-    server = Db4eServer(config)
+    server = Db4eServer()
     server.start()
 if __name__ == "__main__":
     main()

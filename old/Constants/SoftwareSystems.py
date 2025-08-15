@@ -23,7 +23,7 @@ from db4e.Constants.Fields import (
     VERSION_FIELD, XMRIG_FIELD, ENABLE_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, MONEROD_LABEL, P2POOL_LABEL, XMRIG_LABEL)
-from db4e.Constants.Components import (
+from db4e.Modules.Components import (
     ANY_IP, CHAIN, CONFIG, DATA_DIR, DONATION_WALLET, GROUP, IN_PEERS, 
     INSTALL_DIR, INSTANCE, LOCAL, LOG_LEVEL, LOG_NAME, MAX_LOG_FILES, 
     MAX_LOG_SIZE, NUM_THREADS, OUT_PEERS, P2P_BIND_PORT, PARENT_ID, PRIORITY_NODE_1,

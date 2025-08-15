@@ -1,5 +1,5 @@
 """
-db4e/Panes/P2Pool.py
+db4e/Panes/P2PoolPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -23,7 +23,7 @@ from db4e.Constants.Defaults import (
     STRATUM_PORT_DEFAULT
 )
 
-class P2Pool(Container):
+class P2PoolPane(Container):
 
     instance_input = Input(id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True)
     ip_addr_input = Input(id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True)

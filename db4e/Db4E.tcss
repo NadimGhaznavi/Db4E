@@ -8,12 +8,6 @@ Screen {
     grid-rows: 13fr 1fr;
     grid-gutter: 0 1; }
 
-Button {
-    align: center middle;
-    border: round #0c323e;
-    width: 20;
-    background: black; }
-
 Clock {
     height: 3;
     padding: 0 2;
@@ -199,14 +193,69 @@ Tree {
     color: #31b8e6;
     padding: 0 1; }
 
-.yellow_button {
-    color: yellow;
+.switch {
+    border: round #0c323e;
+    padding: 0 1; 
+    height: 1;
+}
+
+/* Buttons */
+
+Button {
+    align: center middle;
+    border: round #0c323e;
+    width: 20;
+    background: black; }
+
+#abort_button {
+    color: #c44242;
     text-style: bold; }
 
-.green_button {
+#delete_button {
+    color: #c44242;
+    text-style: bold; }
+
+#disable_button {
+    color: #c44242;
+    text-style: bold; }
+
+#enable_button {
     color: #5fc442;
     text-style: bold; }
 
-.red_button {
-    color: #c44242;
+#new_button {
+    color: #5fc442;
     text-style: bold; }
+
+#proceed_button {
+    color: #5fc442;
+    text-style: bold; }
+
+#update_button {
+    color: #5fc442;
+    text-style: bold; }
+
+.new #update_button {
+    display: none; }
+
+.new #enable_button {
+    display: none; }
+
+.new #disable_button {
+    display: none; }
+
+.update #new_button {
+    display: none; }
+
+.new #delete_button {
+    display: none; }
+
+.disable #disable_button {
+    display: none; }
+
+.enable #enable_button {
+    display: none; }
+
+
+
+

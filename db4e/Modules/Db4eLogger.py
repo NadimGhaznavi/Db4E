@@ -16,12 +16,16 @@ import traceback
 from pymongo import MongoClient
 import time
 
-from db4e.Modules.ConfigMgr import Config
 from db4e.Constants.Fields import (
     ELEMENT_TYPE_FIELD, DB4E_FIELD, DEBUG_FIELD, DB_FIELD, RETRY_TIMEOUT_FIELD, 
     MESSAGE_FIELD, LEVEL_FIELD, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD,
     SERVER_FIELD, PORT_FIELD, DB_NAME_FIELD, LOG_COLLECTION_FIELD, TIMESTAMP_FIELD)
-from db4e.Constants.Defaults import DB4E_LOGGER_DEFAULT
+from db4e.Constants.Defaults import (
+    DB4E_LOGGER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT, LOG_COLLECTION_DEFAULT, 
+    LOG_RETENTION_DAYS_DEFAULT, MAX_BACKUPS_DEFAULT, METRICS_COLLECTION_DEFAULT,
+    DEPLOYMENT_COL_DEFAULT, TEMPLATES_COLLECTION_DEFAULT, DB_NAME_DEFAULT,
+    DB_PORT_DEFAULT, DB_SERVER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT)
+
 
 LOG_LEVELS = {
     'info': logging.INFO,
@@ -32,7 +36,7 @@ LOG_LEVELS = {
 }
 
 class Db4eLogger:
-    def __init__(self, elem_type: str, config: Config, db=False, log_file=None):
+    def __init__(self, elem_type: str, db=False, log_file=None):
         logger_name = f'{DB4E_FIELD}.{elem_type}'
         self._elem_type = elem_type
         self._logger = logging.getLogger(logger_name)
@@ -93,15 +97,11 @@ class Db4eLogger:
 
 class Db4eDbLogHandler(logging.Handler):
 
-    def __init__(self, config: Config):
+    def __init__(self):
         super().__init__()
 
-        ini = config
-        self._retry_timeout  = ini.config[DB_FIELD][RETRY_TIMEOUT_FIELD]
-        self._db_server      = ini.config[DB_FIELD][SERVER_FIELD]
-        self._db_port        = ini.config[DB_FIELD][PORT_FIELD]
-        self._db_name        = ini.config[DB_FIELD][DB_NAME_FIELD]
-        self._log_collection = ini.config[DB_FIELD][LOG_COLLECTION_FIELD]
+        self._db_server      = DB_SERVER_DEFAULT
+        self._db_port        = DB_PORT_DEFAULT
 
         # Flag for connection status
         self.connected = False
@@ -133,24 +133,21 @@ class Db4eDbLogHandler(logging.Handler):
     def connect(self):
         db_server = self._db_server
         db_port = self._db_port
-        db_name = self._db_name
-        retry_timeout = self._retry_timeout
         retries = 3
         while retries > 0:
             retries -= 1
             try:
                 client = MongoClient(f"mongodb://{db_server}:{db_port}/")
             except:
-                print(f'Could not connect to DB ({db_server}:{db_port}), waiting {retry_timeout} seconds')
+                print(f'Could not connect to DB ({db_server}:{db_port}), waiting {DB_RETRY_TIMEOUT_DEFAULT} seconds')
                 if retries == 0:
                     raise RuntimeError(f"Could not connect to MongoDB: {db_server}:{db_port}")
-                time.sleep(retry_timeout)
+                time.sleep(DB_RETRY_TIMEOUT_DEFAULT)
         self.connected = True
-        self._db = client[db_name]        
+        self._db = client[DB_NAME_DEFAULT]        
 
     def log_db_message(self, log_entry):
         db = self.db()
-        log_col = self._log_collection 
-        col = db[log_col]
+        col = db[LOG_COLLECTION_DEFAULT]
         col.insert_one(log_entry)
 

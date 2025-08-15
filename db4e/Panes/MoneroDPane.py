@@ -1,5 +1,5 @@
 """
-db4e/Panes/Monerod.py
+db4e/Panes/MoneroDPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -21,7 +21,7 @@ from db4e.Constants.Defaults import RPC_BIND_PORT_DEFAULT, ZMQ_PUB_PORT_DEFAULT
 color = "#9cae41"
 hi = "#d7e556"
 
-class Monerod(Container):
+class MoneroDPane(Container):
 
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",

@@ -1,5 +1,5 @@
 """
-db4e/Panes/Welcome.py
+db4e/Panes/WelcomePane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -17,7 +17,7 @@ from db4e.Constants.Fields import PANE_BOX_FIELD
 
 color = "#31b8e6"
 
-class Welcome(Container):
+class WelcomePane(Container):
 
     def compose(self) -> ComposeResult:
         

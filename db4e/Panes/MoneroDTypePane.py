@@ -1,5 +1,5 @@
 """
-db4e/Panes/MonerodType.py
+db4e/Panes/MoneroDTypePane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -12,22 +12,18 @@ from textual.containers import Container, Vertical, ScrollableContainer
 from textual.app import ComposeResult
 from textual.widgets import Button, Label, MarkdownViewer, RadioButton, RadioSet, Static
 
-from db4e.Constants.Labels import (
-    MONEROD_LABEL, MONEROD_REMOTE_LABEL, MONEROD_SHORT_LABEL,
-    PROCEED_LABEL
-)
+from db4e.Constants.Labels import (MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL)
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, GET_NEW_REC_FIELD,
+    FORM_INTRO_FIELD, GET_NEW_FIELD,
     MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, GREEN_BUTTON_FIELD,
+    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, PROCEED_BUTTON_FIELD,
     RADIO_SET_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD
 )
 from db4e.Messages.Db4eMsg import Db4eMsg
 
-color = "#9cae41"
 hi = "cyan"
 
-class MonerodType(Container):
+class MoneroDTypePane(Container):
 
     def compose(self):
         INTRO = f"Welcome to the new [b {hi}]{MONEROD_LABEL}[/] screen. Use to create " \
@@ -47,7 +43,7 @@ class MonerodType(Container):
                         id="type_radioset", classes=RADIO_SET_FIELD,
                         )),
 
-                Button(label=PROCEED_LABEL, classes=GREEN_BUTTON_FIELD)),
+                Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD)),
                 classes=PANE_BOX_FIELD)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -56,14 +52,14 @@ class MonerodType(Container):
         if selected.id == REMOTE_FIELD:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                TO_METHOD_FIELD: GET_NEW_FIELD,
                 ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                TO_METHOD_FIELD: GET_NEW_FIELD,
                 ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 REMOTE_FIELD: False
             }

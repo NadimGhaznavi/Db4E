@@ -15,10 +15,8 @@ import sys
 from dataclasses import dataclass, field, fields
 from importlib import metadata
 from textual.app import App
-from textual.theme import Theme as TextualTheme
-from textual.widgets import RadioSet, RadioButton
 from textual.containers import Vertical
-from rich.theme import Theme as RichTheme
+from textual import work
 from rich.traceback import Traceback
 
 try:
@@ -32,7 +30,6 @@ except Exception:
 from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.Clock import Clock
 from db4e.Widgets.NavPane import NavPane
-from db4e.Modules.ConfigMgr import ConfigMgr, Config
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
@@ -40,10 +37,8 @@ from db4e.Modules.MessageRouter import MessageRouter
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, DB4E_FIELD,OP_FIELD, RUN_SERVICE_FIELD,
-    RUN_UI_FIELD, TERM_ENVIRON_FIELD, TO_METHOD_FIELD,
+    COLORTERM_ENVIRON_FIELD, TERM_ENVIRON_FIELD, TO_METHOD_FIELD,
     TO_MODULE_FIELD)
 from db4e.Constants.Defaults import (
     APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT)
@@ -52,14 +47,12 @@ class Db4EApp(App):
     TITLE = APP_TITLE_DEFAULT
     CSS_PATH = CSS_PATH_DEFAULT
 
-    def __init__(self, config: Config, **kwargs):
-        super().__init__(**kwargs)
-        self.ini = config
-        self.ops_mgr = OpsMgr(config=config)
-        self.msg_router = MessageRouter(config=config)
-        self.pane_mgr = PaneMgr(
-            config=config, catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(config=config, ops_mgr=self.ops_mgr)
+    def __init__(self):
+        super().__init__()
+        self.ops_mgr = OpsMgr()
+        self.msg_router = MessageRouter()
+        self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
+        self.nav_pane = NavPane(depl_mgr=self.ops_mgr.depl_mgr)
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
@@ -71,18 +64,14 @@ class Db4EApp(App):
         yield self.pane_mgr
 
     ### Message handling happens here...#31b8e6;
-    # NavPane selections are routed here
-    def on_nav_leaf_selected(self, message: NavLeafSelected) -> None:
-        route = f"nav:select:{message.parent}:{message.leaf}"
-        name, data = self.msg_router.dispatch(route)
-        self.pane_mgr.set_pane(name=name, data=data)
 
     # Exit the app
     def on_quit(self) -> None:
         self.exit()
     
     # Every form sends the form data here
-    def on_db4e_msg(self, message: Db4eMsg) -> None:
+    @work(exclusive=True)
+    async def on_db4e_msg(self, message: Db4eMsg) -> None:
         data, pane = self.msg_router.dispatch(
             message.form_data[TO_MODULE_FIELD],
             message.form_data[TO_METHOD_FIELD],
@@ -110,9 +99,7 @@ def main():
     os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
     os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
 
-    config_mgr = ConfigMgr(__version__)
-    config = config_mgr.get_config()
-    app = Db4EApp(config)
+    app = Db4EApp()
     app.run()
 
 if __name__ == "__main__":

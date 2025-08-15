@@ -10,19 +10,18 @@ db4e/Modules/PaneCatalogue.py
 
 from textual.containers import Container
 
-from db4e.Panes.Db4E import Db4E
-from db4e.Panes.Donations import Donations
-from db4e.Panes.InitialSetup import InitialSetup
-from db4e.Panes.Monerod import Monerod
-from db4e.Panes.MonerodRemote import MonerodRemote
-from db4e.Panes.MonerodType import MonerodType
-from db4e.Panes.P2Pool import P2Pool
-from db4e.Panes.P2PoolRemote import P2PoolRemote
-from db4e.Panes.P2PoolType import P2PoolType
-from db4e.Panes.Results import Results
-from db4e.Panes.Welcome import Welcome
-from db4e.Panes.XMRig import XMRig
-from db4e.Panes.XMRig import XMRig
+from db4e.Panes.Db4EPane import Db4EPane
+from db4e.Panes.DonationsPane import DonationsPane
+from db4e.Panes.InitialSetupPane import InitialSetupPane
+from db4e.Panes.MoneroDPane import MoneroDPane
+from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
+from db4e.Panes.MoneroDTypePane import MoneroDTypePane
+from db4e.Panes.P2PoolPane import P2PoolPane
+from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
+from db4e.Panes.P2PoolTypePane import P2PoolTypePane
+from db4e.Panes.ResultsPane import ResultsPane
+from db4e.Panes.WelcomePane import WelcomePane
+from db4e.Panes.XMRigPane import XMRigPane
 
 
 from db4e.Constants.Labels import (
@@ -37,19 +36,18 @@ from db4e.Constants.Panes import (
 )
 
 REGISTRY = {
-    DB4E_PANE: (Db4E, DB4E_LONG_LABEL, DB4E_LABEL),
-    DONATIONS_PANE: (Donations, DONATIONS_LABEL, DONATIONS_LABEL),
-    INITIAL_SETUP_PANE: (InitialSetup, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL),
-    MONEROD_TYPE_PANE: (MonerodType, MONEROD_LABEL, NEW_LABEL),
-    MONEROD_PANE: (Monerod, MONEROD_LABEL, NEW_LABEL),
-    MONEROD_REMOTE_PANE: (MonerodRemote, MONEROD_REMOTE_LABEL, CONFIG_LABEL),
-    P2POOL_TYPE_PANE: (P2PoolType, P2POOL_LABEL, NEW_LABEL),
-    P2POOL_PANE: (P2Pool, P2POOL_LABEL, NEW_LABEL),
-    P2POOL_REMOTE_PANE: (P2PoolRemote, P2POOL_REMOTE_LABEL, CONFIG_LABEL),
-    XMRIG_PANE: (XMRig, XMRIG_LABEL, NEW_LABEL),
-    RESULTS_PANE: (Results, DB4E_LONG_LABEL, RESULTS_LABEL),
-    WELCOME_PANE: (Welcome, DB4E_LONG_LABEL, WELCOME_LABEL),
-    XMRIG_PANE: (XMRig, XMRIG_LABEL, CONFIG_LABEL),
+    DB4E_PANE: (Db4EPane, DB4E_LONG_LABEL, DB4E_LABEL),
+    DONATIONS_PANE: (DonationsPane, DONATIONS_LABEL, DONATIONS_LABEL),
+    INITIAL_SETUP_PANE: (InitialSetupPane, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL),
+    MONEROD_TYPE_PANE: (MoneroDTypePane, MONEROD_LABEL, NEW_LABEL),
+    MONEROD_PANE: (MoneroDPane, MONEROD_LABEL, NEW_LABEL),
+    MONEROD_REMOTE_PANE: (MoneroDRemotePane, MONEROD_REMOTE_LABEL, CONFIG_LABEL),
+    P2POOL_TYPE_PANE: (P2PoolTypePane, P2POOL_LABEL, NEW_LABEL),
+    P2POOL_PANE: (P2PoolPane, P2POOL_LABEL, NEW_LABEL),
+    P2POOL_REMOTE_PANE: (P2PoolRemotePane, P2POOL_REMOTE_LABEL, CONFIG_LABEL),
+    XMRIG_PANE: (XMRigPane, XMRIG_LABEL, NEW_LABEL),
+    RESULTS_PANE: (ResultsPane, DB4E_LONG_LABEL, RESULTS_LABEL),
+    WELCOME_PANE: (WelcomePane, DB4E_LONG_LABEL, WELCOME_LABEL),
 }
 
 class PaneCatalogue:

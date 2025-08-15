@@ -1,5 +1,5 @@
 """
-db4e/Panes/Donations.py
+db4e/Panes/DonationsPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -20,7 +20,7 @@ from db4e.Constants.Defaults import (DONATION_WALLET_DEFAULT)
 color = "#9cae41"
 hi = "#d7e556"
 
-class Donations(Container):
+class DonationsPane(Container):
 
     def compose(self):
         # Local Monero daemon deployment form

@@ -1,5 +1,5 @@
 """
-db4e/Panes/InitialSetup.py
+db4e/Panes/InitialSetupPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -7,31 +7,30 @@ db4e/Panes/InitialSetup.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-import os
+
 from textual.widgets import Label, Input, Button, Static
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
-from db4e.Modules.Helper import gen_results_table, get_component_value
+from db4e.Modules.Db4E import Db4E
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
-    ABORT_BUTTON_FIELD, ELEMENT_TYPE_FIELD, DB4E_FIELD, FORM_5_FIELD, FORM_DATA_FIELD, 
-    INSTALL_DIR_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
-    GREEN_BUTTON_FIELD, GROUP_FIELD, INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
+    ABORT_BUTTON_FIELD, ELEMENT_TYPE_FIELD, DB4E_FIELD, FORM_5_FIELD, 
+    ELEMENT_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
+    GREEN_BUTTON_FIELD, INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
     PROCEED_BUTTON_FIELD, RED_BUTTON_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, 
-    TO_MODULE_FIELD, VENDOR_DIR_FIELD, USER_FIELD, USER_WALLET_FIELD, HEALTH_MSGS_FIELD)
+    TO_MODULE_FIELD)
 from db4e.Constants.Labels import (
     ABORT_LABEL, GROUP_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, INSTALL_DIR_LABEL,
     PROCEED_LABEL, USER_LABEL)
 
 MAX_GROUP_LENGTH = 20
 
-color = "#9cae41"
 hi = "cyan"
 
-class InitialSetup(Container):
+class InitialSetupPane(Container):
 
     rec = {}
     user_name_static = Label("", classes=STATIC_CONTENT_FIELD)
@@ -74,36 +73,35 @@ class InitialSetup(Container):
 
                 Vertical(
                     Horizontal(
-                        Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD, 
-                            classes=GREEN_BUTTON_FIELD),
-                        Button(label=ABORT_LABEL, id=ABORT_BUTTON_FIELD, classes=RED_BUTTON_FIELD),
+                        Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD),
+                        Button(label=ABORT_LABEL, id=ABORT_BUTTON_FIELD),
                         classes="button_row")),
                 classes="page_box"),
 
             classes="pane_box")
 
 
-    def set_data(self, rec):
+    def set_data(self, db4e: Db4E):
         #print(f"InitialSetup:set_data(): rec: {rec}")
-        self.rec = rec
-        self.user_name_static.update(get_component_value(rec, USER_FIELD))
-        self.group_name_static.update(get_component_value(rec, GROUP_FIELD))
-        self.install_dir_static.update(get_component_value(rec, INSTALL_DIR_FIELD))
-        self.user_wallet_input.value = get_component_value(rec, USER_WALLET_FIELD)
-        self.vendor_dir_input.value = get_component_value(rec, VENDOR_DIR_FIELD)
+        self.db4e = db4e
+        self.user_name_static.update(db4e.user.value)
+        self.group_name_static.update(db4e.group.value)
+        self.install_dir_static.update(db4e.install_dir.value)
+        self.user_wallet_input.value = db4e.user_wallet.value
+        self.vendor_dir_input.value = db4e.vendor_dir.value
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
         button_id = event.button.id
         if button_id == PROCEED_BUTTON_FIELD:
+            self.db4e.user_wallet.value = self.query_one("#user_wallet_input", Input).value
+            self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
             form_data = {
                 TO_MODULE_FIELD: INSTALL_MGR_FIELD,
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
                 ELEMENT_TYPE_FIELD: DB4E_FIELD,
-                FORM_DATA_FIELD: True,
-                USER_WALLET_FIELD: self.query_one("#user_wallet_input", Input).value,
-                VENDOR_DIR_FIELD: self.query_one("#vendor_dir_input", Input).value,
+                ELEMENT_FIELD: self.db4e
             }
             self.app.post_message(RefreshNavPane(self))
             self.app.post_message(Db4eMsg(self, form_data))

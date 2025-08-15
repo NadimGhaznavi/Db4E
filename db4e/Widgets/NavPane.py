@@ -11,23 +11,28 @@ from dataclasses import dataclass
 from typing import Callable, Dict, List, Tuple
 import time
 
-from textual.reactive import reactive
+from textual import work
 from textual.widgets import Label, Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
-from db4e.Modules.Helper import get_component_value, worst_status
-from db4e.Messages.NavLeafSelected import NavLeafSelected
+#from db4e.Messages.NavLeafSelected import NavLeafSelected
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.ConfigMgr import Config
+from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
     REMOTE_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
-    DATA_FIELD, MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
-    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, GET_INITIAL_REC_FIELD,
+    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
+    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
-    OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_REC_FIELD, GET_REC_FIELD,
+    OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_FIELD, GET_REC_FIELD,
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
@@ -73,11 +78,14 @@ class NavItem:
     def __str__(self):
         return self.icon + self.label
 
+
+
 class NavPane(Container):
 
-    def __init__(self, config: Config, ops_mgr: OpsMgr):
+
+    def __init__(self, depl_mgr: DeploymentMgr):
         super().__init__()
-        self.ops_mgr = ops_mgr
+        self.depl_mgr = depl_mgr
         self.health_mgr = HealthMgr()
         self._initialized = False
 
@@ -105,78 +113,37 @@ class NavPane(Container):
 
         self.refresh_nav_pane()
 
-    def check_initialized(self):        
-        self._initialized = self.ops_mgr.is_depl_initialized()
-        return self._initialized
 
     def compose(self) -> ComposeResult:
         yield Vertical(ScrollableContainer(self.depls, id="navpane"))
+
 
     def flush_cache(self):
         self.get_cached_deployments()
         self._cache_time = time.time()
         self.refresh_nav_pane()
 
+
     def get_cached_deployments(self):
         now = time.time()
         if now - self._cache_time > self._cache_ttl:
-            self._cached_deployments = self.ops_mgr.get_deployments()
-            
-            # Create a lookup map by ID for easy dependency resolution
-            deployment_map = {dep['_id']: dep for dep in self._cached_deployments}
-            
-            # Track which deployments have been checked
-            checked = set()
-            
-            def check_deployment_with_dependencies(deployment):
-                dep_id = deployment['_id']
-                if dep_id in checked:
-                    return deployment_map[dep_id]
-                
-                # For XMRig, find and check its parent P2Pool first
-                if deployment.get('element_type') == 'xmrig':
-                    parent_id = None
-                    for component in deployment.get('components', []):
-                        if component.get('field') == 'parent_id':
-                            parent_id = component.get('value')
-                            break
-                    
-                    if parent_id and parent_id in deployment_map:
-                        # Recursively check the parent P2Pool first
-                        parent_deployment = check_deployment_with_dependencies(deployment_map[parent_id])
-                        # Pass the checked parent to XMRig health check
-                        checked_deployment = self.health_mgr.check(deployment, parent_deployment)
-                    else:
-                        # No parent found - check without parent
-                        checked_deployment = self.health_mgr.check(deployment, None)
-                else:
-                    # For non-XMRig deployments, check normally
-                    checked_deployment = self.health_mgr.check(deployment)
-                
-                # Calculate status from health_msgs
-                if 'health_msgs' in checked_deployment and checked_deployment['health_msgs']:
-                    checked_deployment['status'] = worst_status(checked_deployment['health_msgs'])
-                else:
-                    checked_deployment['status'] = 'unknown'
-                
-                # Update in the map and mark as checked
-                deployment_map[dep_id] = checked_deployment
-                checked.add(dep_id)
-                return checked_deployment
-            
-            # Check all deployments (dependencies will be resolved automatically)
-            for i, deployment in enumerate(self._cached_deployments):
-                self._cached_deployments[i] = check_deployment_with_dependencies(deployment)
-            
+            self._cached_deployments = self.depl_mgr.get_deployments()
+            for elem in self._cached_deployments:
+                if type(elem) == XMRig:
+                    elem.p2pool = self.depl_mgr.get_deployment_by_id(elem.parent())
+                self.health_mgr.check(elem)          
             self._cache_time = now
         
         return self._cached_deployments
     
+
     def is_initialized(self) -> bool:
         #print(f"NavPane:is_initialized(): {self._initialized}")
         return self._initialized
 
-    def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
+
+    @work(exclusive=True)
+    async def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
         if not event.node.children and event.node.parent:
             leaf_item: NavItem = event.node.data
             parent_item: NavItem = event.node.parent.data
@@ -185,7 +152,6 @@ class NavPane(Container):
             # Initial Setup
             if INITIAL_SETUP_LABEL in leaf_item.label:
                 #print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
-                rec = self.ops_mgr.get_deployment(DB4E_FIELD)
                 form_data = {
                     ELEMENT_TYPE_FIELD: DB4E_FIELD,
                     TO_MODULE_FIELD: INSTALL_MGR_FIELD,
@@ -231,7 +197,7 @@ class NavPane(Container):
                 form_data = {
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                     TO_MODULE_FIELD: OPS_MGR_FIELD,
-                    TO_METHOD_FIELD: GET_NEW_REC_FIELD,
+                    TO_METHOD_FIELD: GET_NEW_FIELD,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -240,9 +206,15 @@ class NavPane(Container):
                 # View/Update a Monero deployment
                 if MONEROD_SHORT_LABEL in parent_item.label:
                     #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
-                    record = self.ops_mgr.get_deployment(elem_type=MONEROD_FIELD, instance=leaf_item.field)
-                    remote = get_component_value(record, REMOTE_FIELD)
-                    if remote:
+                    for depl in self.get_cached_deployments():
+                        if type(depl) == Db4E:
+                            continue
+
+                        if depl.instance() == leaf_item.field:
+                            monerod = depl
+                            break
+
+                    if monerod.remote():
                         form_data = {
                             ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -261,9 +233,15 @@ class NavPane(Container):
                 # View/Update a P2Pool deployment
                 elif P2POOL_SHORT_LABEL in parent_item.label:
                     #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{leaf_item.label}")
-                    record = self.ops_mgr.get_deployment(elem_type=P2POOL_FIELD, instance=leaf_item.field)
-                    remote = get_component_value(record, REMOTE_FIELD)
-                    if remote:
+                    for depl in self.get_cached_deployments():
+                        if type(depl) == Db4E:
+                            continue
+
+                        if depl.instance() == leaf_item.field:
+                            p2pool = depl
+                            break
+
+                    if p2pool.remote():
                         form_data = {
                             ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -311,7 +289,7 @@ class NavPane(Container):
                 event.stop()
 
     def refresh_nav_pane(self) -> None:
-        self.check_initialized()
+        self.set_initialized()
         self.depls.root.remove_children()
         
         # Db4E Core root node
@@ -326,39 +304,40 @@ class NavPane(Container):
             return
         
         self.depls.root.add_leaf(str(core_item), data=core_item)
-        all_recs = self.get_cached_deployments()  # Cached call
         
         # Precompute <New> label
         new_leaf = NavItem(NEW_LABEL, NEW_FIELD, ICON[NEW])
         
         # Map element_types to service categories
         service_mappings = {
-            MONEROD_FIELD: ['monerod', 'monerod_remote'],
-            P2POOL_FIELD: ['p2pool', 'p2pool_remote'], 
-            XMRIG_FIELD: ['xmrig']
+            MONEROD_FIELD: [MoneroD, MoneroDRemote],
+            P2POOL_FIELD: [P2Pool, P2PoolRemote], 
+            XMRIG_FIELD: [XMRig]
         }
-        
+
+        depls = self.get_cached_deployments()
+
         # Group deployments by service category
         grouped: Dict[str, List[dict]] = {field: [] for field, _, _ in self.services}
-        for rec in all_recs:
-            element_type = rec.get('element_type')
+        for elem in depls:
             # Find which service category this element_type belongs to
             for service_field, element_types in service_mappings.items():
-                if element_type in element_types:
-                    grouped[service_field].append(rec)
+                if type(elem) in element_types:
+                    grouped[service_field].append(elem)
                     break
-        
+
+        #print(f"NavPane:refresh_nav_pane(): grouped: {grouped}")
+
         for field, icon, label in self.services:
             service_item = NavItem(label, field, icon)
             parent = self.depls.root.add(str(service_item), data=service_item, expand=True)
-            for rec in grouped.get(field, []):
-                # Use helper function to get instance name from components
-                instance = get_component_value(rec, INSTANCE_FIELD) or rec.get('name', 'Unknown')
-                state = rec.get('status')
-                #print(f"NavPane:refresh_nav_pane(): instance: {instance}, state: {repr(state)})")
+            for elem in grouped.get(field, []):
+                state = elem.status()
+                instance = elem.instance()
+                #print(f"NavPane:refresh_nav_pane(): instance: {instance}, state: {state}")
                 instance_item = NavItem(instance, instance, STATE_ICON.get(state, ""))
-                parent.add_leaf(str(instance_item), data=instance_item)
-            
+                parent.add_leaf(str(instance_item), data=instance_item)        
+
             # Add <New> if valid (i.e., P2Pool must exist before XMRIG)
             if field != XMRIG_FIELD or grouped.get(P2POOL_FIELD):
                 parent.add_leaf(str(new_leaf), data=new_leaf)
@@ -366,3 +345,10 @@ class NavPane(Container):
         # Add Donations link
         donate_item = NavItem(DONATIONS_LABEL, DONATIONS_FIELD, ICON[GIFT])
         self.depls.root.add_leaf(str(donate_item), data=donate_item)
+
+
+    def set_initialized(self):
+        if not self._initialized:  
+            self._initialized = self.depl_mgr.is_initialized()
+        return self._initialized
+
