@@ -36,10 +36,11 @@ from db4e.Constants.Fields import (
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
-    MONEROD_SHORT_LABEL, NEW_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
+    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
 from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
     INITIAL_SETUP_PANE)
+from db4e.Constants.Buttons import NEW_LABEL
 
 # Icon dictionary keys
 CORE = 'CORE'
@@ -117,7 +118,6 @@ class NavPane(Container):
 
 
     def clear_cache(self):
-        print(f"NavPane:clear_cache()")
         self._refresh_now = True
         self.refresh_nav_pane()
 
@@ -146,8 +146,7 @@ class NavPane(Container):
     
 
     async def on_mount(self) -> None:
-        print(f"NavPane:on_mount()")
-        self.set_interval(2, self.clear_cache)
+        self.set_interval(2, self.clear_cache)        
     
 
     @work(exclusive=True)

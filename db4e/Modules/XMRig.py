@@ -14,7 +14,7 @@ import os
 from copy import deepcopy
 
 
-from db4e.Modules.SoftwareSystem import SoftwareSystem
+from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Constants.Fields import (XMRIG_FIELD, REMOTE_FIELD, CONFIG_FILE_FIELD, 
@@ -25,7 +25,7 @@ from db4e.Modules.Components import (
     ConfigFile, Instance, Local, NumThreads, Parent, Version)
 
 
-class XMRig(SoftwareSystem):
+class XMRig(LocalSoftwareSystem):
     
     def __init__(self, rec=None):
         super().__init__()
@@ -64,14 +64,15 @@ class XMRig(SoftwareSystem):
 
         # Populate the config templace placeholders
         placeholders = {
-            'MINER_NAME': self.instance.value,
-            'NUM_THREADS': ','.join(['-1'] * int(self.num_threads.value)),
+            'MINER_NAME': self.instance(),
+            'NUM_THREADS': ','.join(['-1'] * int(self.num_threads())),
             'URL': url_entry
         }
         with open(tmpl_file, 'r') as f:
             config_contents = f.read()
+            final_config = config_contents
             for key, val in placeholders.items():
-                final_config = config_contents.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f'[[{key}]]', str(val))
 
         # Write the config to file
         with open(fq_config, 'w') as f:

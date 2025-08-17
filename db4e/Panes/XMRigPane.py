@@ -17,24 +17,25 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRig import XMRig
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
+from db4e.Constants.Buttons import(
+    BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, DELETE_LABEL, ENABLE_BUTTON_FIELD, 
+    ENABLE_LABEL, DISABLE_BUTTON_FIELD, DISABLE_LABEL,
+    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD, NEW_LABEL, START_BUTTON_FIELD, 
+    START_LABEL, STOP_BUTTON_FIELD, STOP_LABEL, UPDATE_LABEL)
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, BUTTON_ROW_FIELD, NEW_FIELD,
-    DELETE_BUTTON_FIELD, DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
+    ADD_DEPLOYMENT_FIELD, NEW_FIELD,
+    DELETE_FIELD, STARTED_FIELD, STOPPED_FIELD,
     FORM_3_FIELD, FORM_INPUT_15_FIELD, DISABLE_FIELD, FORM_INTRO_FIELD,
     FORM_LABEL_FIELD, HEALTH_BOX_FIELD, ELEMENT_FIELD,
     INSTANCE_FIELD, ENABLE_FIELD, NUM_THREADS_FIELD, OPS_MGR_FIELD,
     UPDATE_FIELD, FORM_DATA_FIELD, PANE_BOX_FIELD, PARENT_ID_FIELD,
-    RADIO_BUTTON_TYPE_FIELD, RADIO_MAP_FIELD, RADIO_SET_FIELD, ENABLE_BUTTON_FIELD,
-    DISABLE_BUTTON_FIELD,
+    RADIO_BUTTON_TYPE_FIELD, RADIO_MAP_FIELD, RADIO_SET_FIELD, 
     REMOTE_FIELD, STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    UPDATE_BUTTON_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD,
-    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, NEW_BUTTON_FIELD
-)
+    UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD,
+    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD)
 from db4e.Constants.Labels import (
-    CONFIG_LABEL, DELETE_LABEL, UPDATE_LABEL, INSTANCE_LABEL,
-    NUM_THREADS_LABEL, P2POOL_LABEL, XMRIG_LABEL, NEW_LABEL, ENABLE_LABEL,
-    DISABLE_LABEL
-)
+    CONFIG_LABEL, INSTANCE_LABEL,
+    NUM_THREADS_LABEL, P2POOL_LABEL, XMRIG_LABEL)
 
 
 class XMRigPane(Container):
@@ -50,11 +51,13 @@ class XMRigPane(Container):
         id="num_threads_input", restrict=f"[0-9]*", compact=True,
         classes=FORM_INPUT_15_FIELD)
     health_msgs = Label()
-    new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
-    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
-    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
     delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
+    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
+    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
+    new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
+    start_button = Button(label=START_LABEL, id=START_BUTTON_FIELD)
+    stop_button = Button(label=STOP_LABEL, id=STOP_BUTTON_FIELD)
+    update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
     xmrig = None
 
 
@@ -92,6 +95,8 @@ class XMRigPane(Container):
                         self.new_button,
                         self.update_button,
                         self.enable_button,
+                        self.start_button,
+                        self.stop_button,
                         self.disable_button,
                         self.delete_button,
                         classes=BUTTON_ROW_FIELD))),
@@ -125,6 +130,12 @@ class XMRigPane(Container):
             # This is a new operation
             self.remove_class(UPDATE_FIELD)
             self.add_class(NEW_FIELD)
+        if xmrig.running():
+            self.remove_class(STARTED_FIELD)
+            self.add_class(STOPPED_FIELD)
+        else:
+            self.remove_class(STOPPED_FIELD)
+            self.add_class(STARTED_FIELD)
 
         if xmrig.enable():
             self.remove_class(DISABLE_FIELD)
@@ -153,7 +164,6 @@ class XMRigPane(Container):
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-                PARENT_ID_FIELD : p2pool_id,
                 ELEMENT_FIELD: self.xmrig
             }
 
@@ -162,7 +172,6 @@ class XMRigPane(Container):
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
-                PARENT_ID_FIELD: p2pool_id,
                 ELEMENT_FIELD: self.xmrig
             }
 
@@ -187,9 +196,10 @@ class XMRigPane(Container):
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
-                ELEMENT_FIELD: self.xmrig
+                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_METHOD_FIELD: POST_JOB_FIELD,
+                OP_FIELD: DELETE_FIELD,
+                INSTANCE_FIELD: self.xmrig.instance()
             }            
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))

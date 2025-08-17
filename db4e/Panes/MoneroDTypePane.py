@@ -12,12 +12,13 @@ from textual.containers import Container, Vertical, ScrollableContainer
 from textual.app import ComposeResult
 from textual.widgets import Button, Label, MarkdownViewer, RadioButton, RadioSet, Static
 
-from db4e.Constants.Labels import (MONEROD_LABEL, MONEROD_REMOTE_LABEL, PROCEED_LABEL)
+from db4e.Constants.Labels import (MONEROD_LABEL, MONEROD_REMOTE_LABEL)
 from db4e.Constants.Fields import (
     FORM_INTRO_FIELD, GET_NEW_FIELD,
     MONEROD_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, PROCEED_BUTTON_FIELD,
-    RADIO_SET_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD
+    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
+    RADIO_SET_FIELD, ELEMENT_TYPE_FIELD, MONEROD_REMOTE_FIELD)
+from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD, PROCEED_LABEL
 )
 from db4e.Messages.Db4eMsg import Db4eMsg
 

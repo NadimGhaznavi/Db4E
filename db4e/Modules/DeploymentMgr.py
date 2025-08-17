@@ -131,6 +131,8 @@ class DeploymentMgr(Container):
         if not p2pool.stratum_port():
             update = False
 
+        print(f"DeploymentMgr:add_remote_p2pool_deployment(): {p2pool.to_rec()}")
+
         if update:
             self.insert_one(p2pool)
         return p2pool
@@ -216,9 +218,6 @@ class DeploymentMgr(Container):
                 }
         )
 
-        # Return a blank instance of the same class
-        return elem_class()
-        
  
     def get_component_value(self, data, field_name):
         """
@@ -544,6 +543,8 @@ class DeploymentMgr(Container):
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
 
+        print(f"DeploymentMgr:update_p2pool_remote_deployment(): {new_p2pool.to_rec()}")
+
         p2pool = self.get_deployment_by_id(new_p2pool.id())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
@@ -629,8 +630,7 @@ class DeploymentMgr(Container):
             raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
 
-
-        if xmrig.enable != new_xmrig.enable:
+        if xmrig.enable() != new_xmrig.enable():
             # This is an enable/disable operation
             xmrig.enable(new_xmrig.enable())
             update = True
@@ -651,15 +651,16 @@ class DeploymentMgr(Container):
                 update_config = True
 
             # Parent ID
-            if xmrig.parent_id != new_xmrig.parent_id:
-                xmrig.parent_id(new_xmrig.parent_id())
+            print(f"{xmrig.parent()} == {new_xmrig.parent()}")
+            if xmrig.parent != new_xmrig.parent:
+                xmrig.parent(new_xmrig.parent())
                 update = True
                 update_config = True
 
-            # Regenerate config if required
-            if update_config:
-                pass
-                # TODO, send message to server telling it to regenerate the config
+        # Regenerate config if required
+        if update_config:
+            pass
+            # TODO, send message to server telling it to regenerate the config
 
         if update:
             self.update_one(xmrig)

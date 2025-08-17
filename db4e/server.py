@@ -39,7 +39,7 @@ from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, ELEMENT_TYPE_FIELD, XMRIG_FIELD, 
+    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, DELETE_FIELD, XMRIG_FIELD, 
     INSTANCE_FIELD)
 from db4e.Constants.Labels import XMRIG_LABEL
 
@@ -81,10 +81,10 @@ class Db4eServer:
 
 
     def check_deployments(self):
-        self.log.info("Checking deployments:")
         depls = self.depl_mgr.get_deployments()
         for depl in depls:
-            depl_type = depl.elem_type()
+            depl_type = type(depl)
+            self.log.info(f"Checking deployment: {depl_type}")
             if depl_type == Db4E or depl_type == MoneroDRemote or depl_type == P2PoolRemote:
                 continue
 
@@ -110,6 +110,20 @@ class Db4eServer:
                 self.enable(elem_type=job.elem_type(), instance=job.instance())
             elif op == DISABLE_FIELD:
                 self.disable(elem_type=job.elem_type(), instance=job.instance())
+            elif op == DELETE_FIELD:
+                self.delete(elem_type=job.elem_type(), instance=job.instance())
+
+
+    def delete(self, elem_type, instance):
+        self.log.info(f"Deleting {elem_type}/{instance}")
+        elem = self.depl_mgr.get_deployment(elem_type, instance)
+        if type(elem) == XMRig:
+            self.ensure_stopped(elem)
+            config_file = elem.config_file()
+            os.remove(config_file)
+            self.depl_mgr.del_deployment(elem)
+            
+
     
 
     def disable(self, elem_type, instance):
@@ -127,32 +141,30 @@ class Db4eServer:
 
     def ensure_running(self, elem):
         # Check if the deployment service is running, start it if it's not
-        elem_type = elem.elem_type()
+        print(f"Db4eServer:ensure_running(): {elem}")
         sd = self.systemd
-        if elem_type == XMRig:
+        if type(elem) == XMRig:
             instance = elem.instance()
-            sd.service_name('XMRig@' + instance)
-                
+            sd.service_name('xmrig@' + instance)
             if not sd.active():
                 rc = sd.start()
                 if rc == 0:
-                    self.log.critical(f'Started {elem_type}/{instance}')
+                    self.log.critical(f'Started {type(elem)}/{instance}')
                 else:
-                    self.log.critical(f'ERROR: Failed to start {elem_type}/{instance}, return code was {rc}')
+                    self.log.critical(f'ERROR: Failed to start {type(elem)}/{instance}, return code was {rc}')
 
 
     def ensure_stopped(self, elem):
-        elem_type = elem.elem_type()
         sd = self.systemd
-        if elem_type == XMRig:
+        if type(elem) == XMRig:
             instance = elem.instance()
             sd.service_name('XMRig@' + instance)
         if sd.active():
             rc = sd.stop()
             if rc == 0:
-                self.log.critical(f'Stopped {elem_type}/{instance}')
+                self.log.critical(f'Stopped {type(elem)}/{instance}')
             else:
-                self.log.critical(f'ERROR: Failed to stop {elem_type}/{instance}, return code was {rc}')
+                self.log.critical(f'ERROR: Failed to stop {type(elem)}/{instance}, return code was {rc}')
                 
     def start(self):
         signal.signal(signal.SIGINT, self.shutdown)

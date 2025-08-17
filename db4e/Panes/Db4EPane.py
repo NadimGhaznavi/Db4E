@@ -16,16 +16,18 @@ from db4e.Modules.Db4E import Db4E
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
-    BUTTON_ROW_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD,
+    DB4E_FIELD, ELEMENT_TYPE_FIELD,
     FORM_5_FIELD, ELEMENT_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
-    FORM_INTRO_FIELD, FORM_LABEL_FIELD, GREEN_BUTTON_FIELD, GROUP_FIELD,
+    FORM_INTRO_FIELD, FORM_LABEL_FIELD, GROUP_FIELD,
     HEALTH_BOX_FIELD, HEALTH_MSGS_FIELD, INSTALL_DIR_FIELD, PANE_BOX_FIELD,
-    STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_BUTTON_FIELD,
+    STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, 
     UPDATE_DEPLOYMENT_FIELD, USER_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD,
     OPS_MGR_FIELD
 )
+from db4e.Constants.Buttons import (
+    BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD, UPDATE_LABEL)
 from db4e.Constants.Labels import (
-    DB4E_GROUP_LABEL, DB4E_USER_LABEL, INSTALL_DIR_LABEL, UPDATE_LABEL,
+    DB4E_GROUP_LABEL, DB4E_USER_LABEL, INSTALL_DIR_LABEL, 
     USER_WALLET_LABEL, VENDOR_DIR_LABEL
 )
 
@@ -84,8 +86,7 @@ class Db4EPane(Container):
                 ),
 
                 Horizontal(
-                    Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD, 
-                           classes=GREEN_BUTTON_FIELD),
+                    Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD),
                     classes=BUTTON_ROW_FIELD
                 ),
             classes=PANE_BOX_FIELD))

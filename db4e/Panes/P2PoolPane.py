@@ -17,7 +17,7 @@ from db4e.Constants.Fields import (
 )
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL, 
-    PROCEED_LABEL, STRATUM_PORT_LABEL
+    STRATUM_PORT_LABEL
 )
 from db4e.Constants.Defaults import (
     STRATUM_PORT_DEFAULT

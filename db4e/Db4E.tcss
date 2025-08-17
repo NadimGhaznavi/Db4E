@@ -231,6 +231,14 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#start_button {
+    color: #5fc442;
+    text-style: bold; }
+
+#stop_button {
+    color: #c44242;
+    text-style: bold; }
+
 #update_button {
     color: #5fc442;
     text-style: bold; }
@@ -254,6 +262,12 @@ Button {
     display: none; }
 
 .enable #enable_button {
+    display: none; }
+
+.stopped #start_button {
+    display: none; }
+
+.stopped #stop_button {
     display: none; }
 
 

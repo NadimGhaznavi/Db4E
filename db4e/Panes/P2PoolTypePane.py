@@ -12,11 +12,12 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Constants.Labels import (
-    P2POOL_LABEL, P2POOL_REMOTE_LABEL,PROCEED_LABEL)
+    P2POOL_LABEL, P2POOL_REMOTE_LABEL)
 from db4e.Constants.Fields import (
     ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_FIELD,
-    PROCEED_BUTTON_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD,
+    P2POOL_FIELD, P2POOL_REMOTE_FIELD,
     PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
+from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD, PROCEED_LABEL)
 from db4e.Messages.Db4eMsg import Db4eMsg
 
 color = "#9cae41"
