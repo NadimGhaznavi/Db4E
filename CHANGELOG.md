@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.28.9] - 2025-08-17
 
 ### Fixed
 - `db4e-server`: set __version__
 
 ### Changed
 - Removed `Modules/ConfigMgr/Config` - Replaced the config object with direct references to the default values
+- Major refactor: Replaced dictionaries with classes
+- Implemented a client/server JobQueue
 
 ---
 
