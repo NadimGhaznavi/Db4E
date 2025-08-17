@@ -98,6 +98,8 @@ class NavPane(Container):
         self._cached_deployments = []
         self._cache_time = 0
         self._cache_ttl = 1  # seconds
+        self._refresh_now = False
+
 
         # Current state data from Mongo
         self.monerod_recs = None
@@ -114,25 +116,26 @@ class NavPane(Container):
         self.refresh_nav_pane()
 
 
+    def clear_cache(self):
+        print(f"NavPane:clear_cache()")
+        self._refresh_now = True
+        self.refresh_nav_pane()
+
+
     def compose(self) -> ComposeResult:
         yield Vertical(ScrollableContainer(self.depls, id="navpane"))
 
 
-    def flush_cache(self):
-        self.get_cached_deployments()
-        self._cache_time = time.time()
-        self.refresh_nav_pane()
-
-
     def get_cached_deployments(self):
         now = time.time()
-        if now - self._cache_time > self._cache_ttl:
+        if self._refresh_now or now - self._cache_time > self._cache_ttl:
             self._cached_deployments = self.depl_mgr.get_deployments()
             for elem in self._cached_deployments:
                 if type(elem) == XMRig:
                     elem.p2pool = self.depl_mgr.get_deployment_by_id(elem.parent())
                 self.health_mgr.check(elem)          
             self._cache_time = now
+            self._refresh_now = False
         
         return self._cached_deployments
     
@@ -140,7 +143,12 @@ class NavPane(Container):
     def is_initialized(self) -> bool:
         #print(f"NavPane:is_initialized(): {self._initialized}")
         return self._initialized
+    
 
+    async def on_mount(self) -> None:
+        print(f"NavPane:on_mount()")
+        self.set_interval(2, self.clear_cache)
+    
 
     @work(exclusive=True)
     async def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:

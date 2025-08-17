@@ -1,13 +1,18 @@
+"""
+db4e/JobQueue.py
 
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi 
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
+    License: GPL 3.0
 
-from datetime import datetime
-import uuid
-import time
+"""
 
 from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.Job import Job
 from db4e.Constants.Fields import (
-    OP_FIELD, ATTEMPTS_FIELD, CREATED_AT_FIELD, JOB_ID_FIELD,
-    ELEMENT_TYPE_FIELD, STATUS_FIELD, PENDING_FIELD, INSTANCE_FIELD)
+    OP_FIELD, ELEMENT_TYPE_FIELD, PENDING_FIELD, INSTANCE_FIELD, JOB_ID_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
 
 class JobQueue:
@@ -17,45 +22,19 @@ class JobQueue:
         self.log = log
 
 
-    def post_job(self, details):
-        job_id = str(uuid.uuid4())
-        job = {
-            JOB_ID_FIELD: job_id,
-            OP_FIELD: details[OP_FIELD],
-            STATUS_FIELD: PENDING_FIELD,
-            CREATED_AT_FIELD: datetime.now(),
-            ATTEMPTS_FIELD: 0,
-            ELEMENT_TYPE_FIELD: details[ELEMENT_TYPE_FIELD],
-            INSTANCE_FIELD: details[INSTANCE_FIELD]
-        }
-        self.db.insert_one(self.col_name, job)
-        print(f"Job posted: {job[JOB_ID_FIELD]}")
+    def post_job(self, details: dict):
+        job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
+        self.db.insert_one(self.col_name, job.to_rec())
+        print(f"JobQueue:post_job(): Job posted: {job}")
 
     def grab_job(self):
-        job = self.db.grab_job()
-        if job:
-            self.log.info(f"Processing job: {job['_id']}")
-            try:
-                # Simulate job processing
-                time.sleep(2)
-
-                self.db.update_one(
-                    self.col_name,
-                    {"_id": job["_id"]},
-                    {"status": "completed", "updated_at": datetime.now()}
-                )
-                self.log.info(f"Job {job['_id']} completed.")
-            except Exception as e:
-                self.db.update_one(
-                    self.col_name,
-                    {"_id": job["_id"]},
-                    {"status": "failed", "error": str(e), "updated_at": datetime.now()}
-                )
-                self.log.error(f"Job {job['_id']} failed: {e}")
+        job_rec = self.db.grab_job()
+        if job_rec:
+            job = Job()
+            job.from_rec(job_rec)
+            job.status(PENDING_FIELD)
+            #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
+            self.log.critical(f"JobQueue:grab_job(): {job}")
+            return job
         else:
             return False
-
-# Example Usage:
-# queue = JobQueue()
-# queue.post_job({"task": "send_email", "recipient": "test@example.com"})
-# queue.grab_job()

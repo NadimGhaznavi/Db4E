@@ -127,6 +127,7 @@ class DbMgr:
 
     def grab_job(self):
         collection = self.get_collection(self.ops_col)
+        #print(f"DbMgr:grab_job():\nSTATUS_FIELD: {STATUS_FIELD}\nPROCESSING_FIELD: {PROCESSING_FIELD}")
         return collection.find_one_and_update(
             {STATUS_FIELD: PENDING_FIELD},
             {

@@ -13,16 +13,11 @@ import subprocess
 import re
 import time
 
-# Where the DB4E modules live
-lib_dir = os.path.join(os.path.dirname(__file__), '..')
-sys.path.append(lib_dir)
- 
-# Import DB4E modules
 
 # How long to wait until timing out
 TIMEOUT = 30
 
-class Db4eSystemd:
+class Db4ESystemD:
 
     def __init__(self, service_name):
         # Make sure systemd doesn't clutter the output with color codes or use a pager

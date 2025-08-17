@@ -11,7 +11,7 @@ db4e/App.py
 
 
 import os
-import sys
+import time
 from dataclasses import dataclass, field, fields
 from importlib import metadata
 from textual.app import App
@@ -46,6 +46,7 @@ from db4e.Constants.Defaults import (
 class Db4EApp(App):
     TITLE = APP_TITLE_DEFAULT
     CSS_PATH = CSS_PATH_DEFAULT
+    REFRESH_TIME = 2
 
     def __init__(self):
         super().__init__()
@@ -53,6 +54,7 @@ class Db4EApp(App):
         self.msg_router = MessageRouter()
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_mgr=self.ops_mgr.depl_mgr)
+
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
@@ -63,6 +65,7 @@ class Db4EApp(App):
         )
         yield self.pane_mgr
 
+
     ### Message handling happens here...#31b8e6;
 
     # Exit the app
@@ -72,18 +75,19 @@ class Db4EApp(App):
     # Every form sends the form data here
     @work(exclusive=True)
     async def on_db4e_msg(self, message: Db4eMsg) -> None:
+        print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = self.msg_router.dispatch(
             message.form_data[TO_MODULE_FIELD],
             message.form_data[TO_METHOD_FIELD],
             message.form_data
         )
         self.pane_mgr.set_pane(name=pane, data=data)
-        self.nav_pane.refresh_nav_pane()
 
 
     # Handle requests to refresh the NavPane
-    def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
-        self.nav_pane.flush_cache()
+    @work(exclusive=True)
+    async def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
+        self.nav_pane.clear_cache()
 
     # The individual Detail panes use this to update the TopBar
     def on_update_top_bar(self, message: UpdateTopBar) -> None:

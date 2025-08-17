@@ -661,5 +661,5 @@ class DeploymentMgr(Container):
                 pass
                 # TODO, send message to server telling it to regenerate the config
 
-            if update:
-                self.update_one(xmrig)
+        if update:
+            self.update_one(xmrig)

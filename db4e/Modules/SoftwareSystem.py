@@ -47,7 +47,7 @@ class SoftwareSystem:
 
 
     def enable(self, flag=None):
-        if flag:
+        if flag != None:
             self._enable = flag
         return self._enable
 

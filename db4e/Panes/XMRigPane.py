@@ -140,6 +140,7 @@ class XMRigPane(Container):
         button_id = event.button.id
         radio_set = self.query_one("#radio_set", RadioSet)
         p2pool_instance = radio_set.pressed_button.label
+        p2pool_id = None
         if p2pool_instance:
             p2pool_id = self.instance_map[p2pool_instance]
             self.xmrig.parent(p2pool_id)
@@ -148,8 +149,6 @@ class XMRigPane(Container):
 
 
         if button_id == UPDATE_BUTTON_FIELD:
-            self.p2pool_id = self.instance_map[p2pool_instance]
-
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
@@ -167,22 +166,22 @@ class XMRigPane(Container):
                 ELEMENT_FIELD: self.xmrig
             }
 
-        elif button_id == ENABLE_FIELD:
+        elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: ENABLE_FIELD,
-                ELEMENT_FIELD: self.xmrig
+                INSTANCE_FIELD: self.xmrig.instance()
             }
 
-        elif button_id == DISABLE_FIELD:
+        elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DISABLE_FIELD,
-                ELEMENT_FIELD: self.xmrig                
+                INSTANCE_FIELD: self.xmrig.instance()
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
@@ -192,8 +191,9 @@ class XMRigPane(Container):
                 TO_METHOD_FIELD: DELETE_DEPLOYMENT_FIELD,
                 ELEMENT_FIELD: self.xmrig
             }            
+
         self.app.post_message(Db4eMsg(self, form_data=form_data))
-        self.app.post_message(RefreshNavPane(self))
+        #self.app.post_message(RefreshNavPane(self))
 
     def watch_radio_button_list(self, old, new):
         for child in list(self.radio_set.children):

@@ -29,7 +29,7 @@ from db4e.Constants.Fields import (
 
 from db4e.Constants.Panes import (
     DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, 
-    MONEROD_TYPE_PANE,
+    MONEROD_TYPE_PANE, WELCOME_PANE,
     P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE, RESULTS_PANE
 )
 
@@ -127,7 +127,7 @@ class MessageRouter:
 
         # Client side Job Queue op: submit_job
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, XMRIG_FIELD,
-                      self.depl_mgr.job_queue.post_job, XMRIG_PANE)
+                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_FIELD,
                       self.depl_mgr.job_queue.post_job, P2POOL_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_REMOTE_FIELD,

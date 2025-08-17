@@ -9,7 +9,7 @@ db4e/server.py
 
 """
 
-import os
+import os, sys
 import time
 import signal
 import threading
@@ -28,10 +28,17 @@ from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Helper import get_component_value
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
+from db4e.Modules.Db4ESystemD import Db4ESystemD
 from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
+    DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
     COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, ELEMENT_TYPE_FIELD, XMRIG_FIELD, 
     INSTANCE_FIELD)
 from db4e.Constants.Labels import XMRIG_LABEL
@@ -48,13 +55,16 @@ class Db4eServer:
         self.ops_mgr = OpsMgr()
 
         # Get a deployment manager
-        self.deployment_mgr = DeploymentMgr()
+        self.depl_mgr = DeploymentMgr()
+
+        # Get a systemd object
+        self.systemd = Db4ESystemD(DB4E_FIELD)
 
         # Get a db manager
         self.db = DbMgr()
 
         # Setup logging
-        vendor_dir = self.ops_mgr.get_dir(VENDOR_DIR_FIELD)
+        vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
         logs_dir = LOG_DIR_DEFAULT
         log_file = DB4E_LOG_FILE_DEFAULT
         fq_log_file = os.path.join(vendor_dir, DB4E_FIELD, logs_dir, log_file)    
@@ -72,27 +82,78 @@ class Db4eServer:
 
     def check_deployments(self):
         self.log.info("Checking deployments:")
-        depls = self.ops_mgr.get_deployments()
+        depls = self.depl_mgr.get_deployments()
         for depl in depls:
-            if ENABLE_FIELD in depl:
-                elem_type = depl[ELEMENT_TYPE_FIELD]
-                if elem_type == XMRIG_FIELD:
-                    self._handle_xmrig(depl)
+            depl_type = depl.elem_type()
+            if depl_type == Db4E or depl_type == MoneroDRemote or depl_type == P2PoolRemote:
+                continue
+
+            if depl.enable():
+                self.ensure_running(depl)
+            else:
+                self.ensure_stopped(depl)
 
     def check_jobs(self):
         self.log.info("Checking jobs:")
         jobs = []
-        while self.job_queue.grab_job():
-            self.log.critical("Executing the job")
-            time.sleep(1)
+        found_job = True
+        while found_job:
+            job = self.job_queue.grab_job()
+            if job:
+                jobs.append(job)
+            else:
+                found_job = False
         
+        for job in jobs:
+            op = job.op()
+            if op == ENABLE_FIELD:
+                self.enable(elem_type=job.elem_type(), instance=job.instance())
+            elif op == DISABLE_FIELD:
+                self.disable(elem_type=job.elem_type(), instance=job.instance())
+    
 
-    def _handle_xmrig(self, depl):
-        enable_flag = depl[ENABLE_FIELD]
-        instance = get_component_value(depl, INSTANCE_FIELD)
-        self.log.critical(f"Found {XMRIG_LABEL}: instance {instance}, enabled: {enable_flag}")
+    def disable(self, elem_type, instance):
+        self.log.info(f"Enabling {elem_type}/{instance}")
+        elem = self.depl_mgr.get_deployment(elem_type, instance)
+        elem.enable(False)
+        self.depl_mgr.update_deployment(elem)
 
 
+    def enable(self, elem_type, instance):
+        self.log.info(f"Enabling {elem_type}/{instance}")
+        elem = self.depl_mgr.get_deployment(elem_type, instance)
+        elem.enable(True)
+        self.depl_mgr.update_deployment(elem)
+
+    def ensure_running(self, elem):
+        # Check if the deployment service is running, start it if it's not
+        elem_type = elem.elem_type()
+        sd = self.systemd
+        if elem_type == XMRig:
+            instance = elem.instance()
+            sd.service_name('XMRig@' + instance)
+                
+            if not sd.active():
+                rc = sd.start()
+                if rc == 0:
+                    self.log.critical(f'Started {elem_type}/{instance}')
+                else:
+                    self.log.critical(f'ERROR: Failed to start {elem_type}/{instance}, return code was {rc}')
+
+
+    def ensure_stopped(self, elem):
+        elem_type = elem.elem_type()
+        sd = self.systemd
+        if elem_type == XMRig:
+            instance = elem.instance()
+            sd.service_name('XMRig@' + instance)
+        if sd.active():
+            rc = sd.stop()
+            if rc == 0:
+                self.log.critical(f'Stopped {elem_type}/{instance}')
+            else:
+                self.log.critical(f'ERROR: Failed to stop {elem_type}/{instance}, return code was {rc}')
+                
     def start(self):
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
@@ -111,6 +172,8 @@ class Db4eServer:
     def shutdown(self, signum, frame):
         self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
+        sys.exit(0)
+
 
     def cleanup(self):
         self.log.info('Shutdown complete')
