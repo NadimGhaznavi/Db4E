@@ -159,19 +159,19 @@ class XMRigPane(Container):
         self.xmrig.num_threads(self.query_one("#num_threads_input", Input).value)
 
 
-        if button_id == UPDATE_BUTTON_FIELD:
+        if button_id == NEW_BUTTON_FIELD:
+            form_data = {
+                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                ELEMENT_FIELD: self.xmrig
+            }
+
+        elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-                ELEMENT_FIELD: self.xmrig
-            }
-
-        elif button_id == NEW_BUTTON_FIELD:
-            form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                 ELEMENT_FIELD: self.xmrig
             }
 

@@ -21,15 +21,15 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DB4E_FIELD, 
     DELETE_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, GET_NEW_FIELD, 
     INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, MONEROD_FIELD, OPS_MGR_FIELD,
-    NEW_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
+    GET_TUI_LOG_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
     XMRIG_FIELD, DONATIONS_FIELD, GET_REC_FIELD, ELEMENT_TYPE_FIELD,
-    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD, 
+    MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD, TUI_LOG_FIELD,
     INITIAL_SETUP_PROCEED_FIELD, POST_JOB_FIELD, JOB_QUEUE_FIELD
 )
 
 from db4e.Constants.Panes import (
     DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, 
-    MONEROD_TYPE_PANE, WELCOME_PANE,
+    MONEROD_TYPE_PANE, WELCOME_PANE, TUI_LOG_PANE,
     P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE, RESULTS_PANE
 )
 
@@ -137,6 +137,11 @@ class MessageRouter:
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_REMOTE_FIELD,
                       self.depl_mgr.job_queue.post_job, MONEROD_PANE)
 
+
+        # TUI Log
+        self.register(OPS_MGR_FIELD, GET_TUI_LOG_FIELD, TUI_LOG_FIELD,
+                      self.ops_mgr.get_tui_log, TUI_LOG_PANE)
+
         # Donations
         self.register(PANE_MGR_FIELD, SET_PANE_FIELD, DONATIONS_FIELD,
                       self.pane_mgr.set_pane, DONATIONS_PANE)
@@ -149,7 +154,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, some_module: str, some_method: str = None, payload: dict = None):
-        #print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
+        print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(ELEMENT_TYPE_FIELD, "")
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:

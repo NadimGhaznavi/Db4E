@@ -100,6 +100,10 @@ class OpsMgr:
         return elem
     
 
+    def get_tui_log(self, job_list: list):
+        return self.depl_mgr.job_queue.get_jobs()
+
+
     def update_deployment(self, data: dict):
         print(f"OpsMgr:update_deployment(): {data}")
 

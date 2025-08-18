@@ -148,6 +148,28 @@ def gen_results_table(results):
     return table
 
 
+def gen_tui_log_table(job_list: list):
+    table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
+    table.add_column("Created", width=25)
+    table.add_column("Updated", width=25)
+    table.add_column("Operation", width=25)
+    table.add_column("Type", width=25)
+    table.add_column("Instance", width=25)
+
+    for job in job_list:
+        table.add_row(
+            str(job.created_at()), 
+            str(job.updated_at()), 
+            str(job.op()), 
+            str(job.elem_type()), 
+            str(job.instance())
+        )
+    return table
+
+
+
+
+
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"

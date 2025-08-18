@@ -30,7 +30,7 @@ from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
     TUI_LOG_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
-    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD,
+    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, GET_TUI_LOG_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
     OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_FIELD, GET_REC_FIELD,
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
@@ -39,7 +39,7 @@ from db4e.Constants.Labels import (
     MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, TUI_LOG_LABEL, XMRIG_SHORT_LABEL)
 from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
-    INITIAL_SETUP_PANE)
+    TUI_LOG_PANE)
 from db4e.Constants.Buttons import NEW_LABEL
 
 # Icon dictionary keys
@@ -277,6 +277,16 @@ class NavPane(Container):
                     }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
+            # TUI Log
+            elif TUI_LOG_LABEL in leaf_item.label:
+                #print(f"NavPane:on_tree_node_selected(): {TUI_LOG_LABEL}")
+                form_data = {
+                    ELEMENT_TYPE_FIELD: TUI_LOG_FIELD,
+                    TO_MODULE_FIELD: OPS_MGR_FIELD,
+                    TO_METHOD_FIELD: GET_TUI_LOG_FIELD,
+                }
+                self.post_message(Db4eMsg(self, form_data=form_data))
+
             # Donations
             elif DONATIONS_LABEL in leaf_item.label:
                 #print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
@@ -284,7 +294,6 @@ class NavPane(Container):
                     ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
                     TO_MODULE_FIELD: PANE_MGR_FIELD,
                     TO_METHOD_FIELD: SET_PANE_FIELD,
-                    NAME_FIELD: DONATIONS_PANE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 

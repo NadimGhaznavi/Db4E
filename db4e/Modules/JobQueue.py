@@ -27,6 +27,16 @@ class JobQueue:
         self.db.insert_one(self.col_name, job.to_rec())
         print(f"JobQueue:post_job(): Job posted: {job}")
 
+
+    def get_jobs(self):
+        jobs = []
+        for rec in self.db.find_many(self.col_name, {}):
+            job = Job()
+            job.from_rec(rec)
+            jobs.append(job)
+        return jobs
+
+
     def grab_job(self):
         job_rec = self.db.grab_job()
         if job_rec:
