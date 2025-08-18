@@ -28,7 +28,7 @@ from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
-    REMOTE_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
+    TUI_LOG_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
@@ -36,7 +36,7 @@ from db4e.Constants.Fields import (
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
-    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
+    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, TUI_LOG_LABEL, XMRIG_SHORT_LABEL)
 from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
     INITIAL_SETUP_PANE)
@@ -46,6 +46,7 @@ from db4e.Constants.Buttons import NEW_LABEL
 CORE = 'CORE'
 DEPL = 'DEPL'
 GIFT = 'GIFT'
+LOG = 'LOG'
 MON = 'MON'
 NEW = 'NEW'
 P2P = 'P2P'
@@ -56,6 +57,7 @@ ICON = {
     CORE: '📡 ',
     DEPL: '💻 ',
     GIFT: '🎉 ',
+    LOG: '📚 ',
     MON: '🌿 ',
     NEW: '🔧 ',
     P2P: '🌊 ',
@@ -349,6 +351,11 @@ class NavPane(Container):
             if field != XMRIG_FIELD or grouped.get(P2POOL_FIELD):
                 parent.add_leaf(str(new_leaf), data=new_leaf)
         
+        # Add Log link
+        log_item = NavItem(TUI_LOG_LABEL, TUI_LOG_FIELD, ICON[LOG])
+        self.depls.root.add_leaf(str(log_item), data=log_item)
+
+
         # Add Donations link
         donate_item = NavItem(DONATIONS_LABEL, DONATIONS_FIELD, ICON[GIFT])
         self.depls.root.add_leaf(str(donate_item), data=donate_item)
