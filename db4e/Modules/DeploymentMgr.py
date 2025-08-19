@@ -552,24 +552,26 @@ class DeploymentMgr(Container):
 
         if p2pool.instance != new_p2pool.instance:
             p2pool.instance(new_p2pool.instance())
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated instance name")
             update = True
 
         # IP Address
         if p2pool.ip_addr != new_p2pool.ip_addr:
             p2pool.ip_addr(new_p2pool.ip_addr())
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated IP/hostname")
             update = True
 
         # Stratum Port
         if p2pool.stratum_port != new_p2pool.stratum_port:
             p2pool.stratum_port(new_p2pool.stratum_port())
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,"Updated stratum port")
             update = True
 
         if update:
             self.update_one(p2pool)
             
         else:
-            p2pool.msg(P2POOL_LABEL, WARN_FIELD, 
-                       f"{p2pool.instance()} – Nothing to update")
+            p2pool.msg(P2POOL_LABEL, WARN_FIELD, "Nothing to update")
         return p2pool
 
 
@@ -664,3 +666,5 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(xmrig)
+
+        return xmrig

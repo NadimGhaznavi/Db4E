@@ -18,7 +18,7 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, 
     FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, INSTANCE_FIELD,
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, UPDATE_FIELD,
+    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     HEALTH_BOX_FIELD, ELEMENT_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, P2POOL_REMOTE_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_DEPLOYMENT_FIELD)
 from db4e.Constants.Labels import (
@@ -27,8 +27,8 @@ from db4e.Constants.Labels import (
 from db4e.Constants.Buttons import (
     DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD, 
     DELETE_LABEL, UPDATE_LABEL, NEW_LABEL)
-from db4e.Constants.Jobs import JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, DELETE_FIELD
-
+from db4e.Constants.Jobs import (
+    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, DELETE_FIELD, UPDATE_FIELD)
 
 
 
@@ -120,10 +120,12 @@ class P2PoolRemotePane(Container):
         elif button_id == UPDATE_BUTTON_FIELD:
             # There was an original instance, so this is an update            
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
+                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_METHOD_FIELD: POST_JOB_FIELD,
+                OP_FIELD: UPDATE_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 ELEMENT_FIELD: self.p2pool,
+                INSTANCE_FIELD: self.p2pool.instance(),
             }
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {

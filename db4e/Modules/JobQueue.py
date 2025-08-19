@@ -15,10 +15,10 @@ from datetime import datetime
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD)
+    ELEMENT_TYPE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD, ELEMENT_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
 from db4e.Constants.Jobs import (
-    OP_FIELD, PENDING_FIELD, UPDATED_AT_FIELD, COMPLETED_FIELD
+    OP_FIELD, PENDING_FIELD, PROCESSING_FIELD, COMPLETED_FIELD
 )
 
 class JobQueue:
@@ -46,9 +46,11 @@ class JobQueue:
     def grab_job(self):
         job_rec = self.db.grab_job()
         if job_rec:
+            #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
             job = Job()
             job.from_rec(job_rec)
-            job.status(PENDING_FIELD)
+            #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
+            job.status(PROCESSING_FIELD)
             #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
             self.log.critical(f"JobQueue:grab_job(): {job}")
             return job
@@ -58,7 +60,10 @@ class JobQueue:
 
     def post_job(self, details: dict):
         job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
-        self.db.insert_one(self.col_name, job.to_rec())
-        print(f"JobQueue:post_job(): Job posted: {job}")
+        job_rec = job.to_rec()
+        if ELEMENT_FIELD in details:
+            job_rec[ELEMENT_FIELD] = details[ELEMENT_FIELD].to_rec()
+        self.db.insert_one(self.col_name, job_rec)
+        #print(f"JobQueue:post_job(): Job posted: {job}")
 
 

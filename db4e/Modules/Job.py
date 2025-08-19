@@ -12,8 +12,14 @@ db4e/Job.py
 import uuid
 from datetime import datetime
 
-from db4e.Constants.Fields import (ELEMENT_TYPE_FIELD,
-    INSTANCE_FIELD, OBJECT_ID_FIELD)
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
+from db4e.Constants.Fields import (ELEMENT_FIELD, ELEMENT_TYPE_FIELD,
+    INSTANCE_FIELD, OBJECT_ID_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD, 
+    P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD)
 from db4e.Constants.Jobs import (
     JOB_ID_FIELD, OP_FIELD, MESSAGE_FIELD, PENDING_FIELD,
     ATTEMPTS_FIELD, CREATED_AT_FIELD, STATUS_FIELD, UPDATED_AT_FIELD
@@ -26,6 +32,7 @@ class Job:
     def __init__(self, op=None, elem_type=None, instance=None):
         self._attempts = 0
         self._created_at = datetime.now()
+        self._element = None
         self._element_type = elem_type
         self._instance = instance
         self._job_id = str(uuid.uuid4())
@@ -48,6 +55,10 @@ class Job:
         return self._created_at
 
 
+    def elem(self):
+        return self._element
+
+
     def elem_type(self):
         return self._element_type
 
@@ -63,6 +74,20 @@ class Job:
         self._op = rec[OP_FIELD]
         self._status = rec[STATUS_FIELD]
         self._updated_at = rec[UPDATED_AT_FIELD]
+        if ELEMENT_FIELD in rec:
+            elem_rec = rec[ELEMENT_FIELD]
+            elem_type = elem_rec[ELEMENT_TYPE_FIELD]
+            #print(f"Job:from_rec(): elem_type: {elem_type}")
+            if elem_type == MONEROD_FIELD:
+                self._element = MoneroD(elem_rec)
+            elif elem_type == MONEROD_REMOTE_FIELD:
+                self._element = MoneroDRemote(elem_rec)
+            elif elem_type == P2POOL_FIELD:
+                self._element = P2Pool(elem_rec)
+            elif elem_type == P2POOL_REMOTE_FIELD:
+                self._element = P2PoolRemote(elem_rec)
+            elif elem_type == XMRIG_FIELD:
+                self._element = XMRig(elem_rec)
 
 
     def id(self, object_id=None):

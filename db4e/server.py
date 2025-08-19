@@ -42,7 +42,7 @@ from db4e.Constants.Fields import (
     COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, XMRIG_FIELD, 
     INSTANCE_FIELD)
 from db4e.Constants.Labels import XMRIG_LABEL
-from db4e.Constants.Jobs import DELETE_FIELD
+from db4e.Constants.Jobs import DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD
 
 POLL_INTERVAL = 5
 
@@ -107,6 +107,7 @@ class Db4eServer:
                 found_job = False
         
         for job in jobs:
+            #print(f"Db4eServer:check_jobs(): job.elem(): {job.elem()}")
             op = job.op()
             if op == ENABLE_FIELD:
                 self.enable(job=job)
@@ -114,6 +115,9 @@ class Db4eServer:
                 self.disable(elem_type=job.elem_type(), instance=job.instance())
             elif op == DELETE_FIELD:
                 self.delete(job=job)
+            elif op == UPDATE_FIELD:
+                self.update(job=job)
+
 
 
     def delete(self, job):
@@ -181,6 +185,12 @@ class Db4eServer:
                 self.log.critical(f'ERROR: Failed to stop {type(elem)}/{instance}, return code was {rc}')
                 
 
+    def shutdown(self, signum, frame):
+        self.log.info(f'Shutdown requested (signal {signum})')
+        self.running.clear()
+        sys.exit(0)
+
+
     def start(self):
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
@@ -196,14 +206,17 @@ class Db4eServer:
         self.cleanup()
 
 
-    def shutdown(self, signum, frame):
-        self.log.info(f'Shutdown requested (signal {signum})')
-        self.running.clear()
-        sys.exit(0)
-
-
-    def cleanup(self):
-        self.log.info('Shutdown complete')
+    def update(self, job):
+        elem = job.elem()
+        print(f"Db4eServer:update(): {elem}, {type(elem)}")
+        elem = self.depl_mgr.update_deployment(elem)
+        msgs = ""
+        for msg in elem.pop_msgs():
+            print(f"Db4eServer:update(): msg: {msg}")
+            for key, val in msg.items():
+                msgs += val[MESSAGE_FIELD] + "\n"
+        job.msg(msgs[:-1])
+        self.job_queue.complete_job(job)
 
 
 def main():
