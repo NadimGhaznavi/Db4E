@@ -23,11 +23,16 @@ from db4e.Constants.Fields import(
     P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, 
     P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
     FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD, ELEMENT_TYPE_FIELD,
-    PENDING_FIELD, ENABLE_FIELD, STATUS_FIELD, GOOD_FIELD, 
-    MESSAGE_FIELD)
+    ENABLE_FIELD, GOOD_FIELD, 
+    MONEROD_FIELD, MONEROD_REMOTE_FIELD)
+from db4e.Constants.Jobs import(
+    PENDING_FIELD, STATUS_FIELD, MESSAGE_FIELD, 
+)
 from db4e.Constants.Defaults import (
     CONF_DIR_DEFAULT, XMRIG_CONFIG_DEFAULT, XMRIG_VERSION_DEFAULT)
-from db4e.Constants.Labels import XMRIG_LABEL
+from db4e.Constants.Labels import (
+    XMRIG_LABEL, XMRIG_SHORT_LABEL, MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL)
+
 
 class Status:
     ACTIVE = ACTIVE_FIELD
@@ -150,19 +155,29 @@ def gen_results_table(results):
 
 def gen_tui_log_table(job_list: list):
     table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
-    table.add_column("Created", width=25)
-    table.add_column("Updated", width=25)
-    table.add_column("Operation", width=25)
-    table.add_column("Type", width=25)
-    table.add_column("Instance", width=25)
+    table.add_column("Timestamp", width=20)
+    table.add_column("Status")
+    table.add_column("Operation")
+    table.add_column("Type")
+    table.add_column("Instance")
+    table.add_column("Results")
+
+    TYPE_TABLE = {
+        MONEROD_FIELD: MONEROD_SHORT_LABEL,
+        MONEROD_REMOTE_FIELD: MONEROD_SHORT_LABEL,
+        P2POOL_FIELD: P2POOL_SHORT_LABEL,
+        P2POOL_REMOTE_FIELD: P2POOL_SHORT_LABEL,
+        XMRIG_FIELD: XMRIG_SHORT_LABEL,
+    }
 
     for job in job_list:
         table.add_row(
-            str(job.created_at()), 
-            str(job.updated_at()), 
+            str(job.updated_at().strftime("%Y-%m-%d %H:%M:%S")), 
+            str(job.status()),
             str(job.op()), 
-            str(job.elem_type()), 
-            str(job.instance())
+            str(TYPE_TABLE.get(job.elem_type())), 
+            str(job.instance()),
+            str(job.msg())
         )
     return table
 

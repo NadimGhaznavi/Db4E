@@ -12,24 +12,28 @@ db4e/Job.py
 import uuid
 from datetime import datetime
 
-from db4e.Constants.Fields import (PENDING_FIELD, JOB_ID_FIELD, OP_FIELD,
-    ATTEMPTS_FIELD, CREATED_AT_FIELD, STATUS_FIELD, ERROR_FIELD, ELEMENT_TYPE_FIELD,
-    INSTANCE_FIELD, UPDATED_AT_FIELD)
+from db4e.Constants.Fields import (ELEMENT_TYPE_FIELD,
+    INSTANCE_FIELD, OBJECT_ID_FIELD)
+from db4e.Constants.Jobs import (
+    JOB_ID_FIELD, OP_FIELD, MESSAGE_FIELD, PENDING_FIELD,
+    ATTEMPTS_FIELD, CREATED_AT_FIELD, STATUS_FIELD, UPDATED_AT_FIELD
+)
 
 
 class Job:
 
 
     def __init__(self, op=None, elem_type=None, instance=None):
-        self._job_id = str(uuid.uuid4())
-        self._op = op
-        self._status = PENDING_FIELD
         self._attempts = 0
         self._created_at = datetime.now()
-        self._updated_at = datetime.now()
-        self._error = None
         self._element_type = elem_type
         self._instance = instance
+        self._job_id = str(uuid.uuid4())
+        self._msg = None
+        self._object_id = None
+        self._op = op
+        self._status = PENDING_FIELD
+        self._updated_at = datetime.now()
 
 
     def __repr__(self):
@@ -38,7 +42,7 @@ class Job:
 
     def attempts(self):
         return self._attempts
-
+    
 
     def created_at(self):
         return self._created_at
@@ -48,21 +52,23 @@ class Job:
         return self._element_type
 
 
-    def error(self):
-        return self._error
-
-
     def from_rec(self, rec: dict):
-        self._job_id = rec[JOB_ID_FIELD]
-        self._op = rec[OP_FIELD]
-        self._status = rec[STATUS_FIELD]
         self._attempts = rec[ATTEMPTS_FIELD]
         self._created_at = rec[CREATED_AT_FIELD]
-        self._updated_at = rec[UPDATED_AT_FIELD]
-        self._error = rec[ERROR_FIELD]
         self._element_type = rec[ELEMENT_TYPE_FIELD]
         self._instance = rec[INSTANCE_FIELD]
+        self._job_id = rec[JOB_ID_FIELD]
+        self._msg = rec[MESSAGE_FIELD]
+        self._object_id = rec[OBJECT_ID_FIELD]
+        self._op = rec[OP_FIELD]
+        self._status = rec[STATUS_FIELD]
+        self._updated_at = rec[UPDATED_AT_FIELD]
 
+
+    def id(self, object_id=None):
+        if object_id != None:
+            self._object_id = object_id
+        return self._object_id
 
     def instance(self):
         return self._instance
@@ -71,6 +77,12 @@ class Job:
     def job_id(self):
         return self._job_id
     
+
+    def msg(self, msg=None):
+        if msg != None:
+            self._msg = msg
+        return self._msg
+
 
     def op(self):
         return self._op
@@ -85,19 +97,21 @@ class Job:
 
     def to_rec(self):
         return {
-            JOB_ID_FIELD: self._job_id,
-            OP_FIELD: self._op,
-            STATUS_FIELD: self._status,
             ATTEMPTS_FIELD: self._attempts,
             CREATED_AT_FIELD: self._created_at,
-            UPDATED_AT_FIELD: self._updated_at,
-            ERROR_FIELD: self._error,
             ELEMENT_TYPE_FIELD: self._element_type,
-            INSTANCE_FIELD: self._instance
+            INSTANCE_FIELD: self._instance,
+            JOB_ID_FIELD: self._job_id,
+            MESSAGE_FIELD: self._msg,
+            OP_FIELD: self._op,
+            STATUS_FIELD: self._status,
+            UPDATED_AT_FIELD: self._updated_at,
         }
     
 
-    def updated_at(self):
+    def updated_at(self, timestamp=None):
+        if timestamp:
+            self._updated_at = timestamp
         return self._updated_at
 
 

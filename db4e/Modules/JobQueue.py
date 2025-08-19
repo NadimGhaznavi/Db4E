@@ -9,11 +9,17 @@ db4e/JobQueue.py
 
 """
 
+from datetime import datetime
+
+
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
 from db4e.Constants.Fields import (
-    OP_FIELD, ELEMENT_TYPE_FIELD, PENDING_FIELD, INSTANCE_FIELD, JOB_ID_FIELD)
+    ELEMENT_TYPE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
+from db4e.Constants.Jobs import (
+    OP_FIELD, PENDING_FIELD, UPDATED_AT_FIELD, COMPLETED_FIELD
+)
 
 class JobQueue:
     def __init__(self, db: DbMgr, log=None):
@@ -22,15 +28,15 @@ class JobQueue:
         self.log = log
 
 
-    def post_job(self, details: dict):
-        job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
-        self.db.insert_one(self.col_name, job.to_rec())
-        print(f"JobQueue:post_job(): Job posted: {job}")
+    def complete_job(self, job: Job):
+        job.status(COMPLETED_FIELD)
+        job.updated_at(datetime.now())
+        self.db.update_one(self.col_name, {OBJECT_ID_FIELD: job.id()}, job.to_rec())        
 
 
     def get_jobs(self):
         jobs = []
-        for rec in self.db.find_many(self.col_name, {}):
+        for rec in self.db.get_jobs():
             job = Job()
             job.from_rec(rec)
             jobs.append(job)
@@ -48,3 +54,11 @@ class JobQueue:
             return job
         else:
             return False
+
+
+    def post_job(self, details: dict):
+        job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
+        self.db.insert_one(self.col_name, job.to_rec())
+        print(f"JobQueue:post_job(): Job posted: {job}")
+
+

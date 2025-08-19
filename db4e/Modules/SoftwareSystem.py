@@ -17,9 +17,9 @@ from db4e.Constants.Fields import SOFTWARE_SYSTEM_FIELD
 from db4e.Constants.Labels import SOFTWARE_SYSTEM_LABEL
 from db4e.Constants.Fields import (
     COMPONENTS_FIELD, ELEMENT_TYPE_FIELD, FIELD_FIELD, LABEL_FIELD, NAME_FIELD,
-    VALUE_FIELD, ENABLE_FIELD, STATUS_FIELD, MESSAGE_FIELD, OBJECT_ID_FIELD,
+    VALUE_FIELD, ENABLE_FIELD, OBJECT_ID_FIELD,
     GOOD_FIELD, WARN_FIELD, ERROR_FIELD, INSTANCE_FIELD)
-
+from db4e.Constants.Jobs import (STATUS_FIELD, MESSAGE_FIELD)
 
 
 class SoftwareSystem:
@@ -30,6 +30,7 @@ class SoftwareSystem:
         self.name = SOFTWARE_SYSTEM_LABEL
         self._enable = False
         self._object_id = None
+        self._running = False
         self.components = {}
         self.msgs = []
 
@@ -87,6 +88,12 @@ class SoftwareSystem:
 
     def push_msgs(self, msgs: list):
         self.msgs.extend(msgs)
+
+
+    def running(self, flag=None):
+        if flag != None:
+            self._running = flag
+        return self._running
 
 
     def status(self):

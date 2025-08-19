@@ -39,9 +39,10 @@ from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, 
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, DELETE_FIELD, XMRIG_FIELD, 
+    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, XMRIG_FIELD, 
     INSTANCE_FIELD)
 from db4e.Constants.Labels import XMRIG_LABEL
+from db4e.Constants.Jobs import DELETE_FIELD
 
 POLL_INTERVAL = 5
 
@@ -93,6 +94,7 @@ class Db4eServer:
             else:
                 self.ensure_stopped(depl)
 
+
     def check_jobs(self):
         self.log.info("Checking jobs:")
         jobs = []
@@ -107,14 +109,16 @@ class Db4eServer:
         for job in jobs:
             op = job.op()
             if op == ENABLE_FIELD:
-                self.enable(elem_type=job.elem_type(), instance=job.instance())
+                self.enable(job=job)
             elif op == DISABLE_FIELD:
                 self.disable(elem_type=job.elem_type(), instance=job.instance())
             elif op == DELETE_FIELD:
-                self.delete(elem_type=job.elem_type(), instance=job.instance())
+                self.delete(job=job)
 
 
-    def delete(self, elem_type, instance):
+    def delete(self, job):
+        elem_type = job.elem_type()
+        instance = job.instance()
         self.log.info(f"Deleting {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         if type(elem) == XMRig:
@@ -122,8 +126,13 @@ class Db4eServer:
             config_file = elem.config_file()
             os.remove(config_file)
             self.depl_mgr.del_deployment(elem)
-            
-
+            job.msg("Deleted")
+            self.job_queue.complete_job(job=job)
+        elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
+            self.ensure_stopped(elem)
+            self.depl_mgr.del_deployment(elem)
+            job.msg("Deleted")
+            self.job_queue.complete_job(job=job)
     
 
     def disable(self, elem_type, instance):
@@ -133,11 +142,16 @@ class Db4eServer:
         self.depl_mgr.update_deployment(elem)
 
 
-    def enable(self, elem_type, instance):
+    def enable(self, job):
+        elem_type = job.elem_type()
+        instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
+        job.msg("Enabled")
         elem.enable(True)
         self.depl_mgr.update_deployment(elem)
+        self.job_queue.complete_job(job)
+
 
     def ensure_running(self, elem):
         # Check if the deployment service is running, start it if it's not
@@ -166,6 +180,7 @@ class Db4eServer:
             else:
                 self.log.critical(f'ERROR: Failed to stop {type(elem)}/{instance}, return code was {rc}')
                 
+
     def start(self):
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
@@ -189,6 +204,7 @@ class Db4eServer:
 
     def cleanup(self):
         self.log.info('Shutdown complete')
+
 
 def main():
     # Set environment variables for better color support

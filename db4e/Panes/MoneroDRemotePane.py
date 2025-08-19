@@ -116,18 +116,18 @@ class MoneroDRemotePane(Container):
         self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
 
 
-        if button_id == UPDATE_BUTTON_FIELD:
-
-            form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
-                ELEMENT_FIELD: self.monerod,
-            }                
-        elif button_id == NEW_BUTTON_FIELD:
+        if button_id == NEW_BUTTON_FIELD:
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
+                ELEMENT_FIELD: self.monerod,
+            }                
+
+        elif button_id == UPDATE_BUTTON_FIELD:
+            form_data = {
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
                 ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                 ELEMENT_FIELD: self.monerod,
             }                

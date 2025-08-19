@@ -24,8 +24,9 @@ from db4e.Constants.Fields import (
     GET_TUI_LOG_FIELD, P2POOL_FIELD, UPDATE_DEPLOYMENT_FIELD, SET_PANE_FIELD,
     XMRIG_FIELD, DONATIONS_FIELD, GET_REC_FIELD, ELEMENT_TYPE_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, PANE_MGR_FIELD, TUI_LOG_FIELD,
-    INITIAL_SETUP_PROCEED_FIELD, POST_JOB_FIELD, JOB_QUEUE_FIELD
+    INITIAL_SETUP_PROCEED_FIELD
 )
+from db4e.Constants.Jobs import JOB_QUEUE_FIELD, POST_JOB_FIELD
 
 from db4e.Constants.Panes import (
     DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, 
@@ -129,13 +130,13 @@ class MessageRouter:
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, XMRIG_FIELD,
                       self.depl_mgr.job_queue.post_job, WELCOME_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_FIELD,
-                      self.depl_mgr.job_queue.post_job, P2POOL_PANE)
+                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_REMOTE_FIELD,
-                      self.depl_mgr.job_queue.post_job, P2POOL_REMOTE_PANE)
+                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_FIELD,
-                      self.depl_mgr.job_queue.post_job, MONEROD_PANE)
+                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
         self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_REMOTE_FIELD,
-                      self.depl_mgr.job_queue.post_job, MONEROD_PANE)
+                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
 
 
         # TUI Log

@@ -19,11 +19,13 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Modules.Db4E import Db4E
 from db4e.Constants.Fields import (
     DB4E_FIELD,
-    ELEMENT_TYPE_FIELD, STATUS_FIELD, PENDING_FIELD, PROCESSING_FIELD,
-    ATTEMPTS_FIELD,UPDATED_AT_FIELD,
-    MONEROD_FIELD,
+    ELEMENT_TYPE_FIELD, PROCESSING_FIELD,
+        MONEROD_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD,
     ELEMENT_TYPE_FIELD)
+from db4e.Constants.Jobs import (
+    STATUS_FIELD, PENDING_FIELD, ATTEMPTS_FIELD,UPDATED_AT_FIELD,
+)
 from db4e.Constants.Defaults import (OPS_COL_DEFAULT, MINING_COL_DEFAULT, 
     LOG_COLLECTION_DEFAULT, LOG_RETENTION_DAYS_DEFAULT, MAX_BACKUPS_DEFAULT,
     METRICS_COLLECTION_DEFAULT, DEPLOYMENT_COL_DEFAULT, TEMPLATES_COLLECTION_DEFAULT,
@@ -123,6 +125,11 @@ class DbMgr:
         if self.db4e is None:
             raise RuntimeError("MongoDB connection is not initialized.")
         return self.db4e[col_name]
+
+
+    def get_jobs(self):
+        collection = self.get_collection(self.ops_col)
+        return collection.find().sort(UPDATED_AT_FIELD, -1)
 
 
     def grab_job(self):
