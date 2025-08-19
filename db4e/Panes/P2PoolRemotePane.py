@@ -109,20 +109,19 @@ class P2PoolRemotePane(Container):
         self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
 
 
-        if button_id == UPDATE_BUTTON_FIELD:
-                
-            # There was an original instance, so this is an update            
-            form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
-                ELEMENT_FIELD: self.p2pool,
-            }
-        elif button_id == NEW_BUTTON_FIELD:
+        if button_id == NEW_BUTTON_FIELD:
             # No original instance, this is a new deployment
             form_data = {
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                ELEMENT_FIELD: self.p2pool,
+            }
+        elif button_id == UPDATE_BUTTON_FIELD:
+            # There was an original instance, so this is an update            
+            form_data = {
+                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 ELEMENT_FIELD: self.p2pool,
             }
