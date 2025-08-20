@@ -12,8 +12,10 @@ import os
 from datetime import datetime, timezone
 
 from textual.containers import Container
+
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.Job import Job
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
@@ -23,11 +25,11 @@ from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import (
     DB4E_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL,
-    USER_WALLET_LABEL, VENDOR_DIR_LABEL
+    USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_SHORT_LABEL
 )
 from db4e.Constants.Fields import (
     OBJECT_ID_FIELD, PYTHON_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD, ERROR_FIELD,
-    TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD,
+    TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD, NEW_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
     DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD
@@ -36,6 +38,7 @@ from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
     CONF_DIR_DEFAULT
 )
+from db4e.Constants.Jobs import (COMPLETED_FIELD)
 
 
 
@@ -112,6 +115,9 @@ class DeploymentMgr(Container):
 
         if update:
             self.insert_one(monerod)
+            job = Job(op=NEW_FIELD, elem_type=MONEROD_FIELD, instance=monerod.instance())
+            job.msg("Created new remote MoneroD deployment")
+            self.job_queue.post_completed_job(job)
         return monerod
     
 
@@ -135,6 +141,9 @@ class DeploymentMgr(Container):
 
         if update:
             self.insert_one(p2pool)
+            job = Job(op=NEW_FIELD, elem_type=P2POOL_REMOTE_FIELD, instance=p2pool.instance())
+            job.msg("Created new remote P2Pool deployment")
+            self.job_queue.post_completed_job(job)
         return p2pool
 
 
@@ -160,7 +169,9 @@ class DeploymentMgr(Container):
             tmpl_file = os.path.join(tmpl_dir, xmrig_dir, CONF_DIR_DEFAULT, 'config.json')
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             self.insert_one(xmrig)
-        print(f"DeploymentMgr:add_xmrig_deployment(): {xmrig.p2pool}")
+            job = Job(op=NEW_FIELD, elem_type=XMRIG_FIELD, instance=xmrig.instance())
+            job.msg("Created new XMRig deployment")
+            self.job_queue.post_completed_job(job)
         return xmrig
 
 
@@ -485,7 +496,7 @@ class DeploymentMgr(Container):
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
         #print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
         update = False
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod.to_rec()}")
+        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod.to_rec()}")
         monerod = self.get_deployment_by_id(new_monerod.id())
         if not monerod:
             raise ValueError(f"DeploymentMgg:update_monerod_remote_deployment(): " \
@@ -496,21 +507,25 @@ class DeploymentMgr(Container):
         # Instance
         if monerod.instance != new_monerod.instance:
             monerod.instance(new_monerod.instance())
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated instance name")
             update = True
 
         # IP Address
         if monerod.ip_addr != new_monerod.ip_addr:
             monerod.ip_addr(new_monerod.ip_addr())
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated IP/hostname")
             update = True
 
         # RPC Bind Port
         if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated RPC port")
             update = True
 
         # ZMQ Pub Port
         if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated ZMQ port")
             update = True
 
         if update:
@@ -526,7 +541,7 @@ class DeploymentMgr(Container):
     def update_one(self, elem):
         # Don't store status messages in the DB
         msgs = elem.pop_msgs()
-        print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
+        #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
         rec = elem.to_rec()
         
         if OBJECT_ID_FIELD in rec:
@@ -543,7 +558,7 @@ class DeploymentMgr(Container):
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
 
-        print(f"DeploymentMgr:update_p2pool_remote_deployment(): {new_p2pool.to_rec()}")
+        #print(f"DeploymentMgr:update_p2pool_remote_deployment(): {new_p2pool.to_rec()}")
 
         p2pool = self.get_deployment_by_id(new_p2pool.id())
         if not p2pool:
@@ -643,12 +658,14 @@ class DeploymentMgr(Container):
             # Instance
             if xmrig.instance != new_xmrig.instance:
                 xmrig.instance(new_xmrig.instance())
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
                 update = True
                 update_config = True
 
             # Num Threads
             if xmrig.num_threads != new_xmrig.num_threads:
                 xmrig.num_threads(new_xmrig.num_threads())
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Updated number of threads") 
                 update = True
                 update_config = True
 
@@ -656,6 +673,7 @@ class DeploymentMgr(Container):
             print(f"{xmrig.parent()} == {new_xmrig.parent()}")
             if xmrig.parent != new_xmrig.parent:
                 xmrig.parent(new_xmrig.parent())
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Using new P2Pool deployment")
                 update = True
                 update_config = True
 

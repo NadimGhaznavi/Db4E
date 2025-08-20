@@ -58,6 +58,12 @@ class JobQueue:
             return False
 
 
+    def post_completed_job(self, job: Job):
+        job.status(COMPLETED_FIELD)
+        job.updated_at(datetime.now())
+        self.db.insert_one(self.col_name, job.to_rec())
+
+
     def post_job(self, details: dict):
         job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
         job_rec = job.to_rec()

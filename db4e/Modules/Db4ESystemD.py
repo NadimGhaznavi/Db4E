@@ -37,6 +37,7 @@ class Db4ESystemD:
         """
         Return a boolean indicating if the service is running or not.
         """
+        self.status()
         return self.result['active']
 
     def disable(self):
@@ -108,12 +109,13 @@ class Db4ESystemD:
         if 'could not be found' in stderr:
             return
 
+        #print(f"Db4ESystemD:status(): stdout: {stdout}")
         # Check for active state
-        if re.search(r'^\s*Active:\s+active \(running\)', stdout, re.MULTILINE):
+        if re.search(r'^\s*Active:\s+active \(running\).*', stdout, re.MULTILINE):
             self.result['active'] = True
-        elif re.search(r'^\s*Active:\s+inactive \(dead\)', stdout, re.MULTILINE):
+        elif re.search(r'^\s*Active:\s+inactive \(dead\).*', stdout, re.MULTILINE):
             self.result['active'] = False
-        elif re.search(r'^\s*Active:\s+failed ', stdout, re.MULTILINE):
+        elif re.search(r'^\s*Active:\s+failed.*', stdout, re.MULTILINE):
             self.result['active'] = False
 
         # Check for enabled state

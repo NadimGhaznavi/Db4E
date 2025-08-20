@@ -20,13 +20,16 @@ from db4e.Constants.Fields import (
     FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, INSTANCE_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     HEALTH_BOX_FIELD, ELEMENT_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, P2POOL_REMOTE_FIELD,
-    TO_METHOD_FIELD, TO_MODULE_FIELD, UPDATE_DEPLOYMENT_FIELD)
+    TO_METHOD_FIELD, TO_MODULE_FIELD, STARTED_FIELD, STOPPED_FIELD, ENABLE_FIELD,
+    DISABLE_FIELD)
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, IP_ADDR_LABEL,
     P2POOL_REMOTE_LABEL, STRATUM_PORT_LABEL)
 from db4e.Constants.Buttons import (
     DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD, 
-    DELETE_LABEL, UPDATE_LABEL, NEW_LABEL)
+    DELETE_LABEL, UPDATE_LABEL, NEW_LABEL, DISABLE_LABEL, ENABLE_LABEL,
+    START_BUTTON_FIELD, START_LABEL, STOP_BUTTON_FIELD, STOP_LABEL, DISABLE_BUTTON_FIELD,
+    ENABLE_BUTTON_FIELD)
 from db4e.Constants.Jobs import (
     JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, DELETE_FIELD, UPDATE_FIELD)
 
@@ -44,9 +47,11 @@ class P2PoolRemotePane(Container):
         id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
         classes=FORM_INPUT_30_FIELD)
     health_msgs = Label()
+    delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
+    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
+    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
     new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
     update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
-    delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
 
 
     def compose(self):
@@ -78,6 +83,8 @@ class P2PoolRemotePane(Container):
                 Horizontal(
                     self.new_button,
                     self.update_button,
+                    self.enable_button,
+                    self.disable_button,
                     self.delete_button,
                     classes=BUTTON_ROW_FIELD
                 ),
@@ -96,6 +103,14 @@ class P2PoolRemotePane(Container):
             # This is an update operation
             self.remove_class(NEW_FIELD)
             self.add_class(UPDATE_FIELD)
+
+            if p2pool.enable():
+                self.remove_class(DISABLE_FIELD)
+                self.add_class(ENABLE_FIELD)
+            else:
+                self.remove_class(ENABLE_FIELD)
+                self.add_class(DISABLE_FIELD)
+
         else:
             # This is a new operation
             self.remove_class(UPDATE_FIELD)

@@ -30,7 +30,6 @@ class SoftwareSystem:
         self.name = SOFTWARE_SYSTEM_LABEL
         self._enable = False
         self._object_id = None
-        self._running = False
         self.components = {}
         self.msgs = []
 
@@ -88,12 +87,6 @@ class SoftwareSystem:
 
     def push_msgs(self, msgs: list):
         self.msgs.extend(msgs)
-
-
-    def running(self, flag=None):
-        if flag != None:
-            self._running = flag
-        return self._running
 
 
     def status(self):

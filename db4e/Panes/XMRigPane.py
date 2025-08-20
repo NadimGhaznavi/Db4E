@@ -57,8 +57,6 @@ class XMRigPane(Container):
     disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
     enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
     new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
-    start_button = Button(label=START_LABEL, id=START_BUTTON_FIELD)
-    stop_button = Button(label=STOP_LABEL, id=STOP_BUTTON_FIELD)
     update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
     xmrig = None
 
@@ -97,8 +95,6 @@ class XMRigPane(Container):
                         self.new_button,
                         self.update_button,
                         self.enable_button,
-                        self.start_button,
-                        self.stop_button,
                         self.disable_button,
                         self.delete_button,
                         classes=BUTTON_ROW_FIELD))),
@@ -128,23 +124,17 @@ class XMRigPane(Container):
             # This is an update operation
             self.remove_class(NEW_FIELD)
             self.add_class(UPDATE_FIELD)
+
+            if xmrig.enable():
+                self.remove_class(DISABLE_FIELD)
+                self.add_class(ENABLE_FIELD)
+            else:
+                self.remove_class(ENABLE_FIELD)
+                self.add_class(DISABLE_FIELD)
         else:
             # This is a new operation
             self.remove_class(UPDATE_FIELD)
             self.add_class(NEW_FIELD)
-        if xmrig.running():
-            self.remove_class(STARTED_FIELD)
-            self.add_class(STOPPED_FIELD)
-        else:
-            self.remove_class(STOPPED_FIELD)
-            self.add_class(STARTED_FIELD)
-
-        if xmrig.enable():
-            self.remove_class(DISABLE_FIELD)
-            self.add_class(ENABLE_FIELD)
-        else:
-            self.remove_class(ENABLE_FIELD)
-            self.add_class(DISABLE_FIELD)
 
         self.health_msgs.update(gen_results_table(xmrig.pop_msgs()))
 
