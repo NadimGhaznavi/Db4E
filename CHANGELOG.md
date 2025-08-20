@@ -5,10 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+---
+
+## [Unreleased]
+
+### Fixed
+- BugFix: Fixed Db4ESystemD status()
+
+### Changed
+- Moved update operations from the TUI to the server using the JobQueue
+
+### Added
+- Dynamic buttons for MoneroDRemote, P2PoolRemote and XMRig
+- Implemented enable/disable for XMRig
+- Implemented a Trans Log to show TUI operation history
+- Implemented Trans Log entries for new operations
 
 ---
 
-## [0.28.9] - 2025-08-17
+## [0.28.0] - 2025-08-17
 
 ### Fixed
 - `db4e-server`: set __version__
