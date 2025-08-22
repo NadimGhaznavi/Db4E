@@ -22,7 +22,7 @@ from db4e.Constants.Fields import(ERROR_FIELD, GOOD_FIELD, WARN_FIELD)
 from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
     ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, XMRIG_LABEL,
-    INSTANCE_LABEL, IP_ADDR_LABEL)
+    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL)
 
 class HealthMgr:
 
@@ -106,6 +106,12 @@ class HealthMgr:
         else:
             monerod.msg(ZMQ_PUB_PORT_LABEL, WARN_FIELD,
                         f"Connection to {ZMQ_PUB_PORT_LABEL} failed")
+
+        if monerod.enabled():
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, f"{MONEROD_LABEL} is enabled")
+        else:
+            monerod.msg(MONEROD_LABEL, WARN_FIELD, f"{MONEROD_LABEL} is disabled")
+
 
         return monerod
 

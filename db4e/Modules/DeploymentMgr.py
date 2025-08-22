@@ -502,31 +502,38 @@ class DeploymentMgr(Container):
             raise ValueError(f"DeploymentMgg:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")
 
-        ## Field-by-field comparison
 
-        # Instance
-        if monerod.instance != new_monerod.instance:
-            monerod.instance(new_monerod.instance())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated instance name")
+        if monerod.enabled != new_monerod.enabled:
+            monerod.enabled(new_monerod.enabled())
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated enabled status")
             update = True
 
-        # IP Address
-        if monerod.ip_addr != new_monerod.ip_addr:
-            monerod.ip_addr(new_monerod.ip_addr())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated IP/hostname")
-            update = True
+        else:
 
-        # RPC Bind Port
-        if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
-            monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated RPC port")
-            update = True
+            ## Field-by-field comparison
+            # Instance
+            if monerod.instance != new_monerod.instance:
+                monerod.instance(new_monerod.instance())
+                monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated instance name")
+                update = True
 
-        # ZMQ Pub Port
-        if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
-            monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated ZMQ port")
-            update = True
+            # IP Address
+            if monerod.ip_addr != new_monerod.ip_addr:
+                monerod.ip_addr(new_monerod.ip_addr())
+                monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated IP/hostname")
+                update = True
+
+            # RPC Bind Port
+            if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+                monerod.rpc_bind_port(new_monerod.rpc_bind_port())
+                monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated RPC port")
+                update = True
+
+            # ZMQ Pub Port
+            if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+                monerod.zmq_pub_port(new_monerod.zmq_pub_port())
+                monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated ZMQ port")
+                update = True
 
         if update:
             self.update_one(monerod)
