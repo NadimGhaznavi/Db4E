@@ -167,7 +167,7 @@ class HealthMgr:
                        f"{P2POOL_LABEL} ({p2pool.instance.value}) is disabled")
 
         # Check upstream MoneroD
-        print(f"HealthMgr:check_p2pool(): type(p2pool.monerod): {type(p2pool.monerod)}")
+        #print(f"HealthMgr:check_p2pool(): type(p2pool.monerod): {type(p2pool.monerod)}")
         if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
             self.check(p2pool.monerod)
             if p2pool.monerod.status() == GOOD_FIELD:

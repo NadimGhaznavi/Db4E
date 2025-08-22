@@ -68,14 +68,11 @@ class OpsMgr:
                 elem_type = P2POOL_REMOTE_FIELD        
         
         if type(elem) == XMRig:
-            #elem.p2pool = self.depl_mgr.get_deployment_by_id(elem.parent())
             local_p2pools = \
                 self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
             remote_p2pools = \
                 self.depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
             elem.instance_map(local_p2pools | remote_p2pools)
-            print(f"OpsMgr:get_deployment(): type(xmrig.p2pool): {type(elem.p2pool)}")
-            print(f"OpsMgr:get_deployment(): type(xmrig.p2pool.monerod): {type(elem.p2pool.monerod)}")
         elif type(elem) == P2Pool:
             elem.monerod = self.depl_mgr.get_deployment_by_id(elem.parent())
             local_monerods = \
