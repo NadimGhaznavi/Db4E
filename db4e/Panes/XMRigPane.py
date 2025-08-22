@@ -125,7 +125,7 @@ class XMRigPane(Container):
             self.remove_class(NEW_FIELD)
             self.add_class(UPDATE_FIELD)
 
-            if xmrig.enable():
+            if xmrig.enabled():
                 self.remove_class(DISABLE_FIELD)
                 self.add_class(ENABLE_FIELD)
             else:

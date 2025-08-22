@@ -149,7 +149,7 @@ class HealthMgr:
             xmrig.msg(CONFIG_LABEL, WARN_FIELD, f"Not found: {xmrig.config_file.value}")
         
         # Check if the instance is enabled
-        if xmrig.enable():
+        if xmrig.enabled():
             xmrig.msg(XMRIG_LABEL, GOOD_FIELD,
                       f"{XMRIG_LABEL} ({xmrig.instance.value}) is enabled")
         else:

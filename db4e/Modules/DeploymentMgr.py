@@ -663,9 +663,9 @@ class DeploymentMgr(Container):
             raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
 
-        if xmrig.enable() != new_xmrig.enable():
+        if xmrig.enabled() != new_xmrig.enabled():
             # This is an enable/disable operation
-            xmrig.enable(new_xmrig.enable())
+            xmrig.enabled(new_xmrig.enabled())
             update = True
 
         else:
