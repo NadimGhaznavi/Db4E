@@ -24,6 +24,7 @@ except Exception:
 
 from db4e.Modules.Db4eLogger import Db4eLogger
 from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.Job import Job
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
@@ -109,7 +110,7 @@ class Db4eServer:
             if op == ENABLE_FIELD:
                 self.enable(job=job)
             elif op == DISABLE_FIELD:
-                self.disable(elem_type=job.elem_type(), instance=job.instance())
+                self.disable(job=job)
             elif op == DELETE_FIELD:
                 self.delete(job=job)
             elif op == UPDATE_FIELD:
@@ -117,7 +118,7 @@ class Db4eServer:
 
 
 
-    def delete(self, job):
+    def delete(self, job: Job):
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Deleting {elem_type}/{instance}")
@@ -136,20 +137,24 @@ class Db4eServer:
             self.job_queue.complete_job(job=job)
     
 
-    def disable(self, elem_type, instance):
+    def disable(self, job: Job):
+        elem_type = job.elem_type()
+        instance = job.instance()
         self.log.info(f"Disbling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        elem.enable(False)
+        job.msg("Disabled")
+        elem.enabled(False)
         self.depl_mgr.update_deployment(elem)
+        self.job_queue.complete_job(job)
 
 
-    def enable(self, job):
+    def enable(self, job: Job):
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         job.msg("Enabled")
-        elem.enable(True)
+        elem.enabled(True)
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
 

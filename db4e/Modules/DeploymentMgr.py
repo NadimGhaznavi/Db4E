@@ -565,22 +565,31 @@ class DeploymentMgr(Container):
             raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
 
-        if p2pool.instance != new_p2pool.instance:
-            p2pool.instance(new_p2pool.instance())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated instance name")
+        if p2pool.enabled != new_p2pool.enabled:
+            p2pool.enabled(new_p2pool.enabled())
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated enabled status")
             update = True
 
-        # IP Address
-        if p2pool.ip_addr != new_p2pool.ip_addr:
-            p2pool.ip_addr(new_p2pool.ip_addr())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated IP/hostname")
-            update = True
+        else:
 
-        # Stratum Port
-        if p2pool.stratum_port != new_p2pool.stratum_port:
-            p2pool.stratum_port(new_p2pool.stratum_port())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,"Updated stratum port")
-            update = True
+            ## Field-by-field comparison
+            # Instance
+            if p2pool.instance != new_p2pool.instance:
+                p2pool.instance(new_p2pool.instance())
+                p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated instance name")
+                update = True
+
+            # IP Address
+            if p2pool.ip_addr != new_p2pool.ip_addr:
+                p2pool.ip_addr(new_p2pool.ip_addr())
+                p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated IP/hostname")
+                update = True
+
+            # Stratum Port
+            if p2pool.stratum_port != new_p2pool.stratum_port:
+                p2pool.stratum_port(new_p2pool.stratum_port())
+                p2pool.msg(P2POOL_LABEL, GOOD_FIELD,"Updated stratum port")
+                update = True
 
         if update:
             self.update_one(p2pool)

@@ -104,7 +104,7 @@ class P2PoolRemotePane(Container):
             self.remove_class(NEW_FIELD)
             self.add_class(UPDATE_FIELD)
 
-            if p2pool.enable():
+            if p2pool.enabled():
                 self.remove_class(DISABLE_FIELD)
                 self.add_class(ENABLE_FIELD)
             else:
@@ -138,6 +138,24 @@ class P2PoolRemotePane(Container):
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: UPDATE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                ELEMENT_FIELD: self.p2pool,
+                INSTANCE_FIELD: self.p2pool.instance(),
+            }
+        elif button_id == ENABLE_BUTTON_FIELD:
+            form_data = {
+                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_METHOD_FIELD: POST_JOB_FIELD,
+                OP_FIELD: ENABLE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                ELEMENT_FIELD: self.p2pool,
+                INSTANCE_FIELD: self.p2pool.instance(),
+            }
+        elif button_id == DISABLE_BUTTON_FIELD:
+            form_data = {
+                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_METHOD_FIELD: POST_JOB_FIELD,
+                OP_FIELD: DISABLE_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 ELEMENT_FIELD: self.p2pool,
                 INSTANCE_FIELD: self.p2pool.instance(),

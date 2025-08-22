@@ -15,11 +15,11 @@ from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
-    P2PBindPort, StratumPort, UserWallet, Version)
+    P2PBindPort, StratumPort, UserWallet, Version, IpAddr)
 from db4e.Constants.Fields import(
     P2POOL_FIELD, ANY_IP_FIELD, CHAIN_FIELD, CONFIG_FILE_FIELD, IN_PEERS_FIELD,
     INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, COMPONENTS_FIELD, VALUE_FIELD)
+    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD)
 from db4e.Constants.Labels import(P2POOL_LABEL)
 from db4e.Constants.Defaults import(P2POOL_VERSION_DEFAULT)
 
@@ -37,6 +37,7 @@ class P2Pool(SoftwareSystem):
         self.add_component(CONFIG_FILE_FIELD, ConfigFile())
         self.add_component(IN_PEERS_FIELD, InPeers())
         self.add_component(INSTANCE_FIELD, Instance())
+        self.add_component(IP_ADDR_FIELD, IpAddr())
         self.add_component(REMOTE_FIELD, Local())
         self.add_component(LOG_LEVEL_FIELD, LogLevel())
         self.add_component(OUT_PEERS_FIELD, OutPeers())
@@ -50,6 +51,7 @@ class P2Pool(SoftwareSystem):
         self.config_file = self.components[CONFIG_FILE_FIELD]
         self.in_peers = self.components[IN_PEERS_FIELD]
         self.instance = self.components[INSTANCE_FIELD]
+        self.ip_addr = self.components[IP_ADDR_FIELD]
         self.remote = self.components[REMOTE_FIELD]
         self.log_level = self.components[LOG_LEVEL_FIELD]
         self.out_peers = self.components[OUT_PEERS_FIELD]

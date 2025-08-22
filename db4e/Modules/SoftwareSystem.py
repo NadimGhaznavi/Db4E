@@ -28,7 +28,7 @@ class SoftwareSystem:
     def __init__(self):
         self._elem_type = SOFTWARE_SYSTEM_FIELD
         self.name = SOFTWARE_SYSTEM_LABEL
-        self._enable = False
+        self._enabled = False
         self._object_id = None
         self.components = {}
         self.msgs = []
@@ -48,10 +48,10 @@ class SoftwareSystem:
         return self._elem_type
 
 
-    def enable(self, flag=None):
+    def enabled(self, flag=None):
         if flag != None:
-            self._enable = flag
-        return self._enable
+            self._enabled = flag
+        return self._enabled
 
 
     def from_rec(self, rec: dict):
@@ -66,7 +66,7 @@ class SoftwareSystem:
                 self.components[field_name].value = component[VALUE_FIELD]
             else:
                 raise ValueError(f"Unknreturnown component field: {field_name}")
-        self._enable = rec[ENABLE_FIELD]
+        self._enabled = rec[ENABLE_FIELD]
         self._object_id = rec[OBJECT_ID_FIELD]
         self._elem_type = rec[ELEMENT_TYPE_FIELD]
 
@@ -108,7 +108,7 @@ class SoftwareSystem:
             OBJECT_ID_FIELD: self.id(),
             NAME_FIELD: self.name,
             ELEMENT_TYPE_FIELD: self.elem_type(),
-            ENABLE_FIELD: self.enable(),
+            ENABLE_FIELD: self.enabled(),
             COMPONENTS_FIELD: [],
         }
         for component in self.components.keys():
