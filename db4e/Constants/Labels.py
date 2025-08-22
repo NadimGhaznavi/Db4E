@@ -8,7 +8,7 @@ db4e/Constants/Labels.py
     License: GPL 3.0
 """
 
-ANY_IP_LABEL = "Any IP"
+ANY_IP_LABEL = "Listen on IP"
 API_LABEL = "API"
 CHAIN_LABEL = "Chain"
 CONFIG_LABEL = "Configuration"

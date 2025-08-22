@@ -132,6 +132,7 @@ class P2PoolRemotePane(Container):
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 ELEMENT_FIELD: self.p2pool,
             }
+
         elif button_id == UPDATE_BUTTON_FIELD:
             # There was an original instance, so this is an update            
             form_data = {
@@ -142,6 +143,7 @@ class P2PoolRemotePane(Container):
                 ELEMENT_FIELD: self.p2pool,
                 INSTANCE_FIELD: self.p2pool.instance(),
             }
+
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
@@ -151,6 +153,7 @@ class P2PoolRemotePane(Container):
                 ELEMENT_FIELD: self.p2pool,
                 INSTANCE_FIELD: self.p2pool.instance(),
             }
+
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
@@ -160,6 +163,7 @@ class P2PoolRemotePane(Container):
                 ELEMENT_FIELD: self.p2pool,
                 INSTANCE_FIELD: self.p2pool.instance(),
             }
+
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
@@ -168,6 +172,7 @@ class P2PoolRemotePane(Container):
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 INSTANCE_FIELD: self.p2pool.instance(),
             }
+            
         else:
             raise ValueError(f"No handler for {button_id}")
         self.app.post_message(Db4eMsg(self, form_data=form_data))
