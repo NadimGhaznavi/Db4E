@@ -13,7 +13,7 @@ This is a virtual class.
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Constants.Labels import LOCAL_SOFTWARE_SYSTEM_LABEL
-from db4e.Constants.Fields import LOCAL_SOFTWARE_SYSTEM_FIELD, RUNNING_FIELD
+from db4e.Constants.Fields import LOCAL_SOFTWARE_SYSTEM_FIELD, ENABLE_FIELD
 
 
 
@@ -25,21 +25,21 @@ class LocalSoftwareSystem(SoftwareSystem):
         super().__init__()
         self._elem_type = LOCAL_SOFTWARE_SYSTEM_FIELD
         self.name = LOCAL_SOFTWARE_SYSTEM_LABEL
-        self._running = None
+        self._enabled = False
 
 
-    def running(self, flag=None):
+    def enabled(self, flag=None):
         if flag != None:
-            self._running = flag
-        return self._running
+            self._enabled = flag
+        return self._enabled
 
 
     def from_rec(self, rec: dict):
         super().from_rec(rec)
-        self._running = rec[RUNNING_FIELD]
+        self._enabled = rec[ENABLE_FIELD]
 
 
     def to_rec(self):
         rec = super().to_rec()
-        rec[RUNNING_FIELD] = self.running()
+        rec[ENABLE_FIELD] = self.enabled()
         return rec

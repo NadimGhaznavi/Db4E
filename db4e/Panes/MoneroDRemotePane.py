@@ -48,8 +48,6 @@ class MoneroDRemotePane(Container):
         classes=FORM_INPUT_30_FIELD)
     health_msgs = Label()
     delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
-    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
-    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
     new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
     update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
 
@@ -86,8 +84,6 @@ class MoneroDRemotePane(Container):
                 Horizontal(
                     self.new_button,
                     self.update_button,
-                    self.enable_button,
-                    self.disable_button,
                     self.delete_button,
                     classes=BUTTON_ROW_FIELD)),
 
@@ -108,12 +104,6 @@ class MoneroDRemotePane(Container):
             self.remove_class(NEW_FIELD)
             self.add_class(UPDATE_FIELD)
 
-            if monerod.enabled():
-                self.remove_class(DISABLE_FIELD)
-                self.add_class(ENABLE_FIELD)
-            else:
-                self.remove_class(ENABLE_FIELD)
-                self.add_class(DISABLE_FIELD)
         else:
             # This is a new operation
             self.remove_class(UPDATE_FIELD)
@@ -145,27 +135,6 @@ class MoneroDRemotePane(Container):
                 ELEMENT_FIELD: self.monerod,
                 INSTANCE_FIELD: self.monerod.instance(),
             }
-
-        elif button_id == ENABLE_BUTTON_FIELD:
-            form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: ENABLE_FIELD,
-                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
-                ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance(),
-            }
-
-        elif button_id == DISABLE_BUTTON_FIELD:
-            form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DISABLE_FIELD,
-                ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
-                ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance(),
-            }
-
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {

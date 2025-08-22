@@ -107,12 +107,6 @@ class HealthMgr:
             monerod.msg(ZMQ_PUB_PORT_LABEL, WARN_FIELD,
                         f"Connection to {ZMQ_PUB_PORT_LABEL} failed")
 
-        if monerod.enabled():
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, f"{MONEROD_LABEL} is enabled")
-        else:
-            monerod.msg(MONEROD_LABEL, WARN_FIELD, f"{MONEROD_LABEL} is disabled")
-
-
         return monerod
 
 
@@ -130,11 +124,6 @@ class HealthMgr:
             p2pool.msg(P2POOL_LABEL, WARN_FIELD,
                        f"Connection to {STRATUM_PORT_LABEL} failed")
             
-        if p2pool.enabled():
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, f"{P2POOL_LABEL} is enabled")
-        else:
-            p2pool.msg(P2POOL_LABEL, WARN_FIELD, f"{P2POOL_LABEL} is disabled")
-
         return P2PoolRemote        
 
     def check_xmrig(self, xmrig: XMRig) -> XMRig:
