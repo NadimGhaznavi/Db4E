@@ -14,6 +14,7 @@ import time
 import signal
 import threading
 from importlib import metadata
+from shutil import rmtree
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -39,7 +40,7 @@ from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, XMRIG_FIELD,
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD)
+    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD)
 from db4e.Constants.Jobs import DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD
 
 POLL_INTERVAL = 5
@@ -130,6 +131,14 @@ class Db4eServer:
             self.depl_mgr.del_deployment(elem)
             job.msg("Deleted")
             self.job_queue.complete_job(job=job)
+        elif type(elem) == P2Pool:
+            self.ensure_stopped(elem)
+            vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
+            p2pool_dir = P2POOL_FIELD + '-' + elem.version()
+            rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
+            self.depl_mgr.del_deployment(elem)
+            job.msg("Deleted")
+            self.job_queue.complete_job(job=job)
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.ensure_stopped(elem)
             self.depl_mgr.del_deployment(elem)
@@ -166,6 +175,10 @@ class Db4eServer:
         if type(elem) == XMRig:
             instance = elem.instance()
             sd.service_name('xmrig@' + instance)
+        elif type(elem) == P2Pool:
+            instance = elem.instance()
+            sd.service_name('p2pool@' + instance)
+            
         if not sd.active():
             rc = sd.start()
             if rc == 0:
@@ -212,7 +225,7 @@ class Db4eServer:
 
     def update(self, job):
         elem = job.elem()
-        #print(f"Db4eServer:update(): {elem}, {type(elem)}")
+        print(f"Db4eServer:update(): {elem}")
         elem = self.depl_mgr.update_deployment(elem)
         msgs = ""
         for msg in elem.pop_msgs():

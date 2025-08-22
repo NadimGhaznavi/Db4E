@@ -50,8 +50,7 @@ class XMRig(LocalSoftwareSystem):
 
         if rec:
             self.from_rec(rec)
-
-        
+  
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a XMRig configuration file

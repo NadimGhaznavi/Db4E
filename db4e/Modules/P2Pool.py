@@ -10,6 +10,8 @@ db4e/Modules/P2Pool.py
 Everything P2Pool
 """
 
+import os
+
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
@@ -21,7 +23,9 @@ from db4e.Constants.Fields import(
     INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
     STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD)
 from db4e.Constants.Labels import(P2POOL_LABEL)
-from db4e.Constants.Defaults import(P2POOL_VERSION_DEFAULT)
+from db4e.Constants.Defaults import(
+    P2POOL_VERSION_DEFAULT, CONF_DIR_DEFAULT, API_DIR_DEFAULT, RUN_DIR_DEFAULT,
+    LOG_DIR_DEFAULT)
 
 
 class P2Pool(LocalSoftwareSystem):
@@ -69,6 +73,52 @@ class P2Pool(LocalSoftwareSystem):
         if rec:
             self.from_rec(rec)
 
+    def gen_config(self, tmpl_file: str, vendor_dir: str):
+        # Generate a XMRig configuration file
+
+        p2pool_dir = os.path.join(vendor_dir, P2POOL_FIELD)
+        api_dir = os.path.join(p2pool_dir, self.instance(), API_DIR_DEFAULT)
+        run_dir = os.path.join(p2pool_dir, self.instance(), RUN_DIR_DEFAULT)
+        log_dir = os.path.join(p2pool_dir, self.instance(), LOG_DIR_DEFAULT)
+
+        fq_config = os.path.join(
+            p2pool_dir, CONF_DIR_DEFAULT, self.instance.value + '.ini')
+
+        # Monero settings
+        monerod_ip = self.monerod.ip_addr()
+        monerod_zmq_port = self.monerod.zmq_pub_port()
+        monerod_rpc_port = self.monerod.rpc_bind_port()
+
+        # Populate the config templace placeholders
+        placeholders = {
+            'WALLET': self.user_wallet(),
+            'P2P_DIR': p2pool_dir,
+            'MONEROD_IP': monerod_ip,
+            'ZMQ_PORT': monerod_zmq_port,
+            'RPC_PORT': monerod_rpc_port,
+            'LOG_LEVEL': self.log_level(),
+            'P2P_BIND_PORT': self.p2p_bind_port(),
+            'STRATUM_PORT': self.stratum_port(),
+            'IN_PEERS': self.in_peers(),
+            'OUT_PEERS': self.out_peers(),
+            'CHAIN': self.chain(),
+            'ANY_IP': self.any_ip(),
+            'API_DIR': api_dir,
+            'RUN_DIR': run_dir,
+            'LOG_DIR': log_dir,
+        }
+        with open(tmpl_file, 'r') as f:
+            config_contents = f.read()
+            final_config = config_contents
+            for key, val in placeholders.items():
+                final_config = final_config.replace(f'[[{key}]]', str(val))
+
+        # Write the config to file
+        with open(fq_config, 'w') as f:
+            f.write(final_config)
+        self.config_file.value = fq_config
+        
+        
     def instance_map(self, map=None):
         if map:
             self._instance_map = map

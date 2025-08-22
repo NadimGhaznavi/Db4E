@@ -135,7 +135,10 @@ class NavPane(Container):
             for elem in self._cached_deployments:
                 if type(elem) == XMRig:
                     elem.p2pool = self.depl_mgr.get_deployment_by_id(elem.parent())
-                self.health_mgr.check(elem)          
+                    elem.p2pool.monerod = self.depl_mgr.get_deployment_by_id(elem.p2pool.parent())
+                elif type(elem) == P2Pool:
+                    elem.monerod = self.depl_mgr.get_deployment_by_id(elem.parent())
+                self.health_mgr.check(elem)  
             self._cache_time = now
             self._refresh_now = False
         
@@ -352,7 +355,7 @@ class NavPane(Container):
             for elem in grouped.get(field, []):
                 state = elem.status()
                 instance = elem.instance()
-                #print(f"NavPane:refresh_nav_pane(): instance: {instance}, state: {state}")
+                #print(f"NavPane:refresh_nav_pane(): elem: {elem}, state: {state}")
                 instance_item = NavItem(instance, instance, STATE_ICON.get(state, ""))
                 parent.add_leaf(str(instance_item), data=instance_item)        
 

@@ -59,7 +59,6 @@ class SoftwareSystem:
                 self.components[field_name].value = component[VALUE_FIELD]
             else:
                 raise ValueError(f"Unknreturnown component field: {field_name}")
-        self._enabled = rec[ENABLE_FIELD]
         self._object_id = rec[OBJECT_ID_FIELD]
         self._elem_type = rec[ELEMENT_TYPE_FIELD]
 
@@ -101,7 +100,6 @@ class SoftwareSystem:
             OBJECT_ID_FIELD: self.id(),
             NAME_FIELD: self.name,
             ELEMENT_TYPE_FIELD: self.elem_type(),
-            ENABLE_FIELD: self.enabled(),
             COMPONENTS_FIELD: [],
         }
         for component in self.components.keys():

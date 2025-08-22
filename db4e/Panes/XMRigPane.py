@@ -43,6 +43,7 @@ class XMRigPane(Container):
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
     instance_map = {}
+    
     config_label = Label("", classes=STATIC_CONTENT_FIELD)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
@@ -163,9 +164,11 @@ class XMRigPane(Container):
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
                 ELEMENT_TYPE_FIELD: XMRIG_FIELD,
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
-                TO_METHOD_FIELD: UPDATE_DEPLOYMENT_FIELD,
-                ELEMENT_FIELD: self.xmrig
+                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_METHOD_FIELD: POST_JOB_FIELD,
+                OP_FIELD: UPDATE_FIELD,
+                ELEMENT_FIELD: self.xmrig,
+                INSTANCE_FIELD: self.xmrig.instance()
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
@@ -174,6 +177,7 @@ class XMRigPane(Container):
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: ENABLE_FIELD,
+                ELEMENT_FIELD: self.xmrig,
                 INSTANCE_FIELD: self.xmrig.instance()
             }
 
@@ -183,6 +187,7 @@ class XMRigPane(Container):
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DISABLE_FIELD,
+                ELEMENT_FIELD: self.xmrig,
                 INSTANCE_FIELD: self.xmrig.instance()
             }
 
@@ -192,6 +197,7 @@ class XMRigPane(Container):
                 TO_MODULE_FIELD: JOB_QUEUE_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DELETE_FIELD,
+                ELEMENT_FIELD: self.xmrig,
                 INSTANCE_FIELD: self.xmrig.instance()
             }            
 
@@ -202,9 +208,7 @@ class XMRigPane(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.radio_button_list:
+            radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
             if self.xmrig.parent() == self.instance_map[instance]:
-                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
                 radio_button.value = True
-            else:
-                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
             self.radio_set.mount(radio_button)

@@ -26,21 +26,17 @@ from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import (
     DB4E_LABEL, MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL,
-    USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_SHORT_LABEL
-)
+    USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_SHORT_LABEL, P2POOL_SHORT_LABEL)
 from db4e.Constants.Fields import (
     OBJECT_ID_FIELD, PYTHON_FIELD, DB4E_FIELD, ELEMENT_TYPE_FIELD, ERROR_FIELD,
     TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD, NEW_FIELD,
     INSTANCE_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
-    DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD
-)
+    DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD)
 from db4e.Constants.Defaults import (
     DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
-    CONF_DIR_DEFAULT
-)
+    CONF_DIR_DEFAULT, API_DIR_DEFAULT, LOG_DIR_DEFAULT, RUN_DIR_DEFAULT)
 from db4e.Constants.Jobs import (COMPLETED_FIELD)
-
 
 
 class DeploymentMgr(Container):
@@ -146,7 +142,8 @@ class DeploymentMgr(Container):
 
         if not p2pool.parent():
             update = False
-
+        else:
+            p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
 
         if update:
             p2pool.ip_addr(socket.gethostname())
@@ -157,6 +154,9 @@ class DeploymentMgr(Container):
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             self.insert_one(p2pool)
             job = Job(op=NEW_FIELD, elem_type=P2POOL_FIELD, instance=p2pool.instance())
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), LOG_DIR_DEFAULT), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), RUN_DIR_DEFAULT), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), API_DIR_DEFAULT), exist_ok=True)
             job.msg("Created new P2Pool deployment")
             self.job_queue.post_completed_job(job)
         return p2pool
@@ -303,43 +303,53 @@ class DeploymentMgr(Container):
                 raise RuntimeError(f"DeploymentMgr:get_deployment(): No {DB4E_FIELD} deployment found")
             return Db4E(db4e_rec)
         
-        else:
-            rec = self.db.find_one(
-                col_name = self.depl_col, 
+        rec = self.db.find_one(
+            col_name = self.depl_col, 
 
-                filter = {
-                    ELEMENT_TYPE_FIELD: elem_type,
-                    COMPONENTS_FIELD: {
-                        "$elemMatch": {
-                            FIELD_FIELD: INSTANCE_FIELD,
-                            VALUE_FIELD: instance
-                        }
+            filter = {
+                ELEMENT_TYPE_FIELD: elem_type,
+                COMPONENTS_FIELD: {
+                    "$elemMatch": {
+                        FIELD_FIELD: INSTANCE_FIELD,
+                        VALUE_FIELD: instance
                     }
                 }
-            )                
-            #print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
+            }
+        )                
+        #print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
 
-            if elem_type == MONEROD_FIELD:
-                return MoneroD(rec)
+        if elem_type == MONEROD_FIELD:
+            return MoneroD(rec)
 
-            elif elem_type == MONEROD_REMOTE_FIELD:
-                return MoneroDRemote(rec)
+        elif elem_type == MONEROD_REMOTE_FIELD:
+            return MoneroDRemote(rec)
 
-            elif elem_type == P2POOL_FIELD:
-                return P2Pool(rec)
+        elif elem_type == P2POOL_FIELD:
+            p2pool = P2Pool(rec)
+            p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
+            print(f"DeploymentMgr:get_deployment(): {type(p2pool.monerod)}")
+            return p2pool
 
-            elif elem_type == P2POOL_REMOTE_FIELD:
-                return P2PoolRemote(rec)
-            
-            elif elem_type == XMRIG_FIELD:
-                return XMRig(rec)
+        elif elem_type == P2POOL_REMOTE_FIELD:
+            return P2PoolRemote(rec)
+        
+        elif elem_type == XMRIG_FIELD:
+            xmrig = XMRig(rec)
+            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+            xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
+            #print(f"DeploymentMgr:get_deployment(): type(xmrig.p2pool): {type(xmrig.p2pool)}")
+            #print(f"DeploymentMgr:get_deployment(): type(xmrig.p2pool.monerod): {type(xmrig.p2pool.monerod)}")
+            return xmrig
 
-            else:
-                raise ValueError(f"DeploymentMgr:get_deployment(): No handler for {elem_type}")
+        else:
+            raise ValueError(f"DeploymentMgr:get_deployment(): No handler for {elem_type}")
 
 
     def get_deployment_by_id(self, id):
         rec = self.db.find_one(col_name=self.depl_col, filter={'_id': id})
+        if not rec:
+            return None
+
         elem_type = rec[ELEMENT_TYPE_FIELD]
         if elem_type == MONEROD_FIELD:
             return MoneroD(rec)
@@ -431,7 +441,10 @@ class DeploymentMgr(Container):
         elif elem_type == MONEROD_REMOTE_FIELD:
             return MoneroDRemote()
         elif elem_type == P2POOL_FIELD:
-            return P2Pool()
+            p2pool = P2Pool()
+            db4e = self.get_deployment(elem_type=DB4E_FIELD)
+            p2pool.user_wallet(db4e.user_wallet())
+            return p2pool
         elif elem_type == P2POOL_REMOTE_FIELD:
             return P2PoolRemote()
         elif elem_type == XMRIG_FIELD:
@@ -591,8 +604,63 @@ class DeploymentMgr(Container):
         return elem
     
 
-    def update_p2pool_deployment(self, data):
-        pass
+    def update_p2pool_deployment(self, new_p2pool: P2Pool) -> P2Pool:
+        update = False
+
+        p2pool = self.get_deployment_by_id(new_p2pool.id())
+        if not p2pool:
+            raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
+                             f"Nothing found for {new_p2pool.id()}")
+
+        if p2pool.enabled() != new_p2pool.enabled():
+            # This is an enable/disable operation
+            p2pool.enabled(new_p2pool.enabled())
+            update = True
+
+        else:
+            # User clicked "update", do a field-by-field comparison
+            
+            # Instance
+            if p2pool.instance != new_p2pool.instance:
+                p2pool.instance(new_p2pool.instance())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
+                update = True
+
+            # In Peers
+            if p2pool.in_peers != new_p2pool.in_peers:
+                p2pool.in_peers(new_p2pool.in_peers())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated in peers")
+                update = True
+
+            # Out Peers
+            if p2pool.out_peers != new_p2pool.out_peers:
+                p2pool.out_peers(new_p2pool.out_peers())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated out peers")
+                update = True
+
+            # P2P Bind Port
+            if p2pool.p2p_bind_port != new_p2pool.p2p_bind_port:
+                p2pool.p2p_bind_port(new_p2pool.p2p_bind_port())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated P2P bind port")
+                update = True
+
+            # Stratum port
+            if p2pool.stratum_port != new_p2pool.stratum_port:
+                p2pool.stratum_port(new_p2pool.stratum_port())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated stratum port")
+                update = True
+
+            # Log level
+            if p2pool.log_level != new_p2pool.log_level:
+                p2pool.log_level(new_p2pool.log_level())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated log level")
+                update = True
+
+        if update:
+            self.update_one(p2pool)
+
+        return p2pool
+
 
 
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:

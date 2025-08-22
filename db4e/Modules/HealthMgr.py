@@ -22,7 +22,8 @@ from db4e.Constants.Fields import(ERROR_FIELD, GOOD_FIELD, WARN_FIELD)
 from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
     ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, XMRIG_LABEL,
-    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL)
+    INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
+    P2P_BIND_PORT_LABEL, STRATUM_PORT_LABEL, LOG_LEVEL_LABEL, PARENT_LABEL)
 
 class HealthMgr:
 
@@ -111,9 +112,79 @@ class HealthMgr:
 
 
     def check_p2pool(self, p2pool: P2Pool) -> P2Pool:
-        #print(f"HealthMgr:check_p2pool(): rec: {rec}")
-        # TODO
+        missing_field = False
+        if not p2pool.instance():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{INSTANCE_LABEL} missing")
+            missing_field = True
+
+        if not os.path.exists(p2pool.config_file()):
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{CONFIG_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.in_peers():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{IN_PEERS_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.out_peers():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{OUT_PEERS_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.p2p_bind_port():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{P2P_BIND_PORT_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.stratum_port():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{STRATUM_PORT_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.log_level():
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD, f"{LOG_LEVEL_LABEL} missing")
+            missing_field = True
+
+        if not p2pool.parent():
+            p2pool.msg(PARENT_LABEL, ERROR_FIELD, f"Missing upstream Blockchain deployment")
+            missing_field = True
+
+        if missing_field:
+            return p2pool
+        
+        if self.is_port_open(p2pool.ip_addr(), p2pool.p2p_bind_port()):
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
+                       f"Connection to {P2P_BIND_PORT_LABEL} successful")
+        else:
+            p2pool.msg(P2POOL_LABEL, WARN_FIELD,
+                       f"Connection to {P2P_BIND_PORT_LABEL} failed")
+            
+        if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
+                       f"Connection to {STRATUM_PORT_LABEL} successful")
+        
+        if p2pool.enabled():
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
+                       f"{P2POOL_LABEL} ({p2pool.instance.value}) is enabled")
+        else:
+            p2pool.msg(P2POOL_LABEL, WARN_FIELD,
+                       f"{P2POOL_LABEL} ({p2pool.instance.value}) is disabled")
+
+        # Check upstream MoneroD
+        print(f"HealthMgr:check_p2pool(): type(p2pool.monerod): {type(p2pool.monerod)}")
+        if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
+            self.check(p2pool.monerod)
+            if p2pool.monerod.status() == GOOD_FIELD:
+                p2pool.msg(MONEROD_LABEL, GOOD_FIELD,
+                        f"Upstream MoneroD ({p2pool.monerod.instance.value}) is healthy")
+            else:
+                p2pool.msg(MONEROD_LABEL, WARN_FIELD,
+                        f"Upstream MoneroD ({p2pool.monerod.instance.value}) has issues:")
+                p2pool.push_msgs(p2pool.monerod.pop_msgs())
+        else:
+            p2pool.msg(MONEROD_LABEL, WARN_FIELD,
+                      f"Missing upstream Blockchain deployment")
+            
+
+        #print(f"HealthMgr:check_p2pool(): msgs: {p2pool.pop_msgs()}")
         return p2pool
+
 
     def check_p2pool_remote(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         #print(f"HealthMgr:check_p2pool_remote(): rec: {rec}")
@@ -147,14 +218,18 @@ class HealthMgr:
 
 
         # Check the upstream P2Pool
-        self.check(xmrig.p2pool)
-        if xmrig.p2pool.status() == GOOD_FIELD:
-            xmrig.msg(P2POOL_LABEL, GOOD_FIELD,
-                      f"Upstream P2pool ({xmrig.p2pool.instance.value}) is healthy")
+        if type(xmrig.p2pool) == P2Pool or type(xmrig.p2pool) == P2PoolRemote:
+            self.check(xmrig.p2pool)
+            if xmrig.p2pool.status() == GOOD_FIELD:
+                xmrig.msg(P2POOL_LABEL, GOOD_FIELD,
+                        f"Upstream P2pool ({xmrig.p2pool.instance()}) is healthy")
+            else:
+                xmrig.msg(P2POOL_LABEL, WARN_FIELD,
+                        f"Upstream P2pool ({xmrig.p2pool.instance()}) has issues:")
+                xmrig.push_msgs(xmrig.p2pool.pop_msgs())
         else:
             xmrig.msg(P2POOL_LABEL, WARN_FIELD,
-                      f"Upstream P2pool ({xmrig.p2pool.instance.value}) has issues:")
-            xmrig.push_msgs(xmrig.p2pool.pop_msgs())
+                      f"Missing upstream P2pool deployment")
         
         return xmrig
 
