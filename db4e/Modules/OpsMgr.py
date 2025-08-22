@@ -13,6 +13,8 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.XMRig import XMRig
+from db4e.Modules.P2Pool import P2Pool
+
 from db4e.Constants.Fields import (
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, 
     P2POOL_FIELD, 
@@ -87,6 +89,7 @@ class OpsMgr:
                     parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
             rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
         return deployments
+
         
     def get_new(self, form_data: dict):
         elem = self.depl_mgr.get_new(form_data[ELEMENT_TYPE_FIELD])
@@ -95,8 +98,13 @@ class OpsMgr:
                 self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
             remote_p2pools = \
                 self.depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-
-            elem.instance_map(local_p2pools | remote_p2pools)      
+            elem.instance_map(local_p2pools | remote_p2pools)
+        elif type(elem) == P2Pool:
+            local_monerods = \
+                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD)
+            remote_monerods = \
+                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_REMOTE_FIELD)
+            elem.instance_map(local_monerods | remote_monerods)
         return elem
     
 

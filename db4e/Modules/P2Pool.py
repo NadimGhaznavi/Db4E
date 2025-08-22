@@ -62,8 +62,14 @@ class P2Pool(LocalSoftwareSystem):
         self.user_wallet = self.components[USER_WALLET_FIELD]
         self.version = self.components[VERSION_FIELD]
         self.version.value = P2POOL_VERSION_DEFAULT
+        self._instance_map = {}
+        self.monerod = None
 
         self.monerod = None
         if rec:
             self.from_rec(rec)
-        
+
+    def instance_map(self, map=None):
+        if map:
+            self._instance_map = map
+        return self._instance_map        

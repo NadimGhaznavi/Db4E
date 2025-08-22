@@ -112,6 +112,7 @@ class XMRigPane(Container):
         self.instance_input.value = xmrig.instance()
         self.num_threads_input.value = str(xmrig.num_threads())
         self.config_label.update(xmrig.config_file())
+        
         self.instance_map = xmrig.instance_map()
         instance_list = []
         #print(f"XMRigPane:set_data(): instance_map: {self.instance_map}")

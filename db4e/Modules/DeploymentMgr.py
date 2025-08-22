@@ -144,6 +144,10 @@ class DeploymentMgr(Container):
         if not p2pool.log_level():
             update = False
 
+        if not p2pool.parent():
+            update = False
+
+
         if update:
             p2pool.ip_addr(socket.gethostname())
             tmpl_dir = self.get_dir(TEMPLATE_FIELD)

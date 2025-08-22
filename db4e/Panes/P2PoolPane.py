@@ -10,6 +10,8 @@ db4e/Panes/P2PoolPane.py
 
 from textual.containers import Container, ScrollableContainer, Vertical, Horizontal
 from textual.widgets import Label, Input, Button, MarkdownViewer, RadioButton, RadioSet
+from textual.reactive import reactive
+
 
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
@@ -17,7 +19,7 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
     FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_LABEL_FIELD, FORM_INPUT_30_FIELD,
     STATIC_CONTENT_FIELD, FORM_2_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
-    FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD)
+    FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD)
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, P2POOL_LABEL, 
     STRATUM_PORT_LABEL, CONFIG_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
@@ -53,6 +55,8 @@ class P2PoolPane(Container):
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
         classes=FORM_INPUT_30_FIELD)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
+    radio_button_list = reactive([], always_update=True)
+    instance_map = {}
 
     health_msgs = Label()
 
@@ -134,6 +138,11 @@ class P2PoolPane(Container):
         self.stratum_port_input.value = str(p2pool.stratum_port())
         self.log_level_input.value = str(p2pool.log_level())
 
+        self.instance_map = p2pool.instance_map()
+        instance_list = []
+        for instance in p2pool.instance_map().keys():
+            instance_list.append(instance)
+        self.radio_button_list = instance_list
         # Configure button visibility
         if p2pool.instance():
             # This is an update operation
@@ -153,6 +162,19 @@ class P2PoolPane(Container):
 
         self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))                    
 
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass
         #self.app.post_message(Db4eMsg(self, form_data=form_data))
+
+    
+    def watch_radio_button_list(self, old, new):
+        for child in list(self.radio_set.children):
+            child.remove()
+        for instance in self.radio_button_list:
+            if self.p2pool.parent() == self.instance_map[instance]:
+                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
+                radio_button.value = True
+            else:
+                radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
+            self.radio_set.mount(radio_button)
