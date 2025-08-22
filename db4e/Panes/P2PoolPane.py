@@ -138,11 +138,20 @@ class P2PoolPane(Container):
         self.stratum_port_input.value = str(p2pool.stratum_port())
         self.log_level_input.value = str(p2pool.log_level())
 
+        # Create the Monerod radio buttons
         self.instance_map = p2pool.instance_map()
         instance_list = []
         for instance in p2pool.instance_map().keys():
             instance_list.append(instance)
         self.radio_button_list = instance_list
+
+        # Create the chain radio buttons
+        for chain in ['mainchain', 'minisidechain', 'nanosidechain']:
+            radio_button = RadioButton(chain, classes=RADIO_BUTTON_TYPE_FIELD)
+            if p2pool.chain() == chain:
+                radio_button.value = True
+            self.chain_radio_set.mount(radio_button)
+
         # Configure button visibility
         if p2pool.instance():
             # This is an update operation
