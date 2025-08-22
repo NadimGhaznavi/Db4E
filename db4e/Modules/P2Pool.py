@@ -10,21 +10,21 @@ db4e/Modules/P2Pool.py
 Everything P2Pool
 """
 
-from db4e.Modules.SoftwareSystem import SoftwareSystem
+from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
-    P2PBindPort, StratumPort, UserWallet, Version, IpAddr)
+    P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent)
 from db4e.Constants.Fields import(
     P2POOL_FIELD, ANY_IP_FIELD, CHAIN_FIELD, CONFIG_FILE_FIELD, IN_PEERS_FIELD,
     INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD)
+    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD)
 from db4e.Constants.Labels import(P2POOL_LABEL)
 from db4e.Constants.Defaults import(P2POOL_VERSION_DEFAULT)
 
 
-class P2Pool(SoftwareSystem):
+class P2Pool(LocalSoftwareSystem):
     
     
     def __init__(self, rec=None):
@@ -42,6 +42,7 @@ class P2Pool(SoftwareSystem):
         self.add_component(LOG_LEVEL_FIELD, LogLevel())
         self.add_component(OUT_PEERS_FIELD, OutPeers())
         self.add_component(P2P_BIND_PORT_FIELD, P2PBindPort())
+        self.add_component(PARENT_FIELD, Parent())
         self.add_component(STRATUM_PORT_FIELD, StratumPort())
         self.add_component(USER_WALLET_FIELD, UserWallet())
         self.add_component(VERSION_FIELD, Version())
@@ -56,6 +57,7 @@ class P2Pool(SoftwareSystem):
         self.log_level = self.components[LOG_LEVEL_FIELD]
         self.out_peers = self.components[OUT_PEERS_FIELD]
         self.p2p_bind_port = self.components[P2P_BIND_PORT_FIELD]
+        self.parent = self.components[PARENT_FIELD]
         self.stratum_port = self.components[STRATUM_PORT_FIELD]
         self.user_wallet = self.components[USER_WALLET_FIELD]
         self.version = self.components[VERSION_FIELD]

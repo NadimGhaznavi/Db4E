@@ -28,7 +28,6 @@ class SoftwareSystem:
     def __init__(self):
         self._elem_type = SOFTWARE_SYSTEM_FIELD
         self.name = SOFTWARE_SYSTEM_LABEL
-        self._enabled = False
         self._object_id = None
         self.components = {}
         self.msgs = []
@@ -46,12 +45,6 @@ class SoftwareSystem:
 
     def elem_type(self):
         return self._elem_type
-
-
-    def enabled(self, flag=None):
-        if flag != None:
-            self._enabled = flag
-        return self._enabled
 
 
     def from_rec(self, rec: dict):

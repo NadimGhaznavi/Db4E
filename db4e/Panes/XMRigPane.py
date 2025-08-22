@@ -20,11 +20,9 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Buttons import(
     BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, DELETE_LABEL, ENABLE_BUTTON_FIELD, 
     ENABLE_LABEL, DISABLE_BUTTON_FIELD, DISABLE_LABEL,
-    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD, NEW_LABEL, START_BUTTON_FIELD, 
-    START_LABEL, STOP_BUTTON_FIELD, STOP_LABEL, UPDATE_LABEL)
+    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD, NEW_LABEL, UPDATE_LABEL)
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, NEW_FIELD,
-    STARTED_FIELD, STOPPED_FIELD,
     FORM_3_FIELD, FORM_INPUT_15_FIELD, DISABLE_FIELD, FORM_INTRO_FIELD,
     FORM_LABEL_FIELD, HEALTH_BOX_FIELD, ELEMENT_FIELD,
     INSTANCE_FIELD, ENABLE_FIELD, OPS_MGR_FIELD,
@@ -52,7 +50,9 @@ class XMRigPane(Container):
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True,
         classes=FORM_INPUT_15_FIELD)
+    
     health_msgs = Label()
+
     delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
     disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
     enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)

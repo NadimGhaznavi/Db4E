@@ -10,6 +10,7 @@ db4e/Modules/DeploymentManager.py
 
 import os
 from datetime import datetime, timezone
+import socket
 
 from textual.containers import Container
 
@@ -120,6 +121,42 @@ class DeploymentMgr(Container):
             self.job_queue.post_completed_job(job)
         return monerod
     
+
+    def add_p2pool_deployment(self, p2pool: P2Pool) -> P2Pool:
+        update = True
+
+        # Check that the user actually filled out the form
+        if not p2pool.instance():
+            update = False
+
+        if not p2pool.in_peers():
+            update = False
+
+        if not p2pool.out_peers():
+            update = False
+    
+        if not p2pool.p2p_bind_port():
+            update = False
+
+        if not p2pool.stratum_port():
+            update = False
+
+        if not p2pool.log_level():
+            update = False
+
+        if update:
+            p2pool.ip_addr(socket.gethostname())
+            tmpl_dir = self.get_dir(TEMPLATE_FIELD)
+            vendor_dir = self.get_dir(VENDOR_DIR_FIELD)
+            p2pool_dir = P2POOL_FIELD + '-' + p2pool.version()
+            tmpl_file = os.path.join(tmpl_dir, p2pool_dir, CONF_DIR_DEFAULT, 'p2pool.ini')
+            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            self.insert_one(p2pool)
+            job = Job(op=NEW_FIELD, elem_type=P2POOL_FIELD, instance=p2pool.instance())
+            job.msg("Created new P2Pool deployment")
+            self.job_queue.post_completed_job(job)
+        return p2pool
+
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         update = True

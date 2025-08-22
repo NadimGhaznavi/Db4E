@@ -66,6 +66,14 @@ Tree {
     height: 3; 
     background: black; }
 
+.form_2 {
+    padding: 0 2;
+    color: #31b8e6;
+    border: round #0c323e;
+    width: 100%;
+    height: 4; 
+    background: black; }
+
 .form_3 {
     padding: 0 2;
     color: #31b8e6;
