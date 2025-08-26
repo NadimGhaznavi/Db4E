@@ -47,19 +47,19 @@ class HealthMgr:
     def check_db4e(self, db4e: Db4E) -> Db4E:
         #print(f"HealthMgr:check_db4e(): rec: {rec}")
         db4e.pop_msgs()
-        if db4e.vendor_dir.value == "":
+        if db4e.vendor_dir() == "":
             db4e.msg(f"{VENDOR_DIR_LABEL}", ERROR_FIELD, f"Missing {VENDOR_DIR_LABEL}")
         
-        elif os.path.isdir(db4e.vendor_dir.value):
-            db4e.msg(f"{VENDOR_DIR_LABEL}", GOOD_FIELD, f"Found: {db4e.vendor_dir.value}")
+        elif os.path.isdir(db4e.vendor_dir()):
+            db4e.msg(f"{VENDOR_DIR_LABEL}", GOOD_FIELD, f"Found: {db4e.vendor_dir()}")
 
         else:
             db4e.msg(f"{VENDOR_DIR_LABEL}", ERROR_FIELD, 
-                     f"Deployment directory not found: {db4e.vendor_dir.value}")
+                     f"Deployment directory not found: {db4e.vendor_dir()}")
 
-        if db4e.user_wallet.value:
+        if db4e.user_wallet():
             db4e.msg(f"{USER_WALLET_LABEL}", GOOD_FIELD, 
-                     f"Found: {db4e.user_wallet.value[:11]}...")
+                     f"Found: {db4e.user_wallet()[:11]}...")
         else:
             db4e.msg(f"{USER_WALLET_LABEL}", ERROR_FIELD,
                      f"{USER_WALLET_LABEL} missing")
@@ -179,8 +179,7 @@ class HealthMgr:
                 p2pool.push_msgs(p2pool.monerod.pop_msgs())
         else:
             p2pool.msg(MONEROD_LABEL, WARN_FIELD,
-                      f"Missing upstream Blockchain deployment")
-            
+                      f"Missing upstream Blockchain deployment")            
 
         #print(f"HealthMgr:check_p2pool(): msgs: {p2pool.pop_msgs()}")
         return p2pool
@@ -195,7 +194,7 @@ class HealthMgr:
             p2pool.msg(P2POOL_LABEL, WARN_FIELD,
                        f"Connection to {STRATUM_PORT_LABEL} failed")
             
-        return P2PoolRemote        
+        return p2pool        
 
     def check_xmrig(self, xmrig: XMRig) -> XMRig:
         #print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")

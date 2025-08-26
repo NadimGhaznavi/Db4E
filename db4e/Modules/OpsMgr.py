@@ -12,6 +12,7 @@ import os
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
+from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.P2Pool import P2Pool
 
@@ -34,6 +35,7 @@ class OpsMgr:
         self.db = DbMgr()
         self.depl_mgr = DeploymentMgr()
         self.health_mgr = HealthMgr()
+        self.health_cache = HealthCache(health_mgr=self.health_mgr, depl_mgr=self.depl_mgr)
         self.depl_col = DEPLOYMENT_COL_DEFAULT
 
 
@@ -47,9 +49,10 @@ class OpsMgr:
         elem = self.depl_mgr.add_deployment(elem)
         self.health_mgr.check(elem)
         return elem
+ 
    
     def get_deployment(self, elem_type, instance=None):
-        print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")
+        #print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")
         if type(elem_type) == dict:
             if INSTANCE_FIELD in elem_type:
                 instance = elem_type[INSTANCE_FIELD]
@@ -68,25 +71,16 @@ class OpsMgr:
                 elem_type = P2POOL_REMOTE_FIELD        
         
         if type(elem) == XMRig:
-            local_p2pools = \
-                self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-            remote_p2pools = \
-                self.depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-            elem.instance_map(local_p2pools | remote_p2pools)
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD))
         elif type(elem) == P2Pool:
-            elem.monerod = self.depl_mgr.get_deployment_by_id(elem.parent())
-            local_monerods = \
-                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD)
-            remote_monerods = \
-                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_REMOTE_FIELD)
-            elem.instance_map(local_monerods | remote_monerods)
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD))
 
         self.health_mgr.check(elem)
         return elem
 
 
-    def get_deployments(self) -> list[dict]:
-        deployments = self.depl_mgr.get_deployments()  # ← now returns full recs
+    def UNUSED_get_deployments(self) -> list[dict]:
+        deployments = self.depl_mgr.get_deployments()  
         for rec in deployments:
             parent_rec = None
             if PARENT_ID_FIELD in rec:
@@ -97,20 +91,24 @@ class OpsMgr:
         return deployments
 
         
+    def get_monerods(self) -> list:
+        return self.health_cache.get_monerods()
+
+
+    def get_p2pools(self) -> list:
+        return self.health_cache.get_p2pools()
+
+
+    def get_xmrigs(self) -> list:
+        return self.health_cache.get_xmrigs()
+
+
     def get_new(self, form_data: dict):
         elem = self.depl_mgr.get_new(form_data[ELEMENT_TYPE_FIELD])
         if type(elem) == XMRig:
-            local_p2pools = \
-                self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-            remote_p2pools = \
-                self.depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-            elem.instance_map(local_p2pools | remote_p2pools)
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD))
         elif type(elem) == P2Pool:
-            local_monerods = \
-                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD)
-            remote_monerods = \
-                self.depl_mgr.get_deployment_ids_and_instances(MONEROD_REMOTE_FIELD)
-            elem.instance_map(local_monerods | remote_monerods)
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD))
         return elem
     
 

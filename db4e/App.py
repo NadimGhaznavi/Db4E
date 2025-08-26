@@ -53,7 +53,7 @@ class Db4EApp(App):
         self.ops_mgr = OpsMgr()
         self.msg_router = MessageRouter()
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(depl_mgr=self.ops_mgr.depl_mgr)
+        self.nav_pane = NavPane(ops_mgr=self.ops_mgr)
 
 
     def compose(self):
@@ -87,7 +87,9 @@ class Db4EApp(App):
     # Handle requests to refresh the NavPane
     @work(exclusive=True)
     async def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
-        self.nav_pane.clear_cache()
+        #self.ops_mgr.depl_mgr.db_cache.refresh()
+        self.nav_pane.refresh_nav_pane()
+
 
     # The individual Detail panes use this to update the TopBar
     def on_update_top_bar(self, message: UpdateTopBar) -> None:

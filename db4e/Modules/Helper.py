@@ -182,9 +182,6 @@ def gen_tui_log_table(job_list: list):
     return table
 
 
-
-
-
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"

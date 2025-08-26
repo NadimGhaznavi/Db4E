@@ -88,7 +88,7 @@ class Db4eServer:
                 continue # We conly control the local deployments and Db4E is never started/stoped here
 
             print(f"Db4eServer:check_deployments(): {depl}")
-            if depl.enabled():
+            if depl is not None and depl.enabled():
                 self.ensure_running(depl)
             else:
                 self.ensure_stopped(depl)

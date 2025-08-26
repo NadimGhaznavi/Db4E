@@ -15,6 +15,7 @@ import socket
 from textual.containers import Container
 
 from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.DbCache import DbCache
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.Job import Job
 from db4e.Modules.Db4E import Db4E
@@ -44,9 +45,9 @@ class DeploymentMgr(Container):
 
     def __init__(self):
         super().__init__()
-        self.db = DbMgr()
-        self.job_queue = JobQueue(db=self.db)
-        self.depl_col = DEPLOYMENT_COL_DEFAULT
+        db = DbMgr()
+        self.db_cache = DbCache(db=db)
+        self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
@@ -201,7 +202,10 @@ class DeploymentMgr(Container):
         if not xmrig.parent():
             update = False
         else:
-            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+            xmrig.p2pool = self.db_cache.get_deployment_by_id(xmrig.parent())
+        
+        print(f"DeploymentMgr:add_xmrig_deployment(): xmrig.parent: {xmrig.parent()}")
+        print(f"DeploymentMgr:add_xmrig_deployment(): xmrig.p2pool: {xmrig.p2pool}")
             
         if update:
             tmpl_dir = self.get_dir(TEMPLATE_FIELD)
@@ -243,32 +247,7 @@ class DeploymentMgr(Container):
 
 
     def del_deployment(self, elem):
-
-        elem_class = type(elem)
-
-        class_map = {
-            Db4E: DB4E_FIELD,
-            MoneroD: MONEROD_FIELD,
-            MoneroDRemote: MONEROD_REMOTE_FIELD,
-            P2Pool: P2POOL_FIELD,
-            P2PoolRemote: P2POOL_REMOTE_FIELD,
-            XMRig: XMRIG_FIELD
-        }
-        elem_class = class_map[elem_class]
-        instance = elem.instance()
-
-        self.db.delete_one(
-            col_name=self.depl_col,
-                filter = {
-                    ELEMENT_TYPE_FIELD: elem_class,
-                    COMPONENTS_FIELD: {
-                        "$elemMatch": {
-                            FIELD_FIELD: INSTANCE_FIELD,
-                            VALUE_FIELD: instance
-                        }
-                    }
-                }
-        )
+        self.db_cache.delete_one(elem)
 
  
     def get_component_value(self, data, field_name):
@@ -296,117 +275,20 @@ class DeploymentMgr(Container):
 
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
-        if elem_type == DB4E_FIELD or elem_type == DB4E_LABEL:
-            db4e_rec = self.db.find_one(self.depl_col, {ELEMENT_TYPE_FIELD: DB4E_FIELD})
-            # rec is a cursor object.
-            if not db4e_rec:
-                raise RuntimeError(f"DeploymentMgr:get_deployment(): No {DB4E_FIELD} deployment found")
-            return Db4E(db4e_rec)
-        
-        rec = self.db.find_one(
-            col_name = self.depl_col, 
-
-            filter = {
-                ELEMENT_TYPE_FIELD: elem_type,
-                COMPONENTS_FIELD: {
-                    "$elemMatch": {
-                        FIELD_FIELD: INSTANCE_FIELD,
-                        VALUE_FIELD: instance
-                    }
-                }
-            }
-        )                
-        #print(f"DeploymentMgr:get_deployment(): elem_type: {elem_type}, instance: {instance}, found: {rec}")
-
-        if elem_type == MONEROD_FIELD:
-            return MoneroD(rec)
-
-        elif elem_type == MONEROD_REMOTE_FIELD:
-            return MoneroDRemote(rec)
-
-        elif elem_type == P2POOL_FIELD:
-            p2pool = P2Pool(rec)
-            p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
-            print(f"DeploymentMgr:get_deployment(): {type(p2pool.monerod)}")
-            return p2pool
-
-        elif elem_type == P2POOL_REMOTE_FIELD:
-            return P2PoolRemote(rec)
-        
-        elif elem_type == XMRIG_FIELD:
-            xmrig = XMRig(rec)
-            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
-            xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
-            #print(f"DeploymentMgr:get_deployment(): type(xmrig.p2pool): {type(xmrig.p2pool)}")
-            #print(f"DeploymentMgr:get_deployment(): type(xmrig.p2pool.monerod): {type(xmrig.p2pool.monerod)}")
-            return xmrig
-
-        else:
-            raise ValueError(f"DeploymentMgr:get_deployment(): No handler for {elem_type}")
+        return self.db_cache.get_deployment(elem_type, instance)
 
 
     def get_deployment_by_id(self, id):
-        rec = self.db.find_one(col_name=self.depl_col, filter={'_id': id})
-        if not rec:
-            return None
-
-        elem_type = rec[ELEMENT_TYPE_FIELD]
-        if elem_type == MONEROD_FIELD:
-            return MoneroD(rec)
-        elif elem_type == MONEROD_REMOTE_FIELD:
-            return MoneroDRemote(rec)
-        elif elem_type == P2POOL_FIELD:
-            return P2Pool(rec)
-        elif elem_type == P2POOL_REMOTE_FIELD:
-            return P2PoolRemote(rec)
-        elif elem_type == XMRIG_FIELD:
-            return XMRig(rec)
-        else:
-            raise ValueError(f"DeploymentMgr:get_deployment_by_id(): No handler for {elem_type}")
-
+        return self.db_cache.get_deployment_by_id(id)
 
 
     def get_deployment_ids_and_instances(self, elem_type):
-        recs = self.db.find_many(
-            self.depl_col, {ELEMENT_TYPE_FIELD: elem_type})
-        result_map = {}
-        
-        for rec in recs:            
-            instance = self.get_component_value(rec, INSTANCE_FIELD)
-            result_map[instance] = rec[OBJECT_ID_FIELD]
-
-        #print(f"DeploymentMgr:get_deployment_ids_and_instances(): {result_map}")
-        return result_map or {}
-
-
-    def get_deployments(self, elem_type=None) -> list[dict]:
-        if elem_type is None:
-            query = {}
-        else:
-            query= {ELEMENT_TYPE_FIELD: elem_type}
-        recs = self.db.find_many(self.depl_col, query)
-
-        elem_list = []
-        for rec in recs:
-            #print(f"DeploymentMgr:get_deployments(): type: {rec[ELEMENT_TYPE_FIELD]}")
-            elem_type = rec[ELEMENT_TYPE_FIELD]
-            if elem_type == DB4E_FIELD:
-                elem_list.append(Db4E(rec))
-            elif elem_type == MONEROD_FIELD:
-                elem_list.append(MoneroD(rec))
-            elif elem_type == MONEROD_REMOTE_FIELD:
-                elem_list.append(MoneroDRemote(rec))
-            elif elem_type == P2POOL_FIELD:
-                elem_list.append(P2Pool(rec))
-            elif elem_type == P2POOL_REMOTE_FIELD:
-                elem_list.append(P2PoolRemote(rec))
-            elif elem_type == XMRIG_FIELD:
-                elem_list.append(XMRig(rec))
-            #else:
-            #    raise ValueError(f"DeploymentMgr:get_deployments(): No handler for {elem_type}")
-
-        return elem_list
+        return self.db_cache.get_deployment_ids_and_instances(elem_type)
     
+
+    def get_deployments(self):
+        return self.db_cache.get_deployments()
+
 
     def get_dir(self, aDir: str) -> str:
 
@@ -428,11 +310,23 @@ class DeploymentMgr(Container):
                 os.path.join(os.path.dirname(__file__), '..', '..', DB4E_FIELD, TEMPLATES_DIR_DEFAULT))
         
         elif aDir == VENDOR_DIR_FIELD:
-            db4e = self.get_deployment(elem_type=DB4E_FIELD)
+            db4e = self.db_cache.get_db4e()
             return db4e.vendor_dir()
         
         else:
             raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")
+
+
+    def get_monerods(self):
+        return self.db_cache.get_monerods()
+    
+    
+    def get_p2pools(self):
+        return self.db_cache.get_p2pools()
+    
+    
+    def get_xmrigs(self):
+        return self.db_cache.get_xmrigs()
 
 
     def get_new(self, elem_type):
@@ -442,7 +336,7 @@ class DeploymentMgr(Container):
             return MoneroDRemote()
         elif elem_type == P2POOL_FIELD:
             p2pool = P2Pool()
-            db4e = self.get_deployment(elem_type=DB4E_FIELD)
+            db4e = self.db_cache.get_db4e()
             p2pool.user_wallet(db4e.user_wallet())
             return p2pool
         elif elem_type == P2POOL_REMOTE_FIELD:
@@ -453,20 +347,14 @@ class DeploymentMgr(Container):
             raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
 
 
-
     def insert_one(self, elem):
         ## Don't put the HEALTH_MSGS_FIELD (the status messages) into the DB
         # Pop off 
-        msgs = elem.pop_msgs()
-        rec = elem.to_rec()
-        rec.pop("_id", None)
-        self.db.insert_one(self.depl_col, rec)
-        elem.push_msgs(msgs)
-        return elem
+        return self.db_cache.insert_one(elem)
         
 
     def is_initialized(self):
-        db4e = self.get_deployment(DB4E_FIELD)
+        db4e = self.db_cache.get_db4e()
         if db4e:
             if db4e.vendor_dir() and db4e.user_wallet():
                 return True
@@ -491,7 +379,7 @@ class DeploymentMgr(Container):
         update_flag = True
 
         # The current record, we'll update this and write it back in
-        db4e = self.get_deployment(DB4E_FIELD)
+        db4e = self.db_cache.get_db4e()
 
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:
@@ -516,7 +404,7 @@ class DeploymentMgr(Container):
 
         #print(f"DeploymentMgr:update_db4e_deployment(): final rec: {rec}")
         if update_flag:
-            self.update_one(db4e)
+            self.db_cache.update_one(db4e)
 
         #print(f"DeploymentMgr:update_db4e_deployment():")
         return db4e
@@ -548,10 +436,10 @@ class DeploymentMgr(Container):
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {data}")
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
         #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod.to_rec()}")
-        monerod = self.get_deployment_by_id(new_monerod.id())
+        monerod = self.db_cache.get_deployment_by_id(new_monerod.id())
         if not monerod:
             raise ValueError(f"DeploymentMgg:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")
@@ -582,12 +470,12 @@ class DeploymentMgr(Container):
             update = True
 
         if update:
-            self.update_one(monerod)
+            monerod = self.db_cache.update_one(monerod)
 
         else:
             monerod.msg(MONEROD_LABEL, WARN_FIELD,
-                f"{monerod.instance()} – Nothing to update"
-            )
+                f"{monerod.instance()} – Nothing to update")
+            
         return monerod
 
 
@@ -595,11 +483,9 @@ class DeploymentMgr(Container):
         # Don't store status messages in the DB
         msgs = elem.pop_msgs()
         #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
-        rec = elem.to_rec()
-        
-        if OBJECT_ID_FIELD in rec:
-            del rec[OBJECT_ID_FIELD]
-        self.db.update_one(self.depl_col, { OBJECT_ID_FIELD: elem.id() }, rec)
+
+        elem = self.db_cache.update_one(elem)
+
         elem.push_msgs(msgs)
         return elem
     
@@ -607,7 +493,7 @@ class DeploymentMgr(Container):
     def update_p2pool_deployment(self, new_p2pool: P2Pool) -> P2Pool:
         update = False
 
-        p2pool = self.get_deployment_by_id(new_p2pool.id())
+        p2pool = self.db_cache.get_deployment_by_id(new_p2pool.id())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
@@ -668,7 +554,7 @@ class DeploymentMgr(Container):
 
         #print(f"DeploymentMgr:update_p2pool_remote_deployment(): {new_p2pool.to_rec()}")
 
-        p2pool = self.get_deployment_by_id(new_p2pool.id())
+        p2pool = self.db_cache.get_deployment_by_id(new_p2pool.id())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
@@ -752,13 +638,14 @@ class DeploymentMgr(Container):
         update = False
         update_config = False
 
-        xmrig = self.get_deployment_by_id(new_xmrig.id())
+        xmrig = self.db_cache.get_deployment_by_id(new_xmrig.id())
         if not xmrig:
             raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
 
         if xmrig.enabled() != new_xmrig.enabled():
             # This is an enable/disable operation
+            print(f"DeploymentMgr:update_xmrig_deployment(): Updating xmrig.enabled({new_xmrig.instance()}")
             xmrig.enabled(new_xmrig.enabled())
             update = True
 
