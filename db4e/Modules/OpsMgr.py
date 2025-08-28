@@ -18,15 +18,8 @@ from db4e.Modules.P2Pool import P2Pool
 
 from db4e.Constants.Fields import (
     INSTANCE_FIELD, MONEROD_REMOTE_FIELD, PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, 
-    P2POOL_FIELD, 
-    RADIO_MAP_FIELD, ELEMENT_FIELD, XMRIG_FIELD, PYTHON_FIELD,
-    INSTALL_DIR_FIELD, TEMPLATE_FIELD, ELEMENT_TYPE_FIELD, STRATUM_PORT_FIELD,
-    MONEROD_FIELD, P2POOL_REMOTE_FIELD, IP_ADDR_FIELD, RPC_BIND_PORT_FIELD,
-    ZMQ_PUB_PORT_FIELD, VENDOR_DIR_FIELD)
-from db4e.Constants.Labels import (OPS_MGR_LABEL)
-from db4e.Constants.Defaults import (
-    DEPLOYMENT_COL_DEFAULT, BIN_DIR_DEFAULT, PYTHON_DEFAULT, 
-    TEMPLATES_DIR_DEFAULT)
+    P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, MONEROD_FIELD, P2POOL_REMOTE_FIELD)
+from db4e.Constants.Defaults import (DEPLOYMENT_COL_DEFAULT)
 
 class OpsMgr:
 
@@ -75,22 +68,10 @@ class OpsMgr:
         elif type(elem) == P2Pool:
             elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD))
 
-        self.health_mgr.check(elem)
+        elem = self.health_mgr.check(elem)
         return elem
 
 
-    def UNUSED_get_deployments(self) -> list[dict]:
-        deployments = self.depl_mgr.get_deployments()  
-        for rec in deployments:
-            parent_rec = None
-            if PARENT_ID_FIELD in rec:
-                parent_rec = self.depl_mgr.get_deployment_by_id(id=rec[PARENT_ID_FIELD])
-                rec[PARENT_INSTANCE_FIELD] = \
-                    parent_rec.get(INSTANCE_FIELD, "") if parent_rec else ""
-            rec = self.health_mgr.check(rec=rec, parent_rec=parent_rec)
-        return deployments
-
-        
     def get_monerods(self) -> list:
         return self.health_cache.get_monerods()
 

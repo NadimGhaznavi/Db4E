@@ -18,10 +18,7 @@ from pymongo.errors import (
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.Db4E import Db4E
 from db4e.Constants.Fields import (
-    DB4E_FIELD,
-    ELEMENT_TYPE_FIELD, MONEROD_FIELD,
-    MONEROD_REMOTE_FIELD, P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD,
-    ELEMENT_TYPE_FIELD)
+    DB4E_FIELD, ELEMENT_TYPE_FIELD, ELEMENT_TYPE_FIELD)
 from db4e.Constants.Jobs import (
     STATUS_FIELD, PENDING_FIELD, ATTEMPTS_FIELD,UPDATED_AT_FIELD, PROCESSING_FIELD)
 from db4e.Constants.Defaults import (OPS_COL_DEFAULT, MINING_COL_DEFAULT, 

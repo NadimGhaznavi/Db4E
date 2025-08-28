@@ -10,6 +10,8 @@ db4e/Modules/HealthMgr.py
 
 import os
 import socket
+from copy import deepcopy
+
 
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.MoneroD import MoneroD
@@ -28,7 +30,7 @@ from db4e.Constants.Labels import(
 class HealthMgr:
 
     def check(self, elem):
-
+        elem.pop_msgs()
         if type(elem) == Db4E:
             return self.check_db4e(elem)
         elif type(elem) == MoneroD:
@@ -229,7 +231,6 @@ class HealthMgr:
         else:
             xmrig.msg(P2POOL_LABEL, WARN_FIELD,
                       f"Missing upstream P2pool deployment")
-        
         return xmrig
 
 

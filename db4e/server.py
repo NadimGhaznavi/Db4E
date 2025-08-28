@@ -152,7 +152,7 @@ class Db4eServer:
         self.log.info(f"Disbling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         job.msg("Disabled")
-        elem.enabled(False)
+        elem.disable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
 
@@ -162,9 +162,12 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
+        print(f"server:enabled(): 1. {elem.enabled()}")
         job.msg("Enabled")
-        elem.enabled(True)
+        elem.enable()
         self.depl_mgr.update_deployment(elem)
+        elem2 = self.depl_mgr.get_deployment(elem_type, instance)
+        print(f"server:enabled(): 4. {elem2.enabled()}")
         self.job_queue.complete_job(job)
 
 
