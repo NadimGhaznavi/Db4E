@@ -47,6 +47,7 @@ CORE = 'CORE'
 DEPL = 'DEPL'
 GIFT = 'GIFT'
 LOG = 'LOG'
+MET = 'MET'
 MON = 'MON'
 NEW = 'NEW'
 P2P = 'P2P'
@@ -58,6 +59,7 @@ ICON = {
     DEPL: '💻 ',
     GIFT: '🎉 ',
     LOG: '📚 ',
+    MET: '🔎 ',
     MON: '🌿 ',
     NEW: '🔧 ',
     P2P: '🌊 ',
@@ -82,10 +84,15 @@ class NavPane(Container):
         self.health_mgr = ops_mgr.health_mgr
         self._initialized = False
 
-        # Create the Deployments tree
+        # Deployments tree
         self.depls = Tree(ICON[DEPL] + DEPLOYMENTS_LABEL, id="tree_deployments")
         self.depls.guide_depth = 3
         self.depls.root.expand()
+
+        # Metrics Tree
+        self.metrics = Tree(ICON[MET] + 'Metrics', id="tree_metrics")
+        self.metrics.guide_depth = 3
+        self.metrics.root.expand()
 
         # Current state data from Mongo
         self.monerod_recs = None
@@ -103,7 +110,16 @@ class NavPane(Container):
 
 
     def compose(self) -> ComposeResult:
-        yield Vertical(ScrollableContainer(self.depls, id="navpane"))
+        yield Vertical(
+            ScrollableContainer(
+                Vertical(
+                    self.depls,
+                    self.metrics,
+                )
+            ),
+            id="nav_pane"
+        )
+                
 
 
     def is_initialized(self) -> bool:
@@ -255,6 +271,7 @@ class NavPane(Container):
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
         self.depls.root.remove_children()
+        self.metrics.root.remove_children()
         
         if not self.is_initialized():
             self.depls.root.add_leaf(ICON[SETUP] + INITIAL_SETUP_LABEL)
@@ -286,11 +303,17 @@ class NavPane(Container):
             xmrig_tree.add_leaf(STATE_ICON.get(state, "") + xmrig.instance())
         xmrig_tree.add_leaf(new_leaf)
         
+
+        monerod_metrics = self.metrics.root.add(ICON[MON] + MONEROD_SHORT_LABEL, expand=True)
+        p2pool_metrics = self.metrics.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
+        xmrig_metrics = self.metrics.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+
+
         # Add Log link
-        self.depls.root.add_leaf(ICON[LOG] + TUI_LOG_LABEL)
+        self.metrics.root.add_leaf(ICON[LOG] + TUI_LOG_LABEL)
 
         # Add Donations link
-        self.depls.root.add_leaf(ICON[GIFT] + DONATIONS_LABEL)
+        self.metrics.root.add_leaf(ICON[GIFT] + DONATIONS_LABEL)
 
 
     def set_initialized(self):
