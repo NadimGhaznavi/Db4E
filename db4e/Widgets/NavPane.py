@@ -284,30 +284,44 @@ class NavPane(Container):
         new_leaf = ICON[NEW] + NEW_LABEL
         
         monerod_tree = self.depls.root.add(ICON[MON] + MONEROD_SHORT_LABEL, expand=True)
+        monerods_list = []
         for monerod in self.ops_mgr.get_monerods():
             #print(f"NavPane:refresh_nav_pane(): {monerod}")
             state = monerod.status()
             monerod_tree.add_leaf(STATE_ICON.get(state, "") + monerod.instance())
+            monerods_list.append(monerod)
         monerod_tree.add_leaf(new_leaf)
 
         p2pool_tree = self.depls.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
+        p2pools_list = []
         for p2pool in self.ops_mgr.get_p2pools():
             #print(f"NavPane:refresh_nav_pane(): {p2pool}")
             state = p2pool.status()
             p2pool_tree.add_leaf(STATE_ICON.get(state, "") + p2pool.instance())
+            p2pools_list.append(p2pool)
         p2pool_tree.add_leaf(new_leaf)
 
         xmrig_tree = self.depls.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+        xmrigs_list = []
         for xmrig in self.ops_mgr.get_xmrigs():
             state = xmrig.status()
             xmrig_tree.add_leaf(STATE_ICON.get(state, "") + xmrig.instance())
+            xmrigs_list.append(xmrig)
         xmrig_tree.add_leaf(new_leaf)
         
-
         monerod_metrics = self.metrics.root.add(ICON[MON] + MONEROD_SHORT_LABEL, expand=True)
-        p2pool_metrics = self.metrics.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
-        xmrig_metrics = self.metrics.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+        for monerod in monerods_list:
+            if not monerod.remote():
+                monerod_metrics.add(ICON[MON] + monerod.instance(), expand=True)
 
+        p2pool_metrics = self.metrics.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
+        for p2pool in p2pools_list:
+            if not p2pool.remote():
+                p2pool_metrics.add(ICON[P2P] + p2pool.instance(), expand=True)
+
+        xmrig_metrics = self.metrics.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+        for xmrig in xmrigs_list:
+            xmrig_metrics.add(ICON[XMR] + xmrig.instance(), expand=True)
 
         # Add Log link
         self.metrics.root.add_leaf(ICON[LOG] + TUI_LOG_LABEL)
