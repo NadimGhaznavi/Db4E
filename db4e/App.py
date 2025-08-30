@@ -51,9 +51,9 @@ class Db4EApp(App):
     def __init__(self):
         super().__init__()
         self.ops_mgr = OpsMgr()
-        self.msg_router = MessageRouter()
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(ops_mgr=self.ops_mgr)
+        self.msg_router = MessageRouter()
 
 
     def compose(self):

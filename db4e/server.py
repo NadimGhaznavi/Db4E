@@ -132,6 +132,7 @@ class Db4eServer:
             job.msg("Deleted")
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
+            print(f"Db4eServer:delete(): {elem}")
             self.ensure_stopped(elem)
             vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
             p2pool_dir = P2POOL_FIELD + '-' + elem.version()
@@ -196,6 +197,10 @@ class Db4eServer:
         if type(elem) == XMRig:
             instance = elem.instance()
             sd.service_name('xmrig@' + instance)
+        elif type(elem) == P2Pool:
+            instance = elem.instance()
+            sd.service_name('p2pool@' + instance)
+
         print(f"Db4eServer:ensure_stopped(): sd.active(): {sd.active()}")
         if sd.active():
             rc = sd.stop()

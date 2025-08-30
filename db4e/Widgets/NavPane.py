@@ -79,7 +79,7 @@ class NavPane(Container):
     def __init__(self, ops_mgr: OpsMgr):
         super().__init__()
         self.ops_mgr = ops_mgr
-        self.health_mgr = HealthMgr()
+        self.health_mgr = ops_mgr.health_mgr
         self._initialized = False
 
         # Create the Deployments tree

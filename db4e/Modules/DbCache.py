@@ -62,6 +62,7 @@ class DbCache:
     def build_cache(self):
         with self._lock:
             recs = self.db.find_many(self.depl_col, {})
+            #print(f"DbCache:build_cache(): # recs: {len(recs)}")
 
             seen_ids = set()
 
@@ -76,6 +77,15 @@ class DbCache:
                     elem.from_rec(rec)   # you'd need to implement this
                     if elem_type == XMRIG_FIELD:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
+                        self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
+                    elif elem_type == P2POOL_FIELD:
+                        elem.monerod = self.get_deployment_by_id(elem.parent())
+                        self.p2pool_map[elem.instance()] = elem
+                    elif elem_type == P2POOL_REMOTE_FIELD:
+                        self.p2pool_map[elem.instance()] = elem
+                    elif elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
+                        self.monerod_map[elem.instance()] = elem
+    
                 else:
                     # Create new object
                     if elem_type == DB4E_FIELD:
@@ -89,6 +99,7 @@ class DbCache:
                         self.monerod_map[elem.instance()] = elem
                     elif elem_type == P2POOL_FIELD:
                         elem = P2Pool(rec)
+                        elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
                     elif elem_type == P2POOL_REMOTE_FIELD:
                         elem = P2PoolRemote(rec)
@@ -164,9 +175,12 @@ class DbCache:
                 return deepcopy(self.monerod_map.get(instance))
                     
             elif elem_type == P2POOL_FIELD or elem_type == P2POOL_REMOTE_FIELD:
+                print(f"DbCache:get_deployment(): instance: {instance}")
                 p2pool = self.p2pool_map.get(instance)
                 if type(p2pool) == P2Pool:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
+                print(f"DbCache:get_deployment(): map: {self.p2pool_map}")
+                print(f"DbCache:get_deployment(): p2pool: {p2pool}")
                 return deepcopy(p2pool)
                     
             elif elem_type == XMRIG_FIELD:
@@ -203,6 +217,7 @@ class DbCache:
                 instance_map = {}
                 for p2pool in self.p2pool_map.values():
                     instance_map[p2pool.instance()] = p2pool.id()
+                print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
                     
             elif elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
@@ -230,7 +245,7 @@ class DbCache:
             self.db.insert_one(self.depl_col, elem.to_rec())
             elem.push_msgs(msgs)
 
-            print(f"DbCache:insert_one(): before {self.monerod_map.values()}")
+            print(f"DbCache:insert_one(): before {self.p2pool_map.values()}")
             if type(elem) == MoneroD or type(elem) == MoneroDRemote:
                 self.monerod_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
@@ -243,7 +258,7 @@ class DbCache:
                 self.xmrig_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
 
-            print(f"DbCache:insert_one(): after {self.monerod_map.values()}")
+            print(f"DbCache:insert_one(): after {self.p2pool_map.values()}")
             return elem
 
 

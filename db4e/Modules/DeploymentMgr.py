@@ -545,6 +545,12 @@ class DeploymentMgr(Container):
                 p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated log level")
                 update = True
 
+            # Upstream P2Pool
+            if p2pool.parent != new_p2pool.parent:
+                p2pool.parent(new_p2pool.parent())
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Using new P2Pool deployment")
+                update = True
+
         if update:
             self.update_one(p2pool)
 

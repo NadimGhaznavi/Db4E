@@ -52,6 +52,7 @@ class OpsMgr:
             elem_type = elem_type[ELEMENT_TYPE_FIELD]
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
+        print(f"OpsMgr:get_deployment(): {elem}")
 
         if not elem:
             if elem_type == MONEROD_FIELD:
