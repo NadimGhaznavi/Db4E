@@ -17,11 +17,12 @@ from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
-    P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent)
+    P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile)
 from db4e.Constants.Fields import(
     P2POOL_FIELD, ANY_IP_FIELD, CHAIN_FIELD, CONFIG_FILE_FIELD, IN_PEERS_FIELD,
     INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD)
+    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD,
+    LOG_FILE_FIELD)
 from db4e.Constants.Labels import(P2POOL_LABEL)
 from db4e.Constants.Defaults import(
     P2POOL_VERSION_DEFAULT, CONF_DIR_DEFAULT, API_DIR_DEFAULT, RUN_DIR_DEFAULT,
@@ -42,6 +43,7 @@ class P2Pool(LocalSoftwareSystem):
         self.add_component(IN_PEERS_FIELD, InPeers())
         self.add_component(INSTANCE_FIELD, Instance())
         self.add_component(IP_ADDR_FIELD, IpAddr())
+        self.add_component(LOG_FILE_FIELD, LogFile())
         self.add_component(REMOTE_FIELD, Local())
         self.add_component(LOG_LEVEL_FIELD, LogLevel())
         self.add_component(OUT_PEERS_FIELD, OutPeers())
@@ -57,6 +59,7 @@ class P2Pool(LocalSoftwareSystem):
         self.in_peers = self.components[IN_PEERS_FIELD]
         self.instance = self.components[INSTANCE_FIELD]
         self.ip_addr = self.components[IP_ADDR_FIELD]
+        self.log_file = self.components[LOG_FILE_FIELD]
         self.remote = self.components[REMOTE_FIELD]
         self.log_level = self.components[LOG_LEVEL_FIELD]
         self.out_peers = self.components[OUT_PEERS_FIELD]
@@ -65,7 +68,7 @@ class P2Pool(LocalSoftwareSystem):
         self.stratum_port = self.components[STRATUM_PORT_FIELD]
         self.user_wallet = self.components[USER_WALLET_FIELD]
         self.version = self.components[VERSION_FIELD]
-        self.version.value = P2POOL_VERSION_DEFAULT
+        self.version(P2POOL_VERSION_DEFAULT)
         self._instance_map = {}
         self.monerod = None
 

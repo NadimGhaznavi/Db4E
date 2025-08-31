@@ -11,6 +11,7 @@ db4e/Constants/Panes.py
 DB4E_PANE = "Db4EPane"
 DONATIONS_PANE = "DonationsPane"
 INITIAL_SETUP_PANE = "InitialSetupPane"
+LOG_VIEW_PANE = "LogViewPane"
 MONEROD_TYPE_PANE = "MoneroDTypePane"
 MONEROD_PANE = "MoneroDPane"
 MONEROD_REMOTE_PANE = "MoneroDRemotePane"

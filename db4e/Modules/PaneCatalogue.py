@@ -13,6 +13,7 @@ from textual.containers import Container
 from db4e.Panes.Db4EPane import Db4EPane
 from db4e.Panes.DonationsPane import DonationsPane
 from db4e.Panes.InitialSetupPane import InitialSetupPane
+from db4e.Panes.LogViewPane import LogViewPane
 from db4e.Panes.MoneroDPane import MoneroDPane
 from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
 from db4e.Panes.MoneroDTypePane import MoneroDTypePane
@@ -28,12 +29,14 @@ from db4e.Panes.XMRigPane import XMRigPane
 from db4e.Constants.Labels import (
     CONFIG_LABEL, DB4E_LABEL, DB4E_LONG_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
     MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL, P2POOL_REMOTE_LABEL,
-    RESULTS_LABEL, WELCOME_LABEL, XMRIG_LABEL, TUI_LOG_LABEL, LOG_LABEL
+    RESULTS_LABEL, WELCOME_LABEL, XMRIG_LABEL, TUI_LOG_LABEL, LOG_LABEL,
+    LOG_VIEWER_LABEL
 )
 from db4e.Constants.Panes import (
     DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE_PANE, 
     MONEROD_PANE, MONEROD_TYPE_PANE, P2POOL_PANE, P2POOL_TYPE_PANE, 
-    P2POOL_REMOTE_PANE, RESULTS_PANE, WELCOME_PANE, XMRIG_PANE, TUI_LOG_PANE
+    P2POOL_REMOTE_PANE, RESULTS_PANE, WELCOME_PANE, XMRIG_PANE, TUI_LOG_PANE,
+    LOG_VIEW_PANE
 )
 from db4e.Constants.Buttons import (
     NEW_LABEL
@@ -44,6 +47,7 @@ REGISTRY = {
     DB4E_PANE: (Db4EPane, DB4E_LONG_LABEL, DB4E_LABEL),
     DONATIONS_PANE: (DonationsPane, DONATIONS_LABEL, DONATIONS_LABEL),
     INITIAL_SETUP_PANE: (InitialSetupPane, DB4E_LONG_LABEL, INITIAL_SETUP_LABEL),
+    LOG_VIEW_PANE: (LogViewPane, LOG_LABEL, LOG_VIEWER_LABEL),
     MONEROD_TYPE_PANE: (MoneroDTypePane, MONEROD_LABEL, NEW_LABEL),
     MONEROD_PANE: (MoneroDPane, MONEROD_LABEL, NEW_LABEL),
     MONEROD_REMOTE_PANE: (MoneroDRemotePane, MONEROD_REMOTE_LABEL, CONFIG_LABEL),

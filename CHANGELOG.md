@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- New `Panes/LogViewPane` for viewing log files in the TUI
+- New tree navigation for viewing the logs
+- Upgraded bundled P2Pool to 4.9.1
+- Added constants to `Defaults`, `Fields`, `Labels`, and `Panes`
+- Created a `Components/Logfile` class
+- Added `LogFile` to local `Monerod`, `P2Pool` and `XMRig` classes
+- Added the new `LogViewPane` to the `Modules/MessageRouter` and `Modules/PaneCatalogue`
+
+---
+
 ## [0.31.0] - 2025-08-29
 
 ### Added

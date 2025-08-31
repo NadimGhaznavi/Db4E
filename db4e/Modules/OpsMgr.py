@@ -17,9 +17,13 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Modules.P2Pool import P2Pool
 
 from db4e.Constants.Fields import (
-    INSTANCE_FIELD, MONEROD_REMOTE_FIELD, PARENT_ID_FIELD, PARENT_INSTANCE_FIELD, 
+    INSTANCE_FIELD, MONEROD_REMOTE_FIELD, XMRIG_FIELD, 
     P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, MONEROD_FIELD, P2POOL_REMOTE_FIELD)
 from db4e.Constants.Defaults import (DEPLOYMENT_COL_DEFAULT)
+from db4e.Constants.Labels import (
+    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
+
+
 
 class OpsMgr:
 
@@ -96,6 +100,19 @@ class OpsMgr:
 
     def get_tui_log(self, job_list: list):
         return self.depl_mgr.job_queue.get_jobs()
+
+
+    def log_viewer(self, form_data: dict):
+        elem_type_label = form_data[ELEMENT_TYPE_FIELD]
+        label_map = {
+            MONEROD_SHORT_LABEL: MONEROD_FIELD,
+            P2POOL_SHORT_LABEL: P2POOL_FIELD,
+            XMRIG_SHORT_LABEL: XMRIG_FIELD,
+        }
+        instance = form_data[INSTANCE_FIELD]
+        elem = self.depl_mgr.get_deployment(
+            elem_type=label_map[elem_type_label], instance=instance)
+        return elem
 
 
     def update_deployment(self, data: dict):

@@ -30,13 +30,14 @@ from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import (
     TUI_LOG_FIELD, DB4E_FIELD, DONATIONS_FIELD, ERROR_FIELD, GOOD_FIELD,
     MONEROD_REMOTE_FIELD, P2POOL_REMOTE_FIELD, INITIAL_SETUP_PROCEED_FIELD,
-    INSTANCE_FIELD, MONEROD_FIELD, NEW_FIELD, P2POOL_FIELD, GET_TUI_LOG_FIELD,
+    INSTANCE_FIELD, MONEROD_FIELD, LOG_VIEWER_FIELD, P2POOL_FIELD, GET_TUI_LOG_FIELD,
     ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, INSTALL_MGR_FIELD,
     OPS_MGR_FIELD, SET_PANE_FIELD, GET_NEW_FIELD, GET_REC_FIELD,
     UNKNOWN_FIELD, NAME_FIELD, PANE_MGR_FIELD, WARN_FIELD, XMRIG_FIELD)
 from db4e.Constants.Labels import (
     DB4E_LABEL, DEPLOYMENTS_LABEL, DONATIONS_LABEL, INITIAL_SETUP_LABEL,
-    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, TUI_LOG_LABEL, XMRIG_SHORT_LABEL)
+    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, TUI_LOG_LABEL, XMRIG_SHORT_LABEL,
+    LOG_FILE_LABEL, METRICS_LABEL)
 from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
     TUI_LOG_PANE)
@@ -55,23 +56,23 @@ SETUP = 'SETUP'
 XMR = 'XMR'
 
 ICON = {
-    CORE: '📡 ',
-    DEPL: '💻 ',
-    GIFT: '🎉 ',
-    LOG: '📚 ',
-    MET: '🔎 ',
-    MON: '🌿 ',
-    NEW: '🔧 ',
-    P2P: '🌊 ',
-    SETUP: '⚙️ ',
-    XMR: '⛏️  '
+    CORE: '📡',
+    DEPL: '💻',
+    GIFT: '🎉',
+    LOG: '📚',
+    MET: '🔎',
+    MON: '🌿',
+    NEW: '🔧',
+    P2P: '🌊',
+    SETUP: '⚙️',
+    XMR: '⛏️ '
 }
 
 STATE_ICON = {
-    GOOD_FIELD: '🟢 ',
-    WARN_FIELD: '🟡 ',
-    ERROR_FIELD: '🔴 ',
-    UNKNOWN_FIELD: '⚪ ',
+    GOOD_FIELD: '🟢',
+    WARN_FIELD: '🟡',
+    ERROR_FIELD: '🔴',
+    UNKNOWN_FIELD: '⚪',
 }
 
 
@@ -85,12 +86,12 @@ class NavPane(Container):
         self._initialized = False
 
         # Deployments tree
-        self.depls = Tree(ICON[DEPL] + DEPLOYMENTS_LABEL, id="tree_deployments")
+        self.depls = Tree(f"{ICON[DEPL]} {DEPLOYMENTS_LABEL}")
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
         # Metrics Tree
-        self.metrics = Tree(ICON[MET] + 'Metrics', id="tree_metrics")
+        self.metrics = Tree(f"{ICON[MET]} {METRICS_LABEL}")
         self.metrics.guide_depth = 3
         self.metrics.root.expand()
 
@@ -134,12 +135,12 @@ class NavPane(Container):
     @work(exclusive=True)
     async def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
         if not event.node.children and event.node.parent:
-            leaf_item = event.node
-            parent_item = event.node.parent
+            leaf_item = event.node.data
+            parent_item = event.node.parent.data
             #print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_item}), parent_item ({parent_item})")
 
             # Initial Setup
-            if INITIAL_SETUP_LABEL in leaf_item.label:
+            if leaf_item ==INITIAL_SETUP_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: DB4E_FIELD,
@@ -149,7 +150,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # View/Update Db4E Core
-            elif DB4E_LABEL in leaf_item.label:
+            elif leaf_item == DB4E_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {DB4E_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: DB4E_FIELD,
@@ -159,7 +160,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # TUI Log
-            elif TUI_LOG_LABEL in leaf_item.label:
+            elif leaf_item == TUI_LOG_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {TUI_LOG_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: TUI_LOG_FIELD,
@@ -169,7 +170,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Donations
-            elif DONATIONS_LABEL in leaf_item.label:
+            elif leaf_item == DONATIONS_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {DONATIONS_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: DONATIONS_FIELD,
@@ -179,7 +180,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New Monero (remote) deployment
-            elif NEW_LABEL in leaf_item.label and MONEROD_SHORT_LABEL in parent_item.label:
+            elif leaf_item == NEW_LABEL and parent_item == MONEROD_SHORT_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: MONEROD_FIELD,
@@ -190,7 +191,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New P2Pool (remote) deployment
-            elif NEW_LABEL in leaf_item.label and P2POOL_SHORT_LABEL in parent_item.label:
+            elif leaf_item == NEW_LABEL and parent_item == P2POOL_SHORT_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: P2POOL_FIELD,
@@ -201,7 +202,7 @@ class NavPane(Container):
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New XMRig deployment
-            elif NEW_LABEL in leaf_item.label and XMRIG_SHORT_LABEL in parent_item.label:
+            elif leaf_item == NEW_LABEL and parent_item == XMRIG_SHORT_LABEL:
                 #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{NEW_LABEL}")
                 form_data = {
                     ELEMENT_TYPE_FIELD: XMRIG_FIELD,
@@ -213,60 +214,73 @@ class NavPane(Container):
             elif parent_item:
 
                 # View/Update a Monero deployment
-                if MONEROD_SHORT_LABEL in parent_item.label:
+                if parent_item == MONEROD_SHORT_LABEL:
                     #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT_LABEL}/{leaf_item.label}")
                     monerod = self.ops_mgr.get_deployment(
-                        elem_type=MONEROD_FIELD, instance=str(leaf_item.label)[2:])
+                        elem_type=MONEROD_FIELD, instance=str(leaf_item))
 
                     if monerod.remote():
                         form_data = {
                             ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
                             TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: str(leaf_item.label)[2:]
+                            INSTANCE_FIELD: leaf_item
                         }
                     else:
                         form_data = {
                             ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
                             TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: str(leaf_item.label)[2:]
+                            INSTANCE_FIELD: leaf_item
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # View/Update a P2Pool deployment
-                elif P2POOL_SHORT_LABEL in parent_item.label:
+                elif parent_item == P2POOL_SHORT_LABEL:
                     #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT_LABEL}/{leaf_item.label}")
                     p2pool = self.ops_mgr.get_deployment(
-                        elem_type=P2POOL_FIELD, instance=str(leaf_item.label)[2:])
+                        elem_type=P2POOL_FIELD, instance=str(leaf_item))
 
                     if p2pool.remote():
                         form_data = {
                             ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
                             TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: str(leaf_item.label)[2:]
+                            INSTANCE_FIELD: leaf_item
                         }
                     else:
                         form_data = {
                             ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                             TO_MODULE_FIELD: OPS_MGR_FIELD,
                             TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: str(leaf_item.label)[2:]
+                            INSTANCE_FIELD: leaf_item
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # View/Update a XMRig deployment
-                elif XMRIG_SHORT_LABEL in parent_item.label:
+                elif parent_item == XMRIG_SHORT_LABEL:
                     #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT_LABEL}/{leaf_item.label}")
                     form_data = {
                         ELEMENT_TYPE_FIELD: XMRIG_FIELD,
                         TO_MODULE_FIELD: OPS_MGR_FIELD,
                         TO_METHOD_FIELD: GET_REC_FIELD,
-                        INSTANCE_FIELD: str(leaf_item.label)[2:]
+                        INSTANCE_FIELD: leaf_item
                     }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
+                # View Metrics
+                elif event.node.parent.parent and event.node.parent.parent.parent:
+                    if leaf_item == LOG_FILE_LABEL:
+                        grand_parent_item = event.node.parent.parent.data
+                        form_data = {
+                            ELEMENT_TYPE_FIELD: grand_parent_item,
+                            TO_MODULE_FIELD: OPS_MGR_FIELD,
+                            TO_METHOD_FIELD: LOG_VIEWER_FIELD,
+                            INSTANCE_FIELD: parent_item
+                        }
+                        print(f"NavPane:on_tree_node_selected(): {form_data}")
+                        self.post_message(Db4eMsg(self, form_data=form_data))
+                        
 
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
@@ -274,60 +288,74 @@ class NavPane(Container):
         self.metrics.root.remove_children()
         
         if not self.is_initialized():
-            self.depls.root.add_leaf(ICON[SETUP] + INITIAL_SETUP_LABEL)
-            self.depls.root.add_leaf(ICON[GIFT] + DONATIONS_LABEL)
+            self.depls.root.add_leaf(
+                f"{ICON[SETUP]} {INITIAL_SETUP_LABEL}", data=INITIAL_SETUP_LABEL)
+            self.depls.root.add_leaf(
+                f"{ICON[GIFT]} {DONATIONS_LABEL}", data=DONATIONS_LABEL)
             return
         
-        self.depls.root.add_leaf(ICON[CORE] + DB4E_LABEL)
-        
-        # Precompute <New> label
-        new_leaf = ICON[NEW] + NEW_LABEL
-        
-        monerod_tree = self.depls.root.add(ICON[MON] + MONEROD_SHORT_LABEL, expand=True)
+        self.depls.root.add_leaf(
+            f"{ICON[CORE]} {DB4E_LABEL}", data=DB4E_LABEL)
+                
+        monerod_tree = self.depls.root.add(
+            f"{ICON[MON]} {MONEROD_SHORT_LABEL}", data=MONEROD_SHORT_LABEL, expand=True)
         monerods_list = []
         for monerod in self.ops_mgr.get_monerods():
             #print(f"NavPane:refresh_nav_pane(): {monerod}")
             state = monerod.status()
-            monerod_tree.add_leaf(STATE_ICON.get(state, "") + monerod.instance())
+            monerod_tree.add_leaf(
+                f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance())
             monerods_list.append(monerod)
-        monerod_tree.add_leaf(new_leaf)
+        monerod_tree.add_leaf(f"{ICON[NEW]} {NEW_LABEL}", data=NEW_LABEL)
 
-        p2pool_tree = self.depls.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
+        p2pool_tree = self.depls.root.add(
+            f"{ICON[P2P]} {P2POOL_SHORT_LABEL}", data=P2POOL_SHORT_LABEL, expand=True)
         p2pools_list = []
         for p2pool in self.ops_mgr.get_p2pools():
             #print(f"NavPane:refresh_nav_pane(): {p2pool}")
             state = p2pool.status()
-            p2pool_tree.add_leaf(STATE_ICON.get(state, "") + p2pool.instance())
+            p2pool_tree.add_leaf(
+                f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance())
             p2pools_list.append(p2pool)
-        p2pool_tree.add_leaf(new_leaf)
+        p2pool_tree.add_leaf(f"{ICON[NEW]} {NEW_LABEL}", data=NEW_LABEL)
 
-        xmrig_tree = self.depls.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+        xmrig_tree = self.depls.root.add(
+            f"{ICON[XMR]} {XMRIG_SHORT_LABEL}", data=XMRIG_SHORT_LABEL, expand=True)
         xmrigs_list = []
         for xmrig in self.ops_mgr.get_xmrigs():
             state = xmrig.status()
-            xmrig_tree.add_leaf(STATE_ICON.get(state, "") + xmrig.instance())
+            xmrig_tree.add_leaf(
+                f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance())
             xmrigs_list.append(xmrig)
-        xmrig_tree.add_leaf(new_leaf)
+        xmrig_tree.add_leaf(f"{ICON[NEW]} {NEW_LABEL}", data=NEW_LABEL)
         
-        monerod_metrics = self.metrics.root.add(ICON[MON] + MONEROD_SHORT_LABEL, expand=True)
+        monerod_metrics = self.metrics.root.add(
+            f"{ICON[MON]} {MONEROD_SHORT_LABEL}", data=MONEROD_SHORT_LABEL, expand=True)
         for monerod in monerods_list:
             if not monerod.remote():
-                monerod_metrics.add(ICON[MON] + monerod.instance(), expand=True)
+                monerod_metrics.add(
+                    f"{ICON[MON]} {monerod.instance()}", data=monerod.instance(), expand=True)
 
-        p2pool_metrics = self.metrics.root.add(ICON[P2P] + P2POOL_SHORT_LABEL, expand=True)
+        p2pool_metrics = self.metrics.root.add(
+            f"{ICON[P2P]} {P2POOL_SHORT_LABEL}", data=P2POOL_SHORT_LABEL, expand=True)
         for p2pool in p2pools_list:
             if not p2pool.remote():
-                p2pool_metrics.add(ICON[P2P] + p2pool.instance(), expand=True)
+                instance_branch = p2pool_metrics.add(
+                    f"{ICON[P2P]} {p2pool.instance()}", data=p2pool.instance(), expand=True)
+                instance_branch.add_leaf(f"{ICON[LOG]} {LOG_FILE_LABEL}", data=LOG_FILE_LABEL)
 
-        xmrig_metrics = self.metrics.root.add(ICON[XMR] + XMRIG_SHORT_LABEL, expand=True)
+        xmrig_metrics = self.metrics.root.add(
+            f"{ICON[XMR]} {XMRIG_SHORT_LABEL}", data=XMRIG_SHORT_LABEL, expand=True)
         for xmrig in xmrigs_list:
-            xmrig_metrics.add(ICON[XMR] + xmrig.instance(), expand=True)
+            instance_branch = xmrig_metrics.add(
+                f"{ICON[XMR]} {xmrig.instance()}", data=xmrig.instance(), expand=True)
+            instance_branch.add_leaf(f"{ICON[LOG]} {LOG_FILE_LABEL}", data=LOG_FILE_LABEL)
 
         # Add Log link
-        self.metrics.root.add_leaf(ICON[LOG] + TUI_LOG_LABEL)
+        self.metrics.root.add_leaf(f"{ICON[LOG]} {TUI_LOG_LABEL}", data=TUI_LOG_LABEL)
 
         # Add Donations link
-        self.metrics.root.add_leaf(ICON[GIFT] + DONATIONS_LABEL)
+        self.metrics.root.add_leaf(f"{ICON[GIFT]} {DONATIONS_LABEL}", data=DONATIONS_LABEL)
 
 
     def set_initialized(self):

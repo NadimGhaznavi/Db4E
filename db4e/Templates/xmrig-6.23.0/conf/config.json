@@ -83,7 +83,7 @@
         "loader": null,
         "nvml": true
     },
-    "log-file": null,
+    "log-file": "[[LOG_FILE]]",
     "donate-level": 0,
     "donate-over-proxy": 1,
     "pools": [

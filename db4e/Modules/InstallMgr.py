@@ -377,7 +377,7 @@ class InstallMgr(Container):
         fq_xmrig_dir = os.path.join(vendor_dir, xmrig_with_version)
         os.mkdir(os.path.join(fq_xmrig_dir))
         db4e.msg(XMRIG_LABEL, GOOD_FIELD, f"Created directory: {fq_xmrig_dir}")
-        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT]:
+        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT, LOG_DIR_DEFAULT]:
             fq_sub_dir = os.path.join(fq_xmrig_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(XMRIG_LABEL, GOOD_FIELD, f"Created directory: {fq_sub_dir}")

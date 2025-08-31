@@ -18,11 +18,12 @@ from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Constants.Fields import (XMRIG_FIELD, REMOTE_FIELD, CONFIG_FILE_FIELD, 
-    INSTANCE_FIELD, NUM_THREADS_FIELD, VERSION_FIELD, PARENT_FIELD)
-from db4e.Constants.Defaults import (CONF_DIR_DEFAULT, XMRIG_VERSION_DEFAULT)
+    INSTANCE_FIELD, NUM_THREADS_FIELD, VERSION_FIELD, PARENT_FIELD, LOG_FILE_FIELD)
+from db4e.Constants.Defaults import (
+    CONF_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, LOG_DIR_DEFAULT)
 from db4e.Constants.Labels import XMRIG_LABEL
 from db4e.Modules.Components import (
-    ConfigFile, Instance, Local, NumThreads, Parent, Version)
+    ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
 
 
 class XMRig(LocalSoftwareSystem):
@@ -34,6 +35,7 @@ class XMRig(LocalSoftwareSystem):
 
         self.add_component(CONFIG_FILE_FIELD, ConfigFile())
         self.add_component(INSTANCE_FIELD, Instance())
+        self.add_component(LOG_FILE_FIELD, LogFile())
         self.add_component(REMOTE_FIELD, Local())
         self.add_component(NUM_THREADS_FIELD, NumThreads())
         self.add_component(VERSION_FIELD, Version())
@@ -41,10 +43,11 @@ class XMRig(LocalSoftwareSystem):
 
         self.config_file = self.components[CONFIG_FILE_FIELD]
         self.instance = self.components[INSTANCE_FIELD]
+        self.log_file = self.components[LOG_FILE_FIELD]
         self.num_threads = self.components[NUM_THREADS_FIELD]
         self.parent = self.components[PARENT_FIELD]
         self.version = self.components[VERSION_FIELD]
-        self.version.value = XMRIG_VERSION_DEFAULT
+        self.version(XMRIG_VERSION_DEFAULT)
         self._instance_map = {}
         self.p2pool = None
 
@@ -53,10 +56,13 @@ class XMRig(LocalSoftwareSystem):
   
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
-        # Generate a XMRig configuration file
-
+        # XMRig configuration file
         fq_config = os.path.join(
             vendor_dir, XMRIG_FIELD, CONF_DIR_DEFAULT, self.instance.value + '.json')
+        
+        # XMRig log file
+        fq_log = os.path.join(
+            vendor_dir, XMRIG_FIELD, LOG_DIR_DEFAULT, self.instance() + '.log')
 
         # Generate a URL:Port field for the config
         url_entry = self.p2pool.ip_addr()  + ':' + self.p2pool.stratum_port()
@@ -65,7 +71,8 @@ class XMRig(LocalSoftwareSystem):
         placeholders = {
             'MINER_NAME': self.instance(),
             'NUM_THREADS': ','.join(['-1'] * int(self.num_threads())),
-            'URL': url_entry
+            'URL': url_entry,
+            'LOG_FILE': fq_log,
         }
         with open(tmpl_file, 'r') as f:
             config_contents = f.read()
@@ -76,7 +83,7 @@ class XMRig(LocalSoftwareSystem):
         # Write the config to file
         with open(fq_config, 'w') as f:
             f.write(final_config)
-        self.config_file.value = fq_config
+        self.config_file(fq_config)
     
 
     def instance_map(self, map=None):
