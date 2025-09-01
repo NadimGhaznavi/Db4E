@@ -37,10 +37,11 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.Db4ESystemD import Db4ESystemD
 from db4e.Constants.Defaults import (
-    TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, DB4E_LOG_FILE_DEFAULT)
+    TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, 
+    DB4E_LOG_FILE_DEFAULT, CONF_DIR_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, XMRIG_FIELD,
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD)
+    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD, MONEROD_FIELD)
 from db4e.Constants.Jobs import DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD
 
 POLL_INTERVAL = 5
@@ -58,7 +59,7 @@ class Db4eServer:
         self.depl_mgr = DeploymentMgr()
 
         # Get a systemd object
-        self.systemd = Db4ESystemD(DB4E_FIELD)
+        self.systemd = Db4ESystemD()
 
         # Get a db manager
         self.db = DbMgr()
@@ -88,7 +89,7 @@ class Db4eServer:
                 continue # We conly control the local deployments and Db4E is never started/stoped here
 
             print(f"Db4eServer:check_deployments(): {depl}")
-            if depl is not None and depl.enabled():
+            if depl.enabled():
                 self.ensure_running(depl)
             else:
                 self.ensure_stopped(depl)
@@ -118,7 +119,6 @@ class Db4eServer:
                 self.update(job=job)
 
 
-
     def delete(self, job: Job):
         elem_type = job.elem_type()
         instance = job.instance()
@@ -145,6 +145,17 @@ class Db4eServer:
             self.depl_mgr.del_deployment(elem)
             job.msg("Deleted")
             self.job_queue.complete_job(job=job)
+        elif type(elem) == MoneroD:
+            self.ensure_stopped(elem)
+            self.depl_mgr.del_deployment(elem)
+            vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
+            monerod_dir = MONEROD_FIELD + '-' + elem.version()
+            conf_file = elem.config_file()
+            os.remove(conf_file)
+            rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
+            self.depl_mgr.del_deployment(elem)  
+            job.msg("Deleted")
+            self.job_queue.complete_job(job=job)
     
 
     def disable(self, job: Job):
@@ -163,12 +174,9 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        print(f"server:enabled(): 1. {elem.enabled()}")
         job.msg(f"Enabled instance: {instance}")
         elem.enable()
         self.depl_mgr.update_deployment(elem)
-        elem2 = self.depl_mgr.get_deployment(elem_type, instance)
-        print(f"server:enabled(): 4. {elem2.enabled()}")
         self.job_queue.complete_job(job)
 
 
@@ -176,14 +184,20 @@ class Db4eServer:
         # Check if the deployment service is running, start it if it's not
         print(f"Db4eServer:ensure_running(): {elem}")
         sd = self.systemd
-        if type(elem) == XMRig:
+        if type(elem) == MoneroD:
             instance = elem.instance()
-            sd.service_name('xmrig@' + instance)
+            sd.service_name('monerod@' + instance)
         elif type(elem) == P2Pool:
             instance = elem.instance()
             sd.service_name('p2pool@' + instance)
+        elif type(elem) == XMRig:
+            instance = elem.instance()
+            sd.service_name('xmrig@' + instance)
+        else:
+            raise ValueError(f"Unknown deployment type: {elem}")
             
         if not sd.active():
+            print(f"Db4eServer:ensure_running(): {elem} is stopped")
             rc = sd.start()
             if rc == 0:
                 self.log.critical(f'Started {elem}')
@@ -194,15 +208,20 @@ class Db4eServer:
     def ensure_stopped(self, elem):
         print(f"Db4eServer:ensure_stopped(): {elem}")
         sd = self.systemd
-        if type(elem) == XMRig:
+        if type(elem) == MoneroD:
             instance = elem.instance()
-            sd.service_name('xmrig@' + instance)
+            sd.service_name('monerod@' + instance)
         elif type(elem) == P2Pool:
             instance = elem.instance()
             sd.service_name('p2pool@' + instance)
+        elif type(elem) == XMRig:
+            instance = elem.instance()
+            sd.service_name('xmrig@' + instance)
+        else:
+            raise ValueError(f"Unknown deployment type: {elem}")
 
-        print(f"Db4eServer:ensure_stopped(): sd.active(): {sd.active()}")
         if sd.active():
+            print(f"Db4eServer:ensure_stopped(): {elem} is running")
             rc = sd.stop()
             if rc == 0:
                 self.log.critical(f'Stopped {elem}')
@@ -227,8 +246,6 @@ class Db4eServer:
             self.check_deployments()
             self.check_jobs()
             time.sleep(POLL_INTERVAL)
-
-        self.cleanup()
 
 
     def update(self, job):

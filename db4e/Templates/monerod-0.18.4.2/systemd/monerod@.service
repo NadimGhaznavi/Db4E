@@ -11,20 +11,20 @@
 #####################################################################
 
 [Unit]
-Description=Monero Daemon Full Blockchain Node
+Description=Monero Daemon instance %i
 After=network.target
 Wants=network.target
-Requires=monerod%i.socket
+Requires=monerod@%i.socket
 
 [Service]
 User=[[DB4E_USER]]
 Group=[[DB4E_GROUP]]
 StandardInput=socket
-Sockets=monerod%i.socket
+Sockets=monerod@%i.socket
 WorkingDirectory=[[MONEROD_DIR]]
 Type=simple
 Restart=always
-ExecStart=[[MONEROD_DIR]]/bin/start-monerod.sh
+ExecStart=[[MONEROD_DIR]]/bin/start-monerod.sh [[MONEROD_DIR]]/conf/%i.ini
 TimeoutStopSec=60
 StandardOutput=journal
 StandardError=journal

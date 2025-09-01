@@ -58,7 +58,7 @@ class XMRig(LocalSoftwareSystem):
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # XMRig configuration file
         fq_config = os.path.join(
-            vendor_dir, XMRIG_FIELD, CONF_DIR_DEFAULT, self.instance.value + '.json')
+            vendor_dir, XMRIG_FIELD, CONF_DIR_DEFAULT, self.instance() + '.json')
         
         # XMRig log file
         fq_log = os.path.join(

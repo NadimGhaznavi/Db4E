@@ -19,7 +19,7 @@ TIMEOUT = 30
 
 class Db4ESystemD:
 
-    def __init__(self, service_name):
+    def __init__(self, service_name=None):
         # Make sure systemd doesn't clutter the output with color codes or use a pager
         os.environ['SYSTEMD_COLORS'] = '0'
         os.environ['SYSTEMD_PAGER'] = ''
@@ -30,7 +30,10 @@ class Db4ESystemD:
             'raw_stdout': '',
             'raw_stderr': ''
         }
-        self._service_name = service_name
+        if service_name:
+            self._service_name = service_name
+        else:
+            self._service_name = None
         self.status()
 
     def active(self):

@@ -11,7 +11,7 @@ A class representing the deployment of Db4E
 """
 import os, grp, getpass
 
-from db4e.Modules.SoftwareSystem import SoftwareSystem
+from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import (
     DonationWallet, Db4eGroup, InstallDir, Db4eUser, ObjectId, UserWallet, VendorDir)
 from db4e.Constants.Fields import (
@@ -21,7 +21,7 @@ from db4e.Constants.Labels import (DB4E_LABEL)
 from db4e.Constants.Defaults import (DONATION_WALLET_DEFAULT)
 
 
-class Db4E(SoftwareSystem):
+class Db4E(LocalSoftwareSystem):
 
 
     def __init__(self, rec=None):
@@ -47,6 +47,7 @@ class Db4E(SoftwareSystem):
         self.donation_wallet.value = DONATION_WALLET_DEFAULT
         self.set_effective_identity()
         self.set_install_dir()
+        self.enable()
 
         if rec:
             self.from_rec(rec)

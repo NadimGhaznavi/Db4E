@@ -97,6 +97,13 @@ Tree {
     width: 100%;
     height: 7; }
 
+.form_16 {
+    padding: 0 2;
+    color: #31b8e6;
+    border: round #0c323e;
+    width: 100%;
+    height: 18; }
+
 /* A central informational box */
 .info_msg {
     padding: 0 2;
@@ -145,7 +152,7 @@ Tree {
     color: #31b8e6;
     text-style: bold;
     padding: 0 1;
-    width: 25; }
+    width: 30; }
 
 
 /* Health Box */

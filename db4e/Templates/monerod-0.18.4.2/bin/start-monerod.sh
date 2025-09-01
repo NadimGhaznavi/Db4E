@@ -38,13 +38,6 @@ else
 	exit 1
 fi
 
-# Set the log name for monerod
-LOG_DIR=${MONERO_DIR}/logs
-if [ ! -d ${LOG_DIR} ]; then
-	mkdir $LOG_DIR
-fi
-LOG_FILE="${LOG_DIR}/${LOG_NAME}"
-
 # Make sure the blockchain directory exists
 if [ ! -d ${DATA_DIR} ]; then
 	mkdir -p ${DATA_DIR}

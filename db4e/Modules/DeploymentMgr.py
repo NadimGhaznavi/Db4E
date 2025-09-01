@@ -26,7 +26,7 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import (
-    MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL,
+    MONEROD_LABEL, MONEROD_REMOTE_LABEL, P2POOL_LABEL, MONEROD_SHORT_LABEL,
     USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_SHORT_LABEL, P2POOL_SHORT_LABEL)
 from db4e.Constants.Fields import (
     PYTHON_FIELD, DB4E_FIELD, ERROR_FIELD,
@@ -36,7 +36,8 @@ from db4e.Constants.Fields import (
     DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD)
 from db4e.Constants.Defaults import (
     BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
-    CONF_DIR_DEFAULT, API_DIR_DEFAULT, LOG_DIR_DEFAULT, RUN_DIR_DEFAULT)
+    CONF_DIR_DEFAULT, API_DIR_DEFAULT, LOG_DIR_DEFAULT, RUN_DIR_DEFAULT, 
+    BLOCKCHAIN_DIR_DEFAULT, MONEROD_VERSION_DEFAULT)
 
 
 class DeploymentMgr(Container):
@@ -85,8 +86,69 @@ class DeploymentMgr(Container):
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
         #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
-        monerod.msg(MONEROD_REMOTE_LABEL, WARN_FIELD,
-            f"🚧 {MONEROD_REMOTE_FIELD} deployment coming soon 🚧")
+        update = True
+        if not monerod.instance():
+            update = False
+
+        if not monerod.in_peers():
+            update = False
+
+        if not monerod.out_peers():
+            update = False
+
+        if not monerod.p2p_bind_port():
+            update = False
+
+        if not monerod.rpc_bind_port():
+            update = False
+
+        if not monerod.zmq_pub_port():
+            update = False
+
+        if not monerod.zmq_rpc_port():
+            update = False
+
+        if not monerod.log_level():
+            update = False
+
+        if not monerod.max_log_files():
+            update = False
+
+        if not monerod.max_log_size():
+            update = False
+
+        if not monerod.priority_node_1():
+            update = False
+
+        if not monerod.priority_port_1():
+            update = False
+
+        if not monerod.priority_node_2():
+            update = False
+
+        if not monerod.priority_port_2():
+            update = False
+
+        if update:
+            monerod.ip_addr(socket.gethostname())
+            tmpl_dir = self.get_dir(TEMPLATE_FIELD)
+            vendor_dir = self.get_dir(VENDOR_DIR_FIELD)
+            monerod_dir = MONEROD_FIELD + '-' + monerod.version()
+            tmpl_file = os.path.join(tmpl_dir, monerod_dir, CONF_DIR_DEFAULT, 'monerod.ini')
+            monerod.data_dir(os.path.join(vendor_dir, BLOCKCHAIN_DIR_DEFAULT))
+            monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            monerod.log_file(
+                os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
+                             LOG_DIR_DEFAULT, 'monerod.log'))
+            self.insert_one(monerod)
+            os.makedirs(os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
+                                   LOG_DIR_DEFAULT))
+            os.makedirs(os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
+                                   RUN_DIR_DEFAULT))
+            job = Job(op=NEW_FIELD, elem_type=MONEROD_FIELD, instance=monerod.instance())
+            job.msg("Created new MoneroD deployment")
+            self.job_queue.post_completed_job(job)
+        
         return monerod
 
 
@@ -150,14 +212,21 @@ class DeploymentMgr(Container):
             tmpl_dir = self.get_dir(TEMPLATE_FIELD)
             vendor_dir = self.get_dir(VENDOR_DIR_FIELD)
             p2pool_dir = P2POOL_FIELD + '-' + p2pool.version()
-            tmpl_file = os.path.join(tmpl_dir, p2pool_dir, CONF_DIR_DEFAULT, 'p2pool.ini')
+            tmpl_file = os.path.join(
+                tmpl_dir, p2pool_dir, CONF_DIR_DEFAULT, 'p2pool.ini')
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            p2pool.log_file(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), LOG_DIR_DEFAULT, 'p2pool.log'))
+            p2pool.log_file(
+                os.path.join(
+                    vendor_dir, p2pool_dir, p2pool.instance(), 
+                    LOG_DIR_DEFAULT, 'p2pool.log'))
             self.insert_one(p2pool)
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
+                                     LOG_DIR_DEFAULT), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
+                                     RUN_DIR_DEFAULT), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
+                                     API_DIR_DEFAULT), exist_ok=True)
             job = Job(op=NEW_FIELD, elem_type=P2POOL_FIELD, instance=p2pool.instance())
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), LOG_DIR_DEFAULT), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), RUN_DIR_DEFAULT), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), API_DIR_DEFAULT), exist_ok=True)
             job.msg("Created new P2Pool deployment")
             self.job_queue.post_completed_job(job)
         return p2pool
@@ -434,7 +503,116 @@ class DeploymentMgr(Container):
 
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
-        pass
+        update = False
+
+        monerod = self.db_cache.get_deployment(MONEROD_FIELD, new_monerod.instance())
+        if not monerod:
+            raise ValueError(f"DeploymentMgr:update_monerod_deployment(): " \
+                             f"No monerod found for {new_monerod}")
+        
+        if monerod.enabled() != new_monerod.enabled():
+            # This is an enable/disable operation
+            if monerod.enabled():
+                monerod.disable()
+            else:
+                monerod.enable()
+            update = True
+
+        else:
+            # This is an update op
+
+            # Instance
+            if monerod.instance != new_monerod.instance:
+                monerod.instance(new_monerod.instance())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
+                update = True
+
+            # In Peers
+            if monerod.in_peers != new_monerod.in_peers:
+                monerod.in_peers(new_monerod.in_peers())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated in peers")
+                update = True
+
+            # Out Peers
+            if monerod.out_peers != new_monerod.out_peers:
+                monerod.out_peers(new_monerod.out_peers())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated out peers")
+                update = True
+
+            # P2P Bind Port
+            if monerod.p2p_bind_port != new_monerod.p2p_bind_port:
+                monerod.p2p_bind_port(new_monerod.p2p_bind_port())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated P2P bind port")
+                update = True
+
+            # RPC Bind Port
+            if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+                monerod.rpc_bind_port(new_monerod.rpc_bind_port())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated RPC port")
+                update = True
+
+            # ZMQ Pub Port
+            if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+                monerod.zmq_pub_port(new_monerod.zmq_pub_port())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated ZMQ port")
+                update = True
+
+            # ZMQ RPC Port
+            if monerod.zmq_rpc_port != new_monerod.zmq_rpc_port:
+                monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated ZMQ RPC port")
+                update = True
+
+            # Log Level
+            if monerod.log_level != new_monerod.log_level:
+                monerod.log_level(new_monerod.log_level())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated log level")
+                update = True
+
+            # Max Log Files
+            if monerod.max_log_files != new_monerod.max_log_files:
+                monerod.max_log_files(new_monerod.max_log_files())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated max log files")
+                update = True
+
+            # Max Log Size
+            if monerod.max_log_size != new_monerod.max_log_size:
+                monerod.max_log_size(new_monerod.max_log_size())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated max log size")
+                update = True
+            
+            # Priority Node 1 hostname
+            if monerod.priority_node_1 != new_monerod.priority_node_1:
+                monerod.priority_node_1(new_monerod.priority_node_1())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority node 1")
+                update = True
+
+            # Priority Port 1
+            if monerod.priority_port_1 != new_monerod.priority_port_1:
+                monerod.priority_port_1(new_monerod.priority_port_1())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority port 1")
+                update = True
+
+            # Priority Node 2 hostname
+            if monerod.priority_node_2 != new_monerod.priority_node_2:
+                monerod.priority_node_2(new_monerod.priority_node_2())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority node 2")
+                update = True
+
+            # Priority Port 2
+            if monerod.priority_port_2 != new_monerod.priority_port_2:
+                monerod.priority_port_2(new_monerod.priority_port_2())
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority port 2")
+                update = True
+
+        if update:
+            self.update_one(monerod)
+        else:
+            monerod.msg(MONEROD_SHORT_LABEL, WARN_FIELD, "Nothing to update")
+            
+        return monerod
+
+
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
@@ -498,7 +676,7 @@ class DeploymentMgr(Container):
         p2pool = self.db_cache.get_deployment(P2POOL_FIELD, new_p2pool.instance())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
-                             f"Nothing found for {new_p2pool.id()}")
+                             f"Nothing found for {new_p2pool}")
 
         if p2pool.enabled() != new_p2pool.enabled():
             # This is an enable/disable operation
@@ -509,7 +687,7 @@ class DeploymentMgr(Container):
             update = True
 
         else:
-            # User clicked "update", do a field-by-field comparison
+            # This is an update op
             
             # Instance
             if p2pool.instance != new_p2pool.instance:
@@ -555,6 +733,8 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(p2pool)
+        else:
+            p2pool.msg(P2POOL_SHORT_LABEL, WARN_FIELD, "Nothing to update")
 
         return p2pool
 

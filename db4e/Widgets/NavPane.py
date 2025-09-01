@@ -90,10 +90,10 @@ class NavPane(Container):
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
-        # Metrics Tree
+        # Placeholder for metrics Tree
+        #self.metrics = Label()
         self.metrics = Tree(f"{ICON[MET]} {METRICS_LABEL}")
-        self.metrics.guide_depth = 3
-        self.metrics.root.expand()
+
 
         # Current state data from Mongo
         self.monerod_recs = None
@@ -285,7 +285,6 @@ class NavPane(Container):
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
         self.depls.root.remove_children()
-        self.metrics.root.remove_children()
         
         if not self.is_initialized():
             self.depls.root.add_leaf(
@@ -293,6 +292,10 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DONATIONS_LABEL}", data=DONATIONS_LABEL)
             return
+
+        self.metrics.root.remove_children()
+        self.metrics.guide_depth = 3
+        self.metrics.root.expand()
         
         self.depls.root.add_leaf(
             f"{ICON[CORE]} {DB4E_LABEL}", data=DB4E_LABEL)
@@ -333,8 +336,9 @@ class NavPane(Container):
             f"{ICON[MON]} {MONEROD_SHORT_LABEL}", data=MONEROD_SHORT_LABEL, expand=True)
         for monerod in monerods_list:
             if not monerod.remote():
-                monerod_metrics.add(
+                instance_branch = monerod_metrics.add(
                     f"{ICON[MON]} {monerod.instance()}", data=monerod.instance(), expand=True)
+                instance_branch.add_leaf(f"{ICON[LOG]} {LOG_FILE_LABEL}", data=LOG_FILE_LABEL)
 
         p2pool_metrics = self.metrics.root.add(
             f"{ICON[P2P]} {P2POOL_SHORT_LABEL}", data=P2POOL_SHORT_LABEL, expand=True)
@@ -356,6 +360,8 @@ class NavPane(Container):
 
         # Add Donations link
         self.metrics.root.add_leaf(f"{ICON[GIFT]} {DONATIONS_LABEL}", data=DONATIONS_LABEL)
+
+        
 
 
     def set_initialized(self):
