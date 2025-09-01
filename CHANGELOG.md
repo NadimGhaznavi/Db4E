@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated constructor for `Modules/Db4ESystemD`
 - Switched the `Panes/LogViewer` to use native Textual Log widget
-- Upgraded the bundled `P2Pool` to v4.9.1
 - Upgraded the bundled `Monerod` to v0.18.4.2
 
 ### Fixed
