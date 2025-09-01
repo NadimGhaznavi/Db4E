@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[Unreleased]
+
+### Added
+- Additional `Constants/Defaults` and `Constants/Fields`
+- Minor additions to the `Db4E.tcss` for styling
+- Support for local *Monero Daemon* deployments in the `Modules/DeploymentMgr`
+- Fleshed out the `Modules/MoneroD` class
+- Created a form in the `Panes/MoneroDPane`
+
+### Changed
+- Updated constructor for `Modules/Db4ESystemD`
+- Switched the `Panes/LogViewer` to use native Textual Log widget
+- Upgraded the bundled `P2Pool` to v4.9.1
+- Upgraded the bundled `Monerod` to v0.18.4.2
+
+### Fixed
+- A bug in the `Panes/LogViewer` that cause lockups and app freezes
+
+---
+
 ## [0.32.0] - 2025-08-31
 
 ### Added
