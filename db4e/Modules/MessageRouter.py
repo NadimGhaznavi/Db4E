@@ -31,7 +31,7 @@ from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, WELCOME_PANE, TUI_LOG_PANE, LOG_VIEW_PANE,
     P2POOL_PANE, P2POOL_REMOTE_PANE, P2POOL_TYPE_PANE, XMRIG_PANE, RESULTS_PANE)
 from db4e.Constants.Labels import (
-    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
+    LOG_FILE_LABEL)
 
 
 class MessageRouter:
@@ -139,11 +139,11 @@ class MessageRouter:
 
 
         # Log Viewer
-        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, MONEROD_SHORT_LABEL,
+        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, MONEROD_FIELD,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
-        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, P2POOL_SHORT_LABEL,
+        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, P2POOL_FIELD,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
-        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, XMRIG_SHORT_LABEL,
+        self.register(OPS_MGR_FIELD, LOG_VIEWER_FIELD, XMRIG_FIELD,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
 
         # TUI Log

@@ -17,7 +17,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_LABEL_FIELD, FORM_INPUT_40_FIELD,
+    FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_LABEL_FIELD, FORM_INPUT_30_FIELD,
     STATIC_CONTENT_FIELD, FORM_2_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
     FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
     P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
@@ -45,22 +45,22 @@ class P2PoolPane(Container):
     config_label = Label("", classes=STATIC_CONTENT_FIELD)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
 
     health_msgs = Label()
 

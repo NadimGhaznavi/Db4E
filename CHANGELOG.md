@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]
+## [Unreleased]
+
+### Added
+- Added local *Monero Daemon* health checks to `Modules/HealthMgr`
+- Added local *Monoro Dameon* logs to the TUI
+
+### Changed
+- Merged the *Metrics* and *Deployments* trees in the `Widgets/NavPane`
+- Upgraded bundled XMRig to v0.24.0
+- Replaced custom compiled *Monero Daemon* with a more portable version from GetMonero.org
+- Upgraded backend Textual from 4.0.0 to 6.0.0
+
+### Fixed
+- Paths to P2Pool.socket in the systemd configuration file were corrected
+- Fixed crashes caused by upstream components being deleted
+
+---
+
+## [0.33.0] - 2025-09-01
 
 ### Added
 - Additional `Constants/Defaults` and `Constants/Fields`

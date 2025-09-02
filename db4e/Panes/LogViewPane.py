@@ -63,7 +63,10 @@ class LogViewPane(Container):
         self.log_widget.write_lines(old_lines)
 
         self.header.update(f"[b]Log File:[/] {elem.log_file()}")
-        initial_size = os.path.getsize(elem.log_file())
+        if os.path.exists(elem.log_file()):
+            initial_size = os.path.getsize(elem.log_file())
+        else:
+            initial_size = 0
         self.run_worker(self.watch_log(elem.log_file(), last_size=initial_size), exclusive=True)
 
 

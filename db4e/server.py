@@ -76,7 +76,6 @@ class Db4eServer:
 
         # Get a JobQueue
         self.job_queue = JobQueue(db=self.db, log=self.log)
-
         self.running = threading.Event()
         self.running.set()
 
@@ -86,7 +85,7 @@ class Db4eServer:
         for depl in depls:
             depl_type = type(depl)
             if depl_type == Db4E or depl_type == MoneroDRemote or depl_type == P2PoolRemote:
-                continue # We conly control the local deployments and Db4E is never started/stoped here
+                continue 
 
             print(f"Db4eServer:check_deployments(): {depl}")
             if depl.enabled():
@@ -242,7 +241,7 @@ class Db4eServer:
         count = 0
         while self.running.is_set:
             count += 1
-            self.log.debug(f"Ticking... {count}...")
+            self.log.debug(f"Ticking...                                  {count}...")
             self.check_deployments()
             self.check_jobs()
             time.sleep(POLL_INTERVAL)

@@ -29,7 +29,6 @@ from db4e.Constants.Defaults import (
     MONEROD_VERSION_DEFAULT, CONF_DIR_DEFAULT, LOG_DIR_DEFAULT)
 
 
-
 class MoneroD(LocalSoftwareSystem):
 
 

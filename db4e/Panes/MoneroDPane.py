@@ -15,7 +15,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
-    PANE_BOX_FIELD, FORM_INPUT_40_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, 
+    PANE_BOX_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD, 
     STATIC_CONTENT_FIELD, HEALTH_BOX_FIELD, NEW_FIELD, ENABLE_FIELD, DISABLE_FIELD,
     ELEMENT_TYPE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, ELEMENT_FIELD,
     MONEROD_FIELD, ADD_DEPLOYMENT_FIELD, OPS_MGR_FIELD, INSTANCE_FIELD,
@@ -44,46 +44,46 @@ class MoneroDPane(Container):
 
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     max_log_files_input = Input(
         id="max_log_files_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     max_log_size_input = Input(
         id="max_log_size_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     priority_node_1_input = Input(
         id="priority_node_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     priority_port_1_input = Input(
         id="priority_port_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     priority_node_2_input = Input(
         id="priority_node_2_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     priority_port_2_input = Input(
         id="priority_port_2_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     zmq_pub_port_input = Input(
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
     zmq_rpc_port_input = Input(
         compact=True, id="zmq_rpc_port_input", restrict=f"[0-9]*",
-        classes=FORM_INPUT_40_FIELD)
+        classes=FORM_INPUT_30_FIELD)
 
     health_msgs = Label()
 

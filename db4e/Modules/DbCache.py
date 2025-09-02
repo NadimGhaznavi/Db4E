@@ -77,7 +77,8 @@ class DbCache:
                     elem.from_rec(rec)   # you'd need to implement this
                     if elem_type == XMRIG_FIELD:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
-                        self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
+                        if elem.p2pool:
+                            self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
                     elif elem_type == P2POOL_FIELD:
                         elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
@@ -175,12 +176,9 @@ class DbCache:
                 return deepcopy(self.monerod_map.get(instance))
                     
             elif elem_type == P2POOL_FIELD or elem_type == P2POOL_REMOTE_FIELD:
-                print(f"DbCache:get_deployment(): instance: {instance}")
                 p2pool = self.p2pool_map.get(instance)
                 if type(p2pool) == P2Pool:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
-                print(f"DbCache:get_deployment(): map: {self.p2pool_map}")
-                print(f"DbCache:get_deployment(): p2pool: {p2pool}")
                 return deepcopy(p2pool)
                     
             elif elem_type == XMRIG_FIELD:

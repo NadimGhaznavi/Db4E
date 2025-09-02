@@ -25,7 +25,10 @@ from db4e.Constants.Labels import(
     CONFIG_LABEL, P2POOL_LABEL, RPC_BIND_PORT_LABEL, STRATUM_PORT_LABEL, 
     ZMQ_PUB_PORT_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, XMRIG_LABEL,
     INSTANCE_LABEL, IP_ADDR_LABEL, MONEROD_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
-    P2P_BIND_PORT_LABEL, STRATUM_PORT_LABEL, LOG_LEVEL_LABEL, PARENT_LABEL)
+    P2P_BIND_PORT_LABEL, STRATUM_PORT_LABEL, LOG_LEVEL_LABEL, PARENT_LABEL,
+    MAX_LOG_FILES_LABEL, MAX_LOG_SIZE_LABEL, ZMQ_RPC_PORT_LABEL,
+    PRIORITY_NODE_1_LABEL, PRIORITY_PORT_1_LABEL, PRIORITY_NODE_2_LABEL, 
+    PRIORITY_PORT_2_LABEL)
 
 class HealthMgr:
 
@@ -70,8 +73,103 @@ class HealthMgr:
 
 
     def check_monerod(self, monerod: MoneroD) -> MoneroD:
-        # TODO
+        missing_field = False
+        if not monerod.instance():
+            monerod.msg(INSTANCE_LABEL, ERROR_FIELD, f"{INSTANCE_LABEL} missing")
+            missing_field = True
+
+        if not monerod.in_peers():
+            monerod.msg(IN_PEERS_LABEL, ERROR_FIELD, f"{IN_PEERS_LABEL} missing")
+            missing_field = True
+
+        if not monerod.out_peers():
+            monerod.msg(OUT_PEERS_LABEL, ERROR_FIELD, f"{OUT_PEERS_LABEL} missing")
+            missing_field = True
+
+        if not monerod.p2p_bind_port():
+            monerod.msg(P2P_BIND_PORT_LABEL, ERROR_FIELD, f"{P2P_BIND_PORT_LABEL} missing")
+            missing_field = True
+
+        if not monerod.rpc_bind_port():
+            monerod.msg(RPC_BIND_PORT_LABEL, ERROR_FIELD, f"{RPC_BIND_PORT_LABEL} missing")
+            missing_field = True
+
+        if not monerod.zmq_pub_port():
+            monerod.msg(ZMQ_PUB_PORT_LABEL, ERROR_FIELD, f"{ZMQ_PUB_PORT_LABEL} missing")
+            missing_field = True
+
+        if not monerod.zmq_rpc_port():
+            monerod.msg(ZMQ_RPC_PORT_LABEL, ERROR_FIELD, f"{ZMQ_RPC_PORT_LABEL} missing")
+            missing_field = True
+
+        if not monerod.log_level():
+            monerod.msg(LOG_LEVEL_LABEL, ERROR_FIELD, f"{LOG_LEVEL_LABEL} missing")
+            missing_field = True
+
+        if not monerod.max_log_files():
+            monerod.msg(MAX_LOG_FILES_LABEL, ERROR_FIELD, f"{MAX_LOG_FILES_LABEL} missing")
+            missing_field = True
+
+        if not monerod.max_log_size():
+            monerod.msg(MAX_LOG_SIZE_LABEL, ERROR_FIELD, f"{MAX_LOG_SIZE_LABEL} missing")
+            missing_field = True
+
+        if not monerod.priority_node_1():
+            monerod.msg(PRIORITY_NODE_1_LABEL, ERROR_FIELD, f"{PRIORITY_NODE_1_LABEL} missing")
+            missing_field = True
+
+        if not monerod.priority_port_1():
+            monerod.msg(PRIORITY_PORT_1_LABEL, ERROR_FIELD, f"{PRIORITY_PORT_1_LABEL} missing")
+            missing_field = True
+
+        if not monerod.priority_node_2():
+            monerod.msg(PRIORITY_NODE_2_LABEL, ERROR_FIELD, f"{PRIORITY_NODE_2_LABEL} missing")
+            missing_field = True
+
+        if not monerod.priority_port_2():
+            monerod.msg(PRIORITY_PORT_2_LABEL, ERROR_FIELD, f"{PRIORITY_PORT_2_LABEL} missing")
+            missing_field = True
+
+        if missing_field:
+            return monerod
+
+        if self.is_port_open(monerod.ip_addr(), monerod.p2p_bind_port()):
+            monerod.msg(P2P_BIND_PORT_LABEL, GOOD_FIELD,
+                        f"Connection to {P2P_BIND_PORT_LABEL} successful")
+        else:
+            monerod.msg(P2P_BIND_PORT_LABEL, WARN_FIELD,
+                        f"Connection to {P2P_BIND_PORT_LABEL} failed")
+
+        if self.is_port_open(monerod.ip_addr(), monerod.rpc_bind_port()):
+            monerod.msg(RPC_BIND_PORT_LABEL, GOOD_FIELD,
+                        f"Connection to {RPC_BIND_PORT_LABEL} successful")
+        else:
+            monerod.msg(RPC_BIND_PORT_LABEL, WARN_FIELD,
+                        f"Connection to {RPC_BIND_PORT_LABEL} failed")
+
+        if self.is_port_open(monerod.ip_addr(), monerod.zmq_pub_port()):
+            monerod.msg(ZMQ_PUB_PORT_LABEL, GOOD_FIELD,
+                        f"Connection to {ZMQ_PUB_PORT_LABEL} successful")
+        else:
+            monerod.msg(ZMQ_PUB_PORT_LABEL, WARN_FIELD,
+                        f"Connection to {ZMQ_PUB_PORT_LABEL} failed")
+
+        if self.is_port_open(monerod.ip_addr(), monerod.zmq_rpc_port()):
+            monerod.msg(ZMQ_RPC_PORT_LABEL, GOOD_FIELD,
+                        f"Connection to {ZMQ_RPC_PORT_LABEL} successful")
+        else:
+            monerod.msg(ZMQ_RPC_PORT_LABEL, WARN_FIELD,
+                        f"Connection to {ZMQ_RPC_PORT_LABEL} failed")
+
+        if monerod.enabled():
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD,
+                        f"{MONEROD_LABEL} ({monerod.instance.value}) is enabled")
+        else:
+            monerod.msg(MONEROD_LABEL, WARN_FIELD,
+                        f"{MONEROD_LABEL} ({monerod.instance.value}) is disabled")
+
         return monerod
+
 
     def check_monerod_remote(self, monerod: MoneroDRemote) -> MoneroDRemote:
         #print(f"HealthMgr:check_monerod_remote(): rec: {rec}")
@@ -150,13 +248,6 @@ class HealthMgr:
         if missing_field:
             return p2pool
         
-        if self.is_port_open(p2pool.ip_addr(), p2pool.p2p_bind_port()):
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
-                       f"Connection to {P2P_BIND_PORT_LABEL} successful")
-        else:
-            p2pool.msg(P2POOL_LABEL, WARN_FIELD,
-                       f"Connection to {P2P_BIND_PORT_LABEL} failed")
-            
         if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
                        f"Connection to {STRATUM_PORT_LABEL} successful")
@@ -235,7 +326,6 @@ class HealthMgr:
 
 
     def is_port_open(self, ip_addr, port_num):
-        #print(f"Helper:is_port_open(): {ip_addr}/{port_num}")
         if not self.is_valid_ip_or_hostname(ip_addr):
             return False
         try:

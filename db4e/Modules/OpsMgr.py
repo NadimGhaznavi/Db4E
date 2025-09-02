@@ -49,13 +49,14 @@ class OpsMgr:
  
    
     def get_deployment(self, elem_type, instance=None):
-        #print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")
+        print(f"OpsMgr:get_deployment(): {elem_type}/{instance}")
         if type(elem_type) == dict:
             if INSTANCE_FIELD in elem_type:
                 instance = elem_type[INSTANCE_FIELD]
             elem_type = elem_type[ELEMENT_TYPE_FIELD]
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
+
         print(f"OpsMgr:get_deployment(): {elem}")
 
         if not elem:
@@ -103,15 +104,10 @@ class OpsMgr:
 
 
     def log_viewer(self, form_data: dict):
-        elem_type_label = form_data[ELEMENT_TYPE_FIELD]
-        label_map = {
-            MONEROD_SHORT_LABEL: MONEROD_FIELD,
-            P2POOL_SHORT_LABEL: P2POOL_FIELD,
-            XMRIG_SHORT_LABEL: XMRIG_FIELD,
-        }
+        elem_type = form_data[ELEMENT_TYPE_FIELD]
         instance = form_data[INSTANCE_FIELD]
         elem = self.depl_mgr.get_deployment(
-            elem_type=label_map[elem_type_label], instance=instance)
+            elem_type=elem_type, instance=instance)
         return elem
 
 

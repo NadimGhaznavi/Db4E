@@ -144,10 +144,11 @@ class XMRigPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
         radio_set = self.query_one("#radio_set", RadioSet)
-        p2pool_instance = radio_set.pressed_button.label
-        if p2pool_instance:
-            p2pool = self.instance_map[p2pool_instance]
-            self.xmrig.parent(p2pool)
+        if radio_set.pressed_button:
+            p2pool_instance = radio_set.pressed_button.label
+            if p2pool_instance:
+                p2pool = self.instance_map[p2pool_instance]
+                self.xmrig.parent(p2pool)
         self.xmrig.instance(self.query_one("#instance_input", Input).value)
         self.xmrig.num_threads(self.query_one("#num_threads_input", Input).value)
 
