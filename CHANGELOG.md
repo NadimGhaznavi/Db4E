@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.34.0] - 2025-09-02
 
 ### Added
 - Added local *Monero Daemon* health checks to `Modules/HealthMgr`
