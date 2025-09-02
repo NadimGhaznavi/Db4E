@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merged the *Metrics* and *Deployments* trees in the `Widgets/NavPane`
-- Upgraded bundled XMRig to v0.24.0
+- Upgraded bundled XMRig to freshly compiled version v0.24.0
 - Replaced custom compiled *Monero Daemon* with a more portable version from GetMonero.org
 - Upgraded backend Textual from 4.0.0 to 6.0.0
 
