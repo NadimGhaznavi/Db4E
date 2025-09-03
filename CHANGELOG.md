@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- Added a *restart* operation to restart a local deployment when the configuration changes
+  - Automatic restart of local Monero and P2Pool deployments if the configuration changes
+  - Added a *restart* constant to `Constants/Jobs`
+  - Added `server:restart(job)` to restart a local deployment
+- Extended `DeploymentMgr:get_dir()` to return the versioned *Monero*, *P2Pool* and *XMRig* directories
+- Added a feature to disable downstream systems
+  - Added `DbCache:get_downstream()` to return downstream *P2Pool* and *XMRig* instances
+  - Added `server:disable_downstream()` to disable downstream *P2Pool* and *XMRig* instances
+  - Added supporting `DeploymentMgr:get_downstream()`
+- Added `DeploymentMgr:get_template()` to return *XMRig*, *P2Pool* and *Monero Daemon* templates
+
+### Fixed
+- Removed uneeded *run*& from the `InstallMgr:_make_p2pool_dir()`
+
+---
+
 ## [0.34.0] - 2025-09-02
 
 ### Added
@@ -22,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Paths to P2Pool.socket in the systemd configuration file were corrected
 - Fixed crashes caused by upstream components being deleted
+- Removed unneeded *run* dir for the P2Pool deployment
 
 ---
 

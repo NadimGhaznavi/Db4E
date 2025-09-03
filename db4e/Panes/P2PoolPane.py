@@ -189,13 +189,11 @@ class P2PoolPane(Container):
         if radio_set.pressed_button:
             monerod_instance = radio_set.pressed_button.label
             monerod_id = self.instance_map[monerod_instance]
-        print(f"P2PoolPane:on_button_pressed(): monerod_instance: {monerod_instance}")
         
         chain_radio_set = self.query_one("#chain_radio_set", RadioSet)
         chain = None
         if chain_radio_set.pressed_button:
             chain = chain_radio_set.pressed_button.label
-        print(f"P2PoolPane:on_button_pressed(): chain: {chain}")
             
 
         self.p2pool.parent(monerod_id)    

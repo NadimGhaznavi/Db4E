@@ -323,7 +323,7 @@ class InstallMgr(Container):
         db4e.msg(P2POOL_LABEL, GOOD_FIELD, f"Created directory ({fq_p2pool_dir})")
 
         # Create the sub directories
-        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT, RUN_DIR_DEFAULT]:
+        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT]:
             fq_sub_dir = os.path.join(fq_p2pool_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(P2POOL_LABEL, GOOD_FIELD, f"Created directory: {fq_sub_dir}")

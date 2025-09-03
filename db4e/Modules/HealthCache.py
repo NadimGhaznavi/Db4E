@@ -49,11 +49,11 @@ class HealthCache:
     
     def bg_refresh(self):
         while True:
-            time.sleep(20)
+            time.sleep(10)
             self.refresh_now[MONEROD_FIELD] = True
-            time.sleep(20)
+            time.sleep(10)
             self.refresh_now[P2POOL_FIELD] = True
-            time.sleep(20)
+            time.sleep(10)
             self.refresh_now[XMRIG_FIELD] = True
 
 

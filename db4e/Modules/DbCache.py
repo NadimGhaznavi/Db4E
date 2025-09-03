@@ -74,16 +74,21 @@ class DbCache:
                 if obj_id in self.id_map:
                     # Update existing object in-place
                     elem = self.id_map[obj_id]
-                    elem.from_rec(rec)   # you'd need to implement this
+                    elem.from_rec(rec)
+
                     if elem_type == XMRIG_FIELD:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
-                        if elem.p2pool:
+                        if type(elem.p2pool) == P2Pool or type(elem.p2pool) == P2PoolRemote:
                             self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
+                    
                     elif elem_type == P2POOL_FIELD:
                         elem.monerod = self.get_deployment_by_id(elem.parent())
-                        self.p2pool_map[elem.instance()] = elem
+                        if type(elem.monerod) == MoneroD or type(elem.monerod) == MoneroDRemote:
+                            self.monerod_map[elem.monerod.instance()] = elem.monerod
+                    
                     elif elem_type == P2POOL_REMOTE_FIELD:
                         self.p2pool_map[elem.instance()] = elem
+                    
                     elif elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
                         self.monerod_map[elem.instance()] = elem
     
@@ -110,6 +115,7 @@ class DbCache:
                         if elem.parent():
                             elem.p2pool = self.get_deployment_by_id(elem.parent())
                         self.xmrig_map[elem.instance()] = elem
+                        print(f"DbCache:build_cache(): xmrig enabled: {elem.enabled()}")
                     
                     self.id_map[obj_id] = elem
 
@@ -223,6 +229,22 @@ class DbCache:
                 for monerod in self.monerod_map.values():
                     instance_map[monerod.instance()] = monerod.id()
                 return instance_map
+
+    def get_downstream(self, elem):
+        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            p2pools = []
+            for p2pool in self.p2pool_map.values():
+                if p2pool.parent() == elem.id():
+                    p2pools.append(deepcopy(p2pool))
+            print(f"DbCache:get_downstream(): {p2pools}")
+            return p2pools
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            xmrigs = []
+            for xmrig in self.xmrig_map.values():
+                if xmrig.parent() == elem.id():
+                    xmrigs.append(deepcopy(xmrig))
+            print(f"DbCache:get_downstream(): {xmrigs}")
+            return xmrigs
 
 
     def get_monerods(self):

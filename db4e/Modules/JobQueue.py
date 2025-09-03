@@ -18,7 +18,7 @@ from db4e.Constants.Fields import (
     ELEMENT_TYPE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD, ELEMENT_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
 from db4e.Constants.Jobs import (
-    OP_FIELD, PENDING_FIELD, PROCESSING_FIELD, COMPLETED_FIELD
+    COMPLETED_FIELD, OP_FIELD, PROCESSING_FIELD
 )
 
 class JobQueue:
