@@ -88,8 +88,14 @@ class DeploymentMgr(Container):
 
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
-        #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
+        for aMonerod in self.get_monerods():
+            if aMonerod.instance() == monerod.instance():
+                msg = f"A deployment with the same name ({monerod.instance()}) already exists"
+                monerod.add_msg(MONEROD_LABEL, WARN_FIELD, msg)
+                return monerod
+
         update = True
+
         if not monerod.instance():
             update = False
 
@@ -155,7 +161,13 @@ class DeploymentMgr(Container):
 
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
-        #print(f"DeploymentMgr:add_remote_monerod_deployment(): {rec}")
+        
+        for aMonerod in self.get_monerods():
+            if aMonerod.instance() == monerod.instance():
+                msg = f"A deployment with the same name ({monerod.instance()}) already exists"
+                monerod.add_msg(MONEROD_LABEL, WARN_FIELD, msg)
+                return monerod
+            
         update = True
 
         # Check that the user actually filled out the form
@@ -183,6 +195,12 @@ class DeploymentMgr(Container):
     
 
     def add_p2pool_deployment(self, p2pool: P2Pool) -> P2Pool:
+        for aP2Pool in self.get_p2pools():
+            if aP2Pool.instance() == p2pool.instance():
+                msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
+                p2pool.add_msg(P2POOL_LABEL, WARN_FIELD, msg)
+                return p2pool
+
         update = True
 
         # Check that the user actually filled out the form
@@ -233,6 +251,12 @@ class DeploymentMgr(Container):
 
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
+        for aP2Pool in self.get_p2pools():
+            if aP2Pool.instance() == p2pool.instance():
+                msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
+                p2pool.add_msg(P2POOL_LABEL, WARN_FIELD, msg)
+                return p2pool
+
         update = True
 
         # Check that the user actually filled out the form
@@ -259,6 +283,12 @@ class DeploymentMgr(Container):
 
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
+        for aXMRig in self.get_p2pools():
+            if aXMRig.instance() == p2pool.instance():
+                msg = f"A deployment with the same name ({xmrig.instance()}) already exists"
+                xmrig.add_msg(P2POOL_LABEL, WARN_FIELD, msg)
+                return xmrig
+            
         update = True
     
         # Check that the user filled out the form

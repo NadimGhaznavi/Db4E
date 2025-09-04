@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug where the Initial install proceeded even though the vendor dir was invalid
 - Removed unnused `set_component_value()` and `gen_radio_button()` from `Modules/Helper`
 - Fixed reference bug in `DbCache/get_downstream()`
+- Enforced unique instance names
 
 ---
 
