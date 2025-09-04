@@ -18,7 +18,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
     FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_LABEL_FIELD, FORM_INPUT_30_FIELD,
-    STATIC_CONTENT_FIELD, FORM_2_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
+    STATIC_CONTENT_FIELD, FORM_1_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
     FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
     P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
     INSTANCE_FIELD, ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, OPS_MGR_FIELD)
@@ -36,6 +36,7 @@ from db4e.Constants.Jobs import (
 
 class P2PoolPane(Container):
 
+    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
     instance_map = {}
@@ -84,12 +85,9 @@ class P2PoolPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
-                        self.config_label),
-                    Horizontal(
                         Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
-                        self.instance_input),
-                    classes=FORM_2_FIELD),
+                        self.instance_input, self.instance_label),
+                    classes=FORM_1_FIELD),
 
                 Vertical(
                     self.chain_radio_set),
@@ -116,6 +114,12 @@ class P2PoolPane(Container):
                     self.radio_set),
 
                 Vertical(
+                    Horizontal(
+                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
+                        self.config_label),
+                    classes=FORM_1_FIELD),
+
+                Vertical(
                     self.health_msgs,
                     classes=HEALTH_BOX_FIELD,
                 ),
@@ -135,6 +139,7 @@ class P2PoolPane(Container):
     def set_data(self, p2pool: P2Pool):
         self.p2pool = p2pool
         self.instance_input.value = p2pool.instance()
+        self.instance_label.update(p2pool.instance())
         self.config_label.update(p2pool.config_file())
         self.in_peers_input.value = str(p2pool.in_peers())
         self.out_peers_input.value = str(p2pool.out_peers())

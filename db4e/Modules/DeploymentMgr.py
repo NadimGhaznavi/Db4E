@@ -284,7 +284,7 @@ class DeploymentMgr(Container):
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
         for aXMRig in self.get_p2pools():
-            if aXMRig.instance() == p2pool.instance():
+            if aXMRig.instance() == xmrig.instance():
                 msg = f"A deployment with the same name ({xmrig.instance()}) already exists"
                 xmrig.add_msg(P2POOL_LABEL, WARN_FIELD, msg)
                 return xmrig
@@ -873,8 +873,6 @@ class DeploymentMgr(Container):
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
 
-        #print(f"DeploymentMgr:update_p2pool_remote_deployment(): {new_p2pool.to_rec()}")
-
         p2pool = self.db_cache.get_deployment(P2POOL_REMOTE_FIELD, new_p2pool.instance())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
@@ -894,7 +892,7 @@ class DeploymentMgr(Container):
             msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
                 f"{new_p2pool.stratum_port()}"
             p2pool.stratum_port(new_p2pool.stratum_port())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,"Updated stratum port")
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, msg)
             update = True
 
         if update:
@@ -973,15 +971,6 @@ class DeploymentMgr(Container):
         else:
             # User clicked "update", do a field-by-field comparison
             job = Job(op=UPDATE_FIELD, elem_type=XMRIG_FIELD, instance=xmrig.instance())
-
-            # Instance
-            if xmrig.instance != new_xmrig.instance:
-                msg = f"Updated instance name: {xmrig.instance()} > {new_xmrig.instance()}"
-                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, msg)
-                xmrig.instance(new_xmrig.instance())
-                job.add_msg(msg)
-                update = True
-                update_config = True
 
             # Num Threads
             if xmrig.num_threads != new_xmrig.num_threads:

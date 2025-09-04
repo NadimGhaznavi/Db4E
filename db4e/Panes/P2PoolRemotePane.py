@@ -17,7 +17,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
-    FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, INSTANCE_FIELD,
+    FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, STATIC_CONTENT_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     HEALTH_BOX_FIELD, ELEMENT_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, P2POOL_REMOTE_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD)
@@ -34,6 +34,7 @@ from db4e.Constants.Jobs import (
 
 class P2PoolRemotePane(Container):
 
+    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
         classes=FORM_INPUT_30_FIELD)
@@ -61,7 +62,7 @@ class P2PoolRemotePane(Container):
                 Vertical(
                     Horizontal(
                         Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
-                        self.instance_input),
+                        self.instance_input, self.instance_label),
                     Horizontal(
                         Label(IP_ADDR_LABEL, classes=FORM_LABEL_FIELD),
                         self.ip_addr_input),
@@ -87,6 +88,7 @@ class P2PoolRemotePane(Container):
 
     def set_data(self, p2pool: P2PoolRemote):
         self.instance_input.value = p2pool.instance()
+        self.instance_label.update(p2pool.instance())
         self.ip_addr_input.value = p2pool.ip_addr()
         self.stratum_port_input.value = str(p2pool.stratum_port())
         self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))

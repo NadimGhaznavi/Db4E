@@ -25,13 +25,12 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, NEW_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_3_FIELD, FORM_INPUT_15_FIELD, DISABLE_FIELD, FORM_INTRO_FIELD,
     FORM_LABEL_FIELD, HEALTH_BOX_FIELD, ELEMENT_FIELD,
-    INSTANCE_FIELD, ENABLE_FIELD, OPS_MGR_FIELD,
-    PANE_BOX_FIELD, 
+    ENABLE_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, 
     RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD, 
     STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD, ELEMENT_TYPE_FIELD)
+    XMRIG_FIELD, ELEMENT_TYPE_FIELD)
 from db4e.Constants.Jobs import(
-    JOB_QUEUE_FIELD, OP_FIELD, POST_JOB_FIELD, DELETE_FIELD, UPDATE_FIELD
+    OP_FIELD, POST_JOB_FIELD, DELETE_FIELD, UPDATE_FIELD
 )
 from db4e.Constants.Labels import (
     CONFIG_LABEL, INSTANCE_LABEL,
@@ -40,6 +39,7 @@ from db4e.Constants.Labels import (
 
 class XMRigPane(Container):
 
+    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
     instance_map = {}
@@ -74,14 +74,14 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
-                        self.config_label),
-                    Horizontal(
                         Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
-                        self.instance_input),
+                        self.instance_input, self.instance_label),
                     Horizontal(
                         Label(NUM_THREADS_LABEL, classes=FORM_LABEL_FIELD),
                         self.num_threads_input),
+                    Horizontal(
+                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
+                        self.config_label),
                     classes=FORM_3_FIELD),
 
                 Vertical(
@@ -111,6 +111,7 @@ class XMRigPane(Container):
         #print(f"XMRig:set_data(): {xmrig}")
         self.xmrig = xmrig
         self.instance_input.value = xmrig.instance()
+        self.instance_label.update(xmrig.instance())
         self.num_threads_input.value = str(xmrig.num_threads())
         self.config_label.update(xmrig.config_file())
         
