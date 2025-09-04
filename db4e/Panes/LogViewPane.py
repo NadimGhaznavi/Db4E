@@ -24,7 +24,6 @@ class LogViewPane(Container):
 
     log_lines = reactive([], always_update=True)
     max_lines = MAX_LOG_LINES_DEFAULT
-    queue = asyncio.Queue()
     header = Label("", classes=FORM_1_FIELD)
     log_widget = Log(highlight=True, auto_scroll=True, classes=PANE_BOX_FIELD)
 

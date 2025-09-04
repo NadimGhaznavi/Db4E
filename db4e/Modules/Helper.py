@@ -111,26 +111,7 @@ def get_remote_state(data):
     return None
 
 
-def gen_radio_map(rec, depl_mgr: DeploymentMgr):
-    elem_type = rec[ELEMENT_TYPE_FIELD]
-    
-    if elem_type == XMRIG_FIELD:
-        local_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD)
-        remote_instances = depl_mgr.get_deployment_ids_and_instances(P2POOL_REMOTE_FIELD)
-        instances = local_instances + remote_instances
-        instances.sort()
-        
-        radio_set = {}
-        for (instance, id) in instances:
-            radio_set[instance] = id
-
-        return radio_set
-    
-
 def gen_results_table(results):
-    #print(f"Helper:gen_results_table(): Results list:")
-    #if not results:
-    #    return ""
     
     table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
     table.add_column("Component", width=25)
@@ -148,64 +129,10 @@ def gen_results_table(results):
     return table
 
 
-def gen_tui_log_table(job_list: list):
-    table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
-    table.add_column("Timestamp", width=20)
-    table.add_column("Status")
-    table.add_column("Operation")
-    table.add_column("Type")
-    table.add_column("Instance")
-    table.add_column("Results")
-
-    TYPE_TABLE = {
-        MONEROD_FIELD: MONEROD_SHORT_LABEL,
-        MONEROD_REMOTE_FIELD: MONEROD_SHORT_LABEL,
-        P2POOL_FIELD: P2POOL_SHORT_LABEL,
-        P2POOL_REMOTE_FIELD: P2POOL_SHORT_LABEL,
-        XMRIG_FIELD: XMRIG_SHORT_LABEL,
-    }
-
-    for job in job_list:
-        table.add_row(
-            str(job.updated_at().strftime("%Y-%m-%d %H:%M:%S")), 
-            str(job.status()),
-            str(job.op()), 
-            str(TYPE_TABLE.get(job.elem_type())), 
-            str(job.instance()),
-            str(job.msg())
-        )
-    return table
-
-
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
     assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
-
-
-def set_component_value(element, field_name, value):
-    """
-    Generic helper to set any component value by field name.
-    
-    Args:
-        element (dict): Dictionary containing components with field/value pairs
-        field_name (str): The field name to search for
-        value (any): The value to set
-        
-    Returns:
-        element (possibly updated)
-    """
-    if not isinstance(element, dict) or 'components' not in element:
-        raise ValueError("Helper:set_component_value():Invalid input")
-        
-    components = element.get(COMPONENTS_FIELD, [])
-    
-    for component in components:
-        if isinstance(component, dict) and component.get(FIELD_FIELD) == field_name:
-            component[VALUE_FIELD] = value
-            return element
-            
-    return element
 
 
 def update_component_values(rec, updates):

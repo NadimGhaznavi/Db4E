@@ -18,7 +18,7 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
     DB4E_FIELD, ELEMENT_TYPE_FIELD,
     FORM_5_FIELD, ELEMENT_FIELD, FORM_INPUT_30_FIELD, FORM_INPUT_70_FIELD,
-    FORM_INTRO_FIELD, FORM_LABEL_FIELD,
+    FORM_INTRO_FIELD, FORM_LABEL_FIELD, DEPLOYMENT_MGR_FIELD,
     HEALTH_BOX_FIELD, PANE_BOX_FIELD,
     STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD)
 from db4e.Constants.Buttons import (
@@ -27,7 +27,7 @@ from db4e.Constants.Labels import (
     DB4E_GROUP_LABEL, DB4E_USER_LABEL, INSTALL_DIR_LABEL, 
     USER_WALLET_LABEL, VENDOR_DIR_LABEL)
 from db4e.Constants.Jobs import (
-    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, UPDATE_FIELD)
+    POST_JOB_FIELD, OP_FIELD, UPDATE_FIELD)
 
 color = "#9cae41"
 hi = "cyan"
@@ -104,7 +104,7 @@ class Db4EPane(Container):
         self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
 
         form_data = {
-            TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+            TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
             TO_METHOD_FIELD: POST_JOB_FIELD,
             OP_FIELD: UPDATE_FIELD,
             ELEMENT_TYPE_FIELD: DB4E_FIELD,

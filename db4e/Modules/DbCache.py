@@ -115,7 +115,6 @@ class DbCache:
                         if elem.parent():
                             elem.p2pool = self.get_deployment_by_id(elem.parent())
                         self.xmrig_map[elem.instance()] = elem
-                        print(f"DbCache:build_cache(): xmrig enabled: {elem.enabled()}")
                     
                     self.id_map[obj_id] = elem
 
@@ -234,16 +233,15 @@ class DbCache:
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             p2pools = []
             for p2pool in self.p2pool_map.values():
-                if p2pool.parent() == elem.id():
-                    p2pools.append(deepcopy(p2pool))
-            print(f"DbCache:get_downstream(): {p2pools}")
+                if type(p2pool) == P2Pool:
+                    if p2pool.parent() == elem.id():
+                        p2pools.append(deepcopy(p2pool))
             return p2pools
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
             xmrigs = []
             for xmrig in self.xmrig_map.values():
                 if xmrig.parent() == elem.id():
                     xmrigs.append(deepcopy(xmrig))
-            print(f"DbCache:get_downstream(): {xmrigs}")
             return xmrigs
 
 

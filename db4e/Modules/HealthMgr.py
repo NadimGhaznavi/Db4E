@@ -133,12 +133,12 @@ class HealthMgr:
         if missing_field:
             return monerod
 
-        if self.is_port_open(monerod.ip_addr(), monerod.p2p_bind_port()):
-            monerod.msg(P2P_BIND_PORT_LABEL, GOOD_FIELD,
-                        f"Connection to {P2P_BIND_PORT_LABEL} successful")
+        if monerod.enabled():
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD,
+                        f"{MONEROD_LABEL} ({monerod.instance.value}) is enabled")
         else:
-            monerod.msg(P2P_BIND_PORT_LABEL, WARN_FIELD,
-                        f"Connection to {P2P_BIND_PORT_LABEL} failed")
+            monerod.msg(MONEROD_LABEL, ERROR_FIELD,
+                        f"{MONEROD_LABEL} ({monerod.instance.value}) is disabled")
 
         if self.is_port_open(monerod.ip_addr(), monerod.rpc_bind_port()):
             monerod.msg(RPC_BIND_PORT_LABEL, GOOD_FIELD,
@@ -160,13 +160,6 @@ class HealthMgr:
         else:
             monerod.msg(ZMQ_RPC_PORT_LABEL, WARN_FIELD,
                         f"Connection to {ZMQ_RPC_PORT_LABEL} failed")
-
-        if monerod.enabled():
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD,
-                        f"{MONEROD_LABEL} ({monerod.instance.value}) is enabled")
-        else:
-            monerod.msg(MONEROD_LABEL, WARN_FIELD,
-                        f"{MONEROD_LABEL} ({monerod.instance.value}) is disabled")
 
         return monerod
 
@@ -248,19 +241,17 @@ class HealthMgr:
         if missing_field:
             return p2pool
         
-        if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
-                       f"Connection to {STRATUM_PORT_LABEL} successful")
-        
         if p2pool.enabled():
             p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
                        f"{P2POOL_LABEL} ({p2pool.instance.value}) is enabled")
         else:
-            p2pool.msg(P2POOL_LABEL, WARN_FIELD,
+            p2pool.msg(P2POOL_LABEL, ERROR_FIELD,
                        f"{P2POOL_LABEL} ({p2pool.instance.value}) is disabled")
 
-        # Check upstream MoneroD
-        #print(f"HealthMgr:check_p2pool(): type(p2pool.monerod): {type(p2pool.monerod)}")
+        if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD,
+                       f"Connection to {STRATUM_PORT_LABEL} successful")
+        
         if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
             self.check(p2pool.monerod)
             if p2pool.monerod.status() == GOOD_FIELD:
@@ -305,7 +296,7 @@ class HealthMgr:
             xmrig.msg(XMRIG_LABEL, GOOD_FIELD,
                       f"{XMRIG_LABEL} ({xmrig.instance.value}) is enabled")
         else:
-            xmrig.msg(XMRIG_LABEL, WARN_FIELD,
+            xmrig.msg(XMRIG_LABEL, ERROR_FIELD,
                       f"{XMRIG_LABEL} ({xmrig.instance.value}) is disabled")
 
 
@@ -325,21 +316,19 @@ class HealthMgr:
         return xmrig
 
 
-    def is_port_open(self, ip_addr, port_num):
-        if not self.is_valid_ip_or_hostname(ip_addr):
+    def is_port_open(self, host, port):
+        try:
+            infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+            for family, socktype, proto, canonname, sockaddr in infos:
+                try:
+                    with socket.socket(family, socktype, proto) as sock:
+                        sock.settimeout(5)
+                        sock.connect(sockaddr)  # will raise if connection fails
+                        return True
+                except (ConnectionRefusedError, TimeoutError, OSError):
+                    continue
             return False
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(5)  # Set aLine timeout for the connection attempt
-                result = sock.connect_ex((ip_addr, int(port_num)))
-                return result == 0
-        except socket.gaierror:
-            return False  # Handle cases like invalid hostname
-
-
-    def is_valid_ip_or_hostname(self, host: str) -> str:
-        try:
-            socket.getaddrinfo(host, None)  # works for IPv4/IPv6
-            return True
         except socket.gaierror:
             return False
+
+

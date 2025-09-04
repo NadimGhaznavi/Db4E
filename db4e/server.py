@@ -42,7 +42,8 @@ from db4e.Constants.Defaults import (
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, XMRIG_FIELD,
     COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD, MONEROD_FIELD)
-from db4e.Constants.Jobs import DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD, RESTART_FIELD
+from db4e.Constants.Jobs import (
+    DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD, RESTART_FIELD)
 
 POLL_INTERVAL = 5
 
@@ -164,7 +165,7 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Disbling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg(f"Disabled instance: {instance}")
+        job.msg(f"Disabled instance")
         elem.disable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
@@ -190,7 +191,7 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg(f"Enabled instance: {instance}")
+        job.msg(f"Enabled instance")
         elem.enable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
@@ -256,7 +257,7 @@ class Db4eServer:
         else:
             raise ValueError(f"Unknown deployment type: {elem_type}")
         sd.restart()
-        job.msg(f"Restarted instance: {instance}")
+        job.msg(f"Restarted instance")
         self.job_queue.complete_job(job)
 
 
@@ -285,7 +286,6 @@ class Db4eServer:
         elem = self.depl_mgr.update_deployment(elem)
         msgs = ""
         for msg in elem.pop_msgs():
-            print(f"Db4eServer:update(): msg: {msg}")
             for key, val in msg.items():
                 msgs += val[MESSAGE_FIELD] + "\n"
         job.msg(msgs[:-1])

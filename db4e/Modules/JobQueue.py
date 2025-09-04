@@ -64,11 +64,8 @@ class JobQueue:
         self.db.insert_one(self.col_name, job.to_rec())
 
 
-    def post_job(self, details: dict):
-        job = Job(details[OP_FIELD], details[ELEMENT_TYPE_FIELD], details[INSTANCE_FIELD])
+    def post_job(self, job: Job):
         job_rec = job.to_rec()
-        if ELEMENT_FIELD in details:
-            job_rec[ELEMENT_FIELD] = details[ELEMENT_FIELD].to_rec()
         self.db.insert_one(self.col_name, job_rec)
         #print(f"JobQueue:post_job(): Job posted: {job}")
 

@@ -21,7 +21,7 @@ from db4e.Constants.Fields import (
     STATIC_CONTENT_FIELD, FORM_2_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
     FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
     P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    INSTANCE_FIELD, ADD_DEPLOYMENT_FIELD, UPDATE_DEPLOYMENT_FIELD, OPS_MGR_FIELD)
+    INSTANCE_FIELD, ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, OPS_MGR_FIELD)
 from db4e.Constants.Labels import (
     INSTANCE_LABEL, P2POOL_LABEL, 
     STRATUM_PORT_LABEL, CONFIG_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
@@ -207,50 +207,46 @@ class P2PoolPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 ELEMENT_FIELD: self.p2pool
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: UPDATE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 ELEMENT_FIELD: self.p2pool,
-                INSTANCE_FIELD: self.p2pool.instance()
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: ENABLE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 ELEMENT_FIELD: self.p2pool,
-                INSTANCE_FIELD: self.p2pool.instance()
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DISABLE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 ELEMENT_FIELD: self.p2pool,
-                INSTANCE_FIELD: self.p2pool.instance()
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DELETE_FIELD,
+                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
                 ELEMENT_FIELD: self.p2pool,
-                INSTANCE_FIELD: self.p2pool.instance()
             }            
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))

@@ -16,7 +16,7 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, 
+    ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, INSTANCE_FIELD,
     FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     HEALTH_BOX_FIELD, ELEMENT_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, P2POOL_REMOTE_FIELD,
@@ -122,24 +122,21 @@ class P2PoolRemotePane(Container):
         elif button_id == UPDATE_BUTTON_FIELD:
             # There was an original instance, so this is an update            
             form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: UPDATE_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
                 ELEMENT_FIELD: self.p2pool,
-                INSTANCE_FIELD: self.p2pool.instance(),
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DELETE_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
-                INSTANCE_FIELD: self.p2pool.instance(),
+                ELEMENT_FIELD: self.p2pool,
             }
             
-        else:
-            raise ValueError(f"No handler for {button_id}")
         self.app.post_message(Db4eMsg(self, form_data=form_data))
         

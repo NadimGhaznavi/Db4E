@@ -15,7 +15,7 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, ELEMENT_TYPE_FIELD,
+    ADD_DEPLOYMENT_FIELD, ELEMENT_TYPE_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     MONEROD_REMOTE_FIELD, HEALTH_BOX_FIELD, OPS_MGR_FIELD, 
     PANE_BOX_FIELD, ELEMENT_FIELD, INSTANCE_FIELD,
@@ -127,21 +127,20 @@ class MoneroDRemotePane(Container):
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: UPDATE_FIELD,
                 ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
                 ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance(),
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DELETE_FIELD,
                 ELEMENT_TYPE_FIELD: MONEROD_REMOTE_FIELD,
-                INSTANCE_FIELD: self.monerod.instance(),
+                ELEMENT_FIELD: self.monerod,
             }
         else:
             raise ValueError(f"No handler for {button_id}")

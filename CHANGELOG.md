@@ -20,9 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `server:disable_downstream()` to disable downstream *P2Pool* and *XMRig* instances
   - Added supporting `DeploymentMgr:get_downstream()`
 - Added `DeploymentMgr:get_template()` to return *XMRig*, *P2Pool* and *Monero Daemon* templates
+- Updated and added additional `Constants/Labels`
+- Added `DeploymentMgr/post_job()`
+- Added `Job:add_msg()` function
+
+### Changed
+- Changed `JobQueue:post_job()` to accept a *job* instead of a dictionary
+- All deployment panes to use `post_job` for *enable*, *disable* and *update* operations
+  - Updated `Job:to_rec()` to support the above change
+- Renamed *Trans Log* to *Console Log* in the NavPane 
+- Colorized the *console log* contents in `TUILogPane`
+- enhanced the message content by 
 
 ### Fixed
 - Removed uneeded *run*& from the `InstallMgr:_make_p2pool_dir()`
+- Fixed bug where the Initial install proceeded even though the vendor dir was invalid
+- Removed unnused `set_component_value()` and `gen_radio_button()` from `Modules/Helper`
+- Fixed reference bug in `DbCache/get_downstream()`
 
 ---
 

@@ -93,6 +93,8 @@ class InstallMgr(Container):
         db4e, abort_install = self._create_vendor_dir(vendor_dir=vendor_dir, db4e=db4e)
         if abort_install:
             db4e.msg(DB4E_LABEL, ERROR_FIELD, f"Fatal error, aborting install")
+            db4e.vendor_dir("") # Reset the vendor dir to null
+            self.depl_mgr.update_deployment(db4e)
             return db4e
         
 

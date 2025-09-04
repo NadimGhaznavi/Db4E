@@ -26,12 +26,12 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import (
-    MONEROD_LABEL, P2POOL_LABEL, MONEROD_SHORT_LABEL,
+    MONEROD_LABEL, P2POOL_LABEL, MONEROD_SHORT_LABEL, DB4E_LABEL,
     USER_WALLET_LABEL, VENDOR_DIR_LABEL, XMRIG_SHORT_LABEL, P2POOL_SHORT_LABEL)
 from db4e.Constants.Fields import (
     PYTHON_FIELD, DB4E_FIELD, ERROR_FIELD, ELEMENT_TYPE_FIELD,
     TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD, NEW_FIELD,
-    MONEROD_FIELD, MONEROD_REMOTE_FIELD,
+    MONEROD_FIELD, MONEROD_REMOTE_FIELD, ELEMENT_FIELD,
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
     DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD, INSTANCE_FIELD)
 from db4e.Constants.Defaults import (
@@ -40,7 +40,7 @@ from db4e.Constants.Defaults import (
     BLOCKCHAIN_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, MONEROD_VERSION_DEFAULT,
     P2POOL_VERSION_DEFAULT, MONEROD_CONFIG_DEFAULT, P2POOL_CONFIG_DEFAULT,
     XMRIG_CONFIG_DEFAULT)
-from db4e.Constants.Jobs import RESTART_FIELD, OP_FIELD
+from db4e.Constants.Jobs import RESTART_FIELD, OP_FIELD, UPDATE_FIELD
 
 
 class DeploymentMgr(Container):
@@ -466,6 +466,14 @@ class DeploymentMgr(Container):
             return False
 
 
+    def post_job(self, job_info):
+        job = Job(op=job_info[OP_FIELD], elem_type=job_info[ELEMENT_TYPE_FIELD])
+        elem = job_info[ELEMENT_FIELD]
+        job.elem(elem)
+        job.instance(elem.instance())
+        self.job_queue.post_job(job)
+
+
     def update_deployment(self, elem):
         if type(elem) == Db4E:
             return self.update_db4e_deployment(db4e=elem)
@@ -478,7 +486,7 @@ class DeploymentMgr(Container):
 
 
     def update_db4e_deployment(self, new_db4e: Db4E):
-        update_flag = True
+        update_flag = False
 
         # The current record, we'll update this and write it back in
         db4e = self.db_cache.get_db4e()
@@ -487,7 +495,10 @@ class DeploymentMgr(Container):
         if db4e.user_wallet != new_db4e.user_wallet:
             db4e.user_wallet(new_db4e.user_wallet())
             self.update_one(db4e)
-            db4e.msg(USER_WALLET_LABEL, GOOD_FIELD, f"Set the Db4E user wallet: {db4e.user_wallet()}")
+            msg = f"Updated wallet: {db4e.user_wallet()[:6]}... > " \
+                f"{new_db4e.user_wallet()[:6]}..."
+            db4e.msg(USER_WALLET_LABEL, GOOD_FIELD, msg)
+            update_flag = True
 
         # Updating vendor dir
         if db4e.vendor_dir != new_db4e.vendor_dir:
@@ -501,14 +512,17 @@ class DeploymentMgr(Container):
                     new_dir=new_db4e.vendor_dir(),
                     old_dir=db4e.vendor_dir(),
                     db4e=db4e)
-
+            msg = f"Updated vendor dir: {db4e.vendor_dir()} > " \
+                f"{new_db4e.vendor_dir()}"
+            db4e.msg(VENDOR_DIR_LABEL, GOOD_FIELD, msg)
             db4e.vendor_dir(new_db4e.vendor_dir())
+            update_flag = True
 
-        #print(f"DeploymentMgr:update_db4e_deployment(): final rec: {rec}")
         if update_flag:
             self.db_cache.update_one(db4e)
+        else:
+            db4e.msg(DB4E_LABEL, WARN_FIELD, "Nothing to update")
 
-        #print(f"DeploymentMgr:update_db4e_deployment():")
         return db4e
 
 
@@ -555,86 +569,114 @@ class DeploymentMgr(Container):
 
             # Instance
             if monerod.instance != new_monerod.instance:
+                msg = f"Updated instance name: {monerod.instance()} > " \
+                    f"{new_monerod.instance()}"
                 monerod.instance(new_monerod.instance())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # In Peers
             if monerod.in_peers != new_monerod.in_peers:
+                msg = f"Updated in peers: {monerod.in_peers()} > " \
+                    f"{new_monerod.in_peers()}"
                 monerod.in_peers(new_monerod.in_peers())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated in peers")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Out Peers
             if monerod.out_peers != new_monerod.out_peers:
+                msg = f"Updated out peers: {monerod.out_peers()} > " \
+                    f"{new_monerod.out_peers()}"
                 monerod.out_peers(new_monerod.out_peers())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated out peers")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # P2P Bind Port
             if monerod.p2p_bind_port != new_monerod.p2p_bind_port:
+                msg = f"Updated P2P bind port: {monerod.p2p_bind_port()} > " \
+                    f"{new_monerod.p2p_bind_port()}"
                 monerod.p2p_bind_port(new_monerod.p2p_bind_port())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated P2P bind port")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # RPC Bind Port
             if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+                msg = f"Updated RPC bind port: {monerod.rpc_bind_port()} > " \
+                    f"{new_monerod.rpc_bind_port()}"
                 monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated RPC port")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # ZMQ Pub Port
             if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+                msg = f"Updated ZMQ pub port: {monerod.zmq_pub_port()} > " \
+                    f"{new_monerod.zmq_pub_port()}"
                 monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated ZMQ port")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # ZMQ RPC Port
             if monerod.zmq_rpc_port != new_monerod.zmq_rpc_port:
+                msg = f"Updated ZMQ RPC port: {monerod.zmq_rpc_port()} > " \
+                    f"{new_monerod.zmq_rpc_port()}"
                 monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated ZMQ RPC port")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Log Level
             if monerod.log_level != new_monerod.log_level:
+                msg = f"Updated log level: {monerod.log_level()} > " \
+                    f"{new_monerod.log_level()}"
                 monerod.log_level(new_monerod.log_level())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated log level")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Max Log Files
             if monerod.max_log_files != new_monerod.max_log_files:
+                msg = f"Updated max log files: {monerod.max_log_files()} > " \
+                    f"{new_monerod.max_log_files()}"
                 monerod.max_log_files(new_monerod.max_log_files())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated max log files")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Max Log Size
             if monerod.max_log_size != new_monerod.max_log_size:
+                msg = f"Updated max log size: {monerod.max_log_size()} > " \
+                    f"{new_monerod.max_log_size()}"
                 monerod.max_log_size(new_monerod.max_log_size())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated max log size")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
             
             # Priority Node 1 hostname
             if monerod.priority_node_1 != new_monerod.priority_node_1:
+                msg = f"Updated priority node 1: {monerod.priority_node_1()} > " \
+                    f"{new_monerod.priority_node_1()}"
                 monerod.priority_node_1(new_monerod.priority_node_1())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority node 1")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Priority Port 1
             if monerod.priority_port_1 != new_monerod.priority_port_1:
+                msg = f"Updated priority port 1: {monerod.priority_port_1()} > " \
+                    f"{new_monerod.priority_port_1()}"
                 monerod.priority_port_1(new_monerod.priority_port_1())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority port 1")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Priority Node 2 hostname
             if monerod.priority_node_2 != new_monerod.priority_node_2:
+                msg = f"Updated priority node 2: {monerod.priority_node_2()} > " \
+                    f"{new_monerod.priority_node_2()}"
                 monerod.priority_node_2(new_monerod.priority_node_2())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority node 2")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
             # Priority Port 2
             if monerod.priority_port_2 != new_monerod.priority_port_2:
+                msg = f"Updated priority port 2: {monerod.priority_port_2()} > " \
+                    f"{new_monerod.priority_port_2()}"
                 monerod.priority_port_2(new_monerod.priority_port_2())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, "Updated priority port 2")
+                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
                 update, update_config = True, True
 
         if update_config:
@@ -644,12 +686,10 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(monerod)
-            job_details = {
-                OP_FIELD: RESTART_FIELD,
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
-                INSTANCE_FIELD: monerod.instance()
-            }
-            self.job_queue.post_job(job_details)
+            job = Job(op=RESTART_FIELD, elem_type=MONEROD_FIELD,
+                      elem=monerod,
+                      instance=monerod.instance())
+            self.job_queue.post_job(job)
         else:
             monerod.msg(MONEROD_SHORT_LABEL, WARN_FIELD, "Nothing to update")
             
@@ -667,26 +707,34 @@ class DeploymentMgr(Container):
         ## Field-by-field comparison
         # Instance
         if monerod.instance != new_monerod.instance:
+            msg = f"Updated instance name: {monerod.instance()} > " \
+                f"{new_monerod.instance()}"
             monerod.instance(new_monerod.instance())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated instance name")
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, msg)
             update = True
 
         # IP Address
         if monerod.ip_addr != new_monerod.ip_addr:
+            msg = f"Updated IP/hostname: {monerod.ip_addr()} > " \
+                f"{new_monerod.ip_addr()}"
             monerod.ip_addr(new_monerod.ip_addr())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated IP/hostname")
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, msg)
             update = True
 
         # RPC Bind Port
         if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+            msg = f"Updated RPC bind port: {monerod.rpc_bind_port()} > " \
+                f"{new_monerod.rpc_bind_port()}"
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated RPC port")
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, msg)
             update = True
 
         # ZMQ Pub Port
         if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+            msg = f"Updated ZMQ pub port: {monerod.zmq_pub_port()} > " \
+                f"{new_monerod.zmq_pub_port()}"
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, "Updated ZMQ port")
+            monerod.msg(MONEROD_LABEL, GOOD_FIELD, msg)
             update = True
 
         if update:
@@ -731,51 +779,60 @@ class DeploymentMgr(Container):
         else:
             # This is an update op
             
-            # Instance
-            if p2pool.instance != new_p2pool.instance:
-                p2pool.instance(new_p2pool.instance())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
-                update_config = True
-                update = True
-
             # In Peers
             if p2pool.in_peers != new_p2pool.in_peers:
+                msg = f"Updated in peers: {p2pool.in_peers()} > " \
+                    f"{new_p2pool.in_peers()}"
                 p2pool.in_peers(new_p2pool.in_peers())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated in peers")
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, msg)
                 update_config = True
                 update = True
 
             # Out Peers
             if p2pool.out_peers != new_p2pool.out_peers:
+                msg = f"Updated out peers: {p2pool.out_peers()} > " \
+                    f"{new_p2pool.out_peers()}"
                 p2pool.out_peers(new_p2pool.out_peers())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated out peers")
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, msg)
                 update_config = True
                 update = True
 
             # P2P Bind Port
             if p2pool.p2p_bind_port != new_p2pool.p2p_bind_port:
+                msg = f"Updated P2P bind port: {p2pool.p2p_bind_port()} > " \
+                    f"{new_p2pool.p2p_bind_port()}"
                 p2pool.p2p_bind_port(new_p2pool.p2p_bind_port())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated P2P bind port")
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, msg)
                 update_config = True
                 update = True
 
             # Stratum port
             if p2pool.stratum_port != new_p2pool.stratum_port:
+                msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
+                    f"{new_p2pool.stratum_port()}"
                 p2pool.stratum_port(new_p2pool.stratum_port())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated stratum port")
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, msg)
                 update_config = True
                 update = True
 
             # Log level
             if p2pool.log_level != new_p2pool.log_level:
+                msg = f"Updated log level: {p2pool.log_level()} > " \
+                    f"{new_p2pool.log_level()}"
                 p2pool.log_level(new_p2pool.log_level())
-                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Updated log level")
+                p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, msg)
                 update_config = True
                 update = True
 
             # Upstream P2Pool
             if p2pool.parent != new_p2pool.parent:
+                parent = self.get_deployment_by_id(new_p2pool.parent())
+                parent_instance = parent.instance()
+                new_parent = self.get_deployment_by_id(p2pool.parent())
+                msg = f"Updated upstream P2Pool: {parent_instance} > " \
+                    f"{new_parent_instance}"
                 p2pool.parent(new_p2pool.parent())
+                new_parent_instance = new_parent.instance()
                 p2pool.msg(P2POOL_SHORT_LABEL, GOOD_FIELD, "Using new P2Pool deployment")
                 update_config = True
                 update = True
@@ -788,12 +845,10 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(p2pool)
-            job_details = {
-                OP_FIELD: RESTART_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                INSTANCE_FIELD: p2pool.instance()
-            }
-            self.job_queue.post_job(job_details)
+            job = Job(op=RESTART_FIELD, elem_type=P2POOL_FIELD, 
+                      elem=p2pool,
+                      instance=p2pool.instance())
+            self.job_queue.post_job(job)
         else:
             p2pool.msg(P2POOL_SHORT_LABEL, WARN_FIELD, "Nothing to update")
 
@@ -812,20 +867,18 @@ class DeploymentMgr(Container):
                              f"Nothing found for {new_p2pool.id()}")
 
         ## Field-by-field comparison
-        # Instance
-        if p2pool.instance != new_p2pool.instance:
-            p2pool.instance(new_p2pool.instance())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated instance name")
-            update = True
-
         # IP Address
         if p2pool.ip_addr != new_p2pool.ip_addr:
+            msg = f"Updated IP/hostname: {p2pool.ip_addr()} > " \
+                f"{new_p2pool.ip_addr()}"
             p2pool.ip_addr(new_p2pool.ip_addr())
-            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, "Updated IP/hostname")
+            p2pool.msg(P2POOL_LABEL, GOOD_FIELD, msg)
             update = True
 
         # Stratum Port
         if p2pool.stratum_port != new_p2pool.stratum_port:
+            msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
+                f"{new_p2pool.stratum_port()}"
             p2pool.stratum_port(new_p2pool.stratum_port())
             p2pool.msg(P2POOL_LABEL, GOOD_FIELD,"Updated stratum port")
             update = True
@@ -883,7 +936,6 @@ class DeploymentMgr(Container):
 
         #print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return db4e, update_flag
-    
 
 
     def update_xmrig_deployment(self, new_xmrig: XMRig) -> XMRig:
@@ -906,25 +958,36 @@ class DeploymentMgr(Container):
 
         else:
             # User clicked "update", do a field-by-field comparison
+            job = Job(op=UPDATE_FIELD, elem_type=XMRIG_FIELD, instance=xmrig.instance())
 
             # Instance
             if xmrig.instance != new_xmrig.instance:
+                msg = f"Updated instance name: {xmrig.instance()} > {new_xmrig.instance()}"
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, msg)
                 xmrig.instance(new_xmrig.instance())
-                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Updated instance name")
+                job.add_msg(msg)
                 update = True
                 update_config = True
 
             # Num Threads
             if xmrig.num_threads != new_xmrig.num_threads:
+                msg = f"Updated number of threads: {xmrig.num_threads()} > " \
+                    f"{new_xmrig.num_threads()}"
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, msg) 
                 xmrig.num_threads(new_xmrig.num_threads())
-                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Updated number of threads") 
                 update = True
                 update_config = True
 
             # Parent ID
             if xmrig.parent != new_xmrig.parent:
+                parent = self.get_deployment_by_id(new_xmrig.parent())
+                parent_instance = parent.instance()
+                new_parent = self.get_deployment_by_id(xmrig.parent())
+                new_parent_instance = new_parent.instance()
+                msg = f"Updated parent: {xmrig.parent()} > {new_xmrig.parent()}"
                 xmrig.parent(new_xmrig.parent())
-                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, "Using new P2Pool deployment")
+                msg = f"Updated parent: {parent_instance} > {new_parent_instance}"
+                xmrig.msg(XMRIG_SHORT_LABEL, GOOD_FIELD, msg)
                 update = True
                 update_config = True
 
@@ -937,7 +1000,7 @@ class DeploymentMgr(Container):
         if update:
             self.update_one(xmrig)
             job = Job(op=RESTART_FIELD, elem_type=XMRIG_FIELD, instance=xmrig.instance())
-            job.msg("XMRig automatically picked up new settings")
+            job.msg("XMRig loaded new settings")
             self.job_queue.post_completed_job(job)
 
         return xmrig

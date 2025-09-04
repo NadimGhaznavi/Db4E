@@ -21,21 +21,21 @@ from db4e.Constants.Fields import (ELEMENT_FIELD, ELEMENT_TYPE_FIELD,
     INSTANCE_FIELD, OBJECT_ID_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD, 
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD)
 from db4e.Constants.Jobs import (
-    JOB_ID_FIELD, OP_FIELD, MESSAGE_FIELD, PENDING_FIELD,
+    JOB_ID_FIELD, OP_FIELD, MESSAGE_FIELD, PENDING_FIELD, 
     ATTEMPTS_FIELD, CREATED_AT_FIELD, STATUS_FIELD, UPDATED_AT_FIELD)
 
 
 class Job:
 
 
-    def __init__(self, op=None, elem_type=None, instance=None):
+    def __init__(self, op=None, elem_type=None, instance=None, elem=None):
         self._attempts = 0
         self._created_at = datetime.now()
-        self._element = None
+        self._element = elem
         self._element_type = elem_type
         self._instance = instance
         self._job_id = str(uuid.uuid4())
-        self._msg = None
+        self._msg = ""
         self._object_id = None
         self._op = op
         self._status = PENDING_FIELD
@@ -46,6 +46,10 @@ class Job:
         return f"{type(self).__name__}({self.op()}): {self.status()} {self.elem_type()}/{self.instance()}"
 
 
+    def add_msg(self, msg):
+        self._msg += "\n" + msg
+    
+
     def attempts(self):
         return self._attempts
     
@@ -54,7 +58,9 @@ class Job:
         return self._created_at
 
 
-    def elem(self):
+    def elem(self, elem=None):
+        if elem is not None:
+            self._element = elem
         return self._element
 
 
@@ -94,9 +100,10 @@ class Job:
             self._object_id = object_id
         return self._object_id
 
-    def instance(self):
+    def instance(self, instance=None):
+        if instance != None:
+            self._instance = instance
         return self._instance
-
 
     def job_id(self):
         return self._job_id
@@ -120,7 +127,7 @@ class Job:
 
 
     def to_rec(self):
-        return {
+        job_rec = {
             ATTEMPTS_FIELD: self._attempts,
             CREATED_AT_FIELD: self._created_at,
             ELEMENT_TYPE_FIELD: self._element_type,
@@ -131,7 +138,13 @@ class Job:
             STATUS_FIELD: self._status,
             UPDATED_AT_FIELD: self._updated_at,
         }
-    
+
+        elem = self.elem()
+        if elem:
+            job_rec[ELEMENT_FIELD] = elem.to_rec()
+
+        return job_rec
+
 
     def updated_at(self, timestamp=None):
         if timestamp:

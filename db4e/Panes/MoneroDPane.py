@@ -19,7 +19,7 @@ from db4e.Constants.Fields import (
     STATIC_CONTENT_FIELD, HEALTH_BOX_FIELD, NEW_FIELD, ENABLE_FIELD, DISABLE_FIELD,
     ELEMENT_TYPE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, ELEMENT_FIELD,
     MONEROD_FIELD, ADD_DEPLOYMENT_FIELD, OPS_MGR_FIELD, INSTANCE_FIELD,
-    FORM_16_FIELD)
+    FORM_16_FIELD, DEPLOYMENT_MGR_FIELD)
 from db4e.Constants.Labels import (
     CONFIG_FILE_LABLE, MONEROD_LABEL, INSTANCE_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
     LOG_LEVEL_LABEL, MAX_LOG_FILES_LABEL, MAX_LOG_SIZE_LABEL, P2P_BIND_PORT_LABEL,
@@ -231,50 +231,46 @@ class MoneroDPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 ELEMENT_FIELD: self.monerod
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: UPDATE_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance()
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: ENABLE_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance()
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DISABLE_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance()
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
-                TO_MODULE_FIELD: JOB_QUEUE_FIELD,
+                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
                 TO_METHOD_FIELD: POST_JOB_FIELD,
                 OP_FIELD: DELETE_FIELD,
+                ELEMENT_TYPE_FIELD: MONEROD_FIELD,
                 ELEMENT_FIELD: self.monerod,
-                INSTANCE_FIELD: self.monerod.instance()
             }            
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))                              

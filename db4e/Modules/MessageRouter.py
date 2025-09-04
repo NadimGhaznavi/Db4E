@@ -53,8 +53,8 @@ class MessageRouter:
                       self.install_mgr.initial_setup, RESULTS_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, DB4E_FIELD,
                       self.ops_mgr.get_deployment, DB4E_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, DB4E_FIELD,
-                      self.ops_mgr.update_deployment, DB4E_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, DB4E_FIELD,
+                      self.depl_mgr.update_deployment, WELCOME_PANE)
 
         # MoneroD = Type: local or remote
         self.register(PANE_MGR_FIELD, SET_PANE_FIELD, MONEROD_FIELD,
@@ -67,8 +67,8 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, MONEROD_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_FIELD,
                       self.ops_mgr.get_deployment, MONEROD_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_FIELD,
-                      self.ops_mgr.update_deployment, MONEROD_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, MONEROD_FIELD,
+                      self.depl_mgr.post_job, WELCOME_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_FIELD,
                       self.depl_mgr.del_deployment, MONEROD_PANE)
 
@@ -79,10 +79,11 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, MONEROD_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, MONEROD_REMOTE_FIELD,
                       self.ops_mgr.get_deployment, MONEROD_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
-                      self.ops_mgr.update_deployment, MONEROD_REMOTE_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, MONEROD_REMOTE_FIELD,
+                      self.depl_mgr.post_job, WELCOME_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, MONEROD_REMOTE_FIELD,
                       self.depl_mgr.del_deployment, MONEROD_REMOTE_PANE)
+        
 
         # MoneroD = Type: local or remote
         self.register(PANE_MGR_FIELD, SET_PANE_FIELD, P2POOL_FIELD,
@@ -95,8 +96,8 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, P2POOL_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_FIELD,
                       self.ops_mgr.get_deployment, P2POOL_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_FIELD,
-                      self.ops_mgr.update_deployment, P2POOL_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, P2POOL_FIELD,
+                      self.depl_mgr.post_job, WELCOME_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_FIELD,
                       self.depl_mgr.del_deployment, P2POOL_PANE)
 
@@ -107,8 +108,8 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, P2POOL_REMOTE_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, P2POOL_REMOTE_FIELD,
                       self.ops_mgr.get_deployment, P2POOL_REMOTE_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
-                      self.ops_mgr.update_deployment, P2POOL_REMOTE_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, P2POOL_REMOTE_FIELD,
+                      self.depl_mgr.post_job, WELCOME_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, P2POOL_REMOTE_FIELD,
                       self.depl_mgr.del_deployment, P2POOL_REMOTE_PANE)
 
@@ -119,23 +120,10 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, XMRIG_PANE)
         self.register(OPS_MGR_FIELD, GET_REC_FIELD, XMRIG_FIELD,
                       self.ops_mgr.get_deployment, XMRIG_PANE)
-        self.register(OPS_MGR_FIELD, UPDATE_DEPLOYMENT_FIELD, XMRIG_FIELD,
-                      self.ops_mgr.update_deployment, XMRIG_PANE)
+        self.register(DEPLOYMENT_MGR_FIELD, POST_JOB_FIELD, XMRIG_FIELD,
+                      self.depl_mgr.post_job, WELCOME_PANE)
         self.register(DEPLOYMENT_MGR_FIELD, DELETE_DEPLOYMENT_FIELD, XMRIG_FIELD,
                       self.depl_mgr.del_deployment, XMRIG_PANE)
-
-
-        # Client side Job Queue op: submit_job
-        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, XMRIG_FIELD,
-                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
-        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_FIELD,
-                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
-        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, P2POOL_REMOTE_FIELD,
-                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
-        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_FIELD,
-                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
-        self.register(JOB_QUEUE_FIELD, POST_JOB_FIELD, MONEROD_REMOTE_FIELD,
-                      self.depl_mgr.job_queue.post_job, WELCOME_PANE)
 
 
         # Log Viewer
