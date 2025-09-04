@@ -17,7 +17,6 @@ from textual.widgets import Static, Log, RichLog
 from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Modules.Helper import gen_tui_log_table
 from db4e.Constants.Fields import (
     PANE_BOX_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD)

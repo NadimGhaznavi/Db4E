@@ -18,7 +18,7 @@ from db4e.Constants.Fields import (
     ADD_DEPLOYMENT_FIELD, ELEMENT_TYPE_FIELD, DEPLOYMENT_MGR_FIELD,
     FORM_4_FIELD, FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
     MONEROD_REMOTE_FIELD, HEALTH_BOX_FIELD, OPS_MGR_FIELD, 
-    PANE_BOX_FIELD, ELEMENT_FIELD, INSTANCE_FIELD,
+    PANE_BOX_FIELD, ELEMENT_FIELD, STATIC_CONTENT_FIELD,
     TO_METHOD_FIELD, TO_MODULE_FIELD, 
     NEW_FIELD)
 from db4e.Constants.Labels import (
@@ -33,6 +33,7 @@ from db4e.Constants.Jobs import (
 
 class MoneroDRemotePane(Container):
 
+    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
         classes=FORM_INPUT_30_FIELD)
@@ -64,7 +65,7 @@ class MoneroDRemotePane(Container):
                 Vertical(
                     Horizontal(
                         Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
-                        self.instance_input),
+                        self.instance_input, self.instance_label),
                     Horizontal(
                         Label(IP_ADDR_LABEL, classes=FORM_LABEL_FIELD),
                         self.ip_addr_input),
@@ -92,6 +93,7 @@ class MoneroDRemotePane(Container):
     def set_data(self, monerod: MoneroDRemote):
         #(f"MonerodRemote:set_data(): rec: {rec}")
         self.instance_input.value = monerod.instance()
+        self.instance_label.update(monerod.instance())
         self.ip_addr_input.value = monerod.ip_addr()
         self.rpc_bind_port_input.value = str(monerod.rpc_bind_port())
         self.zmq_pub_port_input.value = str(monerod.zmq_pub_port())

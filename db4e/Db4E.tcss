@@ -214,6 +214,14 @@ Tree {
     height: 1;
 }
 
+/* Instance label and instance input visibility */
+
+.new #instance_label {
+    display: none; }
+
+.update #instance_input {
+    display: none; }
+
 /* Buttons */
 
 Button {

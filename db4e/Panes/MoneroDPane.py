@@ -41,6 +41,7 @@ class MoneroDPane(Container):
     config_label = Label("", classes=STATIC_CONTENT_FIELD)
     any_ip_label = Label("", classes=STATIC_CONTENT_FIELD)
     data_dir_label = Label("", classes=STATIC_CONTENT_FIELD)
+    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
 
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
@@ -105,14 +106,8 @@ class MoneroDPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(CONFIG_FILE_LABLE, classes=FORM_LABEL_FIELD),
-                        self.config_label),
-                    Horizontal(
-                        Label(DATA_DIR_LABEL, classes=FORM_LABEL_FIELD),
-                        self.data_dir_label),
-                    Horizontal(
                         Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
-                        self.instance_input),
+                        self.instance_input, self.instance_label),
                     Horizontal(
                         Label(IN_PEERS_LABEL, classes=FORM_LABEL_FIELD),
                         self.in_peers_input),
@@ -152,7 +147,13 @@ class MoneroDPane(Container):
                     Horizontal(
                         Label(PRIORITY_PORT_2_LABEL, classes=FORM_LABEL_FIELD),
                         self.priority_port_2_input),
-                        classes=FORM_16_FIELD),
+                    Horizontal(
+                        Label(CONFIG_FILE_LABLE, classes=FORM_LABEL_FIELD),
+                        self.config_label),
+                    Horizontal(
+                        Label(DATA_DIR_LABEL, classes=FORM_LABEL_FIELD),
+                        self.data_dir_label),
+                    classes=FORM_16_FIELD),
                     
                     Vertical(
                         self.health_msgs,
@@ -174,6 +175,7 @@ class MoneroDPane(Container):
     def set_data(self, monerod: MoneroD):
         self.monerod = monerod
         self.instance_input.value = monerod.instance()
+        self.instance_label.update(monerod.instance())
         self.config_label.update(monerod.config_file())
         self.data_dir_label.update(monerod.data_dir())
         self.in_peers_input.value = str(monerod.in_peers())

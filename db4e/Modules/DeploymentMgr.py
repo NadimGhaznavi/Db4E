@@ -597,14 +597,6 @@ class DeploymentMgr(Container):
         else:
             # This is an update op
 
-            # Instance
-            if monerod.instance != new_monerod.instance:
-                msg = f"Updated instance name: {monerod.instance()} > " \
-                    f"{new_monerod.instance()}"
-                monerod.instance(new_monerod.instance())
-                monerod.msg(MONEROD_SHORT_LABEL, GOOD_FIELD, msg)
-                update, update_config = True, True
-
             # In Peers
             if monerod.in_peers != new_monerod.in_peers:
                 msg = f"Updated in peers: {monerod.in_peers()} > " \
@@ -735,14 +727,6 @@ class DeploymentMgr(Container):
                              f"No monerod found for {new_monerod.id()}")
 
         ## Field-by-field comparison
-        # Instance
-        if monerod.instance != new_monerod.instance:
-            msg = f"Updated instance name: {monerod.instance()} > " \
-                f"{new_monerod.instance()}"
-            monerod.instance(new_monerod.instance())
-            monerod.msg(MONEROD_LABEL, GOOD_FIELD, msg)
-            update = True
-
         # IP Address
         if monerod.ip_addr != new_monerod.ip_addr:
             msg = f"Updated IP/hostname: {monerod.ip_addr()} > " \
