@@ -33,7 +33,7 @@ from db4e.Constants.Fields import (
     TEMPLATE_FIELD, GOOD_FIELD, INSTALL_DIR_FIELD, NEW_FIELD,
     MONEROD_FIELD, MONEROD_REMOTE_FIELD, ELEMENT_FIELD,
     P2POOL_FIELD, P2POOL_REMOTE_FIELD, VENDOR_DIR_FIELD, WARN_FIELD, XMRIG_FIELD,
-    DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD, INSTANCE_FIELD)
+    DEPLOYMENT_MGR_FIELD, COMPONENTS_FIELD, FIELD_FIELD, VALUE_FIELD)
 from db4e.Constants.Defaults import (
     BIN_DIR_DEFAULT, PYTHON_DEFAULT, TEMPLATES_DIR_DEFAULT,
     CONF_DIR_DEFAULT, API_DIR_DEFAULT, LOG_DIR_DEFAULT, RUN_DIR_DEFAULT, 
@@ -244,6 +244,8 @@ class DeploymentMgr(Container):
                                      RUN_DIR_DEFAULT), exist_ok=True)
             os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
                                      API_DIR_DEFAULT), exist_ok=True)
+            p2pool.stdin(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
+                                      RUN_DIR_DEFAULT, 'p2pool.stdin'))
             job = Job(op=NEW_FIELD, elem_type=P2POOL_FIELD, instance=p2pool.instance())
             job.msg("Created new P2Pool deployment")
             self.job_queue.post_completed_job(job)

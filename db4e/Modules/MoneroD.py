@@ -17,12 +17,12 @@ from db4e.Modules.Components import (
     ConfigFile, DataDir, InPeers, Instance, Local, LogLevel, LogFile, 
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
-    PriorityPort1, PriorityPort2, IpAddr, Version)
+    PriorityPort1, PriorityPort2, IpAddr, Version, Stdin)
 from db4e.Constants.Fields import (MONEROD_FIELD, CONFIG_FILE_FIELD, DATA_DIR_FIELD,
     IN_PEERS_FIELD, INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, LOG_FILE_FIELD,
     MAX_LOG_FILES_FIELD, MAX_LOG_SIZE_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
     ZMQ_PUB_PORT_FIELD, ANY_IP_FIELD, ZMQ_RPC_PORT_FIELD, RPC_BIND_PORT_FIELD,
-    SHOW_TIME_STATS_FIELD, PRIORITY_NODE_1_FIELD, PRIORITY_NODE_2_FIELD,
+    SHOW_TIME_STATS_FIELD, PRIORITY_NODE_1_FIELD, PRIORITY_NODE_2_FIELD, STDIN_FIELD,
     PRIORITY_PORT_1_FIELD, PRIORITY_PORT_2_FIELD, IP_ADDR_FIELD, VERSION_FIELD)
 from db4e.Constants.Labels import (MONEROD_LABEL)
 from db4e.Constants.Defaults import (
@@ -56,6 +56,7 @@ class MoneroD(LocalSoftwareSystem):
         self.add_component(REMOTE_FIELD, Local())
         self.add_component(RPC_BIND_PORT_FIELD, RpcBindPort())
         self.add_component(SHOW_TIME_STATS_FIELD, ShowTimeStats())
+        self.add_component(STDIN_FIELD, Stdin())
         self.add_component(VERSION_FIELD, Version())
         self.add_component(ZMQ_PUB_PORT_FIELD, ZmqPubPort())
         self.add_component(ZMQ_RPC_PORT_FIELD, ZmqRpcPort())
@@ -79,6 +80,7 @@ class MoneroD(LocalSoftwareSystem):
         self.remote = self.components[REMOTE_FIELD]
         self.rpc_bind_port = self.components[RPC_BIND_PORT_FIELD]
         self.show_time_stats = self.components[SHOW_TIME_STATS_FIELD]
+        self.stdin = self.components[STDIN_FIELD]
         self.zmq_pub_port = self.components[ZMQ_PUB_PORT_FIELD]
         self.zmq_rpc_port = self.components[ZMQ_RPC_PORT_FIELD]
         self.version = self.components[VERSION_FIELD]

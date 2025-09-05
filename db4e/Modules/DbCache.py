@@ -187,11 +187,12 @@ class DbCache:
                 p2pool = self.p2pool_map.get(instance)                
                 if type(p2pool) == P2Pool:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
-                print(f"DbCache:get_deployment(): {p2pool}")
+                print(f"DbCache:get_deployment(): p2pool: {p2pool}")
                 return deepcopy(p2pool)
                     
             elif elem_type == XMRIG_FIELD:
                 xmrig = self.xmrig_map.get(instance)
+                print(f"DbCache:get_deployment(): xmrig: {xmrig}")
                 xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
                 if type(xmrig.p2pool) == P2Pool:
                     xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())

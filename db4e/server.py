@@ -77,6 +77,8 @@ class Db4eServer:
 
         # Get a JobQueue
         self.job_queue = JobQueue(db=self.db, log=self.log)
+
+
         self.running = threading.Event()
         self.running.set()
 
@@ -217,6 +219,8 @@ class Db4eServer:
             rc = sd.start()
             if rc == 0:
                 self.log.critical(f'Started {elem}')
+                if type(elem) == P2Pool:
+                    self.spawn_log_watcher(elem)
             else:
                 self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
 
@@ -272,12 +276,16 @@ class Db4eServer:
         signal.signal(signal.SIGTERM, self.shutdown)
         self.log.info("Starting Db4E Server")
         count = 0
-        while self.running.is_set:
+        while self.running.is_set():
             count += 1
             self.log.debug(f"Ticking...                                  {count}...")
             self.check_deployments()
             self.check_jobs()
             time.sleep(POLL_INTERVAL)
+
+
+    def spawn_log_watcher(self, p2pool):
+        pass
 
 
     def update(self, job):
@@ -291,6 +299,8 @@ class Db4eServer:
         job.msg(msgs[:-1])
         self.job_queue.complete_job(job)
 
+    def watch_log(self, log_file):
+        pass
 
 def main():
     # Set environment variables for better color support
