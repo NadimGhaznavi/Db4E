@@ -18,14 +18,16 @@ Requires=p2pool@%i.socket
 BindsTo=p2pool@%i.socket
 
 [Service]
+StandardInput=socket
+WorkingDirectory=[[P2POOL_DIR]]
 Type=simple
+Restart=always
 ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
 TimeoutStopSec=60
 User=[[DB4E_USER]]
 Group=[[DB4E_GROUP]]
-StandardOutput=journal
-StandardError=journal
-WorkingDirectory=[[P2POOL_DIR]]
+StandardOutput=file:[[P2POOL_DIR]]/%i/logs/p2pool.stdout
+StandardError=file:[[P2POOL_DIR]]/%i/logs/p2pool.stderr
 
 [Install]
 WantedBy=multi-user.target

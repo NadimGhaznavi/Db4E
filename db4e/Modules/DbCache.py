@@ -173,6 +173,9 @@ class DbCache:
 
 
     def get_deployment(self, elem_type, instance):
+        print(f"DbCache:get_deployment(): {elem_type} {instance}")
+        print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
+        print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
         with self._lock:
             if elem_type == DB4E_FIELD:
                 return deepcopy(self.db4e)
@@ -181,9 +184,10 @@ class DbCache:
                 return deepcopy(self.monerod_map.get(instance))
                     
             elif elem_type == P2POOL_FIELD or elem_type == P2POOL_REMOTE_FIELD:
-                p2pool = self.p2pool_map.get(instance)
+                p2pool = self.p2pool_map.get(instance)                
                 if type(p2pool) == P2Pool:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
+                print(f"DbCache:get_deployment(): {p2pool}")
                 return deepcopy(p2pool)
                     
             elif elem_type == XMRIG_FIELD:
