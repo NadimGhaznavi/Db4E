@@ -23,22 +23,23 @@ except Exception:
     __package_name__ = "Db4E"
     __version__ = "N/A"
 
-from db4e.Modules.Db4eLogger import Db4eLogger
-from db4e.Modules.JobQueue import JobQueue
-from db4e.Modules.Job import Job
-from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.Db4ESystemD import Db4ESystemD
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.Db4eLogger import Db4eLogger
+from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.Job import Job
+from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.P2PoolWatcher import P2PoolWatcher
 from db4e.Modules.XMRig import XMRig
-from db4e.Modules.Db4ESystemD import Db4ESystemD
 from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, 
-    DB4E_LOG_FILE_DEFAULT, CONF_DIR_DEFAULT)
+    DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
     DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, XMRIG_FIELD,
     COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD, MONEROD_FIELD)
@@ -62,8 +63,17 @@ class Db4eServer:
         # Get a systemd object
         self.systemd = Db4ESystemD()
 
-        # Get a db manager
+        # Get a Mongo manager
         self.db = DbMgr()
+
+        # Get a JobQueue
+        self.job_queue = JobQueue(db=self.db)
+
+        # Get a P2Pool log watcher
+        self.p2pool_watcher = P2PoolWatcher()
+
+        # {instance_name: (thread, stop_event)}
+        self.log_watchers = {}  
 
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
@@ -75,10 +85,7 @@ class Db4eServer:
             log_file=fq_log_file
         )
 
-        # Get a JobQueue
-        self.job_queue = JobQueue(db=self.db, log=self.log)
-
-
+        # Flag this process as "running"
         self.running = threading.Event()
         self.running.set()
 
@@ -93,6 +100,11 @@ class Db4eServer:
             #print(f"Db4eServer:check_deployments(): {depl}")
             if depl.enabled():
                 self.ensure_running(depl)
+                if depl_type == P2Pool:
+                    # Make sure there's a log watcher running                    
+                    p2pool = P2Pool(depl)
+                    self.spawn_log_watcher(p2pool) 
+
             else:
                 self.ensure_stopped(depl)
 
@@ -219,8 +231,6 @@ class Db4eServer:
             rc = sd.start()
             if rc == 0:
                 self.log.critical(f'Started {elem}')
-                if type(elem) == P2Pool:
-                    self.spawn_log_watcher(elem)
             else:
                 self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
 
@@ -244,6 +254,13 @@ class Db4eServer:
             rc = sd.stop()
             if rc == 0:
                 self.log.critical(f'Stopped {elem}')
+                if type(elem) == P2Pool:
+                    self.log_watchers.pop(instance, None)
+                    watcher = self.log_watchers.pop(instance, None)
+                    if watcher:
+                        thread, stop_event = watcher
+                        stop_event.set()
+                        thread.join()
             else:
                 self.log.critical(f'ERROR: Failed to stop {elem}, return code was {rc}')
                 
@@ -278,14 +295,31 @@ class Db4eServer:
         count = 0
         while self.running.is_set():
             count += 1
-            self.log.debug(f"Ticking...                                  {count}...")
+            self.log.debug(f"Ticking... ... ... ... ... ... ... ... ... {count}")
             self.check_deployments()
             self.check_jobs()
             time.sleep(POLL_INTERVAL)
 
 
     def spawn_log_watcher(self, p2pool):
-        pass
+        instance = p2pool.instance()
+        if instance in self.log_watchers:
+            # Already watching
+            return
+
+        stop_event = threading.Event()
+
+        def _runner():
+            try:
+                print(f"Db4eServer:spawn_log_watcher(): {p2pool}")
+                self.p2pool_watcher.monitor_log(p2pool.log_file(), stop_event)
+            finally:
+                # Cleanup on exit
+                self.log_watchers.pop(instance, None)
+
+        t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
+        self.log_watchers[instance] = (t, stop_event)
+        t.start()
 
 
     def update(self, job):
@@ -299,8 +333,7 @@ class Db4eServer:
         job.msg(msgs[:-1])
         self.job_queue.complete_job(job)
 
-    def watch_log(self, log_file):
-        pass
+
 
 def main():
     # Set environment variables for better color support
