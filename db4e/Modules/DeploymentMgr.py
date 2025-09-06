@@ -582,6 +582,7 @@ class DeploymentMgr(Container):
     def update_monerod_deployment(self, new_monerod: MoneroD):
         update = False
         update_config = False
+        retart = True
 
         monerod = self.db_cache.get_deployment(MONEROD_FIELD, new_monerod.instance())
         if not monerod:
@@ -595,6 +596,7 @@ class DeploymentMgr(Container):
             else:
                 monerod.enable()
             update = True
+            restart = False
 
         else:
             # This is an update op
@@ -710,10 +712,11 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(monerod)
-            job = Job(op=RESTART_FIELD, elem_type=MONEROD_FIELD,
-                      elem=monerod,
-                      instance=monerod.instance())
-            self.job_queue.post_job(job)
+            if restart:
+                job = Job(op=RESTART_FIELD, elem_type=MONEROD_FIELD,
+                        elem=monerod,
+                        instance=monerod.instance())
+                self.job_queue.post_job(job)
         else:
             monerod.msg(MONEROD_SHORT_LABEL, WARN_FIELD, "Nothing to update")
             
@@ -778,6 +781,7 @@ class DeploymentMgr(Container):
     def update_p2pool_deployment(self, new_p2pool: P2Pool) -> P2Pool:
         update = False
         update_config = False
+        restart = True
 
         p2pool = self.db_cache.get_deployment(P2POOL_FIELD, new_p2pool.instance())
         if not p2pool:
@@ -791,6 +795,7 @@ class DeploymentMgr(Container):
             else:
                 p2pool.enable()
             update = True
+            restart = False
 
         else:
             # This is an update op
@@ -861,10 +866,11 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(p2pool)
-            job = Job(op=RESTART_FIELD, elem_type=P2POOL_FIELD, 
-                      elem=p2pool,
-                      instance=p2pool.instance())
-            self.job_queue.post_job(job)
+            if restart:
+                job = Job(op=RESTART_FIELD, elem_type=P2POOL_FIELD, 
+                        elem=p2pool,
+                        instance=p2pool.instance())
+                self.job_queue.post_job(job)
         else:
             p2pool.msg(P2POOL_SHORT_LABEL, WARN_FIELD, "Nothing to update")
 
