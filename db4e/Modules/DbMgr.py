@@ -186,6 +186,16 @@ class DbMgr:
         return col.insert_one(deepcopy(jdoc))
 
 
+    def insert_uniq_by_timestamp(self, collection, jdoc):
+        timestamp = jdoc['timestamp']
+        doc_type = jdoc['doc_type']
+        existing = self.find_one(collection, {'doc_type': doc_type, 
+                                            'timestamp': timestamp})
+        if not existing:
+            self.insert_one(collection, jdoc)
+            return True
+        return False
+    
     @as_worker
     def update_one(self, col_name, filter, new_values, use_worker=True):
         elem_type = ""
