@@ -11,6 +11,7 @@ Everything P2Pool
 """
 
 import os
+import time
 
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.MoneroD import MoneroD
@@ -127,4 +128,10 @@ class P2Pool(LocalSoftwareSystem):
     def instance_map(self, map=None):
         if map:
             self._instance_map = map
-        return self._instance_map        
+        return self._instance_map
+    
+
+
+
+
+
