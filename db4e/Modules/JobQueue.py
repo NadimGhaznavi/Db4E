@@ -52,7 +52,7 @@ class JobQueue:
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
             job.status(PROCESSING_FIELD)
             #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
-            self.log.critical(f"JobQueue:grab_job(): {job}")
+            print(f"JobQueue:grab_job(): {job}")
             return job
         else:
             return False
