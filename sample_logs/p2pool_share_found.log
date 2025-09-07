@@ -1,0 +1,260 @@
+2025-08-31 02:39:35.5338 StratumServer SHARE FOUND: mainchain height 3489511, sidechain height 0, diff 100000, client 192.168.0.134:56802, user phoebe, effort 100.001%
+2025-08-31 02:39:50.2247 StratumServer SHARE FOUND: mainchain height 3489512, sidechain height 1, diff 100000, client 192.168.0.122:44568, user islands, effort 200.002%
+2025-08-31 02:40:20.6878 StratumServer SHARE FOUND: mainchain height 3489512, sidechain height 2, diff 100000, client 192.168.0.27:34808, user paris, effort 50.000%
+2025-08-31 18:10:35.1191 StratumServer SHARE FOUND: mainchain height 3489970, sidechain height 11602940, diff 158189297, client 192.168.0.27:52972, user paris, effort 155.318%
+2025-09-01 16:54:22.0260 StratumServer SHARE FOUND: mainchain height 3490715, sidechain height 11610961, diff 162991153, client 192.168.0.27:50420, user paris, effort 219.250%
+2025-09-01 21:48:40.1380 StratumServer SHARE FOUND: mainchain height 3490861, sidechain height 11612603, diff 152333965, client 192.168.0.122:44568, user islands, effort 51.431%
+2025-09-02 18:32:48.7865 StratumServer SHARE FOUND: mainchain height 3491426, sidechain height 11620039, diff 173454263, client 192.168.0.122:44568, user islands, effort 187.917%
+2025-09-03 01:54:29.3643 StratumServer SHARE FOUND: mainchain height 3491683, sidechain height 11622565, diff 169804519, client 192.168.0.122:44568, user islands, effort 67.693%
+2025-09-03 02:16:25.3041 StratumServer SHARE FOUND: mainchain height 3491692, sidechain height 11622693, diff 170261415, client 192.168.0.176:45920, user kermit, effort 3.691%
+2025-09-04 05:25:45.4506 StratumServer SHARE FOUND: mainchain height 3492508, sidechain height 11632083, diff 150369255, client 192.168.0.134:56802, user phoebe, effort 284.519%
+2025-09-05 00:00:57.5508 StratumServer SHARE FOUND: mainchain height 3493028, sidechain height 11638658, diff 159894762, client 192.168.0.122:44568, user islands, effort 180.236%
+2025-09-05 08:44:01.7821 StratumServer SHARE FOUND: mainchain height 3493285, sidechain height 11641721, diff 164829189, client 192.168.0.122:44568, user islands, effort 82.936%
+2025-09-05 18:44:33.8001 StratumServer SHARE FOUND: mainchain height 3493566, sidechain height 11645214, diff 164683414, client 192.168.0.122:44568, user islands, effort 95.762%
+2025-09-06 05:42:00.8461 StratumServer SHARE FOUND: mainchain height 3493880, sidechain height 11649086, diff 163069101, client 192.168.0.176:42090, user kermit, effort 102.622%
+2025-06-27 14:16:49.2428 StratumServer SHARE FOUND: mainchain height 3443212, sidechain height 11055510, diff 138575392, client 192.168.0.176:50090, user kermit, effort 112.473%
+2025-06-27 22:11:25.1996 StratumServer SHARE FOUND: mainchain height 3443453, sidechain height 11058353, diff 140349503, client 192.168.0.27:49794, user paris, effort 112.681%
+2025-06-28 01:58:21.6214 StratumServer SHARE FOUND: mainchain height 3443554, sidechain height 11059694, diff 143527490, client 192.168.0.122:56066, user islands, effort 54.387%
+2025-06-28 03:47:45.9367 StratumServer SHARE FOUND: mainchain height 3443607, sidechain height 11060293, diff 140126120, client 192.168.0.220:54500, user phoebe, effort 27.430%
+2025-06-28 07:06:57.8093 StratumServer SHARE FOUND: mainchain height 3443702, sidechain height 11061459, diff 136405754, client 192.168.0.220:54500, user phoebe, effort 48.931%
+2025-06-28 13:16:47.3055 StratumServer SHARE FOUND: mainchain height 3443886, sidechain height 11063633, diff 136261022, client 192.168.0.169:42258, user maia, effort 94.048%
+2025-06-28 18:47:18.6494 StratumServer SHARE FOUND: mainchain height 3444067, sidechain height 11065573, diff 140951363, client 192.168.0.176:43386, user kermit, effort 77.862%
+2025-06-29 05:00:14.4998 StratumServer SHARE FOUND: mainchain height 3444379, sidechain height 11069109, diff 133800677, client 192.168.0.176:55246, user kermit, effort 156.097%
+2025-06-29 05:45:03.3820 StratumServer SHARE FOUND: mainchain height 3444399, sidechain height 11069381, diff 132829099, client 192.168.0.220:54500, user phoebe, effort 11.240%
+2025-06-29 08:59:41.3096 StratumServer SHARE FOUND: mainchain height 3444524, sidechain height 11070551, diff 140221617, client 192.168.0.122:56066, user islands, effort 46.280%
+2025-06-30 19:34:24.3360 StratumServer SHARE FOUND: mainchain height 3445525, sidechain height 11082611, diff 133959378, client 192.168.0.169:42258, user maia, effort 536.257%
+2025-07-01 05:38:41.8984 StratumServer SHARE FOUND: mainchain height 3445842, sidechain height 11086150, diff 124967651, client 192.168.0.169:42258, user maia, effort 163.774%
+2025-07-01 15:44:26.1362 StratumServer SHARE FOUND: mainchain height 3446158, sidechain height 11089735, diff 133081745, client 192.168.0.176:34110, user kermit, effort 155.885%
+2025-07-01 15:47:44.1278 StratumServer SHARE FOUND: mainchain height 3446158, sidechain height 11089762, diff 133602449, client 192.168.0.176:34110, user kermit, effort 0.906%
+2025-07-01 18:15:45.4757 StratumServer SHARE FOUND: mainchain height 3446219, sidechain height 11090638, diff 131357972, client 192.168.0.169:42258, user maia, effort 37.234%
+2025-07-02 01:03:07.4234 StratumServer SHARE FOUND: mainchain height 3446394, sidechain height 11092984, diff 126070536, client 192.168.0.176:34110, user kermit, effort 109.497%
+2025-07-02 01:36:29.3783 StratumServer SHARE FOUND: mainchain height 3446411, sidechain height 11093181, diff 127881062, client 192.168.0.122:56066, user islands, effort 8.827%
+2025-07-02 06:51:40.1383 StratumServer SHARE FOUND: mainchain height 3446558, sidechain height 11095028, diff 131557511, client 192.168.0.220:54500, user phoebe, effort 82.668%
+2025-07-02 14:22:06.1099 StratumServer SHARE FOUND: mainchain height 3446809, sidechain height 11097707, diff 132221773, client 192.168.0.220:54500, user phoebe, effort 114.473%
+2025-07-02 20:31:23.1713 StratumServer SHARE FOUND: mainchain height 3446987, sidechain height 11099910, diff 137125569, client 192.168.0.176:35324, user kermit, effort 90.426%
+2025-07-03 14:10:41.8042 StratumServer SHARE FOUND: mainchain height 3447520, sidechain height 11106017, diff 127332266, client 192.168.0.176:38016, user kermit, effort 284.285%
+2025-07-03 14:47:53.6528 StratumServer SHARE FOUND: mainchain height 3447538, sidechain height 11106237, diff 127172125, client 192.168.0.169:42258, user maia, effort 9.696%
+2025-07-04 04:35:17.7420 StratumServer SHARE FOUND: mainchain height 3447943, sidechain height 11111149, diff 133305204, client 192.168.0.169:42258, user maia, effort 213.181%
+2025-07-04 06:19:38.9175 StratumServer SHARE FOUND: mainchain height 3447999, sidechain height 11111759, diff 135999033, client 192.168.0.169:42258, user maia, effort 25.849%
+2025-07-04 09:17:54.1311 StratumServer SHARE FOUND: mainchain height 3448086, sidechain height 11112807, diff 132454796, client 192.168.0.176:39654, user kermit, effort 44.898%
+2025-07-04 11:41:10.4481 StratumServer SHARE FOUND: mainchain height 3448153, sidechain height 11113643, diff 136065297, client 192.168.0.169:42258, user maia, effort 36.116%
+2025-07-04 16:37:55.8504 StratumServer SHARE FOUND: mainchain height 3448300, sidechain height 11115428, diff 140144155, client 192.168.0.220:54500, user phoebe, effort 74.494%
+2025-07-04 17:57:33.3954 StratumServer SHARE FOUND: mainchain height 3448335, sidechain height 11115874, diff 139378334, client 192.168.0.169:42258, user maia, effort 19.678%
+2025-07-05 05:19:46.5140 StratumServer SHARE FOUND: mainchain height 3448652, sidechain height 11119826, diff 135690897, client 192.168.0.176:33646, user kermit, effort 172.903%
+2025-07-05 09:22:03.0294 StratumServer SHARE FOUND: mainchain height 3448776, sidechain height 11121243, diff 131195675, client 192.168.0.176:33646, user kermit, effort 63.906%
+2025-07-05 13:12:11.7767 StratumServer SHARE FOUND: mainchain height 3448931, sidechain height 11122610, diff 134979627, client 192.168.0.211:48470, user thepad, effort 59.627%
+2025-07-05 14:26:17.5450 StratumServer SHARE FOUND: mainchain height 3448967, sidechain height 11123075, diff 137500597, client 192.168.0.176:33646, user kermit, effort 19.300%
+2025-07-05 14:49:41.8868 StratumServer SHARE FOUND: mainchain height 3448975, sidechain height 11123204, diff 137967076, client 192.168.0.27:46226, user paris, effort 6.413%
+2025-07-05 19:31:51.0156 StratumServer SHARE FOUND: mainchain height 3449121, sidechain height 11124848, diff 135049978, client 192.168.0.169:42258, user maia, effort 71.186%
+2025-07-05 22:12:10.6593 StratumServer SHARE FOUND: mainchain height 3449215, sidechain height 11125796, diff 138738994, client 192.168.0.122:56066, user islands, effort 39.584%
+2025-07-06 10:07:58.2941 StratumServer SHARE FOUND: mainchain height 3449558, sidechain height 11129962, diff 132432761, client 192.168.0.169:42258, user maia, effort 187.101%
+2025-07-06 21:24:34.1796 StratumServer SHARE FOUND: mainchain height 3449856, sidechain height 11134047, diff 143278693, client 192.168.0.27:51294, user paris, effort 163.964%
+2025-07-07 03:18:20.7766 StratumServer SHARE FOUND: mainchain height 3450044, sidechain height 11136105, diff 143243930, client 192.168.0.169:42258, user maia, effort 85.427%
+2025-07-07 04:45:25.2895 StratumServer SHARE FOUND: mainchain height 3450085, sidechain height 11136610, diff 143245371, client 192.168.0.122:56066, user islands, effort 21.309%
+2025-07-07 11:11:56.8495 StratumServer SHARE FOUND: mainchain height 3450283, sidechain height 11138775, diff 134023493, client 192.168.0.176:45382, user kermit, effort 99.783%
+2025-07-07 15:36:38.3142 StratumServer SHARE FOUND: mainchain height 3450403, sidechain height 11140406, diff 140187857, client 192.168.0.176:45382, user kermit, effort 62.298%
+2025-07-08 02:38:18.8879 StratumServer SHARE FOUND: mainchain height 3450703, sidechain height 11144264, diff 141837146, client 192.168.0.220:54500, user phoebe, effort 162.033%
+2025-07-08 08:10:36.7407 StratumServer SHARE FOUND: mainchain height 3450877, sidechain height 11146151, diff 136415430, client 192.168.0.220:54500, user phoebe, effort 77.790%
+2025-07-08 12:38:17.5622 StratumServer SHARE FOUND: mainchain height 3451016, sidechain height 11147692, diff 131113292, client 192.168.0.169:42258, user maia, effort 63.994%
+2025-07-08 15:55:16.9976 StratumServer SHARE FOUND: mainchain height 3451115, sidechain height 11148848, diff 135122640, client 192.168.0.244:36488, user bingo, effort 44.480%
+2025-07-08 18:33:28.4871 StratumServer SHARE FOUND: mainchain height 3451213, sidechain height 11149775, diff 135024738, client 192.168.0.176:55112, user kermit, effort 39.627%
+2025-07-09 03:20:57.7192 StratumServer SHARE FOUND: mainchain height 3451476, sidechain height 11152874, diff 134976276, client 192.168.0.122:56066, user islands, effort 138.343%
+2025-07-09 11:11:09.3472 StratumServer SHARE FOUND: mainchain height 3451714, sidechain height 11155550, diff 127031283, client 192.168.0.244:40600, user bingo, effort 131.957%
+2025-07-09 15:49:25.8553 StratumServer SHARE FOUND: mainchain height 3451859, sidechain height 11157179, diff 127550568, client 192.168.0.27:33804, user paris, effort 76.902%
+2025-07-09 18:24:27.0480 StratumServer SHARE FOUND: mainchain height 3451941, sidechain height 11158105, diff 131672831, client 192.168.0.122:56066, user islands, effort 41.414%
+2025-07-09 21:12:28.8356 StratumServer SHARE FOUND: mainchain height 3452015, sidechain height 11159060, diff 130649051, client 192.168.0.169:42258, user maia, effort 46.202%
+2025-07-10 01:02:03.5834 StratumServer SHARE FOUND: mainchain height 3452134, sidechain height 11160385, diff 126712585, client 192.168.0.169:42258, user maia, effort 64.343%
+2025-07-10 12:10:46.6229 StratumServer SHARE FOUND: mainchain height 3452485, sidechain height 11164381, diff 137100837, client 192.168.0.27:43534, user paris, effort 171.417%
+2025-07-11 02:48:46.0131 StratumServer SHARE FOUND: mainchain height 3452929, sidechain height 11169555, diff 149212901, client 192.168.0.220:54500, user phoebe, effort 205.483%
+2025-07-11 05:30:31.8329 StratumServer SHARE FOUND: mainchain height 3453008, sidechain height 11170514, diff 152790339, client 192.168.0.176:50360, user kermit, effort 36.402%
+2025-07-11 06:10:37.4031 StratumServer SHARE FOUND: mainchain height 3453028, sidechain height 11170782, diff 151617797, client 192.168.0.169:42258, user maia, effort 9.618%
+2025-07-11 06:22:24.4866 StratumServer SHARE FOUND: mainchain height 3453033, sidechain height 11170854, diff 153554631, client 192.168.0.176:50360, user kermit, effort 2.961%
+2025-07-11 08:09:39.1603 StratumServer SHARE FOUND: mainchain height 3453092, sidechain height 11171484, diff 158176641, client 192.168.0.169:42258, user maia, effort 23.965%
+2025-07-11 10:59:48.2638 StratumServer SHARE FOUND: mainchain height 3453169, sidechain height 11172434, diff 156400458, client 192.168.0.169:42258, user maia, effort 38.423%
+2025-07-11 18:50:50.0957 StratumServer SHARE FOUND: mainchain height 3453426, sidechain height 11175217, diff 167362536, client 192.168.0.169:42258, user maia, effort 98.866%
+2025-07-11 21:55:50.6290 StratumServer SHARE FOUND: mainchain height 3453502, sidechain height 11176246, diff 162280216, client 192.168.0.169:42258, user maia, effort 38.483%
+2025-07-12 00:24:32.1013 StratumServer SHARE FOUND: mainchain height 3453564, sidechain height 11177069, diff 153397698, client 192.168.0.122:56066, user islands, effort 35.891%
+2025-07-12 05:09:52.7646 StratumServer SHARE FOUND: mainchain height 3453703, sidechain height 11178703, diff 156158744, client 192.168.0.220:54500, user phoebe, effort 64.094%
+2025-07-12 14:22:51.6015 StratumServer SHARE FOUND: mainchain height 3453982, sidechain height 11181914, diff 154051444, client 192.168.0.169:42258, user maia, effort 123.137%
+2025-07-12 14:28:56.5932 StratumServer SHARE FOUND: mainchain height 3453988, sidechain height 11181956, diff 153995253, client 192.168.0.122:56066, user islands, effort 1.479%
+2025-07-12 14:54:51.6955 StratumServer SHARE FOUND: mainchain height 3454002, sidechain height 11182111, diff 154894806, client 192.168.0.122:56066, user islands, effort 6.419%
+2025-07-12 16:25:52.0702 StratumServer SHARE FOUND: mainchain height 3454041, sidechain height 11182650, diff 157002949, client 192.168.0.27:55522, user paris, effort 21.373%
+2025-07-12 23:16:43.2201 StratumServer SHARE FOUND: mainchain height 3454292, sidechain height 11184990, diff 152270415, client 192.168.0.122:56066, user islands, effort 95.432%
+2025-07-13 00:54:16.3147 StratumServer SHARE FOUND: mainchain height 3454341, sidechain height 11185548, diff 150912842, client 192.168.0.176:38908, user kermit, effort 22.992%
+2025-07-13 03:11:26.6497 StratumServer SHARE FOUND: mainchain height 3454396, sidechain height 11186342, diff 153286029, client 192.168.0.176:38908, user kermit, effort 31.310%
+2025-07-13 05:05:08.2371 StratumServer SHARE FOUND: mainchain height 3454461, sidechain height 11187012, diff 156136925, client 192.168.0.27:37606, user paris, effort 25.415%
+2025-07-13 07:40:26.6092 StratumServer SHARE FOUND: mainchain height 3454519, sidechain height 11187856, diff 153827739, client 192.168.0.220:54500, user phoebe, effort 35.476%
+2025-07-13 08:08:08.9757 StratumServer SHARE FOUND: mainchain height 3454533, sidechain height 11188030, diff 149732624, client 192.168.0.220:54500, user phoebe, effort 6.443%
+2025-07-13 11:40:06.9235 StratumServer SHARE FOUND: mainchain height 3454636, sidechain height 11189248, diff 150008600, client 192.168.0.122:56066, user islands, effort 50.316%
+2025-07-13 18:16:53.3510 StratumServer SHARE FOUND: mainchain height 3454838, sidechain height 11191572, diff 154437955, client 192.168.0.244:42746, user bingo, effort 92.161%
+2025-07-13 23:40:49.1979 StratumServer SHARE FOUND: mainchain height 3454990, sidechain height 11193484, diff 162021460, client 192.168.0.176:56658, user kermit, effort 67.938%
+2025-07-14 08:10:59.5163 StratumServer SHARE FOUND: mainchain height 3455243, sidechain height 11196392, diff 154099553, client 192.168.0.220:54500, user phoebe, effort 111.429%
+2025-07-14 15:48:50.6405 StratumServer SHARE FOUND: mainchain height 3455501, sidechain height 11199053, diff 158608049, client 192.168.0.169:42258, user maia, effort 99.873%
+2025-07-14 19:18:42.5512 StratumServer SHARE FOUND: mainchain height 3455595, sidechain height 11200230, diff 150319794, client 192.168.0.27:57978, user paris, effort 49.974%
+2025-07-14 20:17:36.7504 StratumServer SHARE FOUND: mainchain height 3455622, sidechain height 11200560, diff 152873642, client 192.168.0.122:56066, user islands, effort 13.895%
+2025-07-15 03:07:53.1306 StratumServer SHARE FOUND: mainchain height 3455839, sidechain height 11202910, diff 146241684, client 192.168.0.169:42258, user maia, effort 99.094%
+2025-07-15 18:29:47.0565 StratumServer SHARE FOUND: mainchain height 3456276, sidechain height 11208272, diff 156813187, client 192.168.0.169:42258, user maia, effort 209.427%
+2025-07-16 04:16:21.7487 StratumServer SHARE FOUND: mainchain height 3456583, sidechain height 11211625, diff 154029563, client 192.168.0.122:56066, user islands, effort 129.643%
+2025-07-16 12:07:24.9167 StratumServer SHARE FOUND: mainchain height 3456814, sidechain height 11214354, diff 150216599, client 192.168.0.27:45890, user paris, effort 111.064%
+2025-07-16 20:16:28.7287 StratumServer SHARE FOUND: mainchain height 3457067, sidechain height 11217162, diff 160508305, client 192.168.0.176:46036, user kermit, effort 107.587%
+2025-07-17 01:29:34.6426 StratumServer SHARE FOUND: mainchain height 3457224, sidechain height 11218807, diff 135579869, client 192.168.0.176:46036, user kermit, effort 82.364%
+2025-07-17 11:52:15.5791 StratumServer SHARE FOUND: mainchain height 3457523, sidechain height 11222483, diff 135141120, client 192.168.0.27:54172, user paris, effort 163.203%
+2025-07-17 17:30:26.0957 StratumServer SHARE FOUND: mainchain height 3457689, sidechain height 11224493, diff 140071282, client 192.168.0.169:42258, user maia, effort 83.175%
+2025-07-18 06:18:28.9646 StratumServer SHARE FOUND: mainchain height 3458088, sidechain height 11228983, diff 138227487, client 192.168.0.176:41202, user kermit, effort 195.168%
+2025-07-18 15:15:13.6784 StratumServer SHARE FOUND: mainchain height 3458318, sidechain height 11232165, diff 144816222, client 192.168.0.211:48470, user thepad, effort 129.720%
+2025-07-18 15:30:16.5374 StratumServer SHARE FOUND: mainchain height 3458325, sidechain height 11232245, diff 145268555, client 192.168.0.176:41202, user kermit, effort 3.917%
+2025-07-18 15:39:45.1754 StratumServer SHARE FOUND: mainchain height 3458327, sidechain height 11232299, diff 145441965, client 192.168.0.122:56066, user islands, effort 1.764%
+2025-07-18 19:31:48.1694 StratumServer SHARE FOUND: mainchain height 3458431, sidechain height 11233595, diff 143547559, client 192.168.0.169:42258, user maia, effort 58.031%
+2025-07-19 07:46:00.9498 StratumServer SHARE FOUND: mainchain height 3458800, sidechain height 11237900, diff 139570084, client 192.168.0.122:56066, user islands, effort 179.373%
+2025-07-19 16:20:41.8388 StratumServer SHARE FOUND: mainchain height 3459050, sidechain height 11240877, diff 137634674, client 192.168.0.176:35410, user kermit, effort 130.245%
+2025-07-19 19:45:32.5785 StratumServer SHARE FOUND: mainchain height 3459172, sidechain height 11242079, diff 138263121, client 192.168.0.220:54500, user phoebe, effort 52.378%
+2025-07-19 21:09:16.3238 StratumServer SHARE FOUND: mainchain height 3459223, sidechain height 11242578, diff 136534621, client 192.168.0.122:56066, user islands, effort 21.600%
+2025-07-19 22:31:11.8347 StratumServer SHARE FOUND: mainchain height 3459265, sidechain height 11243054, diff 138651716, client 192.168.0.176:35410, user kermit, effort 21.060%
+2025-07-20 03:34:53.7374 StratumServer SHARE FOUND: mainchain height 3459434, sidechain height 11244864, diff 140154524, client 192.168.0.244:57078, user bingo, effort 76.564%
+2025-07-20 05:35:02.9176 StratumServer SHARE FOUND: mainchain height 3459505, sidechain height 11245550, diff 138451681, client 192.168.0.122:56066, user islands, effort 30.413%
+2025-07-21 02:18:52.7723 StratumServer SHARE FOUND: mainchain height 3460116, sidechain height 11252796, diff 134444838, client 192.168.0.220:54500, user phoebe, effort 327.218%
+2025-07-21 10:57:05.2183 StratumServer SHARE FOUND: mainchain height 3460353, sidechain height 11255816, diff 133239062, client 192.168.0.169:42258, user maia, effort 140.175%
+2025-07-21 21:04:03.8063 StratumServer SHARE FOUND: mainchain height 3460656, sidechain height 11259372, diff 134520623, client 192.168.0.169:42258, user maia, effort 157.442%
+2025-07-22 04:08:27.6559 StratumServer SHARE FOUND: mainchain height 3460876, sidechain height 11261749, diff 132370670, client 192.168.0.169:42258, user maia, effort 114.999%
+2025-07-22 09:36:29.6839 StratumServer SHARE FOUND: mainchain height 3461020, sidechain height 11263723, diff 141780480, client 192.168.0.169:42258, user maia, effort 83.055%
+2025-07-22 09:41:23.1842 StratumServer SHARE FOUND: mainchain height 3461023, sidechain height 11263752, diff 140691838, client 192.168.0.220:54500, user phoebe, effort 1.210%
+2025-07-22 17:55:32.2027 StratumServer SHARE FOUND: mainchain height 3461263, sidechain height 11266605, diff 139377681, client 192.168.0.220:54500, user phoebe, effort 126.091%
+2025-07-22 19:24:44.2077 StratumServer SHARE FOUND: mainchain height 3461307, sidechain height 11267113, diff 133540964, client 192.168.0.176:37212, user kermit, effort 23.542%
+2025-07-22 21:16:31.0408 StratumServer SHARE FOUND: mainchain height 3461354, sidechain height 11267756, diff 132080199, client 192.168.0.27:39334, user paris, effort 29.442%
+2025-07-23 03:10:14.6603 StratumServer SHARE FOUND: mainchain height 3461549, sidechain height 11269905, diff 138402981, client 192.168.0.169:42258, user maia, effort 87.532%
+2025-07-24 05:42:48.7121 StratumServer SHARE FOUND: mainchain height 3462348, sidechain height 11279234, diff 142001189, client 192.168.0.169:42258, user maia, effort 390.859%
+2025-07-24 10:35:31.3528 StratumServer SHARE FOUND: mainchain height 3462474, sidechain height 11280863, diff 133915904, client 192.168.0.220:54500, user phoebe, effort 77.049%
+2025-07-24 21:38:54.9346 StratumServer SHARE FOUND: mainchain height 3462800, sidechain height 11284767, diff 136854874, client 192.168.0.27:55974, user paris, effort 164.531%
+2025-07-24 23:48:05.8089 StratumServer SHARE FOUND: mainchain height 3462855, sidechain height 11285507, diff 137534077, client 192.168.0.220:54500, user phoebe, effort 32.377%
+2025-07-25 03:32:23.4433 StratumServer SHARE FOUND: mainchain height 3462951, sidechain height 11286830, diff 131525883, client 192.168.0.176:57164, user kermit, effort 58.626%
+2025-07-26 18:53:26.7971 StratumServer SHARE FOUND: mainchain height 3464240, sidechain height 11300649, diff 142769857, client 192.168.0.122:56066, user islands, effort 582.759%
+2025-07-27 01:07:13.2799 StratumServer SHARE FOUND: mainchain height 3464420, sidechain height 11302849, diff 143811380, client 192.168.0.122:56066, user islands, effort 90.791%
+2025-07-27 01:57:25.0281 StratumServer SHARE FOUND: mainchain height 3464445, sidechain height 11303129, diff 144858653, client 192.168.0.122:56066, user islands, effort 12.316%
+2025-07-27 05:51:21.9569 StratumServer SHARE FOUND: mainchain height 3464569, sidechain height 11304489, diff 142575914, client 192.168.0.176:54178, user kermit, effort 57.670%
+2025-07-27 15:50:15.8528 StratumServer SHARE FOUND: mainchain height 3464864, sidechain height 11307989, diff 141218086, client 192.168.0.122:56066, user islands, effort 148.640%
+2025-07-27 18:02:01.7786 StratumServer SHARE FOUND: mainchain height 3464916, sidechain height 11308731, diff 138758186, client 192.168.0.27:51736, user paris, effort 31.695%
+2025-07-27 23:12:37.9448 StratumServer SHARE FOUND: mainchain height 3465063, sidechain height 11310552, diff 135895755, client 192.168.0.169:42258, user maia, effort 79.258%
+2025-07-28 01:19:27.6125 StratumServer SHARE FOUND: mainchain height 3465123, sidechain height 11311322, diff 135356960, client 192.168.0.122:56066, user islands, effort 32.076%
+2025-07-28 01:53:45.3083 StratumServer SHARE FOUND: mainchain height 3465141, sidechain height 11311521, diff 136574992, client 192.168.0.176:54178, user kermit, effort 9.434%
+2025-07-28 02:47:44.6216 StratumServer SHARE FOUND: mainchain height 3465167, sidechain height 11311863, diff 139133533, client 192.168.0.176:54178, user kermit, effort 13.889%
+2025-07-28 13:22:38.6203 StratumServer SHARE FOUND: mainchain height 3465466, sidechain height 11315527, diff 137996500, client 192.168.0.122:56066, user islands, effort 159.666%
+2025-07-28 19:16:21.0119 StratumServer SHARE FOUND: mainchain height 3465642, sidechain height 11317642, diff 144024386, client 192.168.0.169:42258, user maia, effort 87.099%
+2025-07-29 05:15:06.4627 StratumServer SHARE FOUND: mainchain height 3465919, sidechain height 11321070, diff 133247619, client 192.168.0.169:42258, user maia, effort 155.357%
+2025-07-29 12:04:07.1427 StratumServer SHARE FOUND: mainchain height 3466120, sidechain height 11323434, diff 135388318, client 192.168.0.220:54500, user phoebe, effort 106.496%
+2025-07-29 17:15:16.7477 StratumServer SHARE FOUND: mainchain height 3466290, sidechain height 11325335, diff 144565488, client 192.168.0.176:58434, user kermit, effort 75.738%
+2025-07-29 18:58:24.6164 StratumServer SHARE FOUND: mainchain height 3466344, sidechain height 11325952, diff 143277958, client 192.168.0.176:58434, user kermit, effort 26.586%
+2025-07-30 07:34:06.4394 StratumServer SHARE FOUND: mainchain height 3466716, sidechain height 11330372, diff 150922182, client 192.168.0.122:56066, user islands, effort 177.571%
+2025-07-30 09:58:23.9961 StratumServer SHARE FOUND: mainchain height 3466797, sidechain height 11331174, diff 147034674, client 192.168.0.220:54500, user phoebe, effort 35.844%
+2025-07-30 18:14:24.4500 StratumServer SHARE FOUND: mainchain height 3467076, sidechain height 11334061, diff 140435922, client 192.168.0.244:42740, user bingo, effort 124.827%
+2025-07-30 18:32:15.2751 StratumServer SHARE FOUND: mainchain height 3467082, sidechain height 11334175, diff 140423802, client 192.168.0.27:52458, user paris, effort 5.076%
+2025-07-31 06:29:54.7391 StratumServer SHARE FOUND: mainchain height 3467427, sidechain height 11338339, diff 137736963, client 192.168.0.169:42258, user maia, effort 181.154%
+2025-07-31 09:59:52.6343 StratumServer SHARE FOUND: mainchain height 3467523, sidechain height 11339501, diff 131871978, client 192.168.0.220:54500, user phoebe, effort 58.336%
+2025-07-31 10:22:57.6602 StratumServer SHARE FOUND: mainchain height 3467540, sidechain height 11339652, diff 132783002, client 192.168.0.169:42258, user maia, effort 6.465%
+2025-07-31 10:48:38.0290 StratumServer SHARE FOUND: mainchain height 3467549, sidechain height 11339803, diff 133850182, client 192.168.0.27:43512, user paris, effort 6.909%
+2025-07-31 12:43:38.1788 StratumServer SHARE FOUND: mainchain height 3467602, sidechain height 11340496, diff 134005632, client 192.168.0.27:43512, user paris, effort 30.453%
+2025-08-01 15:28:13.2424 StratumServer SHARE FOUND: mainchain height 3468386, sidechain height 11349849, diff 129786558, client 192.168.0.220:54500, user phoebe, effort 432.966%
+2025-08-01 16:20:24.5586 StratumServer SHARE FOUND: mainchain height 3468417, sidechain height 11350157, diff 135099289, client 192.168.0.27:51180, user paris, effort 13.850%
+2025-08-01 23:11:10.1181 StratumServer SHARE FOUND: mainchain height 3468614, sidechain height 11352623, diff 141784476, client 192.168.0.169:42258, user maia, effort 102.906%
+2025-08-02 07:31:15.5031 StratumServer SHARE FOUND: mainchain height 3468899, sidechain height 11355468, diff 136610743, client 192.168.0.176:56012, user kermit, effort 126.785%
+2025-08-02 18:33:58.5300 StratumServer SHARE FOUND: mainchain height 3469245, sidechain height 11359369, diff 137510430, client 192.168.0.220:54500, user phoebe, effort 173.729%
+2025-08-02 22:42:36.9799 StratumServer SHARE FOUND: mainchain height 3469384, sidechain height 11360837, diff 134086487, client 192.168.0.122:56066, user islands, effort 66.196%
+2025-08-03 02:16:43.9855 StratumServer SHARE FOUND: mainchain height 3469489, sidechain height 11362076, diff 134923979, client 192.168.0.122:56066, user islands, effort 57.413%
+2025-08-03 02:57:20.6946 StratumServer SHARE FOUND: mainchain height 3469513, sidechain height 11362320, diff 137061023, client 192.168.0.169:42258, user maia, effort 10.036%
+2025-08-03 07:57:23.0418 StratumServer SHARE FOUND: mainchain height 3469645, sidechain height 11364054, diff 134703242, client 192.168.0.122:56066, user islands, effort 76.456%
+2025-08-03 09:36:13.5737 StratumServer SHARE FOUND: mainchain height 3469680, sidechain height 11364622, diff 131122965, client 192.168.0.27:42298, user paris, effort 27.625%
+2025-08-03 13:13:51.6327 StratumServer SHARE FOUND: mainchain height 3469795, sidechain height 11365943, diff 136171042, client 192.168.0.220:54500, user phoebe, effort 55.028%
+2025-08-04 04:10:23.7667 StratumServer SHARE FOUND: mainchain height 3470255, sidechain height 11371176, diff 137322974, client 192.168.0.176:45458, user kermit, effort 224.497%
+2025-08-04 18:50:48.9560 StratumServer SHARE FOUND: mainchain height 3470689, sidechain height 11376308, diff 141408546, client 192.168.0.122:36404, user islands, effort 218.673%
+2025-08-04 20:40:09.1503 StratumServer SHARE FOUND: mainchain height 3470743, sidechain height 11376943, diff 138422948, client 192.168.0.134:58072, user phoebe, effort 27.673%
+2025-08-05 05:44:55.0114 StratumServer SHARE FOUND: mainchain height 3470987, sidechain height 11380102, diff 139223692, client 192.168.0.122:36404, user islands, effort 132.789%
+2025-08-05 07:18:14.2963 StratumServer SHARE FOUND: mainchain height 3471035, sidechain height 11380667, diff 136542270, client 192.168.0.27:44970, user paris, effort 20.911%
+2025-08-05 08:55:51.5106 StratumServer SHARE FOUND: mainchain height 3471090, sidechain height 11381244, diff 141306629, client 192.168.0.122:36404, user islands, effort 21.021%
+2025-08-05 10:20:56.3475 StratumServer SHARE FOUND: mainchain height 3471130, sidechain height 11381736, diff 140670406, client 192.168.0.176:35816, user kermit, effort 19.602%
+2025-08-05 13:55:32.2944 StratumServer SHARE FOUND: mainchain height 3471228, sidechain height 11383052, diff 144732831, client 192.168.0.176:35816, user kermit, effort 44.098%
+2025-08-05 23:10:17.1391 StratumServer SHARE FOUND: mainchain height 3471503, sidechain height 11386197, diff 140091229, client 192.168.0.176:35816, user kermit, effort 128.585%
+2025-08-06 02:18:15.0767 StratumServer SHARE FOUND: mainchain height 3471589, sidechain height 11387274, diff 137296131, client 192.168.0.176:35816, user kermit, effort 45.617%
+2025-08-06 06:10:12.4327 StratumServer SHARE FOUND: mainchain height 3471701, sidechain height 11388706, diff 140487089, client 192.168.0.27:45964, user paris, effort 57.754%
+2025-08-06 06:17:09.9036 StratumServer SHARE FOUND: mainchain height 3471704, sidechain height 11388746, diff 140674001, client 192.168.0.134:46478, user phoebe, effort 1.851%
+2025-08-06 06:45:32.7605 StratumServer SHARE FOUND: mainchain height 3471716, sidechain height 11388931, diff 143221206, client 192.168.0.169:35942, user maia, effort 6.642%
+2025-08-06 09:14:13.8258 StratumServer SHARE FOUND: mainchain height 3471780, sidechain height 11389767, diff 143342829, client 192.168.0.134:46478, user phoebe, effort 34.109%
+2025-08-07 05:05:11.2106 StratumServer SHARE FOUND: mainchain height 3472413, sidechain height 11396712, diff 149260842, client 192.168.0.122:36404, user islands, effort 248.300%
+2025-08-07 05:12:05.9885 StratumServer SHARE FOUND: mainchain height 3472418, sidechain height 11396748, diff 149250243, client 192.168.0.176:44452, user kermit, effort 1.337%
+2025-08-07 15:30:14.1139 StratumServer SHARE FOUND: mainchain height 3472736, sidechain height 11400302, diff 142860541, client 192.168.0.134:46478, user phoebe, effort 114.257%
+2025-08-07 15:59:24.1306 StratumServer SHARE FOUND: mainchain height 3472752, sidechain height 11400475, diff 141639351, client 192.168.0.27:39874, user paris, effort 5.090%
+2025-08-08 00:41:47.0504 StratumServer SHARE FOUND: mainchain height 3473044, sidechain height 11403565, diff 145612369, client 192.168.0.122:36404, user islands, effort 93.429%
+2025-08-08 05:43:34.7731 StratumServer SHARE FOUND: mainchain height 3473203, sidechain height 11405332, diff 143651183, client 192.168.0.176:49814, user kermit, effort 56.379%
+2025-08-08 06:13:36.2769 StratumServer SHARE FOUND: mainchain height 3473218, sidechain height 11405525, diff 143082307, client 192.168.0.134:46478, user phoebe, effort 5.522%
+2025-08-08 13:17:48.9591 StratumServer SHARE FOUND: mainchain height 3473422, sidechain height 11407988, diff 145272851, client 192.168.0.176:49814, user kermit, effort 75.877%
+2025-08-09 08:49:18.9478 StratumServer SHARE FOUND: mainchain height 3473957, sidechain height 11414851, diff 143566247, client 192.168.0.176:46732, user kermit, effort 216.358%
+2025-08-10 08:10:54.5728 StratumServer SHARE FOUND: mainchain height 3474703, sidechain height 11423024, diff 150049160, client 192.168.0.176:52594, user kermit, effort 249.510%
+2025-08-11 10:51:14.8920 StratumServer SHARE FOUND: mainchain height 3475469, sidechain height 11432428, diff 156069925, client 192.168.0.122:36404, user islands, effort 269.256%
+2025-08-12 04:01:37.8427 StratumServer SHARE FOUND: mainchain height 3475920, sidechain height 11438370, diff 150913842, client 192.168.0.176:47856, user kermit, effort 181.196%
+2025-08-12 14:27:33.7265 StratumServer SHARE FOUND: mainchain height 3476285, sidechain height 11442008, diff 152170986, client 192.168.0.134:46478, user phoebe, effort 106.353%
+2025-08-12 17:13:12.8474 StratumServer SHARE FOUND: mainchain height 3476363, sidechain height 11442984, diff 148504637, client 192.168.0.176:47856, user kermit, effort 28.905%
+2025-08-12 18:15:26.2152 StratumServer SHARE FOUND: mainchain height 3476390, sidechain height 11443363, diff 150036884, client 192.168.0.27:38146, user paris, effort 10.729%
+2025-08-13 00:02:03.8580 StratumServer SHARE FOUND: mainchain height 3476572, sidechain height 11445362, diff 150320703, client 192.168.0.27:40998, user paris, effort 61.489%
+2025-08-13 15:42:52.8146 StratumServer SHARE FOUND: mainchain height 3477044, sidechain height 11450848, diff 152588642, client 192.168.0.122:42058, user islands, effort 153.819%
+2025-08-14 00:14:36.3219 StratumServer SHARE FOUND: mainchain height 3477286, sidechain height 11453837, diff 155115579, client 192.168.0.176:36538, user kermit, effort 85.810%
+2025-08-14 06:58:07.9399 StratumServer SHARE FOUND: mainchain height 3477479, sidechain height 11456225, diff 146932715, client 192.168.0.176:54244, user kermit, effort 93.996%
+2025-08-14 06:59:04.1781 StratumServer SHARE FOUND: mainchain height 3477479, sidechain height 11456229, diff 147865762, client 192.168.0.27:52552, user paris, effort 0.217%
+2025-08-14 10:22:05.6447 StratumServer SHARE FOUND: mainchain height 3477575, sidechain height 11457381, diff 153020576, client 192.168.0.176:54244, user kermit, effort 46.002%
+2025-08-15 05:02:28.9202 StratumServer SHARE FOUND: mainchain height 3478215, sidechain height 11464000, diff 162028870, client 192.168.0.176:48574, user kermit, effort 241.772%
+2025-08-15 07:50:15.8876 StratumServer SHARE FOUND: mainchain height 3478306, sidechain height 11464977, diff 167171034, client 192.168.0.122:42058, user islands, effort 35.902%
+2025-08-15 14:19:35.3717 StratumServer SHARE FOUND: mainchain height 3478497, sidechain height 11467219, diff 156884077, client 192.168.0.27:39824, user paris, effort 85.636%
+2025-08-16 14:06:19.3642 StratumServer SHARE FOUND: mainchain height 3479145, sidechain height 11475561, diff 167401865, client 192.168.0.244:36912, user bingo, effort 248.908%
+2025-08-16 17:11:20.9281 StratumServer SHARE FOUND: mainchain height 3479226, sidechain height 11476584, diff 164678857, client 192.168.0.27:35630, user paris, effort 30.075%
+2025-08-16 17:11:35.6168 StratumServer SHARE FOUND: mainchain height 3479226, sidechain height 11476587, diff 164869727, client 192.168.0.122:42058, user islands, effort 0.079%
+2025-08-17 21:23:32.1717 StratumServer SHARE FOUND: mainchain height 3480078, sidechain height 11486287, diff 139360205, client 192.168.0.27:47434, user paris, effort 328.648%
+2025-08-18 02:39:12.4667 StratumServer SHARE FOUND: mainchain height 3480234, sidechain height 11488183, diff 143724790, client 192.168.0.122:42058, user islands, effort 59.847%
+2025-08-19 18:13:06.0445 StratumServer SHARE FOUND: mainchain height 3481421, sidechain height 11502088, diff 171740562, client 192.168.0.134:35338, user phoebe, effort 369.778%
+2025-08-20 17:17:27.0540 StratumServer SHARE FOUND: mainchain height 3482133, sidechain height 11510102, diff 155333865, client 192.168.0.176:37636, user kermit, effort 216.385%
+2025-08-22 00:32:17.0517 StratumServer SHARE FOUND: mainchain height 3483029, sidechain height 11521083, diff 153883175, client 192.168.0.122:42058, user islands, effort 317.194%
+2025-08-22 12:01:34.8152 StratumServer SHARE FOUND: mainchain height 3483416, sidechain height 11525169, diff 165168528, client 192.168.0.122:42058, user islands, effort 119.723%
+2025-08-22 12:10:30.1096 StratumServer SHARE FOUND: mainchain height 3483421, sidechain height 11525226, diff 165343694, client 192.168.0.176:35646, user kermit, effort 1.555%
+2025-08-22 23:28:45.8088 StratumServer SHARE FOUND: mainchain height 3483714, sidechain height 11529152, diff 164313404, client 192.168.0.122:42058, user islands, effort 108.283%
+2025-08-23 00:21:38.2858 StratumServer SHARE FOUND: mainchain height 3483735, sidechain height 11529437, diff 165572502, client 192.168.0.176:35646, user kermit, effort 8.860%
+2025-08-23 03:03:29.1514 StratumServer SHARE FOUND: mainchain height 3483800, sidechain height 11530339, diff 163296004, client 192.168.0.27:56792, user paris, effort 25.424%
+2025-08-23 03:53:57.6136 StratumServer SHARE FOUND: mainchain height 3483817, sidechain height 11530618, diff 157975446, client 192.168.0.220:46046, user phoebe, effort 7.374%
+2025-08-23 08:47:43.4126 StratumServer SHARE FOUND: mainchain height 3483939, sidechain height 11532378, diff 159574094, client 192.168.0.122:42058, user islands, effort 47.554%
+2025-08-24 03:07:00.2552 StratumServer SHARE FOUND: mainchain height 3484585, sidechain height 11538851, diff 167427139, client 192.168.0.122:42058, user islands, effort 173.177%
+2025-08-24 03:42:33.3827 StratumServer SHARE FOUND: mainchain height 3484597, sidechain height 11539053, diff 167838819, client 192.168.0.122:42058, user islands, effort 6.078%
+2025-08-25 00:48:31.2492 StratumServer SHARE FOUND: mainchain height 3485169, sidechain height 11546436, diff 159322063, client 192.168.0.244:36200, user bingo, effort 205.882%
+2025-08-25 03:37:50.6658 StratumServer SHARE FOUND: mainchain height 3485246, sidechain height 11547470, diff 165925266, client 192.168.0.27:40192, user paris, effort 28.103%
+2025-08-26 08:12:14.2300 StratumServer SHARE FOUND: mainchain height 3486113, sidechain height 11557289, diff 135733506, client 192.168.0.220:46046, user phoebe, effort 334.680%
+2025-08-26 13:57:19.3382 StratumServer SHARE FOUND: mainchain height 3486301, sidechain height 11559397, diff 153167383, client 192.168.0.27:39264, user paris, effort 58.209%
+2025-08-26 22:01:49.5108 StratumServer SHARE FOUND: mainchain height 3486519, sidechain height 11562183, diff 149685946, client 192.168.0.176:49204, user kermit, effort 86.805%
+2025-08-27 04:52:43.9152 StratumServer SHARE FOUND: mainchain height 3486707, sidechain height 11564643, diff 154261769, client 192.168.0.176:60846, user kermit, effort 68.928%
+2025-08-27 12:26:35.9155 StratumServer SHARE FOUND: mainchain height 3486921, sidechain height 11567285, diff 154805744, client 192.168.0.27:43300, user paris, effort 78.637%
+2025-08-28 10:43:57.7638 StratumServer SHARE FOUND: mainchain height 3487599, sidechain height 11575070, diff 147364747, client 192.168.0.86:51814, user Bill, effort 254.843%
+2025-08-29 11:01:43.0599 StratumServer SHARE FOUND: mainchain height 3488332, sidechain height 11583576, diff 143216295, client 192.168.0.122:42058, user islands, effort 327.153%
+2025-08-30 03:58:38.9474 StratumServer SHARE FOUND: mainchain height 3488833, sidechain height 11589605, diff 164145775, client 192.168.0.220:46046, user phoebe, effort 164.065%
+2025-08-31 01:12:03.3865 StratumServer SHARE FOUND: mainchain height 3489482, sidechain height 11597002, diff 150918308, client 192.168.0.27:43478, user paris, effort 226.439%
+NOTICE  2025-08-24 03:07:00.2552 StratumServer SHARE FOUND: mainchain height 3484585, sidechain height 11538851, diff 167427139, client 192.168.0.122:42058, user islands, effort 173.177%
+NOTICE  2025-08-24 03:42:33.3827 StratumServer SHARE FOUND: mainchain height 3484597, sidechain height 11539053, diff 167838819, client 192.168.0.122:42058, user islands, effort 6.078%
+NOTICE  2025-08-25 00:48:31.2492 StratumServer SHARE FOUND: mainchain height 3485169, sidechain height 11546436, diff 159322063, client 192.168.0.244:36200, user bingo, effort 205.882%
+NOTICE  2025-08-25 03:37:50.6658 StratumServer SHARE FOUND: mainchain height 3485246, sidechain height 11547470, diff 165925266, client 192.168.0.27:40192, user paris, effort 28.103%
+NOTICE  2025-08-26 08:12:14.2300 StratumServer SHARE FOUND: mainchain height 3486113, sidechain height 11557289, diff 135733506, client 192.168.0.220:46046, user phoebe, effort 334.680%
+NOTICE  2025-08-26 13:57:19.3382 StratumServer SHARE FOUND: mainchain height 3486301, sidechain height 11559397, diff 153167383, client 192.168.0.27:39264, user paris, effort 58.209%
+NOTICE  2025-08-26 22:01:49.5108 StratumServer SHARE FOUND: mainchain height 3486519, sidechain height 11562183, diff 149685946, client 192.168.0.176:49204, user kermit, effort 86.805%
+NOTICE  2025-08-27 04:52:43.9152 StratumServer SHARE FOUND: mainchain height 3486707, sidechain height 11564643, diff 154261769, client 192.168.0.176:60846, user kermit, effort 68.928%
+NOTICE  2025-08-27 12:26:35.9155 StratumServer SHARE FOUND: mainchain height 3486921, sidechain height 11567285, diff 154805744, client 192.168.0.27:43300, user paris, effort 78.637%
+NOTICE  2025-08-28 10:43:57.7638 StratumServer SHARE FOUND: mainchain height 3487599, sidechain height 11575070, diff 147364747, client 192.168.0.86:51814, user Bill, effort 254.843%
+NOTICE  2025-08-29 11:01:43.0599 StratumServer SHARE FOUND: mainchain height 3488332, sidechain height 11583576, diff 143216295, client 192.168.0.122:42058, user islands, effort 327.153%
+NOTICE  2025-08-30 03:58:38.9474 StratumServer SHARE FOUND: mainchain height 3488833, sidechain height 11589605, diff 164145775, client 192.168.0.220:46046, user phoebe, effort 164.065%
+NOTICE  2025-08-31 01:12:03.3865 StratumServer SHARE FOUND: mainchain height 3489482, sidechain height 11597002, diff 150918308, client 192.168.0.27:43478, user paris, effort 226.439%
+NOTICE  2025-08-31 02:25:38.5155 StratumServer SHARE FOUND: mainchain height 3489507, sidechain height 0, diff 100000, client 192.168.0.122:36708, user islands, effort 100.001%
+NOTICE  2025-08-31 02:26:09.9698 StratumServer SHARE FOUND: mainchain height 3489507, sidechain height 1, diff 100000, client 192.168.0.176:58814, user kermit, effort 200.002%
+NOTICE  2025-08-31 02:39:35.5338 StratumServer SHARE FOUND: mainchain height 3489511, sidechain height 0, diff 100000, client 192.168.0.134:56802, user phoebe, effort 100.001%
+NOTICE  2025-08-31 02:39:50.2247 StratumServer SHARE FOUND: mainchain height 3489512, sidechain height 1, diff 100000, client 192.168.0.122:44568, user islands, effort 200.002%
+NOTICE  2025-08-31 02:40:20.6878 StratumServer SHARE FOUND: mainchain height 3489512, sidechain height 2, diff 100000, client 192.168.0.27:34808, user paris, effort 50.000%
+NOTICE  2025-08-31 18:10:35.1191 StratumServer SHARE FOUND: mainchain height 3489970, sidechain height 11602940, diff 158189297, client 192.168.0.27:52972, user paris, effort 155.318%
+NOTICE  2025-09-01 16:54:22.0260 StratumServer SHARE FOUND: mainchain height 3490715, sidechain height 11610961, diff 162991153, client 192.168.0.27:50420, user paris, effort 219.250%
+NOTICE  2025-09-01 21:48:40.1380 StratumServer SHARE FOUND: mainchain height 3490861, sidechain height 11612603, diff 152333965, client 192.168.0.122:44568, user islands, effort 51.431%
+NOTICE  2025-09-02 18:32:48.7865 StratumServer SHARE FOUND: mainchain height 3491426, sidechain height 11620039, diff 173454263, client 192.168.0.122:44568, user islands, effort 187.917%
+NOTICE  2025-09-03 01:54:29.3643 StratumServer SHARE FOUND: mainchain height 3491683, sidechain height 11622565, diff 169804519, client 192.168.0.122:44568, user islands, effort 67.693%
+NOTICE  2025-09-03 02:16:25.3041 StratumServer SHARE FOUND: mainchain height 3491692, sidechain height 11622693, diff 170261415, client 192.168.0.176:45920, user kermit, effort 3.691%
+NOTICE  2025-09-04 05:25:45.4506 StratumServer SHARE FOUND: mainchain height 3492508, sidechain height 11632083, diff 150369255, client 192.168.0.134:56802, user phoebe, effort 284.519%
+NOTICE  2025-09-05 00:00:57.5508 StratumServer SHARE FOUND: mainchain height 3493028, sidechain height 11638658, diff 159894762, client 192.168.0.122:44568, user islands, effort 180.236%
+NOTICE  2025-09-05 08:44:01.7821 StratumServer SHARE FOUND: mainchain height 3493285, sidechain height 11641721, diff 164829189, client 192.168.0.122:44568, user islands, effort 82.936%
+NOTICE  2025-09-05 18:44:33.8001 StratumServer SHARE FOUND: mainchain height 3493566, sidechain height 11645214, diff 164683414, client 192.168.0.122:44568, user islands, effort 95.762%
+NOTICE  2025-09-06 05:42:00.8461 StratumServer SHARE FOUND: mainchain height 3493880, sidechain height 11649086, diff 163069101, client 192.168.0.176:42090, user kermit, effort 102.622%
