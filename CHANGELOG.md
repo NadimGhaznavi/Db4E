@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added 
+- Updated `Fields`, `Labels` and created a new `Mining` constants file
+- Added a `Stdin` component to `Modules/Components` to support the STDIN pipe
+- Added the `Stdin` component to `P2Pool` and `MoneroD` classes
+- Created `Modules/MiningDb` as part of the DAL
+- Created a `Modules/P2PoolWatcher` class to collect mining data from a deployed *P2Pool* instance
+
+### Fixed
+- Fixed paths in the `Templates/p2pool-4.9.1/systemd/p2pool@.service` file to actually create a functional STDIN pipe for the running P2Pool service
+
+---
+
 ## [0.35.0] - 2025-09-04
 
 ### Added
