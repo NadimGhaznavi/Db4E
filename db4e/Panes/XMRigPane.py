@@ -106,6 +106,9 @@ class XMRigPane(Container):
         if instance and instance in self.instance_map:
             return self.instance_map[instance]
         return False
+    
+    def on_mount(self):
+        self.radio_set.border_title = "P2Pool Daemon"
 
     def set_data(self, xmrig: XMRig):
         #print(f"XMRig:set_data(): {xmrig}")

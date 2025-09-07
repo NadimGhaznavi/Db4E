@@ -136,6 +136,12 @@ class P2PoolPane(Container):
             classes=PANE_BOX_FIELD)
 
 
+    def on_mount(self):
+        #radio_set = self.query_one("#radio_set", RadioSet")
+        self.radio_set.border_title = "Monero Daemon"
+        self.chain_radio_set.border_title = "Chain"
+
+
     def set_data(self, p2pool: P2Pool):
         self.p2pool = p2pool
         self.instance_input.value = p2pool.instance()
@@ -200,8 +206,7 @@ class P2PoolPane(Container):
         if chain_radio_set.pressed_button:
             chain = chain_radio_set.pressed_button.label
             
-
-        self.p2pool.parent(monerod_id)    
+        self.p2pool.parent(monerod_id)
         self.p2pool.chain(str(chain))
         self.p2pool.instance(self.query_one("#instance_input", Input).value)
         self.p2pool.in_peers(self.query_one("#in_peers_input", Input).value)
@@ -215,7 +220,7 @@ class P2PoolPane(Container):
                 TO_MODULE_FIELD: OPS_MGR_FIELD,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
                 ELEMENT_TYPE_FIELD: P2POOL_FIELD,
-                ELEMENT_FIELD: self.p2pool
+                ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
