@@ -284,7 +284,7 @@ class MiningDb():
             TIMESTAMP_FIELD: None,
             HASHRATE_FIELD: None
         }
-        self.db.insert_one(jdoc)
+        self.db.insert_one(self.mining_col, jdoc)
         print(f'Created new (rt_mainchain_hashrate) record')
         return None
 
@@ -301,7 +301,7 @@ class MiningDb():
             TIMESTAMP_FIELD: None,
             HASHRATE_FIELD: None
         }
-        self.db.insert_one(jdoc)
+        self.db.insert_one(self.mining_col, jdoc)
         print(f'Created new (rt_pool_hashrate) record')
         return None
 
@@ -344,7 +344,7 @@ class MiningDb():
             TIMESTAMP_FIELD: None,
             HASHRATE_FIELD: None
         }
-        self.db.insert_one(jdoc)
+        self.db.insert_one(self.mining_col, jdoc)
         print(f'Created new (rt_sidechain_hashrate) record')
         return None            
 
