@@ -20,21 +20,11 @@ from textual.widgets import RadioSet, RadioButton
 
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Constants.Fields import(
-    P2POOL_REMOTE_FIELD, GOOD_FIELD, GROUP_FIELD, ERROR_FIELD, 
-    P2POOL_FIELD, USER_FIELD, WARN_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
-    FIELD_FIELD, REMOTE_FIELD, VALUE_FIELD, ACTIVE_FIELD, ELEMENT_TYPE_FIELD,
-    GOOD_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD)
-from db4e.Constants.Jobs import(
-    PENDING_FIELD, STATUS_FIELD, MESSAGE_FIELD)
-from db4e.Constants.Labels import (
-    XMRIG_LABEL, XMRIG_SHORT_LABEL, MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL)
+    REMOTE_FIELD, MESSAGE_FIELD, STATUS_FIELD)
+from db4e.Constants.Fields import Status, DField, DElem
+from db4e.Constants.Labels import DLabel
+    
 
-
-class Status:
-    ACTIVE = ACTIVE_FIELD
-    ERROR = ERROR_FIELD
-    WARNING = WARN_FIELD
-    PENDING = PENDING_FIELD
 
 error_color = "#935fcf"
 
@@ -44,12 +34,12 @@ def del_config(config_file: str):
     try:
         os.remove(config_file)
         results.append(result_row(
-            XMRIG_LABEL, GOOD_FIELD,
+            DLabel.XMRIG, Status.GOOD,
             f"Removed old configration file: {config_file}"
         ))
     except OSError as e:
         result_row.append(result_row(
-            XMRIG_LABEL, WARN_FIELD,
+            DLabel.XMRIG, Status.WARN,
             f"Unable to remove {config_file} {e} "
         ))
     return results
@@ -69,11 +59,11 @@ def get_component_value(data, field_name):
     if not isinstance(data, dict) or 'components' not in data:
         return None
     
-    components = data.get(COMPONENTS_FIELD, [])
+    components = data.get(DField.COMPONENTS, [])
     
     for component in components:
-        if isinstance(component, dict) and component.get(FIELD_FIELD) == field_name:
-            return component.get(VALUE_FIELD)
+        if isinstance(component, dict) and component.get(DField.FIELD) == field_name:
+            return component.get(DField.VALUE)
     
     return None
 
@@ -86,7 +76,7 @@ def get_effective_identity():
     effective_gid = os.getegid()
     group_entry = grp.getgrgid(effective_gid)
     group = group_entry.gr_name
-    return { USER_FIELD: user, GROUP_FIELD: group }
+    return { DField.USER: user, DField.GROUP: group }
 
 
 def get_remote_state(data):
@@ -102,11 +92,11 @@ def get_remote_state(data):
     if not isinstance(data, dict) or 'components' not in data:
         return None
     
-    components = data.get(COMPONENTS_FIELD, [])
+    components = data.get(DField.COMPONENTS, [])
     
     for component in components:
-        if isinstance(component, dict) and component.get(FIELD_FIELD) == REMOTE_FIELD:
-            return component.get(VALUE_FIELD)
+        if isinstance(component, dict) and component.get(DField.FIELD) == REMOTE_FIELD:
+            return component.get(DField.VALUE)
     
     return None
 
@@ -120,18 +110,18 @@ def gen_results_table(results):
     for item in results:
         for category, msg_dict in item.items():
             message = msg_dict[MESSAGE_FIELD]
-            if msg_dict[STATUS_FIELD] == GOOD_FIELD:
+            if msg_dict[STATUS_FIELD] == Status.GOOD:
                 table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict[STATUS_FIELD] == WARN_FIELD:
+            elif msg_dict[STATUS_FIELD] == Status.WARN:
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict[STATUS_FIELD] == ERROR_FIELD:
+            elif msg_dict[STATUS_FIELD] == Status.ERROR:
                 table.add_row(f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]")
     return table
 
 
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
-    assert status in {GOOD_FIELD, WARN_FIELD, ERROR_FIELD}, f"invalid status: {status}"
+    assert status in {Status.GOOD, Status.WARN, Status.ERROR}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
 
 
@@ -162,10 +152,10 @@ def update_component_values(rec, updates):
         updated_rec = update_component_values(rec, updates)
         # updated_rec['components'][0]['value'] is now 'new_user'
     """
-    for component in rec.get(COMPONENTS_FIELD, []):
-        field = component.get(FIELD_FIELD)
+    for component in rec.get(DField.COMPONENTS, []):
+        field = component.get(DField.FIELD)
         if field in updates:
-            component[VALUE_FIELD] = updates[field]
+            component[DField.VALUE] = updates[field]
     return rec
 
 

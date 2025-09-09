@@ -1,5 +1,5 @@
 """
-db4e/Panes/LogViewPane.py
+db4e/Panes/PlotViewPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -19,7 +19,7 @@ from db4e.Constants.Defaults import (
     MAX_LOG_LINES_DEFAULT)
 
 
-class LogViewPane(Container):
+class PlotViewPane(Container):
 
     log_lines = reactive([], always_update=True)
     max_lines = MAX_LOG_LINES_DEFAULT

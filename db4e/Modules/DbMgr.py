@@ -17,10 +17,9 @@ from pymongo.errors import (
 
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.Db4E import Db4E
-from db4e.Constants.Fields import (
-    DB4E_FIELD, ELEMENT_TYPE_FIELD, ELEMENT_TYPE_FIELD)
-from db4e.Constants.Jobs import (
-    STATUS_FIELD, PENDING_FIELD, ATTEMPTS_FIELD,UPDATED_AT_FIELD, PROCESSING_FIELD)
+from db4e.Constants.Fields import DMod, DField, DElem
+from db4e.Constants.Jobs import DJob
+#    STATUS_FIELD, PENDING_FIELD, ATTEMPTS_FIELD,UPDATED_AT_FIELD, PROCESSING_FIELD)
 from db4e.Constants.Defaults import (OPS_COL_DEFAULT, MINING_COL_DEFAULT, 
     LOG_COLLECTION_DEFAULT, LOG_RETENTION_DAYS_DEFAULT, MAX_BACKUPS_DEFAULT,
     METRICS_COLLECTION_DEFAULT, DEPLOYMENT_COL_DEFAULT, TEMPLATES_COLLECTION_DEFAULT,
@@ -124,21 +123,21 @@ class DbMgr:
 
     def get_jobs(self):
         collection = self.get_collection(self.ops_col)
-        return collection.find().sort(UPDATED_AT_FIELD, -1)
+        return collection.find().sort(DJob.UPDATED_AT, -1)
 
 
     def grab_job(self):
         collection = self.get_collection(self.ops_col)
         #print(f"DbMgr:grab_job():\nSTATUS_FIELD: {STATUS_FIELD}\nPROCESSING_FIELD: {PROCESSING_FIELD}")
         return collection.find_one_and_update(
-            {STATUS_FIELD: PENDING_FIELD},
+            {DJob.STATUS: DJob.PENDING},
             {
                 "$set": {
-                    STATUS_FIELD: PROCESSING_FIELD,
-                    UPDATED_AT_FIELD: datetime.now()
+                    DJob.STATUS: DJob.PROCESSING,
+                    DJob.UPDATED_AT: datetime.now()
                 },
                 "$inc": {
-                    ATTEMPTS_FIELD: 1
+                    DJob.ATTEMPTS: 1
                 }
             },
             return_document=ReturnDocument.AFTER
@@ -164,7 +163,7 @@ class DbMgr:
                     # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
                     pass
         self.ensure_indexes()
-        db4e_rec = self.find_one(col_name=depl_col, filter={ELEMENT_TYPE_FIELD: DB4E_FIELD})
+        db4e_rec = self.find_one(col_name=depl_col, filter={DField.ELEMENT_TYPE: DElem.DB4E})
 
         # Make sure there's a Db4E deployment record for Db4E
         if not db4e_rec:
@@ -178,12 +177,14 @@ class DbMgr:
     @as_worker
     def insert_one(self, col_name, jdoc, use_worker=True):
         elem_type = ""
-        if ELEMENT_TYPE_FIELD in jdoc:
-            elem_type = jdoc[ELEMENT_TYPE_FIELD]
+        if DField.ELEMENT_TYPE in jdoc:
+            elem_type = jdoc[DField.ELEMENT_TYPE]
         #print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
         jdoc.pop("_id", None)
-        return col.insert_one(deepcopy(jdoc))
+        insert_result = col.insert_one(jdoc)
+        jdoc['_id'] = insert_result.inserted_id
+        return jdoc
 
 
     def insert_uniq_by_timestamp(self, collection, jdoc):
@@ -192,19 +193,19 @@ class DbMgr:
         existing = self.find_one(collection, {'doc_type': doc_type, 
                                             'timestamp': timestamp})
         if not existing:
-            self.insert_one(collection, jdoc)
-            return True
+            return self.insert_one(collection, jdoc)
         return False
     
     @as_worker
     def update_one(self, col_name, filter, new_values, use_worker=True):
         elem_type = ""
-        if ELEMENT_TYPE_FIELD in new_values:
-            elem_type = new_values[ELEMENT_TYPE_FIELD]
+        if DField.ELEMENT_TYPE in new_values:
+            elem_type = new_values[DField.ELEMENT_TYPE]
         #print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, type:{elem_type}")
         collection = self.get_collection(col_name)
         new_values.pop("_id", None)
-        return collection.update_one(filter, {'$set': new_values})
+        collection.update_one(filter, {'$set': new_values})
+        
 
 
 

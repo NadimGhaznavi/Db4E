@@ -17,16 +17,12 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, DB4E_FIELD, FORM_5_FIELD, 
-    ELEMENT_FIELD, FORM_INTRO_FIELD, FORM_INPUT_70_FIELD, FORM_LABEL_FIELD, 
-    INITIAL_SETUP_FIELD, INSTALL_MGR_FIELD, 
-    STATIC_CONTENT_FIELD, TO_METHOD_FIELD, 
-    TO_MODULE_FIELD)
-from db4e.Constants.Labels import (
-    GROUP_LABEL, VENDOR_DIR_LABEL, USER_WALLET_LABEL, INSTALL_DIR_LABEL,
-    USER_LABEL)
+    ELEMENT_FIELD, INITIAL_SETUP_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD)
+from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Form import Form
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Buttons import (
-    ABORT_BUTTON_FIELD, ABORT_LABEL, PROCEED_BUTTON_FIELD, PROCEED_LABEL, 
+    ABORT_BUTTON_FIELD, PROCEED_BUTTON_FIELD, 
 )
 
 MAX_GROUP_LENGTH = 20
@@ -36,48 +32,48 @@ hi = "cyan"
 class InitialSetupPane(Container):
 
     rec = {}
-    user_name_static = Label("", classes=STATIC_CONTENT_FIELD)
-    group_name_static = Label("", classes=STATIC_CONTENT_FIELD)
-    install_dir_static = Label("", classes=STATIC_CONTENT_FIELD)
+    user_name_static = Label("", classes=Form.STATIC)
+    group_name_static = Label("", classes=Form.STATIC)
+    install_dir_static = Label("", classes=Form.STATIC)
     vendor_dir_input = Input(
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", 
-        classes=FORM_INPUT_70_FIELD)
+        classes=Form.INPUT_70)
     user_wallet_input = Input(
         restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", 
-        classes=FORM_INPUT_70_FIELD)
+        classes=Form.INPUT_70)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything[/] initial " \
         f"installation screen. Access to Db4E will be restricted to the [{hi}]user[/] " \
         f"and [{hi}]group[/] shown below. Use a [bold]fully qualified path[/] for the " \
-        f"[{hi}]{VENDOR_DIR_LABEL}[/]."
+        f"[{hi}]{DLabel.VENDOR_DIR}[/]."
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=FORM_INTRO_FIELD),
+                Label(INTRO, classes=Form.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(USER_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.USER, classes=Form.FORM_LABEL),
                         self.user_name_static),
                     Horizontal(
-                        Label(GROUP_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.GROUP, classes=Form.FORM_LABEL),
                         self.group_name_static),
                     Horizontal(
-                        Label(INSTALL_DIR_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL),
                         self.install_dir_static),
                     Horizontal(
-                        Label(USER_WALLET_LABEL,classes=FORM_LABEL_FIELD), 
+                        Label(DLabel.USER_WALLET,classes=Form.FORM_LABEL), 
                         self.user_wallet_input),
                     Horizontal(
-                        Label(VENDOR_DIR_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL),
                         self.vendor_dir_input),
-                    classes=FORM_5_FIELD),
+                    classes=Form.FORM_5),
 
                 Vertical(
                     Horizontal(
-                        Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD),
-                        Button(label=ABORT_LABEL, id=ABORT_BUTTON_FIELD),
+                        Button(label=DLabel.PROCEED, id=PROCEED_BUTTON_FIELD),
+                        Button(label=DLabel.ABORT, id=ABORT_BUTTON_FIELD),
                         classes="button_row")),
                 classes="page_box"),
 
@@ -101,9 +97,9 @@ class InitialSetupPane(Container):
             self.db4e.user_wallet.value = self.query_one("#user_wallet_input", Input).value
             self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
             form_data = {
-                TO_MODULE_FIELD: INSTALL_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.INSTALL_MGR,
                 TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
-                ELEMENT_TYPE_FIELD: DB4E_FIELD,
+                DField.ELEMENT_TYPE: DElem.DB4E,
                 ELEMENT_FIELD: self.db4e
             }
             self.app.post_message(RefreshNavPane(self))

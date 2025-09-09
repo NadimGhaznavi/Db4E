@@ -20,14 +20,16 @@ from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
     P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
 from db4e.Constants.Fields import(
-    P2POOL_FIELD, ANY_IP_FIELD, CHAIN_FIELD, CONFIG_FILE_FIELD, IN_PEERS_FIELD,
+    ANY_IP_FIELD, IN_PEERS_FIELD, CHAIN_FIELD,
     INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    STRATUM_PORT_FIELD, USER_WALLET_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD,
+    STRATUM_PORT_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD,
     LOG_FILE_FIELD, STDIN_FIELD)
-from db4e.Constants.Labels import(P2POOL_LABEL)
+from db4e.Constants.Fields import DElem, DField
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Defaults import(
     P2POOL_VERSION_DEFAULT, CONF_DIR_DEFAULT, API_DIR_DEFAULT, RUN_DIR_DEFAULT,
     LOG_DIR_DEFAULT)
+
 
 
 class P2Pool(LocalSoftwareSystem):
@@ -35,12 +37,12 @@ class P2Pool(LocalSoftwareSystem):
     
     def __init__(self, rec=None):
         super().__init__()
-        self._elem_type = P2POOL_FIELD
-        self.name = P2POOL_LABEL
+        self._elem_type = DElem.P2POOL
+        self.name = DLabel.P2POOL
 
         self.add_component(ANY_IP_FIELD, AnyIP())
         self.add_component(CHAIN_FIELD, Chain())
-        self.add_component(CONFIG_FILE_FIELD, ConfigFile())
+        self.add_component(DField.CONFIG_FILE, ConfigFile())
         self.add_component(IN_PEERS_FIELD, InPeers())
         self.add_component(INSTANCE_FIELD, Instance())
         self.add_component(IP_ADDR_FIELD, IpAddr())
@@ -52,12 +54,12 @@ class P2Pool(LocalSoftwareSystem):
         self.add_component(PARENT_FIELD, Parent())
         self.add_component(STDIN_FIELD, Stdin())
         self.add_component(STRATUM_PORT_FIELD, StratumPort())
-        self.add_component(USER_WALLET_FIELD, UserWallet())
+        self.add_component(DField.USER_WALLET, UserWallet())
         self.add_component(VERSION_FIELD, Version())
 
         self.any_ip = self.components[ANY_IP_FIELD]
         self.chain = self.components[CHAIN_FIELD]
-        self.config_file = self.components[CONFIG_FILE_FIELD]
+        self.config_file = self.components[DField.CONFIG_FILE]
         self.in_peers = self.components[IN_PEERS_FIELD]
         self.instance = self.components[INSTANCE_FIELD]
         self.ip_addr = self.components[IP_ADDR_FIELD]
@@ -69,7 +71,7 @@ class P2Pool(LocalSoftwareSystem):
         self.parent = self.components[PARENT_FIELD]
         self.stratum_port = self.components[STRATUM_PORT_FIELD]
         self.stdin = self.components[STDIN_FIELD]
-        self.user_wallet = self.components[USER_WALLET_FIELD]
+        self.user_wallet = self.components[DField.USER_WALLET]
         self.version = self.components[VERSION_FIELD]
         self.version(P2POOL_VERSION_DEFAULT)
         self._instance_map = {}
@@ -82,7 +84,7 @@ class P2Pool(LocalSoftwareSystem):
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a XMRig configuration file
 
-        p2pool_dir = os.path.join(vendor_dir, P2POOL_FIELD)
+        p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
         api_dir = os.path.join(p2pool_dir, self.instance(), API_DIR_DEFAULT)
         run_dir = os.path.join(p2pool_dir, self.instance(), RUN_DIR_DEFAULT)
         log_dir = os.path.join(p2pool_dir, self.instance(), LOG_DIR_DEFAULT)

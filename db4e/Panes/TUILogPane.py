@@ -17,20 +17,17 @@ from textual.widgets import Static, Log, RichLog
 from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Fields import (
-    PANE_BOX_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
-    P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD)
-from db4e.Constants.Labels import (
-    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
-from db4e.Constants.Defaults import (
-    MAX_LOG_LINES_DEFAULT)
+from db4e.Constants.Fields import DElem
+from db4e.Constants.Defaults import (MAX_LOG_LINES_DEFAULT)
+from db4e.Constants.Labels import DLabel
+from db4e.Constants.Form import Form
 
 TYPE_TABLE = {
-    MONEROD_FIELD: MONEROD_SHORT_LABEL,
-    MONEROD_REMOTE_FIELD: MONEROD_SHORT_LABEL,
-    P2POOL_FIELD: P2POOL_SHORT_LABEL,
-    P2POOL_REMOTE_FIELD: P2POOL_SHORT_LABEL,
-    XMRIG_FIELD: XMRIG_SHORT_LABEL,
+    DElem.MONEROD: DLabel.MONEROD_SHORT,
+    DElem.MONEROD_REMOTE: DLabel.MONEROD_SHORT,
+    DElem.P2POOL: DLabel.P2POOL_SHORT,
+    DElem.P2POOL_REMOTE: DLabel.P2POOL_SHORT,
+    DElem.XMRIG: DLabel.XMRIG_SHORT,
 }
 
 class TUILogPane(Static):
@@ -51,7 +48,7 @@ class TUILogPane(Static):
             ScrollableContainer(
                 self.log_widget
             ),
-            classes=PANE_BOX_FIELD)
+            classes=Form.PANE_BOX)
 
     def set_data(self, job_list):
         #self.log_widget.clear()

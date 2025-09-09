@@ -14,6 +14,7 @@ from copy import deepcopy
 
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -21,10 +22,8 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Constants.Defaults import DEPLOYMENT_COL_DEFAULT
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, DB4E_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD,
-    P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD, COMPONENTS_FIELD,
-    FIELD_FIELD, VALUE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD
-)
+    INSTANCE_FIELD, OBJECT_ID_FIELD)
+from db4e.Constants.Fields import DElem, DField
 
 MONERODS = "monerods"
 P2POOLS = "p2pools"
@@ -43,7 +42,8 @@ class DbCache:
         self.depl_col = DEPLOYMENT_COL_DEFAULT
 
         self.db4e = None
-        self.monerod_map, self.p2pool_map, self.xmrig_map = {}, {}, {}
+        self.monerod_map, self.p2pool_map, self.xmrig_map, self.int_p2pool_map = \
+            {}, {}, {}, {}
         self.id_map = {}
 
         self._thread = threading.Thread(target=self.bg_build_cache, daemon=True)
@@ -67,7 +67,7 @@ class DbCache:
             seen_ids = set()
 
             for rec in recs:
-                elem_type = rec[ELEMENT_TYPE_FIELD]
+                elem_type = rec[DField.ELEMENT_TYPE]
                 obj_id = rec[OBJECT_ID_FIELD]
                 seen_ids.add(obj_id)
 
@@ -76,41 +76,52 @@ class DbCache:
                     elem = self.id_map[obj_id]
                     elem.from_rec(rec)
 
-                    if elem_type == XMRIG_FIELD:
+                    if elem_type == DElem.XMRIG:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
                         if type(elem.p2pool) == P2Pool or type(elem.p2pool) == P2PoolRemote:
                             self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
                     
-                    elif elem_type == P2POOL_FIELD:
+                    elif elem_type == DElem.INT_P2POOL:
+                        if elem.parent():
+                            elem.monerod = self.get_deployment_by_id(elem.parent())
+                            if type(elem.monerod) == MoneroD or type(elem.monerod) == MoneroDRemote:
+                                self.monerod_map[elem.monerod.instance()] = elem.monerod
+                        self.int_p2pool_map[elem.instance()] = elem
+
+
+                    elif elem_type == DElem.P2POOL:
                         elem.monerod = self.get_deployment_by_id(elem.parent())
                         if type(elem.monerod) == MoneroD or type(elem.monerod) == MoneroDRemote:
                             self.monerod_map[elem.monerod.instance()] = elem.monerod
                     
-                    elif elem_type == P2POOL_REMOTE_FIELD:
+                    elif elem_type == DElem.P2POOL_REMOTE:
                         self.p2pool_map[elem.instance()] = elem
                     
-                    elif elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
+                    elif elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                         self.monerod_map[elem.instance()] = elem
     
                 else:
                     # Create new object
-                    if elem_type == DB4E_FIELD:
+                    if elem_type == DElem.DB4E:
                         elem = Db4E(rec)
                         self.db4e = elem
-                    elif elem_type == MONEROD_FIELD:
+                    elif elem_type == DElem.MONEROD:
                         elem = MoneroD(rec)
                         self.monerod_map[elem.instance()] = elem
-                    elif elem_type == MONEROD_REMOTE_FIELD:
+                    elif elem_type == DElem.MONEROD_REMOTE:
                         elem = MoneroDRemote(rec)
                         self.monerod_map[elem.instance()] = elem
-                    elif elem_type == P2POOL_FIELD:
+                    elif elem_type == DElem.P2POOL:
                         elem = P2Pool(rec)
                         elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
-                    elif elem_type == P2POOL_REMOTE_FIELD:
+                    elif elem_type == DElem.P2POOL_REMOTE:
                         elem = P2PoolRemote(rec)
                         self.p2pool_map[elem.instance()] = elem
-                    elif elem_type == XMRIG_FIELD:
+                    elif elem_type == DElem.INT_P2POOL:
+                        elem = InternalP2Pool(rec)
+                        self.int_p2pool_map[elem.instance()] = elem
+                    elif elem_type == DElem.XMRIG:
                         elem = XMRig(rec)
                         if elem.parent():
                             elem.p2pool = self.get_deployment_by_id(elem.parent())
@@ -132,12 +143,12 @@ class DbCache:
     def delete_one(self, elem):
         with self._lock:
             class_map = {
-                Db4E: DB4E_FIELD,
-                MoneroD: MONEROD_FIELD,
-                MoneroDRemote: MONEROD_REMOTE_FIELD,
-                P2Pool: P2POOL_FIELD,
-                P2PoolRemote: P2POOL_REMOTE_FIELD,
-                XMRig: XMRIG_FIELD
+                Db4E: DElem.DB4E,
+                MoneroD: DElem.MONEROD,
+                MoneroDRemote: DElem.MONEROD_REMOTE,
+                P2Pool: DElem.P2POOL,
+                P2PoolRemote: DElem.P2POOL_REMOTE,
+                XMRig: DElem.XMRIG
             }
             elem_class = class_map[type(elem)]
             instance = elem.instance()        
@@ -145,11 +156,11 @@ class DbCache:
             results = self.db.delete_one(
                 col_name=self.depl_col,
                     filter = {
-                        ELEMENT_TYPE_FIELD: elem_class,
-                        COMPONENTS_FIELD: {
+                        DField.ELEMENT_TYPE: elem_class,
+                        DField.COMPONENTS: {
                             "$elemMatch": {
-                                FIELD_FIELD: INSTANCE_FIELD,
-                                VALUE_FIELD: instance
+                                DField.FIELD: INSTANCE_FIELD,
+                                DField.VALUE: instance
                             }
                         }
                     }
@@ -159,15 +170,15 @@ class DbCache:
             if id in self.id_map:
                 del self.id_map[id]
 
-            if elem_class == MONEROD_FIELD or elem_class == MONEROD_REMOTE_FIELD:
+            if elem_class == DElem.MONEROD or elem_class == DElem.MONEROD_REMOTE:
                 if instance in self.monerod_map:
                     del self.monerod_map[instance]
 
-            elif elem_class == P2POOL_FIELD or elem_class == P2POOL_REMOTE_FIELD:
+            elif elem_class == DElem.P2POOL or elem_class == DElem.P2POOL_REMOTE:
                 if instance in self.p2pool_map:
                     del self.p2pool_map[instance]
 
-            elif elem_class == XMRIG_FIELD:
+            elif elem_class == DElem.XMRIG:
                 if instance in self.xmrig_map:
                     del self.xmrig_map[instance]
 
@@ -177,24 +188,24 @@ class DbCache:
         print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
         print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
         with self._lock:
-            if elem_type == DB4E_FIELD:
+            if elem_type == DElem.DB4E:
                 return deepcopy(self.db4e)
             
-            if elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
+            if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 return deepcopy(self.monerod_map.get(instance))
                     
-            elif elem_type == P2POOL_FIELD or elem_type == P2POOL_REMOTE_FIELD:
+            elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
                 p2pool = self.p2pool_map.get(instance)                
-                if type(p2pool) == P2Pool:
+                if elem_type == DElem.P2POOL:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
                 print(f"DbCache:get_deployment(): p2pool: {p2pool}")
                 return deepcopy(p2pool)
                     
-            elif elem_type == XMRIG_FIELD:
+            elif elem_type == DElem.XMRIG:
                 xmrig = self.xmrig_map.get(instance)
                 print(f"DbCache:get_deployment(): xmrig: {xmrig}")
                 xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
-                if type(xmrig.p2pool) == P2Pool:
+                if elem_type == DElem.P2POOL:
                     xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
                 return deepcopy(xmrig)
             
@@ -221,14 +232,14 @@ class DbCache:
 
     def get_deployment_ids_and_instances(self, elem_type):
         with self._lock:
-            if elem_type == P2POOL_FIELD or elem_type == P2POOL_REMOTE_FIELD:
+            if elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
                 instance_map = {}
                 for p2pool in self.p2pool_map.values():
                     instance_map[p2pool.instance()] = p2pool.id()
                 print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
                     
-            elif elem_type == MONEROD_FIELD or elem_type == MONEROD_REMOTE_FIELD:
+            elif elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 instance_map = {}
                 for monerod in self.monerod_map.values():
                     instance_map[monerod.instance()] = monerod.id()
@@ -250,12 +261,23 @@ class DbCache:
             return xmrigs
 
 
+    def get_internal_p2pools(self):
+        return list(self.int_p2pool_map.values())
+
+
     def get_monerods(self):
         return list(self.monerod_map.values())
 
 
     def get_p2pools(self):
         return list(self.p2pool_map.values())
+
+
+    def get_primary_monerod(self):
+        for monerod in self.monerod_map.values():
+            if monerod.primary_server():
+                return monerod
+        return None
 
 
     def get_xmrigs(self):
@@ -265,8 +287,10 @@ class DbCache:
     def insert_one(self, elem):
         with self._lock:
             msgs = elem.pop_msgs()
-            self.db.insert_one(self.depl_col, elem.to_rec())
-            elem.push_msgs(msgs)
+            rec = self.db.insert_one(self.depl_col, elem.to_rec())
+            elem.from_rec(rec)
+            for msg in msgs:
+                elem.add_msg(msg)
 
             print(f"DbCache:insert_one(): before {self.p2pool_map.values()}")
             if type(elem) == MoneroD or type(elem) == MoneroDRemote:
@@ -296,6 +320,10 @@ class DbCache:
 
             elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
                 self.p2pool_map[elem.instance()] = elem
+                self.id_map[elem.id()] = elem
+
+            elif type(elem) == InternalP2Pool:
+                self.int_p2pool_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
 
             elif type(elem) == XMRig:

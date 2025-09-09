@@ -15,6 +15,7 @@ import signal
 import threading
 from importlib import metadata
 from shutil import rmtree
+from copy import deepcopy
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -28,6 +29,7 @@ from db4e.Modules.Db4ESystemD import Db4ESystemD
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4eLogger import Db4eLogger
 from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.MoneroD import MoneroD
@@ -41,10 +43,12 @@ from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, 
     DB4E_LOG_FILE_DEFAULT)
 from db4e.Constants.Fields import (
-    DB4E_FIELD, DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD, XMRIG_FIELD,
-    COLORTERM_ENVIRON_FIELD, ENABLE_FIELD, P2POOL_FIELD, MONEROD_FIELD)
-from db4e.Constants.Jobs import (
-    DELETE_FIELD, UPDATE_FIELD, MESSAGE_FIELD, RESTART_FIELD)
+    DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD,
+    COLORTERM_ENVIRON_FIELD)
+from db4e.Constants.Fields import DElem, DDir, DField
+from db4e.Constants.Jobs import DJob
+
+
 
 POLL_INTERVAL = 5
 
@@ -79,7 +83,7 @@ class Db4eServer:
         vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
         logs_dir = LOG_DIR_DEFAULT
         log_file = DB4E_LOG_FILE_DEFAULT
-        fq_log_file = os.path.join(vendor_dir, DB4E_FIELD, logs_dir, log_file)    
+        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
         self.log = Db4eLogger(
             elem_type=DB4E_SERVER_DEFAULT,
             log_file=fq_log_file
@@ -94,7 +98,8 @@ class Db4eServer:
         depls = self.depl_mgr.get_deployments()
         for depl in depls:
             depl_type = type(depl)
-            if depl_type == Db4E or depl_type == MoneroDRemote or depl_type == P2PoolRemote:
+            if depl_type == Db4E or depl_type == MoneroDRemote or \
+                depl_type == P2PoolRemote or depl_type == InternalP2Pool:
                 continue 
 
             #print(f"Db4eServer:check_deployments(): {depl}")
@@ -122,16 +127,18 @@ class Db4eServer:
         for job in jobs:
             #print(f"Db4eServer:check_jobs(): job.elem(): {job.elem()}")
             op = job.op()
-            if op == ENABLE_FIELD:
+            if op == DJob.ENABLE:
                 self.enable(job=job)
-            elif op == DISABLE_FIELD:
+            elif op == DJob.DISABLE:
                 self.disable(job=job)
-            elif op == DELETE_FIELD:
+            elif op == DJob.DELETE:
                 self.delete(job=job)
-            elif op == RESTART_FIELD:
+            elif op == DJob.RESTART:
                 self.restart(job=job)
-            elif op == UPDATE_FIELD:
+            elif op == DJob.UPDATE:
                 self.update(job=job)
+            elif op == DJob.SET_PRIMARY:
+                self.set_primary(job=job)
 
 
     def delete(self, job: Job):
@@ -149,7 +156,7 @@ class Db4eServer:
         elif type(elem) == P2Pool:
             self.ensure_stopped(elem)
             vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
-            p2pool_dir = P2POOL_FIELD + '-' + elem.version()
+            p2pool_dir = DElem.P2POOL + '-' + elem.version()
             rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
             self.depl_mgr.del_deployment(elem)
             job.msg("Deleted")
@@ -164,7 +171,7 @@ class Db4eServer:
             self.ensure_stopped(elem)
             self.depl_mgr.del_deployment(elem)
             vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
-            monerod_dir = MONEROD_FIELD + '-' + elem.version()
+            monerod_dir = DElem.MONEROD + '-' + elem.version()
             conf_file = elem.config_file()
             os.remove(conf_file)
             rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
@@ -271,9 +278,9 @@ class Db4eServer:
         elem_type = job.elem_type()
         instance = job.instance()
         sd = self.systemd
-        if elem_type == MONEROD_FIELD:
+        if elem_type == DElem.MONEROD:
             sd.service_name('monerod@' + instance)
-        elif elem_type == P2POOL_FIELD:
+        elif elem_type == DElem.P2POOL:
             sd.service_name('p2pool@' + instance)
         else:
             raise ValueError(f"Unknown deployment type: {elem_type}")
@@ -286,6 +293,33 @@ class Db4eServer:
         self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
         sys.exit(0)
+
+
+    def set_int_p2pool_primary_server(self, monerod):
+        # Update the internal P2Pool servers.....
+        for p2pool in self.depl_mgr.get_internal_p2pools():
+            p2pool = deepcopy(p2pool)
+            p2pool.parent(monerod.id())
+            p2pool.monerod = monerod
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            tmpl_file = self.get_template(DElem.P2POOL)
+            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            p2pool.enable()
+            p2pool.log_file(
+                os.path.join(
+                    vendor_dir, self.get_dir(DElem.P2POOL), p2pool.instance(), 
+                    DDir.LOG, 'p2pool.log'))
+            self.db_cache.update_one(p2pool)
+
+
+    def set_primary(self, monerod):
+
+        for aMonerod in self.depl_mgr.get_monerods():
+            if aMonerod.instance() != monerod.instance():
+                if aMonerod.primary_server():
+                    aMonerod.primary_server(False)
+                    self.db_cache.update_one(aMonerod)
+        self.set_int_p2pool_primary_server(monerod)        
 
 
     def start(self):
@@ -329,7 +363,7 @@ class Db4eServer:
         msgs = ""
         for msg in elem.pop_msgs():
             for key, val in msg.items():
-                msgs += val[MESSAGE_FIELD] + "\n"
+                msgs += val[DField.MESSAGE] + "\n"
         job.msg(msgs[:-1])
         self.job_queue.complete_job(job)
 

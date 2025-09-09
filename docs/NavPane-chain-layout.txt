@@ -1,0 +1,13 @@
+Chain Stats
+  ├─ Main
+  │    ├─ Blocks Found
+  │    ├─ Active Miners
+  │    └─ Hashrate
+  ├─ Mini
+  │    ├─ Blocks Found
+  │    ├─ Active Miners
+  │    └─ Hashrate
+  └─ Nano
+       ├─ Blocks Found
+       ├─ Active Miners
+       └─ Hashrate

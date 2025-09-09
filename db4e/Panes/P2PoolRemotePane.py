@@ -15,65 +15,60 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
+from db4e.Constants.Labels import DLabel
+from db4e.Constants.Form import Form
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD,
-    FORM_3_FIELD, NEW_FIELD, ELEMENT_TYPE_FIELD, STATIC_CONTENT_FIELD,
-    FORM_INPUT_30_FIELD, FORM_INTRO_FIELD, FORM_LABEL_FIELD,
-    HEALTH_BOX_FIELD, ELEMENT_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, P2POOL_REMOTE_FIELD,
-    TO_METHOD_FIELD, TO_MODULE_FIELD)
-from db4e.Constants.Labels import (
-    INSTANCE_LABEL, IP_ADDR_LABEL,
-    P2POOL_REMOTE_LABEL, STRATUM_PORT_LABEL)
+    ADD_DEPLOYMENT_FIELD, OP_FIELD, NEW_FIELD, UPDATE_FIELD,
+    ELEMENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD)
+from db4e.Constants.Fields import DMod, DField, DElem
 from db4e.Constants.Buttons import (
-    DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD, 
-    DELETE_LABEL, UPDATE_LABEL, NEW_LABEL)
-from db4e.Constants.Jobs import (
-    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, DELETE_FIELD, UPDATE_FIELD)
+    DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD)
+from db4e.Constants.Jobs import DJob
 
 
 
 class P2PoolRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     ip_addr_input = Input(
         id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     health_msgs = Label()
-    delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
-    new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
+    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
+    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
 
 
     def compose(self):
         # Remote P2Pool deployment form
         INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{P2POOL_REMOTE_LABEL}[/] deployment here."
+            f"[cyan]{DLabel.P2POOL_REMOTE}[/] deployment here."
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=FORM_INTRO_FIELD),
+                Label(INTRO, classes=Form.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(IP_ADDR_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL),
                         self.ip_addr_input),
                     Horizontal(
-                        Label(STRATUM_PORT_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL),
                         self.stratum_port_input),
-                    classes=FORM_3_FIELD),
+                    classes=Form.FORM_3),
 
                 Vertical(
                     self.health_msgs,
-                    classes=HEALTH_BOX_FIELD,
+                    classes=Form.HEALTH_BOX,
                 ),
 
                 Horizontal(
@@ -83,7 +78,7 @@ class P2PoolRemotePane(Container):
                     classes=BUTTON_ROW_FIELD
                 ),
         
-                classes=PANE_BOX_FIELD))
+                classes=Form.PANE_BOX))
 
 
     def set_data(self, p2pool: P2PoolRemote):
@@ -115,28 +110,28 @@ class P2PoolRemotePane(Container):
         if button_id == NEW_BUTTON_FIELD:
             # No original instance, this is a new deployment
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.OPS_MGR,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             # There was an original instance, so this is an update            
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: UPDATE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.UPDATE,
+                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DELETE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.DELETE,
+                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 ELEMENT_FIELD: self.p2pool,
             }
             

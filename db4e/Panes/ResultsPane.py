@@ -15,8 +15,9 @@ from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import (
-    PANE_BOX_FIELD, HEALTH_MSGS_FIELD)
+from db4e.Constants.Form import Form
+
+
 
 class ResultsPane(Static):
 
@@ -31,7 +32,7 @@ class ResultsPane(Static):
             ScrollableContainer(
                 self.results
             ),
-            classes=PANE_BOX_FIELD)
+            classes=Form.PANE_BOX)
 
     def set_data(self, elem):
         msgs = elem.pop_msgs()

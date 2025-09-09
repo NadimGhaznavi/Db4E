@@ -17,59 +17,55 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
 from db4e.Constants.Fields import (
-    FORM_INTRO_FIELD, PANE_BOX_FIELD, FORM_LABEL_FIELD, FORM_INPUT_30_FIELD,
-    STATIC_CONTENT_FIELD, FORM_1_FIELD, HEALTH_BOX_FIELD, RADIO_SET_FIELD, 
-    FORM_5_FIELD, NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    INSTANCE_FIELD, ADD_DEPLOYMENT_FIELD, DEPLOYMENT_MGR_FIELD, OPS_MGR_FIELD)
-from db4e.Constants.Labels import (
-    INSTANCE_LABEL, P2POOL_LABEL, 
-    STRATUM_PORT_LABEL, CONFIG_LABEL, IN_PEERS_LABEL, OUT_PEERS_LABEL,
-    LOG_LEVEL_LABEL, P2P_BIND_PORT_LABEL, STRATUM_PORT_LABEL)
+    RADIO_SET_FIELD, UPDATE_FIELD, OP_FIELD,
+    NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
+    ELEMENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
+    ADD_DEPLOYMENT_FIELD)
+from db4e.Constants.Fields import DElem, DField, DMod
+from db4e.Constants.Form import Form
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Buttons import (
     DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD, 
-    DELETE_LABEL, UPDATE_LABEL, NEW_LABEL, ENABLE_BUTTON_FIELD, ENABLE_LABEL,
-    DISABLE_BUTTON_FIELD, DISABLE_LABEL)
-from db4e.Constants.Jobs import (
-    JOB_QUEUE_FIELD, POST_JOB_FIELD, OP_FIELD, DELETE_FIELD, UPDATE_FIELD)
+    ENABLE_BUTTON_FIELD, DISABLE_BUTTON_FIELD)
+from db4e.Constants.Jobs import DJob
 
 
 class P2PoolPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
     instance_map = {}
 
     chain_radio_set = RadioSet(id="chain_radio_set", classes=RADIO_SET_FIELD)
 
-    config_label = Label("", classes=STATIC_CONTENT_FIELD)
+    config_label = Label("", classes=Form.STATIC)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_30_FIELD)
+        classes=Form.INPUT_30)
 
     health_msgs = Label()
 
-    delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
-    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
-    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
-    new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
+    disable_button = Button(label=DLabel.DISABLE, id=DISABLE_BUTTON_FIELD)
+    enable_button = Button(label=DLabel.ENABLE, id=ENABLE_BUTTON_FIELD)
+    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
+    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
     p2pool = None
 
 
@@ -77,51 +73,45 @@ class P2PoolPane(Container):
 
         # Local P2Pool daemon deployment form
         INTRO = "This screen provides a form for creating a new " \
-            f"[bold cyan]{P2POOL_LABEL}[/] deployment."
+            f"[bold cyan]{DLabel.P2POOL}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=FORM_INTRO_FIELD),
+                Label(INTRO, classes=Form.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
                         self.instance_input, self.instance_label),
-                    classes=FORM_1_FIELD),
-
+                    Horizontal(
+                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL),
+                        self.in_peers_input),
+                    Horizontal(
+                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL),
+                        self.out_peers_input),
+                    Horizontal(
+                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL),
+                        self.p2p_bind_port_input),
+                    Horizontal(
+                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL),
+                        self.stratum_port_input),
+                    Horizontal(
+                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL),
+                        self.log_level_input),
+                    Horizontal(
+                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL),
+                        self.config_label),
+                    classes=Form.FORM_7, id="form_field"),
+                    
                 Vertical(
                     self.chain_radio_set),
 
                 Vertical(
-                    Horizontal(
-                        Label(IN_PEERS_LABEL, classes=FORM_LABEL_FIELD),
-                        self.in_peers_input),
-                    Horizontal(
-                        Label(OUT_PEERS_LABEL, classes=FORM_LABEL_FIELD),
-                        self.out_peers_input),
-                    Horizontal(
-                        Label(P2P_BIND_PORT_LABEL, classes=FORM_LABEL_FIELD),
-                        self.p2p_bind_port_input),
-                    Horizontal(
-                        Label(STRATUM_PORT_LABEL, classes=FORM_LABEL_FIELD),
-                        self.stratum_port_input),
-                    Horizontal(
-                        Label(LOG_LEVEL_LABEL, classes=FORM_LABEL_FIELD),
-                        self.log_level_input),
-                    classes=FORM_5_FIELD),
-                    
-                Vertical(
                     self.radio_set),
 
                 Vertical(
-                    Horizontal(
-                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
-                        self.config_label),
-                    classes=FORM_1_FIELD),
-
-                Vertical(
                     self.health_msgs,
-                    classes=HEALTH_BOX_FIELD,
+                    classes=Form.HEALTH_BOX,
                 ),
 
                 Vertical(
@@ -133,14 +123,15 @@ class P2PoolPane(Container):
                         self.delete_button,
                         classes=BUTTON_ROW_FIELD))),
                 
-            classes=PANE_BOX_FIELD)
+            classes=Form.PANE_BOX)
 
 
     def on_mount(self):
         #radio_set = self.query_one("#radio_set", RadioSet")
-        self.radio_set.border_title = "Monero Daemon"
-        self.chain_radio_set.border_title = "Chain"
-
+        self.radio_set.border_subtitle = DLabel.MONEROD
+        self.chain_radio_set.border_subtitle = DLabel.CHAIN
+        form_box = self.query_one("#form_field", Vertical)
+        form_box.border_subtitle = DLabel.CONFIG        
 
     def set_data(self, p2pool: P2Pool):
         self.p2pool = p2pool
@@ -155,11 +146,9 @@ class P2PoolPane(Container):
 
         # Create the Monerod radio buttons
         self.instance_map = p2pool.instance_map()
-        print(f"P2PoolPane:set_data(): instance_map: {self.instance_map}")
         instance_list = []
         for instance in p2pool.instance_map().keys():
             instance_list.append(instance)
-        print(f"P2PoolPane:set_data(): instance_list: {instance_list}")
         self.radio_button_list = instance_list
 
         # Create the chain radio buttons
@@ -217,45 +206,45 @@ class P2PoolPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.OPS_MGR,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: UPDATE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.UPDATE,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: ENABLE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.ENABLE,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DISABLE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.DISABLE,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 ELEMENT_FIELD: self.p2pool,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DELETE_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.DELETE,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 ELEMENT_FIELD: self.p2pool,
             }            
 

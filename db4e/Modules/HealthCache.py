@@ -14,8 +14,8 @@ import threading, time
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Constants.Fields import (
-    INSTANCE_FIELD, HASH_FIELD, MONEROD_FIELD, P2POOL_FIELD, XMRIG_FIELD
-)
+    INSTANCE_FIELD, HASH_FIELD)
+from db4e.Constants.Fields import DElem
 
 MONERODS = "monerods"
 P2POOLS = "p2pools"
@@ -35,9 +35,9 @@ class HealthCache:
         self.monerods_map, self.p2pools_map, self.xmrigs_map = {}, {}, {}
 
         self.refresh_now = {
-            MONEROD_FIELD: True,
-            P2POOL_FIELD: True,
-            XMRIG_FIELD: True,
+            DElem.MONEROD: True,
+            DElem.P2POOL: True,
+            DElem.XMRIG: True,
         }
         self.refresh_monerods()
         self.refresh_p2pools()
@@ -50,11 +50,11 @@ class HealthCache:
     def bg_refresh(self):
         while True:
             time.sleep(10)
-            self.refresh_now[MONEROD_FIELD] = True
+            self.refresh_now[DElem.MONEROD] = True
             time.sleep(10)
-            self.refresh_now[P2POOL_FIELD] = True
+            self.refresh_now[DElem.P2POOL] = True
             time.sleep(10)
-            self.refresh_now[XMRIG_FIELD] = True
+            self.refresh_now[DElem.XMRIG] = True
 
 
     def force_refresh(self, elem_type: str):
@@ -107,11 +107,11 @@ class HealthCache:
 
 
     def get_deployment(self, elem_type, instance):
-        if elem_type == MONEROD_FIELD:
+        if elem_type == DElem.MONEROD:
             return self.monerods_map.get(instance)
-        elif elem_type == P2POOL_FIELD:
+        elif elem_type == DElem.P2POOL:
             return self.p2pools_map.get(instance)
-        elif elem_type == XMRIG_FIELD:
+        elif elem_type == DElem.XMRIG:
             return self.xmrigs_map.get(instance)
         else:
             raise ValueError(f"Unsupported element type: {elem_type}")
@@ -146,15 +146,15 @@ class HealthCache:
 
 
     def refresh_monerods(self):
-        self.refresh_elements(MONEROD_FIELD, self.depl_mgr.get_monerods, MONERODS, MONERODS_MAP)
+        self.refresh_elements(DElem.MONEROD, self.depl_mgr.get_monerods, MONERODS, MONERODS_MAP)
 
 
     def refresh_p2pools(self):
-        self.refresh_elements(P2POOL_FIELD, self.depl_mgr.get_p2pools, P2POOLS, P2POOLS_MAP)
+        self.refresh_elements(DElem.P2POOL, self.depl_mgr.get_p2pools, P2POOLS, P2POOLS_MAP)
 
 
     def refresh_xmrigs(self):
-        self.refresh_elements(XMRIG_FIELD, self.depl_mgr.get_xmrigs, XMRIGS, XMRIGS_MAP)
+        self.refresh_elements(DElem.XMRIG, self.depl_mgr.get_xmrigs, XMRIGS, XMRIGS_MAP)
 
 
 

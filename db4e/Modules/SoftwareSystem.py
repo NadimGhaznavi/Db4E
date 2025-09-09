@@ -12,14 +12,12 @@ Defines operations that are common to all SoftareSystems instances.
 This is a virtual class.
 """
 
-from db4e.Modules.Components import ObjectId
 from db4e.Constants.Fields import SOFTWARE_SYSTEM_FIELD
-from db4e.Constants.Labels import SOFTWARE_SYSTEM_LABEL
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import (
-    COMPONENTS_FIELD, ELEMENT_TYPE_FIELD, FIELD_FIELD, LABEL_FIELD, NAME_FIELD,
-    VALUE_FIELD, OBJECT_ID_FIELD,
-    GOOD_FIELD, WARN_FIELD, ERROR_FIELD, INSTANCE_FIELD)
-from db4e.Constants.Jobs import (STATUS_FIELD, MESSAGE_FIELD)
+    LABEL_FIELD, NAME_FIELD, OBJECT_ID_FIELD, INSTANCE_FIELD)
+from db4e.Constants.Fields import DField, Status
+from db4e.Constants.Jobs import DJob
 
 
 class SoftwareSystem:
@@ -27,7 +25,7 @@ class SoftwareSystem:
 
     def __init__(self):
         self._elem_type = SOFTWARE_SYSTEM_FIELD
-        self.name = SOFTWARE_SYSTEM_LABEL
+        self.name = DLabel.SOFTWARE_SYSTEM
         self._object_id = None
         self.components = {}
         self.msgs = []
@@ -53,14 +51,15 @@ class SoftwareSystem:
             raise RuntimeError(
                 "SoftwareSystem:from_rec(): Missing 'components' dict in subclass.")
 
-        for component in rec[COMPONENTS_FIELD]:
-            field_name = component[FIELD_FIELD]
+        for component in rec[DField.COMPONENTS]:
+            field_name = component[DField.FIELD]
             if field_name in self.components:
-                self.components[field_name].value = component[VALUE_FIELD]
+                self.components[field_name].value = component[DField.VALUE]
             else:
-                raise ValueError(f"Unknreturnown component field: {field_name}")
+                print(f"SoftwareSystem:from_rec(): rec: {rec}")
+                raise ValueError(f"SoftwareSystem:from_rec(): {rec[DField.ELEMENT_TYPE]} - Unknown component field: {field_name}")
         self._object_id = rec[OBJECT_ID_FIELD]
-        self._elem_type = rec[ELEMENT_TYPE_FIELD]
+        self._elem_type = rec[DField.ELEMENT_TYPE]
 
 
     def id(self):
@@ -68,7 +67,7 @@ class SoftwareSystem:
 
 
     def msg(self, label: str, status: str, msg: str):
-        self.msgs.append({label: {STATUS_FIELD: status, MESSAGE_FIELD: msg }})
+        self.msgs.append({label: {DJob.STATUS: status, DJob.MESSAGE: msg }})
 
 
     def pop_msgs(self):
@@ -84,14 +83,14 @@ class SoftwareSystem:
     def status(self):
         # The status is defined as the worst status message in the self.msgs list.
         #print(f"SoftwareSystem:status(): self.msgs: {self.msgs}")
-        worst_status = GOOD_FIELD
+        worst_status = Status.GOOD
         for line_item in self.msgs:
             #print(f"SoftwareSystem:status(): line_item: {line_item}")
             for key in line_item:
-                if line_item[key][STATUS_FIELD] == ERROR_FIELD:
-                    return ERROR_FIELD
-                elif line_item[key][STATUS_FIELD] == WARN_FIELD:
-                    worst_status = WARN_FIELD
+                if line_item[key][DJob.STATUS] == Status.ERROR:
+                    return Status.ERROR
+                elif line_item[key][DJob.STATUS] == Status.WARN:
+                    worst_status = Status.WARN
         return worst_status        
 
 
@@ -99,14 +98,14 @@ class SoftwareSystem:
         rec = {
             OBJECT_ID_FIELD: self.id(),
             NAME_FIELD: self.name,
-            ELEMENT_TYPE_FIELD: self.elem_type(),
-            COMPONENTS_FIELD: [],
+            DField.ELEMENT_TYPE: self.elem_type(),
+            DField.COMPONENTS: [],
         }
         for component in self.components.keys():
-            rec[COMPONENTS_FIELD].append({
-                FIELD_FIELD: component,
+            rec[DField.COMPONENTS].append({
+                DField.FIELD: component,
                 LABEL_FIELD: self.components[component].label,
-                VALUE_FIELD: self.components[component].value
+                DField.VALUE: self.components[component].value
             })
 
         return rec

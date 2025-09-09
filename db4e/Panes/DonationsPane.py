@@ -12,10 +12,9 @@ from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, MarkdownViewer
 
 from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Constants.Fields import (
-    INFO_MSG_FIELD, PANE_BOX_FIELD)
-from db4e.Constants.Labels import (DB4E_LONG_LABEL)
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Defaults import (DONATION_WALLET_DEFAULT)
+from db4e.Constants.Form import Form
 
 color = "#9cae41"
 hi = "#d7e556"
@@ -32,12 +31,12 @@ class DonationsPane(Container):
                 Label(INTRO, classes="form_intro"),
 
                 Vertical(
-                    Label(f"[cyan]{DB4E_LONG_LABEL}[/] project Monero donation wallet:"),
+                    Label(f"[cyan]{DLabel.DB4E_LONG}[/] project Monero donation wallet:"),
                     Label(f"[{hi}]{DONATION_WALLET_DEFAULT}[/]"), 
                     Label(),
                     Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes="form_box"),
-                    classes=INFO_MSG_FIELD)),
-            classes=PANE_BOX_FIELD)
+                    classes=Form.INFO_MSG)),
+            classes=Form.PANE_BOX)
                     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass

@@ -11,14 +11,13 @@ db4e/Panes/P2PoolTypePane.py
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
-from db4e.Constants.Labels import (
-    P2POOL_LABEL, P2POOL_REMOTE_LABEL)
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, OPS_MGR_FIELD, GET_NEW_FIELD,
-    P2POOL_FIELD, P2POOL_REMOTE_FIELD,
-    PANE_BOX_FIELD, REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD)
-from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD, PROCEED_LABEL)
+    REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, GET_NEW_FIELD)
+from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD)
 from db4e.Messages.Db4eMsg import Db4eMsg
+from db4e.Constants.Form import Form
 
 color = "#9cae41"
 hi = "cyan"
@@ -26,11 +25,11 @@ hi = "cyan"
 class P2PoolTypePane(Container):
 
     def compose(self):
-        INTRO = f"Welcome to the new [b {hi}]{P2POOL_LABEL}[/] screen. Use to create " \
-            f"a new [{hi}]local[/] or [{hi}]remote[/] {P2POOL_LABEL} deployment.\n\n" \
-            f"A [{hi}]local {P2POOL_LABEL}[/] deployment will setup a " \
-            f"[{hi}]{P2POOL_LABEL}[/] on this machine. [{hi}]Remote[/] deployments " \
-            f"connect to a [{hi}]{P2POOL_LABEL}[/] running on a remote machine."
+        INTRO = f"Welcome to the new [b {hi}]{DLabel.P2POOL}[/] screen. Use to create " \
+            f"a new [{hi}]local[/] or [{hi}]remote[/] {DLabel.P2POOL} deployment.\n\n" \
+            f"A [{hi}]local {DLabel.P2POOL}[/] deployment will setup a " \
+            f"[{hi}]{DLabel.P2POOL}[/] on this machine. [{hi}]Remote[/] deployments " \
+            f"connect to a [{hi}]{DLabel.P2POOL}[/] running on a remote machine."
                     
         yield Vertical (
             ScrollableContainer(
@@ -38,29 +37,29 @@ class P2PoolTypePane(Container):
 
                 Vertical(
                     RadioSet(
-                        RadioButton("Local " + P2POOL_LABEL, id="local", value=True),
-                        RadioButton(P2POOL_REMOTE_LABEL, id="remote"),
+                        RadioButton("Local " + DLabel.P2POOL, id="local", value=True),
+                        RadioButton(DLabel.P2POOL_REMOTE, id="remote"),
                         id="type_radioset", classes="radio_set",
                     )),
 
-                Button(label=PROCEED_LABEL, id=PROCEED_BUTTON_FIELD)),
-                classes=PANE_BOX_FIELD)
+                Button(label=DLabel.PROCEED, id=PROCEED_BUTTON_FIELD)),
+                classes=Form.PANE_BOX)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
         if selected and selected.id == "remote":
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.OPS_MGR,
                 TO_METHOD_FIELD: GET_NEW_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_REMOTE_FIELD,
+                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 REMOTE_FIELD: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.OPS_MGR,
                 TO_METHOD_FIELD: GET_NEW_FIELD,
-                ELEMENT_TYPE_FIELD: P2POOL_FIELD,
+                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 REMOTE_FIELD: False
             }
 

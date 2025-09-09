@@ -13,9 +13,10 @@ Everything P2Pool Remote
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (Instance, Remote, IpAddr, StratumPort)
 from db4e.Constants.Fields import(
-    P2POOL_REMOTE_FIELD, INSTANCE_FIELD, REMOTE_FIELD, IP_ADDR_FIELD,
+    INSTANCE_FIELD, REMOTE_FIELD, IP_ADDR_FIELD,
     STRATUM_PORT_FIELD)
-from db4e.Constants.Labels import(P2POOL_REMOTE_LABEL)
+from db4e.Constants.Fields import DElem
+from db4e.Constants.Labels import DLabel
 
 
 
@@ -24,8 +25,8 @@ class P2PoolRemote(SoftwareSystem):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._elem_type = P2POOL_REMOTE_FIELD
-        self.name = P2POOL_REMOTE_LABEL
+        self._elem_type = DElem.P2POOL_REMOTE
+        self.name = DLabel.P2POOL_REMOTE
 
         self.add_component(INSTANCE_FIELD, Instance())
         self.add_component(IP_ADDR_FIELD, IpAddr())

@@ -12,7 +12,7 @@ This is a virtual class.
 
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
-from db4e.Constants.Labels import LOCAL_SOFTWARE_SYSTEM_LABEL
+from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import LOCAL_SOFTWARE_SYSTEM_FIELD, ENABLED_FIELD
 
 
@@ -24,7 +24,7 @@ class LocalSoftwareSystem(SoftwareSystem):
     def __init__(self):
         super().__init__()
         self._elem_type = LOCAL_SOFTWARE_SYSTEM_FIELD
-        self.name = LOCAL_SOFTWARE_SYSTEM_LABEL
+        self.name = DLabel.LOCAL_SOFTWARE_SYSTEM
         self._enabled = False
 
 

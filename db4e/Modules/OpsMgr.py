@@ -9,6 +9,7 @@ db4e/Modules/OpsMgr.py
 """
 import os
 
+from db4e.Modules.Db4E import Db4E
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
@@ -17,11 +18,9 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Modules.P2Pool import P2Pool
 
 from db4e.Constants.Fields import (
-    INSTANCE_FIELD, MONEROD_REMOTE_FIELD, XMRIG_FIELD, 
-    P2POOL_FIELD, ELEMENT_FIELD, ELEMENT_TYPE_FIELD, MONEROD_FIELD, P2POOL_REMOTE_FIELD)
+    INSTANCE_FIELD, ELEMENT_FIELD)
+from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Defaults import (DEPLOYMENT_COL_DEFAULT)
-from db4e.Constants.Labels import (
-    MONEROD_SHORT_LABEL, P2POOL_SHORT_LABEL, XMRIG_SHORT_LABEL)
 
 
 
@@ -52,25 +51,26 @@ class OpsMgr:
         if type(elem_type) == dict:
             if INSTANCE_FIELD in elem_type:
                 instance = elem_type[INSTANCE_FIELD]
-            elem_type = elem_type[ELEMENT_TYPE_FIELD]
+            elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
-        print(f"OpsMgr:get_deployment(): {elem}")
 
         if not elem:
-            if elem_type == MONEROD_FIELD:
+            if elem_type == DElem.MONEROD:
                 elem = self.depl_mgr.get_deployment(
-                    elem_type=MONEROD_REMOTE_FIELD, instance=instance)
-                elem_type = MONEROD_REMOTE_FIELD
-            elif elem_type == P2POOL_FIELD:
+                    elem_type=DElem.MONEROD_REMOTE, instance=instance)
+                elem_type = DElem.MONEROD_REMOTE
+            elif elem_type == DElem.P2POOL:
                 elem = self.depl_mgr.get_deployment(
-                    elem_type=P2POOL_REMOTE_FIELD, instance=instance)
-                elem_type = P2POOL_REMOTE_FIELD        
+                    elem_type=DElem.P2POOL_REMOTE, instance=instance)
+                elem_type = DElem.P2POOL_REMOTE
         
-        if type(elem) == XMRig:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD))
+        if type(elem) == Db4E:
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
+        elif type(elem) == XMRig:
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.P2POOL))
         elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD))
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
 
         elem = self.health_mgr.check(elem)
         return elem
@@ -89,11 +89,11 @@ class OpsMgr:
 
 
     def get_new(self, form_data: dict):
-        elem = self.depl_mgr.get_new(form_data[ELEMENT_TYPE_FIELD])
+        elem = self.depl_mgr.get_new(form_data[DField.ELEMENT_TYPE])
         if type(elem) == XMRig:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(P2POOL_FIELD))
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.P2POOL))
         elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(MONEROD_FIELD))
+            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
         return elem
     
 
@@ -102,11 +102,15 @@ class OpsMgr:
 
 
     def log_viewer(self, form_data: dict):
-        elem_type = form_data[ELEMENT_TYPE_FIELD]
+        elem_type = form_data[DField.ELEMENT_TYPE]
         instance = form_data[INSTANCE_FIELD]
         elem = self.depl_mgr.get_deployment(
             elem_type=elem_type, instance=instance)
         return elem
+
+
+    def plot(self, plot_metadata: dict):
+        return plot_metadata
 
 
     def update_deployment(self, data: dict):

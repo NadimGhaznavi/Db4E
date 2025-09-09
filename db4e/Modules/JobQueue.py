@@ -15,11 +15,9 @@ from datetime import datetime
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD, ELEMENT_FIELD)
+    OBJECT_ID_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
-from db4e.Constants.Jobs import (
-    COMPLETED_FIELD, OP_FIELD, PROCESSING_FIELD
-)
+from db4e.Constants.Jobs import DJob
 
 class JobQueue:
     def __init__(self, db: DbMgr, log=None):
@@ -29,7 +27,7 @@ class JobQueue:
 
 
     def complete_job(self, job: Job):
-        job.status(COMPLETED_FIELD)
+        job.status(DJob.COMPLETED)
         job.updated_at(datetime.now())
         self.db.update_one(self.col_name, {OBJECT_ID_FIELD: job.id()}, job.to_rec())        
 
@@ -50,7 +48,7 @@ class JobQueue:
             job = Job()
             job.from_rec(job_rec)
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
-            job.status(PROCESSING_FIELD)
+            job.status(DJob.PROCESSING)
             #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
             print(f"JobQueue:grab_job(): {job}")
             return job
@@ -59,7 +57,7 @@ class JobQueue:
 
 
     def post_completed_job(self, job: Job):
-        job.status(COMPLETED_FIELD)
+        job.status(DJob.COMPLETED)
         job.updated_at(datetime.now())
         self.db.insert_one(self.col_name, job.to_rec())
 

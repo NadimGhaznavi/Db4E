@@ -17,14 +17,14 @@ from pymongo import MongoClient
 import time
 
 from db4e.Constants.Fields import (
-    ELEMENT_TYPE_FIELD, DB4E_FIELD, DEBUG_FIELD,  
-    LEVEL_FIELD, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD,
+    DEBUG_FIELD, LEVEL_FIELD, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD,
     TIMESTAMP_FIELD)
+from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Defaults import (
     DB_RETRY_TIMEOUT_DEFAULT, LOG_COLLECTION_DEFAULT, 
     DB_NAME_DEFAULT,
     DB_PORT_DEFAULT, DB_SERVER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT)
-from db4e.Constants.Jobs import MESSAGE_FIELD
+from db4e.Constants.Jobs import Job
 
 
 LOG_LEVELS = {
@@ -37,7 +37,7 @@ LOG_LEVELS = {
 
 class Db4eLogger:
     def __init__(self, elem_type: str, db=False, log_file=None):
-        logger_name = f'{DB4E_FIELD}.{elem_type}'
+        logger_name = f'{DElem.DB4E}.{elem_type}'
         self._elem_type = elem_type
         self._logger = logging.getLogger(logger_name)
 
@@ -58,7 +58,7 @@ class Db4eLogger:
 
         # Optional DB handler
         if db:
-            dbh = Db4eDbLogHandler(config)
+            dbh = Db4eDbLogHandler()
             dbh.setLevel(debug_log_level)
             self._logger.addHandler(dbh)
 
@@ -71,27 +71,27 @@ class Db4eLogger:
     # Basic log message handling, wraps Python's logging object
     def info(self, message, extra=None):
         extra = extra or {} # Make sure extra isn't 'None'
-        extra[ELEMENT_TYPE_FIELD] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._elem_type
         self._logger.info(message, extra=extra)
 
     def debug(self, message, extra=None):
         extra = extra or {} 
-        extra[ELEMENT_TYPE_FIELD] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._elem_type
         self._logger.debug(message, extra=extra)
 
     def warning(self, message, extra=None):
         extra = extra or {} 
-        extra[ELEMENT_TYPE_FIELD] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._elem_type
         self._logger.warning(message, extra=extra)
 
     def error(self, message, extra=None):
         extra = extra or {} 
-        extra[ELEMENT_TYPE_FIELD] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._elem_type
         self._logger.error(message, extra=extra)
 
     def critical(self, message, extra=None):
         extra = extra or {} 
-        extra[ELEMENT_TYPE_FIELD] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._elem_type
         self._logger.critical(message, extra=extra)
             
 
@@ -112,10 +112,10 @@ class Db4eDbLogHandler(logging.Handler):
         log_entry = {
             TIMESTAMP_FIELD: datetime.now(timezone.utc),
             LEVEL_FIELD: record.levelname,
-            MESSAGE_FIELD: record.getMessage(),
+            DField.MESSAGE: record.getMessage(),
         }
         # Copy any custom attributes from the record
-        for attr in (ELEMENT_TYPE_FIELD, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD):  # list whatever custom fields you expect
+        for attr in (DField.ELEMENT_TYPE, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD):  # list whatever custom fields you expect
             if hasattr(record, attr):
                 log_entry[attr] = getattr(record, attr)
 

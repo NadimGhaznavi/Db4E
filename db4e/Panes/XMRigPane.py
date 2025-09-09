@@ -18,78 +18,73 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Buttons import(
-    BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, DELETE_LABEL, ENABLE_BUTTON_FIELD, 
-    ENABLE_LABEL, DISABLE_BUTTON_FIELD, DISABLE_LABEL,
-    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD, NEW_LABEL, UPDATE_LABEL)
+    BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, ENABLE_BUTTON_FIELD, 
+    DISABLE_BUTTON_FIELD, 
+    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD)
 from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, NEW_FIELD, DEPLOYMENT_MGR_FIELD,
-    FORM_3_FIELD, FORM_INPUT_15_FIELD, DISABLE_FIELD, FORM_INTRO_FIELD,
-    FORM_LABEL_FIELD, HEALTH_BOX_FIELD, ELEMENT_FIELD,
-    ENABLE_FIELD, OPS_MGR_FIELD, PANE_BOX_FIELD, 
-    RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD, 
-    STATIC_CONTENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    XMRIG_FIELD, ELEMENT_TYPE_FIELD)
-from db4e.Constants.Jobs import(
-    OP_FIELD, POST_JOB_FIELD, DELETE_FIELD, UPDATE_FIELD
-)
-from db4e.Constants.Labels import (
-    CONFIG_LABEL, INSTANCE_LABEL,
-    NUM_THREADS_LABEL, XMRIG_LABEL)
+    ADD_DEPLOYMENT_FIELD, ELEMENT_FIELD, UPDATE_FIELD,
+    ENABLE_FIELD, OP_FIELD,
+    RADIO_BUTTON_TYPE_FIELD, RADIO_SET_FIELD,
+    TO_METHOD_FIELD, TO_MODULE_FIELD, DISABLE_FIELD, NEW_FIELD)
+from db4e.Constants.Fields import DMod, DElem, DField
+from db4e.Constants.Jobs import DJob
+from db4e.Constants.Labels import DLabel
+from db4e.Constants.Form import Form
 
 
 class XMRigPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=STATIC_CONTENT_FIELD)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
     instance_map = {}
     
-    config_label = Label("", classes=STATIC_CONTENT_FIELD)
+    config_label = Label("", classes=Form.STATIC)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=FORM_INPUT_15_FIELD)
+        classes=Form.INPUT_15)
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True,
-        classes=FORM_INPUT_15_FIELD)
+        classes=Form.INPUT_15)
     
     health_msgs = Label()
 
-    delete_button = Button(label=DELETE_LABEL, id=DELETE_BUTTON_FIELD)
-    disable_button = Button(label=DISABLE_LABEL, id=DISABLE_BUTTON_FIELD)
-    enable_button = Button(label=ENABLE_LABEL, id=ENABLE_BUTTON_FIELD)
-    new_button = Button(label=NEW_LABEL, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=UPDATE_LABEL, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
+    disable_button = Button(label=DLabel.DISABLE, id=DISABLE_BUTTON_FIELD)
+    enable_button = Button(label=DLabel.ENABLE, id=ENABLE_BUTTON_FIELD)
+    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
+    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
     xmrig = None
 
 
     def compose(self):
         # Remote P2Pool daemon deployment form
         INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{XMRIG_LABEL}[/] deployment here."
+            f"[cyan]{DLabel.XMRIG}[/] deployment here."
 
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=FORM_INTRO_FIELD),
+                Label(INTRO, classes=Form.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(INSTANCE_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(NUM_THREADS_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.NUM_THREADS, classes=Form.FORM_LABEL),
                         self.num_threads_input),
                     Horizontal(
-                        Label(CONFIG_LABEL, classes=FORM_LABEL_FIELD),
+                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL),
                         self.config_label),
-                    classes=FORM_3_FIELD),
+                    classes=Form.FORM_3, id="form_field"),
 
                 Vertical(
                     self.radio_set),
 
                 Vertical(
                     self.health_msgs,
-                    classes=HEALTH_BOX_FIELD),
+                    classes=Form.HEALTH_BOX),
 
                 Vertical(
                     Horizontal(
@@ -100,7 +95,7 @@ class XMRigPane(Container):
                         self.delete_button,
                         classes=BUTTON_ROW_FIELD))),
                 
-            classes=PANE_BOX_FIELD)
+            classes=Form.PANE_BOX)
 
     def get_p2pool_id(self, instance=None):
         if instance and instance in self.instance_map:
@@ -108,7 +103,10 @@ class XMRigPane(Container):
         return False
     
     def on_mount(self):
-        self.radio_set.border_title = "P2Pool Daemon"
+        self.radio_set.border_subtitle = DLabel.P2POOL
+        form_box = self.query_one("#form_field", Vertical)
+        form_box.border_subtitle = DLabel.CONFIG
+
 
     def set_data(self, xmrig: XMRig):
         #print(f"XMRig:set_data(): {xmrig}")
@@ -159,45 +157,45 @@ class XMRigPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: OPS_MGR_FIELD,
+                TO_MODULE_FIELD: DMod.OPS_MGR,
                 TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
                 ELEMENT_FIELD: self.xmrig
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: UPDATE_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.UPDATE,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
                 ELEMENT_FIELD: self.xmrig,
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: ENABLE_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.ENABLE,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
                 ELEMENT_FIELD: self.xmrig,
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DISABLE_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.DISABLE,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
                 ELEMENT_FIELD: self.xmrig,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DEPLOYMENT_MGR_FIELD,
-                TO_METHOD_FIELD: POST_JOB_FIELD,
-                OP_FIELD: DELETE_FIELD,
-                ELEMENT_TYPE_FIELD: XMRIG_FIELD,
+                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
+                TO_METHOD_FIELD: DJob.POST_JOB,
+                OP_FIELD: DJob.DELETE,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
                 ELEMENT_FIELD: self.xmrig,
             }            
 

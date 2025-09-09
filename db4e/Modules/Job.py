@@ -17,12 +17,9 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Fields import (ELEMENT_FIELD, ELEMENT_TYPE_FIELD,
-    INSTANCE_FIELD, OBJECT_ID_FIELD, MONEROD_FIELD, MONEROD_REMOTE_FIELD, 
-    P2POOL_FIELD, P2POOL_REMOTE_FIELD, XMRIG_FIELD)
-from db4e.Constants.Jobs import (
-    JOB_ID_FIELD, OP_FIELD, MESSAGE_FIELD, PENDING_FIELD, 
-    ATTEMPTS_FIELD, CREATED_AT_FIELD, STATUS_FIELD, UPDATED_AT_FIELD)
+from db4e.Constants.Fields import (ELEMENT_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD)
+from db4e.Constants.Fields import DElem, DField
+from db4e.Constants.Jobs import DJob
 
 
 class Job:
@@ -38,7 +35,7 @@ class Job:
         self._msg = ""
         self._object_id = None
         self._op = op
-        self._status = PENDING_FIELD
+        self._status = DJob.PENDING
         self._updated_at = datetime.now()
 
 
@@ -69,29 +66,29 @@ class Job:
 
 
     def from_rec(self, rec: dict):
-        self._attempts = rec[ATTEMPTS_FIELD]
-        self._created_at = rec[CREATED_AT_FIELD]
-        self._element_type = rec[ELEMENT_TYPE_FIELD]
-        self._instance = rec[INSTANCE_FIELD]
-        self._job_id = rec[JOB_ID_FIELD]
-        self._msg = rec[MESSAGE_FIELD]
+        self._attempts = rec[DJob.ATTEMPTS]
+        self._created_at = rec[DJob.CREATED_AT]
+        self._element_type = rec[DField.ELEMENT_TYPE]
+        self._instance = rec[DJob.INSTANCE]
+        self._job_id = rec[DJob.JOB_ID]
+        self._msg = rec[DJob.MESSAGE]
         self._object_id = rec[OBJECT_ID_FIELD]
-        self._op = rec[OP_FIELD]
-        self._status = rec[STATUS_FIELD]
-        self._updated_at = rec[UPDATED_AT_FIELD]
+        self._op = rec[DJob.OP]
+        self._status = rec[DJob.STATUS]
+        self._updated_at = rec[DJob.UPDATED_AT]
         if ELEMENT_FIELD in rec:
             elem_rec = rec[ELEMENT_FIELD]
-            elem_type = elem_rec[ELEMENT_TYPE_FIELD]
+            elem_type = elem_rec[DField.ELEMENT_TYPE]
             #print(f"Job:from_rec(): elem_type: {elem_type}")
-            if elem_type == MONEROD_FIELD:
+            if elem_type == DElem.MONEROD:
                 self._element = MoneroD(elem_rec)
-            elif elem_type == MONEROD_REMOTE_FIELD:
+            elif elem_type == DElem.MONEROD_REMOTE:
                 self._element = MoneroDRemote(elem_rec)
-            elif elem_type == P2POOL_FIELD:
+            elif elem_type == DElem.P2POOL:
                 self._element = P2Pool(elem_rec)
-            elif elem_type == P2POOL_REMOTE_FIELD:
+            elif elem_type == DElem.P2POOL_REMOTE:
                 self._element = P2PoolRemote(elem_rec)
-            elif elem_type == XMRIG_FIELD:
+            elif elem_type == DElem.XMRIG:
                 self._element = XMRig(elem_rec)
 
 
@@ -128,15 +125,15 @@ class Job:
 
     def to_rec(self):
         job_rec = {
-            ATTEMPTS_FIELD: self._attempts,
-            CREATED_AT_FIELD: self._created_at,
-            ELEMENT_TYPE_FIELD: self._element_type,
+            Job.ATTEMPTS: self._attempts,
+            Job.CREATED_AT: self._created_at,
+            Job.ELEMENT_TYPE: self._element_type,
             INSTANCE_FIELD: self._instance,
-            JOB_ID_FIELD: self._job_id,
-            MESSAGE_FIELD: self._msg,
-            OP_FIELD: self._op,
-            STATUS_FIELD: self._status,
-            UPDATED_AT_FIELD: self._updated_at,
+            Job.JOB_ID: self._job_id,
+            Job.MESSAGE: self._msg,
+            Job.OP: self._op,
+            Job.STATUS: self._status,
+            Job.UPDATED_AT: self._updated_at,
         }
 
         elem = self.elem()
