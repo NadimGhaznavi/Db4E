@@ -8,10 +8,10 @@ db4e/Constants/Defaults.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
 
-class DDef(TypedEnum):
+class DDef(MetaConst):
     ANY_IP: str = "0.0.0.0"
     API_DIR: str = "api"
     APP_TITLE: str  = "Db4E"

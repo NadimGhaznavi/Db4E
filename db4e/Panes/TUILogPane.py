@@ -23,11 +23,11 @@ from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
 
 TYPE_TABLE = {
-    DElem.MONEROD: DLabel.MONEROD_SHORT,
-    DElem.MONEROD_REMOTE: DLabel.MONEROD_SHORT,
-    DElem.P2POOL: DLabel.P2POOL_SHORT,
-    DElem.P2POOL_REMOTE: DLabel.P2POOL_SHORT,
-    DElem.XMRIG: DLabel.XMRIG_SHORT,
+    DElem.MONEROD.value: DLabel.MONEROD_SHORT.value,
+    DElem.MONEROD_REMOTE.value: DLabel.MONEROD_SHORT.value,
+    DElem.P2POOL.value: DLabel.P2POOL_SHORT.value,
+    DElem.P2POOL_REMOTE.value: DLabel.P2POOL_SHORT.value,
+    DElem.XMRIG.value: DLabel.XMRIG_SHORT.value,
 }
 
 class TUILogPane(Static):

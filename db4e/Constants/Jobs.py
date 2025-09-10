@@ -8,11 +8,11 @@ db4e/Constants/Jobs.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
 from db4e.Constants.Fields import DField
 
-class DJob(TypedEnum):
+class DJob(MetaConst):
     ATTEMPTS : str = "attempts"
     COMPLETED : str = "completed"
     CREATED_AT : str = "created_at"

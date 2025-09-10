@@ -8,10 +8,10 @@ db4e/Constants/Panes.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
 
-class Pane(TypedEnum):
+class Pane(MetaConst):
     DB4E: str = "Db4EPane"
     DONATIONS: str  = "DonationsPane"
     INITIAL_SETUP: str  = "InitialSetupPane"

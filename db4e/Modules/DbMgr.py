@@ -37,19 +37,19 @@ class DbMgr:
         self.db4e = None
         self._client = None
         # MongoDB settings
-        retry_timeout      = DDef.DB_RETRY_TIMEOUT
-        db_server          = DDef.DB_SERVER
-        db_port            = DDef.DB_PORT
+        retry_timeout      = DDef.DB_RETRY_TIMEOUT.value
+        db_server          = DDef.DB_SERVER.value
+        db_port            = DDef.DB_PORT.value
 
-        self.max_backups   = DDef.MAX_BACKUPS
-        self.db_name       = DDef.DB_NAME
-        self.db_col        = DDef.MINING_COL
-        self.depl_col      = DDef.DEPLOYMENT_COL
-        self.log_col       = DDef.LOG_COLLECTION
-        self.log_retention = DDef.LOG_RETENTION_DAYS
-        self.metrics_col   = DDef.METRICS_COLLECTION
-        self.ops_col       = DDef.OPS_COL
-        self.tmpl_col      = DDef.TEMPLATES_COLLECTION
+        self.max_backups   = DDef.MAX_BACKUPS.value
+        self.db_name       = DDef.DB_NAME.value
+        self.db_col        = DDef.MINING_COL.value
+        self.depl_col      = DDef.DEPLOYMENT_COL.value
+        self.log_col       = DDef.LOG_COLLECTION.value
+        self.log_retention = DDef.LOG_RETENTION_DAYS.value
+        self.metrics_col   = DDef.METRICS_COLLECTION.value
+        self.ops_col       = DDef.OPS_COL.value
+        self.tmpl_col      = DDef.TEMPLATES_COLLECTION.value
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'
@@ -110,10 +110,11 @@ class DbMgr:
         return col.find_one_and_update(filter, update, return_document=return_document)
 
 
-    def get_collection(self, col_name):
+    def get_collection(self, col_name): 
         if self.db4e is None:
             raise RuntimeError("MongoDB connection is not initialized.")
-        return self.db4e[col_name]
+        # col_name is a DDef instance, we need to convert it to a string
+        return self.db4e[str(col_name)]
 
 
     def get_jobs(self):
@@ -158,7 +159,8 @@ class DbMgr:
                     # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
                     pass
         self.ensure_indexes()
-        db4e_rec = self.find_one(col_name=depl_col, filter={DField.ELEMENT_TYPE: DElem.DB4E})
+        db4e_rec = self.find_one(
+            col_name=depl_col, filter={DField.ELEMENT_TYPE.value: DElem.DB4E.value})
 
         # Make sure there's a Db4E deployment record for Db4E
         if not db4e_rec:
@@ -173,7 +175,7 @@ class DbMgr:
     def insert_one(self, col_name, jdoc, use_worker=True):
         elem_type = ""
         if DField.ELEMENT_TYPE in jdoc:
-            elem_type = jdoc[DField.ELEMENT_TYPE]
+            elem_type = jdoc[DField.ELEMENT_TYPE.value]
         #print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
         jdoc.pop("_id", None)
@@ -195,7 +197,7 @@ class DbMgr:
     def update_one(self, col_name, filter, new_values, use_worker=True):
         elem_type = ""
         if DField.ELEMENT_TYPE in new_values:
-            elem_type = new_values[DField.ELEMENT_TYPE]
+            elem_type = new_values[DField.ELEMENT_TYPE.value]
         #print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, type:{elem_type}")
         collection = self.get_collection(col_name)
         new_values.pop("_id", None)

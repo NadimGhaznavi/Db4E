@@ -8,9 +8,9 @@ db4e/Constants/Fields.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
-class DField(TypedEnum):
+class DField(MetaConst):
     ACTIVE: str = "active"
     ANY_IP : str = "any_ip"
     APP_VERSION : str = "app_version"
@@ -132,7 +132,7 @@ class DField(TypedEnum):
 
 
 # Directories
-class DDir(TypedEnum):
+class DDir(MetaConst):
     API : str = "api_dir"
     BACKUP : str = "backup_dir"
     BIN : str = "bin_dir"
@@ -152,7 +152,7 @@ class DDir(TypedEnum):
     CONF : str = "conf_dir"
 
 # Elements
-class DElem(TypedEnum):
+class DElem(MetaConst):
     DB4E : str = "db4e"
     INT_P2POOL : str = "internal_p2pool"
     MONEROD : str = "monerod"
@@ -162,26 +162,26 @@ class DElem(TypedEnum):
     XMRIG : str ="xmrig"
 
 # Files
-class DFile(TypedEnum):
+class DFile(MetaConst):
     BACKUP_SCRIPT : str = "backup_script"
     CONFIG_FILE : str = DField.CONFIG_FILE.value
     P2POOL_LOG : str = "p2pool.log"
 
 # Modules
-class DMod(TypedEnum):
+class DMod(MetaConst):
     DEPLOYMENT_MGR : str = "DeploymentMgr"
     INSTALL_MGR : str = "InstallMgr"
     OPS_MGR : str = "OpsManager"
     PANE_MGR : str = "PaneMgr"
 
 # Status
-class Status(TypedEnum):
+class Status(MetaConst):
     ERROR : str = "error"
     GOOD : str = "good"
     WARN : str = "warn"
 
 # Methods
-class Method(TypedEnum):
+class Method(MetaConst):
     ADD_DEPLOYMENT : str = "add_deployment"
     DELETE_DEPLOYMENT : str = "del_deployment"
     GET_NEW : str = "get_new"
@@ -196,7 +196,7 @@ class Method(TypedEnum):
     SET_PRIMARY : str = "set_primary"
 
 # Mongo
-class Mongo(TypedEnum):
+class Mongo(MetaConst):
     COLLECTION : str = "collection"
     CONFIG : str = "config"
     DB : str = "db"

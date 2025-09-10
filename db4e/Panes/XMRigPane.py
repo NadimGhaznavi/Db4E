@@ -43,11 +43,11 @@ class XMRigPane(Container):
     
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
-    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
-    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
+    disable_button = Button(label=DLabel.DISABLE.value, id=DButton.DISABLE.value)
+    enable_button = Button(label=DLabel.ENABLE.value, id=DButton.ENABLE.value)
+    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
+    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
     xmrig = None
 
 
@@ -63,15 +63,15 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTANCE.value, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.NUM_THREADS.value, classes=Form.FORM_LABEL.value),
                         self.num_threads_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.CONFIG_FILE.value, classes=Form.FORM_LABEL.value),
                         self.config_label),
-                    classes=Form.FORM_3, id="form_field"),
+                    classes=Form.FORM_3.value, id="form_field"),
 
                 Vertical(
                     self.radio_set),

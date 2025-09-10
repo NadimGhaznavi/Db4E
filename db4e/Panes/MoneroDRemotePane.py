@@ -40,9 +40,9 @@ class MoneroDRemotePane(Container):
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
         classes=Form.INPUT_30.value)
     health_msgs = Label()
-    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
-    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
+    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
+    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
 
 
     def compose(self):
@@ -71,7 +71,7 @@ class MoneroDRemotePane(Container):
                     Horizontal(
                         Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL.value),
                         self.zmq_pub_port_input),
-                    classes=Form.FORM_5),
+                    classes=Form.FORM_5.value),
 
                 Vertical(
                     self.health_msgs,

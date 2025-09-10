@@ -8,10 +8,10 @@ Constants/Mining.py
     License: GPL 3.0
 
 """
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 from db4e.Constants.Fields import DField
 
-class Mining(TypedEnum):
+class Mining(MetaConst):
     """
     Mining related constants
     """

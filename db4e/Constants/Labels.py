@@ -8,10 +8,10 @@ db4e/Constants/Labels.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
 
-class DLabel(TypedEnum):
+class DLabel(MetaConst):
     ABORT : str = "Abort"
     ACTIVE_MINERS : str = "Active Miners"
     ANY_IP : str = "Listen on IP"

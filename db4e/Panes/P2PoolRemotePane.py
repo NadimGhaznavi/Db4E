@@ -25,20 +25,20 @@ from db4e.Constants.Jobs import DJob
 
 class P2PoolRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     ip_addr_input = Input(
         id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     health_msgs = Label()
-    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
-    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
+    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
+    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
 
 
     def compose(self):

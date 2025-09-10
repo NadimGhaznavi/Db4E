@@ -32,21 +32,21 @@ from db4e.Constants.Panes import Pane
 
 
 REGISTRY = {
-    Pane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
-    Pane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
-    Pane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
-    Pane.LOG_VIEW: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
-    Pane.MONEROD_TYPE: (MoneroDTypePane, DLabel.MONEROD, DLabel.NEW),
-    Pane.MONEROD: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
-    Pane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
-    Pane.P2POOL_TYPE: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
-    Pane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
-    Pane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
-    Pane.PLOT_VIEW: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
-    Pane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
-    Pane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
-    Pane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
-    Pane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
+    Pane.DB4E.value: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
+    Pane.DONATIONS.value: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
+    Pane.INITIAL_SETUP.value: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
+    Pane.LOG_VIEW.value: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
+    Pane.MONEROD_TYPE.value: (MoneroDTypePane, DLabel.MONEROD, DLabel.NEW),
+    Pane.MONEROD.value: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
+    Pane.MONEROD_REMOTE.value: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
+    Pane.P2POOL_TYPE.value: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
+    Pane.P2POOL.value: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
+    Pane.P2POOL_REMOTE.value: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
+    Pane.PLOT_VIEW.value: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
+    Pane.XMRIG.value: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    Pane.RESULTS.value: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
+    Pane.TUI_LOG.value: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
+    Pane.WELCOME.value: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
 }
 
 class PaneCatalogue:

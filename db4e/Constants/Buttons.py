@@ -8,10 +8,10 @@ db4e/Constants/Buttons.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
 
-class DButton(TypedEnum):
+class DButton(MetaConst):
     ABORT: str = "abort_button"
     DELETE: str  = "delete_button"
     DISABLE: str  = "disable_button"

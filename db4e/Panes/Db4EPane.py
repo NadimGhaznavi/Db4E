@@ -30,9 +30,9 @@ hi = "cyan"
 
 class Db4EPane(Container):
 
-    user_name_label = Label("", classes=Form.STATIC.value)
-    group_name_label = Label("", classes=Form.STATIC.value)
-    install_dir_label = Label("", classes=Form.STATIC.value)
+    user_name_label = Label("", classes=Form.STATIC)
+    group_name_label = Label("", classes=Form.STATIC)
+    install_dir_label = Label("", classes=Form.STATIC)
     vendor_dir_input = Input(id="vendor_dir_input",
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=Form.INPUT_30.value)
     user_wallet_input = Input(id="user_wallet_input",

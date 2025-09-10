@@ -54,11 +54,11 @@ class P2PoolPane(Container):
 
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
-    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
-    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
+    disable_button = Button(label=DLabel.DISABLE.value, id=DButton.DISABLE.value)
+    enable_button = Button(label=DLabel.ENABLE.value, id=DButton.ENABLE.value)
+    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
+    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
     p2pool = None
 
 

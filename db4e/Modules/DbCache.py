@@ -65,8 +65,8 @@ class DbCache:
             seen_ids = set()
 
             for rec in recs:
-                elem_type = rec[DField.ELEMENT_TYPE]
-                obj_id = rec[DField.OBJECT_ID]
+                elem_type = rec[DField.ELEMENT_TYPE.value]
+                obj_id = rec[DField.OBJECT_ID.value]
                 seen_ids.add(obj_id)
 
                 if obj_id in self.id_map:

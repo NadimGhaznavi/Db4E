@@ -40,8 +40,8 @@ from db4e.Constants.Fields import DField
 from db4e.Constants.Defaults import DDef
 
 class Db4EApp(App):
-    TITLE = DDef.APP_TITLE
-    CSS_PATH = DDef.CSS_PATH
+    TITLE = DDef.APP_TITLE.value
+    CSS_PATH = DDef.CSS_PATH.value
     REFRESH_TIME = 2
 
     def __init__(self):
@@ -98,8 +98,8 @@ class Db4EApp(App):
 
 def main():
     # Set environment variables for better color support
-    os.environ[DField.TERM_ENVIRON] = DDef.TERM
-    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
+    os.environ[DField.TERM_ENVIRON.value] = DDef.TERM.value
+    os.environ[DField.COLORTERM_ENVIRON.value] = DDef.COLORTERM.value
 
     app = Db4EApp()
     app.run()

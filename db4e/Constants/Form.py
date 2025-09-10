@@ -8,9 +8,9 @@ db4e/Constants/Form.py
     License: GPL 3.0
 """
 
-from db4e.Modules.TypedEnum import TypedEnum
+from db4e.Modules.MetaConst import MetaConst
 
-class Form(TypedEnum):
+class Form(MetaConst):
     BUTTON_ROW : str = "button_row"
     FORM_0 : str = "form_0"
     FORM_1 : str = "form_1"

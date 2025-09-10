@@ -68,8 +68,8 @@ class InitialSetupPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.PROCEED, id=DButton.PROCEED),
-                        Button(label=DLabel.ABORT, id=DButton.ABORT),
+                        Button(label=DLabel.PROCEED, id=DButton.PROCEED.value),
+                        Button(label=DLabel.ABORT, id=DButton.ABORT.value),
                         classes=Form.BUTTON_ROW.value)),
                 classes=Form.PANE_BOX.value),
 
