@@ -17,7 +17,7 @@ from db4e.Modules.Components import (
     PrimaryServer)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import (DONATION_WALLET_DEFAULT)
+from db4e.Constants.Defaults import DDef
 
 
 class Db4E(LocalSoftwareSystem):
@@ -44,7 +44,7 @@ class Db4E(LocalSoftwareSystem):
         self.user_wallet = self.components[DField.USER_WALLET]
         self.vendor_dir = self.components[DField.VENDOR_DIR]
 
-        self.donation_wallet.value = DONATION_WALLET_DEFAULT
+        self.donation_wallet.value = DDef.DONATION_WALLET
         self.set_effective_identity()
         self.set_install_dir()
         self.enable()

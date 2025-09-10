@@ -16,14 +16,8 @@ import traceback
 from pymongo import MongoClient
 import time
 
-from db4e.Constants.Fields import (
-    DEBUG_FIELD, LEVEL_FIELD, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD,
-    TIMESTAMP_FIELD)
 from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import (
-    DB_RETRY_TIMEOUT_DEFAULT, LOG_COLLECTION_DEFAULT, 
-    DB_NAME_DEFAULT,
-    DB_PORT_DEFAULT, DB_SERVER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Jobs import Job
 
 
@@ -42,7 +36,7 @@ class Db4eLogger:
         self._logger = logging.getLogger(logger_name)
 
         # Set the logger log level, should always be 'debug'
-        debug_log_level = LOG_LEVELS[DEBUG_FIELD]
+        debug_log_level = LOG_LEVELS[DField.DEBUG]
         self._logger.setLevel(debug_log_level)
 
         formatter = logging.Formatter(
@@ -100,8 +94,8 @@ class Db4eDbLogHandler(logging.Handler):
     def __init__(self):
         super().__init__()
 
-        self._db_server      = DB_SERVER_DEFAULT
-        self._db_port        = DB_PORT_DEFAULT
+        self._db_server      = DDef.DB_SERVER
+        self._db_port        = DDef.DB_PORT
 
         # Flag for connection status
         self.connected = False
@@ -110,12 +104,12 @@ class Db4eDbLogHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = {
-            TIMESTAMP_FIELD: datetime.now(timezone.utc),
-            LEVEL_FIELD: record.levelname,
+            DField.TIMESTAMP: datetime.now(timezone.utc),
+            DField.LEVEL: record.levelname,
             DField.MESSAGE: record.getMessage(),
         }
         # Copy any custom attributes from the record
-        for attr in (DField.ELEMENT_TYPE, MINER_FIELD, NEW_FILE_FIELD, FILE_TYPE_FIELD):  # list whatever custom fields you expect
+        for attr in (DField.ELEMENT_TYPE, DField.MINER, DField.NEW_FILE, DField.FILE_TYPE):  # list whatever custom fields you expect
             if hasattr(record, attr):
                 log_entry[attr] = getattr(record, attr)
 
@@ -139,15 +133,15 @@ class Db4eDbLogHandler(logging.Handler):
             try:
                 client = MongoClient(f"mongodb://{db_server}:{db_port}/")
             except:
-                print(f'Could not connect to DB ({db_server}:{db_port}), waiting {DB_RETRY_TIMEOUT_DEFAULT} seconds')
+                print(f'Could not connect to DB ({db_server}:{db_port}), waiting {DDef.DB_RETRY_TIMEOUT} seconds')
                 if retries == 0:
                     raise RuntimeError(f"Could not connect to MongoDB: {db_server}:{db_port}")
-                time.sleep(DB_RETRY_TIMEOUT_DEFAULT)
+                time.sleep(DDef.DB_RETRY_TIMEOUT)
         self.connected = True
-        self._db = client[DB_NAME_DEFAULT]        
+        self._db = client[DDef.DB_NAME]        
 
     def log_db_message(self, log_entry):
         db = self.db()
-        col = db[LOG_COLLECTION_DEFAULT]
+        col = db[DDef.LOG_COLLECTION]
         col.insert_one(log_entry)
 

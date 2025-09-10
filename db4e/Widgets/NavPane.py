@@ -29,10 +29,8 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Constants.Fields import Status, DElem, DMod, DField, Method
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Panes import (
-    MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
-    TUI_LOG_PANE)
-from db4e.Constants.Buttons import INITIAL_SETUP_PROCEED_FIELD
+from db4e.Constants.Panes import Pane
+from db4e.Constants.Buttons import DButton
 
 # Icon dictionary keys
 BLOCK = 'BLOCK'
@@ -130,7 +128,7 @@ class NavPane(Container):
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
                     DField.TO_MODULE: DMod.INSTALL_MGR,
-                    DField.TO_METHOD: INITIAL_SETUP_PROCEED_FIELD,
+                    DField.TO_METHOD: Method.INITIAL_SETUP_PROCEED,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -171,7 +169,7 @@ class NavPane(Container):
                     DField.ELEMENT_TYPE: DElem.MONEROD,
                     DField.TO_MODULE: DMod.PANE_MGR,
                     DField.TO_METHOD: Method.SET_PANE,
-                    DField.NAME: MONEROD_TYPE_PANE,
+                    DField.NAME: Pane.MONEROD_TYPE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -182,7 +180,7 @@ class NavPane(Container):
                     DField.ELEMENT_TYPE: DElem.P2POOL,
                     DField.TO_MODULE: DMod.PANE_MGR,
                     DField.TO_METHOD: Method.SET_PANE,
-                    DField.NAME: P2POOL_TYPE_PANE,
+                    DField.NAME: Pane.P2POOL_TYPE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 

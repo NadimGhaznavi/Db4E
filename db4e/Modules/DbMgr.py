@@ -19,11 +19,7 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Modules.Db4E import Db4E
 from db4e.Constants.Fields import DMod, DField, DElem
 from db4e.Constants.Jobs import DJob
-from db4e.Constants.Defaults import (OPS_COL_DEFAULT, MINING_COL_DEFAULT, 
-    LOG_COLLECTION_DEFAULT, LOG_RETENTION_DAYS_DEFAULT, MAX_BACKUPS_DEFAULT,
-    METRICS_COLLECTION_DEFAULT, DEPLOYMENT_COL_DEFAULT, TEMPLATES_COLLECTION_DEFAULT,
-    DB_NAME_DEFAULT, DB_PORT_DEFAULT, DB_SERVER_DEFAULT, DB_RETRY_TIMEOUT_DEFAULT)
-
+from db4e.Constants.Defaults import DDef
 
 def as_worker(method):
     def wrapper(self, *args, use_worker=True, **kwargs):
@@ -41,19 +37,19 @@ class DbMgr:
         self.db4e = None
         self._client = None
         # MongoDB settings
-        retry_timeout      = DB_RETRY_TIMEOUT_DEFAULT
-        db_server          = DB_SERVER_DEFAULT
-        db_port            = DB_PORT_DEFAULT
+        retry_timeout      = DDef.DB_RETRY_TIMEOUT
+        db_server          = DDef.DB_SERVER
+        db_port            = DDef.DB_PORT
 
-        self.max_backups   = MAX_BACKUPS_DEFAULT
-        self.db_name       = DB_NAME_DEFAULT
-        self.db_col        = MINING_COL_DEFAULT
-        self.depl_col      = DEPLOYMENT_COL_DEFAULT
-        self.log_col       = LOG_COLLECTION_DEFAULT
-        self.log_retention = LOG_RETENTION_DAYS_DEFAULT
-        self.metrics_col   = METRICS_COLLECTION_DEFAULT
-        self.ops_col       = OPS_COL_DEFAULT
-        self.tmpl_col      = TEMPLATES_COLLECTION_DEFAULT
+        self.max_backups   = DDef.MAX_BACKUPS
+        self.db_name       = DDef.DB_NAME
+        self.db_col        = DDef.MINING_COL
+        self.depl_col      = DDef.DEPLOYMENT_COL
+        self.log_col       = DDef.LOG_COLLECTION
+        self.log_retention = DDef.LOG_RETENTION_DAYS
+        self.metrics_col   = DDef.METRICS_COLLECTION
+        self.ops_col       = DDef.OPS_COL
+        self.tmpl_col      = DDef.TEMPLATES_COLLECTION
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'

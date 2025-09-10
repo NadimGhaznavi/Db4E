@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 
 # Import DB4E modules
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Constants.Defaults import MINING_COL_DEFAULT
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Fields import DField, Mongo
 from db4e.Constants.Mining import Mining
 
@@ -26,7 +26,7 @@ class MiningDb():
 
     def __init__(self):
         self.db = DbMgr()
-        self.mining_col = MINING_COL_DEFAULT
+        self.mining_col = DDef.MINING_COL
     
 
     def add_block_found(self, timestamp):

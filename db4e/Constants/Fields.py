@@ -189,6 +189,7 @@ class Method(StrEnum):
     GET_REC = "get_deployment"
     GET_TUI_LOG = "get_tui_log"
     INITIAL_SETUP = "initial_setup"
+    INITIAL_SETUP_PROCEED = "initial_setup_proceed"
     LOG_VIEWER = DField.LOG_VIEWER.value
     PLOT = "plot"
     POST_JOB = "post_job"

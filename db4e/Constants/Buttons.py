@@ -8,17 +8,18 @@ db4e/Constants/Buttons.py
     License: GPL 3.0
 """
 
-ABORT_BUTTON_FIELD = "abort_button"
-BUTTON_ROW_FIELD = "button_row"
-DELETE_BUTTON_FIELD = "delete_button"
-DISABLE_BUTTON_FIELD = "disable_button"
-ENABLE_BUTTON_FIELD = "enable_button"
-INITIAL_SETUP_PROCEED_FIELD = "initial_setup_proceed"
-NEW_BUTTON_FIELD = "new_button"
-PROCEED_BUTTON_FIELD = "proceed_button"
-START_BUTTON_FIELD = "start_button"
-STOP_BUTTON_FIELD = "stop_button"
-UPDATE_BUTTON_FIELD = "update_button"
+from enum import StrEnum
+
+class DButton(StrEnum):
+    ABORT = "abort_button"
+    DELETE = "delete_button"
+    DISABLE = "disable_button"
+    ENABLE = "enable_button"
+    NEW = "new_button"
+    PROCEED = "proceed_button"
+    START = "start_button"
+    STOP = "stop_button"
+    UPDATE = "update_button"
 
 
 

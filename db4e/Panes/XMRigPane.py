@@ -17,14 +17,13 @@ from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRig import XMRig
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Buttons import(
-    BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, ENABLE_BUTTON_FIELD, 
-    DISABLE_BUTTON_FIELD, 
-    UPDATE_BUTTON_FIELD, NEW_BUTTON_FIELD)
-from db4e.Constants.Fields import DMod, DElem, DField, Method
+from db4e.Constants.Buttons import DButton
 from db4e.Constants.Jobs import DJob
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
+from db4e.Constants.Fields import DField, DMod, DElem, Method
+
+
 
 
 class XMRigPane(Container):
@@ -44,11 +43,11 @@ class XMRigPane(Container):
     
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
-    disable_button = Button(label=DLabel.DISABLE, id=DISABLE_BUTTON_FIELD)
-    enable_button = Button(label=DLabel.ENABLE, id=ENABLE_BUTTON_FIELD)
-    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     xmrig = None
 
 
@@ -88,7 +87,7 @@ class XMRigPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=BUTTON_ROW_FIELD))),
+                        classes=Form.BUTTON_ROW))),
                 
             classes=Form.PANE_BOX)
 
@@ -150,7 +149,7 @@ class XMRigPane(Container):
         self.xmrig.num_threads(self.query_one("#num_threads_input", Input).value)
 
 
-        if button_id == NEW_BUTTON_FIELD:
+        if button_id == DButton.NEW:
             form_data = {
                 DField.TO_MODULE: DMod.OPS_MGR,
                 DField.TO_METHOD: Method.ADD_DEPLOYMENT,
@@ -158,7 +157,7 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig
             }
 
-        elif button_id == UPDATE_BUTTON_FIELD:
+        elif button_id == DButton.UPDATE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
                 DField.TO_METHOD: Method.POST_JOB,
@@ -167,7 +166,7 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig,
             }
 
-        elif button_id == ENABLE_BUTTON_FIELD:
+        elif button_id == DButton.ENABLE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
                 DField.TO_METHOD: Method.POST_JOB,
@@ -176,7 +175,7 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig,
             }
 
-        elif button_id == DISABLE_BUTTON_FIELD:
+        elif button_id == DButton.DISABLE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
                 DField.TO_METHOD: Method.POST_JOB,
@@ -185,7 +184,7 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig,
             }
 
-        elif button_id == DELETE_BUTTON_FIELD:
+        elif button_id == DButton.DELETE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
                 DField.TO_METHOD: Method.POST_JOB,

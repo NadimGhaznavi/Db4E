@@ -12,7 +12,6 @@ db4e/App.py
 
 import os
 import time
-from dataclasses import dataclass, field, fields
 from importlib import metadata
 from textual.app import App
 from textual.containers import Vertical
@@ -37,15 +36,12 @@ from db4e.Modules.MessageRouter import MessageRouter
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Fields import (
-    COLORTERM_ENVIRON_FIELD, TERM_ENVIRON_FIELD, TO_METHOD_FIELD,
-    TO_MODULE_FIELD)
-from db4e.Constants.Defaults import (
-    APP_TITLE_DEFAULT, COLORTERM_DEFAULT, CSS_PATH_DEFAULT, TERM_DEFAULT)
+from db4e.Constants.Fields import DField
+from db4e.Constants.Defaults import DDef
 
 class Db4EApp(App):
-    TITLE = APP_TITLE_DEFAULT
-    CSS_PATH = CSS_PATH_DEFAULT
+    TITLE = DDef.APP_TITLE
+    CSS_PATH = DDef.CSS_PATH
     REFRESH_TIME = 2
 
     def __init__(self):
@@ -77,8 +73,8 @@ class Db4EApp(App):
     async def on_db4e_msg(self, message: Db4eMsg) -> None:
         print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = self.msg_router.dispatch(
-            message.form_data[TO_MODULE_FIELD],
-            message.form_data[TO_METHOD_FIELD],
+            message.form_data[DField.TO_MODULE],
+            message.form_data[DField.TO_METHOD],
             message.form_data
         )
         self.pane_mgr.set_pane(name=pane, data=data)
@@ -102,8 +98,8 @@ class Db4EApp(App):
 
 def main():
     # Set environment variables for better color support
-    os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
-    os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
+    os.environ[DField.TERM_ENVIRON] = DDef.TERM
+    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
 
     app = Db4EApp()
     app.run()

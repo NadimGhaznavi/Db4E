@@ -14,14 +14,10 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, UPDATE_FIELD,ELEMENT_FIELD, 
-    TO_METHOD_FIELD, TO_MODULE_FIELD, OP_FIELD, NEW_FIELD)
-from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Fields import DField, DMod, DElem, Method
 from db4e.Constants.Form import Form
 from db4e.Constants.Labels import DLabel 
-from db4e.Constants.Buttons import (
-    BUTTON_ROW_FIELD, DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, UPDATE_BUTTON_FIELD)
+from db4e.Constants.Buttons import DButton
 from db4e.Constants.Jobs import DJob
 
 
@@ -44,9 +40,9 @@ class MoneroDRemotePane(Container):
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
         classes=Form.INPUT_30)
     health_msgs = Label()
-    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
-    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
 
 
     def compose(self):
@@ -85,7 +81,7 @@ class MoneroDRemotePane(Container):
                     self.new_button,
                     self.update_button,
                     self.delete_button,
-                    classes=BUTTON_ROW_FIELD)),
+                    classes=Form.BUTTON_ROW)),
 
             classes=Form.PANE_BOX)     
 
@@ -102,13 +98,13 @@ class MoneroDRemotePane(Container):
         # Set update button or new button visibility, using the .tcss definitions
         if monerod.instance():
             # This is an update operation
-            self.remove_class(NEW_FIELD)
-            self.add_class(UPDATE_FIELD)
+            self.remove_class(DField.NEW)
+            self.add_class(DField.UPDATE)
 
         else:
             # This is a new operation
-            self.remove_class(UPDATE_FIELD)
-            self.add_class(NEW_FIELD)
+            self.remove_class(DField.UPDATE)
+            self.add_class(DField.NEW)
         
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -120,30 +116,30 @@ class MoneroDRemotePane(Container):
         self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
 
 
-        if button_id == NEW_BUTTON_FIELD:
+        if button_id == DButton.NEW:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }                
 
-        elif button_id == UPDATE_BUTTON_FIELD:
+        elif button_id == DButton.UPDATE:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: UPDATE_FIELD,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: Method.POST_JOB,
+                DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }
 
-        elif button_id == DELETE_BUTTON_FIELD:
+        elif button_id == DButton.DELETE:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.DELETE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: Method.POST_JOB,
+                DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }
         else:
             raise ValueError(f"No handler for {button_id}")

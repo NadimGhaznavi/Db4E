@@ -29,21 +29,18 @@ from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import DDir, DElem, DFile, Status, DMod, DField
-from db4e.Constants.Defaults import (
-    TEMPLATES_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, MONEROD_VERSION_DEFAULT,
-    P2POOL_VERSION_DEFAULT, MONEROD_CONFIG_DEFAULT, P2POOL_CONFIG_DEFAULT,
-    XMRIG_CONFIG_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Jobs import DJob
 
 
 class Default:
-    MONEROD_VERSION = MONEROD_VERSION_DEFAULT
-    P2POOL_VERSION = P2POOL_VERSION_DEFAULT
-    XMRIG_VERSION = XMRIG_VERSION_DEFAULT
-    MONEROD_CONFIG = MONEROD_CONFIG_DEFAULT
-    P2POOL_CONFIG = P2POOL_CONFIG_DEFAULT
-    PYTHON = DField.PYTHON
-    XMRIG_CONFIG = XMRIG_CONFIG_DEFAULT
+    MONEROD_VERSION = DDef.MONEROD_VERSION
+    P2POOL_VERSION = DDef.P2POOL_VERSION
+    XMRIG_VERSION = DDef.XMRIG_VERSION
+    MONEROD_CONFIG = DDef.MONEROD_CONFIG
+    P2POOL_CONFIG = DDef.P2POOL_CONFIG
+    PYTHON = DDef.PYTHON
+    XMRIG_CONFIG = DDef.XMRIG_CONFIG
 
 
 class DeploymentMgr(Container):
@@ -455,7 +452,7 @@ class DeploymentMgr(Container):
         elif aDir == DField.TEMPLATES:
             return os.path.abspath(
                 os.path.join(os.path.dirname(
-                    __file__), '..', '..', DElem.DB4E, TEMPLATES_DIR_DEFAULT))
+                    __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
         elif aDir == DDir.VENDOR:
             db4e = self.db_cache.get_db4e()

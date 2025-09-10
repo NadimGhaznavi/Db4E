@@ -13,7 +13,7 @@ from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import DField, DMod, DElem, Method
-from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD)
+from db4e.Constants.Buttons import DButton
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Form import Form
 
@@ -40,7 +40,7 @@ class P2PoolTypePane(Container):
                         id="type_radioset", classes="radio_set",
                     )),
 
-                Button(label=DLabel.PROCEED, id=PROCEED_BUTTON_FIELD)),
+                Button(label=DLabel.PROCEED, id=DButton.PROCEED)),
                 classes=Form.PANE_BOX)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

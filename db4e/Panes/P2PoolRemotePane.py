@@ -18,8 +18,7 @@ from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
 from db4e.Constants.Fields import DMod, DField, DElem, Method
-from db4e.Constants.Buttons import (
-    DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD)
+from db4e.Constants.Buttons import DButton
 from db4e.Constants.Jobs import DJob
 
 
@@ -37,9 +36,9 @@ class P2PoolRemotePane(Container):
         id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
         classes=Form.INPUT_30)
     health_msgs = Label()
-    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
-    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
 
 
     def compose(self):
@@ -72,7 +71,7 @@ class P2PoolRemotePane(Container):
                     self.new_button,
                     self.update_button,
                     self.delete_button,
-                    classes=BUTTON_ROW_FIELD
+                    classes=Form.BUTTON_ROW
                 ),
         
                 classes=Form.PANE_BOX))
@@ -104,7 +103,7 @@ class P2PoolRemotePane(Container):
         self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
 
 
-        if button_id == NEW_BUTTON_FIELD:
+        if button_id == NEW:
             # No original instance, this is a new deployment
             form_data = {
                 DField.TO_MODULE: DMod.OPS_MGR,
@@ -113,7 +112,7 @@ class P2PoolRemotePane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
-        elif button_id == UPDATE_BUTTON_FIELD:
+        elif button_id == DButton.UPDATE:
             # There was an original instance, so this is an update            
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
@@ -123,7 +122,7 @@ class P2PoolRemotePane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
-        elif button_id == DELETE_BUTTON_FIELD:
+        elif button_id == DButton.DELETE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
                 DField.TO_METHOD: Method.POST_JOB,

@@ -20,9 +20,7 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Defaults import DEPLOYMENT_COL_DEFAULT
-from db4e.Constants.Fields import (
-    INSTANCE_FIELD, OBJECT_ID_FIELD)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Fields import DElem, DField
 
 MONERODS = "monerods"
@@ -39,7 +37,7 @@ class DbCache:
 
     def __init__(self, db: DbMgr):
         self.db = db
-        self.depl_col = DEPLOYMENT_COL_DEFAULT
+        self.depl_col = DDef.DEPLOYMENT_COL
 
         self.db4e = None
         self.monerod_map, self.p2pool_map, self.xmrig_map, self.int_p2pool_map = \
@@ -68,7 +66,7 @@ class DbCache:
 
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
-                obj_id = rec[OBJECT_ID_FIELD]
+                obj_id = rec[DField.OBJECT_ID]
                 seen_ids.add(obj_id)
 
                 if obj_id in self.id_map:
@@ -159,7 +157,7 @@ class DbCache:
                         DField.ELEMENT_TYPE: elem_class,
                         DField.COMPONENTS: {
                             "$elemMatch": {
-                                DField.FIELD: INSTANCE_FIELD,
+                                DField.FIELD: DField.INSTANCE,
                                 DField.VALUE: instance
                             }
                         }
@@ -312,7 +310,7 @@ class DbCache:
     def update_one(self, elem):
         with self._lock:
             print(f"DbCache:update_one(): {elem}")
-            self.db.update_one(self.depl_col, { OBJECT_ID_FIELD: elem.id() }, elem.to_rec())
+            self.db.update_one(self.depl_col, { DField.OBJECT_ID: elem.id() }, elem.to_rec())
 
             if type(elem) == MoneroD or type(elem) == MoneroDRemote:
                 self.monerod_map[elem.instance()] = elem

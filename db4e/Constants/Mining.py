@@ -16,6 +16,7 @@ class Mining(StrEnum):
     Mining related constants
     """
 
+    ACTIVE = DField.ACTIVE.value
     BLOCK_FOUND_EVENT = 'block_found_event'
     EFFORT = 'effort'
     HASHRATE = 'hashrate'

@@ -15,14 +15,13 @@ from textual.containers import Container, ScrollableContainer, Vertical, Horizon
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Form import Form
-from db4e.Constants.Defaults import (
-    MAX_LOG_LINES_DEFAULT)
+from db4e.Constants.Defaults import DDef
 
 
 class PlotViewPane(Container):
 
     log_lines = reactive([], always_update=True)
-    max_lines = MAX_LOG_LINES_DEFAULT
+    max_lines = DDef.MAX_LOG_LINES
     header = Label("", classes=Form.FORM_1)
     log_widget = Log(highlight=True, auto_scroll=True, classes=Form.PANE_BOX)
 
@@ -44,13 +43,13 @@ class PlotViewPane(Container):
                 buffer = bytearray()
                 pointer = f.tell()
                 lines_found = 0
-                while pointer > 0 and lines_found <= MAX_LOG_LINES_DEFAULT:
+                while pointer > 0 and lines_found <= DDef.MAX_LOG_LINES:
                     block_size = min(1024, pointer)
                     pointer -= block_size
                     f.seek(pointer)
                     buffer[:0] = f.read(block_size)
                     lines_found = buffer.count(b"\n")
-                return buffer.decode(errors="ignore").splitlines()[-MAX_LOG_LINES_DEFAULT:]
+                return buffer.decode(errors="ignore").splitlines()[-DDef.MAX_LOG_LINES:]
         else:
             return ["No log file found"]
 

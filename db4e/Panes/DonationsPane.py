@@ -9,11 +9,10 @@ db4e/Panes/DonationsPane.py
 """
 
 from textual.containers import Container, Vertical, ScrollableContainer
-from textual.widgets import Label, Input, Button, MarkdownViewer
+from textual.widgets import Label, Button
 
-from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import (DONATION_WALLET_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Form import Form
 
 color = "#9cae41"
@@ -32,7 +31,7 @@ class DonationsPane(Container):
 
                 Vertical(
                     Label(f"[cyan]{DLabel.DB4E_LONG}[/] project Monero donation wallet:"),
-                    Label(f"[{hi}]{DONATION_WALLET_DEFAULT}[/]"), 
+                    Label(f"[{hi}]{DDef.DONATION_WALLET}[/]"), 
                     Label(),
                     Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes="form_box"),
                     classes=Form.INFO_MSG)),

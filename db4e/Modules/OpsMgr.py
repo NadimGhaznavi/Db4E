@@ -18,7 +18,7 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Modules.P2Pool import P2Pool
 
 from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import (DEPLOYMENT_COL_DEFAULT)
+from db4e.Constants.Defaults import DDef
 
 
 
@@ -30,7 +30,7 @@ class OpsMgr:
         self.depl_mgr = DeploymentMgr()
         self.health_mgr = HealthMgr()
         self.health_cache = HealthCache(health_mgr=self.health_mgr, depl_mgr=self.depl_mgr)
-        self.depl_col = DEPLOYMENT_COL_DEFAULT
+        self.depl_col = DDef.DEPLOYMENT_COL
 
 
     def add_deployment(self, form_data: dict):
@@ -47,8 +47,8 @@ class OpsMgr:
    
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
-            if DField.INSTANCE_FIELD in elem_type:
-                instance = elem_type[DField.INSTANCE_FIELD]
+            if DField.INSTANCE in elem_type:
+                instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)

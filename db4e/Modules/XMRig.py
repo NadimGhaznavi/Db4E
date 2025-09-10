@@ -18,8 +18,7 @@ from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import (
-    CONF_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, LOG_DIR_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Labels import DLabel
 from db4e.Modules.Components import (
     ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
@@ -46,7 +45,7 @@ class XMRig(LocalSoftwareSystem):
         self.num_threads = self.components[DField.NUM_THREADS]
         self.parent = self.components[DField.PARENT]
         self.version = self.components[DField.VERSION]
-        self.version(XMRIG_VERSION_DEFAULT)
+        self.version(DDef.XMRIG_VERSION)
         self._instance_map = {}
         self.p2pool = None
 
@@ -57,11 +56,11 @@ class XMRig(LocalSoftwareSystem):
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # XMRig configuration file
         fq_config = os.path.join(
-            vendor_dir, DLabel.XMRIG, CONF_DIR_DEFAULT, self.instance() + '.json')
+            vendor_dir, DLabel.XMRIG, DDef.CONF_DIR, self.instance() + '.json')
         
         # XMRig log file
         fq_log = os.path.join(
-            vendor_dir, DLabel.XMRIG, LOG_DIR_DEFAULT, self.instance() + '.log')
+            vendor_dir, DLabel.XMRIG, DDef.LOG_DIR, self.instance() + '.log')
 
         # Generate a URL:Port field for the config
         url_entry = self.p2pool.ip_addr()  + ':' + self.p2pool.stratum_port()

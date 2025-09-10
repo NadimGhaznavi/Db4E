@@ -20,8 +20,7 @@ from db4e.Modules.Components import (
     PriorityPort1, PriorityPort2, IpAddr, Version, Stdin, PrimaryServer)
 from db4e.Constants.Fields import DField, DElem
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import (
-    MONEROD_VERSION_DEFAULT, CONF_DIR_DEFAULT, LOG_DIR_DEFAULT)
+from db4e.Constants.Defaults import DDef
 
 
 class MoneroD(LocalSoftwareSystem):
@@ -81,7 +80,7 @@ class MoneroD(LocalSoftwareSystem):
         self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
         self.zmq_rpc_port = self.components[DField.ZMQ_RPC_PORT]
         self.version = self.components[DField.VERSION]
-        self.version(MONEROD_VERSION_DEFAULT)
+        self.version(DDef.MONEROD_VERSION)
         
         if rec:
             self.from_rec(rec)
@@ -89,11 +88,11 @@ class MoneroD(LocalSoftwareSystem):
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a Monero Daemon configuration file
         monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
-        fq_config = os.path.join(monerod_dir,CONF_DIR_DEFAULT, self.instance() + '.ini')
+        fq_config = os.path.join(monerod_dir, DDef.CONF_DIR, self.instance() + '.ini')
         
         # Monerod log file
         fq_log = os.path.join(
-            vendor_dir, DElem.MONEROD, self.instance(), LOG_DIR_DEFAULT, 'monerod.log')
+            vendor_dir, DElem.MONEROD, self.instance(), DDef.LOG_DIR, 'monerod.log')
         print(f"MoneroD:gen_config(): data_dir: {self.data_dir()}")
         # Populate the config templace
         placeholders = {

@@ -14,7 +14,7 @@ from datetime import datetime
 
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
-from db4e.Constants.Defaults import OPS_COL_DEFAULT
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Jobs import DJob
 from db4e.Constants.Fields import Mongo
 
@@ -22,7 +22,7 @@ from db4e.Constants.Fields import Mongo
 
 class JobQueue:
     def __init__(self, db: DbMgr, log=None):
-        self.col_name = OPS_COL_DEFAULT
+        self.col_name = DDef.OPS_COL
         self.db = db
         self.log = log
 

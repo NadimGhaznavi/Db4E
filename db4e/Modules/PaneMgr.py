@@ -18,8 +18,8 @@ from textual.reactive import reactive
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.Helper import get_effective_identity
 from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Constants.Panes import (WELCOME_PANE)
-from db4e.Constants.Fields import SET_DATA_FIELD, RESET_DATA_FIELD
+from db4e.Constants.Panes import Pane
+from db4e.Constants.Fields import DField
 
 @dataclass
 class PaneState:
@@ -44,7 +44,7 @@ class PaneMgr(Widget):
                 yield pane
 
     def on_mount(self) -> None:
-        initial = PaneState(name=WELCOME_PANE)
+        initial = PaneState(name=Pane.WELCOME)
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
@@ -53,7 +53,7 @@ class PaneMgr(Widget):
         # If the pane supports set_data, update it with new data
         if data and name in self.panes:
             pane = self.panes[name]
-            if hasattr(pane, SET_DATA_FIELD):
+            if hasattr(pane, DField.SET_DATA):
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
@@ -64,7 +64,7 @@ class PaneMgr(Widget):
         content_switcher.current = new.name
         #print(f"PaneMgr: {new.name}")
         pane = self.catalogue.get_pane(new.name)
-        if hasattr(pane, RESET_DATA_FIELD):
+        if hasattr(pane, DField.RESET_DATA):
             pane.reset_data()
 
         title, sub_title = self.catalogue.get_metadata(new.name)

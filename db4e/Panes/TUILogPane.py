@@ -18,7 +18,7 @@ from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Fields import DElem
-from db4e.Constants.Defaults import (MAX_LOG_LINES_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
 
@@ -33,7 +33,7 @@ TYPE_TABLE = {
 class TUILogPane(Static):
 
     log_lines = reactive([], always_update=True)
-    max_lines = MAX_LOG_LINES_DEFAULT
+    max_lines = DDef.MAX_LOG_LINES
     #log_widget = Log(highlight=True, auto_scroll=True, classes=PANE_BOX_FIELD)
     #log_widget = RichLog(highlight=True, auto_scroll=True, classes=PANE_BOX_FIELD)
     log_widget = Static()

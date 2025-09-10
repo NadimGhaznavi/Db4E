@@ -28,29 +28,25 @@ from db4e.Panes.XMRigPane import XMRigPane
 
 
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Panes import (
-    DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_REMOTE_PANE, 
-    MONEROD_PANE, MONEROD_TYPE_PANE, P2POOL_PANE, P2POOL_TYPE_PANE, 
-    P2POOL_REMOTE_PANE, RESULTS_PANE, WELCOME_PANE, XMRIG_PANE, TUI_LOG_PANE,
-    LOG_VIEW_PANE, PLOT_VIEW_PANE, LOG_VIEW_PANE)
+from db4e.Constants.Panes import Pane
 
 
 REGISTRY = {
-    DB4E_PANE: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
-    DONATIONS_PANE: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
-    INITIAL_SETUP_PANE: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
-    LOG_VIEW_PANE: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
-    MONEROD_TYPE_PANE: (MoneroDTypePane, DLabel.MONEROD, DLabel.NEW),
-    MONEROD_PANE: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
-    MONEROD_REMOTE_PANE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
-    P2POOL_TYPE_PANE: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
-    P2POOL_PANE: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
-    P2POOL_REMOTE_PANE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
-    PLOT_VIEW_PANE: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
-    XMRIG_PANE: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
-    RESULTS_PANE: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
-    TUI_LOG_PANE: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
-    WELCOME_PANE: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
+    Pane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
+    Pane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
+    Pane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
+    Pane.LOG_VIEW: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
+    Pane.MONEROD_TYPE: (MoneroDTypePane, DLabel.MONEROD, DLabel.NEW),
+    Pane.MONEROD: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
+    Pane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
+    Pane.P2POOL_TYPE: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
+    Pane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
+    Pane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
+    Pane.PLOT_VIEW: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
+    Pane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    Pane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
+    Pane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
+    Pane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
 }
 
 class PaneCatalogue:

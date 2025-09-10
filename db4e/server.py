@@ -39,9 +39,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Defaults import (
-    TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, 
-    DB4E_LOG_FILE_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Fields import DElem, DDir, DField
 from db4e.Constants.Jobs import DJob
 
@@ -78,11 +76,11 @@ class Db4eServer:
 
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-        logs_dir = LOG_DIR_DEFAULT
-        log_file = DB4E_LOG_FILE_DEFAULT
+        logs_dir = DDef.LOG_DIR
+        log_file = DDef.DB4E_LOG_FILE
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
         self.log = Db4eLogger(
-            elem_type=DB4E_SERVER_DEFAULT,
+            elem_type=DDef.DB4E_SERVER,
             log_file=fq_log_file
         )
 
@@ -368,8 +366,8 @@ class Db4eServer:
 
 def main():
     # Set environment variables for better color support
-    os.environ[DField.TERM_ENVIRON] = TERM_DEFAULT
-    os.environ[DField.COLORTERM_ENVIRON] = COLORTERM_DEFAULT
+    os.environ[DField.TERM_ENVIRON] = DDef.TERM
+    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
 
     server = Db4eServer()
     server.start()

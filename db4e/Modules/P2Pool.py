@@ -21,9 +21,7 @@ from db4e.Modules.Components import(
     P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import(
-    P2POOL_VERSION_DEFAULT, CONF_DIR_DEFAULT, API_DIR_DEFAULT, RUN_DIR_DEFAULT,
-    LOG_DIR_DEFAULT)
+from db4e.Constants.Defaults import DDef
 
 
 
@@ -68,7 +66,7 @@ class P2Pool(LocalSoftwareSystem):
         self.stdin = self.components[DField.STDIN]
         self.user_wallet = self.components[DField.USER_WALLET]
         self.version = self.components[DField.VERSION]
-        self.version(P2POOL_VERSION_DEFAULT)
+        self.version(DDef.P2POOL_VERSION)
         self._instance_map = {}
         self.monerod = None
 
@@ -80,12 +78,12 @@ class P2Pool(LocalSoftwareSystem):
         # Generate a XMRig configuration file
 
         p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
-        api_dir = os.path.join(p2pool_dir, self.instance(), API_DIR_DEFAULT)
-        run_dir = os.path.join(p2pool_dir, self.instance(), RUN_DIR_DEFAULT)
-        log_dir = os.path.join(p2pool_dir, self.instance(), LOG_DIR_DEFAULT)
+        api_dir = os.path.join(p2pool_dir, self.instance(), DDef.API_DIR)
+        run_dir = os.path.join(p2pool_dir, self.instance(), DDef.RUN_DIR)
+        log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
 
         fq_config = os.path.join(
-            p2pool_dir, CONF_DIR_DEFAULT, self.instance.value + '.ini')
+            p2pool_dir, DDef.CONF_DIR, self.instance.value + '.ini')
 
         # Monero settings
         monerod_ip = self.monerod.ip_addr()

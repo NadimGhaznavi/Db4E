@@ -11,6 +11,7 @@ db4e/Constants/Form.py
 from enum import StrEnum
 
 class Form(StrEnum):
+    BUTTON_ROW = "button_row"
     FORM_0 = "form_0"
     FORM_1 = "form_1"
     FORM_2 = "form_2"
@@ -31,4 +32,6 @@ class Form(StrEnum):
     FORM_LABEL = "form_label"
     HEALTH_BOX = "health_box"
     PANE_BOX = "pane_box"
+    RADIO_BUTTON_TYPE = "radio_button_type"
+    RADIO_SET = "radio_set"
     STATIC = "static_content"    

@@ -30,25 +30,15 @@ from db4e.Constants.SystemdTemplates import (
     INSTALL_DIR_PLACEHOLDER, MONEROD_DIR_PLACEHOLDER, P2POOL_DIR_PLACEHOLDER, 
     PYTHON_PLACEHOLDER, XMRIG_DIR_PLACEHOLDER)
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import (
-    DB4E_OLD_GROUP_ENVIRON_DEFAULT, DEPLOYMENT_COL_DEFAULT, PYTHON_DEFAULT, 
-    SUDO_CMD_DEFAULT, TMP_DIR_DEFAULT, BIN_DIR_DEFAULT, DB4E_START_SCRIPT_DEFAULT, 
-    DB4E_VERSION_DEFAULT, MONEROD_PROCESS_DEFAULT, MONEROD_VERSION_DEFAULT, 
-    MONEROD_START_SCRIPT_DEFAULT, P2POOL_PROCESS_DEFAULT, P2POOL_START_SCRIPT_DEFAULT,
-    P2POOL_VERSION_DEFAULT, XMRIG_PROCESS_DEFAULT, LOG_DIR_DEFAULT, SYSTEMD_DIR_DEFAULT,
-    XMRIG_VERSION_DEFAULT, CONF_DIR_DEFAULT, RUN_DIR_DEFAULT, BLOCKCHAIN_DIR_DEFAULT,
-    DB4E_SERVICE_FILE_DEFAULT, MONEROD_SERVICE_FILE_DEFAULT, P2POOL_SERVICE_FILE_DEFAULT,
-    XMRIG_SERVICE_FILE_DEFAULT, MONEROD_SOCKET_SERVICE_DEFAULT, 
-    TEMPLATES_DIR_DEFAULT, P2POOL_SERVICE_SOCKET_FILE_DEFAULT, 
-    DB4E_INITIAL_SETUP_SCRIPT_DEFAULT)
+from db4e.Constants.Defaults import DDef
 from db4e.Constants.Fields import DField
 from db4e.Constants.SystemdTemplates import DB4E_DIR_PLACEHOLDER
 
 # The Mongo collection that houses the deployment records
-DEPL_COL = DEPLOYMENT_COL_DEFAULT
-DB4E_OLD_GROUP_ENVIRON = DB4E_OLD_GROUP_ENVIRON_DEFAULT
-TMP_DIR = TMP_DIR_DEFAULT
-SUDO_CMD = SUDO_CMD_DEFAULT
+DEPL_COL = DDef.DEPLOYMENT_COL
+DB4E_OLD_GROUP_ENVIRON = DDef.DB4E_OLD_GROUP_ENVIRON
+TMP_DIR = DDef.TMP_DIR
+SUDO_CMD = DDef.SUDO_CMD
 
 class InstallMgr(Container):
     
@@ -56,7 +46,7 @@ class InstallMgr(Container):
         super().__init__()
         self.ops_mgr = OpsMgr()
         self.depl_mgr = DeploymentMgr()
-        self.col_name = DEPLOYMENT_COL_DEFAULT
+        self.col_name = DDef.DEPLOYMENT_COL
         self.tmp_dir = None
 
     def initial_setup(self, form_data: dict) -> dict:
@@ -178,17 +168,19 @@ class InstallMgr(Container):
     def _copy_db4e_files(self, vendor_dir):
         results = []
         db4e_src_dir = DElem.DB4E
-        db4e_dest_dir = DElem.DB4E + '-' + str(DB4E_VERSION_DEFAULT)
+        db4e_dest_dir = DElem.DB4E + '-' + str(DDef.DB4E_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # Substitute placeholder in the db4e-service.sh script
         install_dir = self.depl_mgr.get_dir(DDir.INSTALL)
-        python = self.depl_mgr.get_dir(PYTHON_DEFAULT)
+        python = self.depl_mgr.get_dir(DDef.PYTHON)
         placeholders = {
             PYTHON_PLACEHOLDER: python,
             INSTALL_DIR_PLACEHOLDER: install_dir}
-        fq_src_script =  os.path.join(tmpl_dir, db4e_src_dir, BIN_DIR_DEFAULT, DB4E_START_SCRIPT_DEFAULT)
-        fq_dest_script = os.path.join(vendor_dir, db4e_dest_dir, BIN_DIR_DEFAULT, DB4E_START_SCRIPT_DEFAULT)
+        fq_src_script =  os.path.join(
+            tmpl_dir, db4e_src_dir, DDef.BIN_DIR, DDef.DB4E_START_SCRIPT)
+        fq_dest_script = os.path.join(
+            vendor_dir, db4e_dest_dir, DDef.BIN_DIR, DDef.DB4E_START_SCRIPT)
         script_contents = self._replace_placeholders(fq_src_script, placeholders)
         with open(fq_dest_script, 'w') as f:
             f.write(script_contents)        
@@ -203,22 +195,23 @@ class InstallMgr(Container):
         
     # Copy monerod files
     def _copy_monerod_files(self, vendor_dir, db4e: Db4E):
-        monerod_dir = DElem.MONEROD + '-' + str(MONEROD_VERSION_DEFAULT)
+        monerod_dir = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
 
         # Copy in the Monero daemon and startup scripts
-        fq_dst_bin_dir =  os.path.join(vendor_dir, monerod_dir, BIN_DIR_DEFAULT)
+        fq_dst_bin_dir =  os.path.join(vendor_dir, monerod_dir, DDef.BIN_DIR)
         fq_dst_monerod_dest_script = os.path.join(
-            vendor_dir, monerod_dir, BIN_DIR_DEFAULT, MONEROD_START_SCRIPT_DEFAULT)
-        fq_src_monerod = os.path.join(tmpl_dir, monerod_dir, BIN_DIR_DEFAULT, MONEROD_PROCESS_DEFAULT)
+            vendor_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
+        fq_src_monerod = os.path.join(
+            tmpl_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_PROCESS)
 
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
         db4e.msg(DLabel.MONEROD, Status.GOOD,
-            f"Installed: {fq_dst_bin_dir}/{MONEROD_PROCESS_DEFAULT}")
+            f"Installed: {fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}")
         
         fq_src_monerod_start_script = os.path.join(
-            tmpl_dir, monerod_dir, BIN_DIR_DEFAULT, MONEROD_START_SCRIPT_DEFAULT)
+            tmpl_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
         shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
         db4e.msg(DLabel.MONEROD, Status.GOOD,
             f"Installed: {fq_dst_monerod_dest_script}")
@@ -233,16 +226,19 @@ class InstallMgr(Container):
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # P2Pool directory
-        p2pool_version = P2POOL_VERSION_DEFAULT
+        p2pool_version = DDef.P2POOL_VERSION
         p2pool_dir = DElem.P2POOL +'-' + str(p2pool_version)
         # Copy in the P2Pool daemon and startup script
-        fq_src_p2pool = os.path.join(tmpl_dir, p2pool_dir, BIN_DIR_DEFAULT, P2POOL_PROCESS_DEFAULT)
-        fq_dst_bin_dir = os.path.join(vendor_dir, p2pool_dir, BIN_DIR_DEFAULT)
-        fq_src_p2pool_start_script  = os.path.join(tmpl_dir, p2pool_dir, BIN_DIR_DEFAULT, P2POOL_START_SCRIPT_DEFAULT)
-        fq_dst_p2pool_start_script = os.path.join(vendor_dir, p2pool_dir, BIN_DIR_DEFAULT, P2POOL_START_SCRIPT_DEFAULT)
+        fq_src_p2pool = os.path.join(
+            tmpl_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_PROCESS)
+        fq_dst_bin_dir = os.path.join(vendor_dir, p2pool_dir, DDef.BIN_DIR)
+        fq_src_p2pool_start_script  = os.path.join(
+            tmpl_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
+        fq_dst_p2pool_start_script = os.path.join(
+            vendor_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
         shutil.copy(fq_src_p2pool, fq_dst_bin_dir)
         db4e.msg(DLabel.P2POOL, Status.GOOD,
-            f"Installed: {fq_dst_bin_dir}/{P2POOL_PROCESS_DEFAULT}")
+            f"Installed: {fq_dst_bin_dir}/{DDef.P2POOL_PROCESS}")
         shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_start_script)
         # Make it executable
         current_permissions = os.stat(fq_dst_p2pool_start_script).st_mode
@@ -252,27 +248,27 @@ class InstallMgr(Container):
         return db4e
 
     def _copy_xmrig_file(self, vendor_dir:str , db4e: Db4E) -> Db4E:
-        xmrig_binary = XMRIG_PROCESS_DEFAULT
+        xmrig_binary = DDef.XMRIG_PROCESS
         # XMRig directory
-        xmrig_version = XMRIG_VERSION_DEFAULT
+        xmrig_version = DDef.XMRIG_VERSION
         xmrig_dir = DElem.XMRIG + '-' + str(xmrig_version)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
-        fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, xmrig_dir, BIN_DIR_DEFAULT)
-        fq_src_xmrig = os.path.join(tmpl_dir, xmrig_dir, BIN_DIR_DEFAULT, xmrig_binary)
+        fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, xmrig_dir, DDef.BIN_DIR)
+        fq_src_xmrig = os.path.join(tmpl_dir, xmrig_dir, DDef.BIN_DIR, xmrig_binary)
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
         db4e.msg(DLabel.XMRIG, Status.GOOD, f"Installed: {fq_dst_xmrig_bin_dir}/{xmrig_binary}")
         return db4e
 
     def _create_db4e_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
         #print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
-        db4e_with_version = DElem.DB4E + '-' + str(DB4E_VERSION_DEFAULT)
+        db4e_with_version = DElem.DB4E + '-' + str(DDef.DB4E_VERSION)
         fq_db4e_dir = os.path.join(vendor_dir, db4e_with_version)
         # Create the base Db4E directory
         os.makedirs(os.path.join(fq_db4e_dir))
         db4e.msg(DLabel.DB4E, Status.GOOD, f"Created directory: {fq_db4e_dir}")
         # Create the sub-directories
-        for sub_dir in [LOG_DIR_DEFAULT]:
+        for sub_dir in [DDef.LOG_DIR]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
             db4e.msg(DLabel.DB4E, Status.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
         # Create a symlink
@@ -287,9 +283,9 @@ class InstallMgr(Container):
         return db4e
 
     def _create_monerod_dirs(self, vendor_dir, db4e):
-        monerod_with_version = DElem.MONEROD + '-' + str(MONEROD_VERSION_DEFAULT)
+        monerod_with_version = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         fq_monerod_dir = os.path.join(vendor_dir, monerod_with_version)
-        fq_blockchain_dir = os.path.join(fq_monerod_dir, BLOCKCHAIN_DIR_DEFAULT)
+        fq_blockchain_dir = os.path.join(fq_monerod_dir, DDef.BLOCKCHAIN_DIR)
 
         # Create the base Monero directory
         os.mkdir(fq_monerod_dir)
@@ -300,7 +296,7 @@ class InstallMgr(Container):
                  f"Created Monero blockchain directory: {fq_monerod_dir}")
 
         # Create the sub-directories
-        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT, RUN_DIR_DEFAULT, LOG_DIR_DEFAULT]:
+        for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.RUN_DIR, DDef.LOG_DIR]:
             fq_sub_dir = os.path.join(fq_monerod_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.MONEROD, Status.GOOD, f"Created directory: {fq_sub_dir}")
@@ -316,7 +312,7 @@ class InstallMgr(Container):
         return db4e
 
     def _create_p2pool_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        p2pool_with_version = DElem.P2POOL + '-' + str(P2POOL_VERSION_DEFAULT)  
+        p2pool_with_version = DElem.P2POOL + '-' + str(DDef.P2POOL_VERSION)  
         fq_p2pool_dir = os.path.join(vendor_dir, p2pool_with_version)
 
         # Create the base P2Pool directory
@@ -324,7 +320,7 @@ class InstallMgr(Container):
         db4e.msg(DLabel.P2POOL, Status.GOOD, f"Created directory ({fq_p2pool_dir})")
 
         # Create the sub directories
-        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT]:
+        for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR]:
             fq_sub_dir = os.path.join(fq_p2pool_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.P2POOL, Status.GOOD, f"Created directory: {fq_sub_dir}")
@@ -374,11 +370,11 @@ class InstallMgr(Container):
         return db4e, abort_install
 
     def _create_xmrig_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        xmrig_with_version = DElem.XMRIG + '-' + str(XMRIG_VERSION_DEFAULT)
+        xmrig_with_version = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
         fq_xmrig_dir = os.path.join(vendor_dir, xmrig_with_version)
         os.mkdir(os.path.join(fq_xmrig_dir))
         db4e.msg(DLabel.XMRIG, Status.GOOD, f"Created directory: {fq_xmrig_dir}")
-        for sub_dir in [BIN_DIR_DEFAULT, CONF_DIR_DEFAULT, LOG_DIR_DEFAULT]:
+        for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.LOG_DIR]:
             fq_sub_dir = os.path.join(fq_xmrig_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.XMRIG, Status.GOOD, f"Created directory: {fq_sub_dir}")
@@ -413,14 +409,14 @@ class InstallMgr(Container):
             DB4E_DIR_PLACEHOLDER: fq_db4e_dir,
         }
         fq_db4e_service_file = os.path.join(
-            tmpl_dir, DElem.DB4E, SYSTEMD_DIR_DEFAULT, DB4E_SERVICE_FILE_DEFAULT)
+            tmpl_dir, DElem.DB4E, DDef.SYSTEMD_DIR, DDef.DB4E_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_db4e_service_file, placeholders)
-        tmp_service_file = os.path.join(tmp_dir, DB4E_SERVICE_FILE_DEFAULT)
+        tmp_service_file = os.path.join(tmp_dir, DDef.DB4E_SERVICE_FILE)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
     def _generate_tmp_monerod_service_files(self, vendor_dir: str, db4e: Db4E):
-        monerod_with_version = DElem.MONEROD + '-' + str(MONEROD_VERSION_DEFAULT)
+        monerod_with_version = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -435,21 +431,22 @@ class InstallMgr(Container):
 
         # Generate a temporary monerod.systemd for the sudo script to install
         fq_monerod_service_file = os.path.join(
-            tmpl_dir, monerod_with_version, SYSTEMD_DIR_DEFAULT, MONEROD_SERVICE_FILE_DEFAULT)
+            tmpl_dir, monerod_with_version, DDef.SYSTEMD_DIR, DDef.MONEROD_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_monerod_service_file, placeholders)
-        tmp_service_file = os.path.join(tmp_dir, MONEROD_SERVICE_FILE_DEFAULT)
+        tmp_service_file = os.path.join(tmp_dir, DDef.MONEROD_SERVICE_FILE)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
         # Generate a temporary monerod.socket for the sudo script to install
-        fq_monerod_socket_file = os.path.join(tmpl_dir, monerod_with_version, SYSTEMD_DIR_DEFAULT, MONEROD_SOCKET_SERVICE_DEFAULT)
+        fq_monerod_socket_file = os.path.join(
+            tmpl_dir, monerod_with_version, DDef.SYSTEMD_DIR, DDef.MONEROD_SOCKET_SERVICE)
         service_contents = self._replace_placeholders(fq_monerod_socket_file, placeholders)
-        tmp_socket_file = os.path.join(tmp_dir, MONEROD_SOCKET_SERVICE_DEFAULT)
+        tmp_socket_file = os.path.join(tmp_dir, DDef.MONEROD_SOCKET_SERVICE)
         with open(tmp_socket_file, 'w') as f:
             f.write(service_contents)
 
     def _generate_tmp_p2pool_service_files(self, vendor_dir: str, db4e: Db4E):
-        p2pool_with_version  = DElem.P2POOL + '-' + str(P2POOL_VERSION_DEFAULT)
+        p2pool_with_version  = DElem.P2POOL + '-' + str(DDef.P2POOL_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -467,22 +464,22 @@ class InstallMgr(Container):
 
         # Generate a temporary p2pool.service for the sudo script to install
         fq_p2pool_service_file  = os.path.join(
-            tmpl_dir, p2pool_with_version, SYSTEMD_DIR_DEFAULT, P2POOL_SERVICE_FILE_DEFAULT)
+            tmpl_dir, p2pool_with_version, DDef.SYSTEMD_DIR, DDef.P2POOL_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_p2pool_service_file, placeholders)
-        tmp_service_file = os.path.join(tmp_dir, P2POOL_SERVICE_FILE_DEFAULT)
+        tmp_service_file = os.path.join(tmp_dir, DDef.P2POOL_SERVICE_FILE)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
         # Generate a temporary p2pool.socket 
         fq_p2pool_socket_file   = os.path.join(
-            tmpl_dir, p2pool_with_version, SYSTEMD_DIR_DEFAULT, P2POOL_SERVICE_SOCKET_FILE_DEFAULT)
+            tmpl_dir, p2pool_with_version, DDef.SYSTEMD_DIR, DDef.P2POOL_SERVICE_SOCKET_FILE)
         service_contents = self._replace_placeholders(fq_p2pool_socket_file, placeholders)
-        tmp_service_file = os.path.join(tmp_dir, P2POOL_SERVICE_SOCKET_FILE_DEFAULT)
+        tmp_service_file = os.path.join(tmp_dir, DDef.P2POOL_SERVICE_SOCKET_FILE)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
     def _generate_tmp_xmrig_service_file(self, vendor_dir, db4e: Db4E) -> None:
-        xmrig_with_version = DElem.XMRIG + '-' + str(XMRIG_VERSION_DEFAULT)
+        xmrig_with_version = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -495,15 +492,15 @@ class InstallMgr(Container):
             DB4E_GROUP_PLACEHOLDER: db4e.group(),
         }
         fq_xmrig_service_file   = os.path.join(
-            tmpl_dir, xmrig_with_version, SYSTEMD_DIR_DEFAULT, XMRIG_SERVICE_FILE_DEFAULT)
+            tmpl_dir, xmrig_with_version, DDef.SYSTEMD_DIR, DDef.XMRIG_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_xmrig_service_file, placeholders)
-        tmp_service_file = os.path.join(tmp_dir, XMRIG_SERVICE_FILE_DEFAULT)
+        tmp_service_file = os.path.join(tmp_dir, DDef.XMRIG_SERVICE_FILE)
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
     def _get_templates_dir(self):
         # Helper function
-        templates_dir = TEMPLATES_DIR_DEFAULT
+        templates_dir = DDef.TEMPLATES_DIR
         return os.path.abspath(os.path.join(
             os.path.dirname(__file__), '..', templates_dir))
     
@@ -533,7 +530,8 @@ class InstallMgr(Container):
         # Set the location of the temp dir in an environment variable
         env_setting = f"{DDir.TMP_ENVIRON}={self.tmp_dir}"
         # Run the bin/db4e-installer.sh
-        fq_initial_setup = os.path.join(db4e_install_dir, BIN_DIR_DEFAULT, DB4E_INITIAL_SETUP_SCRIPT_DEFAULT)
+        fq_initial_setup = os.path.join(
+            db4e_install_dir, DDef.BIN_DIR, DDef.DB4E_INITIAL_SETUP_SCRIPT)
         try:
             cmd_result = subprocess.run(
                 [ 

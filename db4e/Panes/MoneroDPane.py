@@ -18,9 +18,7 @@ from db4e.Constants.Fields import DField, DElem, DMod, Method
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
 from db4e.Constants.Jobs import DJob
-from db4e.Constants.Buttons import (
-    DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD,
-    DISABLE_BUTTON_FIELD, ENABLE_BUTTON_FIELD)
+from db4e.Constants.Buttons import DButton
 
 color = "#9cae41"
 hi = "#d7e556"
@@ -79,11 +77,11 @@ class MoneroDPane(Container):
 
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE, id=DELETE_BUTTON_FIELD)
-    disable_button = Button(label=DLabel.DISABLE, id=DISABLE_BUTTON_FIELD)
-    enable_button = Button(label=DLabel.ENABLE, id=ENABLE_BUTTON_FIELD)
-    new_button = Button(label=DLabel.NEW, id=NEW_BUTTON_FIELD)
-    update_button = Button(label=DLabel.UPDATE, id=UPDATE_BUTTON_FIELD)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
 
 
     def compose(self):
@@ -161,7 +159,7 @@ class MoneroDPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=BUTTON_ROW_FIELD))),
+                        classes=Form.BUTTON_ROW))),
                 
             classes=Form.PANE_BOX)
         
@@ -229,7 +227,7 @@ class MoneroDPane(Container):
         self.monerod.priority_node_2(self.query_one("#priority_node_2_input", Input).value)
         self.monerod.priority_port_2(self.query_one("#priority_port_2_input", Input).value)
 
-        if button_id == NEW_BUTTON_FIELD:
+        if button_id == DButton.NEW:
             form_data = {
                 DField.TO_MODULE: DMod.OPS_MGR,
                 DField.TO_METHOD: Method.ADD_DEPLOYMENT,
@@ -237,37 +235,37 @@ class MoneroDPane(Container):
                 DField.ELEMENT: self.monerod
             }
 
-        elif button_id == UPDATE_BUTTON_FIELD:
+        elif button_id == DButton.UPDATE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_METHOD: Method.POST_JOB,
                 DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
             }
 
-        elif button_id == ENABLE_BUTTON_FIELD:
+        elif button_id == DButton.ENABLE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_METHOD: Method.POST_JOB,
                 DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
             }
 
-        elif button_id == DISABLE_BUTTON_FIELD:
+        elif button_id == DButton.DISABLE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_METHOD: Method.POST_JOB,
                 DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
             }
 
-        elif button_id == DELETE_BUTTON_FIELD:
+        elif button_id == DButton.DELETE:
             form_data = {
                 DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_METHOD: Method.POST_JOB,
                 DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
