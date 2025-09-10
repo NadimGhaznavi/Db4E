@@ -25,55 +25,55 @@ hi = "#d7e556"
 
 class MoneroDPane(Container):
 
-    config_label = Label("", classes=Form.STATIC)
-    any_ip_label = Label("", classes=Form.STATIC)
-    data_dir_label = Label("", classes=Form.STATIC)
-    instance_label = Label("", id="instance_label",classes=Form.STATIC)
+    config_label = Label("", classes=Form.STATIC.value)
+    any_ip_label = Label("", classes=Form.STATIC.value)
+    data_dir_label = Label("", classes=Form.STATIC.value)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
 
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     max_log_files_input = Input(
         id="max_log_files_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     max_log_size_input = Input(
         id="max_log_size_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     primary_server_checkbox = Checkbox(
         "", compact=True, id="primary_server_checkbox")
     priority_node_1_input = Input(
         id="priority_node_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     priority_port_1_input = Input(
         id="priority_port_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     priority_node_2_input = Input(
         id="priority_node_2_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     priority_port_2_input = Input(
         id="priority_port_2_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     zmq_pub_port_input = Input(
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     zmq_rpc_port_input = Input(
         compact=True, id="zmq_rpc_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
 
     health_msgs = Label()
 
@@ -91,65 +91,65 @@ class MoneroDPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL.value),
                         self.primary_server_checkbox),
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL),
+                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL.value),
                         self.in_peers_input),
                     Horizontal(
-                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL),
+                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL.value),
                         self.out_peers_input),
                     Horizontal(
-                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL.value),
                         self.p2p_bind_port_input),
                     Horizontal(
-                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL.value),
                         self.rpc_bind_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL.value),
                         self.zmq_pub_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_RPC_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.ZMQ_RPC_PORT, classes=Form.FORM_LABEL.value),
                         self.zmq_rpc_port_input),
                     Horizontal(
-                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL),
+                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL.value),
                         self.log_level_input),
                     Horizontal(
-                        Label(DLabel.MAX_LOG_FILES, classes=Form.FORM_LABEL),
+                        Label(DLabel.MAX_LOG_FILES, classes=Form.FORM_LABEL.value),
                         self.max_log_files_input),
                     Horizontal(
-                        Label(DLabel.MAX_LOG_SIZE, classes=Form.FORM_LABEL),
+                        Label(DLabel.MAX_LOG_SIZE, classes=Form.FORM_LABEL.value),
                         self.max_log_size_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_NODE_1, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIORITY_NODE_1, classes=Form.FORM_LABEL.value),
                         self.priority_node_1_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_PORT_1, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIORITY_PORT_1, classes=Form.FORM_LABEL.value),
                         self.priority_port_1_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_NODE_2, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIORITY_NODE_2, classes=Form.FORM_LABEL.value),
                         self.priority_node_2_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_PORT_2, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIORITY_PORT_2, classes=Form.FORM_LABEL.value),
                         self.priority_port_2_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
                         self.config_label),
                     Horizontal(
-                        Label(DLabel.DATA_DIR, classes=Form.FORM_LABEL),
+                        Label(DLabel.DATA_DIR, classes=Form.FORM_LABEL.value),
                         self.data_dir_label),
-                    classes=Form.FORM_17),
+                    classes=Form.FORM_17.value),
                     
                     Vertical(
                         self.health_msgs,
-                        classes=Form.HEALTH_BOX,
+                        classes=Form.HEALTH_BOX.value,
                     ),
 
                 Vertical(
@@ -159,9 +159,9 @@ class MoneroDPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW))),
+                        classes=Form.BUTTON_ROW.value))),
                 
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
         
 
     def set_data(self, monerod: MoneroD):

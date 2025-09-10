@@ -48,7 +48,7 @@ class WelcomePane(Container):
             ScrollableContainer (
                 Label(highlights),
                 Label(coming),
-                classes=Form.PANE_BOX,
+                classes=Form.PANE_BOX.value,
             )
         )
         

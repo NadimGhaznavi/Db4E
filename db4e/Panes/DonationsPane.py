@@ -33,8 +33,8 @@ class DonationsPane(Container):
                     Label(f"[cyan]{DLabel.DB4E_LONG}[/] project Monero donation wallet:"),
                     Label(f"[{hi}]{DDef.DONATION_WALLET}[/]"), 
                     Label(),
-                    Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes="form_box"),
-                    classes=Form.INFO_MSG)),
+                    Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes=Form.PANE_BOX.value),
+                    classes=Form.INFO_MSG.value)),
             classes=Form.PANE_BOX)
                     
     def on_button_pressed(self, event: Button.Pressed) -> None:

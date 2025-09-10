@@ -30,17 +30,17 @@ hi = "cyan"
 
 class Db4EPane(Container):
 
-    user_name_label = Label("", classes=Form.STATIC)
-    group_name_label = Label("", classes=Form.STATIC)
-    install_dir_label = Label("", classes=Form.STATIC)
+    user_name_label = Label("", classes=Form.STATIC.value)
+    group_name_label = Label("", classes=Form.STATIC.value)
+    install_dir_label = Label("", classes=Form.STATIC.value)
     vendor_dir_input = Input(id="vendor_dir_input",
-        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=Form.INPUT_30)
+        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=Form.INPUT_30.value)
     user_wallet_input = Input(id="user_wallet_input",
-        restrict=r"[a-zA-Z0-9]*", compact=True, classes=Form.INPUT_70)
+        restrict=r"[a-zA-Z0-9]*", compact=True, classes=Form.INPUT_70.value)
     health_msgs = Label()
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET)
+    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
@@ -51,39 +51,39 @@ class Db4EPane(Container):
             f"[{hi}]P2Pool servers[/] for chain data collection."
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.DB4E_USER, classes=Form.FORM_LABEL),
+                        Label(DLabel.DB4E_USER, classes=Form.FORM_LABEL.value),
                         self.user_name_label),
                     Horizontal(
-                        Label(DLabel.DB4E_GROUP, classes=Form.FORM_LABEL),
+                        Label(DLabel.DB4E_GROUP, classes=Form.FORM_LABEL.value),
                         self.group_name_label),
                     Horizontal(
-                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL.value),
                         self.install_dir_label),
                     Horizontal(
-                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL),
+                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL.value),
                         self.vendor_dir_input),
                     Horizontal(
-                        Label(DLabel.USER_WALLET, classes=Form.FORM_LABEL),
+                        Label(DLabel.USER_WALLET, classes=Form.FORM_LABEL.value),
                         self.user_wallet_input),
-                    classes=Form.FORM_5, id="form_field"),
+                    classes=Form.FORM_5.value, id="form_field"),
 
                 Vertical(
                     self.radio_set),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX,
+                    classes=Form.HEALTH_BOX.value,
                 ),
 
                 Horizontal(
-                    Button(label=DLabel.UPDATE, id=DButton.UPDATE),
-                    classes=Form.BUTTON_ROW
+                    Button(label=DLabel.UPDATE, id=DButton.UPDATE.value),
+                    classes=Form.BUTTON_ROW.value
                 ),
-            classes=Form.PANE_BOX))
+            classes=Form.PANE_BOX.value))
 
 
     def on_mount(self):

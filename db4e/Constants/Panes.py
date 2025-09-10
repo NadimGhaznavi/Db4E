@@ -8,23 +8,22 @@ db4e/Constants/Panes.py
     License: GPL 3.0
 """
 
-from enum import StrEnum
+from db4e.Modules.TypedEnum import TypedEnum
 
 
-class Pane(StrEnum):
-    DB4E = "Db4EPane"
-    DONATIONS = "DonationsPane"
-    INITIAL_SETUP = "InitialSetupPane"
-    LOG_VIEW = "LogViewPane"
-    MONEROD_TYPE = "MoneroDTypePane"
-    MONEROD = "MoneroDPane"
-    MONEROD_REMOTE = "MoneroDRemotePane"
-    P2POOL_TYPE = "P2PoolTypePane"
-    P2POOL = "P2PoolPane"
-    P2POOL_REMOTE = "P2PoolRemotePane"
-    PLOT_VIEW = "PlotViewPane"
-    XMRIG = "XMRigPane"
-    RESULTS = "ResultsPane"
-    TUI_LOG = "TuiLogPane"
-    WELCOME = "WelcomePane"
-    XMRIG = "XMRigPane"
+class Pane(TypedEnum):
+    DB4E: str = "Db4EPane"
+    DONATIONS: str  = "DonationsPane"
+    INITIAL_SETUP: str  = "InitialSetupPane"
+    LOG_VIEW: str  = "LogViewPane"
+    MONEROD_TYPE: str  = "MoneroDTypePane"
+    MONEROD: str  = "MoneroDPane"
+    MONEROD_REMOTE: str  = "MoneroDRemotePane"
+    P2POOL_TYPE: str  = "P2PoolTypePane"
+    P2POOL: str  = "P2PoolPane"
+    P2POOL_REMOTE: str  = "P2PoolRemotePane"
+    PLOT_VIEW: str  = "PlotViewPane"
+    RESULTS: str  = "ResultsPane"
+    TUI_LOG: str  = "TuiLogPane"
+    WELCOME: str  = "WelcomePane"
+    XMRIG: str  = "XMRigPane"

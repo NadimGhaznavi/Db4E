@@ -48,33 +48,33 @@ class P2PoolRemotePane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL),
+                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL.value),
                         self.ip_addr_input),
                     Horizontal(
-                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL.value),
                         self.stratum_port_input),
-                    classes=Form.FORM_3),
+                    classes=Form.FORM_3.value),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX,
+                    classes=Form.HEALTH_BOX.value,
                 ),
 
                 Horizontal(
                     self.new_button,
                     self.update_button,
                     self.delete_button,
-                    classes=Form.BUTTON_ROW
+                    classes=Form.BUTTON_ROW.value
                 ),
         
-                classes=Form.PANE_BOX))
+                classes=Form.PANE_BOX.value))
 
 
     def set_data(self, p2pool: P2PoolRemote):
@@ -103,7 +103,7 @@ class P2PoolRemotePane(Container):
         self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
 
 
-        if button_id == NEW:
+        if button_id == DButton.NEW:
             # No original instance, this is a new deployment
             form_data = {
                 DField.TO_MODULE: DMod.OPS_MGR,

@@ -22,8 +22,8 @@ class PlotViewPane(Container):
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
-    header = Label("", classes=Form.FORM_1)
-    log_widget = Log(highlight=True, auto_scroll=True, classes=Form.PANE_BOX)
+    header = Label("", classes=Form.FORM_1.value)
+    log_widget = Log(highlight=True, auto_scroll=True, classes=Form.PANE_BOX.value)
 
 
     def compose(self):    
@@ -32,7 +32,7 @@ class PlotViewPane(Container):
             self.header,
             ScrollableContainer(
                 self.log_widget),
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
         
 
     def preload(self, path):

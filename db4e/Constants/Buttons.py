@@ -8,18 +8,19 @@ db4e/Constants/Buttons.py
     License: GPL 3.0
 """
 
-from enum import StrEnum
+from db4e.Modules.TypedEnum import TypedEnum
 
-class DButton(StrEnum):
-    ABORT = "abort_button"
-    DELETE = "delete_button"
-    DISABLE = "disable_button"
-    ENABLE = "enable_button"
-    NEW = "new_button"
-    PROCEED = "proceed_button"
-    START = "start_button"
-    STOP = "stop_button"
-    UPDATE = "update_button"
+
+class DButton(TypedEnum):
+    ABORT: str = "abort_button"
+    DELETE: str  = "delete_button"
+    DISABLE: str  = "disable_button"
+    ENABLE: str  = "enable_button"
+    NEW: str  = "new_button"
+    PROCEED: str  = "proceed_button"
+    START: str  = "start_button"
+    STOP: str  = "stop_button"
+    UPDATE: str  = "update_button"
 
 
 

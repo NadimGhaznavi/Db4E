@@ -25,32 +25,32 @@ from db4e.Constants.Jobs import DJob
 
 class P2PoolPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET)
+    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
     instance_map = {}
 
-    chain_radio_set = RadioSet(id="chain_radio_set", classes=Form.RADIO_SET)
+    chain_radio_set = RadioSet(id="chain_radio_set", classes=Form.RADIO_SET.value)
 
-    config_label = Label("", classes=Form.STATIC)
+    config_label = Label("", classes=Form.STATIC.value)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
 
     health_msgs = Label()
 
@@ -70,31 +70,31 @@ class P2PoolPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL),
+                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL.value),
                         self.in_peers_input),
                     Horizontal(
-                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL),
+                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL.value),
                         self.out_peers_input),
                     Horizontal(
-                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL.value),
                         self.p2p_bind_port_input),
                     Horizontal(
-                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL.value),
                         self.stratum_port_input),
                     Horizontal(
-                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL),
+                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL.value),
                         self.log_level_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
                         self.config_label),
-                    classes=Form.FORM_7, id="form_field"),
+                    classes=Form.FORM_7, id=Form.PANE_BOX.value),
                     
                 Vertical(
                     self.chain_radio_set),
@@ -104,7 +104,7 @@ class P2PoolPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX,
+                    classes=Form.HEALTH_BOX.value,
                 ),
 
                 Vertical(
@@ -114,9 +114,9 @@ class P2PoolPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW))),
+                        classes=Form.BUTTON_ROW.value))),
                 
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
 
 
     def on_mount(self):

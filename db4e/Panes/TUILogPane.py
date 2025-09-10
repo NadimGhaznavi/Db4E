@@ -48,7 +48,7 @@ class TUILogPane(Static):
             ScrollableContainer(
                 self.log_widget
             ),
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
 
     def set_data(self, job_list):
         #self.log_widget.clear()

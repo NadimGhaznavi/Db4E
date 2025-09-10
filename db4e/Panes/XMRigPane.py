@@ -28,18 +28,18 @@ from db4e.Constants.Fields import DField, DMod, DElem, Method
 
 class XMRigPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET)
+    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
     instance_map = {}
     
-    config_label = Label("", classes=Form.STATIC)
+    config_label = Label("", classes=Form.STATIC.value)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_15)
+        classes=Form.INPUT_15.value)
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_15)
+        classes=Form.INPUT_15.value)
     
     health_msgs = Label()
 
@@ -59,17 +59,17 @@ class XMRigPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS, classes=Form.FORM_LABEL),
+                        Label(DLabel.NUM_THREADS, classes=Form.FORM_LABEL.value),
                         self.num_threads_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
                         self.config_label),
                     classes=Form.FORM_3, id="form_field"),
 
@@ -78,7 +78,7 @@ class XMRigPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX),
+                    classes=Form.HEALTH_BOX.value),
 
                 Vertical(
                     Horizontal(
@@ -87,9 +87,9 @@ class XMRigPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW))),
+                        classes=Form.BUTTON_ROW.value))),
                 
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
 
     def get_p2pool_id(self, instance=None):
         if instance and instance in self.instance_map:

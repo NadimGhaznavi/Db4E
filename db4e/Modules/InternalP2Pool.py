@@ -17,9 +17,9 @@ P2P_PORT_OFFSET = 100
 STRATUM_PORT_OFFSET = 40000
 
 CHAIN_CONFIG = {
-    DLabel.MAIN_CHAIN: (DField.MINI_CHAIN, 0),
-    DLabel.MINI_CHAIN: (DField.MINI_CHAIN, 1),
-    DLabel.NANO_CHAIN: (DField.NANO_CHAIN, 2),
+    DLabel.MAIN_CHAIN.value: (DField.MINI_CHAIN.value, 0),
+    DLabel.MINI_CHAIN.value: (DField.MINI_CHAIN.value, 1),
+    DLabel.NANO_CHAIN.value: (DField.NANO_CHAIN.value, 2),
 }
 
 class InternalP2Pool(P2Pool):

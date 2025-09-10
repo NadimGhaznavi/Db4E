@@ -31,17 +31,21 @@ class MoneroDTypePane(Container):
        
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
                 
                 Vertical(
                     RadioSet(
-                        RadioButton("Local " + DLabel.MONEROD, classes=Form.RADIO_BUTTON_TYPE, value=True),
-                        RadioButton(DLabel.MONEROD_REMOTE, id="remote", classes=Form.RADIO_BUTTON_TYPE),
-                        id="type_radioset", classes=Form.RADIO_SET,
+                        RadioButton(
+                            "Local " + DLabel.MONEROD, 
+                            classes=Form.RADIO_BUTTON_TYPE.value, value=True),
+                        RadioButton(
+                            DLabel.MONEROD_REMOTE, id="remote", 
+                            classes=Form.RADIO_BUTTON_TYPE.value),
+                        id="type_radioset", classes=Form.RADIO_SET.value,
                         )),
 
                 Button(label=DLabel.PROCEED, id=DButton.PROCEED)),
-                classes=Form.PANE_BOX)
+                classes=Form.PANE_BOX.value)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)

@@ -8,32 +8,31 @@ db4e/Constants/Jobs.py
     License: GPL 3.0
 """
 
-from enum import StrEnum
+from db4e.Modules.TypedEnum import TypedEnum
 
 from db4e.Constants.Fields import DField
 
-class DJob(StrEnum):
-    ATTEMPTS = "attempts"
-    COMPLETED = "completed"
-    CREATED_AT = "created_at"
-    DELETE = "delete"
-    DISABLE = "disable"
-    ELEMENT = DField.ELEMENT.value
-    ELEMENT_TYPE = DField.ELEMENT_TYPE.value
-    ENABLE = "enable"
-    INSTANCE = DField.INSTANCE.value
-    JOB_ID = "job_id"
-    JOB_QUEUE = "job_queue"
-    MESSAGE = DField.MESSAGE.value
-    NEW = "new"
-    OBJECT_ID = DField.OBJECT_ID.value
-    OP = "op"
-    PENDING = "pending"
-    POST_JOB = DField.POST_JOB.value
-    RETRY = "retry"
-    PROCESSING = "processing"
-    RESTART = "restart"
-    SET_PRIMARY = "set_primary"
-    STATUS = "status"
-    UPDATE = "update"
-    UPDATED_AT = "updated_at"
+class DJob(TypedEnum):
+    ATTEMPTS : str = "attempts"
+    COMPLETED : str = "completed"
+    CREATED_AT : str = "created_at"
+    DELETE : str = "delete"
+    DISABLE : str = "disable"
+    ELEMENT : str = DField.ELEMENT.value
+    ELEMENT_TYPE : str = DField.ELEMENT_TYPE.value
+    ENABLE : str = "enable"
+    INSTANCE : str = DField.INSTANCE.value
+    JOB_ID : str = "job_id"
+    JOB_QUEUE : str = "job_queue"
+    MESSAGE : str = DField.MESSAGE.value
+    NEW : str = "new"
+    OBJECT_ID : str = DField.OBJECT_ID.value
+    OP : str = "op"
+    PENDING : str = "pending"
+    RETRY : str = "retry"
+    PROCESSING : str = "processing"
+    RESTART : str = "restart"
+    SET_PRIMARY : str = "set_primary"
+    STATUS : str = "status"
+    UPDATE : str = "update"
+    UPDATED_AT : str = "updated_at"

@@ -72,9 +72,9 @@ ICON = {
 }
 
 STATE_ICON = {
-    Status.GOOD: '🟢',
-    Status.WARN: '🟡',
-    Status.ERROR: '🔴',
+    Status.GOOD.value: '🟢',
+    Status.WARN.value: '🟡',
+    Status.ERROR.value: '🔴',
 }
 
 

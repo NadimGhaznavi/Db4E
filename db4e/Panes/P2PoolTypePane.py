@@ -31,17 +31,17 @@ class P2PoolTypePane(Container):
                     
         yield Vertical (
             ScrollableContainer(
-                Label(INTRO, classes="form_intro"),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     RadioSet(
                         RadioButton("Local " + DLabel.P2POOL, id="local", value=True),
                         RadioButton(DLabel.P2POOL_REMOTE, id="remote"),
-                        id="type_radioset", classes="radio_set",
+                        id="type_radioset", classes=Form.RADIO_SET.value,
                     )),
 
                 Button(label=DLabel.PROCEED, id=DButton.PROCEED)),
-                classes=Form.PANE_BOX)
+                classes=Form.PANE_BOX.value)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)

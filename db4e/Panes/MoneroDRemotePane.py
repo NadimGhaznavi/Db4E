@@ -23,22 +23,22 @@ from db4e.Constants.Jobs import DJob
 
 class MoneroDRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC)
+    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     ip_addr_input = Input(
         compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     primary_server_checkbox = Checkbox(
         #PRIMARY_SERVER, compact=True, id="primary_server_checkbox")
         "", compact=True, id="primary_server_checkbox")
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     zmq_pub_port_input = Input(
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30)
+        classes=Form.INPUT_30.value)
     health_msgs = Label()
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
@@ -53,37 +53,37 @@ class MoneroDRemotePane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO),
+                Label(INTRO, classes=Form.INTRO.value),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL),
+                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL.value),
                         self.primary_server_checkbox),
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL),
+                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL.value),
                         self.ip_addr_input),
                     Horizontal(
-                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL.value),
                         self.rpc_bind_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL),
+                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL.value),
                         self.zmq_pub_port_input),
                     classes=Form.FORM_5),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX),
+                    classes=Form.HEALTH_BOX.value),
 
                 Horizontal(
                     self.new_button,
                     self.update_button,
                     self.delete_button,
-                    classes=Form.BUTTON_ROW)),
+                    classes=Form.BUTTON_ROW.value)),
 
-            classes=Form.PANE_BOX)     
+            classes=Form.PANE_BOX.value)
 
 
     def set_data(self, monerod: MoneroDRemote):

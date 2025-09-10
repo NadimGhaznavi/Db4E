@@ -28,15 +28,15 @@ hi = "cyan"
 class InitialSetupPane(Container):
 
     rec = {}
-    user_name_static = Label("", classes=Form.STATIC)
-    group_name_static = Label("", classes=Form.STATIC)
-    install_dir_static = Label("", classes=Form.STATIC)
+    user_name_static = Label("", classes=Form.STATIC.value)
+    group_name_static = Label("", classes=Form.STATIC.value)
+    install_dir_static = Label("", classes=Form.STATIC.value)
     vendor_dir_input = Input(
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", 
-        classes=Form.INPUT_70)
+        classes=Form.INPUT_70.value)
     user_wallet_input = Input(
         restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", 
-        classes=Form.INPUT_70)
+        classes=Form.INPUT_70.value)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything[/] initial " \
@@ -50,19 +50,19 @@ class InitialSetupPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.USER, classes=Form.FORM_LABEL),
+                        Label(DLabel.USER, classes=Form.FORM_LABEL.value),
                         self.user_name_static),
                     Horizontal(
-                        Label(DLabel.GROUP, classes=Form.FORM_LABEL),
+                        Label(DLabel.GROUP, classes=Form.FORM_LABEL.value),
                         self.group_name_static),
                     Horizontal(
-                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL),
+                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL.value),
                         self.install_dir_static),
                     Horizontal(
-                        Label(DLabel.USER_WALLET,classes=Form.FORM_LABEL), 
+                        Label(DLabel.USER_WALLET,classes=Form.FORM_LABEL.value), 
                         self.user_wallet_input),
                     Horizontal(
-                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL),
+                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL.value),
                         self.vendor_dir_input),
                     classes=Form.FORM_5),
 
@@ -70,10 +70,10 @@ class InitialSetupPane(Container):
                     Horizontal(
                         Button(label=DLabel.PROCEED, id=DButton.PROCEED),
                         Button(label=DLabel.ABORT, id=DButton.ABORT),
-                        classes="button_row")),
-                classes="page_box"),
+                        classes=Form.BUTTON_ROW.value)),
+                classes=Form.PANE_BOX.value),
 
-            classes="pane_box")
+            classes=Form.PANE_BOX.value)
 
 
     def set_data(self, db4e: Db4E):

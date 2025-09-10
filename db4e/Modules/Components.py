@@ -79,12 +79,12 @@ class DonationWallet(Component):
     def __init__(self):
         super().__init__(
             DField.DONATION_WALLET, DLabel.DONATIONS_WALLET, 
-            DefDB4E.DONATION_WALLET)
+            DDef.DONATION_WALLET)
 
 
 class InPeers(Component):
     def __init__(self):
-        super().__init(DField.IN_PEERS, DLabel.IN_PEERS, DDef.IN_PEERS)
+        super().__init(DField.IN_PEERS, DLabel.IN_PEERS, str(DDef.IN_PEERS))
 
 
 class InstallDir(Component):
@@ -104,12 +104,12 @@ class IpAddr(Component):
 
 class Local(Component):
     def __init__(self):
-        super().__init(DField.REMOTE, DLabel.REMOTE, False)
+        super().__init(DField.REMOTE, DLabel.REMOTE, str(False))
 
 
 class LogLevel(Component):
     def __init__(self):
-        super().__init(DField.LOG_LEVEL, DLabel.LOG_LEVEL, DDef.LOG_LEVEL)
+        super().__init(DField.LOG_LEVEL, DLabel.LOG_LEVEL, str(DDef.LOG_LEVEL))
 
 
 class LogFile(Component):
@@ -120,30 +120,30 @@ class LogFile(Component):
 class MaxLogFiles(Component):
     def __init__(self):
         super().__init(
-            DField.MAX_LOG_FILES, DLabel.MAX_LOG_FILES, DDef.MAX_LOG_FILES)
+            DField.MAX_LOG_FILES, DLabel.MAX_LOG_FILES, str(DDef.MAX_LOG_FILES))
 
 
 class MaxLogSize(Component):
     def __init__(self):
         super().__init(
-            DField.MAX_LOG_SIZE, DLabel.MAX_LOG_SIZE, DDef.MAX_LOG_SIZE)
+            DField.MAX_LOG_SIZE, DLabel.MAX_LOG_SIZE, str(DDef.MAX_LOG_SIZE))
 
 
 class NumThreads(Component):
     def __init__(self):
         super().__init(
-            DField.NUM_THREADS, DLabel.NUM_THREADS, DDef.NUM_THREADS)
+            DField.NUM_THREADS, DLabel.NUM_THREADS, str(DDef.NUM_THREADS))
 
 
 class OutPeers(Component):
     def __init__(self):
-        super().__init(DField.OUT_PEERS, DLabel.OUT_PEERS, DDef.OUT_PEERS)
+        super().__init(DField.OUT_PEERS, DLabel.OUT_PEERS, str(DDef.OUT_PEERS))
 
 
 class P2PBindPort(Component):
     def __init__(self):
         super().__init(
-            DField.P2P_BIND_PORT, DLabel.P2P_BIND_PORT, DDef.P2P_BIND_PORT)
+            DField.P2P_BIND_PORT, DLabel.P2P_BIND_PORT, str(DDef.P2P_BIND_PORT))
 
 
 class Parent(Component):
@@ -153,7 +153,8 @@ class Parent(Component):
         
 class PrimaryServer(Component):
     def __init__(self):
-        super().__init__(DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, False)
+        super().__init__(
+            DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, str(False))
 
 
 class PriorityNode1(Component):
@@ -174,14 +175,14 @@ class PriorityPort1(Component):
     def __init__(self):
         super().__init__(
             DField.PRIORITY_PORT_1, DLabel.PRIORITY_PORT_1, 
-            DDef.P2P_BIND_PORT)
+            str(DDef.P2P_BIND_PORT))
 
 
 class PriorityPort2(Component):
     def __init__(self):
         super().__init__(
             DField.PRIORITY_PORT_2, DLabel.PRIORITY_PORT_2, 
-            DDef.P2P_BIND_PORT)
+            str(DDef.P2P_BIND_PORT))
 
 
 class Remote(Component):
@@ -193,14 +194,14 @@ class RpcBindPort(Component):
     def __init__(self):
         super().__init(
             DField.RPC_BIND_PORT, DLabel.RPC_BIND_PORT, 
-            DDef.RPC_BIND_PORT)
+            str(DDef.RPC_BIND_PORT))
 
 
 class ShowTimeStats(Component):
     def __init__(self):
         super().__init__(
             DField.SHOW_TIME_STATS, DLabel.SHOW_TIME_STATS, 
-            DDef.SHOW_TIME_STATS)
+            str(DDef.SHOW_TIME_STATS))
 
 
 class Stdin(Component):
@@ -211,7 +212,7 @@ class Stdin(Component):
 class StratumPort(Component):
     def __init__(self):
         super().__init__(DField.STRATUM_PORT, DLabel.STRATUM_PORT, 
-                         DDef.STRATUM_PORT)
+                         str(DDef.STRATUM_PORT))
 
 
 class Version(Component):
@@ -232,11 +233,13 @@ class VendorDir(Component):
 class ZmqPubPort(Component):
     def __init__(self):
         super().__init__(
-            DField.ZMQ_PUB_PORT, DLabel.ZMQ_PUB_PORT, DDef.ZMQ_PUB_PORT)
+            DField.ZMQ_PUB_PORT, DLabel.ZMQ_PUB_PORT, 
+            str(DDef.ZMQ_PUB_PORT))
 
 
 class ZmqRpcPort(Component):
     def __init__(self):
         super().__init__(
-            DField.ZMQ_RPC_PORT, DLabel.ZMQ_RPC_PORT, DDef.ZMQ_RPC_PORT)
+            DField.ZMQ_RPC_PORT, DLabel.ZMQ_RPC_PORT, 
+            str(DDef.ZMQ_RPC_PORT))
 

@@ -32,7 +32,7 @@ class ResultsPane(Static):
             ScrollableContainer(
                 self.results
             ),
-            classes=Form.PANE_BOX)
+            classes=Form.PANE_BOX.value)
 
     def set_data(self, elem):
         msgs = elem.pop_msgs()
