@@ -42,9 +42,6 @@ from db4e.Modules.XMRig import XMRig
 from db4e.Constants.Defaults import (
     TERM_DEFAULT, COLORTERM_DEFAULT, DB4E_SERVER_DEFAULT, LOG_DIR_DEFAULT, 
     DB4E_LOG_FILE_DEFAULT)
-from db4e.Constants.Fields import (
-    DISABLE_FIELD, VENDOR_DIR_FIELD, TERM_ENVIRON_FIELD,
-    COLORTERM_ENVIRON_FIELD)
 from db4e.Constants.Fields import DElem, DDir, DField
 from db4e.Constants.Jobs import DJob
 
@@ -80,7 +77,7 @@ class Db4eServer:
         self.log_watchers = {}  
 
         # Setup logging
-        vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         logs_dir = LOG_DIR_DEFAULT
         log_file = DB4E_LOG_FILE_DEFAULT
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
@@ -155,7 +152,7 @@ class Db4eServer:
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
             self.ensure_stopped(elem)
-            vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
+            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
             p2pool_dir = DElem.P2POOL + '-' + elem.version()
             rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
             self.depl_mgr.del_deployment(elem)
@@ -170,7 +167,7 @@ class Db4eServer:
         elif type(elem) == MoneroD:
             self.ensure_stopped(elem)
             self.depl_mgr.del_deployment(elem)
-            vendor_dir = self.depl_mgr.get_dir(VENDOR_DIR_FIELD)
+            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
             monerod_dir = DElem.MONEROD + '-' + elem.version()
             conf_file = elem.config_file()
             os.remove(conf_file)
@@ -202,7 +199,7 @@ class Db4eServer:
             print(f"Db4eServer:disable_downstream(): elem/enabled: {elem}/{elem.enabled()}")
             elem.disable()
             self.depl_mgr.update_deployment(elem)
-            job = Job(op=DISABLE_FIELD, elem_type=elem.elem_type(), instance=elem.instance())
+            job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
             job.msg(f"Disabled downstream instance: {elem.instance()}")
             self.job_queue.complete_job(job)    
 
@@ -371,8 +368,8 @@ class Db4eServer:
 
 def main():
     # Set environment variables for better color support
-    os.environ[TERM_ENVIRON_FIELD] = TERM_DEFAULT
-    os.environ[COLORTERM_ENVIRON_FIELD] = COLORTERM_DEFAULT
+    os.environ[DField.TERM_ENVIRON] = TERM_DEFAULT
+    os.environ[DField.COLORTERM_ENVIRON] = COLORTERM_DEFAULT
 
     server = Db4eServer()
     server.start()

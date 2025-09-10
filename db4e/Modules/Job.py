@@ -17,7 +17,6 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Fields import (ELEMENT_FIELD, INSTANCE_FIELD, OBJECT_ID_FIELD)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Jobs import DJob
 
@@ -72,12 +71,12 @@ class Job:
         self._instance = rec[DJob.INSTANCE]
         self._job_id = rec[DJob.JOB_ID]
         self._msg = rec[DJob.MESSAGE]
-        self._object_id = rec[OBJECT_ID_FIELD]
+        self._object_id = rec[DJob.OBJECT_ID]
         self._op = rec[DJob.OP]
         self._status = rec[DJob.STATUS]
         self._updated_at = rec[DJob.UPDATED_AT]
-        if ELEMENT_FIELD in rec:
-            elem_rec = rec[ELEMENT_FIELD]
+        if DField.ELEMENT in rec:
+            elem_rec = rec[DField.ELEMENT]
             elem_type = elem_rec[DField.ELEMENT_TYPE]
             #print(f"Job:from_rec(): elem_type: {elem_type}")
             if elem_type == DElem.MONEROD:
@@ -125,20 +124,20 @@ class Job:
 
     def to_rec(self):
         job_rec = {
-            Job.ATTEMPTS: self._attempts,
-            Job.CREATED_AT: self._created_at,
-            Job.ELEMENT_TYPE: self._element_type,
-            INSTANCE_FIELD: self._instance,
-            Job.JOB_ID: self._job_id,
-            Job.MESSAGE: self._msg,
-            Job.OP: self._op,
-            Job.STATUS: self._status,
-            Job.UPDATED_AT: self._updated_at,
+            DJob.ATTEMPTS: self._attempts,
+            DJob.CREATED_AT: self._created_at,
+            DJob.ELEMENT_TYPE: self._element_type,
+            DJob.INSTANCE: self._instance,
+            DJob.JOB_ID: self._job_id,
+            DJob.MESSAGE: self._msg,
+            DJob.OP: self._op,
+            DJob.STATUS: self._status,
+            DJob.UPDATED_AT: self._updated_at,
         }
 
         elem = self.elem()
         if elem:
-            job_rec[ELEMENT_FIELD] = elem.to_rec()
+            job_rec[DField.ELEMENT] = elem.to_rec()
 
         return job_rec
 

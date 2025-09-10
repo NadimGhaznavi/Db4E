@@ -10,18 +10,16 @@ db4e/Modules/InternalP2Pool.py
 """
 
 from db4e.Modules.P2Pool import P2Pool
-from db4e.Constants.Fields import (
-    MAIN_CHAIN_FIELD, MINI_CHAIN_FIELD, NANO_CHAIN_FIELD)
-from db4e.Constants.Fields import DElem
+from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Labels import DLabel
 
 P2P_PORT_OFFSET = 100
 STRATUM_PORT_OFFSET = 40000
 
 CHAIN_CONFIG = {
-    DLabel.MAIN_CHAIN: (MINI_CHAIN_FIELD, 0),
-    DLabel.MINI_CHAIN: (MINI_CHAIN_FIELD, 1),
-    DLabel.NANO_CHAIN: (NANO_CHAIN_FIELD, 2),
+    DLabel.MAIN_CHAIN: (DField.MINI_CHAIN, 0),
+    DLabel.MINI_CHAIN: (DField.MINI_CHAIN, 1),
+    DLabel.NANO_CHAIN: (DField.NANO_CHAIN, 2),
 }
 
 class InternalP2Pool(P2Pool):

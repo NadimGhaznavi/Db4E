@@ -17,8 +17,6 @@ from copy import deepcopy
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
-from db4e.Constants.Fields import (REMOTE_FIELD,  
-    INSTANCE_FIELD, NUM_THREADS_FIELD, VERSION_FIELD, PARENT_FIELD, LOG_FILE_FIELD)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Defaults import (
     CONF_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, LOG_DIR_DEFAULT)
@@ -35,19 +33,19 @@ class XMRig(LocalSoftwareSystem):
         self.name = DLabel.XMRIG
 
         self.add_component(DField.CONFIG_FILE, ConfigFile())
-        self.add_component(INSTANCE_FIELD, Instance())
-        self.add_component(LOG_FILE_FIELD, LogFile())
-        self.add_component(REMOTE_FIELD, Local())
-        self.add_component(NUM_THREADS_FIELD, NumThreads())
-        self.add_component(VERSION_FIELD, Version())
-        self.add_component(PARENT_FIELD, Parent())
+        self.add_component(DField.INSTANCE, Instance())
+        self.add_component(DField.LOG_FILE, LogFile())
+        self.add_component(DField.REMOTE, Local())
+        self.add_component(DField.NUM_THREADS, NumThreads())
+        self.add_component(DField.VERSION, Version())
+        self.add_component(DField.PARENT, Parent())
 
         self.config_file = self.components[DField.CONFIG_FILE]
-        self.instance = self.components[INSTANCE_FIELD]
-        self.log_file = self.components[LOG_FILE_FIELD]
-        self.num_threads = self.components[NUM_THREADS_FIELD]
-        self.parent = self.components[PARENT_FIELD]
-        self.version = self.components[VERSION_FIELD]
+        self.instance = self.components[DField.INSTANCE]
+        self.log_file = self.components[DField.LOG_FILE]
+        self.num_threads = self.components[DField.NUM_THREADS]
+        self.parent = self.components[DField.PARENT]
+        self.version = self.components[DField.VERSION]
         self.version(XMRIG_VERSION_DEFAULT)
         self._instance_map = {}
         self.p2pool = None

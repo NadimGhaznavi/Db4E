@@ -16,9 +16,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
-from db4e.Constants.Fields import (
-    ELEMENT_FIELD, INITIAL_SETUP_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD)
-from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Fields import DField, DMod, DElem, Method
 from db4e.Constants.Form import Form
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Buttons import (
@@ -97,10 +95,10 @@ class InitialSetupPane(Container):
             self.db4e.user_wallet.value = self.query_one("#user_wallet_input", Input).value
             self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
             form_data = {
-                TO_MODULE_FIELD: DMod.INSTALL_MGR,
-                TO_METHOD_FIELD: INITIAL_SETUP_FIELD,
+                DField.TO_MODULE: DMod.INSTALL_MGR,
+                DField.TO_METHOD: Method.INITIAL_SETUP,
                 DField.ELEMENT_TYPE: DElem.DB4E,
-                ELEMENT_FIELD: self.db4e
+                DField.ELEMENT: self.db4e
             }
             self.app.post_message(RefreshNavPane(self))
             self.app.post_message(Db4eMsg(self, form_data))

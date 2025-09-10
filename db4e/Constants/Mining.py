@@ -8,21 +8,30 @@ Constants/Mining.py
     License: GPL 3.0
 
 """
+from db4e.Constants.Fields import DField
+from enum import StrEnum
 
-BLOCK_FOUND_EVENT_FIELD = 'block_found_event'
-EFFORT_FIELD = 'effort'
-HASHRATE_FIELD = 'hashrate'
-MAINCHAIN_HASHRATE_FIELD = 'mainchain_hashrate'
-MINER_FIELD = 'miner'
-POOL_HASHRATE_FIELD = 'pool_hashrate'
-RT_MAINCHAIN_HASHRATE_FIELD = 'rt_mainchain_hashrate'
-RT_POOL_HASHRATE_FIELD = 'rt_pool_hashrate'
-RT_SIDECHAIN_HASHRATE_FIELD = 'rt_sidechain_hashrate'
-SHARE_FOUND_EVENT_FIELD = 'share_found_event'
-SHARE_POSITION_FIELD = 'share_position'
-SHARE_FOUND_EVENT_FIELD = 'share_found_event'
-SHARE_POSITION_FIELD = 'share_position'
-SIDECHAIN_HASHRATE_FIELD = 'sidechain_hashrate'
-SIDECHAIN_MINERS_FIELD = 'sidechain_miners'
-WALLET_BALANCE_FIELD = 'wallet_balance'
-XMR_PAYMENT_FIELD = 'xmr_payment'
+class Mining(StrEnum):
+    """
+    Mining related constants
+    """
+
+    BLOCK_FOUND_EVENT = 'block_found_event'
+    EFFORT = 'effort'
+    HASHRATE = 'hashrate'
+    INSTANCE = DField.INSTANCE.value
+    IP_ADDR = DField.IP_ADDR.value
+    MAINCHAIN_HASHRATE = 'mainchain_hashrate'
+    MINER = 'miner'
+    POOL_HASHRATE = 'pool_hashrate'
+    RT_MAINCHAIN_HASHRATE = 'rt_mainchain_hashrate'
+    RT_POOL_HASHRATE = 'rt_pool_hashrate'
+    RT_SIDECHAIN_HASHRATE = 'rt_sidechain_hashrate'
+    SHARE_FOUND_EVENT = 'share_found_event'
+    SHARE_POSITION = 'share_position'
+    SHARE_FOUND_EVENT = 'share_found_event'
+    SHARE_POSITION = 'share_position'
+    SIDECHAIN_HASHRATE = 'sidechain_hashrate'
+    SIDECHAIN_MINERS = 'sidechain_miners'
+    WALLET_BALANCE = 'wallet_balance'
+    XMR_PAYMENT = 'xmr_payment'

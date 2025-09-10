@@ -14,10 +14,11 @@ from datetime import datetime
 
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
-from db4e.Constants.Fields import (
-    OBJECT_ID_FIELD)
 from db4e.Constants.Defaults import OPS_COL_DEFAULT
 from db4e.Constants.Jobs import DJob
+from db4e.Constants.Fields import Mongo
+
+
 
 class JobQueue:
     def __init__(self, db: DbMgr, log=None):
@@ -29,7 +30,7 @@ class JobQueue:
     def complete_job(self, job: Job):
         job.status(DJob.COMPLETED)
         job.updated_at(datetime.now())
-        self.db.update_one(self.col_name, {OBJECT_ID_FIELD: job.id()}, job.to_rec())        
+        self.db.update_one(self.col_name, {Mongo.OBJECT_ID: job.id()}, job.to_rec())        
 
 
     def get_jobs(self):

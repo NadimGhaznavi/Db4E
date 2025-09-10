@@ -14,10 +14,7 @@ from textual.widgets import Label, Input, Button, Checkbox
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import (
-    NEW_FIELD, ENABLE_FIELD, DISABLE_FIELD, OP_FIELD,
-    TO_MODULE_FIELD, TO_METHOD_FIELD, ELEMENT_FIELD, ADD_DEPLOYMENT_FIELD, UPDATE_FIELD)
-from db4e.Constants.Fields import DField, DElem, DMod
+from db4e.Constants.Fields import DField, DElem, DMod, Method
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
 from db4e.Constants.Jobs import DJob
@@ -194,20 +191,20 @@ class MoneroDPane(Container):
         # Configure button visibility
         if monerod.instance():
             # This is an update operation
-            self.remove_class(NEW_FIELD)
-            self.add_class(UPDATE_FIELD)
+            self.remove_class(DField.NEW)
+            self.add_class(DField.UPDATE)
 
             if monerod.enabled():
-                self.remove_class(DISABLE_FIELD)
-                self.add_class(ENABLE_FIELD)
+                self.remove_class(DField.DISABLE)
+                self.add_class(DField.ENABLE)
             else:
-                self.remove_class(ENABLE_FIELD)
-                self.add_class(DISABLE_FIELD)
+                self.remove_class(DField.ENABLE)
+                self.add_class(DField.DISABLE)
 
         else:
             # This is a new operation
-            self.remove_class(UPDATE_FIELD)
-            self.add_class(NEW_FIELD)
+            self.remove_class(DField.UPDATE)
+            self.add_class(DField.NEW)
 
         self.health_msgs.update(gen_results_table(monerod.pop_msgs()))
 
@@ -234,46 +231,46 @@ class MoneroDPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                ELEMENT_FIELD: self.monerod
+                DField.ELEMENT: self.monerod
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: UPDATE_FIELD,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: ENABLE_FIELD,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DISABLE_FIELD,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.DELETE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                ELEMENT_FIELD: self.monerod,
+                DField.ELEMENT: self.monerod,
             }            
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))                              

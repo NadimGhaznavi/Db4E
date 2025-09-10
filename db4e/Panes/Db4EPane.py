@@ -17,10 +17,8 @@ from textual.reactive import reactive
 from db4e.Modules.Db4E import Db4E
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import (
-    RADIO_SET_FIELD, ELEMENT_FIELD, OP_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    TO_METHOD_FIELD, TO_MODULE_FIELD)
-from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Fields import DField, DMod, DElem, Method
+from db4e.Constants.Form import Form
 from db4e.Constants.Buttons import (
     BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD)
 from db4e.Constants.Labels import DLabel
@@ -43,7 +41,7 @@ class Db4EPane(Container):
     health_msgs = Label()
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
+    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
@@ -119,11 +117,11 @@ class Db4EPane(Container):
         self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
 
         form_data = {
-            TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-            TO_METHOD_FIELD: DJob.POST_JOB,
-            OP_FIELD: DJob.UPDATE,
+            DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+            DField.TO_METHOD: Method.POST_JOB,
+            DField.OP: DJob.UPDATE,
             DField.ELEMENT_TYPE: DElem.DB4E,
-            ELEMENT_FIELD: self.db4e,
+            DField.ELEMENT: self.db4e,
         }
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -132,7 +130,7 @@ class Db4EPane(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
+            radio_button = RadioButton(instance, classes=DField.RADIO_BUTTON_TYPE)
             if self.p2pool.parent() == self.instance_map[instance]:
                 radio_button.value = True
             self.radio_set.mount(radio_button)

@@ -13,8 +13,7 @@ This is a virtual class.
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import LOCAL_SOFTWARE_SYSTEM_FIELD, ENABLED_FIELD
-
+from db4e.Constants.Fields import DField
 
 
 
@@ -23,7 +22,7 @@ class LocalSoftwareSystem(SoftwareSystem):
 
     def __init__(self):
         super().__init__()
-        self._elem_type = LOCAL_SOFTWARE_SYSTEM_FIELD
+        self._elem_type = DField.LOCAL_SOFTWARE_SYSTEM
         self.name = DLabel.LOCAL_SOFTWARE_SYSTEM
         self._enabled = False
 
@@ -43,16 +42,16 @@ class LocalSoftwareSystem(SoftwareSystem):
     def from_rec(self, rec: dict):
         super().from_rec(rec)
         try:
-            if rec[ENABLED_FIELD]:
+            if rec[DField.ENABLED]:
                 self.enable()
             else:
                 self.disable()
         except KeyError:
             raise ValueError(
-                f"LocalSoftwareSystem:from_rec(): Missing '{ENABLED_FIELD}' field")
+                f"LocalSoftwareSystem:from_rec(): Missing '{DField.ENABLED}' field")
 
 
     def to_rec(self):
         rec = super().to_rec()
-        rec[ENABLED_FIELD] = bool(self.enabled())
+        rec[DField.ENABLED] = bool(self.enabled())
         return rec

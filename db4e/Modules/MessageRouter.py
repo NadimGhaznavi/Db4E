@@ -17,10 +17,7 @@ from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.OpsMgr import OpsMgr
 
-from db4e.Constants.Fields import (GET_REC_FIELD, SET_PANE_FIELD,LOG_VIEWER_FIELD,
-    ADD_DEPLOYMENT_FIELD, DELETE_DEPLOYMENT_FIELD, GET_NEW_FIELD, INITIAL_SETUP_FIELD,
-    PLOT_FIELD, CHAIN_FIELD, GET_TUI_LOG_FIELD, TUI_LOG_FIELD, DONATIONS_FIELD)
-from db4e.Constants.Fields import DMod, DField, DElem
+from db4e.Constants.Fields import DMod, DField, DElem, Method
 from db4e.Constants.Jobs import DJob
 from db4e.Constants.Panes import (
     DB4E_PANE, DONATIONS_PANE, INITIAL_SETUP_PANE, MONEROD_PANE, MONEROD_REMOTE_PANE, 
@@ -44,100 +41,100 @@ class MessageRouter:
         # Db4e core
         self.register(DMod.INSTALL_MGR, INITIAL_SETUP_PROCEED_FIELD, DElem.DB4E,
                       self.install_mgr.initial_setup_proceed, INITIAL_SETUP_PANE)
-        self.register(DMod.INSTALL_MGR, INITIAL_SETUP_FIELD, DElem.DB4E,
+        self.register(DMod.INSTALL_MGR, Method.INITIAL_SETUP, DElem.DB4E,
                       self.install_mgr.initial_setup, RESULTS_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.DB4E,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.DB4E,
                       self.ops_mgr.get_deployment, DB4E_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.DB4E,
                       self.depl_mgr.update_deployment, WELCOME_PANE)
 
         # MoneroD = Type: local or remote
-        self.register(DMod.PANE_MGR, SET_PANE_FIELD, DElem.MONEROD,
+        self.register(DMod.PANE_MGR, DField.SET_PANE, DElem.MONEROD,
                       self.pane_mgr.set_pane, MONEROD_TYPE_PANE)
 
         # MoneroD - local
-        self.register(DMod.OPS_MGR, GET_NEW_FIELD, DElem.MONEROD,
+        self.register(DMod.OPS_MGR, Method.GET_NEW, DElem.MONEROD,
                       self.ops_mgr.get_new, MONEROD_PANE)
-        self.register(DMod.OPS_MGR, ADD_DEPLOYMENT_FIELD, DElem.MONEROD,
+        self.register(DMod.OPS_MGR, Method.ADD_DEPLOYMENT, DElem.MONEROD,
                       self.ops_mgr.add_deployment, MONEROD_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.MONEROD,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.MONEROD,
                       self.ops_mgr.get_deployment, MONEROD_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.MONEROD,
                       self.depl_mgr.post_job, WELCOME_PANE)
-        self.register(DMod.DEPLOYMENT_MGR, DELETE_DEPLOYMENT_FIELD, DElem.MONEROD,
+        self.register(DMod.DEPLOYMENT_MGR, Method.DELETE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_mgr.del_deployment, MONEROD_PANE)
 
         # MoneroD - remote
-        self.register(DMod.OPS_MGR, GET_NEW_FIELD, DElem.MONEROD_REMOTE,
+        self.register(DMod.OPS_MGR, Method.GET_NEW, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_new, MONEROD_REMOTE_PANE)
-        self.register(DMod.OPS_MGR, ADD_DEPLOYMENT_FIELD, DElem.MONEROD_REMOTE,
+        self.register(DMod.OPS_MGR, Method.ADD_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.ops_mgr.add_deployment, MONEROD_REMOTE_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.MONEROD_REMOTE,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_deployment, MONEROD_REMOTE_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.MONEROD_REMOTE,
                       self.depl_mgr.post_job, WELCOME_PANE)
-        self.register(DMod.DEPLOYMENT_MGR, DELETE_DEPLOYMENT_FIELD, DElem.MONEROD_REMOTE,
+        self.register(DMod.DEPLOYMENT_MGR, Method.DELETE_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.depl_mgr.del_deployment, MONEROD_REMOTE_PANE)
         
 
         # MoneroD = Type: local or remote
-        self.register(DMod.PANE_MGR, SET_PANE_FIELD, DElem.P2POOL,
+        self.register(DMod.PANE_MGR, DField.SET_PANE, DElem.P2POOL,
                       self.pane_mgr.set_pane, P2POOL_TYPE_PANE)
 
         # P2Pool - local
-        self.register(DMod.OPS_MGR, GET_NEW_FIELD, DElem.P2POOL,
+        self.register(DMod.OPS_MGR, Method.GET_NEW, DElem.P2POOL,
                       self.ops_mgr.get_new, P2POOL_PANE)
-        self.register(DMod.OPS_MGR, ADD_DEPLOYMENT_FIELD, DElem.P2POOL,
+        self.register(DMod.OPS_MGR, Method.ADD_DEPLOYMENT, DElem.P2POOL,
                       self.ops_mgr.add_deployment, P2POOL_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.P2POOL,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.P2POOL,
                       self.ops_mgr.get_deployment, P2POOL_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.P2POOL,
                       self.depl_mgr.post_job, WELCOME_PANE)
-        self.register(DMod.DEPLOYMENT_MGR, DELETE_DEPLOYMENT_FIELD, DElem.P2POOL,
+        self.register(DMod.DEPLOYMENT_MGR, Method.DELETE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_mgr.del_deployment, P2POOL_PANE)
 
         # P2Pool - remote
-        self.register(DMod.OPS_MGR, GET_NEW_FIELD, DElem.P2POOL_REMOTE,
+        self.register(DMod.OPS_MGR, Method.GET_NEW, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_new, P2POOL_REMOTE_PANE)
-        self.register(DMod.OPS_MGR, ADD_DEPLOYMENT_FIELD, DElem.P2POOL_REMOTE,
+        self.register(DMod.OPS_MGR, Method.ADD_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.ops_mgr.add_deployment, P2POOL_REMOTE_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.P2POOL_REMOTE,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_deployment, P2POOL_REMOTE_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.P2POOL_REMOTE,
                       self.depl_mgr.post_job, WELCOME_PANE)
-        self.register(DMod.DEPLOYMENT_MGR, DELETE_DEPLOYMENT_FIELD, DElem.P2POOL_REMOTE,
+        self.register(DMod.DEPLOYMENT_MGR, Method.DELETE_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.depl_mgr.del_deployment, P2POOL_REMOTE_PANE)
 
         # XMRig
-        self.register(DMod.OPS_MGR, GET_NEW_FIELD, DElem.XMRIG,
+        self.register(DMod.OPS_MGR, Method.GET_NEW, DElem.XMRIG,
                       self.ops_mgr.get_new, XMRIG_PANE)
-        self.register(DMod.OPS_MGR, ADD_DEPLOYMENT_FIELD, DElem.XMRIG,
+        self.register(DMod.OPS_MGR, Method.ADD_DEPLOYMENT, DElem.XMRIG,
                       self.ops_mgr.add_deployment, XMRIG_PANE)
-        self.register(DMod.OPS_MGR, GET_REC_FIELD, DElem.XMRIG,
+        self.register(DMod.OPS_MGR, Method.GET_REC, DElem.XMRIG,
                       self.ops_mgr.get_deployment, XMRIG_PANE)
         self.register(DMod.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.XMRIG,
                       self.depl_mgr.post_job, WELCOME_PANE)
-        self.register(DMod.DEPLOYMENT_MGR, DELETE_DEPLOYMENT_FIELD, DElem.XMRIG,
+        self.register(DMod.DEPLOYMENT_MGR, Method.DELETE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_mgr.del_deployment, XMRIG_PANE)
 
         # Log Viewer
-        self.register(DMod.OPS_MGR, LOG_VIEWER_FIELD, DElem.MONEROD,
+        self.register(DMod.OPS_MGR, Method.LOG_VIEWER, DElem.MONEROD,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
-        self.register(DMod.OPS_MGR, LOG_VIEWER_FIELD, DElem.P2POOL,
+        self.register(DMod.OPS_MGR, Method.LOG_VIEWER, DElem.P2POOL,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
-        self.register(DMod.OPS_MGR, LOG_VIEWER_FIELD, DElem.XMRIG,
+        self.register(DMod.OPS_MGR, Method.LOG_VIEWER, DElem.XMRIG,
                       self.ops_mgr.log_viewer, LOG_VIEW_PANE)
 
         # Plots
-        self.register(DMod.OPS_MGR, PLOT_FIELD, CHAIN_FIELD,
+        self.register(DMod.OPS_MGR, Method.PLOT, DField.CHAIN,
                       self.ops_mgr.plot, PLOT_VIEW_PANE)
 
         # TUI Log
-        self.register(DMod.OPS_MGR, GET_TUI_LOG_FIELD, TUI_LOG_FIELD,
+        self.register(DMod.OPS_MGR, Method.GET_TUI_LOG, DField.TUI_LOG,
                       self.ops_mgr.get_tui_log, TUI_LOG_PANE)
 
         # Donations
-        self.register(DMod.PANE_MGR, SET_PANE_FIELD, DONATIONS_FIELD,
+        self.register(DMod.PANE_MGR, Method.SET_PANE, DField.DONATIONS,
                       self.pane_mgr.set_pane, DONATIONS_PANE)
 
 

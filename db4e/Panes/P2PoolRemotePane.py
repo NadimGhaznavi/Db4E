@@ -17,10 +17,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
-from db4e.Constants.Fields import (
-    ADD_DEPLOYMENT_FIELD, OP_FIELD, NEW_FIELD, UPDATE_FIELD,
-    ELEMENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD)
-from db4e.Constants.Fields import DMod, DField, DElem
+from db4e.Constants.Fields import DMod, DField, DElem, Method
 from db4e.Constants.Buttons import (
     DELETE_BUTTON_FIELD, NEW_BUTTON_FIELD, BUTTON_ROW_FIELD, UPDATE_BUTTON_FIELD)
 from db4e.Constants.Jobs import DJob
@@ -91,13 +88,13 @@ class P2PoolRemotePane(Container):
         # Set update button or new button visibility, using the .tcss definitions
         if p2pool.instance():
             # This is an update operation
-            self.remove_class(NEW_FIELD)
-            self.add_class(UPDATE_FIELD)
+            self.remove_class(DField.NEW)
+            self.add_class(DField.UPDATE)
 
         else:
             # This is a new operation
-            self.remove_class(UPDATE_FIELD)
-            self.add_class(NEW_FIELD)
+            self.remove_class(DField.UPDATE)
+            self.add_class(DField.NEW)
         
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -110,29 +107,29 @@ class P2PoolRemotePane(Container):
         if button_id == NEW_BUTTON_FIELD:
             # No original instance, this is a new deployment
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             # There was an original instance, so this is an update            
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.UPDATE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: Method.POST_JOB,
+                DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.DELETE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: Method.POST_JOB,
+                DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
             
         self.app.post_message(Db4eMsg(self, form_data=form_data))

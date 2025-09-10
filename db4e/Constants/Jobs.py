@@ -10,7 +10,6 @@ db4e/Constants/Jobs.py
 
 from enum import StrEnum
 
-from db4e.Constants.Fields import ELEMENT_FIELD, INSTANCE_FIELD
 from db4e.Constants.Fields import DField
 
 class DJob(StrEnum):
@@ -19,17 +18,19 @@ class DJob(StrEnum):
     CREATED_AT = "created_at"
     DELETE = "delete"
     DISABLE = "disable"
-    ELEMENT = ELEMENT_FIELD
-    ELEMENT_TYPE = DField.ELEMENT_TYPE
+    ELEMENT = DField.ELEMENT.value
+    ELEMENT_TYPE = DField.ELEMENT_TYPE.value
     ENABLE = "enable"
-    INSTANCE = INSTANCE_FIELD
+    INSTANCE = DField.INSTANCE.value
     JOB_ID = "job_id"
     JOB_QUEUE = "job_queue"
     MESSAGE = DField.MESSAGE.value
     NEW = "new"
+    OBJECT_ID = DField.OBJECT_ID.value
     OP = "op"
     PENDING = "pending"
-    POST_JOB = "post_job"
+    POST_JOB = DField.POST_JOB.value
+    RETRY = "retry"
     PROCESSING = "processing"
     RESTART = "restart"
     SET_PRIMARY = "set_primary"

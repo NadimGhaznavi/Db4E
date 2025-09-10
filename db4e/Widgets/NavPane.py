@@ -27,12 +27,7 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.HealthMgr import HealthMgr
-from db4e.Constants.Fields import (
-    TUI_LOG_FIELD, DONATIONS_FIELD, CHAIN_FIELD, PLOT_FIELD, PLOT_TYPE_FIELD,
-    INSTANCE_FIELD, LOG_VIEWER_FIELD, GET_TUI_LOG_FIELD,
-    TO_METHOD_FIELD, TO_MODULE_FIELD, SET_PANE_FIELD, GET_NEW_FIELD, GET_REC_FIELD,
-    UNKNOWN_FIELD, NAME_FIELD)
-from db4e.Constants.Fields import Status, DElem, DMod, DField
+from db4e.Constants.Fields import Status, DElem, DMod, DField, Method
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Panes import (
     MONEROD_TYPE_PANE, P2POOL_TYPE_PANE, DONATIONS_PANE, XMRIG_PANE,
@@ -82,7 +77,6 @@ STATE_ICON = {
     Status.GOOD: '🟢',
     Status.WARN: '🟡',
     Status.ERROR: '🔴',
-    UNKNOWN_FIELD: '⚪',
 }
 
 
@@ -135,8 +129,8 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
-                    TO_MODULE_FIELD: DMod.INSTALL_MGR,
-                    TO_METHOD_FIELD: INITIAL_SETUP_PROCEED_FIELD,
+                    DField.TO_MODULE: DMod.INSTALL_MGR,
+                    DField.TO_METHOD: INITIAL_SETUP_PROCEED_FIELD,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -145,8 +139,8 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {DB4E}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
-                    TO_MODULE_FIELD: DMod.OPS_MGR,
-                    TO_METHOD_FIELD: GET_REC_FIELD,
+                    DField.TO_MODULE: DMod.OPS_MGR,
+                    DField.TO_METHOD: Method.GET_REC,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -154,9 +148,9 @@ class NavPane(Container):
             elif leaf_data == DLabel.TUI_LOG:
                 #print(f"NavPane:on_tree_node_selected(): {TUI_LOG}")
                 form_data = {
-                    DField.ELEMENT_TYPE: TUI_LOG_FIELD,
-                    TO_MODULE_FIELD: DMod.OPS_MGR,
-                    TO_METHOD_FIELD: GET_TUI_LOG_FIELD,
+                    DField.ELEMENT_TYPE: DField.TUI_LOG,
+                    DField.TO_MODULE: DMod.OPS_MGR,
+                    DField.TO_METHOD: Method.GET_TUI_LOG,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -164,9 +158,9 @@ class NavPane(Container):
             elif leaf_data == DLabel.DONATIONS:
                 #print(f"NavPane:on_tree_node_selected(): {DONATIONS}")
                 form_data = {
-                    DField.ELEMENT_TYPE: DONATIONS_FIELD,
-                    TO_MODULE_FIELD: DMod.PANE_MGR,
-                    TO_METHOD_FIELD: SET_PANE_FIELD,
+                    DField.ELEMENT_TYPE: DField.DONATIONS,
+                    DField.TO_MODULE: DMod.PANE_MGR,
+                    DField.TO_METHOD: Method.SET_PANE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -175,9 +169,9 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.MONEROD,
-                    TO_MODULE_FIELD: DMod.PANE_MGR,
-                    TO_METHOD_FIELD: SET_PANE_FIELD,
-                    NAME_FIELD: MONEROD_TYPE_PANE,
+                    DField.TO_MODULE: DMod.PANE_MGR,
+                    DField.TO_METHOD: Method.SET_PANE,
+                    DField.NAME: MONEROD_TYPE_PANE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -186,9 +180,9 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.P2POOL,
-                    TO_MODULE_FIELD: DMod.PANE_MGR,
-                    TO_METHOD_FIELD: SET_PANE_FIELD,
-                    NAME_FIELD: P2POOL_TYPE_PANE,
+                    DField.TO_MODULE: DMod.PANE_MGR,
+                    DField.TO_METHOD: Method.SET_PANE,
+                    DField.NAME: P2POOL_TYPE_PANE,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -197,8 +191,8 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.XMRIG,
-                    TO_MODULE_FIELD: DMod.OPS_MGR,
-                    TO_METHOD_FIELD: GET_NEW_FIELD,
+                    DField.TO_MODULE: DMod.OPS_MGR,
+                    DField.TO_METHOD: Method.GET_NEW,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -215,24 +209,24 @@ class NavPane(Container):
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: LOG_VIEWER_FIELD,
-                            INSTANCE_FIELD: parent_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.LOG_VIEWER,
+                            DField.INSTANCE: parent_data
                         }
 
                     elif monerod.remote():
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: leaf_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.GET_REC,
+                            DField.INSTANCE: leaf_data
                         }
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: leaf_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.GET_REC,
+                            DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -246,24 +240,24 @@ class NavPane(Container):
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: LOG_VIEWER_FIELD,
-                            INSTANCE_FIELD: parent_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.LOG_VIEWER,
+                            DField.INSTANCE: parent_data
                         }
                         
                     elif p2pool.remote():
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: leaf_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.GET_REC,
+                            DField.INSTANCE: leaf_data
                         }
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: leaf_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.GET_REC,
+                            DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -273,17 +267,17 @@ class NavPane(Container):
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.XMRIG,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: LOG_VIEWER_FIELD,
-                            INSTANCE_FIELD: parent_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.LOG_VIEWER,
+                            DField.INSTANCE: parent_data
                         }
                         
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.XMRIG,
-                            TO_MODULE_FIELD: DMod.OPS_MGR,
-                            TO_METHOD_FIELD: GET_REC_FIELD,
-                            INSTANCE_FIELD: leaf_data
+                            DField.TO_MODULE: DMod.OPS_MGR,
+                            DField.TO_METHOD: Method.GET_REC,
+                            DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -291,11 +285,11 @@ class NavPane(Container):
                 chain = parent_data
                 metric = leaf_data
                 form_data = {
-                    DField.ELEMENT_TYPE: CHAIN_FIELD,
-                    TO_MODULE_FIELD: DMod.OPS_MGR,
-                    TO_METHOD_FIELD: PLOT_FIELD,
-                    CHAIN_FIELD: chain,
-                    PLOT_TYPE_FIELD: metric
+                    DField.ELEMENT_TYPE: CHAIN,
+                    DField.TO_MODULE: DMod.OPS_MGR,
+                    DField.TO_METHOD: Method.PLOT,
+                    CHAIN: chain,
+                    DField.PLOT_TYPE: metric
                 }
 
 

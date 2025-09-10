@@ -14,10 +14,7 @@ from textual.widgets import Button, Label, MarkdownViewer, RadioButton, RadioSet
 
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Form import Form
-from db4e.Constants.Fields import (
-    GET_NEW_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    REMOTE_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD, RADIO_SET_FIELD)
-from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Fields import DField, DMod, DElem, Method
 from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD)
 from db4e.Messages.Db4eMsg import Db4eMsg
 
@@ -38,9 +35,9 @@ class MoneroDTypePane(Container):
                 
                 Vertical(
                     RadioSet(
-                        RadioButton("Local " + DLabel.MONEROD, classes=RADIO_BUTTON_TYPE_FIELD, value=True),
-                        RadioButton(DLabel.MONEROD_REMOTE, id="remote", classes=RADIO_BUTTON_TYPE_FIELD),
-                        id="type_radioset", classes=RADIO_SET_FIELD,
+                        RadioButton("Local " + DLabel.MONEROD, classes=Form.RADIO_BUTTON_TYPE, value=True),
+                        RadioButton(DLabel.MONEROD_REMOTE, id="remote", classes=Form.RADIO_BUTTON_TYPE),
+                        id="type_radioset", classes=Form.RADIO_SET,
                         )),
 
                 Button(label=DLabel.PROCEED, id=PROCEED_BUTTON_FIELD)),
@@ -49,18 +46,18 @@ class MoneroDTypePane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
-        if selected.id == REMOTE_FIELD:
+        if selected.id == DField.REMOTE:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: GET_NEW_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                REMOTE_FIELD: True
+                DField.REMOTE: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: GET_NEW_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
-                REMOTE_FIELD: False
+                DField.REMOTE: False
             }
         self.app.post_message(Db4eMsg(self, form_data))

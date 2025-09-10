@@ -16,12 +16,7 @@ from textual.reactive import reactive
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import (
-    RADIO_SET_FIELD, UPDATE_FIELD, OP_FIELD,
-    NEW_FIELD, DISABLE_FIELD, ENABLE_FIELD, RADIO_BUTTON_TYPE_FIELD,
-    ELEMENT_FIELD, TO_METHOD_FIELD, TO_MODULE_FIELD,
-    ADD_DEPLOYMENT_FIELD)
-from db4e.Constants.Fields import DElem, DField, DMod
+from db4e.Constants.Fields import DElem, DField, DMod, Method
 from db4e.Constants.Form import Form
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Buttons import (
@@ -34,10 +29,10 @@ class P2PoolPane(Container):
 
     instance_label = Label("", id="instance_label",classes=Form.STATIC)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=RADIO_SET_FIELD)
+    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET)
     instance_map = {}
 
-    chain_radio_set = RadioSet(id="chain_radio_set", classes=RADIO_SET_FIELD)
+    chain_radio_set = RadioSet(id="chain_radio_set", classes=Form.RADIO_SET)
 
     config_label = Label("", classes=Form.STATIC)
     instance_input = Input(
@@ -155,7 +150,7 @@ class P2PoolPane(Container):
         for child in list(self.chain_radio_set.children):
             child.remove()
         for chain in ['mainchain', 'minisidechain', 'nanosidechain']:
-            radio_button = RadioButton(chain, classes=RADIO_BUTTON_TYPE_FIELD)
+            radio_button = RadioButton(chain, classes=Form.RADIO_BUTTON_TYPE)
             if p2pool.chain() == chain:
                 radio_button.value = True
             self.chain_radio_set.mount(radio_button)
@@ -163,19 +158,19 @@ class P2PoolPane(Container):
         # Configure button visibility
         if p2pool.instance():
             # This is an update operation
-            self.remove_class(NEW_FIELD)
-            self.add_class(UPDATE_FIELD)
+            self.remove_class(DField.NEW)
+            self.add_class(DField.UPDATE)
 
             if p2pool.enabled():
-                self.remove_class(DISABLE_FIELD)
-                self.add_class(ENABLE_FIELD)
+                self.remove_class(DField.DISABLE)
+                self.add_class(DField.ENABLE)
             else:
-                self.remove_class(ENABLE_FIELD)
-                self.add_class(DISABLE_FIELD)
+                self.remove_class(DField.ENABLE)
+                self.add_class(DField.DISABLE)
         else:
             # This is a new operation
-            self.remove_class(UPDATE_FIELD)
-            self.add_class(NEW_FIELD)
+            self.remove_class(DField.UPDATE)
+            self.add_class(DField.NEW)
 
         self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))                    
 
@@ -206,46 +201,46 @@ class P2PoolPane(Container):
 
         if button_id == NEW_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: ADD_DEPLOYMENT_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == UPDATE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.UPDATE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: Method.POST_JOB,
+                DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == ENABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.ENABLE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DISABLE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.DISABLE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DELETE_BUTTON_FIELD:
             form_data = {
-                TO_MODULE_FIELD: DMod.DEPLOYMENT_MGR,
-                TO_METHOD_FIELD: DJob.POST_JOB,
-                OP_FIELD: DJob.DELETE,
+                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DJob.POST_JOB,
+                DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
-                ELEMENT_FIELD: self.p2pool,
+                DField.ELEMENT: self.p2pool,
             }            
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
@@ -255,7 +250,7 @@ class P2PoolPane(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=RADIO_BUTTON_TYPE_FIELD)
+            radio_button = RadioButton(instance, classes=Form.RADIO_BUTTON_TYPE)
             if self.p2pool.parent() == self.instance_map[instance]:
                 radio_button.value = True
             self.radio_set.mount(radio_button)

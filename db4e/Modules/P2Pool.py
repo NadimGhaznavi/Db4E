@@ -19,11 +19,6 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
     P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
-from db4e.Constants.Fields import(
-    ANY_IP_FIELD, IN_PEERS_FIELD, CHAIN_FIELD,
-    INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    STRATUM_PORT_FIELD, VERSION_FIELD, IP_ADDR_FIELD, PARENT_FIELD,
-    LOG_FILE_FIELD, STDIN_FIELD)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Defaults import(
@@ -40,39 +35,39 @@ class P2Pool(LocalSoftwareSystem):
         self._elem_type = DElem.P2POOL
         self.name = DLabel.P2POOL
 
-        self.add_component(ANY_IP_FIELD, AnyIP())
-        self.add_component(CHAIN_FIELD, Chain())
+        self.add_component(DField.ANY_IP, AnyIP())
+        self.add_component(DField.CHAIN, Chain())
         self.add_component(DField.CONFIG_FILE, ConfigFile())
-        self.add_component(IN_PEERS_FIELD, InPeers())
-        self.add_component(INSTANCE_FIELD, Instance())
-        self.add_component(IP_ADDR_FIELD, IpAddr())
-        self.add_component(LOG_FILE_FIELD, LogFile())
-        self.add_component(REMOTE_FIELD, Local())
-        self.add_component(LOG_LEVEL_FIELD, LogLevel())
-        self.add_component(OUT_PEERS_FIELD, OutPeers())
-        self.add_component(P2P_BIND_PORT_FIELD, P2PBindPort())
-        self.add_component(PARENT_FIELD, Parent())
-        self.add_component(STDIN_FIELD, Stdin())
-        self.add_component(STRATUM_PORT_FIELD, StratumPort())
+        self.add_component(DField.IN_PEERS, InPeers())
+        self.add_component(DField.INSTANCE, Instance())
+        self.add_component(DField.IP_ADDR, IpAddr())
+        self.add_component(DField.LOG_FILE, LogFile())
+        self.add_component(DField.REMOTE, Local())
+        self.add_component(DField.LOG_LEVEL, LogLevel())
+        self.add_component(DField.OUT_PEERS, OutPeers())
+        self.add_component(DField.P2P_BIND_PORT, P2PBindPort())
+        self.add_component(DField.PARENT, Parent())
+        self.add_component(DField.STDIN, Stdin())
+        self.add_component(DField.STRATUM_PORT, StratumPort())
         self.add_component(DField.USER_WALLET, UserWallet())
-        self.add_component(VERSION_FIELD, Version())
+        self.add_component(DField.VERSION, Version())
 
-        self.any_ip = self.components[ANY_IP_FIELD]
-        self.chain = self.components[CHAIN_FIELD]
+        self.any_ip = self.components[DField.ANY_IP]
+        self.chain = self.components[DField.CHAIN]
         self.config_file = self.components[DField.CONFIG_FILE]
-        self.in_peers = self.components[IN_PEERS_FIELD]
-        self.instance = self.components[INSTANCE_FIELD]
-        self.ip_addr = self.components[IP_ADDR_FIELD]
-        self.log_file = self.components[LOG_FILE_FIELD]
-        self.remote = self.components[REMOTE_FIELD]
-        self.log_level = self.components[LOG_LEVEL_FIELD]
-        self.out_peers = self.components[OUT_PEERS_FIELD]
-        self.p2p_bind_port = self.components[P2P_BIND_PORT_FIELD]
-        self.parent = self.components[PARENT_FIELD]
-        self.stratum_port = self.components[STRATUM_PORT_FIELD]
-        self.stdin = self.components[STDIN_FIELD]
+        self.in_peers = self.components[DField.IN_PEERS]
+        self.instance = self.components[DField.INSTANCE]
+        self.ip_addr = self.components[DField.IP_ADDR]
+        self.log_file = self.components[DField.LOG_FILE]
+        self.remote = self.components[DField.REMOTE]
+        self.log_level = self.components[DField.LOG_LEVEL]
+        self.out_peers = self.components[DField.OUT_PEERS]
+        self.p2p_bind_port = self.components[DField.P2P_BIND_PORT]
+        self.parent = self.components[DField.PARENT]
+        self.stratum_port = self.components[DField.STRATUM_PORT]
+        self.stdin = self.components[DField.STDIN]
         self.user_wallet = self.components[DField.USER_WALLET]
-        self.version = self.components[VERSION_FIELD]
+        self.version = self.components[DField.VERSION]
         self.version(P2POOL_VERSION_DEFAULT)
         self._instance_map = {}
         self.monerod = None

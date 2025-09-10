@@ -28,8 +28,6 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import (
-    PYTHON_FIELD, ELEMENT_FIELD)
 from db4e.Constants.Fields import DDir, DElem, DFile, Status, DMod, DField
 from db4e.Constants.Defaults import (
     TEMPLATES_DIR_DEFAULT, XMRIG_VERSION_DEFAULT, MONEROD_VERSION_DEFAULT,
@@ -44,7 +42,7 @@ class Default:
     XMRIG_VERSION = XMRIG_VERSION_DEFAULT
     MONEROD_CONFIG = MONEROD_CONFIG_DEFAULT
     P2POOL_CONFIG = P2POOL_CONFIG_DEFAULT
-    PYTHON = PYTHON_FIELD
+    PYTHON = DField.PYTHON
     XMRIG_CONFIG = XMRIG_CONFIG_DEFAULT
 
 
@@ -444,7 +442,7 @@ class DeploymentMgr(Container):
         if aDir == DElem.DB4E:
             return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
         
-        elif aDir == PYTHON_FIELD:
+        elif aDir == DField.PYTHON:
             python = os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
                              DDir.BIN, Default.PYTHON))
@@ -529,7 +527,7 @@ class DeploymentMgr(Container):
 
     def post_job(self, job_info):
         job = Job(op=job_info[DJob.OP], elem_type=job_info[DField.ELEMENT_TYPE])
-        elem = job_info[ELEMENT_FIELD]
+        elem = job_info[DField.ELEMENT_FIELD]
         job.elem(elem)
         job.instance(elem.instance())
         self.job_queue.post_job(job)

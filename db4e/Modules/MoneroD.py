@@ -18,12 +18,6 @@ from db4e.Modules.Components import (
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
     PriorityPort1, PriorityPort2, IpAddr, Version, Stdin, PrimaryServer)
-from db4e.Constants.Fields import (
-    IN_PEERS_FIELD, INSTANCE_FIELD, REMOTE_FIELD, LOG_LEVEL_FIELD, LOG_FILE_FIELD,
-    MAX_LOG_FILES_FIELD, MAX_LOG_SIZE_FIELD, OUT_PEERS_FIELD, P2P_BIND_PORT_FIELD,
-    ZMQ_PUB_PORT_FIELD, ANY_IP_FIELD, ZMQ_RPC_PORT_FIELD, RPC_BIND_PORT_FIELD,
-    SHOW_TIME_STATS_FIELD, PRIORITY_NODE_1_FIELD, PRIORITY_NODE_2_FIELD, STDIN_FIELD,
-    PRIORITY_PORT_1_FIELD, PRIORITY_PORT_2_FIELD, IP_ADDR_FIELD, VERSION_FIELD)
 from db4e.Constants.Fields import DField, DElem
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Defaults import (
@@ -38,55 +32,55 @@ class MoneroD(LocalSoftwareSystem):
         self._elem_type = DElem.MONEROD
         self.name = DLabel.MONEROD
 
-        self.add_component(ANY_IP_FIELD, AnyIP())
+        self.add_component(DField.ANY_IP, AnyIP())
         self.add_component(DField.CONFIG_FILE, ConfigFile())
         self.add_component(DField.DATA_DIR, DataDir())
-        self.add_component(IN_PEERS_FIELD, InPeers())
-        self.add_component(INSTANCE_FIELD, Instance())
-        self.add_component(IP_ADDR_FIELD, IpAddr())
-        self.add_component(LOG_LEVEL_FIELD, LogLevel())
-        self.add_component(LOG_FILE_FIELD, LogFile())
-        self.add_component(MAX_LOG_FILES_FIELD, MaxLogFiles())
-        self.add_component(MAX_LOG_SIZE_FIELD, MaxLogSize())
-        self.add_component(OUT_PEERS_FIELD, OutPeers())
-        self.add_component(P2P_BIND_PORT_FIELD, P2PBindPort())
+        self.add_component(DField.IN_PEERS, InPeers())
+        self.add_component(DField.INSTANCE, Instance())
+        self.add_component(DField.IP_ADDR, IpAddr())
+        self.add_component(DField.LOG_LEVEL, LogLevel())
+        self.add_component(DField.LOG_FILE, LogFile())
+        self.add_component(DField.MAX_LOG_FILES, MaxLogFiles())
+        self.add_component(DField.MAX_LOG_SIZE, MaxLogSize())
+        self.add_component(DField.OUT_PEERS, OutPeers())
+        self.add_component(DField.P2P_BIND_PORT, P2PBindPort())
         self.add_component(DField.PRIMARY_SERVER, PrimaryServer())
-        self.add_component(PRIORITY_NODE_1_FIELD, PriorityNode1())
-        self.add_component(PRIORITY_PORT_1_FIELD, PriorityPort1())
-        self.add_component(PRIORITY_NODE_2_FIELD, PriorityNode2())
-        self.add_component(PRIORITY_PORT_2_FIELD, PriorityPort2())
-        self.add_component(REMOTE_FIELD, Local())
-        self.add_component(RPC_BIND_PORT_FIELD, RpcBindPort())
-        self.add_component(SHOW_TIME_STATS_FIELD, ShowTimeStats())
-        self.add_component(STDIN_FIELD, Stdin())
-        self.add_component(VERSION_FIELD, Version())
-        self.add_component(ZMQ_PUB_PORT_FIELD, ZmqPubPort())
-        self.add_component(ZMQ_RPC_PORT_FIELD, ZmqRpcPort())
+        self.add_component(DField.PRIORITY_NODE_1, PriorityNode1())
+        self.add_component(DField.PRIORITY_PORT_1, PriorityPort1())
+        self.add_component(DField.PRIORITY_NODE_2, PriorityNode2())
+        self.add_component(DField.PRIORITY_PORT_2, PriorityPort2())
+        self.add_component(DField.REMOTE, Local())
+        self.add_component(DField.RPC_BIND_PORT, RpcBindPort())
+        self.add_component(DField.SHOW_TIME_STATS, ShowTimeStats())
+        self.add_component(DField.STDIN, Stdin())
+        self.add_component(DField.VERSION, Version())
+        self.add_component(DField.ZMQ_PUB_PORT, ZmqPubPort())
+        self.add_component(DField.ZMQ_RPC_PORT, ZmqRpcPort())
         
-        self.any_ip = self.components[ANY_IP_FIELD]
+        self.any_ip = self.components[DField.ANY_IP]
         self.config_file = self.components[DField.CONFIG_FILE]
         self.data_dir = self.components[DField.DATA_DIR]
-        self.in_peers = self.components[IN_PEERS_FIELD]
-        self.instance = self.components[INSTANCE_FIELD]
-        self.ip_addr = self.components[IP_ADDR_FIELD]
-        self.log_level = self.components[LOG_LEVEL_FIELD]
-        self.log_file = self.components[LOG_FILE_FIELD]
-        self.max_log_files = self.components[MAX_LOG_FILES_FIELD]
-        self.max_log_size = self.components[MAX_LOG_SIZE_FIELD]
-        self.out_peers = self.components[OUT_PEERS_FIELD]
-        self.p2p_bind_port = self.components[P2P_BIND_PORT_FIELD]
+        self.in_peers = self.components[DField.IN_PEERS]
+        self.instance = self.components[DField.INSTANCE]
+        self.ip_addr = self.components[DField.IP_ADDR]
+        self.log_level = self.components[DField.LOG_LEVEL]
+        self.log_file = self.components[DField.LOG_FILE]
+        self.max_log_files = self.components[DField.MAX_LOG_FILES]
+        self.max_log_size = self.components[DField.MAX_LOG_SIZE]
+        self.out_peers = self.components[DField.OUT_PEERS]
+        self.p2p_bind_port = self.components[DField.P2P_BIND_PORT]
         self.primary_server = self.components[DField.PRIMARY_SERVER]
-        self.priority_node_1 = self.components[PRIORITY_NODE_1_FIELD]
-        self.priority_port_1 = self.components[PRIORITY_PORT_1_FIELD]
-        self.priority_node_2 = self.components[PRIORITY_NODE_2_FIELD]
-        self.priority_port_2 = self.components[PRIORITY_PORT_2_FIELD]   
-        self.remote = self.components[REMOTE_FIELD]
-        self.rpc_bind_port = self.components[RPC_BIND_PORT_FIELD]
-        self.show_time_stats = self.components[SHOW_TIME_STATS_FIELD]
-        self.stdin = self.components[STDIN_FIELD]
-        self.zmq_pub_port = self.components[ZMQ_PUB_PORT_FIELD]
-        self.zmq_rpc_port = self.components[ZMQ_RPC_PORT_FIELD]
-        self.version = self.components[VERSION_FIELD]
+        self.priority_node_1 = self.components[DField.PRIORITY_NODE_1]
+        self.priority_port_1 = self.components[DField.PRIORITY_PORT_1]
+        self.priority_node_2 = self.components[DField.PRIORITY_NODE_2]
+        self.priority_port_2 = self.components[DField.PRIORITY_PORT_2]   
+        self.remote = self.components[DField.REMOTE]
+        self.rpc_bind_port = self.components[DField.RPC_BIND_PORT]
+        self.show_time_stats = self.components[DField.SHOW_TIME_STATS]
+        self.stdin = self.components[DField.STDIN]
+        self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
+        self.zmq_rpc_port = self.components[DField.ZMQ_RPC_PORT]
+        self.version = self.components[DField.VERSION]
         self.version(MONEROD_VERSION_DEFAULT)
         
         if rec:

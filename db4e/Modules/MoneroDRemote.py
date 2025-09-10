@@ -13,9 +13,6 @@ Everything remote Monero Daemon
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
     Instance, Remote, RpcBindPort, IpAddr, ZmqPubPort, PrimaryServer)
-from db4e.Constants.Fields import (
-    INSTANCE_FIELD, REMOTE_FIELD, RPC_BIND_PORT_FIELD, 
-    IP_ADDR_FIELD, ZMQ_PUB_PORT_FIELD)
 from db4e.Constants.Labels import DLabel
 from db4e.Constants.Fields import DElem, DField
 
@@ -29,19 +26,19 @@ class MoneroDRemote(SoftwareSystem):
         self._elem_type = DElem.MONEROD_REMOTE
         self.name = DLabel.MONEROD_REMOTE
 
-        self.add_component(INSTANCE_FIELD, Instance())
-        self.add_component(REMOTE_FIELD, Remote())
-        self.add_component(RPC_BIND_PORT_FIELD, RpcBindPort())
-        self.add_component(IP_ADDR_FIELD, IpAddr())
-        self.add_component(DFiel.PRIMARY_SERVER, PrimaryServer())
-        self.add_component(ZMQ_PUB_PORT_FIELD, ZmqPubPort())
+        self.add_component(DField.INSTANCE, Instance())
+        self.add_component(DField.REMOTE, Remote())
+        self.add_component(DField.RPC_BIND_PORT, RpcBindPort())
+        self.add_component(DField.IP_ADDR, IpAddr())
+        self.add_component(DField.PRIMARY_SERVER, PrimaryServer())
+        self.add_component(DField.ZMQ_PUB_PORT, ZmqPubPort())
 
-        self.instance = self.components[INSTANCE_FIELD]
-        self.remote = self.components[REMOTE_FIELD]
-        self.rpc_bind_port = self.components[RPC_BIND_PORT_FIELD]
-        self.ip_addr = self.components[IP_ADDR_FIELD]
+        self.instance = self.components[DField.INSTANCE]
+        self.remote = self.components[DField.REMOTE]
+        self.rpc_bind_port = self.components[DField.RPC_BIND_PORT]
+        self.ip_addr = self.components[DField.IP_ADDR]
         self.primary_server = self.components[DField.PRIMARY_SERVER]
-        self.zmq_pub_port = self.components[ZMQ_PUB_PORT_FIELD]
+        self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
 
         if rec:
             self.from_rec(rec)

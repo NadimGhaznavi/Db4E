@@ -19,8 +19,6 @@ from rich.table import Table
 from textual.widgets import RadioSet, RadioButton
 
 from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Constants.Fields import(
-    REMOTE_FIELD, MESSAGE_FIELD, STATUS_FIELD)
 from db4e.Constants.Fields import Status, DField, DElem
 from db4e.Constants.Labels import DLabel
     
@@ -95,7 +93,7 @@ def get_remote_state(data):
     components = data.get(DField.COMPONENTS, [])
     
     for component in components:
-        if isinstance(component, dict) and component.get(DField.FIELD) == REMOTE_FIELD:
+        if isinstance(component, dict) and component.get(DField.FIELD) == DField.REMOTE:
             return component.get(DField.VALUE)
     
     return None
@@ -109,12 +107,12 @@ def gen_results_table(results):
 
     for item in results:
         for category, msg_dict in item.items():
-            message = msg_dict[MESSAGE_FIELD]
-            if msg_dict[STATUS_FIELD] == Status.GOOD:
+            message = msg_dict[DField.MESSAGE]
+            if msg_dict[DField.STATUS] == Status.GOOD:
                 table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict[STATUS_FIELD] == Status.WARN:
+            elif msg_dict[DField.STATUS] == Status.WARN:
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict[STATUS_FIELD] == Status.ERROR:
+            elif msg_dict[DField.STATUS] == Status.ERROR:
                 table.add_row(f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]")
     return table
 

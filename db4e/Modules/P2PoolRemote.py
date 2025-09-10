@@ -12,10 +12,7 @@ Everything P2Pool Remote
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (Instance, Remote, IpAddr, StratumPort)
-from db4e.Constants.Fields import(
-    INSTANCE_FIELD, REMOTE_FIELD, IP_ADDR_FIELD,
-    STRATUM_PORT_FIELD)
-from db4e.Constants.Fields import DElem
+from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Labels import DLabel
 
 
@@ -28,15 +25,15 @@ class P2PoolRemote(SoftwareSystem):
         self._elem_type = DElem.P2POOL_REMOTE
         self.name = DLabel.P2POOL_REMOTE
 
-        self.add_component(INSTANCE_FIELD, Instance())
-        self.add_component(IP_ADDR_FIELD, IpAddr())
-        self.add_component(REMOTE_FIELD, Remote())
-        self.add_component(STRATUM_PORT_FIELD, StratumPort())
+        self.add_component(DField.INSTANCE, Instance())
+        self.add_component(DField.IP_ADDR, IpAddr())
+        self.add_component(DField.REMOTE, Remote())
+        self.add_component(DField.STRATUM_PORT, StratumPort())
 
-        self.instance = self.components[INSTANCE_FIELD]
-        self.ip_addr = self.components[IP_ADDR_FIELD]
-        self.remote = self.components[REMOTE_FIELD]
-        self.stratum_port = self.components[STRATUM_PORT_FIELD]
+        self.instance = self.components[DField.INSTANCE]
+        self.ip_addr = self.components[DField.IP_ADDR]
+        self.remote = self.components[DField.REMOTE]
+        self.stratum_port = self.components[DField.STRATUM_PORT]
 
         if rec:
             self.from_rec(rec)

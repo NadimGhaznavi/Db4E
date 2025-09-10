@@ -24,7 +24,6 @@ from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.Helper import result_row, get_effective_identity, update_component_values
-from db4e.Constants.Fields import (ELEMENT_FIELD)
 from db4e.Constants.Fields import DDir, Status, DElem
 from db4e.Constants.SystemdTemplates import (
     DB4E_USER_PLACEHOLDER, DB4E_GROUP_PLACEHOLDER, DB4E_DIR_PLACEHOLDER,
@@ -42,6 +41,7 @@ from db4e.Constants.Defaults import (
     XMRIG_SERVICE_FILE_DEFAULT, MONEROD_SOCKET_SERVICE_DEFAULT, 
     TEMPLATES_DIR_DEFAULT, P2POOL_SERVICE_SOCKET_FILE_DEFAULT, 
     DB4E_INITIAL_SETUP_SCRIPT_DEFAULT)
+from db4e.Constants.Fields import DField
 from db4e.Constants.SystemdTemplates import DB4E_DIR_PLACEHOLDER
 
 # The Mongo collection that houses the deployment records
@@ -65,7 +65,7 @@ class InstallMgr(Container):
         abort_install = False
 
         # This is the data from the form on the InitialSetup pane
-        db4e = form_data[ELEMENT_FIELD]
+        db4e = form_data[DField.ELEMENT]
         db4e.pop_msgs()
         user_wallet = db4e.user_wallet()
         vendor_dir = db4e.vendor_dir()

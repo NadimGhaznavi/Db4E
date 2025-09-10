@@ -13,9 +13,7 @@ import threading, time
 
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Constants.Fields import (
-    INSTANCE_FIELD, HASH_FIELD)
-from db4e.Constants.Fields import DElem
+from db4e.Constants.Fields import DElem, DField
 
 MONERODS = "monerods"
 P2POOLS = "p2pools"
@@ -84,17 +82,17 @@ class HealthCache:
             new_hash = self.hash_unit(elem)
             if instance in old_map:
                 old_entry = old_map[instance]
-                if old_entry[HASH_FIELD] != new_hash or force_refresh:
+                if old_entry[DField.HASH] != new_hash or force_refresh:
                     elem = self.health_mgr.check(elem)
                 else:
-                    elem = old_entry[INSTANCE_FIELD]
+                    elem = old_entry[DField.INSTANCE]
                     
             else:
                 elem = self.health_mgr.check(elem)
 
             new_map[instance] = {
-                HASH_FIELD: new_hash,
-                INSTANCE_FIELD: elem,
+                DField.HASH: new_hash,
+                DField.INSTANCE: elem,
             }
 
             new_list.append(elem)

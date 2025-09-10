@@ -12,9 +12,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import (
-    REMOTE_FIELD, TO_MODULE_FIELD, TO_METHOD_FIELD, GET_NEW_FIELD)
-from db4e.Constants.Fields import DField, DMod, DElem
+from db4e.Constants.Fields import DField, DMod, DElem, Method
 from db4e.Constants.Buttons import (PROCEED_BUTTON_FIELD)
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.Form import Form
@@ -50,17 +48,17 @@ class P2PoolTypePane(Container):
         selected = radio_set.pressed_button
         if selected and selected.id == "remote":
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: GET_NEW_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                REMOTE_FIELD: True
+                DField.REMOTE: True
             }
         else:
             form_data = {
-                TO_MODULE_FIELD: DMod.OPS_MGR,
-                TO_METHOD_FIELD: GET_NEW_FIELD,
+                DField.TO_MODULE: DMod.OPS_MGR,
+                DField.TO_METHOD: Method.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                REMOTE_FIELD: False
+                DField.REMOTE: False
             }
 
 

@@ -17,8 +17,6 @@ from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.P2Pool import P2Pool
 
-from db4e.Constants.Fields import (
-    INSTANCE_FIELD, ELEMENT_FIELD)
 from db4e.Constants.Fields import DElem, DField
 from db4e.Constants.Defaults import (DEPLOYMENT_COL_DEFAULT)
 
@@ -37,7 +35,7 @@ class OpsMgr:
 
     def add_deployment(self, form_data: dict):
         #print(f"OpsMgr:add_deployment(): {elem_type}")
-        elem = form_data[ELEMENT_FIELD]
+        elem = form_data[DField.ELEMENT]
         #print(f"OpsMgr:add_deployment(): {elem.to_rec()}")
         
         # TODO Make sure the remote monerod and monerod records don't share an instance name.
@@ -49,8 +47,8 @@ class OpsMgr:
    
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
-            if INSTANCE_FIELD in elem_type:
-                instance = elem_type[INSTANCE_FIELD]
+            if DField.INSTANCE_FIELD in elem_type:
+                instance = elem_type[DField.INSTANCE_FIELD]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
@@ -103,7 +101,7 @@ class OpsMgr:
 
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]
-        instance = form_data[INSTANCE_FIELD]
+        instance = form_data[DField.INSTANCE_FIELD]
         elem = self.depl_mgr.get_deployment(
             elem_type=elem_type, instance=instance)
         return elem
@@ -116,7 +114,7 @@ class OpsMgr:
     def update_deployment(self, data: dict):
         print(f"OpsMgr:update_deployment(): {data}")
 
-        elem = data[ELEMENT_FIELD]
+        elem = data[DField.ELEMENT]
         self.depl_mgr.update_deployment(elem)
         self.health_mgr.check(elem)
         return elem

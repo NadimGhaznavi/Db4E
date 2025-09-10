@@ -12,10 +12,7 @@ Defines operations that are common to all SoftareSystems instances.
 This is a virtual class.
 """
 
-from db4e.Constants.Fields import SOFTWARE_SYSTEM_FIELD
 from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import (
-    LABEL_FIELD, NAME_FIELD, OBJECT_ID_FIELD, INSTANCE_FIELD)
 from db4e.Constants.Fields import DField, Status
 from db4e.Constants.Jobs import DJob
 
@@ -24,7 +21,7 @@ class SoftwareSystem:
     
 
     def __init__(self):
-        self._elem_type = SOFTWARE_SYSTEM_FIELD
+        self._elem_type = DField.SOFTWARE_SYSTEM
         self.name = DLabel.SOFTWARE_SYSTEM
         self._object_id = None
         self.components = {}
@@ -32,8 +29,8 @@ class SoftwareSystem:
 
 
     def __repr__(self):
-        if INSTANCE_FIELD in self.components:
-            return f"{type(self).__name__}({self.components[INSTANCE_FIELD].value})"
+        if DField.INSTANCE in self.components:
+            return f"{type(self).__name__}({self.components[DField.INSTANCE].value})"
         return f"{type(self).__name__}"
 
 
@@ -58,7 +55,7 @@ class SoftwareSystem:
             else:
                 print(f"SoftwareSystem:from_rec(): rec: {rec}")
                 raise ValueError(f"SoftwareSystem:from_rec(): {rec[DField.ELEMENT_TYPE]} - Unknown component field: {field_name}")
-        self._object_id = rec[OBJECT_ID_FIELD]
+        self._object_id = rec[DField.OBJECT_ID]
         self._elem_type = rec[DField.ELEMENT_TYPE]
 
 
@@ -96,15 +93,15 @@ class SoftwareSystem:
 
     def to_rec(self) -> dict:
         rec = {
-            OBJECT_ID_FIELD: self.id(),
-            NAME_FIELD: self.name,
+            DField.OBJECT_ID: self.id(),
+            DField.NAME: self.name,
             DField.ELEMENT_TYPE: self.elem_type(),
             DField.COMPONENTS: [],
         }
         for component in self.components.keys():
             rec[DField.COMPONENTS].append({
                 DField.FIELD: component,
-                LABEL_FIELD: self.components[component].label,
+                DField.LABEL: self.components[component].label,
                 DField.VALUE: self.components[component].value
             })
 
