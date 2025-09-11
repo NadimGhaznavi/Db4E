@@ -16,49 +16,46 @@ from textual.reactive import reactive
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import DElem, DField, DMod, Method
-from db4e.Constants.Form import Form
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Buttons import DButton
-from db4e.Constants.Jobs import DJob
+from db4e.Constants import DElem, DField, DModule, DMethod, DForm, DLabel, DButton, DJob
+
 
 
 class P2PoolPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
+    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
+    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
     instance_map = {}
 
-    chain_radio_set = RadioSet(id="chain_radio_set", classes=Form.RADIO_SET.value)
+    chain_radio_set = RadioSet(id="chain_radio_set", classes=DForm.RADIO_SET)
 
-    config_label = Label("", classes=Form.STATIC.value)
+    config_label = Label("", classes=DForm.STATIC)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
 
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
-    disable_button = Button(label=DLabel.DISABLE.value, id=DButton.DISABLE.value)
-    enable_button = Button(label=DLabel.ENABLE.value, id=DButton.ENABLE.value)
-    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
-    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     p2pool = None
 
 
@@ -70,31 +67,31 @@ class P2PoolPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.IN_PEERS, classes=DForm.FORM_LABEL),
                         self.in_peers_input),
                     Horizontal(
-                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.OUT_PEERS, classes=DForm.FORM_LABEL),
                         self.out_peers_input),
                     Horizontal(
-                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.P2P_BIND_PORT, classes=DForm.FORM_LABEL),
                         self.p2p_bind_port_input),
                     Horizontal(
-                        Label(DLabel.STRATUM_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL),
                         self.stratum_port_input),
                     Horizontal(
-                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.LOG_LEVEL, classes=DForm.FORM_LABEL),
                         self.log_level_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
-                    classes=Form.FORM_7, id=Form.PANE_BOX.value),
+                    classes=DForm.FORM_7, id=DForm.PANE_BOX),
                     
                 Vertical(
                     self.chain_radio_set),
@@ -104,7 +101,7 @@ class P2PoolPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX.value,
+                    classes=DForm.HEALTH_BOX,
                 ),
 
                 Vertical(
@@ -114,9 +111,9 @@ class P2PoolPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW.value))),
+                        classes=DForm.BUTTON_ROW))),
                 
-            classes=Form.PANE_BOX.value)
+            classes=DForm.PANE_BOX)
 
 
     def on_mount(self):
@@ -148,7 +145,7 @@ class P2PoolPane(Container):
         for child in list(self.chain_radio_set.children):
             child.remove()
         for chain in ['mainchain', 'minisidechain', 'nanosidechain']:
-            radio_button = RadioButton(chain, classes=Form.RADIO_BUTTON_TYPE)
+            radio_button = RadioButton(chain, classes=DForm.RADIO_BUTTON_TYPE)
             if p2pool.chain() == chain:
                 radio_button.value = True
             self.chain_radio_set.mount(radio_button)
@@ -199,16 +196,16 @@ class P2PoolPane(Container):
 
         if button_id == DButton.NEW:
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
@@ -216,8 +213,8 @@ class P2PoolPane(Container):
 
         elif button_id == DButton.ENABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
@@ -225,8 +222,8 @@ class P2PoolPane(Container):
 
         elif button_id == DButton.DISABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
@@ -234,8 +231,8 @@ class P2PoolPane(Container):
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DJob.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
@@ -248,7 +245,7 @@ class P2PoolPane(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=Form.RADIO_BUTTON_TYPE)
+            radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
             if self.p2pool.parent() == self.instance_map[instance]:
                 radio_button.value = True
             self.radio_set.mount(radio_button)

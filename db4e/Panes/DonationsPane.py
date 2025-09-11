@@ -11,9 +11,7 @@ db4e/Panes/DonationsPane.py
 from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Button
 
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Form import Form
+from db4e.Constants import DLabel, DDef, DForm
 
 color = "#9cae41"
 hi = "#d7e556"
@@ -33,9 +31,9 @@ class DonationsPane(Container):
                     Label(f"[cyan]{DLabel.DB4E_LONG}[/] project Monero donation wallet:"),
                     Label(f"[{hi}]{DDef.DONATION_WALLET}[/]"), 
                     Label(),
-                    Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes=Form.PANE_BOX.value),
-                    classes=Form.INFO_MSG.value)),
-            classes=Form.PANE_BOX)
+                    Label('Coming Soon: 🚧 [cyan]Paypal[/] 🚧', classes=DForm.PANE_BOX),
+                    classes=DForm.INFO_MSG)),
+            classes=DForm.PANE_BOX)
                     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         pass

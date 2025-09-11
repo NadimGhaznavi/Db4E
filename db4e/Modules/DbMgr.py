@@ -1,5 +1,5 @@
 """
-db4e/Modules/DbManager.py
+db4e/Modules/DbMgr.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -15,11 +15,10 @@ from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import (
     ConnectionFailure, CollectionInvalid, ServerSelectionTimeoutError)
 
-from db4e.Modules.XMRig import XMRig
-from db4e.Modules.Db4E import Db4E
-from db4e.Constants.Fields import DMod, DField, DElem
-from db4e.Constants.Jobs import DJob
-from db4e.Constants.Defaults import DDef
+from db4e.Modules import Db4E
+from db4e.Constants import DField, DElem, DDef, DJob
+
+
 
 def as_worker(method):
     def wrapper(self, *args, use_worker=True, **kwargs):
@@ -37,19 +36,19 @@ class DbMgr:
         self.db4e = None
         self._client = None
         # MongoDB settings
-        retry_timeout      = DDef.DB_RETRY_TIMEOUT.value
-        db_server          = DDef.DB_SERVER.value
-        db_port            = DDef.DB_PORT.value
+        retry_timeout      = DDef.DB_RETRY_TIMEOUT
+        db_server          = DDef.DB_SERVER
+        db_port            = DDef.DB_PORT
 
-        self.max_backups   = DDef.MAX_BACKUPS.value
-        self.db_name       = DDef.DB_NAME.value
-        self.db_col        = DDef.MINING_COL.value
-        self.depl_col      = DDef.DEPLOYMENT_COL.value
-        self.log_col       = DDef.LOG_COLLECTION.value
-        self.log_retention = DDef.LOG_RETENTION_DAYS.value
-        self.metrics_col   = DDef.METRICS_COLLECTION.value
-        self.ops_col       = DDef.OPS_COL.value
-        self.tmpl_col      = DDef.TEMPLATES_COLLECTION.value
+        self.max_backups   = DDef.MAX_BACKUPS
+        self.db_name       = DDef.DB_NAME
+        self.db_col        = DDef.MINING_COL
+        self.depl_col      = DDef.DEPLOYMENT_COL
+        self.log_col       = DDef.LOG_COLLECTION
+        self.log_retention = DDef.LOG_RETENTION_DAYS
+        self.metrics_col   = DDef.METRICS_COLLECTION
+        self.ops_col       = DDef.OPS_COL
+        self.tmpl_col      = DDef.TEMPLATES_COLLECTION
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'
@@ -160,7 +159,7 @@ class DbMgr:
                     pass
         self.ensure_indexes()
         db4e_rec = self.find_one(
-            col_name=depl_col, filter={DField.ELEMENT_TYPE.value: DElem.DB4E.value})
+            col_name=depl_col, filter={DField.ELEMENT_TYPE: DElem.DB4E})
 
         # Make sure there's a Db4E deployment record for Db4E
         if not db4e_rec:
@@ -175,7 +174,7 @@ class DbMgr:
     def insert_one(self, col_name, jdoc, use_worker=True):
         elem_type = ""
         if DField.ELEMENT_TYPE in jdoc:
-            elem_type = jdoc[DField.ELEMENT_TYPE.value]
+            elem_type = jdoc[DField.ELEMENT_TYPE]
         #print(f"DbMgr:insert_one(): collection: {col_name}, element type: {elem_type}")
         col = self.get_collection(col_name)
         jdoc.pop("_id", None)
@@ -197,7 +196,7 @@ class DbMgr:
     def update_one(self, col_name, filter, new_values, use_worker=True):
         elem_type = ""
         if DField.ELEMENT_TYPE in new_values:
-            elem_type = new_values[DField.ELEMENT_TYPE.value]
+            elem_type = new_values[DField.ELEMENT_TYPE]
         #print(f"DbMgr:update_one(): collection: {col_name}, filter: {filter}, type:{elem_type}")
         collection = self.get_collection(col_name)
         new_values.pop("_id", None)

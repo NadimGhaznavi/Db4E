@@ -1,5 +1,5 @@
 """
-db4e/Modules/Monerod.py
+db4e/Modules/MoneroD.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -18,9 +18,7 @@ from db4e.Modules.Components import (
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
     PriorityPort1, PriorityPort2, IpAddr, Version, Stdin, PrimaryServer)
-from db4e.Constants.Fields import DField, DElem
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import DDef
+from db4e.Constants import DField, DElem, DLabel, DDef
 
 
 class MoneroD(LocalSoftwareSystem):

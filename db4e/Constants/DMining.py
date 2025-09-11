@@ -1,5 +1,5 @@
 """
-Constants/Mining.py
+Constants/DMining.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,20 +8,20 @@ Constants/Mining.py
     License: GPL 3.0
 
 """
-from db4e.Modules.MetaConst import MetaConst
-from db4e.Constants.Fields import DField
+from db4e.Modules.ConstGroup import ConstGroup
+from db4e.Constants.DField import DField
 
-class Mining(MetaConst):
+class DMining(ConstGroup):
     """
     Mining related constants
     """
 
-    ACTIVE: str = DField.ACTIVE.value
+    ACTIVE: str = DField.ACTIVE
     BLOCK_FOUND_EVENT: str = 'block_found_event'
     EFFORT: str = 'effort'
     HASHRATE: str = 'hashrate'
-    INSTANCE: str = DField.INSTANCE.value
-    IP_ADDR = DField.IP_ADDR.value
+    INSTANCE: str = DField.INSTANCE
+    IP_ADDR = DField.IP_ADDR
     MAINCHAIN_HASHRATE: str = 'mainchain_hashrate'
     MINER: str = 'miner'
     POOL_HASHRATE: str = 'pool_hashrate'

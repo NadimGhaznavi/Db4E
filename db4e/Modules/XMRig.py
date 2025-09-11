@@ -15,11 +15,7 @@ from copy import deepcopy
 
 
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
-from db4e.Modules.P2Pool import P2Pool
-from db4e.Modules.P2PoolRemote import P2PoolRemote
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Labels import DLabel
+from db4e.Constants import DElem, DField, DDef, DLabel
 from db4e.Modules.Components import (
     ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
 

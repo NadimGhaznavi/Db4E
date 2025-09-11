@@ -1,5 +1,5 @@
 """
-db4e/Constants/Labels.py
+db4e/Constants/DLabel.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,10 +8,10 @@ db4e/Constants/Labels.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
 
-class DLabel(MetaConst):
+class DLabel(ConstGroup):
     ABORT : str = "Abort"
     ACTIVE_MINERS : str = "Active Miners"
     ANY_IP : str = "Listen on IP"

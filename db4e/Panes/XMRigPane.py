@@ -15,39 +15,35 @@ from textual.widgets import (
 
 from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRig import XMRig
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Buttons import DButton
-from db4e.Constants.Jobs import DJob
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Form import Form
-from db4e.Constants.Fields import DField, DMod, DElem, Method
-
+from db4e.Messages import Db4eMsg
+from db4e.Constants import (
+    DButton, DJob, DLabel, DField, DMethod, DModule, DElem, DForm)
 
 
 
 class XMRigPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
+
+    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
+    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
     instance_map = {}
     
-    config_label = Label("", classes=Form.STATIC.value)
+    config_label = Label("", classes=DForm.STATIC)
     instance_input = Input(
         id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_15.value)
+        classes=DForm.INPUT_15)
     num_threads_input = Input(
         id="num_threads_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_15.value)
+        classes=DForm.INPUT_15)
     
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
-    disable_button = Button(label=DLabel.DISABLE.value, id=DButton.DISABLE.value)
-    enable_button = Button(label=DLabel.ENABLE.value, id=DButton.ENABLE.value)
-    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
-    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     xmrig = None
 
 
@@ -59,26 +55,26 @@ class XMRigPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE.value, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS.value, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL),
                         self.num_threads_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE.value, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
-                    classes=Form.FORM_3.value, id="form_field"),
+                    classes=DForm.FORM_3, id="form_field"),
 
                 Vertical(
                     self.radio_set),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX.value),
+                    classes=DForm.HEALTH_BOX),
 
                 Vertical(
                     Horizontal(
@@ -87,9 +83,9 @@ class XMRigPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW.value))),
+                        classes=DForm.BUTTON_ROW))),
                 
-            classes=Form.PANE_BOX.value)
+            classes=DForm.PANE_BOX)
 
     def get_p2pool_id(self, instance=None):
         if instance and instance in self.instance_map:
@@ -151,16 +147,16 @@ class XMRigPane(Container):
 
         if button_id == DButton.NEW:
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig
             }
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
@@ -168,8 +164,8 @@ class XMRigPane(Container):
 
         elif button_id == DButton.ENABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
@@ -177,8 +173,8 @@ class XMRigPane(Container):
 
         elif button_id == DButton.DISABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
@@ -186,8 +182,8 @@ class XMRigPane(Container):
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
@@ -201,7 +197,7 @@ class XMRigPane(Container):
             child.remove()
         #print(f"XMRigPane:watch_radio_button_list(): instance_map: {self.instance_map}")
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=Form.RADIO_BUTTON_TYPE)
+            radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
             if self.xmrig.parent() == self.instance_map[instance]:
                 radio_button.value = True
             self.radio_set.mount(radio_button)

@@ -1,5 +1,5 @@
 """
-db4e/Constants/Panes.py
+db4e/Constants/DPanes.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,10 +8,10 @@ db4e/Constants/Panes.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
 
-class Pane(MetaConst):
+class DPane(ConstGroup):
     DB4E: str = "Db4EPane"
     DONATIONS: str  = "DonationsPane"
     INITIAL_SETUP: str  = "InitialSetupPane"

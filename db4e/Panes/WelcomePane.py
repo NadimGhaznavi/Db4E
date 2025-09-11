@@ -13,7 +13,7 @@ from textual.widgets import Label
 from textual.containers import Container, ScrollableContainer, Vertical
 from textual.app import ComposeResult
 
-from db4e.Constants.Form import Form
+from db4e.Constants import DForm
 
 color = "#31b8e6"
 
@@ -48,7 +48,7 @@ class WelcomePane(Container):
             ScrollableContainer (
                 Label(highlights),
                 Label(coming),
-                classes=Form.PANE_BOX.value,
+                classes=DForm.PANE_BOX,
             )
         )
         

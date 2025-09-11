@@ -9,16 +9,9 @@ db4e/Modules/OpsMgr.py
 """
 import os
 
-from db4e.Modules.Db4E import Db4E
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Modules.HealthMgr import HealthMgr
-from db4e.Modules.HealthCache import HealthCache
-from db4e.Modules.XMRig import XMRig
-from db4e.Modules.P2Pool import P2Pool
-
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import DDef
+from db4e.Modules import (
+    Db4E, DbMgr, DeploymentMgr, HealthMgr, HealthCache, XMRig, P2Pool)
+from db4e.Constants import DElem, DField, DDef
 
 
 

@@ -26,22 +26,14 @@ except Exception:
     __version__ = "N/A"
 
 
-from db4e.Widgets.TopBar import TopBar
-from db4e.Widgets.Clock import Clock
-from db4e.Widgets.NavPane import NavPane
-from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.PaneCatalogue import PaneCatalogue
-from db4e.Modules.PaneMgr import PaneMgr
-from db4e.Modules.MessageRouter import MessageRouter
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Fields import DField
-from db4e.Constants.Defaults import DDef
+from db4e.Widgets import TopBar, Clock, NavPane
+from db4e.Modules import OpsMgr, PaneCatalogue, PaneMgr, MessageRouter
+from db4e.Messages import UpdateTopBar, RefreshNavPane, Db4eMsg
+from db4e.Constants import DField, DDef
 
 class Db4EApp(App):
-    TITLE = DDef.APP_TITLE.value
-    CSS_PATH = DDef.CSS_PATH.value
+    TITLE = DDef.APP_TITLE
+    CSS_PATH = DDef.CSS_PATH
     REFRESH_TIME = 2
 
     def __init__(self):
@@ -98,8 +90,8 @@ class Db4EApp(App):
 
 def main():
     # Set environment variables for better color support
-    os.environ[DField.TERM_ENVIRON.value] = DDef.TERM.value
-    os.environ[DField.COLORTERM_ENVIRON.value] = DDef.COLORTERM.value
+    os.environ[DField.TERM_ENVIRON] = DDef.TERM
+    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
 
     app = Db4EApp()
     app.run()

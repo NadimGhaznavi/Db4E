@@ -1,5 +1,5 @@
 """
-db4e/Modules/Db4e.py
+db4e/Modules/Db4E.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -11,13 +11,15 @@ A class representing the deployment of Db4E
 """
 import os, grp, getpass
 
-from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
+from db4e.Modules import LocalSoftwareSystem
 from db4e.Modules.Components import (
     DonationWallet, Db4eGroup, InstallDir, Db4eUser, UserWallet, VendorDir,
     PrimaryServer)
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import DDef
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+
 
 
 class Db4E(LocalSoftwareSystem):
@@ -44,7 +46,7 @@ class Db4E(LocalSoftwareSystem):
         self.user_wallet = self.components[DField.USER_WALLET]
         self.vendor_dir = self.components[DField.VENDOR_DIR]
 
-        self.donation_wallet.value = DDef.DONATION_WALLET
+        self.donation_wallet = DDef.DONATION_WALLET
         self.set_effective_identity()
         self.set_install_dir()
         self.enable()
@@ -69,9 +71,9 @@ class Db4E(LocalSoftwareSystem):
         effective_gid = os.getegid()
         group_entry = grp.getgrgid(effective_gid)
         group = group_entry.gr_name
-        self.user.value = user
-        self.group.value = group
+        self.user = user
+        self.group = group
 
 
     def set_install_dir(self):
-        self.install_dir.value = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        self.install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

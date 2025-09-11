@@ -1,5 +1,5 @@
 """
-db4e/Modules/__init__.py
+db4e/Constants/DStatus.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,12 +8,12 @@ db4e/Modules/__init__.py
     License: GPL 3.0
 """
 
-from .Clock import Clock
-from .NavPane import NavPane
-from .TopBar import TopBar
+from db4e.Modules.ConstGroup import ConstGroup
 
-__all__ = [
-    "Clock",
-    "NavPane",
-    "TopBar"
-]
+# Status
+class DStatus(ConstGroup):
+    ERROR : str = "error"
+    GOOD : str = "good"
+    WARN : str = "warn"
+
+    

@@ -1,5 +1,5 @@
 """
-db4e/Constants/Jobs.py
+db4e/Constants/DJobs.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,25 +8,24 @@ db4e/Constants/Jobs.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
+from db4e.Constants.DField import DField
 
-from db4e.Constants.Fields import DField
-
-class DJob(MetaConst):
+class DJob(ConstGroup):
     ATTEMPTS : str = "attempts"
     COMPLETED : str = "completed"
     CREATED_AT : str = "created_at"
     DELETE : str = "delete"
     DISABLE : str = "disable"
-    ELEMENT : str = DField.ELEMENT.value
-    ELEMENT_TYPE : str = DField.ELEMENT_TYPE.value
+    ELEMENT : str = DField.ELEMENT
+    ELEMENT_TYPE : str = DField.ELEMENT_TYPE
     ENABLE : str = "enable"
-    INSTANCE : str = DField.INSTANCE.value
+    INSTANCE : str = DField.INSTANCE
     JOB_ID : str = "job_id"
     JOB_QUEUE : str = "job_queue"
-    MESSAGE : str = DField.MESSAGE.value
+    MESSAGE : str = DField.MESSAGE
     NEW : str = "new"
-    OBJECT_ID : str = DField.OBJECT_ID.value
+    OBJECT_ID : str = DField.OBJECT_ID
     OP : str = "op"
     PENDING : str = "pending"
     RETRY : str = "retry"

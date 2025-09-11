@@ -1,5 +1,5 @@
 """
-db4e/Constants/Form.py
+db4e/Constants/DForm.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,9 +8,9 @@ db4e/Constants/Form.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
-class Form(MetaConst):
+class DForm(ConstGroup):
     BUTTON_ROW : str = "button_row"
     FORM_0 : str = "form_0"
     FORM_1 : str = "form_1"

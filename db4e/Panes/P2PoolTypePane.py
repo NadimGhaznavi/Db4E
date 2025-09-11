@@ -11,11 +11,8 @@ db4e/Panes/P2PoolTypePane.py
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import DField, DMod, DElem, Method
-from db4e.Constants.Buttons import DButton
 from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Constants.Form import Form
+from db4e.Constants import DLabel, DField, DModule, DElem, DMethod, DForm, DButton
 
 color = "#9cae41"
 hi = "cyan"
@@ -31,32 +28,32 @@ class P2PoolTypePane(Container):
                     
         yield Vertical (
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     RadioSet(
-                        RadioButton("Local " + DLabel.P2POOL, id="local", value=True),
+                        RadioButton("Local " + DLabel.P2POOL, id="local",value=True),
                         RadioButton(DLabel.P2POOL_REMOTE, id="remote"),
-                        id="type_radioset", classes=Form.RADIO_SET.value,
+                        id="type_radioset", classes=DForm.RADIO_SET.value,
                     )),
 
                 Button(label=DLabel.PROCEED, id=DButton.PROCEED)),
-                classes=Form.PANE_BOX.value)
+                classes=DForm.PANE_BOX)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         radio_set = self.query_one("#type_radioset", RadioSet)
         selected = radio_set.pressed_button
         if selected and selected.id == "remote":
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.GET_NEW,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 DField.REMOTE: True
             }
         else:
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.GET_NEW,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.GET_NEW,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 DField.REMOTE: False
             }

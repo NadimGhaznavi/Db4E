@@ -20,17 +20,22 @@ from db4e.Modules.DbCache import DbCache
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.Job import Job
 from db4e.Modules.Db4E import Db4E
-from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import DDir, DElem, DFile, Status, DMod, DField
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Jobs import DJob
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DDir import DDir
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DStatus import DStatus
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DFile import DFile
 
 
 class Default:
@@ -91,7 +96,7 @@ class DeploymentMgr(Container):
         for aMonerod in self.get_monerods():
             if aMonerod.instance() == monerod.instance():
                 msg = f"A deployment with the same name ({monerod.instance()}) already exists"
-                monerod.add_msg(DLabel.MONEROD, Status.WARN, msg)
+                monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
                 return monerod
 
         update = True
@@ -168,7 +173,7 @@ class DeploymentMgr(Container):
         for aMonerod in self.get_monerods():
             if aMonerod.instance() == monerod.instance():
                 msg = f"A deployment with the same name ({monerod.instance()}) already exists"
-                monerod.add_msg(DLabel.MONEROD, Status.WARN, msg)
+                monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
                 return monerod
             
         update = True
@@ -206,7 +211,7 @@ class DeploymentMgr(Container):
         for aP2Pool in self.get_p2pools():
             if aP2Pool.instance() == p2pool.instance():
                 msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
-                p2pool.add_msg(DLabel.P2POOL, Status.WARN, msg)
+                p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return p2pool
 
         update = True
@@ -267,7 +272,7 @@ class DeploymentMgr(Container):
         for aP2Pool in self.get_p2pools():
             if aP2Pool.instance() == p2pool.instance():
                 msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
-                p2pool.add_msg(DLabel.P2POOL, Status.WARN, msg)
+                p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return p2pool
 
         update = True
@@ -278,9 +283,6 @@ class DeploymentMgr(Container):
 
         if not p2pool.ip_addr():
             update = False
-
-        #elif not is_valid_ip_or_hostname(p2pool.ip_addr.value):
-        #    update = False
 
         if not p2pool.stratum_port():
             update = False
@@ -299,7 +301,7 @@ class DeploymentMgr(Container):
         for aXMRig in self.get_p2pools():
             if aXMRig.instance() == xmrig.instance():
                 msg = f"A deployment with the same name ({xmrig.instance()}) already exists"
-                xmrig.add_msg(DLabel.P2POOL, Status.WARN, msg)
+                xmrig.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return xmrig
             
         update = True
@@ -339,19 +341,19 @@ class DeploymentMgr(Container):
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                db4e.msg(DLabel.VENDOR, Status.WARN, 
+                db4e.msg(DLabel.VENDOR, DStatus.WARN, 
                     f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})")
             except (PermissionError, OSError) as e:
                 update_flag = False
-                db4e.msg(DLabel.VENDOR, Status.ERROR, 
+                db4e.msg(DLabel.VENDOR, DStatus.ERROR, 
                     f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}")
                 return db4e, update_flag
             
         try:
             os.makedirs(new_dir)
-            db4e.msg(DLabel.VENDOR, Status.GOOD, f"Created new {DLabel.VENDOR}: {new_dir}")
+            db4e.msg(DLabel.VENDOR, DStatus.GOOD, f"Created new {DLabel.VENDOR}: {new_dir}")
         except (PermissionError, OSError) as e:
-            db4e.msg(DLabel.VENDOR, Status.ERROR, 
+            db4e.msg(DLabel.VENDOR, DStatus.ERROR, 
                 f"Unable to create new {DLabel.VENDOR}: {new_dir}, aborting deployment directory update:\n{e}")
             update_flag = False
 
@@ -553,7 +555,7 @@ class DeploymentMgr(Container):
             self.update_one(db4e)
             msg = f"Updated wallet: {db4e.user_wallet()[:6]}... > " \
                 f"{new_db4e.user_wallet()[:6]}..."
-            db4e.msg(DLabel.USER_WALLET, Status.GOOD, msg)
+            db4e.msg(DLabel.USER_WALLET, DStatus.GOOD, msg)
             update_flag = True
 
         # Updating vendor dir
@@ -570,14 +572,14 @@ class DeploymentMgr(Container):
                     db4e=db4e)
             msg = f"Updated vendor dir: {db4e.vendor_dir()} > " \
                 f"{new_db4e.vendor_dir()}"
-            db4e.msg(DLabel.VENDOR, Status.GOOD, msg)
+            db4e.msg(DLabel.VENDOR, DStatus.GOOD, msg)
             db4e.vendor_dir(new_db4e.vendor_dir())
             update_flag = True
 
         if update_flag:
             self.db_cache.update_one(db4e)
         else:
-            db4e.msg(DElem.DB4E, Status.WARN, "Nothing to update")
+            db4e.msg(DElem.DB4E, DStatus.WARN, "Nothing to update")
 
         return db4e
 
@@ -599,7 +601,7 @@ class DeploymentMgr(Container):
             return self.update_xmrig_deployment(elem)
         else:
             raise ValueError(
-                f"{DMod.DEPLOYMENT_MGR}:update_deployment(): No handler for component " \
+                f"{DModule.DEPLOYMENT_MGR}:update_deployment(): No handler for component " \
                 f"({elem})")
 
 
@@ -630,7 +632,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated in peers: {monerod.in_peers()} > " \
                     f"{new_monerod.in_peers()}"
                 monerod.in_peers(new_monerod.in_peers())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Out Peers
@@ -638,7 +640,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated out peers: {monerod.out_peers()} > " \
                     f"{new_monerod.out_peers()}"
                 monerod.out_peers(new_monerod.out_peers())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # P2P Bind Port
@@ -646,7 +648,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated P2P bind port: {monerod.p2p_bind_port()} > " \
                     f"{new_monerod.p2p_bind_port()}"
                 monerod.p2p_bind_port(new_monerod.p2p_bind_port())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # RPC Bind Port
@@ -654,7 +656,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated RPC bind port: {monerod.rpc_bind_port()} > " \
                     f"{new_monerod.rpc_bind_port()}"
                 monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # ZMQ Pub Port
@@ -662,7 +664,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated ZMQ pub port: {monerod.zmq_pub_port()} > " \
                     f"{new_monerod.zmq_pub_port()}"
                 monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # ZMQ RPC Port
@@ -670,7 +672,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated ZMQ RPC port: {monerod.zmq_rpc_port()} > " \
                     f"{new_monerod.zmq_rpc_port()}"
                 monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Log Level
@@ -678,7 +680,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated log level: {monerod.log_level()} > " \
                     f"{new_monerod.log_level()}"
                 monerod.log_level(new_monerod.log_level())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Max Log Files
@@ -686,7 +688,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated max log files: {monerod.max_log_files()} > " \
                     f"{new_monerod.max_log_files()}"
                 monerod.max_log_files(new_monerod.max_log_files())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Max Log Size
@@ -694,7 +696,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated max log size: {monerod.max_log_size()} > " \
                     f"{new_monerod.max_log_size()}"
                 monerod.max_log_size(new_monerod.max_log_size())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
             
             # Priority Node 1 hostname
@@ -702,7 +704,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated priority node 1: {monerod.priority_node_1()} > " \
                     f"{new_monerod.priority_node_1()}"
                 monerod.priority_node_1(new_monerod.priority_node_1())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Priority Port 1
@@ -710,7 +712,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated priority port 1: {monerod.priority_port_1()} > " \
                     f"{new_monerod.priority_port_1()}"
                 monerod.priority_port_1(new_monerod.priority_port_1())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Priority Node 2 hostname
@@ -718,7 +720,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated priority node 2: {monerod.priority_node_2()} > " \
                     f"{new_monerod.priority_node_2()}"
                 monerod.priority_node_2(new_monerod.priority_node_2())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
             # Priority Port 2
@@ -726,7 +728,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated priority port 2: {monerod.priority_port_2()} > " \
                     f"{new_monerod.priority_port_2()}"
                 monerod.priority_port_2(new_monerod.priority_port_2())
-                monerod.msg(DLabel.MONEROD_SHORT, Status.GOOD, msg)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
         if update_config:
@@ -742,7 +744,7 @@ class DeploymentMgr(Container):
                         instance=monerod.instance())
                 self.job_queue.post_job(job)
         else:
-            monerod.msg(DLabel.MONEROD_SHORT, Status.WARN, "Nothing to update")
+            monerod.msg(DLabel.MONEROD_SHORT, DStatus.WARN, "Nothing to update")
             
         return monerod
 
@@ -761,7 +763,7 @@ class DeploymentMgr(Container):
             msg = f"Updated IP/hostname: {monerod.ip_addr()} > " \
                 f"{new_monerod.ip_addr()}"
             monerod.ip_addr(new_monerod.ip_addr())
-            monerod.msg(DLabel.MONEROD, Status.GOOD, msg)
+            monerod.msg(DLabel.MONEROD, DStatus.GOOD, msg)
             update = True
 
         # RPC Bind Port
@@ -769,7 +771,7 @@ class DeploymentMgr(Container):
             msg = f"Updated RPC bind port: {monerod.rpc_bind_port()} > " \
                 f"{new_monerod.rpc_bind_port()}"
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-            monerod.msg(DLabel.MONEROD, Status.GOOD, msg)
+            monerod.msg(DLabel.MONEROD, DStatus.GOOD, msg)
             update = True
 
         # ZMQ Pub Port
@@ -777,12 +779,12 @@ class DeploymentMgr(Container):
             msg = f"Updated ZMQ pub port: {monerod.zmq_pub_port()} > " \
                 f"{new_monerod.zmq_pub_port()}"
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-            monerod.msg(DLabel.MONEROD, Status.GOOD, msg)
+            monerod.msg(DLabel.MONEROD, DStatus.GOOD, msg)
             update = True
 
         if monerod.primary_server() and not new_monerod.primary_server():
             monerod.primary_server(False)
-            monerod.msg(DLabel.MONEROD, Status.GOOD, "Flagged as a secondary server")
+            monerod.msg(DLabel.MONEROD, DStatus.GOOD, "Flagged as a secondary server")
             for p2pool in self.get_internal_p2pools():
                 p2pool = deepcopy(p2pool)
                 p2pool.disable()
@@ -795,7 +797,7 @@ class DeploymentMgr(Container):
             monerod = self.db_cache.update_one(monerod)
 
         else:
-            monerod.msg(DLabel.MONEROD, Status.WARN,
+            monerod.msg(DLabel.MONEROD, DStatus.WARN,
                 f"{monerod.instance()} – Nothing to update")
             
         return monerod
@@ -840,7 +842,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated in peers: {p2pool.in_peers()} > " \
                     f"{new_p2pool.in_peers()}"
                 p2pool.in_peers(new_p2pool.in_peers())
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, msg)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -849,7 +851,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated out peers: {p2pool.out_peers()} > " \
                     f"{new_p2pool.out_peers()}"
                 p2pool.out_peers(new_p2pool.out_peers())
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, msg)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -858,7 +860,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated P2P bind port: {p2pool.p2p_bind_port()} > " \
                     f"{new_p2pool.p2p_bind_port()}"
                 p2pool.p2p_bind_port(new_p2pool.p2p_bind_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, msg)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -867,7 +869,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
                     f"{new_p2pool.stratum_port()}"
                 p2pool.stratum_port(new_p2pool.stratum_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, msg)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -876,7 +878,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated log level: {p2pool.log_level()} > " \
                     f"{new_p2pool.log_level()}"
                 p2pool.log_level(new_p2pool.log_level())
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, msg)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -889,7 +891,7 @@ class DeploymentMgr(Container):
                     f"{new_parent_instance}"
                 p2pool.parent(new_p2pool.parent())
                 new_parent_instance = new_parent.instance()
-                p2pool.msg(DLabel.P2POOL_SHORT, Status.GOOD, "Using new P2Pool deployment")
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, "Using new P2Pool deployment")
                 update_config = True
                 update = True
 
@@ -907,7 +909,7 @@ class DeploymentMgr(Container):
                         instance=p2pool.instance())
                 self.job_queue.post_job(job)
         else:
-            p2pool.msg(DLabel.P2POOL_SHORT, Status.WARN, "Nothing to update")
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
 
         return p2pool
 
@@ -927,7 +929,7 @@ class DeploymentMgr(Container):
             msg = f"Updated IP/hostname: {p2pool.ip_addr()} > " \
                 f"{new_p2pool.ip_addr()}"
             p2pool.ip_addr(new_p2pool.ip_addr())
-            p2pool.msg(DLabel.P2POOL, Status.GOOD, msg)
+            p2pool.msg(DLabel.P2POOL, DStatus.GOOD, msg)
             update = True
 
         # Stratum Port
@@ -935,14 +937,14 @@ class DeploymentMgr(Container):
             msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
                 f"{new_p2pool.stratum_port()}"
             p2pool.stratum_port(new_p2pool.stratum_port())
-            p2pool.msg(DLabel.P2POOL, Status.GOOD, msg)
+            p2pool.msg(DLabel.P2POOL, DStatus.GOOD, msg)
             update = True
 
         if update:
             self.update_one(p2pool)
             
         else:
-            p2pool.msg(DLabel.P2POOL, Status.WARN, "Nothing to update")
+            p2pool.msg(DLabel.P2POOL, DStatus.WARN, "Nothing to update")
         return p2pool
 
 
@@ -962,29 +964,29 @@ class DeploymentMgr(Container):
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                db4e.msg(DLabel.VENDOR, Status.WARN, 
+                db4e.msg(DLabel.VENDOR, DStatus.WARN, 
                     f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})')
                 return db4e, update_flag
             except (PermissionError, OSError) as e:
                 update_flag = False
-                db4e.msg(DLabel.VENDOR_DIR, Status.ERROR, 
+                db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
                     f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), " \
                     f"aborting deployment directory update:\n{e}")
                 return db4e, update_flag
 
         # No need to move if old_dir is empty (first-time initialization)
         if not old_dir:
-            db4e.msg(DLabel.VENDOR_DIR, Status.GOOD,
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD,
                 f"Crated new {DDir.VENDOR}: {new_dir}")
             return db4e, update_flag
         
         # Move the vendor_dir to the new location
         try:
             os.rename(old_dir, new_dir)
-            db4e.msg(DLabel.VENDOR_DIR, Status.GOOD, 
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD, 
                 f'Moved vendor dir from ({old_dir}) to ({new_dir})')
         except (PermissionError, OSError) as e:
-            db4e.msg(DLabel.VENDOR_DIR, Status.ERROR, 
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
                 f"Unable to move vendor dir from ({old_dir}) to ({new_dir}), " \
                 f"aborting deployment directory update:\n{e}")
             update_flag = False
@@ -1019,7 +1021,7 @@ class DeploymentMgr(Container):
             if xmrig.num_threads != new_xmrig.num_threads:
                 msg = f"Updated number of threads: {xmrig.num_threads()} > " \
                     f"{new_xmrig.num_threads()}"
-                xmrig.msg(DLabel.XMRIG_SHORT, Status.GOOD, msg) 
+                xmrig.msg(DLabel.XMRIG_SHORT, DStatus.GOOD, msg) 
                 xmrig.num_threads(new_xmrig.num_threads())
                 update = True
                 update_config = True
@@ -1033,7 +1035,7 @@ class DeploymentMgr(Container):
                 msg = f"Updated parent: {xmrig.parent()} > {new_xmrig.parent()}"
                 xmrig.parent(new_xmrig.parent())
                 msg = f"Updated parent: {parent_instance} > {new_parent_instance}"
-                xmrig.msg(DLabel.XMRIG_SHORT, Status.GOOD, msg)
+                xmrig.msg(DLabel.XMRIG_SHORT, DStatus.GOOD, msg)
                 update = True
                 update_config = True
 

@@ -20,8 +20,10 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Fields import DElem, DField
+
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DDef import DDef
 
 MONERODS = "monerods"
 P2POOLS = "p2pools"
@@ -65,8 +67,8 @@ class DbCache:
             seen_ids = set()
 
             for rec in recs:
-                elem_type = rec[DField.ELEMENT_TYPE.value]
-                obj_id = rec[DField.OBJECT_ID.value]
+                elem_type = rec[DField.ELEMENT_TYPE]
+                obj_id = rec[DField.OBJECT_ID]
                 seen_ids.add(obj_id)
 
                 if obj_id in self.id_map:

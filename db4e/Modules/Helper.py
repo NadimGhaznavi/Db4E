@@ -10,18 +10,14 @@ db4e/Modules/Helper.py
 Helper functions that are used in multiple modules   
 """
 import os, grp, getpass
-import socket, ipaddress
-import re
 
 from rich import box
 from rich.table import Table
 
-from textual.widgets import RadioSet, RadioButton
-
-from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Constants.Fields import Status, DField, DElem
-from db4e.Constants.Labels import DLabel
-    
+from db4e.Constants.DStatus import DStatus
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
+   
 
 
 error_color = "#935fcf"
@@ -32,12 +28,12 @@ def del_config(config_file: str):
     try:
         os.remove(config_file)
         results.append(result_row(
-            DLabel.XMRIG, Status.GOOD,
+            DLabel.XMRIG, DStatus.GOOD,
             f"Removed old configration file: {config_file}"
         ))
     except OSError as e:
         result_row.append(result_row(
-            DLabel.XMRIG, Status.WARN,
+            DLabel.XMRIG, DStatus.WARN,
             f"Unable to remove {config_file} {e} "
         ))
     return results
@@ -108,18 +104,18 @@ def gen_results_table(results):
     for item in results:
         for category, msg_dict in item.items():
             message = msg_dict[DField.MESSAGE]
-            if msg_dict[DField.STATUS] == Status.GOOD:
+            if msg_dict[DField.STATUS] == DStatus.GOOD:
                 table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict[DField.STATUS] == Status.WARN:
+            elif msg_dict[DField.STATUS] == DStatus.WARN:
                 table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict[DField.STATUS] == Status.ERROR:
+            elif msg_dict[DField.STATUS] == DStatus.ERROR:
                 table.add_row(f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]")
     return table
 
 
 def result_row(label: str, status: str, msg:str ):
     """Return a standardized result dict for display in Results pane."""
-    assert status in {Status.GOOD, Status.WARN, Status.ERROR}, f"invalid status: {status}"
+    assert status in {DStatus.GOOD, DStatus.WARN, DStatus.ERROR}, f"invalid status: {status}"
     return {label: {'status': status, 'msg': msg}}
 
 

@@ -17,12 +17,8 @@ from textual.reactive import reactive
 from db4e.Modules.Db4E import Db4E
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import DField, DMod, DElem, Method
-from db4e.Constants.Form import Form
-from db4e.Constants.Buttons import DButton
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Jobs import DJob
-from db4e.Constants.Form import Form
+from db4e.Constants import DField, DModule, DElem, DMethod
+from db4e.Constants import DForm, DButton, DLabel, DJob, DForm
 
 color = "#9cae41"
 hi = "cyan"
@@ -30,17 +26,17 @@ hi = "cyan"
 
 class Db4EPane(Container):
 
-    user_name_label = Label("", classes=Form.STATIC)
-    group_name_label = Label("", classes=Form.STATIC)
-    install_dir_label = Label("", classes=Form.STATIC)
+    user_name_label = Label("", classes=DForm.STATIC)
+    group_name_label = Label("", classes=DForm.STATIC)
+    install_dir_label = Label("", classes=DForm.STATIC)
     vendor_dir_input = Input(id="vendor_dir_input",
-        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=Form.INPUT_30.value)
+        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=DForm.INPUT_30)
     user_wallet_input = Input(id="user_wallet_input",
-        restrict=r"[a-zA-Z0-9]*", compact=True, classes=Form.INPUT_70.value)
+        restrict=r"[a-zA-Z0-9]*", compact=True, classes=DForm.INPUT_70)
     health_msgs = Label()
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=Form.RADIO_SET.value)
+    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
@@ -51,39 +47,39 @@ class Db4EPane(Container):
             f"[{hi}]P2Pool servers[/] for chain data collection."
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.DB4E_USER, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.DB4E_USER, classes=DForm.FORM_LABEL),
                         self.user_name_label),
                     Horizontal(
-                        Label(DLabel.DB4E_GROUP, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.DB4E_GROUP, classes=DForm.FORM_LABEL),
                         self.group_name_label),
                     Horizontal(
-                        Label(DLabel.INSTALL_DIR, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTALL_DIR, classes=DForm.FORM_LABEL),
                         self.install_dir_label),
                     Horizontal(
-                        Label(DLabel.VENDOR_DIR, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.VENDOR_DIR, classes=DForm.FORM_LABEL),
                         self.vendor_dir_input),
                     Horizontal(
-                        Label(DLabel.USER_WALLET, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.USER_WALLET, classes=DForm.FORM_LABEL),
                         self.user_wallet_input),
-                    classes=Form.FORM_5.value, id="form_field"),
+                    classes=DForm.FORM_5, id="form_field"),
 
                 Vertical(
                     self.radio_set),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX.value,
+                    classes=DForm.HEALTH_BOX,
                 ),
 
                 Horizontal(
-                    Button(label=DLabel.UPDATE, id=DButton.UPDATE.value),
-                    classes=Form.BUTTON_ROW.value
+                    Button(label=DLabel.UPDATE, id=DButton.UPDATE),
+                    classes=DForm.BUTTON_ROW
                 ),
-            classes=Form.PANE_BOX.value))
+            classes=DForm.PANE_BOX))
 
 
     def on_mount(self):
@@ -96,11 +92,11 @@ class Db4EPane(Container):
 
     def set_data(self, db4e: Db4E):
         self.db4e = db4e
-        self.user_name_label.update(db4e.user.value)
-        self.group_name_label.update(db4e.group.value)
-        self.install_dir_label.update(db4e.install_dir.value)
-        self.vendor_dir_input.value = db4e.vendor_dir.value
-        self.user_wallet_input.value = db4e.user_wallet.value
+        self.user_name_label.update(db4e.user())
+        self.group_name_label.update(db4e.group())
+        self.install_dir_label.update(db4e.install_dir())
+        self.vendor_dir_input.value = db4e.vendor_dir()
+        self.user_wallet_input.value = db4e.user_wallet()
         self.health_msgs.update(gen_results_table(db4e.pop_msgs()))
 
         # Create the Monerod radio buttons
@@ -112,12 +108,12 @@ class Db4EPane(Container):
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.db4e.user_wallet.value = self.query_one("#user_wallet_input", Input).value
-        self.db4e.vendor_dir.value = self.query_one("#vendor_dir_input", Input).value
+        self.db4e.user_wallet(self.query_one("#user_wallet_input", Input).value)
+        self.db4e.vendor_dir(self.query_one("#vendor_dir_input", Input).value)
 
         form_data = {
-            DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-            DField.TO_METHOD: Method.POST_JOB,
+            DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+            DField.TO_METHOD: DMethod.POST_JOB,
             DField.OP: DJob.UPDATE,
             DField.ELEMENT_TYPE: DElem.DB4E,
             DField.ELEMENT: self.db4e,

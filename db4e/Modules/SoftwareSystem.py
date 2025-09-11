@@ -12,9 +12,7 @@ Defines operations that are common to all SoftareSystems instances.
 This is a virtual class.
 """
 
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import DField, Status
-from db4e.Constants.Jobs import DJob
+from db4e.Constants import DLabel, DJob, DField, DStatus
 
 
 class SoftwareSystem:
@@ -80,14 +78,14 @@ class SoftwareSystem:
     def status(self):
         # The status is defined as the worst status message in the self.msgs list.
         #print(f"SoftwareSystem:status(): self.msgs: {self.msgs}")
-        worst_status = Status.GOOD
+        worst_status = DStatus.GOOD
         for line_item in self.msgs:
             #print(f"SoftwareSystem:status(): line_item: {line_item}")
             for key in line_item:
-                if line_item[key][DJob.STATUS] == Status.ERROR:
-                    return Status.ERROR
-                elif line_item[key][DJob.STATUS] == Status.WARN:
-                    worst_status = Status.WARN
+                if line_item[key][DJob.STATUS] == DStatus.ERROR:
+                    return DStatus.ERROR
+                elif line_item[key][DJob.STATUS] == DStatus.WARN:
+                    worst_status = DStatus.WARN
         return worst_status        
 
 

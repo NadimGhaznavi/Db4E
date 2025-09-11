@@ -1,5 +1,5 @@
 """
-db4e/Constants/Defaults.py
+db4e/Constants/DDef.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,10 +8,9 @@ db4e/Constants/Defaults.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
-
-class DDef(MetaConst):
+class DDef(ConstGroup):
     ANY_IP: str = "0.0.0.0"
     API_DIR: str = "api"
     APP_TITLE: str  = "Db4E"

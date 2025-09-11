@@ -9,10 +9,9 @@ db4e/Modules/InternalP2PoolWatcher.py
 
 Everything P2Pool
 """
-import os
-import threading
+import os, threading, time
 
-from db4e.Modules.P2PoolWatcher import P2PoolWatcher
+from db4e.Modules import P2PoolWatcher
 
 
 

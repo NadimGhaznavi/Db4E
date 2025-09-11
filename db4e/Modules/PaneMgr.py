@@ -15,11 +15,11 @@ from textual.widget import Widget
 from textual.widgets import ContentSwitcher
 from textual.reactive import reactive
 
-from db4e.Modules.PaneCatalogue import PaneCatalogue
-from db4e.Modules.Helper import get_effective_identity
+from db4e.Modules import PaneCatalogue
 from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Constants.Panes import Pane
-from db4e.Constants.Fields import DField
+from db4e.Constants import DPane, DField
+
+
 
 @dataclass
 class PaneState:
@@ -44,7 +44,7 @@ class PaneMgr(Widget):
                 yield pane
 
     def on_mount(self) -> None:
-        initial = PaneState(name=Pane.WELCOME)
+        initial = PaneState(name=DPane.WELCOME)
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):

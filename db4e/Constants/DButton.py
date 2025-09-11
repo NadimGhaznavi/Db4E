@@ -1,5 +1,5 @@
 """
-db4e/Constants/Buttons.py
+db4e/Constants/DButton.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,10 +8,9 @@ db4e/Constants/Buttons.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
-
-class DButton(MetaConst):
+class DButton(ConstGroup):
     ABORT: str = "abort_button"
     DELETE: str  = "delete_button"
     DISABLE: str  = "disable_button"

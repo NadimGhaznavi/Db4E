@@ -1,5 +1,5 @@
 """
-db4e/Modules/Db4eLogger.py
+db4e/Modules/Db4ELogger.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -16,9 +16,8 @@ import traceback
 from pymongo import MongoClient
 import time
 
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Jobs import Job
+from db4e.Constants import DField, DDef, DElem
+
 
 
 LOG_LEVELS = {

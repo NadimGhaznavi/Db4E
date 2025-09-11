@@ -14,16 +14,15 @@ from textual.widgets import Static, Label, Log
 from textual.containers import Container, ScrollableContainer, Vertical, Horizontal
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Form import Form
-from db4e.Constants.Defaults import DDef
+from db4e.Constants import DForm, DDef
 
 
 class LogViewPane(Container):
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
-    header = Label("", classes=Form.FORM_1.value)
-    log_widget = Log(highlight=True, auto_scroll=True, classes=Form.PANE_BOX.value)
+    header = Label("", classes=DForm.FORM_1)
+    log_widget = Log(highlight=True, auto_scroll=True, classes=DForm.PANE_BOX)
 
 
     def compose(self):    
@@ -32,7 +31,7 @@ class LogViewPane(Container):
             self.header,
             ScrollableContainer(
                 self.log_widget),
-            classes=Form.PANE_BOX.value)
+            classes=DForm.PANE_BOX)
         
 
     def preload(self, path):

@@ -19,7 +19,6 @@ import os
 import re
 
 from db4e.Modules.MiningDb import MiningDb
-from db4e.Modules.DbMgr import DbMgr
 
 
 

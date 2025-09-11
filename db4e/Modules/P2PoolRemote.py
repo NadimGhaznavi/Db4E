@@ -12,8 +12,7 @@ Everything P2Pool Remote
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (Instance, Remote, IpAddr, StratumPort)
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Labels import DLabel
+from db4e.Constants import DElem, DField, DLabel
 
 
 

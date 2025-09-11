@@ -14,74 +14,70 @@ from textual.widgets import Label, Input, Button, Checkbox
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.Fields import DField, DElem, DMod, Method
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Form import Form
-from db4e.Constants.Jobs import DJob
-from db4e.Constants.Buttons import DButton
+from db4e.Constants import DField, DElem, DModule, DMethod, DLabel, DJob, DButton, DForm
 
 color = "#9cae41"
 hi = "#d7e556"
 
 class MoneroDPane(Container):
 
-    config_label = Label("", classes=Form.STATIC.value)
-    any_ip_label = Label("", classes=Form.STATIC.value)
-    data_dir_label = Label("", classes=Form.STATIC.value)
-    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
+    config_label = Label("", classes=DForm.STATIC)
+    any_ip_label = Label("", classes=DForm.STATIC)
+    data_dir_label = Label("", classes=DForm.STATIC)
+    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
 
     in_peers_input = Input(
         id="in_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     max_log_files_input = Input(
         id="max_log_files_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     max_log_size_input = Input(
         id="max_log_size_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     out_peers_input = Input(
         id="out_peers_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     primary_server_checkbox = Checkbox(
         "", compact=True, id="primary_server_checkbox")
     priority_node_1_input = Input(
         id="priority_node_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     priority_port_1_input = Input(
         id="priority_port_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     priority_node_2_input = Input(
         id="priority_node_2_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     priority_port_2_input = Input(
         id="priority_port_2_input", restrict=f"[0-9]*", compact=True,
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     zmq_pub_port_input = Input(
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     zmq_rpc_port_input = Input(
         compact=True, id="zmq_rpc_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
 
     health_msgs = Label()
 
-    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
-    disable_button = Button(label=DLabel.DISABLE.value, id=DButton.DISABLE.value)
-    enable_button = Button(label=DLabel.ENABLE.value, id=DButton.ENABLE.value)
-    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
-    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
 
 
     def compose(self):
@@ -91,65 +87,65 @@ class MoneroDPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIMARY_SERVER, classes=DForm.FORM_LABEL),
                         self.primary_server_checkbox),
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IN_PEERS, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.IN_PEERS, classes=DForm.FORM_LABEL),
                         self.in_peers_input),
                     Horizontal(
-                        Label(DLabel.OUT_PEERS, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.OUT_PEERS, classes=DForm.FORM_LABEL),
                         self.out_peers_input),
                     Horizontal(
-                        Label(DLabel.P2P_BIND_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.P2P_BIND_PORT, classes=DForm.FORM_LABEL),
                         self.p2p_bind_port_input),
                     Horizontal(
-                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.RPC_BIND_PORT, classes=DForm.FORM_LABEL),
                         self.rpc_bind_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.ZMQ_PUB_PORT, classes=DForm.FORM_LABEL),
                         self.zmq_pub_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_RPC_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.ZMQ_RPC_PORT, classes=DForm.FORM_LABEL),
                         self.zmq_rpc_port_input),
                     Horizontal(
-                        Label(DLabel.LOG_LEVEL, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.LOG_LEVEL, classes=DForm.FORM_LABEL),
                         self.log_level_input),
                     Horizontal(
-                        Label(DLabel.MAX_LOG_FILES, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.MAX_LOG_FILES, classes=DForm.FORM_LABEL),
                         self.max_log_files_input),
                     Horizontal(
-                        Label(DLabel.MAX_LOG_SIZE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.MAX_LOG_SIZE, classes=DForm.FORM_LABEL),
                         self.max_log_size_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_NODE_1, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIORITY_NODE_1, classes=DForm.FORM_LABEL),
                         self.priority_node_1_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_PORT_1, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIORITY_PORT_1, classes=DForm.FORM_LABEL),
                         self.priority_port_1_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_NODE_2, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIORITY_NODE_2, classes=DForm.FORM_LABEL),
                         self.priority_node_2_input),
                     Horizontal(
-                        Label(DLabel.PRIORITY_PORT_2, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIORITY_PORT_2, classes=DForm.FORM_LABEL),
                         self.priority_port_2_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
                     Horizontal(
-                        Label(DLabel.DATA_DIR, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.DATA_DIR, classes=DForm.FORM_LABEL),
                         self.data_dir_label),
-                    classes=Form.FORM_17.value),
+                    classes=DForm.FORM_17),
                     
                     Vertical(
                         self.health_msgs,
-                        classes=Form.HEALTH_BOX.value,
+                        classes=DForm.HEALTH_BOX,
                     ),
 
                 Vertical(
@@ -159,9 +155,9 @@ class MoneroDPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
-                        classes=Form.BUTTON_ROW.value))),
+                        classes=DForm.BUTTON_ROW))),
                 
-            classes=Form.PANE_BOX.value)
+            classes=DForm.PANE_BOX)
         
 
     def set_data(self, monerod: MoneroD):
@@ -229,16 +225,16 @@ class MoneroDPane(Container):
 
         if button_id == DButton.NEW:
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod
             }
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
@@ -246,8 +242,8 @@ class MoneroDPane(Container):
 
         elif button_id == DButton.ENABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.ENABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
@@ -255,8 +251,8 @@ class MoneroDPane(Container):
 
         elif button_id == DButton.DISABLE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DISABLE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
@@ -264,8 +260,8 @@ class MoneroDPane(Container):
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,

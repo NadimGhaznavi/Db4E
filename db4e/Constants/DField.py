@@ -1,5 +1,5 @@
 """
-db4e/Constants/Fields.py
+db4e/Constants/DFields.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,9 +8,9 @@ db4e/Constants/Fields.py
     License: GPL 3.0
 """
 
-from db4e.Modules.MetaConst import MetaConst
+from db4e.Modules.ConstGroup import ConstGroup
 
-class DField(MetaConst):
+class DField(ConstGroup):
     ACTIVE: str = "active"
     ANY_IP : str = "any_ip"
     APP_VERSION : str = "app_version"
@@ -129,97 +129,3 @@ class DField(MetaConst):
     WALLET : str = "wallet"
     ZMQ_PUB_PORT : str = "zmq_pub_port"
     ZMQ_RPC_PORT : str = "zmq_rpc_port"
-
-
-# Directories
-class DDir(MetaConst):
-    API : str = "api_dir"
-    BACKUP : str = "backup_dir"
-    BIN : str = "bin_dir"
-    BLOCKCHAIN : str = "blockchain_dir"
-    DATA : str = DField.DATA_DIR.value
-    DB4E : str = "db4e_dir"
-    DEV : str = "dev_dir"
-    INSTALL : str = DField.INSTALL_DIR.value
-    LOG : str = "log_dir"
-    MONEROD : str = "monerod"
-    RUN : str = "run_dir"
-    SRC : str = "src_dir"
-    SYSTEMD : str = "systemd_dir"
-    TEMPLATE : str = "template_dir"
-    TMP_ENVIRON : str = "DB4E_TMP"
-    VENDOR : str = DField.VENDOR_DIR.value
-    CONF : str = "conf_dir"
-
-# Elements
-class DElem(MetaConst):
-    DB4E : str = "db4e"
-    INT_P2POOL : str = "internal_p2pool"
-    MONEROD : str = "monerod"
-    MONEROD_REMOTE : str = "monerod_remote"
-    P2POOL : str = "p2pool"
-    P2POOL_REMOTE : str = "p2pool_remote"
-    XMRIG : str ="xmrig"
-
-# Files
-class DFile(MetaConst):
-    BACKUP_SCRIPT : str = "backup_script"
-    CONFIG_FILE : str = DField.CONFIG_FILE.value
-    P2POOL_LOG : str = "p2pool.log"
-
-# Modules
-class DMod(MetaConst):
-    DEPLOYMENT_MGR : str = "DeploymentMgr"
-    INSTALL_MGR : str = "InstallMgr"
-    OPS_MGR : str = "OpsManager"
-    PANE_MGR : str = "PaneMgr"
-
-# Status
-class Status(MetaConst):
-    ERROR : str = "error"
-    GOOD : str = "good"
-    WARN : str = "warn"
-
-# Methods
-class Method(MetaConst):
-    ADD_DEPLOYMENT : str = "add_deployment"
-    DELETE_DEPLOYMENT : str = "del_deployment"
-    GET_NEW : str = "get_new"
-    GET_REC : str = "get_deployment"
-    GET_TUI_LOG : str = "get_tui_log"
-    INITIAL_SETUP : str = "initial_setup"
-    INITIAL_SETUP_PROCEED : str = "initial_setup_proceed"
-    LOG_VIEWER : str = DField.LOG_VIEWER.value
-    PLOT : str = "plot"
-    POST_JOB : str = "post_job"
-    SET_PANE : str = DField.SET_PANE.value
-    SET_PRIMARY : str = "set_primary"
-
-# Mongo
-class Mongo(MetaConst):
-    COLLECTION : str = "collection"
-    CONFIG : str = "config"
-    DB : str = "db"
-    DB_NAME : str = "db4e"
-    DB4E_REFRESH : str = "db4e_refresh"
-    DEPLOYMENT_COL : str = "depl_collection"
-    DOC_TYPE : str = "doc_type"
-    LOG_COLLECTION : str = "log_collection"
-    METRICS_COLLECTION : str = "metrics_collection"
-    MINER : str = DField.MINER.value
-    OBJECT_ID : str = DField.OBJECT_ID.value
-    TEMPLATES_COLLECTION : str = "templates"
-    TIMESTAMP : str = DField.TIMESTAMP.value
-
-
-
-
-
-
-
-
-
-
-
-
-

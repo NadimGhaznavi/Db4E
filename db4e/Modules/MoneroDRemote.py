@@ -1,5 +1,5 @@
 """
-db4e/Modules/MonerodRemote.py
+db4e/Modules/MoneroDRemote.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -13,8 +13,7 @@ Everything remote Monero Daemon
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
     Instance, Remote, RpcBindPort, IpAddr, ZmqPubPort, PrimaryServer)
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Fields import DElem, DField
+from db4e.Constants import DLabel, DElem, DField
 
 
 

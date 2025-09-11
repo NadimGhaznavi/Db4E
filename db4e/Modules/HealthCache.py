@@ -13,7 +13,9 @@ import threading, time
 
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.DeploymentMgr import DeploymentMgr
-from db4e.Constants.Fields import DElem, DField
+
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
 
 MONERODS = "monerods"
 P2POOLS = "p2pools"

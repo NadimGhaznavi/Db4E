@@ -8,10 +8,11 @@ db4e/Constants/Components.py
     License: GPL 3.0
 """
 
-from db4e.Constants.Fields import DDir, DFile, DField
-from db4e.Constants.Labels import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DDir import DDir
 
-from db4e.Constants.Defaults import DDef
 
 class Component:
     def __init__(self, field, label, default_value=""):
@@ -84,7 +85,7 @@ class DonationWallet(Component):
 
 class InPeers(Component):
     def __init__(self):
-        super().__init(DField.IN_PEERS, DLabel.IN_PEERS, str(DDef.IN_PEERS))
+        super().__init(DField.IN_PEERS, DLabel.IN_PEERS, DDef.IN_PEERS)
 
 
 class InstallDir(Component):
@@ -104,12 +105,12 @@ class IpAddr(Component):
 
 class Local(Component):
     def __init__(self):
-        super().__init(DField.REMOTE, DLabel.REMOTE, str(False))
+        super().__init(DField.REMOTE, DLabel.REMOTE, False)
 
 
 class LogLevel(Component):
     def __init__(self):
-        super().__init(DField.LOG_LEVEL, DLabel.LOG_LEVEL, str(DDef.LOG_LEVEL))
+        super().__init(DField.LOG_LEVEL, DLabel.LOG_LEVEL, DDef.LOG_LEVEL)
 
 
 class LogFile(Component):
@@ -120,30 +121,30 @@ class LogFile(Component):
 class MaxLogFiles(Component):
     def __init__(self):
         super().__init(
-            DField.MAX_LOG_FILES, DLabel.MAX_LOG_FILES, str(DDef.MAX_LOG_FILES))
+            DField.MAX_LOG_FILES, DLabel.MAX_LOG_FILES, DDef.MAX_LOG_FILES)
 
 
 class MaxLogSize(Component):
     def __init__(self):
         super().__init(
-            DField.MAX_LOG_SIZE, DLabel.MAX_LOG_SIZE, str(DDef.MAX_LOG_SIZE))
+            DField.MAX_LOG_SIZE, DLabel.MAX_LOG_SIZE, DDef.MAX_LOG_SIZE)
 
 
 class NumThreads(Component):
     def __init__(self):
         super().__init(
-            DField.NUM_THREADS, DLabel.NUM_THREADS, str(DDef.NUM_THREADS))
+            DField.NUM_THREADS, DLabel.NUM_THREADS, DDef.NUM_THREADS)
 
 
 class OutPeers(Component):
     def __init__(self):
-        super().__init(DField.OUT_PEERS, DLabel.OUT_PEERS, str(DDef.OUT_PEERS))
+        super().__init(DField.OUT_PEERS, DLabel.OUT_PEERS, DDef.OUT_PEERS)
 
 
 class P2PBindPort(Component):
     def __init__(self):
         super().__init(
-            DField.P2P_BIND_PORT, DLabel.P2P_BIND_PORT, str(DDef.P2P_BIND_PORT))
+            DField.P2P_BIND_PORT, DLabel.P2P_BIND_PORT, DDef.P2P_BIND_PORT)
 
 
 class Parent(Component):
@@ -154,7 +155,7 @@ class Parent(Component):
 class PrimaryServer(Component):
     def __init__(self):
         super().__init__(
-            DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, str(False))
+            DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, False)
 
 
 class PriorityNode1(Component):

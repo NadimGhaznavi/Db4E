@@ -13,15 +13,12 @@ Everything P2Pool
 import os
 import time
 
-from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
-from db4e.Modules.MoneroD import MoneroD
-from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules import LocalSoftwareSystem
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
     P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
-from db4e.Constants.Fields import DElem, DField
-from db4e.Constants.Labels import DLabel
-from db4e.Constants.Defaults import DDef
+from db4e.Constants import DLabel, DElem, DField, DDef
+
 
 
 
@@ -83,7 +80,7 @@ class P2Pool(LocalSoftwareSystem):
         log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
 
         fq_config = os.path.join(
-            p2pool_dir, DDef.CONF_DIR, self.instance.value + '.ini')
+            p2pool_dir, DDef.CONF_DIR, self.instance() + '.ini')
 
         # Monero settings
         monerod_ip = self.monerod.ip_addr()
@@ -117,7 +114,7 @@ class P2Pool(LocalSoftwareSystem):
         # Write the config to file
         with open(fq_config, 'w') as f:
             f.write(final_config)
-        self.config_file.value = fq_config
+        self.config_file() = fq_config
         
         
     def instance_map(self, map=None):

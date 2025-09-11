@@ -11,12 +11,8 @@ db4e/JobQueue.py
 
 from datetime import datetime
 
-
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Job import Job
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Jobs import DJob
-from db4e.Constants.Fields import Mongo
+from db4e.Modules import DbMgr, Job
+from db4e.Constants import DDef, DJob, DMongo
 
 
 
@@ -30,7 +26,7 @@ class JobQueue:
     def complete_job(self, job: Job):
         job.status(DJob.COMPLETED)
         job.updated_at(datetime.now())
-        self.db.update_one(self.col_name, {Mongo.OBJECT_ID: job.id()}, job.to_rec())        
+        self.db.update_one(self.col_name, {DMongo.OBJECT_ID: job.id()}, job.to_rec())        
 
 
     def get_jobs(self):

@@ -14,35 +14,31 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.Fields import DField, DMod, DElem, Method
-from db4e.Constants.Form import Form
-from db4e.Constants.Labels import DLabel 
-from db4e.Constants.Buttons import DButton
-from db4e.Constants.Jobs import DJob
+from db4e.Constants import DField, DModule, DElem, DMethod, DForm, DLabel, DButton, DJob
 
 
 class MoneroDRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=Form.STATIC.value)
+    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     ip_addr_input = Input(
         compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     primary_server_checkbox = Checkbox(
         #PRIMARY_SERVER, compact=True, id="primary_server_checkbox")
         "", compact=True, id="primary_server_checkbox")
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     zmq_pub_port_input = Input(
         compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
-        classes=Form.INPUT_30.value)
+        classes=DForm.INPUT_30)
     health_msgs = Label()
-    delete_button = Button(label=DLabel.DELETE.value, id=DButton.DELETE.value)
-    new_button = Button(label=DLabel.NEW.value, id=DButton.NEW.value)
-    update_button = Button(label=DLabel.UPDATE.value, id=DButton.UPDATE.value)
+    delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
+    new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
 
 
     def compose(self):
@@ -53,37 +49,37 @@ class MoneroDRemotePane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=Form.INTRO.value),
+                Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.PRIMARY_SERVER, classes=DForm.FORM_LABEL),
                         self.primary_server_checkbox),
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.IP_ADDR, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL),
                         self.ip_addr_input),
                     Horizontal(
-                        Label(DLabel.RPC_BIND_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.RPC_BIND_PORT, classes=DForm.FORM_LABEL),
                         self.rpc_bind_port_input),
                     Horizontal(
-                        Label(DLabel.ZMQ_PUB_PORT, classes=Form.FORM_LABEL.value),
+                        Label(DLabel.ZMQ_PUB_PORT, classes=DForm.FORM_LABEL),
                         self.zmq_pub_port_input),
-                    classes=Form.FORM_5.value),
+                    classes=DForm.FORM_5),
 
                 Vertical(
                     self.health_msgs,
-                    classes=Form.HEALTH_BOX.value),
+                    classes=DForm.HEALTH_BOX),
 
                 Horizontal(
                     self.new_button,
                     self.update_button,
                     self.delete_button,
-                    classes=Form.BUTTON_ROW.value)),
+                    classes=DForm.BUTTON_ROW)),
 
-            classes=Form.PANE_BOX.value)
+            classes=DForm.PANE_BOX)
 
 
     def set_data(self, monerod: MoneroDRemote):
@@ -109,25 +105,25 @@ class MoneroDRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        self.monerod.instance(self.query_one("#instance_input", Input).value)
-        self.monerod.ip_addr(self.query_one("#ip_addr_input", Input).value)
-        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
-        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
-        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
+        self.monerod.instance(self.query_one("#instance_input", Input))
+        self.monerod.ip_addr(self.query_one("#ip_addr_input", Input))
+        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input))
+        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input))
+        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox))
 
 
         if button_id == DButton.NEW:
             form_data = {
-                DField.TO_MODULE: DMod.OPS_MGR,
-                DField.TO_METHOD: Method.ADD_DEPLOYMENT,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,
             }                
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.UPDATE,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,
@@ -135,8 +131,8 @@ class MoneroDRemotePane(Container):
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DMod.DEPLOYMENT_MGR,
-                DField.TO_METHOD: Method.POST_JOB,
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
                 DField.OP: DJob.DELETE,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,
