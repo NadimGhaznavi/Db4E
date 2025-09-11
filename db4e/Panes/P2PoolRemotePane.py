@@ -15,9 +15,14 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants import (
-    DLabel, DField, DForm, DElem, DMethod, DButton, DJob, DModule)
-
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DForm import DForm
 
 
 class P2PoolRemotePane(Container):

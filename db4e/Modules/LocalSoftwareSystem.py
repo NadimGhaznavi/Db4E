@@ -12,7 +12,8 @@ This is a virtual class.
 
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
-from db4e.Constants import DField, DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
 
 
 

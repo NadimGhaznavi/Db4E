@@ -13,8 +13,14 @@ from textual.widgets import Label, Button, Input, Checkbox
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.Helper import gen_results_table
 from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants import DField, DModule, DElem, DMethod, DForm, DLabel, DButton, DJob
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DForm import DForm
 
 
 class MoneroDRemotePane(Container):
@@ -105,11 +111,11 @@ class MoneroDRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        self.monerod.instance(self.query_one("#instance_input", Input))
-        self.monerod.ip_addr(self.query_one("#ip_addr_input", Input))
-        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input))
-        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input))
-        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox))
+        self.monerod.instance(self.query_one("#instance_input", Input).value)
+        self.monerod.ip_addr(self.query_one("#ip_addr_input", Input).value)
+        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
+        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
+        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
 
 
         if button_id == DButton.NEW:

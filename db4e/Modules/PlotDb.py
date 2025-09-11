@@ -8,14 +8,14 @@ Database 4 Everything
     License: GPL 3.0
 """
 
-from db4e.Modules import DbMgr
+from db4e.Modules.DbMgr import DbMgr
 
 
 
 class PlotDb:
 
     def __init__(self):
-        #self.db = DbMgr()
+        self.db = DbMgr()
         self.chain = None
         self.metric = None
 

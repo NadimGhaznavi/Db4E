@@ -85,7 +85,7 @@ class DonationWallet(Component):
 
 class InPeers(Component):
     def __init__(self):
-        super().__init(DField.IN_PEERS, DLabel.IN_PEERS, DDef.IN_PEERS)
+        super().__init__(DField.IN_PEERS, DLabel.IN_PEERS, DDef.IN_PEERS)
 
 
 class InstallDir(Component):
@@ -95,61 +95,61 @@ class InstallDir(Component):
 
 class Instance(Component):
     def __init__(self):
-        super().__init(DField.INSTANCE, DLabel.INSTANCE)
+        super().__init__(DField.INSTANCE, DLabel.INSTANCE)
 
 
 class IpAddr(Component):
     def __init__(self):
-        super().__init(DField.IP_ADDR, DLabel.IP_ADDR)
+        super().__init__(DField.IP_ADDR, DLabel.IP_ADDR)
 
 
 class Local(Component):
     def __init__(self):
-        super().__init(DField.REMOTE, DLabel.REMOTE, False)
+        super().__init__(DField.REMOTE, DLabel.REMOTE, False)
 
 
 class LogLevel(Component):
     def __init__(self):
-        super().__init(DField.LOG_LEVEL, DLabel.LOG_LEVEL, DDef.LOG_LEVEL)
+        super().__init__(DField.LOG_LEVEL, DLabel.LOG_LEVEL, DDef.LOG_LEVEL)
 
 
 class LogFile(Component):
     def __init__(self):
-        super().__init(DField.LOG_FILE, DLabel.LOG_FILE)
+        super().__init__(DField.LOG_FILE, DLabel.LOG_FILE)
 
 
 class MaxLogFiles(Component):
     def __init__(self):
-        super().__init(
+        super().__init__(
             DField.MAX_LOG_FILES, DLabel.MAX_LOG_FILES, DDef.MAX_LOG_FILES)
 
 
 class MaxLogSize(Component):
     def __init__(self):
-        super().__init(
+        super().__init__(
             DField.MAX_LOG_SIZE, DLabel.MAX_LOG_SIZE, DDef.MAX_LOG_SIZE)
 
 
 class NumThreads(Component):
     def __init__(self):
-        super().__init(
+        super().__init__(
             DField.NUM_THREADS, DLabel.NUM_THREADS, DDef.NUM_THREADS)
 
 
 class OutPeers(Component):
     def __init__(self):
-        super().__init(DField.OUT_PEERS, DLabel.OUT_PEERS, DDef.OUT_PEERS)
+        super().__init__(DField.OUT_PEERS, DLabel.OUT_PEERS, DDef.OUT_PEERS)
 
 
 class P2PBindPort(Component):
     def __init__(self):
-        super().__init(
+        super().__init__(
             DField.P2P_BIND_PORT, DLabel.P2P_BIND_PORT, DDef.P2P_BIND_PORT)
 
 
 class Parent(Component):
     def __init__(self):
-        super().__init(DField.PARENT, DLabel.PARENT)
+        super().__init__(DField.PARENT, DLabel.PARENT)
         
         
 class PrimaryServer(Component):
@@ -182,20 +182,18 @@ class PriorityPort1(Component):
 class PriorityPort2(Component):
     def __init__(self):
         super().__init__(
-            DField.PRIORITY_PORT_2, DLabel.PRIORITY_PORT_2, 
-            str(DDef.P2P_BIND_PORT))
+            DField.PRIORITY_PORT_2, DLabel.PRIORITY_PORT_2, DDef.P2P_BIND_PORT)
 
 
 class Remote(Component):
     def __init__(self):
-        super().__init(DField.REMOTE, DLabel.REMOTE, True)
+        super().__init__(DField.REMOTE, DLabel.REMOTE, True)
 
 
 class RpcBindPort(Component):
     def __init__(self):
-        super().__init(
-            DField.RPC_BIND_PORT, DLabel.RPC_BIND_PORT, 
-            str(DDef.RPC_BIND_PORT))
+        super().__init__(
+            DField.RPC_BIND_PORT, DLabel.RPC_BIND_PORT, DDef.RPC_BIND_PORT)
 
 
 class ShowTimeStats(Component):
@@ -212,8 +210,8 @@ class Stdin(Component):
 
 class StratumPort(Component):
     def __init__(self):
-        super().__init__(DField.STRATUM_PORT, DLabel.STRATUM_PORT, 
-                         str(DDef.STRATUM_PORT))
+        super().__init__(
+            DField.STRATUM_PORT, DLabel.STRATUM_PORT, DDef.STRATUM_PORT)
 
 
 class Version(Component):
@@ -241,6 +239,5 @@ class ZmqPubPort(Component):
 class ZmqRpcPort(Component):
     def __init__(self):
         super().__init__(
-            DField.ZMQ_RPC_PORT, DLabel.ZMQ_RPC_PORT, 
-            str(DDef.ZMQ_RPC_PORT))
+            DField.ZMQ_RPC_PORT, DLabel.ZMQ_RPC_PORT, DDef.ZMQ_RPC_PORT)
 

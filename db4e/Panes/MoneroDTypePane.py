@@ -9,9 +9,14 @@ db4e/Panes/MoneroDTypePane.py
 """
 
 from textual.containers import Container, Vertical, ScrollableContainer
-from textual.app import ComposeResult
 from textual.widgets import (Button, Label, RadioButton, RadioSet)
-from db4e.Constants import DLabel, DForm, DField, DModule, DElem, DMethod, DButton
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DForm import DForm
+from db4e.Constants.DField import DField
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DButton import DButton
 from db4e.Messages.Db4eMsg import Db4eMsg
 
 hi = "cyan"

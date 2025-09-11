@@ -194,7 +194,7 @@ class DeploymentMgr(Container):
         if update:
             self.insert_one(monerod)
             # We need to get the _id field
-            monerod = self.db_cache.get_deployment(DLabel.MONEROD_REMOTE, monerod.instance())
+            monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, monerod.instance())
             job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
             job.msg("Created new remote MoneroD deployment")
             self.job_queue.post_completed_job(job)
@@ -341,20 +341,20 @@ class DeploymentMgr(Container):
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                db4e.msg(DLabel.VENDOR, DStatus.WARN, 
+                db4e.msg(DLabel.VENDOR_DIR, DStatus.WARN, 
                     f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})")
             except (PermissionError, OSError) as e:
                 update_flag = False
-                db4e.msg(DLabel.VENDOR, DStatus.ERROR, 
+                db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
                     f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}")
                 return db4e, update_flag
             
         try:
             os.makedirs(new_dir)
-            db4e.msg(DLabel.VENDOR, DStatus.GOOD, f"Created new {DLabel.VENDOR}: {new_dir}")
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD, f"Created new {DLabel.VENDOR_DIR}: {new_dir}")
         except (PermissionError, OSError) as e:
-            db4e.msg(DLabel.VENDOR, DStatus.ERROR, 
-                f"Unable to create new {DLabel.VENDOR}: {new_dir}, aborting deployment directory update:\n{e}")
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
+                f"Unable to create new {DLabel.VENDOR_DIR}: {new_dir}, aborting deployment directory update:\n{e}")
             update_flag = False
 
         return db4e, update_flag
@@ -413,22 +413,22 @@ class DeploymentMgr(Container):
 
 
     def get_template(self, elem_type):
-        tmpl_dir = self.get_dir(DDir.TEMPLATES)
+        tmpl_dir = self.get_dir(DDir.TEMPLATE)
 
         if elem_type == DElem.MONEROD:
             monerod_dir = self.get_dir(DElem.MONEROD)
             tmpl_file = os.path.join(
-                tmpl_dir, monerod_dir, DDir.CONF, Default.MONEROD_CONFIG)
+                tmpl_dir, monerod_dir, DDef.CONF_DIR, Default.MONEROD_CONFIG)
 
         elif elem_type == DElem.P2POOL:
             p2pool_dir = self.get_dir(DElem.P2POOL)
             tmpl_file = os.path.join(
-                tmpl_dir, p2pool_dir, DDir.CONF, Default.P2POOL_CONFIG)
+                tmpl_dir, p2pool_dir, DDef.CONF_DIR, Default.P2POOL_CONFIG)
 
         elif elem_type == DElem.XMRIG:
             xmrig_dir = self.get_dir(DElem.XMRIG)
             tmpl_file = os.path.join(
-                tmpl_dir, xmrig_dir, DDir.CONF, Default.XMRIG_CONFIG)
+                tmpl_dir, xmrig_dir, DDef.CONF_DIR, Default.XMRIG_CONFIG)
 
         else:
             raise ValueError(f"DeploymentMgr:get_template(): No handler for {elem_type}")
@@ -451,7 +451,7 @@ class DeploymentMgr(Container):
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
         
-        elif aDir == DField.TEMPLATES:
+        elif aDir == DDir.TEMPLATE:
             return os.path.abspath(
                 os.path.join(os.path.dirname(
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
@@ -478,9 +478,10 @@ class DeploymentMgr(Container):
     
     
     def get_new(self, elem_type):
+
         if elem_type == DElem.MONEROD:
             return MoneroD()
-        elif elem_type == DElem.P2POOL_REMOTE:
+        elif elem_type == DElem.MONEROD_REMOTE:
             return MoneroDRemote()
         elif elem_type == DElem.P2POOL:
             p2pool = P2Pool()
@@ -525,8 +526,9 @@ class DeploymentMgr(Container):
 
 
     def post_job(self, job_info):
+
         job = Job(op=job_info[DJob.OP], elem_type=job_info[DField.ELEMENT_TYPE])
-        elem = job_info[DField.ELEMENT_FIELD]
+        elem = job_info[DField.ELEMENT]
         job.elem(elem)
         job.instance(elem.instance())
         self.job_queue.post_job(job)
@@ -572,7 +574,7 @@ class DeploymentMgr(Container):
                     db4e=db4e)
             msg = f"Updated vendor dir: {db4e.vendor_dir()} > " \
                 f"{new_db4e.vendor_dir()}"
-            db4e.msg(DLabel.VENDOR, DStatus.GOOD, msg)
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD, msg)
             db4e.vendor_dir(new_db4e.vendor_dir())
             update_flag = True
 
@@ -964,7 +966,7 @@ class DeploymentMgr(Container):
             backup_vendor_dir = new_dir + '.' + timestamp
             try:
                 os.rename(new_dir, backup_vendor_dir)
-                db4e.msg(DLabel.VENDOR, DStatus.WARN, 
+                db4e.msg(DLabel.VENDOR_DIR, DStatus.WARN, 
                     f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})')
                 return db4e, update_flag
             except (PermissionError, OSError) as e:

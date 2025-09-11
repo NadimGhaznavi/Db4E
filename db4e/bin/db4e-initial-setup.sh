@@ -17,9 +17,10 @@ DB4E_DIR="$1"
 DB4E_USER="$2"
 DB4E_GROUP="$3"
 VENDOR_DIR="$4"
+TMP_DIR="$5"
 
-if [ -z "$VENDOR_DIR" ]; then
-    echo "Usage: $0 <db4e_directory> <db4e_user> <db4e_group> <vendor_dir>"
+if [ -z "$TMP_DIR" ]; then
+    echo "Usage: $0 <db4e_directory> <db4e_user> <db4e_group> <vendor_dir> <tmp_dir>"
     exit 1
 fi
 
@@ -50,11 +51,14 @@ if [ $? -ne 0 ]; then
 fi
 echo "As root, installed: $DB4E_SUDOERS"
 
-TMP_DIR=$DB4E_TMP_DIR
 SYSTEMD_DIR=/etc/systemd/system
 
 # Install the Db4E service definition file
 mv $TMP_DIR/db4e.service $SYSTEMD_DIR
+if [ $? -ne 0 ]; then
+    echo "FATAL ERROR: mv $TMP_DIR/db4e.service $SYSTEMD_DIR failed"
+    exit 1
+fi
 chown root:root $SYSTEMD_DIR/db4e.service
 chmod 0644 $SYSTEMD_DIR/db4e.service
 echo "As root, installed: $SYSTEMD_DIR/db4e.service"

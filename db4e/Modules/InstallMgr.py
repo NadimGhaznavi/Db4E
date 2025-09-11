@@ -16,11 +16,18 @@ import stat
 
 from textual.containers import Container
 
-from db4e.Modules import (
-    OpsMgr, DeploymentMgr, Db4E, InternalP2Pool)
+from db4e.Modules.OpsMgr import OpsMgr
+from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.Helper import result_row
-from db4e.Constants import (
-    DDir, DStatus, DElem, DLabel, DDef, DField, DPlaceholder)
+from db4e.Constants.DDir import DDir
+from db4e.Constants.DStatus import DStatus
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DPlaceholder import DPlaceholder
+from db4e.Constants.DField import DField
 
 
 # The Mongo collection that houses the deployment records
@@ -39,7 +46,6 @@ class InstallMgr(Container):
         self.tmp_dir = None
 
     def initial_setup(self, form_data: dict) -> dict:
-        print(f"InstallMgr:initial_setup(): {form_data}")
         # Track the progress of the initial install
         abort_install = False
 
@@ -48,9 +54,6 @@ class InstallMgr(Container):
         db4e.pop_msgs()
         user_wallet = db4e.user_wallet()
         vendor_dir = db4e.vendor_dir()
-
-        print(f"InstallMgr:initial_setup(): user_wallet: {user_wallet}")
-        print(f"InstallMgr:initial_setup(): vendor_dir: {vendor_dir}")
 
         # Check that the user entered their wallet
         db4e, abort_install = self._check_wallet(user_wallet=user_wallet, db4e=db4e)
@@ -401,6 +404,7 @@ class InstallMgr(Container):
             tmpl_dir, DElem.DB4E, DDef.SYSTEMD_DIR, DDef.DB4E_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_db4e_service_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, DDef.DB4E_SERVICE_FILE)
+        print(f"tmp_service_file: {tmp_service_file}")
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
@@ -511,21 +515,17 @@ class InstallMgr(Container):
         return content
 
     def _run_sudo_installer(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        #print(f"InstallMgr:_run_sudo_installer()")
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        # Additional config settings
-        # Set the location of the temp dir in an environment variable
-        env_setting = f"{DDir.TMP_ENVIRON}={self.tmp_dir}"
         # Run the bin/db4e-installer.sh
         fq_initial_setup = os.path.join(
             db4e_install_dir, DDef.BIN_DIR, DDef.DB4E_INITIAL_SETUP_SCRIPT)
         try:
             cmd_result = subprocess.run(
                 [ 
-                    SUDO_CMD, "env", env_setting, fq_initial_setup, DElem.DB4E, 
-                    db4e.user(), db4e.group(), vendor_dir],
+                    SUDO_CMD, fq_initial_setup, db4e_install_dir, 
+                    db4e.user(), db4e.group(), vendor_dir, tmp_dir],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",

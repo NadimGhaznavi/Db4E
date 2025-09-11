@@ -9,8 +9,7 @@ db4e/Widgets/DetailPane.py
 
 """
 
-from textual.app import App, ComposeResult
-from textual.widgets import ContentSwitcher
+from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.containers import Container
 

@@ -12,7 +12,10 @@ Defines operations that are common to all SoftareSystems instances.
 This is a virtual class.
 """
 
-from db4e.Constants import DLabel, DJob, DField, DStatus
+from db4e.Constants.DStatus import DStatus
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DJob import DJob
 
 
 class SoftwareSystem:

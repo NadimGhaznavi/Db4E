@@ -11,8 +11,11 @@ db4e/JobQueue.py
 
 from datetime import datetime
 
-from db4e.Modules import DbMgr, Job
-from db4e.Constants import DDef, DJob, DMongo
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.Job import Job
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DMongo import DMongo
 
 
 

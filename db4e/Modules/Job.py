@@ -12,8 +12,15 @@ db4e/Job.py
 import uuid
 from datetime import datetime
 
-from db4e.Modules import MoneroD, MoneroDRemote, P2Pool, P2PoolRemote, XMRig
-from db4e.Constants import DElem, DField, DJob
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
+
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DJob import DJob
 
 
 class Job:

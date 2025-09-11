@@ -15,7 +15,7 @@ from textual.containers import ScrollableContainer, Vertical
 
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants import DForm
+from db4e.Constants.DForm import DForm
 
 
 

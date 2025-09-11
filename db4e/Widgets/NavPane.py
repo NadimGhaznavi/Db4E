@@ -18,10 +18,16 @@ from textual.containers import Container, Vertical, ScrollableContainer
 
 #from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Messages import Db4eMsg
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Constants import (
-    DStatus, DElem, DModule, DField, DMethod, DLabel, DButton, DPane)
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DStatus import DStatus
+from db4e.Constants.DPane import DPane
+
 
 # Icon dictionary keys
 BLOCK = 'BLOCK'

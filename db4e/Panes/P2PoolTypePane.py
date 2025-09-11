@@ -8,11 +8,19 @@ db4e/Panes/P2PoolTypePane.py
     License: GPL 3.0
 """
 
-from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
+from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Button, RadioButton, RadioSet, Label
 
 from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Constants import DLabel, DField, DModule, DElem, DMethod, DForm, DButton
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DForm import DForm
+from db4e.Messages.Db4eMsg import Db4eMsg
+from db4e.Constants.DLabel import DLabel
 
 color = "#9cae41"
 hi = "cyan"
@@ -34,7 +42,7 @@ class P2PoolTypePane(Container):
                     RadioSet(
                         RadioButton("Local " + DLabel.P2POOL, id="local",value=True),
                         RadioButton(DLabel.P2POOL_REMOTE, id="remote"),
-                        id="type_radioset", classes=DForm.RADIO_SET.value,
+                        id="type_radioset", classes=DForm.RADIO_SET,
                     )),
 
                 Button(label=DLabel.PROCEED, id=DButton.PROCEED)),

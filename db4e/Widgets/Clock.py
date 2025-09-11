@@ -11,7 +11,6 @@ db4e/Widgets/Clock.py
 
 from datetime import datetime
 from textual.widgets import Label
-from textual.widget import Widget
 from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.containers import Container

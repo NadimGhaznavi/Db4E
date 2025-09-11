@@ -15,8 +15,11 @@ from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import (
     ConnectionFailure, CollectionInvalid, ServerSelectionTimeoutError)
 
-from db4e.Modules import Db4E
-from db4e.Constants import DField, DElem, DDef, DJob
+from db4e.Modules.Db4E import Db4E
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DJob import DJob
 
 
 

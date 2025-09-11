@@ -13,11 +13,14 @@ Everything P2Pool
 import os
 import time
 
-from db4e.Modules import LocalSoftwareSystem
+from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
     P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
-from db4e.Constants import DLabel, DElem, DField, DDef
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DDef import DDef
 
 
 
@@ -114,7 +117,7 @@ class P2Pool(LocalSoftwareSystem):
         # Write the config to file
         with open(fq_config, 'w') as f:
             f.write(final_config)
-        self.config_file() = fq_config
+        self.config_file(fq_config)
         
         
     def instance_map(self, map=None):

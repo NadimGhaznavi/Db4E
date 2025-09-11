@@ -11,7 +11,9 @@ db4e/Panes/DonationsPane.py
 from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Button
 
-from db4e.Constants import DLabel, DDef, DForm
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DForm import DForm
 
 color = "#9cae41"
 hi = "#d7e556"

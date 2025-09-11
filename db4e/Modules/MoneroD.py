@@ -18,7 +18,11 @@ from db4e.Modules.Components import (
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
     PriorityPort1, PriorityPort2, IpAddr, Version, Stdin, PrimaryServer)
-from db4e.Constants import DField, DElem, DLabel, DDef
+
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DElem import DElem
 
 
 class MoneroD(LocalSoftwareSystem):

@@ -8,10 +8,19 @@ db4e/Modules/MessageRouter.py
     License: GPL 3.0
 """
 
-from db4e.Modules import (
-    InstallMgr, DeploymentMgr, PaneMgr, OpsMgr, PaneCatalogue)
-from db4e.Constants import (
-    DMethod, DField, DJob, DElem, DPane, DModule)
+from db4e.Modules.InstallMgr import InstallMgr
+from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.PaneMgr import PaneMgr
+from db4e.Modules.OpsMgr import OpsMgr
+from db4e.Modules.PaneCatalogue import PaneCatalogue
+
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DField import DField
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DPane import DPane
+from db4e.Constants.DModule import DModule
+
 
 
 class MessageRouter:
@@ -33,11 +42,11 @@ class MessageRouter:
                       self.install_mgr.initial_setup, DPane.RESULTS)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.DB4E,
                       self.ops_mgr.get_deployment, DPane.DB4E)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.DB4E,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.DB4E,
                       self.depl_mgr.update_deployment, DPane.WELCOME)
 
         # MoneroD = Type: local or remote
-        self.register(DModule.PANE_MGR, DField.SET, DElem.MONEROD,
+        self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.MONEROD,
                       self.pane_mgr.set_pane, DPane.MONEROD_TYPE)
 
         # MoneroD - local
@@ -47,7 +56,7 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, DPane.MONEROD)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD,
                       self.ops_mgr.get_deployment, DPane.MONEROD)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.MONEROD,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.MONEROD,
                       self.depl_mgr.post_job, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_mgr.del_deployment, DPane.MONEROD)
@@ -59,14 +68,14 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, DPane.MONEROD_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_deployment, DPane.MONEROD_REMOTE)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.MONEROD_REMOTE,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.MONEROD_REMOTE,
                       self.depl_mgr.post_job, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.depl_mgr.del_deployment, DPane.MONEROD_REMOTE)
         
 
         # MoneroD = Type: local or remote
-        self.register(DModule.PANE_MGR, DField.SET, DElem.P2POOL,
+        self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.P2POOL,
                       self.pane_mgr.set_pane, DPane.P2POOL_TYPE)
 
         # P2Pool - local
@@ -76,7 +85,7 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.P2POOL,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.P2POOL,
                       self.depl_mgr.post_job, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_mgr.del_deployment, DPane.P2POOL)
@@ -88,7 +97,7 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, DPane.P2POOL_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_deployment, DPane.P2POOL_REMOTE)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.P2POOL_REMOTE,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.P2POOL_REMOTE,
                       self.depl_mgr.post_job, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.depl_mgr.del_deployment, DPane.P2POOL_REMOTE)
@@ -100,7 +109,7 @@ class MessageRouter:
                       self.ops_mgr.add_deployment, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.XMRIG,
                       self.ops_mgr.get_deployment, DPane.XMRIG)
-        self.register(DModule.DEPLOYMENT_MGR, DJob.POST_JOB, DElem.XMRIG,
+        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.XMRIG,
                       self.depl_mgr.post_job, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_mgr.del_deployment, DPane.XMRIG)
@@ -122,7 +131,7 @@ class MessageRouter:
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
 
         # Donations
-        self.register(DModule.PANE_MGR, DMethod.SET, DField.DONATIONS,
+        self.register(DModule.PANE_MGR, DMethod.SET_PANE, DField.DONATIONS,
                       self.pane_mgr.set_pane, DPane.DONATIONS)
 
 

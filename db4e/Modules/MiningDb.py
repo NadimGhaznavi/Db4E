@@ -15,8 +15,10 @@ from decimal import Decimal
 from datetime import datetime, timezone
 
 # Import DB4E modules
-from db4e.Modules import DbMgr
-from db4e.Constants import DDef, DMongo, DMining
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DMongo import DMongo
+from db4e.Constants.DMining import DMining
 
 
 

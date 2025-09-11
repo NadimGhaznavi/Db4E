@@ -16,8 +16,14 @@ from textual.reactive import reactive
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants import DElem, DField, DModule, DMethod, DForm, DLabel, DButton, DJob
-
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DForm import DForm
 
 
 class P2PoolPane(Container):
@@ -91,7 +97,7 @@ class P2PoolPane(Container):
                     Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
-                    classes=DForm.FORM_7, id=DForm.PANE_BOX),
+                    classes=DForm.FORM_7, id="form_box"),
                     
                 Vertical(
                     self.chain_radio_set),
@@ -120,7 +126,7 @@ class P2PoolPane(Container):
         #radio_set = self.query_one("#radio_set", RadioSet")
         self.radio_set.border_subtitle = DLabel.MONEROD
         self.chain_radio_set.border_subtitle = DLabel.CHAIN
-        form_box = self.query_one("#form_field", Vertical)
+        form_box = self.query_one("#form_box", Vertical)
         form_box.border_subtitle = DLabel.CONFIG        
 
     def set_data(self, p2pool: P2Pool):

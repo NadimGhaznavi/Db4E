@@ -1,3 +1,4 @@
+
 """
 db4e/Panes/MoneroDPane.py
 
@@ -14,7 +15,15 @@ from textual.widgets import Label, Input, Button, Checkbox
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.Helper import gen_results_table
-from db4e.Constants import DField, DElem, DModule, DMethod, DLabel, DJob, DButton, DForm
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DForm import DForm
+
 
 color = "#9cae41"
 hi = "#d7e556"
@@ -266,6 +275,6 @@ class MoneroDPane(Container):
                 DField.ELEMENT_TYPE: DElem.MONEROD,
                 DField.ELEMENT: self.monerod,
             }            
-
+        print(F"MoneroDPane:on_button_pressed(): {self.monerod.to_rec()}")
         self.app.post_message(Db4eMsg(self, form_data=form_data))                              
         # self.app.post_message(Db4eMsg(self, form_data=form_data))

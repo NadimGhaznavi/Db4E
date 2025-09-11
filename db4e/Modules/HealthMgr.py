@@ -126,10 +126,10 @@ class HealthMgr:
 
         if monerod.enabled():
             monerod.msg(DLabel.MONEROD, DStatus.GOOD,
-                        f"{DLabel.MONEROD} ({monerod.instance}) is enabled")
+                        f"{DLabel.MONEROD} ({monerod.instance()}) is enabled")
         else:
-            monerod.msg(DLabel.ONEROD, DStatus.ERROR,
-                        f"{DLabel.MONEROD} ({monerod.instance}) is disabled")
+            monerod.msg(DLabel.MONEROD, DStatus.ERROR,
+                        f"{DLabel.MONEROD} ({monerod.instance()}) is disabled")
 
         if self.is_port_open(monerod.ip_addr(), monerod.rpc_bind_port()):
             monerod.msg(DLabel.RPC_BIND_PORT, DStatus.GOOD,

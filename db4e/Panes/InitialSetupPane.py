@@ -16,7 +16,14 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.Quit import Quit
 
-from db4e.Constants import DField, DModule, DElem, DMethod, DButton, DLabel, DForm
+from db4e.Constants.DField import DField
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DForm import DForm
+
 
 MAX_GROUP_LENGTH = 20
 
@@ -76,9 +83,9 @@ class InitialSetupPane(Container):
     def set_data(self, db4e: Db4E):
         #print(f"InitialSetup:set_data(): rec: {rec}")
         self.db4e = db4e
-        self.user_name_static.update(db4e.user)
-        self.group_name_static.update(db4e.group)
-        self.install_dir_static.update(db4e.install_dir)
+        self.user_name_static.update(db4e.user())
+        self.group_name_static.update(db4e.group())
+        self.install_dir_static.update(db4e.install_dir())
         self.user_wallet_input.value = db4e.user_wallet()
         self.vendor_dir_input.value = db4e.vendor_dir()
 

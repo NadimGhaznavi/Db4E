@@ -10,13 +10,24 @@ db4e/Modules/PaneCatalogue.py
 
 from textual.containers import Container
 
-from db4e.Panes import (
-    Db4EPane, DonationsPane, InitialSetupPane, LogViewPane, MoneroDPane, 
-    MoneroDRemotePane, MoneroDTypePane, P2PoolPane, P2PoolRemotePane, 
-    P2PoolTypePane, PlotViewPane, ResultsPane, TUILogPane, WelcomePane, 
-    XMRigPane
-)
-from db4e.Constants import DLabel, DPane
+from db4e.Panes.Db4EPane import Db4EPane
+from db4e.Panes.DonationsPane import DonationsPane
+from db4e.Panes.InitialSetupPane import InitialSetupPane
+from db4e.Panes.LogViewPane import LogViewPane
+from db4e.Panes.MoneroDPane import MoneroDPane
+from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
+from db4e.Panes.MoneroDTypePane import MoneroDTypePane
+from db4e.Panes.P2PoolPane import P2PoolPane
+from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
+from db4e.Panes.P2PoolTypePane import P2PoolTypePane
+from db4e.Panes.PlotViewPane import PlotViewPane
+from db4e.Panes.ResultsPane import ResultsPane
+from db4e.Panes.TUILogPane import TUILogPane
+from db4e.Panes.WelcomePane import WelcomePane
+from db4e.Panes.XMRigPane import XMRigPane
+
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DPane import DPane
 
 
 

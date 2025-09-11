@@ -9,15 +9,16 @@ db4e/Panes/TUILogPane.py
 """
 
 from rich import box
-from rich.syntax import Syntax
 from rich.table import Table
 
 from textual.reactive import reactive
-from textual.widgets import Static, Log, RichLog
+from textual.widgets import Static
 from textual.containers import ScrollableContainer, Vertical
 
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants import DElem, DLabel, DForm, DDef
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DForm import DForm
+from db4e.Constants.DDef import DDef
 
 TYPE_TABLE = {
     DElem.MONEROD: DLabel.MONEROD_SHORT,

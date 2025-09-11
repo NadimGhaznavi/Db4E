@@ -15,9 +15,10 @@ from textual.widget import Widget
 from textual.widgets import ContentSwitcher
 from textual.reactive import reactive
 
-from db4e.Modules import PaneCatalogue
+from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Messages.UpdateTopBar import UpdateTopBar
-from db4e.Constants import DPane, DField
+from db4e.Constants.DPane import DPane
+from db4e.Constants.DField import DField
 
 
 

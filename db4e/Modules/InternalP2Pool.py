@@ -10,7 +10,9 @@ db4e/Modules/InternalP2Pool.py
 """
 
 from db4e.Modules.P2Pool import P2Pool
-from db4e.Constants import DElem, DField, DLabel
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
 
 P2P_PORT_OFFSET = 100
 STRATUM_PORT_OFFSET = 40000
@@ -44,5 +46,8 @@ class InternalP2Pool(P2Pool):
             raise ValueError(f"Unknown P2Pool instance: {chain_label}")
 
         self.chain(chain_field)
+        print(f"InternalP2Pool:set_type(): p2p_bind: {type(self.p2p_bind_port())}")
+        print(f"InternalP2Pool:set_type(): stratum: {type(self.stratum_port())}")
         self.p2p_bind_port(self.p2p_bind_port() + P2P_PORT_OFFSET + offset)
         self.stratum_port(self.stratum_port() + STRATUM_PORT_OFFSET + offset)
+        self.instance(chain_label)

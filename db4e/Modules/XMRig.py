@@ -15,7 +15,11 @@ from copy import deepcopy
 
 
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
-from db4e.Constants import DElem, DField, DDef, DLabel
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DDef import DDef
+
 from db4e.Modules.Components import (
     ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
 

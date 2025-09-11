@@ -27,7 +27,7 @@ except Exception:
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.Db4ESystemD import Db4ESystemD
 from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Db4eLogger import Db4eLogger
+from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DeploymentMgr import DeploymentMgr
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.Job import Job
@@ -39,9 +39,11 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
 from db4e.Modules.XMRig import XMRig
-from db4e.Constants.Defaults import DDef
-from db4e.Constants.Fields import DElem, DDir, DField
-from db4e.Constants.Jobs import DJob
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DDir import DDir
+from db4e.Constants.DJob import DJob
 
 
 
@@ -79,7 +81,7 @@ class Db4eServer:
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
-        self.log = Db4eLogger(
+        self.log = Db4ELogger(
             elem_type=DDef.DB4E_SERVER,
             log_file=fq_log_file
         )

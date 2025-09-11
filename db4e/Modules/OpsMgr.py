@@ -7,11 +7,17 @@ db4e/Modules/OpsMgr.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-import os
 
-from db4e.Modules import (
-    Db4E, DbMgr, DeploymentMgr, HealthMgr, HealthCache, XMRig, P2Pool)
-from db4e.Constants import DElem, DField, DDef
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.HealthMgr import HealthMgr
+from db4e.Modules.HealthCache import HealthCache
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.XMRig import XMRig
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DDef import DDef
 
 
 
@@ -94,7 +100,7 @@ class OpsMgr:
 
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]
-        instance = form_data[DField.INSTANCE_FIELD]
+        instance = form_data[DField.INSTANCE]
         elem = self.depl_mgr.get_deployment(
             elem_type=elem_type, instance=instance)
         return elem

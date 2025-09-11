@@ -13,7 +13,9 @@ Everything remote Monero Daemon
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
     Instance, Remote, RpcBindPort, IpAddr, ZmqPubPort, PrimaryServer)
-from db4e.Constants import DLabel, DElem, DField
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
 
 
 

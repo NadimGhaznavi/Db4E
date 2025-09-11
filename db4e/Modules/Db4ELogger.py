@@ -16,7 +16,9 @@ import traceback
 from pymongo import MongoClient
 import time
 
-from db4e.Constants import DField, DDef, DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DDef import DDef
 
 
 
@@ -28,7 +30,7 @@ LOG_LEVELS = {
     'critical': logging.CRITICAL,
 }
 
-class Db4eLogger:
+class Db4ELogger:
     def __init__(self, elem_type: str, db=False, log_file=None):
         logger_name = f'{DElem.DB4E}.{elem_type}'
         self._elem_type = elem_type

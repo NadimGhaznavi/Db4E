@@ -16,9 +16,14 @@ from textual.widgets import (
 from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRig import XMRig
 from db4e.Messages import Db4eMsg
-from db4e.Constants import (
-    DButton, DJob, DLabel, DField, DMethod, DModule, DElem, DForm)
-
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DJob import DJob
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DForm import DForm
 
 
 class XMRigPane(Container):
