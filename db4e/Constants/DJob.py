@@ -26,7 +26,8 @@ class DJob(ConstGroup):
     MESSAGE : str = DField.MESSAGE
     NEW : str = "new"
     OBJECT_ID : str = DField.OBJECT_ID
-    OP : str = "op"
+    OP : str = DField.OP
+    PRIORITY : str = "priority"
     PENDING : str = "pending"
     RETRY : str = "retry"
     PROCESSING : str = "processing"

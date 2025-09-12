@@ -52,6 +52,7 @@ class OpsMgr:
 
         elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
 
+        # TODO : Is this block required????
         if not elem:
             if elem_type == DElem.MONEROD:
                 elem = self.depl_mgr.get_deployment(

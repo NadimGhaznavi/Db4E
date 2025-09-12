@@ -89,13 +89,15 @@ class DeploymentMgr(Container):
 
         # Catchall
         else:
-            raise ValueError(f"DeploymentMgr:add_deployment(): No handler for {elem_class}")
+            raise ValueError(
+                f"DeploymentMgr:add_deployment(): No handler for {elem_class}")
 
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
         for aMonerod in self.get_monerods():
             if aMonerod.instance() == monerod.instance():
-                msg = f"A deployment with the same name ({monerod.instance()}) already exists"
+                msg = f"A deployment with the same name ({monerod.instance()}) " \
+                    f"already exists"
                 monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
                 return monerod
 
@@ -146,22 +148,35 @@ class DeploymentMgr(Container):
         if update:
             monerod.ip_addr(socket.gethostname())
             vendor_dir = self.get_dir(DDir.VENDOR)
-            monerod_dir = self.get_dir(DElem.MONEROD)
             tmpl_file = self.get_template(DElem.MONEROD)
-            monerod.data_dir(os.path.join(vendor_dir, DDir.BLOCKCHAIN))
-            monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+
+            # Monero log file
+            os.makedirs(os.path.join(
+                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR))
             monerod.log_file(
-                os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
-                             DDir.LOG, 'monerod.log'))
+                os.path.join(
+                    vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR, 
+                    DDef.MONEROD_LOG_FILE))
+            
+            # Blockchain directory
+            os.makedirs(os.path.join(
+                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
+            monerod.blockchain_dir(
+                os.path.join(
+                    vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
+            
+            # Run directory
+            os.makedirs(
+                os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
+            
+            # Generate the configuration
+            monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+
             self.insert_one(monerod)
-            os.makedirs(os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
-                                   DDir.LOG))
-            os.makedirs(os.path.join(vendor_dir, monerod_dir, monerod.instance(), 
-                                   DDir.RUN))
             if monerod.primary_server():
                 self.set_primary_server(monerod)
             job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
-            job.msg("Created new MoneroD deployment")
+            job.msg("New deployment")
             if monerod.primary_server():
                 self.set_int_p2pool_primary_server(monerod)
 
@@ -172,7 +187,8 @@ class DeploymentMgr(Container):
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
         for aMonerod in self.get_monerods():
             if aMonerod.instance() == monerod.instance():
-                msg = f"A deployment with the same name ({monerod.instance()}) already exists"
+                msg = f"A deployment with the same name ({monerod.instance()}) " \
+                    f"already exists"
                 monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
                 return monerod
             
@@ -194,9 +210,10 @@ class DeploymentMgr(Container):
         if update:
             self.insert_one(monerod)
             # We need to get the _id field
-            monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, monerod.instance())
+            monerod = self.db_cache.get_deployment(
+                DElem.MONEROD_REMOTE, monerod.instance())
             job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
-            job.msg("Created new remote MoneroD deployment")
+            job.msg("New deployment")
             self.job_queue.post_completed_job(job)
 
             if monerod.primary_server():
@@ -210,7 +227,8 @@ class DeploymentMgr(Container):
     def add_p2pool_deployment(self, p2pool):
         for aP2Pool in self.get_p2pools():
             if aP2Pool.instance() == p2pool.instance():
-                msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
+                msg = f"A deployment with the same name ({p2pool.instance()}) " \
+                    f"already exists"
                 p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return p2pool
 
@@ -245,25 +263,25 @@ class DeploymentMgr(Container):
         if update:
             p2pool.ip_addr(socket.gethostname())
             vendor_dir = self.get_dir(DDir.VENDOR)
-            p2pool_dir = self.get_dir(DElem.P2POOL)
             tmpl_file = self.get_template(DElem.P2POOL)
             if type(p2pool) == P2Pool:
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
                 p2pool.log_file(
                     os.path.join(
-                        vendor_dir, p2pool_dir, p2pool.instance(), 
-                        DDir.LOG, DFile.P2POOL_LOG))
+                        vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                        DDef.LOG_DIR, DFile.P2POOL_LOG))
+                
             self.insert_one(p2pool)
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
-                                     DDir.LOG), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
-                                     DDir.RUN), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
-                                     DDir.API), exist_ok=True)
-            p2pool.stdin(os.path.join(vendor_dir, p2pool_dir, p2pool.instance(), 
-                                      DDir.RUN, 'p2pool.stdin'))
+            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                     DDef.LOG_DIR), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                     DDef.API_DIR), exist_ok=True)
+            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                     DDef.RUN_DIR), exist_ok=True)
+            p2pool.stdin(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                      DDef.LOG_DIR, DFile.P2POOL_STDIN))
             job = Job(op=DJob.NEW, elem_type=DElem.P2POOL, instance=p2pool.instance())
-            job.msg("Created new P2Pool deployment")
+            job.msg("New deployment")
             self.job_queue.post_completed_job(job)
         return p2pool
 
@@ -271,7 +289,8 @@ class DeploymentMgr(Container):
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         for aP2Pool in self.get_p2pools():
             if aP2Pool.instance() == p2pool.instance():
-                msg = f"A deployment with the same name ({p2pool.instance()}) already exists"
+                msg = f"A deployment with the same name ({p2pool.instance()}) " \
+                    f"already exists"
                 p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return p2pool
 
@@ -291,8 +310,9 @@ class DeploymentMgr(Container):
 
         if update:
             self.insert_one(p2pool)
-            job = Job(op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
-            job.msg("Created new remote P2Pool deployment")
+            job = Job(
+                op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
+            job.msg(f"New deployment")
             self.job_queue.post_completed_job(job)
         return p2pool
 
@@ -300,7 +320,8 @@ class DeploymentMgr(Container):
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
         for aXMRig in self.get_p2pools():
             if aXMRig.instance() == xmrig.instance():
-                msg = f"A deployment with the same name ({xmrig.instance()}) already exists"
+                msg = f"A deployment with the same name ({xmrig.instance()}) " \
+                    f"already exists"
                 xmrig.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
                 return xmrig
             
@@ -317,19 +338,17 @@ class DeploymentMgr(Container):
             update = False
         else:
             xmrig.p2pool = self.db_cache.get_deployment_by_id(xmrig.parent())
-        
-        print(f"DeploymentMgr:add_xmrig_deployment(): xmrig.parent: {xmrig.parent()}")
-        print(f"DeploymentMgr:add_xmrig_deployment(): xmrig.p2pool: {xmrig.p2pool}")
-            
+                    
         if update:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.XMRIG)
             xmrig_dir = self.get_dir(DElem.XMRIG)
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            xmrig.log_file(os.path.join(vendor_dir, xmrig_dir, DDir.LOG, xmrig.instance() + '.log'))
+            xmrig.log_file(os.path.join(
+                vendor_dir, xmrig_dir, DDef.LOG_DIR, xmrig.instance() + '.log'))
             self.insert_one(xmrig)
             job = Job(op=DJob.NEW, elem_type=DElem.XMRIG, instance=xmrig.instance())
-            job.msg("Created new XMRig deployment")
+            job.msg(f"New deployment")
             self.job_queue.post_completed_job(job)
         return xmrig
 
@@ -342,19 +361,24 @@ class DeploymentMgr(Container):
             try:
                 os.rename(new_dir, backup_vendor_dir)
                 db4e.msg(DLabel.VENDOR_DIR, DStatus.WARN, 
-                    f"Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})")
+                    f"Found existing directory ({new_dir}), backed it " \
+                    f"up as ({backup_vendor_dir})")
             except (PermissionError, OSError) as e:
                 update_flag = False
                 db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
-                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), aborting deployment directory update:\n{e}")
+                    f"Unable to backup ({new_dir}) as ({backup_vendor_dir}), " \
+                    f"aborting deployment directory update:\n{e}")
                 return db4e, update_flag
             
         try:
             os.makedirs(new_dir)
-            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD, f"Created new {DLabel.VENDOR_DIR}: {new_dir}")
+            db4e.msg(
+                DLabel.VENDOR_DIR, DStatus.GOOD, 
+                f"Created new {DLabel.VENDOR_DIR}: {new_dir}")
         except (PermissionError, OSError) as e:
             db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, 
-                f"Unable to create new {DLabel.VENDOR_DIR}: {new_dir}, aborting deployment directory update:\n{e}")
+                f"Unable to create new {DLabel.VENDOR_DIR}: {new_dir}, " \
+                f"aborting deployment directory update:\n{e}")
             update_flag = False
 
         return db4e, update_flag
@@ -404,38 +428,6 @@ class DeploymentMgr(Container):
         return self.db_cache.get_deployments()
 
 
-    def get_downstream(self, elem):
-        return self.db_cache.get_downstream(elem)
-
-
-    def get_internal_p2pools(self):
-        return self.db_cache.get_internal_p2pools()
-
-
-    def get_template(self, elem_type):
-        tmpl_dir = self.get_dir(DDir.TEMPLATE)
-
-        if elem_type == DElem.MONEROD:
-            monerod_dir = self.get_dir(DElem.MONEROD)
-            tmpl_file = os.path.join(
-                tmpl_dir, monerod_dir, DDef.CONF_DIR, Default.MONEROD_CONFIG)
-
-        elif elem_type == DElem.P2POOL:
-            p2pool_dir = self.get_dir(DElem.P2POOL)
-            tmpl_file = os.path.join(
-                tmpl_dir, p2pool_dir, DDef.CONF_DIR, Default.P2POOL_CONFIG)
-
-        elif elem_type == DElem.XMRIG:
-            xmrig_dir = self.get_dir(DElem.XMRIG)
-            tmpl_file = os.path.join(
-                tmpl_dir, xmrig_dir, DDef.CONF_DIR, Default.XMRIG_CONFIG)
-
-        else:
-            raise ValueError(f"DeploymentMgr:get_template(): No handler for {elem_type}")
-
-        return tmpl_file
-
-
     def get_dir(self, aDir: str) -> str:
 
         if aDir == DElem.DB4E:
@@ -471,6 +463,38 @@ class DeploymentMgr(Container):
 
         else:
             raise ValueError(f"OpsMgr:get_dir(): No handler for: {aDir}")
+
+
+    def get_downstream(self, elem):
+        return self.db_cache.get_downstream(elem)
+
+
+    def get_internal_p2pools(self):
+        return self.db_cache.get_internal_p2pools()
+
+
+    def get_template(self, elem_type):
+        tmpl_dir = self.get_dir(DDir.TEMPLATE)
+
+        if elem_type == DElem.MONEROD:
+            monerod_dir = self.get_dir(DElem.MONEROD)
+            tmpl_file = os.path.join(
+                tmpl_dir, monerod_dir, DDef.CONF_DIR, Default.MONEROD_CONFIG)
+
+        elif elem_type == DElem.P2POOL:
+            p2pool_dir = self.get_dir(DElem.P2POOL)
+            tmpl_file = os.path.join(
+                tmpl_dir, p2pool_dir, DDef.CONF_DIR, Default.P2POOL_CONFIG)
+
+        elif elem_type == DElem.XMRIG:
+            xmrig_dir = self.get_dir(DElem.XMRIG)
+            tmpl_file = os.path.join(
+                tmpl_dir, xmrig_dir, DDef.CONF_DIR, Default.XMRIG_CONFIG)
+
+        else:
+            raise ValueError(f"DeploymentMgr:get_template(): No handler for {elem_type}")
+
+        return tmpl_file
 
 
     def get_monerods(self):
@@ -603,8 +627,8 @@ class DeploymentMgr(Container):
             return self.update_xmrig_deployment(elem)
         else:
             raise ValueError(
-                f"{DModule.DEPLOYMENT_MGR}:update_deployment(): No handler for component " \
-                f"({elem})")
+                f"{DModule.DEPLOYMENT_MGR}:update_deployment(): " \
+                f" No handler for component ({elem})")
 
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
@@ -612,7 +636,8 @@ class DeploymentMgr(Container):
         update_config = False
         retart = True
 
-        monerod = self.db_cache.get_deployment(DElem.MONEROD, new_monerod.instance())
+        monerod = self.db_cache.get_deployment(
+            DElem.MONEROD, new_monerod.instance())
         if not monerod:
             raise ValueError(f"DeploymentMgr:update_monerod_deployment(): " \
                              f"No monerod found for {new_monerod}")
@@ -890,10 +915,11 @@ class DeploymentMgr(Container):
                 parent_instance = parent.instance()
                 new_parent = self.get_deployment_by_id(p2pool.parent())
                 msg = f"Updated upstream P2Pool: {parent_instance} > " \
-                    f"{new_parent_instance}"
+                    f"{new_parent.instance()}"
                 p2pool.parent(new_p2pool.parent())
                 new_parent_instance = new_parent.instance()
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, "Using new P2Pool deployment")
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, 
+                           "Using new P2Pool deployment")
                 update_config = True
                 update = True
 
@@ -967,7 +993,8 @@ class DeploymentMgr(Container):
             try:
                 os.rename(new_dir, backup_vendor_dir)
                 db4e.msg(DLabel.VENDOR_DIR, DStatus.WARN, 
-                    f'Found existing directory ({new_dir}), backed it up as ({backup_vendor_dir})')
+                    f"Found existing directory ({new_dir}), " \
+                    f"backed it up as ({backup_vendor_dir})")
                 return db4e, update_flag
             except (PermissionError, OSError) as e:
                 update_flag = False

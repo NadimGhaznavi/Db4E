@@ -193,12 +193,13 @@ class DbCache:
             
             if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 return deepcopy(self.monerod_map.get(instance))
-                    
-            elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
+
+            if elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
                 p2pool = self.p2pool_map.get(instance)                
-                if elem_type == DElem.P2POOL:
+
+                if type(p2pool) == P2Pool:
                     p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
-                print(f"DbCache:get_deployment(): p2pool: {p2pool}")
+                        
                 return deepcopy(p2pool)
                     
             elif elem_type == DElem.XMRIG:

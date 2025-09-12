@@ -17,7 +17,7 @@ class DDef(ConstGroup):
     BACKUP_DIR: str  = "backups"
     BACKUP_SCRIPT: str  = "db4e-backup.sh"
     BIN_DIR: str  = "bin"
-    BLOCKCHAIN_DIR: str  = "monero-blockchain"
+    BLOCKCHAIN_DIR: str  = "blockchain"
     CHAIN: str  = "mini"
     COLORTERM: str  = "truecolor"
     CONF_DIR: str  = "conf"
@@ -43,12 +43,15 @@ class DDef(ConstGroup):
     DEV_DIR: str = "dev"
     DONATION_WALLET: str = "48aTDJfRH2JLcKW2fz4m9HJeLLVK5rMo1bKiNHFc43Ht2e2kPVh2tmk3Md7npz1WsSU7bpgtX2Xnf59RHCLUEaHfQHwao4j"
     IN_PEERS: int = 16
+    INI_SUFFIX: str = ".ini"
     INITIAL_SETUP: str = "db4e-initial-setup.sh"
+    JSON_SUFFIX: str = ".json"
     LOCALHOST: str = "127.0.0.1"
     LOG_DIR: str = "logs"
     LOG_LEVEL: int = 0
     LOG_COLLECTION: str = "logging"
     LOG_RETENTION_DAYS: int = 7
+    LOG_SUFFIX: str = ".log"
     MAX_BACKUPS: int = 7
     MAX_LOG_FILES: int = 7
     MAX_LOG_LINES: int = 500
@@ -56,6 +59,7 @@ class DDef(ConstGroup):
     METRICS_COLLECTION: str = "metrics"
     MINING_COL: str = "mining"
     MONEROD_CONFIG: str = "monerod.ini"
+    MONEROD_DIR: str = "monerod"
     MONEROD_LOG_FILE: str = "monerod.log"
     MONEROD_PROCESS: str = "monerod"
     MONEROD_SERVICE_FILE: str = "monerod@.service"
@@ -69,13 +73,14 @@ class DDef(ConstGroup):
     P2P_BIND_PORT: int = 18080
     P2P_PORT: int = 37889
     P2POOL_CONFIG: str = "p2pool.ini"
+    P2POOL_DIR: str = "p2pool"
     P2POOL_LOG_FILE: str = "p2pool.log"
     P2POOL_PROCESS: str = "p2pool"
     P2POOL_SERVICE_FILE: str = "p2pool@.service"
     P2POOL_SERVICE_SOCKET_FILE: str = "p2pool@.socket"
     P2POOL_START_SCRIPT: str = "start-p2pool.sh"
     P2POOL_STDIN_PIPE: str = "p2pool.stdin"
-    P2POOL_VERSION: str = "4.9.1"
+    P2POOL_VERSION: str = "4.10.1"
     PRIORITY_NODE_1: str = "p2pmd.xmrvsbeast.com"
     PRIORITY_NODE_2: str = "nodes.hashvault.pro"
     PYPI_REPO: str = 'https://pypi.org/pypi/db4e/json'
@@ -95,6 +100,7 @@ class DDef(ConstGroup):
     VENDOR_DIR: str = "vendor"
     XMRIG_CONF_DIR: str = "conf"
     XMRIG_CONFIG: str = "config.json"
+    XMRIG_DIR: str = "xmrig"
     XMRIG_PERMISSIONS: str = "-rwsr-x---"
     XMRIG_PROCESS: str = "xmrig"
     XMRIG_SERVICE_FILE: str = "xmrig@.service"

@@ -14,6 +14,7 @@
 #
 #####################################################################
 
+STRATUM_BAN_TIME=120 # Seconds, default is 600
 
 # Get the deployment specific settings
 INI_FILE=$1
@@ -39,16 +40,24 @@ fi
 STDIN=${RUN_DIR}/p2pool.stdin
 P2POOL="${P2P_DIR}/bin/p2pool"
 
-$P2POOL \
-	--host ${MONERO_NODE} \
+CMD="$P2POOL \
 	--wallet ${WALLET} \
-	--no-color \
+	--host ${MONERO_NODE} \
+	--rpc-port ${RPC_BIND_PORT} \
+	--zmq-port ${ZMQ_PUB_PORT} \
 	--stratum ${ANY_IP}:${STRATUM_PORT} \
 	--p2p ${ANY_IP}:${P2P_PORT} \
-	--rpc-port ${RPC_PORT} \
-	--zmq-port ${ZMQ_PORT} \
+	--stratum-ban-time ${STRATUM_BAN_TIME} \
+	--light-mode \
 	--loglevel ${LOG_LEVEL} \
 	--data-dir ${LOG_DIR} \
-	--in-peers ${IN_PEERS} \
+	--data-api ${API_DIR} \
+	--local-api \
+	--no-color \
 	--out-peers ${OUT_PEERS} \
-	--data-api ${API_DIR} ${CHAIN_OPTION}
+	--in-peers ${IN_PEERS} \
+	${CHAIN_OPTION}"
+
+echo "Starting P2Pool with command:"
+echo $CMD
+$CMD

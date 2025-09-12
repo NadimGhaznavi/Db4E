@@ -19,6 +19,7 @@ from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
+from db4e.Constants.DPlaceholder import DPlaceholder
 
 from db4e.Modules.Components import (
     ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
@@ -56,21 +57,21 @@ class XMRig(LocalSoftwareSystem):
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # XMRig configuration file
         fq_config = os.path.join(
-            vendor_dir, DLabel.XMRIG, DDef.CONF_DIR, self.instance() + '.json')
+            vendor_dir, DElem.XMRIG, DDef.CONF_DIR, self.instance() + DDef.JSON_SUFFIX)
         
         # XMRig log file
         fq_log = os.path.join(
-            vendor_dir, DLabel.XMRIG, DDef.LOG_DIR, self.instance() + '.log')
+            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, self.instance() + DDef.LOG_SUFFIX)
 
         # Generate a URL:Port field for the config
         url_entry = self.p2pool.ip_addr()  + ':' + self.p2pool.stratum_port()
 
         # Populate the config templace placeholders
         placeholders = {
-            'MINER_NAME': self.instance(),
-            'NUM_THREADS': ','.join(['-1'] * int(self.num_threads())),
-            'URL': url_entry,
-            'LOG_FILE': fq_log,
+            DPlaceholder.MINER_NAME: self.instance(),
+            DPlaceholder.NUM_THREADS: ','.join(['-1'] * int(self.num_threads())),
+            DPlaceholder.URL: url_entry,
+            DPlaceholder.LOG_FILE: fq_log,
         }
         with open(tmpl_file, 'r') as f:
             config_contents = f.read()

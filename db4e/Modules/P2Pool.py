@@ -21,7 +21,7 @@ from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
-
+from db4e.Constants.DPlaceholder import DPlaceholder
 
 
 
@@ -83,7 +83,7 @@ class P2Pool(LocalSoftwareSystem):
         log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
 
         fq_config = os.path.join(
-            p2pool_dir, DDef.CONF_DIR, self.instance() + '.ini')
+            p2pool_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX)
 
         # Monero settings
         monerod_ip = self.monerod.ip_addr()
@@ -92,21 +92,21 @@ class P2Pool(LocalSoftwareSystem):
 
         # Populate the config templace placeholders
         placeholders = {
-            'WALLET': self.user_wallet(),
-            'P2P_DIR': p2pool_dir,
-            'MONEROD_IP': monerod_ip,
-            'ZMQ_PORT': monerod_zmq_port,
-            'RPC_PORT': monerod_rpc_port,
-            'LOG_LEVEL': self.log_level(),
-            'P2P_BIND_PORT': self.p2p_bind_port(),
-            'STRATUM_PORT': self.stratum_port(),
-            'IN_PEERS': self.in_peers(),
-            'OUT_PEERS': self.out_peers(),
-            'CHAIN': self.chain(),
-            'ANY_IP': self.any_ip(),
-            'API_DIR': api_dir,
-            'RUN_DIR': run_dir,
-            'LOG_DIR': log_dir,
+            DPlaceholder.WALLET : self.user_wallet(),
+            DPlaceholder.P2P_DIR : p2pool_dir,
+            DPlaceholder.MONEROD_IP : monerod_ip,
+            DPlaceholder.ZMQ_PUB_PORT : monerod_zmq_port,
+            DPlaceholder.RPC_BIND_PORT : monerod_rpc_port,
+            DPlaceholder.LOG_LEVEL : self.log_level(),
+            DPlaceholder.P2P_BIND_PORT : self.p2p_bind_port(),
+            DPlaceholder.STRATUM_PORT : self.stratum_port(),
+            DPlaceholder.IN_PEERS : self.in_peers(),
+            DPlaceholder.OUT_PEERS : self.out_peers(),
+            DPlaceholder.CHAIN : self.chain(),
+            DPlaceholder.ANY_IP : self.any_ip(),
+            DPlaceholder.API_DIR : api_dir,
+            DPlaceholder.RUN_DIR : run_dir,
+            DPlaceholder.LOG_DIR : log_dir,
         }
         with open(tmpl_file, 'r') as f:
             config_contents = f.read()

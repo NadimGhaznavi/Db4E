@@ -40,7 +40,7 @@ class P2PoolTypePane(Container):
 
                 Vertical(
                     RadioSet(
-                        RadioButton("Local " + DLabel.P2POOL, id="local",value=True),
+                        RadioButton("Local " + DLabel.P2POOL, id="local", value=True),
                         RadioButton(DLabel.P2POOL_REMOTE, id="remote"),
                         id="type_radioset", classes=DForm.RADIO_SET,
                     )),
@@ -62,7 +62,7 @@ class P2PoolTypePane(Container):
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.GET_NEW,
-                DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.REMOTE: False
             }
 

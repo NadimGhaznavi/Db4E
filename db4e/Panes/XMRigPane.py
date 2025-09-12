@@ -15,7 +15,7 @@ from textual.widgets import (
 
 from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRig import XMRig
-from db4e.Messages import Db4eMsg
+from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.DButton import DButton
 from db4e.Constants.DJob import DJob
 from db4e.Constants.DLabel import DLabel

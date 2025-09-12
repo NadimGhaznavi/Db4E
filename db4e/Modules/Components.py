@@ -51,6 +51,11 @@ class AnyIP(Component):
         super().__init__(DField.ANY_IP, DLabel.ANY_IP, DDef.ANY_IP)
 
 
+class BlockchainDir(Component):
+    def __init__(self):
+        super().__init__(DField.BLOCKCHAIN_DIR, DLabel.BLOCKCHAIN_DIR)
+
+
 class Chain(Component):
     def __init__(self):
         super().__init__(DField.CHAIN, DLabel.CHAIN, DDef.CHAIN)
@@ -59,11 +64,6 @@ class Chain(Component):
 class ConfigFile(Component):
     def __init__(self):
         super().__init__(DField.CONFIG_FILE, DLabel.CONFIG_FILE)
-
-
-class DataDir(Component):
-    def __init__(self):
-        super().__init__(DField.DATA, DLabel.DATA_DIR)
 
 
 class Db4eGroup(Component):

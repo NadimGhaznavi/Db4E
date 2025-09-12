@@ -1,1 +1,4 @@
 - Approach the Textual team and present Db4E as a showcase app.
+- Swag
+	- T-Shirts
+	- Baseball hats

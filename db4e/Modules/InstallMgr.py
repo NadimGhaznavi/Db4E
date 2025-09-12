@@ -277,18 +277,13 @@ class InstallMgr(Container):
     def _create_monerod_dirs(self, vendor_dir, db4e):
         monerod_with_version = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         fq_monerod_dir = os.path.join(vendor_dir, monerod_with_version)
-        fq_blockchain_dir = os.path.join(fq_monerod_dir, DDef.BLOCKCHAIN_DIR)
 
         # Create the base Monero directory
         os.mkdir(fq_monerod_dir)
         db4e.msg(DLabel.MONEROD, DStatus.GOOD, f"Created directory: {fq_monerod_dir}")
 
-        os.mkdir(fq_blockchain_dir)
-        db4e.msg(DLabel.MONEROD, DStatus.GOOD, 
-                 f"Created Monero blockchain directory: {fq_monerod_dir}")
-
         # Create the sub-directories
-        for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.RUN_DIR, DDef.LOG_DIR]:
+        for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR]:
             fq_sub_dir = os.path.join(fq_monerod_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.MONEROD, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
@@ -404,7 +399,6 @@ class InstallMgr(Container):
             tmpl_dir, DElem.DB4E, DDef.SYSTEMD_DIR, DDef.DB4E_SERVICE_FILE)
         service_contents = self._replace_placeholders(fq_db4e_service_file, placeholders)
         tmp_service_file = os.path.join(tmp_dir, DDef.DB4E_SERVICE_FILE)
-        print(f"tmp_service_file: {tmp_service_file}")
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 

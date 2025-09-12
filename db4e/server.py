@@ -104,8 +104,7 @@ class Db4eServer:
                 self.ensure_running(depl)
                 if depl_type == P2Pool:
                     # Make sure there's a log watcher running                    
-                    p2pool = P2Pool(depl)
-                    self.spawn_log_watcher(p2pool) 
+                    self.spawn_log_watcher(depl) 
 
             else:
                 self.ensure_stopped(depl)
@@ -143,12 +142,12 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Deleting {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
+        job.msg("Deleted deployment")
         if type(elem) == XMRig:
             self.ensure_stopped(elem)
             config_file = elem.config_file()
             os.remove(config_file)
             self.depl_mgr.del_deployment(elem)
-            job.msg("Deleted")
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
             self.ensure_stopped(elem)
@@ -156,12 +155,10 @@ class Db4eServer:
             p2pool_dir = DElem.P2POOL + '-' + elem.version()
             rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
             self.depl_mgr.del_deployment(elem)
-            job.msg("Deleted")
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.depl_mgr.del_deployment(elem)
-            job.msg("Deleted")
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == MoneroD:
@@ -173,7 +170,6 @@ class Db4eServer:
             os.remove(conf_file)
             rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
             self.depl_mgr.del_deployment(elem)  
-            job.msg("Deleted")
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
             
@@ -183,7 +179,7 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Disbling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg(f"Disabled instance")
+        job.msg(f"Disabled deployment")
         elem.disable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
@@ -209,7 +205,7 @@ class Db4eServer:
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg(f"Enabled instance")
+        job.msg(f"Enabled deployment")
         elem.enable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
@@ -326,7 +322,7 @@ class Db4eServer:
         count = 0
         while self.running.is_set():
             count += 1
-            self.log.debug(f"Ticking... ... ... ... ... ... ... ... ... {count}")
+            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
             self.check_deployments()
             self.check_jobs()
             time.sleep(POLL_INTERVAL)

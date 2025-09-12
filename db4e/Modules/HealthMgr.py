@@ -234,10 +234,10 @@ class HealthMgr:
         
         if p2pool.enabled():
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
-                       f"{DLabel.P2POOL} ({p2pool.instance}) is enabled")
+                       f"{DLabel.P2POOL} ({p2pool.instance()}) is enabled")
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR,
-                       f"{DLabel.P2POOL} ({p2pool.instance}) is disabled")
+                       f"{DLabel.P2POOL} ({p2pool.instance()}) is disabled")
 
         if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
@@ -247,10 +247,10 @@ class HealthMgr:
             self.check(p2pool.monerod)
             if p2pool.monerod.status() == DStatus.GOOD:
                 p2pool.msg(DLabel.MONEROD, DStatus.GOOD,
-                        f"Upstream MoneroD ({p2pool.monerod.instance}) is healthy")
+                        f"Upstream MoneroD ({p2pool.monerod.instance()}) is healthy")
             else:
                 p2pool.msg(DLabel.MONEROD, DStatus.WARN,
-                        f"Upstream MoneroD ({p2pool.monerod.instance}) has issues:")
+                        f"Upstream MoneroD ({p2pool.monerod.instance()}) has issues:")
                 p2pool.push_msgs(p2pool.monerod.pop_msgs())
         else:
             p2pool.msg(DLabel.MONEROD, DStatus.WARN,
@@ -262,7 +262,7 @@ class HealthMgr:
 
     def check_p2pool_remote(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         #print(f"HealthMgr:check_p2pool_remote(): rec: {rec}")
-        if self.is_port_open(p2pool.ip_addr, p2pool.stratum_port):
+        if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
                        f"Connection to {DLabel.STRATUM_PORT} successful")
         else:
@@ -275,20 +275,20 @@ class HealthMgr:
         #print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")
 
         # Check that the XMRig configuration file exists
-        if os.path.exists(xmrig.config_file):
-            xmrig.msg(DLabel.CONFIG, DStatus.GOOD, f"Found: {xmrig.config_file}")
+        if os.path.exists(xmrig.config_file()):
+            xmrig.msg(DLabel.CONFIG, DStatus.GOOD, f"Found: {xmrig.config_file()}")
         elif not xmrig.config_file:
             xmrig.msg(DLabel.CONFIG, DStatus.WARN, f"Missing")
         else:
-            xmrig.msg(DLabel.CONFIG, DStatus.WARN, f"Not found: {xmrig.config_file}")
+            xmrig.msg(DLabel.CONFIG, DStatus.WARN, f"Not found: {xmrig.config_file()}")
         
         # Check if the instance is enabled
         if xmrig.enabled():
             xmrig.msg(DLabel.XMRIG, DStatus.GOOD,
-                      f"{DLabel.XMRIG} ({xmrig.instance}) is enabled")
+                      f"{DLabel.XMRIG} ({xmrig.instance()} is enabled")
         else:
             xmrig.msg(DLabel.XMRIG, DStatus.ERROR,
-                      f"{DLabel.XMRIG} ({xmrig.instance}) is disabled")
+                      f"{DLabel.XMRIG} ({xmrig.instance()}) is disabled")
 
 
         # Check the upstream P2Pool

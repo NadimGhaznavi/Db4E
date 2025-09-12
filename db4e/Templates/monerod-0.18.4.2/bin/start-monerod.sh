@@ -39,10 +39,10 @@ else
 fi
 
 # Make sure the blockchain directory exists
-if [ ! -d ${DATA_DIR} ]; then
-	mkdir -p ${DATA_DIR}
+if [ ! -d ${BLOCKCHAIN_DIR} ]; then
+	mkdir -p ${BLOCKCHAIN_DIR}
 	if [ $? != 0 ]; then
-		echo "ERROR: Failed to create blockchain data directory (${DATA_DIR}), exiting..."
+		echo "ERROR: Failed to create blockchain data directory (${BLOCKCHAIN_DIR}), exiting..."
 		exit 1
 	fi
 fi
@@ -60,8 +60,9 @@ $MONEROD \
 	--add-priority-node=${PRIORITY_NODE_2}:${PRIORITY_NODE_2_PORT} \
 	--rpc-bind-ip ${IP_ALL} --rpc-bind-port ${RPC_BIND_PORT} --restricted-rpc \
 	--confirm-external-bind \
-	--data-dir ${DATA_DIR} \
-	--out-peers ${OUT_PEERS} --in-peers ${IN_PEERS} \
+	--data-dir ${BLOCKCHAIN_DIR} \
+	--out-peers ${OUT_PEERS} \
+	--in-peers ${IN_PEERS} \
 	--disable-dns-checkpoints --enable-dns-blocklist \
 	--show-time-stats ${SHOW_TIME_STATS} \
 	--igd enabled \

@@ -32,7 +32,7 @@ class MoneroDPane(Container):
 
     config_label = Label("", classes=DForm.STATIC)
     any_ip_label = Label("", classes=DForm.STATIC)
-    data_dir_label = Label("", classes=DForm.STATIC)
+    blockchain_dir_label = Label("", classes=DForm.STATIC)
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
 
     in_peers_input = Input(
@@ -148,8 +148,8 @@ class MoneroDPane(Container):
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
                     Horizontal(
-                        Label(DLabel.DATA_DIR, classes=DForm.FORM_LABEL),
-                        self.data_dir_label),
+                        Label(DLabel.BLOCKCHAIN_DIR, classes=DForm.FORM_LABEL),
+                        self.blockchain_dir_label),
                     classes=DForm.FORM_17),
                     
                     Vertical(
@@ -174,7 +174,7 @@ class MoneroDPane(Container):
         self.instance_input.value = monerod.instance()
         self.instance_label.update(monerod.instance())
         self.config_label.update(monerod.config_file())
-        self.data_dir_label.update(monerod.data_dir())
+        self.blockchain_dir_label.update(monerod.blockchain_dir())
         self.in_peers_input.value = str(monerod.in_peers())
         self.out_peers_input.value = str(monerod.out_peers())
         self.primary_server_checkbox.value = monerod.primary_server()

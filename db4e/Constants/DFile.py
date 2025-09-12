@@ -17,3 +17,4 @@ class DFile(ConstGroup):
     BACKUP_SCRIPT : str = "backup_script"
     CONFIG_FILE : str = DField.CONFIG_FILE
     P2POOL_LOG : str = "p2pool.log"
+    P2POOL_STDIN : str = "p2pool.stdin"

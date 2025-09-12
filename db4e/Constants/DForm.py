@@ -19,7 +19,7 @@ class DForm(ConstGroup):
     FORM_4 : str = "form_4"
     FORM_5 : str = "form_5"
     FORM_6 : str = "form_6"
-    FORM_7 : str = "form_6"
+    FORM_7 : str = "form_7"
     FORM_17 : str = "form_17"
     FORM_DATA : str = "form_data"
     INFO_MSG : str = "info_msg"

@@ -124,7 +124,7 @@ class P2PoolPane(Container):
 
     def on_mount(self):
         #radio_set = self.query_one("#radio_set", RadioSet")
-        self.radio_set.border_subtitle = DLabel.MONEROD
+        self.radio_set.border_subtitle = DLabel.UPSTREAM_MONERO
         self.chain_radio_set.border_subtitle = DLabel.CHAIN
         form_box = self.query_one("#form_box", Vertical)
         form_box.border_subtitle = DLabel.CONFIG        

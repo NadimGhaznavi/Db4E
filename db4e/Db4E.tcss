@@ -4,7 +4,7 @@ Screen {
     background: black;
     layout: grid;
     grid-size: 2;
-    grid-columns: 1fr 4fr;
+    grid-columns: 2fr 7fr;
     grid-rows: 13fr 1fr;
     grid-gutter: 0 1; }
 
@@ -122,7 +122,7 @@ Tree {
     border: round #0c323e;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
-    width: 100%;
+    width: 100%; 
     height: 9; }
 
 .form_17 {
@@ -235,6 +235,7 @@ Tree {
     border-subtitle-style: bold;
     padding: 0 1;
     width: 35;
+    height: auto;
     background: black; }
 
 .static_content {
