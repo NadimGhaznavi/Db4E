@@ -89,6 +89,9 @@ class NavPane(Container):
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
+        # Track the state of the Chain Stats tree state
+        self.chain_is_expanded = False
+
         self.refresh_nav_pane()
 
 
@@ -345,9 +348,14 @@ class NavPane(Container):
         # Chain metrics
         chain = self.depls.root.add(
             f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}", data=DLabel.CHAIN_STATS, expand=True)
+        #chain.id = "chain_tree"
+        #cur_state = self.query_one("#chain_tree", Tree).value
+        #print(f"Chain DEBUG: {chain.is_expanded}")
+        #self.chain_is_expanded = chain.is_expanded
+
         # Main chain
         main = chain.add(
-            f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=True) 
+            f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=self.chain_is_expanded) 
         main.add_leaf(
             f"{ICON[BLOCK]} {DLabel.BLOCKS_FOUND}", data=DLabel.BLOCKS_FOUND)
         main.add_leaf(

@@ -184,9 +184,9 @@ class DbCache:
 
 
     def get_deployment(self, elem_type, instance):
-        print(f"DbCache:get_deployment(): {elem_type} {instance}")
-        print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
-        print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
+        #print(f"DbCache:get_deployment(): {elem_type} {instance}")
+        #print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
+        #print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
         with self._lock:
             if elem_type == DElem.DB4E:
                 return deepcopy(self.db4e)
@@ -194,17 +194,19 @@ class DbCache:
             if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 return deepcopy(self.monerod_map.get(instance))
 
-            if elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
+            elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
                 p2pool = self.p2pool_map.get(instance)                
 
                 if type(p2pool) == P2Pool:
-                    p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
-                        
+                    p2pool.monerod = self.get_deployment_by_id(p2pool.parent())                        
                 return deepcopy(p2pool)
                     
+            elif elem_type == DElem.INT_P2POOL:
+                return deepcopy(self.int_p2pool_map.get(instance))
+
             elif elem_type == DElem.XMRIG:
                 xmrig = self.xmrig_map.get(instance)
-                print(f"DbCache:get_deployment(): xmrig: {xmrig}")
+                #print(f"DbCache:get_deployment(): xmrig: {xmrig}")
                 xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
                 if elem_type == DElem.P2POOL:
                     xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())

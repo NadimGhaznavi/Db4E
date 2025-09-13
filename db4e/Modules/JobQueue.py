@@ -45,21 +45,20 @@ class JobQueue:
         job_rec = self.db.grab_job()
         if job_rec:
             #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
+            #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
             job = Job()
             job.from_rec(job_rec)
-            #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
             job.status(DJob.PROCESSING)
-            #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
-            print(f"JobQueue:grab_job(): {job.elem()}")
             return job
         else:
             return False
 
 
     def post_completed_job(self, job: Job):
-        job.status(DJob.COMPLETED)
-        job.updated_at(datetime.now())
-        self.db.insert_one(self.col_name, job.to_rec())
+        if job.elem_type() is not None:
+            job.status(DJob.COMPLETED)
+            job.updated_at(datetime.now())
+            self.db.insert_one(self.col_name, job.to_rec())
 
 
     def post_job(self, job: Job):

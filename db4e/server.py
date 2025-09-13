@@ -44,6 +44,8 @@ from db4e.Constants.DField import DField
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DDir import DDir
 from db4e.Constants.DJob import DJob
+from db4e.Constants.DFile import DFile
+
 
 
 
@@ -219,7 +221,7 @@ class Db4eServer:
         if type(elem) == MoneroD:
             instance = elem.instance()
             sd.service_name('monerod@' + instance)
-        elif type(elem) == P2Pool:
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             instance = elem.instance()
             sd.service_name('p2pool@' + instance)
         elif type(elem) == XMRig:
@@ -289,30 +291,31 @@ class Db4eServer:
         sys.exit(0)
 
 
-    def set_int_p2pool_primary_server(self, monerod):
+    def set_int_p2pool_primary_server(self, db4e):
         # Update the internal P2Pool servers.....
-        print(f"server:set_int_p2pool_primary_server(): {monerod}")
-
-        if monerod == False:
+        print(f"server:set_int_p2pool_primary_server(): {db4e.primary_server()}")
+        
+        if db4e.primary_server() == False:
             for p2pool in self.depl_mgr.get_internal_p2pools():
                 p2pool.disable()
-                self.db_cache.update_one(p2pool)
+                self.depl_mgr.update_deployment(p2pool)
 
         else:
-            self.db_cache.update_one(monerod)
+            primary_monerod = self.depl_mgr.get_deployment(DElem.MONEROD, db4e.primary_server())
+
             for p2pool in self.depl_mgr.get_internal_p2pools():
                 p2pool = deepcopy(p2pool)
-                p2pool.parent(monerod.id())
-                p2pool.monerod = monerod
-                vendor_dir = self.get_dir(DDir.VENDOR)
-                tmpl_file = self.get_template(DElem.P2POOL)
+                p2pool.parent(primary_monerod.id())
+                p2pool.monerod = primary_monerod
+                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
                 p2pool.enable()
                 p2pool.log_file(
                     os.path.join(
-                        vendor_dir, self.get_dir(DElem.P2POOL), p2pool.instance(), 
-                        DDir.LOG, 'p2pool.log'))
-                self.db_cache.update_one(p2pool)
+                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                        DDir.LOG, DFile.P2POOL_LOG))
+                self.depl_mgr.update_deployment(p2pool)
 
 
     def set_primary(self, monerod):
@@ -363,7 +366,10 @@ class Db4eServer:
         print(f"Db4eServer:update(): {elem}")
 
         elem = self.depl_mgr.update_deployment(elem)
-        #print(f"Db4eServer:update(): rec {elem.to_rec()}")
+        if type(elem) == Db4E:
+            old_db4e = self.depl_mgr.db_cache.get_db4e()
+            if old_db4e.primary_server() != elem.primary_server():
+                self.set_int_p2pool_primary_server(elem)
         msgs = ""
         for msg in elem.pop_msgs():
             for key, val in msg.items():

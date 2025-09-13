@@ -601,9 +601,9 @@ class DeploymentMgr(Container):
         # Updating the primary server
         print(f"DeploymentMgr:update_db4e_deployment(): primary server: {new_db4e.primary_server()}")
         if db4e.primary_server != new_db4e.primary_server:
-            msg = f"Updated primary server: {db4e.primary_server()} > " \
-                f"{new_db4e.primary_server()}"
-            db4e.msg(DLabel.PRIMARY_SERVER, DStatus.GOOD, msg)
+            #msg = f"Updated primary server: {db4e.primary_server()} > " \
+            #    f"{new_db4e.primary_server()}"
+            #db4e.msg(DLabel.PRIMARY_SERVER, DStatus.GOOD, msg)
             db4e.primary_server(new_db4e.primary_server())
             update_flag = True
 
@@ -624,7 +624,7 @@ class DeploymentMgr(Container):
             return self.update_monerod_deployment(elem)
         elif type(elem) == MoneroDRemote:
             return self.update_monerod_remote_deployment(elem)
-        elif type(elem) == P2Pool:
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             return self.update_p2pool_deployment(elem)
         elif type(elem) == P2PoolRemote:
             return self.update_p2pool_remote_deployment(elem)
@@ -765,23 +765,15 @@ class DeploymentMgr(Container):
             if monerod.primary_server != new_monerod.primary_server:
                 db4e = self.db_cache.get_db4e()
                 if new_monerod.primary_server():
-                    msg = f"Set {monerod.instance()} as a primary server"
+                    msg = f"Flagged {monerod.instance()} as the primary server"
                     monerod.primary_server(True)
                     monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                     db4e.primary_server(new_monerod.instance())
                 else:
-                    msg = f"Set {monerod.instance()} as a secondary server"
+                    msg = f"Flagged {monerod.instance()} as a secondary server"
                     monerod.primary_server(False)
                     monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                     db4e.primary_server(False)
-                job_info = {
-                    DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                    DField.TO_METHOD: DMethod.POST_JOB,
-                    DField.OP: DJob.UPDATE,
-                    DField.ELEMENT_TYPE: DElem.DB4E,
-                    DField.ELEMENT: db4e,                        
-                }
-                self.post_job(job_info)                
                 update = True                    
 
         if update_config:
@@ -890,8 +882,10 @@ class DeploymentMgr(Container):
 
         p2pool = self.db_cache.get_deployment(DElem.P2POOL, new_p2pool.instance())
         if not p2pool:
-            raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
-                             f"Nothing found for {new_p2pool}")
+            p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
+            if not p2pool:
+                raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
+                                f"Nothing found for {new_p2pool}")
 
         if p2pool.enabled() != new_p2pool.enabled():
             # This is an enable/disable operation
@@ -955,12 +949,17 @@ class DeploymentMgr(Container):
                 parent = self.get_deployment_by_id(new_p2pool.parent())
                 parent_instance = parent.instance()
                 new_parent = self.get_deployment_by_id(p2pool.parent())
-                msg = f"Updated upstream P2Pool: {parent_instance} > " \
-                    f"{new_parent.instance()}"
-                p2pool.parent(new_p2pool.parent())
-                new_parent_instance = new_parent.instance()
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, 
-                           "Using new P2Pool deployment")
+                print(f"DeploymentMgr:update_p2pool_deployment(): DEBUG {new_parent}")
+                if new_parent:
+                    msg = f"Updated upstream P2Pool: {parent_instance} > " \
+                        f"{new_parent.instance()}"
+                    p2pool.parent(new_p2pool.parent())
+                    new_parent_instance = new_parent.instance()
+                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+                else:
+                    msg = f"Updated upstream P2Pool: {parent_instance}???"
+                    p2pool.parent(new_p2pool.parent())
+                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 

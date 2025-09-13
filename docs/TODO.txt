@@ -19,5 +19,7 @@ sudo sysctl -w vm.max_map_count=262144
 
 on the command line when you start the db4e service.
 
+# Edge Cases
 
+- Primary Monero Node is deleted: Update Db4E.primary_server
 
