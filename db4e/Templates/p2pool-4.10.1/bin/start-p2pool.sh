@@ -44,12 +44,11 @@ P2POOL="${P2P_DIR}/bin/p2pool"
 $P2POOL \
 	--wallet ${WALLET} \
 	--host ${MONERO_NODE} \
-	--rpc-port ${RPC_BIND_PORT} \
+	--rpc-port ${RPC_PORT} \
 	--zmq-port ${ZMQ_PUB_PORT} \
 	--stratum ${ANY_IP}:${STRATUM_PORT} \
 	--p2p ${ANY_IP}:${P2P_PORT} \
 	--stratum-ban-time ${STRATUM_BAN_TIME} \
-	--light-mode \
 	--loglevel ${LOG_LEVEL} \
 	--data-dir ${LOG_DIR} \
 	--data-api ${API_DIR} \
@@ -57,4 +56,4 @@ $P2POOL \
 	--no-color \
 	--out-peers ${OUT_PEERS} \
 	--in-peers ${IN_PEERS} \
-	${CHAIN_OPTION}"
+	${CHAIN_OPTION}

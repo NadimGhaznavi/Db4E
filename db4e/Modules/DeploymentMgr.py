@@ -888,10 +888,10 @@ class DeploymentMgr(Container):
                 update = True
 
             # P2P Bind Port
-            if p2pool.p2p_bind_port != new_p2pool.p2p_bind_port:
-                msg = f"Updated P2P bind port: {p2pool.p2p_bind_port()} > " \
-                    f"{new_p2pool.p2p_bind_port()}"
-                p2pool.p2p_bind_port(new_p2pool.p2p_bind_port())
+            if p2pool.p2p_port != new_p2pool.p2p_port:
+                msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
+                    f"{new_p2pool.p2p_port()}"
+                p2pool.p2p_bind_port(new_p2pool.p2p_port())
                 p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
