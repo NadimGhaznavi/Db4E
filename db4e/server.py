@@ -291,23 +291,31 @@ class Db4eServer:
 
     def set_int_p2pool_primary_server(self, monerod):
         # Update the internal P2Pool servers.....
-        for p2pool in self.depl_mgr.get_internal_p2pools():
-            p2pool = deepcopy(p2pool)
-            p2pool.parent(monerod.id())
-            p2pool.monerod = monerod
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            tmpl_file = self.get_template(DElem.P2POOL)
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            p2pool.enable()
-            p2pool.log_file(
-                os.path.join(
-                    vendor_dir, self.get_dir(DElem.P2POOL), p2pool.instance(), 
-                    DDir.LOG, 'p2pool.log'))
-            self.db_cache.update_one(p2pool)
+        print(f"server:set_int_p2pool_primary_server(): {monerod}")
+
+        if monerod == False:
+            for p2pool in self.depl_mgr.get_internal_p2pools():
+                p2pool.disable()
+                self.db_cache.update_one(p2pool)
+
+        else:
+            self.db_cache.update_one(monerod)
+            for p2pool in self.depl_mgr.get_internal_p2pools():
+                p2pool = deepcopy(p2pool)
+                p2pool.parent(monerod.id())
+                p2pool.monerod = monerod
+                vendor_dir = self.get_dir(DDir.VENDOR)
+                tmpl_file = self.get_template(DElem.P2POOL)
+                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.enable()
+                p2pool.log_file(
+                    os.path.join(
+                        vendor_dir, self.get_dir(DElem.P2POOL), p2pool.instance(), 
+                        DDir.LOG, 'p2pool.log'))
+                self.db_cache.update_one(p2pool)
 
 
     def set_primary(self, monerod):
-
         for aMonerod in self.depl_mgr.get_monerods():
             if aMonerod.instance() != monerod.instance():
                 if aMonerod.primary_server():

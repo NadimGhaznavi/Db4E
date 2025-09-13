@@ -36,6 +36,7 @@ from db4e.Constants.DJob import DJob
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DFile import DFile
+from db4e.Constants.DMethod import DMethod
 
 
 class Default:
@@ -564,17 +565,6 @@ class DeploymentMgr(Container):
         self.job_queue.post_job(job)
 
 
-    def update_deployment(self, elem):
-        if type(elem) == Db4E:
-            return self.update_db4e_deployment(db4e=elem)
-        elif type(elem) == MoneroD:
-            return self.update_monerod_deployment(monerod=elem)
-        elif type(elem) == P2Pool:
-            return self.update_p2pool_deployment(p2pool=elem)
-        elif type(elem) == XMRig:
-            return self.update_xmrig_deployment(xmrig=elem)
-
-
     def update_db4e_deployment(self, new_db4e: Db4E):
         update_flag = False
 
@@ -647,9 +637,7 @@ class DeploymentMgr(Container):
 
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
-        update = False
-        update_config = False
-        retart = True
+        update, update_config, restart = False, False, False
 
         monerod = self.db_cache.get_deployment(
             DElem.MONEROD, new_monerod.instance())
@@ -773,6 +761,29 @@ class DeploymentMgr(Container):
                 monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
+            # Set/Unset primary server flag
+            if monerod.primary_server != new_monerod.primary_server:
+                db4e = self.db_cache.get_db4e()
+                if new_monerod.primary_server():
+                    msg = f"Set {monerod.instance()} as a primary server"
+                    monerod.primary_server(True)
+                    monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
+                    db4e.primary_server(new_monerod.instance())
+                else:
+                    msg = f"Set {monerod.instance()} as a secondary server"
+                    monerod.primary_server(False)
+                    monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
+                    db4e.primary_server(False)
+                job_info = {
+                    DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                    DField.TO_METHOD: DMethod.POST_JOB,
+                    DField.OP: DJob.UPDATE,
+                    DField.ELEMENT_TYPE: DElem.DB4E,
+                    DField.ELEMENT: db4e,                        
+                }
+                self.post_job(job_info)                
+                update = True                    
+
         if update_config:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.MONEROD)
@@ -824,13 +835,28 @@ class DeploymentMgr(Container):
             monerod.msg(DLabel.MONEROD, DStatus.GOOD, msg)
             update = True
 
-        if monerod.primary_server() and not new_monerod.primary_server():
-            monerod.primary_server(False)
-            monerod.msg(DLabel.MONEROD, DStatus.GOOD, "Flagged as a secondary server")
-            for p2pool in self.get_internal_p2pools():
-                p2pool = deepcopy(p2pool)
-                p2pool.disable()
-                self.db_cache.update_one(p2pool)
+        # Set/Unset primary server flag
+        if monerod.primary_server != new_monerod.primary_server:
+            db4e = self.db_cache.get_db4e()
+            if new_monerod.primary_server():
+                msg = f"Set {monerod.instance()} as a primary server"
+                monerod.primary_server(True)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
+                db4e.primary_server(new_monerod.instance())
+            else:
+                msg = f"Set {monerod.instance()} as a secondary server"
+                monerod.primary_server(False)
+                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
+                db4e.primary_server(False)
+            job_info = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
+                DField.TO_METHOD: DMethod.POST_JOB,
+                DField.OP: DJob.UPDATE,
+                DField.ELEMENT_TYPE: DElem.DB4E,
+                DField.ELEMENT: db4e,                        
+            }
+            self.post_job(job_info)                
+            update = True                    
 
             update = True
 
