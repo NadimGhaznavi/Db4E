@@ -96,7 +96,7 @@ class OpsMgr:
     
 
     def get_tui_log(self, job_list: list):
-        return self.depl_mgr.job_queue.get_jobs()
+        return self.depl_mgr.job_queue.get_jobs() 
 
 
     def log_viewer(self, form_data: dict):

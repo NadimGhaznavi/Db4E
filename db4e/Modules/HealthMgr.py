@@ -242,6 +242,9 @@ class HealthMgr:
         if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
                        f"Connection to {DLabel.STRATUM_PORT} successful")
+        else:
+            p2pool.msg(DLabel.P2POOL, DStatus.WARN,
+                       f"Connection to {DLabel.STRATUM_PORT} failed")
         
         if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
             self.check(p2pool.monerod)

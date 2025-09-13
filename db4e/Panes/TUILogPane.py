@@ -19,6 +19,9 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DDef import DDef
+from db4e.Constants.DField import DField
+
+
 
 TYPE_TABLE = {
     DElem.MONEROD: DLabel.MONEROD_SHORT,
@@ -48,7 +51,7 @@ class TUILogPane(Static):
             ),
             classes=DForm.PANE_BOX)
 
-    def set_data(self, job_list):
+    def set_data(self, jobs_list: list):
         #self.log_widget.clear()
         table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
         table.add_column("Timestamp")
@@ -58,10 +61,11 @@ class TUILogPane(Static):
         table.add_column("Instance")
         table.add_column("Message")
         table.add_column("Details")
-        for job in job_list:
+        for job in jobs_list:
             date, time = job.updated_at().strftime("%Y-%m-%d %H:%M:%S").split()
 
             if ":" in job.msg():
+                print(f"TUILogPane:set_data(): {job.msg()}")
                 msg, details = job.msg().split(":")
                 details = f"[b]{details}[/]"
             else:

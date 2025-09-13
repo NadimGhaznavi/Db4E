@@ -179,7 +179,7 @@ class Db4eServer:
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         if elem.enabled():
-            job.msg(f"Disabled deployment: enabled: {elem.enabled()}")
+            job.msg(f"Disabled deployment")
             elem.disable()
             self.depl_mgr.update_deployment(elem)
             self.job_queue.complete_job(job)

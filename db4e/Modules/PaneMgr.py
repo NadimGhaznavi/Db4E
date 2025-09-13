@@ -55,6 +55,7 @@ class PaneMgr(Widget):
         if data and name in self.panes:
             pane = self.panes[name]
             if hasattr(pane, DField.SET_DATA):
+                print(f"PaneMgr:set_pane(): {name}/{data}")
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):

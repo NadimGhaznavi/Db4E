@@ -46,6 +46,7 @@ class DField(ConstGroup):
     INSTALL_DIR : str = "install_dir"
     INSTANCE : str = "instance"
     IP_ADDR : str = "ip_addr"
+    JOBS : str = "jobs"
     LABEL : str = "label"
     LEVEL : str = "level"
     LOCAL : str = "local"
