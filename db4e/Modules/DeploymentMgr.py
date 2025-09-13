@@ -1064,9 +1064,8 @@ class DeploymentMgr(Container):
             if xmrig.parent != new_xmrig.parent:
                 parent = self.get_deployment_by_id(new_xmrig.parent())
                 parent_instance = parent.instance()
-                new_parent = self.get_deployment_by_id(xmrig.parent())
+                new_parent = self.get_deployment_by_id(new_xmrig.parent())
                 new_parent_instance = new_parent.instance()
-                msg = f"Updated parent: {xmrig.parent()} > {new_xmrig.parent()}"
                 xmrig.parent(new_xmrig.parent())
                 msg = f"Updated parent: {parent_instance} > {new_parent_instance}"
                 xmrig.msg(DLabel.XMRIG_SHORT, DStatus.GOOD, msg)
@@ -1077,6 +1076,7 @@ class DeploymentMgr(Container):
         if update_config:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.XMRIG)
+            xmrig.p2pool = self.db_cache.get_deployment_by_id(xmrig.parent())
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
