@@ -44,13 +44,13 @@ class JobQueue:
     def grab_job(self):
         job_rec = self.db.grab_job()
         if job_rec:
-            #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
+            print(f"JobQueue:grab_job(): job_rec: {job_rec}")
             job = Job()
             job.from_rec(job_rec)
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
             job.status(DJob.PROCESSING)
             #self.db.update_one(self.col_name, {"_id": job_rec["_id"]}, job.to_rec())
-            print(f"JobQueue:grab_job(): {job}")
+            print(f"JobQueue:grab_job(): {job.elem()}")
             return job
         else:
             return False

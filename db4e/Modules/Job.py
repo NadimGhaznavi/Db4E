@@ -12,6 +12,7 @@ db4e/Job.py
 import uuid
 from datetime import datetime
 
+from db4e.Modules.Db4E import Db4E
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -81,7 +82,9 @@ class Job:
             elem_rec = rec[DField.ELEMENT]
             elem_type = elem_rec[DField.ELEMENT_TYPE]
             #print(f"Job:from_rec(): elem_type: {elem_type}")
-            if elem_type == DElem.MONEROD:
+            if elem_type == DElem.DB4E:
+                self._element = Db4E(elem_rec)
+            elif elem_type == DElem.MONEROD:
                 self._element = MoneroD(elem_rec)
             elif elem_type == DElem.MONEROD_REMOTE:
                 self._element = MoneroDRemote(elem_rec)

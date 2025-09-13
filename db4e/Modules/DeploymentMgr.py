@@ -559,7 +559,8 @@ class DeploymentMgr(Container):
         job = Job(op=job_info[DJob.OP], elem_type=job_info[DField.ELEMENT_TYPE])
         elem = job_info[DField.ELEMENT]
         job.elem(elem)
-        job.instance(elem.instance())
+        if type(elem) != Db4E:
+            job.instance(elem.instance())
         self.job_queue.post_job(job)
 
 

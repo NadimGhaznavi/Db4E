@@ -43,7 +43,7 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.DB4E,
                       self.ops_mgr.get_deployment, DPane.DB4E)
         self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.DB4E,
-                      self.depl_mgr.update_deployment, DPane.WELCOME)
+                      self.depl_mgr.post_job, DPane.WELCOME)
 
         # MoneroD = Type: local or remote
         self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.MONEROD,
