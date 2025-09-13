@@ -133,7 +133,7 @@ class Db4EPane(Container):
         for child in list(self.radio_set.children):
             child.remove()
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=DField.RADIO_BUTTON_TYPE)
-            if self.p2pool.parent() == self.instance_map[instance]:
+            radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
+            if self.db4e.primary_server() == self.instance_map[instance]:
                 radio_button.value = True
             self.radio_set.mount(radio_button)
