@@ -177,15 +177,16 @@ class Db4eServer:
     def disable(self, job: Job):
         elem_type = job.elem_type()
         instance = job.instance()
-        self.log.info(f"Disbling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg(f"Disabled deployment")
-        elem.disable()
-        self.depl_mgr.update_deployment(elem)
-        self.job_queue.complete_job(job)
-        if type(elem) == P2Pool or type(elem) == MoneroD or \
-            type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
-            self.disable_downstream(elem)
+        if elem.enabled():
+            job.msg(f"Disabled deployment: enabled: {elem.enabled()}")
+            elem.disable()
+            self.depl_mgr.update_deployment(elem)
+            self.job_queue.complete_job(job)
+            if type(elem) == P2Pool or type(elem) == MoneroD or \
+                type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
+                self.disable_downstream(elem)
+            self.log.critical(f"Disabled deployment {elem}")
 
 
     def disable_downstream(self, elem):

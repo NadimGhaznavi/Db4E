@@ -141,6 +141,11 @@ class OutPeers(Component):
         super().__init__(DField.OUT_PEERS, DLabel.OUT_PEERS, DDef.OUT_PEERS)
 
 
+class P2PPort(Component):
+    def __init__(self):
+        super().__init__(
+            DField.P2P_PORT, DLabel.P2P_PORT, DDef.P2P_PORT)
+
 class P2PBindPort(Component):
     def __init__(self):
         super().__init__(

@@ -22,6 +22,7 @@ fi
 
 source $CONFIG_FILE
 
+
 # Don't allocate large pages
 export MONERO_RANDOMX_UMASK=1
 
@@ -67,4 +68,4 @@ $MONEROD \
 	--show-time-stats ${SHOW_TIME_STATS} \
 	--igd enabled \
 	--max-connections-per-ip 1 \
-	--db-sync-mode safe
+	--db-sync-mode safe 

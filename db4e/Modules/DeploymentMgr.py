@@ -169,6 +169,11 @@ class DeploymentMgr(Container):
             os.makedirs(
                 os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
             
+            # Path to STDIN named pipe
+            monerod.stdin(
+                os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), 
+                             DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE))
+            
             # Generate the configuration
             monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
@@ -244,7 +249,7 @@ class DeploymentMgr(Container):
         if not p2pool.out_peers():
             update = False
     
-        if not p2pool.p2p_bind_port():
+        if not p2pool.p2p_port():
             update = False
 
         if not p2pool.stratum_port():

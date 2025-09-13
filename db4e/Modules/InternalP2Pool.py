@@ -46,8 +46,6 @@ class InternalP2Pool(P2Pool):
             raise ValueError(f"Unknown P2Pool instance: {chain_label}")
 
         self.chain(chain_field)
-        print(f"InternalP2Pool:set_type(): p2p_bind: {type(self.p2p_bind_port())}")
-        print(f"InternalP2Pool:set_type(): stratum: {type(self.stratum_port())}")
-        self.p2p_bind_port(self.p2p_bind_port() + P2P_PORT_OFFSET + offset)
+        self.p2p_port(self.p2p_port() + P2P_PORT_OFFSET + offset)
         self.stratum_port(self.stratum_port() + STRATUM_PORT_OFFSET + offset)
         self.instance(chain_label)

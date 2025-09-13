@@ -213,7 +213,7 @@ class HealthMgr:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.OUT_PEERS} missing")
             missing_field = True
 
-        if not p2pool.p2p_bind_port():
+        if not p2pool.p2p_port():
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.P2P_BIND_PORT} missing")
             missing_field = True
 

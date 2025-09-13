@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# <vendor-dir>/p2pool-<version>/bin/start-p2pool.sh
+# <vendor-dir>/p2pool/bin/start-p2pool.sh
 #
 # /etc/systemd/system/db4e.service
 #
@@ -25,6 +25,7 @@ fi
 
 source $INI_FILE
 
+
 if [ "$CHAIN" == 'mainchain' ]; then
 	CHAIN_OPTION=''
 elif [ "$CHAIN" == 'minisidechain' ]; then
@@ -40,7 +41,7 @@ fi
 STDIN=${RUN_DIR}/p2pool.stdin
 P2POOL="${P2P_DIR}/bin/p2pool"
 
-CMD="$P2POOL \
+$P2POOL \
 	--wallet ${WALLET} \
 	--host ${MONERO_NODE} \
 	--rpc-port ${RPC_BIND_PORT} \
@@ -57,7 +58,3 @@ CMD="$P2POOL \
 	--out-peers ${OUT_PEERS} \
 	--in-peers ${IN_PEERS} \
 	${CHAIN_OPTION}"
-
-echo "Starting P2Pool with command:"
-echo $CMD
-$CMD

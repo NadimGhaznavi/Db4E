@@ -118,6 +118,7 @@ class MoneroD(LocalSoftwareSystem):
             DPlaceholder.PRIORITY_PORT_2 : self.priority_port_2(),
             DPlaceholder.RPC_BIND_PORT : self.rpc_bind_port(),
             DPlaceholder.SHOW_TIME_STATS : self.show_time_stats(),
+            DPlaceholder.STDIN_PATH : self.stdin(),
             DPlaceholder.ZMQ_PUB_PORT : self.zmq_pub_port(),
             DPlaceholder.ZMQ_RPC_PORT : self.zmq_rpc_port(),
         }

@@ -432,6 +432,7 @@ class InstallMgr(Container):
         with open(tmp_socket_file, 'w') as f:
             f.write(service_contents)
 
+
     def _generate_tmp_p2pool_service_files(self, vendor_dir: str, db4e: Db4E):
         p2pool_with_version  = DElem.P2POOL + '-' + str(DDef.P2POOL_VERSION)
         # Template directory

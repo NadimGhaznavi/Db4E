@@ -16,7 +16,7 @@ import time
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
-    P2PBindPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
+    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -43,7 +43,7 @@ class P2Pool(LocalSoftwareSystem):
         self.add_component(DField.REMOTE, Local())
         self.add_component(DField.LOG_LEVEL, LogLevel())
         self.add_component(DField.OUT_PEERS, OutPeers())
-        self.add_component(DField.P2P_BIND_PORT, P2PBindPort())
+        self.add_component(DField.P2P_PORT, P2PPort())
         self.add_component(DField.PARENT, Parent())
         self.add_component(DField.STDIN, Stdin())
         self.add_component(DField.STRATUM_PORT, StratumPort())
@@ -60,7 +60,7 @@ class P2Pool(LocalSoftwareSystem):
         self.remote = self.components[DField.REMOTE]
         self.log_level = self.components[DField.LOG_LEVEL]
         self.out_peers = self.components[DField.OUT_PEERS]
-        self.p2p_bind_port = self.components[DField.P2P_BIND_PORT]
+        self.p2p_port = self.components[DField.P2P_PORT]
         self.parent = self.components[DField.PARENT]
         self.stratum_port = self.components[DField.STRATUM_PORT]
         self.stdin = self.components[DField.STDIN]
@@ -68,7 +68,6 @@ class P2Pool(LocalSoftwareSystem):
         self.version = self.components[DField.VERSION]
         self.version(DDef.P2POOL_VERSION)
         self._instance_map = {}
-        self.monerod = None
 
         self.monerod = None
         if rec:
@@ -98,7 +97,7 @@ class P2Pool(LocalSoftwareSystem):
             DPlaceholder.ZMQ_PUB_PORT : monerod_zmq_port,
             DPlaceholder.RPC_BIND_PORT : monerod_rpc_port,
             DPlaceholder.LOG_LEVEL : self.log_level(),
-            DPlaceholder.P2P_BIND_PORT : self.p2p_bind_port(),
+            DPlaceholder.P2P_PORT : self.p2p_port(),
             DPlaceholder.STRATUM_PORT : self.stratum_port(),
             DPlaceholder.IN_PEERS : self.in_peers(),
             DPlaceholder.OUT_PEERS : self.out_peers(),

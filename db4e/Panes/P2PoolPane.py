@@ -48,8 +48,8 @@ class P2PoolPane(Container):
     log_level_input = Input(
         id="log_level_input", restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
-    p2p_bind_port_input = Input(
-        id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
+    p2p_port_input = Input(
+        id="p2p_port_input", restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     stratum_port_input = Input(
         id="stratum_port_input", restrict=f"[0-9]*", compact=True,
@@ -86,8 +86,8 @@ class P2PoolPane(Container):
                         Label(DLabel.OUT_PEERS, classes=DForm.FORM_LABEL),
                         self.out_peers_input),
                     Horizontal(
-                        Label(DLabel.P2P_BIND_PORT, classes=DForm.FORM_LABEL),
-                        self.p2p_bind_port_input),
+                        Label(DLabel.P2P_PORT, classes=DForm.FORM_LABEL),
+                        self.p2p_port_input),
                     Horizontal(
                         Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL),
                         self.stratum_port_input),
@@ -136,7 +136,7 @@ class P2PoolPane(Container):
         self.config_label.update(p2pool.config_file())
         self.in_peers_input.value = str(p2pool.in_peers())
         self.out_peers_input.value = str(p2pool.out_peers())
-        self.p2p_bind_port_input.value = str(p2pool.p2p_bind_port())
+        self.p2p_port_input.value = str(p2pool.p2p_port())
         self.stratum_port_input.value = str(p2pool.stratum_port())
         self.log_level_input.value = str(p2pool.log_level())
 
@@ -196,7 +196,7 @@ class P2PoolPane(Container):
         self.p2pool.instance(self.query_one("#instance_input", Input).value)
         self.p2pool.in_peers(self.query_one("#in_peers_input", Input).value)
         self.p2pool.out_peers(self.query_one("#out_peers_input", Input).value)
-        self.p2pool.p2p_bind_port(self.query_one("#p2p_bind_port_input", Input).value)
+        self.p2pool.p2p_port(self.query_one("#p2p_port_input", Input).value)
         self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
         self.p2pool.log_level(self.query_one("#log_level_input", Input).value)
 
