@@ -353,7 +353,9 @@ class Db4eServer:
     def update(self, job):
         elem = job.elem()
         print(f"Db4eServer:update(): {elem}")
+
         elem = self.depl_mgr.update_deployment(elem)
+        #print(f"Db4eServer:update(): rec {elem.to_rec()}")
         msgs = ""
         for msg in elem.pop_msgs():
             for key, val in msg.items():

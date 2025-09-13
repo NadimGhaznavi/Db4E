@@ -118,7 +118,10 @@ class Db4EPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.db4e.user_wallet(self.query_one("#user_wallet_input", Input).value)
         self.db4e.vendor_dir(self.query_one("#vendor_dir_input", Input).value)
-
+        radio_set = self.query_one("#radio_set", RadioSet)
+        primary_instance = radio_set.pressed_button.label
+        self.db4e.primary_server(self.instance_map[primary_instance])
+        
         form_data = {
             DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
             DField.TO_METHOD: DMethod.POST_JOB,

@@ -44,7 +44,7 @@ class JobQueue:
     def grab_job(self):
         job_rec = self.db.grab_job()
         if job_rec:
-            print(f"JobQueue:grab_job(): job_rec: {job_rec}")
+            #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
             job = Job()
             job.from_rec(job_rec)
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")

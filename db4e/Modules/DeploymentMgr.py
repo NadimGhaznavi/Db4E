@@ -608,6 +608,15 @@ class DeploymentMgr(Container):
             db4e.vendor_dir(new_db4e.vendor_dir())
             update_flag = True
 
+        # Updating the primary server
+        print(f"DeploymentMgr:update_db4e_deployment(): primary server: {new_db4e.primary_server()}")
+        if db4e.primary_server != new_db4e.primary_server:
+            msg = f"Updated primary server: {db4e.primary_server()} > " \
+                f"{new_db4e.primary_server()}"
+            db4e.msg(DLabel.PRIMARY_SERVER, DStatus.GOOD, msg)
+            db4e.primary_server(new_db4e.primary_server())
+            update_flag = True
+
         if update_flag:
             self.db_cache.update_one(db4e)
         else:
