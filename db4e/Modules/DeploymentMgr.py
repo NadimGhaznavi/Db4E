@@ -95,169 +95,66 @@ class DeploymentMgr(Container):
 
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
-        for aMonerod in self.get_monerods():
-            if aMonerod.instance() == monerod.instance():
-                msg = f"A deployment with the same name ({monerod.instance()}) " \
-                    f"already exists"
-                monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
-                return monerod
+        monerod.ip_addr(socket.gethostname())
+        vendor_dir = self.get_dir(DDir.VENDOR)
+        tmpl_file = self.get_template(DElem.MONEROD)
 
-        update = True
-
-        if not monerod.instance():
-            update = False
-
-        if not monerod.in_peers():
-            update = False
-
-        if not monerod.out_peers():
-            update = False
-
-        if not monerod.p2p_bind_port():
-            update = False
-
-        if not monerod.rpc_bind_port():
-            update = False
-
-        if not monerod.zmq_pub_port():
-            update = False
-
-        if not monerod.zmq_rpc_port():
-            update = False
-
-        if not monerod.log_level():
-            update = False
-
-        if not monerod.max_log_files():
-            update = False
-
-        if not monerod.max_log_size():
-            update = False
-
-        if not monerod.priority_node_1():
-            update = False
-
-        if not monerod.priority_port_1():
-            update = False
-
-        if not monerod.priority_node_2():
-            update = False
-
-        if not monerod.priority_port_2():
-            update = False
-
-        if update:
-            monerod.ip_addr(socket.gethostname())
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            tmpl_file = self.get_template(DElem.MONEROD)
-
-            # Monero log file
-            os.makedirs(os.path.join(
-                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR))
-            monerod.log_file(
-                os.path.join(
-                    vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR, 
-                    DDef.MONEROD_LOG_FILE))
-            
-            # Blockchain directory
-            os.makedirs(os.path.join(
+        # Monero log file
+        os.makedirs(os.path.join(
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR))
+        monerod.log_file(
+            os.path.join(
+                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR, 
+                DDef.MONEROD_LOG_FILE))
+        
+        # Blockchain directory
+        os.makedirs(os.path.join(
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
+        monerod.blockchain_dir(
+            os.path.join(
                 vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
-            monerod.blockchain_dir(
-                os.path.join(
-                    vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
-            
-            # Run directory
-            os.makedirs(
-                os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
-            
-            # Path to STDIN named pipe
-            monerod.stdin(
-                os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), 
-                             DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE))
-            
-            # Generate the configuration
-            monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+        
+        # Run directory
+        os.makedirs(
+            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
+        
+        # Path to STDIN named pipe
+        monerod.stdin(
+            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), 
+                            DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE))
+        
+        # Generate the configuration
+        monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
-            self.insert_one(monerod)
-            if monerod.primary_server():
-                self.set_primary_server(monerod)
-            job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
-            job.msg("New deployment")
-            if monerod.primary_server():
-                self.set_int_p2pool_primary_server(monerod)
+        self.insert_one(monerod)
+        if monerod.primary_server():
+            self.set_primary_server(monerod)
+        job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
+        job.msg("New deployment")
+        if monerod.primary_server():
+            self.set_int_p2pool_primary_server(monerod)
 
-            self.job_queue.post_completed_job(job)        
+        self.job_queue.post_completed_job(job)        
         return monerod
 
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
-        for aMonerod in self.get_monerods():
-            if aMonerod.instance() == monerod.instance():
-                msg = f"A deployment with the same name ({monerod.instance()}) " \
-                    f"already exists"
-                monerod.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
-                return monerod
-            
-        update = True
+        self.insert_one(monerod)
+        # We need to get the _id field
+        monerod = self.db_cache.get_deployment(
+            DElem.MONEROD_REMOTE, monerod.instance())
+        job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
+        job.msg("New deployment")
+        self.job_queue.post_completed_job(job)
 
-        # Check that the user actually filled out the form
-        if not monerod.instance():
-            update = False
-
-        if not monerod.ip_addr():
-            update = False
-
-        if not monerod.rpc_bind_port():
-            update = False
-
-        if not monerod.zmq_pub_port():
-            update = False
-
-        if update:
-            self.insert_one(monerod)
-            # We need to get the _id field
-            monerod = self.db_cache.get_deployment(
-                DElem.MONEROD_REMOTE, monerod.instance())
-            job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
-            job.msg("New deployment")
-            self.job_queue.post_completed_job(job)
-
-            if monerod.primary_server():
-                job = Job(op=DJob.SET_PRIMARY, instance=monerod)
-                self.job_queue.post_job(job)          
-
+        if monerod.primary_server():
+            job = Job(op=DJob.SET_PRIMARY, instance=monerod)
+            self.job_queue.post_job(job)          
 
         return monerod
     
 
     def add_p2pool_deployment(self, p2pool):
-        for aP2Pool in self.get_p2pools():
-            if aP2Pool.instance() == p2pool.instance():
-                msg = f"A deployment with the same name ({p2pool.instance()}) " \
-                    f"already exists"
-                p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
-                return p2pool
-
-        update = True
-
-        # Check that the user actually filled out the form
-        if not p2pool.instance():
-            update = False
-
-        if not p2pool.in_peers():
-            update = False
-
-        if not p2pool.out_peers():
-            update = False
-    
-        if not p2pool.p2p_port():
-            update = False
-
-        if not p2pool.stratum_port():
-            update = False
-
-        if not p2pool.log_level():
-            update = False
 
         if type(p2pool) == InternalP2Pool:
             update = True
@@ -293,52 +190,16 @@ class DeploymentMgr(Container):
 
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
-        for aP2Pool in self.get_p2pools():
-            if aP2Pool.instance() == p2pool.instance():
-                msg = f"A deployment with the same name ({p2pool.instance()}) " \
-                    f"already exists"
-                p2pool.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
-                return p2pool
 
-        update = True
-
-        # Check that the user actually filled out the form
-        if not p2pool.instance():
-            update = False
-
-        if not p2pool.ip_addr():
-            update = False
-
-        if not p2pool.stratum_port():
-            update = False
-
-        print(f"DeploymentMgr:add_remote_p2pool_deployment(): {p2pool.to_rec()}")
-
-        if update:
-            self.insert_one(p2pool)
-            job = Job(
-                op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
-            job.msg(f"New deployment")
-            self.job_queue.post_completed_job(job)
+        self.insert_one(p2pool)
+        job = Job(
+            op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
+        job.msg(f"New deployment")
+        self.job_queue.post_completed_job(job)
         return p2pool
 
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
-        for aXMRig in self.get_p2pools():
-            if aXMRig.instance() == xmrig.instance():
-                msg = f"A deployment with the same name ({xmrig.instance()}) " \
-                    f"already exists"
-                xmrig.add_msg(DLabel.P2POOL, DStatus.WARN, msg)
-                return xmrig
-            
-        update = True
-    
-        # Check that the user filled out the form
-        if not xmrig.instance():
-            update = False
-
-        if not xmrig.num_threads():
-            update = False
 
         if not xmrig.parent():
             update = False
@@ -555,16 +416,6 @@ class DeploymentMgr(Container):
             return False
 
 
-    def post_job(self, job_info):
-
-        job = Job(op=job_info[DJob.OP], elem_type=job_info[DField.ELEMENT_TYPE])
-        elem = job_info[DField.ELEMENT]
-        job.elem(elem)
-        if type(elem) != Db4E:
-            job.instance(elem.instance())
-        self.job_queue.post_job(job)
-
-
     def update_db4e_deployment(self, new_db4e: Db4E):
         update_flag = False
 
@@ -637,7 +488,7 @@ class DeploymentMgr(Container):
 
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
-        update, update_config, restart = False, False, False
+        update, update_config, restart, update_primary = False, False, False, False
 
         monerod = self.db_cache.get_deployment(
             DElem.MONEROD, new_monerod.instance())
@@ -763,14 +614,15 @@ class DeploymentMgr(Container):
 
             # Set/Unset primary server flag
             if monerod.primary_server != new_monerod.primary_server:
+                update_primary = True
                 db4e = self.db_cache.get_db4e()
                 if new_monerod.primary_server():
-                    msg = f"Flagged {monerod.instance()} as the primary server"
+                    msg = f"Flagged as primary server"
                     monerod.primary_server(True)
                     monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                     db4e.primary_server(new_monerod.instance())
                 else:
-                    msg = f"Flagged {monerod.instance()} as a secondary server"
+                    msg = f"Flagged as secondary server"
                     monerod.primary_server(False)
                     monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                     db4e.primary_server(False)
@@ -783,11 +635,19 @@ class DeploymentMgr(Container):
 
         if update:
             self.update_one(monerod)
+
             if restart:
                 job = Job(op=DJob.RESTART, elem_type=DElem.MONEROD,
                         elem=monerod,
                         instance=monerod.instance())
                 self.job_queue.post_job(job)
+
+            if update_primary:
+                job = Job(
+                    op=DJob.SET_PRIMARY, instance=monerod.instance(), 
+                    elem_type=DElem.MONEROD, elem=monerod)
+                self.job_queue.post_job(job)
+
         else:
             monerod.msg(DLabel.MONEROD_SHORT, DStatus.WARN, "Nothing to update")
             
@@ -828,29 +688,22 @@ class DeploymentMgr(Container):
             update = True
 
         # Set/Unset primary server flag
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): primary server: {new_monerod.primary_server()}")
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): old primary server: {monerod.primary_server()}")
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): type: {type(new_monerod.primary_server())}")
         if monerod.primary_server != new_monerod.primary_server:
             db4e = self.db_cache.get_db4e()
             if new_monerod.primary_server():
-                msg = f"Set {monerod.instance()} as a primary server"
+                msg = f"Flagged as primary server"
                 monerod.primary_server(True)
                 monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 db4e.primary_server(new_monerod.instance())
             else:
-                msg = f"Set {monerod.instance()} as a secondary server"
+                msg = f"Flagged as a secondary server"
                 monerod.primary_server(False)
                 monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 db4e.primary_server(False)
-            job_info = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.UPDATE,
-                DField.ELEMENT_TYPE: DElem.DB4E,
-                DField.ELEMENT: db4e,                        
-            }
-            self.post_job(job_info)                
             update = True                    
-
-            update = True
 
 
         if update:

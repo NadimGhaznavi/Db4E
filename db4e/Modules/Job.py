@@ -78,6 +78,7 @@ class Job:
         self._op = rec[DJob.OP]
         self._status = rec[DJob.STATUS]
         self._updated_at = rec[DJob.UPDATED_AT]
+        
         if DField.ELEMENT in rec:
             elem_rec = rec[DField.ELEMENT]
             elem_type = elem_rec[DField.ELEMENT_TYPE]
@@ -155,5 +156,6 @@ class Job:
 
     def update_time(self):
         self._updated_at = datetime.now()
+
 
 

@@ -291,22 +291,21 @@ class Db4eServer:
         sys.exit(0)
 
 
-    def set_int_p2pool_primary_server(self, db4e):
+    def set_int_p2pool_primary_server(self, monerod):
+        print(f"Db4eServer:set_int_p2pool_primary_server(): {monerod}")
         # Update the internal P2Pool servers.....
-        print(f"server:set_int_p2pool_primary_server(): {db4e.primary_server()}")
         
-        if db4e.primary_server() == False:
+        
+        if monerod.primary_server() == False:
             for p2pool in self.depl_mgr.get_internal_p2pools():
                 p2pool.disable()
                 self.depl_mgr.update_deployment(p2pool)
 
         else:
-            primary_monerod = self.depl_mgr.get_deployment(DElem.MONEROD, db4e.primary_server())
-
             for p2pool in self.depl_mgr.get_internal_p2pools():
                 p2pool = deepcopy(p2pool)
-                p2pool.parent(primary_monerod.id())
-                p2pool.monerod = primary_monerod
+                p2pool.parent(monerod.id())
+                p2pool.monerod = monerod
                 vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
                 tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
@@ -318,13 +317,18 @@ class Db4eServer:
                 self.depl_mgr.update_deployment(p2pool)
 
 
-    def set_primary(self, monerod):
+    def set_primary(self, job):
+        monerod = job.elem()
+        print(f"Db4eServer:set_primary(): {monerod}")
         for aMonerod in self.depl_mgr.get_monerods():
-            if aMonerod.instance() != monerod.instance():
+            if monerod.instance() != aMonerod.instance():
+                print(f"Db4eServer:set_primary(): checking {aMonerod}: {aMonerod.primary_server()}")
                 if aMonerod.primary_server():
                     aMonerod.primary_server(False)
-                    self.db_cache.update_one(aMonerod)
-        self.set_int_p2pool_primary_server(monerod)        
+                    self.depl_mgr.update_deployment(aMonerod)
+        monerod.primary_server(True)
+        self.set_int_p2pool_primary_server(monerod)
+        self.depl_mgr.job_queue.complete_job(job)
 
 
     def start(self):
@@ -370,6 +374,12 @@ class Db4eServer:
             old_db4e = self.depl_mgr.db_cache.get_db4e()
             if old_db4e.primary_server() != elem.primary_server():
                 self.set_int_p2pool_primary_server(elem)
+
+        elif type(elem) == MoneroD or type(elem):
+            old_monerod = self.depl_mgr.db_cache.get_deployment(DElem.MONEROD, elem.instance())
+            if old_monerod.primary_server() != elem.primary_server():
+                self.set_primary(elem)
+
         msgs = ""
         for msg in elem.pop_msgs():
             for key, val in msg.items():

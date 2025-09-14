@@ -32,7 +32,7 @@ class DJob(ConstGroup):
     RETRY : str = "retry"
     PROCESSING : str = "processing"
     RESTART : str = "restart"
-    SET_PRIMARY : str = "set_primary"
+    SET_PRIMARY : str = "set primary"
     STATUS : str = "status"
     UPDATE : str = "update"
     UPDATED_AT : str = "updated_at"
