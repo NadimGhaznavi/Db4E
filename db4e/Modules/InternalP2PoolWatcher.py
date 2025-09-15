@@ -9,54 +9,98 @@ db4e/Modules/InternalP2PoolWatcher.py
 
 Everything P2Pool
 """
-import os, threading, time
+from datetime import datetime
+from decimal import Decimal
+from bson.decimal128 import Decimal128
+import threading
+import time
+import os
+import re
 
-from db4e.Modules import P2PoolWatcher
 
+from db4e.Modules.P2PoolWatcher import P2PoolWatcher
+from db4e.Modules.MiningDb import MiningDb
+
+from db4e.Constants.DField import DField
 
 
 class InternalP2PoolWatcher(P2PoolWatcher):
 
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+            self, mining_db: MiningDb, chain: str, log_file: str,
+            stop_event: threading.Event):
+        super().__init__(mining_db=mining_db, chain=chain, log_file=log_file, 
+                         stop_event=stop_event)
+        self.mining_db = mining_db
+        self._chain = chain
+        self._log_file = log_file
+        self._stop_event = stop_event
 
 
-    def monitor_log(self, log_file: str, stop_event: threading.Event):
+    def get_handlers(self):
+        handlers = [
+            self.is_block_found,
+        ]
+        if self.chain == DField.MAIN_CHAIN:
+            handlers.extend([ self.is_main_chain_hashrate ])
+        else:
+            handlers.extend([ self.is_side_chain_hashrate ])
+        return handlers
 
-        while not stop_event.is_set():
-            try:
-                with open(log_file, "r") as log_handle:
-                    log_handle.seek(0, os.SEEK_END)
 
-                    while not stop_event.is_set():
-                        line = log_handle.readline()
+    def is_block_found(self, log_line):
+        """
+        Sample log messages to watch for:
 
-                        if not line:
-                            # Handle log rotation/truncation
-                            try:
-                                if os.stat(log_file).st_size < log_handle.tell():
-                                    break  # reopen the file
-                            except FileNotFoundError:
-                                break  # file got rotated away
-                            time.sleep(0.2)
-                            continue
+        2024-11-09 19:52:19.1734 P2Pool BLOCK FOUND: main chain block at height 3277801 was mined by someone else in this p2pool
 
-                        log_line = line.strip()
+        """
+        print(f"is_block_found: {log_line}")
+        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} P2Pool BLOCK FOUND"
+        match = re.search(pattern, log_line)
+        if match:
+            timestamp = match.group('timestamp')
+            timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
+            # Create a new blocks_found_event in the DB
+            self.mining_db.add_block_found(timestamp)
+            print(f"Block found: {timestamp}")
 
-                        # === your regex handlers ===
-                        #self.is_miner_stats(log_line)
-                        #self.is_share_found(log_line)
-                        #self.is_share_position(log_line)
-                        self.is_block_found(log_line)
-                        #self.is_xmr_payment(log_line)
-                        self.is_side_chain_hashrate(log_line)
-                        self.is_main_chain_hashrate(log_line)
-                        #self.is_pool_hashrate(log_line)
 
-            except FileNotFoundError:
-                # File not created yet, retry later
-                time.sleep(1)
-            except Exception as e:
-                print(f"P2PoolWatcher:monitor_log(): ERROR: {e}")
-                time.sleep(1)    
+    def is_main_chain_hashrate(self, log_line):
+        """
+        Sample log message to watch for:
+
+        Main chain hashrate       = 3.105 GH/s
+        Main chain hashrate       = 5.079 GH/s
+        """
+        pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
+        match = re.search(pattern, log_line)
+        localtime = datetime.now().strftime("%H:%M")
+        if match:
+            hashrate = match.group('hashrate')
+            self.mining_db.add_mainchain_hashrate(hashrate)
+            print(f"Detected mainchain hashrate ({hashrate})")
+
+
+    def is_side_chain_hashrate(self, log_line):
+        """
+        Sample log message to watch for:
+
+        Side chain hashrate       = 12.291 MH/s
+        """
+        pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
+        match = re.search(pattern, log_line)
+        localtime = datetime.now().strftime("%H:%M")
+        if match:
+            hashrate = match.group('hashrate')
+            self.mining_db.add_sidechain_hashrate(hashrate)
+            print(f'Detected sidechain hashrate ({hashrate})')
+
+            # While we're at it, let's also collect the number of miners 
+            # on the sidechain at this time.
+            sidechain_miners = self.get_sidechain_miners()
+            self.mining_db.add_sidechain_miners(sidechain_miners)
+            print(f'Detected sidechain miners ({sidechain_miners})')
+
+

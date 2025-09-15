@@ -58,7 +58,7 @@ class BlockchainDir(Component):
 
 class Chain(Component):
     def __init__(self):
-        super().__init__(DField.CHAIN, DLabel.CHAIN, DDef.CHAIN)
+        super().__init__(DField.CHAIN, DLabel.CHAIN)
 
 
 class ConfigFile(Component):

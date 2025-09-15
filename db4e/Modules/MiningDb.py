@@ -25,8 +25,8 @@ from db4e.Constants.DMining import DMining
 class MiningDb():
 
 
-    def __init__(self):
-        self.db = DbMgr()
+    def __init__(self, db: DbMgr):
+        self.db = db
         self.mining_col = DDef.MINING_COL
     
 

@@ -18,7 +18,6 @@ class DDef(ConstGroup):
     BACKUP_SCRIPT: str  = "db4e-backup.sh"
     BIN_DIR: str  = "bin"
     BLOCKCHAIN_DIR: str  = "blockchain"
-    CHAIN: str  = "mini"
     COLORTERM: str  = "truecolor"
     CONF_DIR: str  = "conf"
     CSS_PATH: str  = "Db4E.tcss"

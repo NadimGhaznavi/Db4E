@@ -30,8 +30,10 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.InternalP2Pool import InternalP2Pool
+from db4e.Modules.InternalP2PoolWatcher import InternalP2PoolWatcher
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -48,7 +50,7 @@ from db4e.Constants.DJob import DJob
 from db4e.Constants.DFile import DFile
 
 
-DDebug.FUNCTION = False
+DDebug.FUNCTION = True
 
 
 POLL_INTERVAL = 5
@@ -70,20 +72,20 @@ class Db4eServer:
         # Get a Mongo manager
         self.db = DbMgr()
 
+        # Get a Mining DB object (part of the DAL)
+        self.mining_db = MiningDb(db=self.db)
+
+
         # Get a JobQueue
         self.job_queue = JobQueue(db=self.db)
-
-        # Get a P2Pool log watcher
-        self.p2pool_watcher = P2PoolWatcher()
 
         # {instance_name: (thread, stop_event)}
         self.log_watchers = {}
 
-        # Track which services are in the process of being stopped/started
-        self.processing = {
-            DField.STARTING: {},
-            DField.STOPPING: {},
-        }
+        # Track which services are in the process of being stopped/started to avoid
+        # sending multiple "systemctl [start|stop] <service>" commands
+        self.starting = set()
+        self.stopping = set()
 
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
@@ -110,9 +112,9 @@ class Db4eServer:
 
 
     def check_deployments(self):
-        if DDebug.FUNCTION:
-            print("Db4eServer:check_deployments():")
         depls = self.depl_mgr.get_deployments()
+        if DDebug.FUNCTION:
+            print(f"Db4eServer:check_deployments(): {depls}")
         found_primary = False
         for elem in depls:
             time.sleep(0.25)
@@ -284,19 +286,22 @@ class Db4eServer:
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
 
-        # Don't keep issuing 'systemctl start <service>' if it's just starting up....
+        ## Don't keep issuing 'systemctl start <service>' if it's just starting up....
         if sd.active():
-            if instance in self.processing[DField.STOPPING]:
-                self.processing[DField.STOPPING].pop(instance, None)
+            # It's up - clear the "stopping" and clear the "starting" too
+            self.stopping.discard(instance)
+            self.starting.discard(instance)
             return
-
-        elif not sd.active() and instance not in self.processing[DField.STARTING]:
-            self.processing[DField.STARTING][instance] = True
-            rc = sd.start()
-            if rc == 0:
-                self.log.critical(f'Started {elem}')
-            else:
-                self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
+        if instance in self.starting:
+            # It's already in the process of starting, do nothing
+            return
+        # Not active and not starting, start it up
+        self.starting.add(instance)
+        rc = sd.start()
+        if rc == 0:
+            self.log.critical(f'Started {elem}')
+        else:
+            self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
             
 
 
@@ -316,19 +321,29 @@ class Db4eServer:
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
 
-        if sd.active():
-            rc = sd.stop()
-            if rc == 0:
-                self.log.critical(f'Stopped {elem}')
-                if type(elem) == P2Pool:
-                    self.log_watchers.pop(instance, None)
-                    watcher = self.log_watchers.pop(instance, None)
-                    if watcher:
-                        thread, stop_event = watcher
-                        stop_event.set()
-                        thread.join()
-            else:
-                self.log.critical(f'ERROR: Failed to stop {elem}, return code was {rc}')
+        ## Don't keep issuing 'systemctl stop <service>' if it's just shutting down....
+        if not sd.active():
+            # It's down - clear the "stopping" and clear the "starting" too
+            self.stopping.discard(instance)
+            self.starting.discard(instance)
+            return
+        if instance in self.stopping:
+            # It's already in the process of stopping, do nothing
+            return
+        
+        # Active and not already stopping -> issue stop
+        self.stopping.add(instance)
+        rc = sd.stop()
+        if rc == 0:
+            self.log.critical(f'Stopped {elem}')
+            if isinstance(elem,P2Pool):
+                watcher = self.log_watchers.pop(instance, None)
+                if watcher:
+                    thread, stop_event = watcher
+                    stop_event.set()
+                    thread.join()
+        else:
+            self.log.critical(f'ERROR: Failed to stop {elem}, return code was {rc}')
                 
 
     def restart(self, job):
@@ -426,8 +441,26 @@ class Db4eServer:
 
         def _runner():
             try:
-                print(f"Db4eServer:spawn_log_watcher(): {p2pool}")
-                self.p2pool_watcher.monitor_log(p2pool.log_file(), stop_event)
+                # User defined, local P2Pool instance
+                if type(p2pool) == P2Pool:
+                    watcher = P2PoolWatcher(
+                        mining_db=self.mining_db,
+                        chain=p2pool.chain(),
+                        log_file=p2pool.log_file(),
+                        stop_event=stop_event
+                    )
+                elif type(p2pool) == InternalP2Pool:
+                    watcher = InternalP2PoolWatcher(
+                        mining_db=self.mining_db,
+                        chain=p2pool.chain(),
+                        log_file=p2pool.log_file(),
+                        stop_event=stop_event
+                    )
+                else:
+                    raise ValueError(
+                        f"spawn_log_watcher(): Unknown deployment type: {type(p2pool)}")
+
+                watcher.monitor_log()
             finally:
                 # Cleanup on exit
                 self.log_watchers.pop(instance, None)

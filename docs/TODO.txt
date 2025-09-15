@@ -38,3 +38,5 @@ on the command line when you start the db4e service.
 # Enable/Disable Db4E service
 
 ...
+
+# Make sure local P2Pool instances use unique port numbers

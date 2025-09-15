@@ -18,6 +18,9 @@ import time
 import os
 import re
 
+
+from db4e.Constants.DField import DField
+
 from db4e.Modules.MiningDb import MiningDb
 
 
@@ -25,42 +28,25 @@ from db4e.Modules.MiningDb import MiningDb
 class P2PoolWatcher:
 
 
-    def __init__(self):
-        self.mining_db = MiningDb()
+    def __init__(
+            self, mining_db: MiningDb, chain: str, log_file: str, 
+            stop_event: threading.Event):
+        self.mining_db = mining_db
+        self._chain = chain
+        self._log_file = log_file
+        self._stop_event = stop_event
 
 
-    def is_block_found(self, log_line):
-        """
-        Sample log messages to watch for:
+    def chain(self):
+        return self._chain
+    
 
-        2024-11-09 19:52:19.1734 P2Pool BLOCK FOUND: main chain block at height 3277801 was mined by someone else in this p2pool
+    def get_handlers(self):
+        handlers = [
+            self.is_pool_hashrate
+        ]
+        return handlers
 
-        """
-        print(f"is_block_found: {log_line}")
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} P2Pool BLOCK FOUND"
-        match = re.search(pattern, log_line)
-        if match:
-            timestamp = match.group('timestamp')
-            timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-            # Create a new blocks_found_event in the DB
-            self.mining_db.add_block_found(timestamp)
-            print(f"Block found: {timestamp}")
-
-
-    def is_main_chain_hashrate(self, log_line):
-        """
-        Sample log message to watch for:
-
-        Main chain hashrate       = 3.105 GH/s
-        Main chain hashrate       = 5.079 GH/s
-        """
-        pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
-        match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
-        if match:
-            hashrate = match.group('hashrate')
-            self.mining_db.add_mainchain_hashrate(hashrate)
-            print(f"Detected mainchain hashrate ({hashrate})")
 
 
     def is_pool_hashrate(self, log_line):
@@ -123,27 +109,6 @@ class P2PoolWatcher:
             print(f'Detected share position ({position})')
 
 
-    def is_side_chain_hashrate(self, log_line):
-        """
-        Sample log message to watch for:
-
-        Side chain hashrate       = 12.291 MH/s
-        """
-        pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
-        match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
-        if match:
-            hashrate = match.group('hashrate')
-            self.mining_db.add_sidechain_hashrate(hashrate)
-            print(f'Detected sidechain hashrate ({hashrate})')
-
-            # While we're at it, let's also collect the number of miners 
-            # on the sidechain at this time.
-            sidechain_miners = self.get_sidechain_miners()
-            self.mining_db.add_sidechain_miners(sidechain_miners)
-            print(f'Detected sidechain miners ({sidechain_miners})')
-
-
     def is_miner_stats(self, log_line):
         """
         Sample log message to watch for:
@@ -182,7 +147,16 @@ class P2PoolWatcher:
             print(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
 
 
-    def monitor_log(self, log_file: str, stop_event: threading.Event):
+    def log_file(self):
+        return self._log_file
+    
+
+    def monitor_log(self):
+
+        chain = self.chain()
+        log_file = self.log_file()
+        stop_event = self.stop_event()
+
 
         while not stop_event.is_set():
             try:
@@ -204,11 +178,14 @@ class P2PoolWatcher:
 
                         log_line = line.strip()
 
+                        for handler in self.get_handlers():
+                            handler(log_line)
+
                         # === your regex handlers ===
                         #self.is_miner_stats(log_line)
-                        self.is_share_found(log_line)
+                        #self.is_share_found(log_line)
                         #self.is_share_position(log_line)
-                        self.is_block_found(log_line)
+                        #self.is_block_found(log_line)
                         #self.is_xmr_payment(log_line)
                         #self.is_side_chain_hashrate(log_line)
                         #self.is_main_chain_hashrate(log_line)
@@ -220,3 +197,9 @@ class P2PoolWatcher:
             except Exception as e:
                 print(f"P2PoolWatcher:monitor_log(): ERROR: {e}")
                 time.sleep(1)
+
+
+    def stop_event(self):
+        return self._stop_event
+
+
