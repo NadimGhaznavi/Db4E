@@ -218,8 +218,9 @@ class DbCache:
 
     def get_deployments(self):
         return [self.db4e] + list(self.monerod_map.values()) + \
-            list(self.p2pool_map.values()) + list(self.xmrig_map.values())
-    
+            list(self.p2pool_map.values()) + list(self.xmrig_map.values()) + \
+            list(self.int_p2pool_map.values())
+
 
     def get_db4e(self):
         return deepcopy(self.db4e)
@@ -252,9 +253,12 @@ class DbCache:
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             p2pools = []
             for p2pool in self.p2pool_map.values():
-                if type(p2pool) == P2Pool:
+                if isinstance(p2pool, P2Pool):
                     if p2pool.parent() == elem.id():
                         p2pools.append(deepcopy(p2pool))
+            for int_p2pool in self.int_p2pool_map.values():
+                if int_p2pool.parent() == elem.id():
+                    p2pools.append(deepcopy(int_p2pool))
             return p2pools
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
             xmrigs = []

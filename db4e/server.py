@@ -38,6 +38,8 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
 from db4e.Modules.XMRig import XMRig
+
+from db4e.Constants.DDebug import DDebug
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
 from db4e.Constants.DElem import DElem
@@ -46,6 +48,7 @@ from db4e.Constants.DJob import DJob
 from db4e.Constants.DFile import DFile
 
 
+DDebug.FUNCTION = False
 
 
 POLL_INTERVAL = 5
@@ -55,6 +58,8 @@ class Db4eServer:
     Db4E Server
     """
     def __init__(self):
+        if DDebug.FUNCTION:
+            print("DEBUG Db4eServer.__init__():")
 
         # Get a deployment manager
         self.depl_mgr = DeplMgr()
@@ -72,7 +77,13 @@ class Db4eServer:
         self.p2pool_watcher = P2PoolWatcher()
 
         # {instance_name: (thread, stop_event)}
-        self.log_watchers = {}  
+        self.log_watchers = {}
+
+        # Track which services are in the process of being stopped/started
+        self.processing = {
+            DField.STARTING: {},
+            DField.STOPPING: {},
+        }
 
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
@@ -90,6 +101,8 @@ class Db4eServer:
 
 
     def add_deployment(self, job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:add_deployment(): {job}")
         elem = job.elem()
         self.log.debug(f"Db4eServer:add_deployment(): {elem}")
         self.depl_mgr.add_deployment(elem)
@@ -97,13 +110,16 @@ class Db4eServer:
 
 
     def check_deployments(self):
+        if DDebug.FUNCTION:
+            print("Db4eServer:check_deployments():")
         depls = self.depl_mgr.get_deployments()
         found_primary = False
         for elem in depls:
+            time.sleep(0.25)
             elem_type = type(elem)
 
             # Nothing to do for these classes
-            if elem_type == P2PoolRemote or elem_type == InternalP2Pool:
+            if elem_type == P2PoolRemote:
                 continue 
 
             # Look for primary Monero deployments
@@ -122,11 +138,12 @@ class Db4eServer:
             # Make sure anything that's enabled is running
             if elem_type != MoneroDRemote and elem.enabled():
                 self.ensure_running(elem)
-                if elem_type == P2Pool:
+                if isinstance(elem, P2Pool):
                     # Make sure there's a log watcher running                    
                     self.spawn_log_watcher(elem) 
 
             # Makre sure anything that's disabled is stopped
+            print(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
             if elem_type != MoneroDRemote and not elem.enabled():
                 self.ensure_stopped(elem)
 
@@ -136,6 +153,8 @@ class Db4eServer:
 
 
     def check_jobs(self):
+        if DDebug.FUNCTION:
+            print("DEBUG Db4eServer:check_jobs():")
         jobs = []
         found_job = True
         while found_job:
@@ -165,6 +184,8 @@ class Db4eServer:
 
 
     def delete(self, job: Job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:delete(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Deleting {elem_type}/{instance}")
@@ -187,12 +208,12 @@ class Db4eServer:
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
-            self.depl_mgr.del_deployment(elem)
+            self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == MoneroD:
             self.ensure_stopped(elem)
-            self.depl_mgr.del_deployment(elem)
+            self.depl_mgr.delete_deployment(elem)
             vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
             monerod_dir = DElem.MONEROD + '-' + elem.version()
             conf_file = elem.config_file()
@@ -204,6 +225,8 @@ class Db4eServer:
             
 
     def disable(self, job: Job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:disable(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
@@ -219,10 +242,10 @@ class Db4eServer:
 
 
     def disable_downstream(self, elem):
-        print(f"Db4eServer:disable_downstream(): {elem}")
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:disable_downstream(): {elem}")
         elems = self.depl_mgr.get_downstream(elem)
         for elem in elems:
-            print(f"Db4eServer:disable_downstream(): elem/enabled: {elem}/{elem.enabled()}")
             elem.disable()
             self.depl_mgr.update_deployment(elem)
             job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
@@ -231,6 +254,8 @@ class Db4eServer:
 
 
     def enable(self, job: Job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:enable(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
@@ -242,8 +267,10 @@ class Db4eServer:
 
 
     def ensure_running(self, elem):
+        time.sleep(0.25)
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:ensure_running(): {elem}")
         # Check if the deployment service is running, start it if it's not
-        print(f"Db4eServer:ensure_running(): {elem}")
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
@@ -256,17 +283,26 @@ class Db4eServer:
             sd.service_name('xmrig@' + instance)
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
-            
-        if not sd.active():
+
+        # Don't keep issuing 'systemctl start <service>' if it's just starting up....
+        if sd.active():
+            if instance in self.processing[DField.STOPPING]:
+                self.processing[DField.STOPPING].pop(instance, None)
+            return
+
+        elif not sd.active() and instance not in self.processing[DField.STARTING]:
+            self.processing[DField.STARTING][instance] = True
             rc = sd.start()
             if rc == 0:
                 self.log.critical(f'Started {elem}')
             else:
                 self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
+            
 
 
     def ensure_stopped(self, elem):
-        #print(f"Db4eServer:ensure_stopped(): {elem}")
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:ensure_stopped(): {elem}")
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
@@ -296,6 +332,8 @@ class Db4eServer:
                 
 
     def restart(self, job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:restart(): {job}")
         # Note that XMRig does not need to be restarted, it's smart enough to notice that
         # the JSON config has been updated and reload the settings
         elem_type = job.elem_type()
@@ -313,35 +351,42 @@ class Db4eServer:
 
 
     def shutdown(self, signum, frame):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:shutdown(): {signum}")
         self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
         sys.exit(0)
 
 
     def set_int_p2pool_primary(self, monerod):
-        print(f"Db4eServer:set_int_p2pool_primary_server(): {monerod}")
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
         # Update the internal P2Pool servers.....
         if not monerod.primary_server():
             monerod.primary_server(True)
             self.depl_mgr.update_deployment(monerod)
-            
-        for p2pool in self.depl_mgr.get_internal_p2pools():
-            p2pool = deepcopy(p2pool)
-            p2pool.monerod = monerod
-            p2pool.parent(monerod.id())
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            p2pool.log_file(
-                os.path.join(
-                    vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
-                    DDir.LOG, DFile.P2POOL_LOG))
-            p2pool.enable()
-            self.depl_mgr.update_deployment(p2pool)
-            self.ensure_running(p2pool)
+
+        if monerod.enabled():
+            # Don't do anything if the primary is disabled
+            for p2pool in self.depl_mgr.get_internal_p2pools():
+                p2pool = deepcopy(p2pool)
+                p2pool.monerod = monerod
+                p2pool.parent(monerod.id())
+                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.log_file(
+                    os.path.join(
+                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                        DDir.LOG, DFile.P2POOL_LOG))
+                p2pool.enable()
+                self.depl_mgr.update_deployment(p2pool)
+                self.ensure_running(p2pool)
 
 
     def set_primary(self, job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:set_primary(): {job}")
         monerod = job.elem()
         print(f"Db4eServer:set_primary(): {monerod}")
         for aMonerod in self.depl_mgr.get_monerods():
@@ -355,6 +400,8 @@ class Db4eServer:
 
 
     def start(self):
+        if DDebug.FUNCTION:
+            print("DEBUG Db4eServer:start():")
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
         self.log.info("Starting Db4E Server")
@@ -368,6 +415,8 @@ class Db4eServer:
 
 
     def spawn_log_watcher(self, p2pool):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:spawn_log_watcher(): {p2pool}")
         instance = p2pool.instance()
         if instance in self.log_watchers:
             # Already watching
@@ -389,6 +438,8 @@ class Db4eServer:
 
 
     def update(self, job):
+        if DDebug.FUNCTION:
+            print(f"DEBUG Db4eServer:update(): {job}")
         elem = job.elem()
         print(f"Db4eServer:update(): {elem}")
 
@@ -403,6 +454,8 @@ class Db4eServer:
 
 
     def unset_int_p2pool_primary(self):
+        if DDebug.FUNCTION:
+            print("DEBUG Db4eServer:unset_int_p2pool_primary():")
         for p2pool in self.depl_mgr.get_internal_p2pools():
             if p2pool.parent():
                 p2pool.parent(False)

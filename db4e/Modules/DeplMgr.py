@@ -11,7 +11,7 @@ db4e/Modules/DeplMgr.py
 import os
 from datetime import datetime, timezone
 import socket
-from copy import deepcopy
+from typing import overload
 
 from db4e.Modules.DeplBase import DeplBase
 from db4e.Modules.DbMgr import DbMgr
@@ -50,6 +50,12 @@ class Default:
 
 class DeplMgr(DeplBase):
     
+    # update_p2pool_deployment() is overloaded ...
+    @overload
+    def update_p2pool_deployment(self, p2pool: P2Pool) -> P2Pool: ...
+    @overload
+    def update_p2pool_deployment(self, p2pool: InternalP2Pool) -> InternalP2Pool: ...
+
 
     def __init__(self):
         super().__init__()
@@ -469,7 +475,7 @@ class DeplMgr(DeplBase):
             return self.update_monerod_deployment(elem)
         elif type(elem) == MoneroDRemote:
             return self.update_monerod_remote_deployment(elem)
-        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+        elif isinstance(elem, P2Pool):
             return self.update_p2pool_deployment(elem)
         elif type(elem) == P2PoolRemote:
             return self.update_p2pool_remote_deployment(elem)
@@ -722,7 +728,7 @@ class DeplMgr(DeplBase):
         return elem
     
 
-    def update_p2pool_deployment(self, new_p2pool: P2Pool) -> P2Pool:
+    def update_p2pool_deployment(self, new_p2pool):
         update = False
         update_config = False
         restart = True
@@ -791,12 +797,11 @@ class DeplMgr(DeplBase):
                 update_config = True
                 update = True
 
-            # Upstream P2Pool
+            # Upstream Monerod
             if p2pool.parent != new_p2pool.parent:
                 parent = self.get_deployment_by_id(new_p2pool.parent())
                 parent_instance = parent.instance()
                 new_parent = self.get_deployment_by_id(p2pool.parent())
-                print(f"DeploymentMgr:update_p2pool_deployment(): DEBUG {new_parent}")
                 if new_parent:
                     msg = f"Updated upstream P2Pool: {parent_instance} > " \
                         f"{new_parent.instance()}"
