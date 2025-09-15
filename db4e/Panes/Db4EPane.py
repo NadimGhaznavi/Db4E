@@ -16,9 +16,10 @@ from textual.reactive import reactive
 
 from db4e.Messages.Db4eMsg import Db4eMsg
 
-from db4e.Modules.Helper import gen_results_table
 
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.Helper import gen_results_table
+
 from db4e.Constants.DField import DField
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DElem import DElem
@@ -96,8 +97,6 @@ class Db4EPane(Container):
         form_box.border_subtitle = DLabel.CONFIG
 
 
-
-
     def set_data(self, db4e: Db4E):
         self.db4e = db4e
         self.user_name_label.update(db4e.user())
@@ -122,10 +121,11 @@ class Db4EPane(Container):
         primary_instance = radio_set.pressed_button.label
         self.db4e.primary_server(self.instance_map[primary_instance])
         
+        # Create an update job
+
         form_data = {
-            DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-            DField.TO_METHOD: DMethod.POST_JOB,
-            DField.OP: DJob.UPDATE,
+            DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+            DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
             DField.ELEMENT_TYPE: DElem.DB4E,
             DField.ELEMENT: self.db4e,
         }

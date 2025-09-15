@@ -18,15 +18,16 @@ from textual.containers import Container, Vertical, ScrollableContainer
 
 #from db4e.Messages.NavLeafSelected import NavLeafSelected
 from db4e.Modules.OpsMgr import OpsMgr
+
 from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Constants.DLabel import DLabel
+
+from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DModule import DModule
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DPane import DPane
+from db4e.Constants.DStatus import DStatus
 
 
 # Icon dictionary keys
@@ -355,7 +356,7 @@ class NavPane(Container):
 
         # Main chain
         main = chain.add(
-            f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=self.chain_is_expanded) 
+            f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=True) 
         main.add_leaf(
             f"{ICON[BLOCK]} {DLabel.BLOCKS_FOUND}", data=DLabel.BLOCKS_FOUND)
         main.add_leaf(
@@ -390,6 +391,6 @@ class NavPane(Container):
 
     def set_initialized(self):
         if not self._initialized:  
-            self._initialized = self.ops_mgr.depl_mgr.is_initialized()
+            self._initialized = self.ops_mgr.depl_client.is_initialized()
         return self._initialized
 

@@ -128,18 +128,16 @@ class MoneroDRemotePane(Container):
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.UPDATE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,
             }
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.DELETE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,
             }

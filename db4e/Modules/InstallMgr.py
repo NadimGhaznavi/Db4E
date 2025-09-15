@@ -17,7 +17,7 @@ import stat
 from textual.containers import Container
 
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.Helper import result_row
@@ -41,7 +41,7 @@ class InstallMgr(Container):
     def __init__(self):
         super().__init__()
         self.ops_mgr = OpsMgr()
-        self.depl_mgr = DeploymentMgr()
+        self.depl_mgr = DeplMgr()
         self.col_name = DDef.DEPLOYMENT_COL
         self.tmp_dir = None
 
@@ -377,7 +377,7 @@ class InstallMgr(Container):
         for chain_type in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
             p2pool = InternalP2Pool()
             p2pool.set_type(chain_type)
-            self.depl_mgr.add_p2pool_deployment(p2pool)
+            self.depl_mgr.add_deployment(p2pool)
             db4e.msg(
                 chain_type, DStatus.GOOD,
                 f"Created internal P2Pool deployment: {chain_type}")

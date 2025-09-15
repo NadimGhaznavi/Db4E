@@ -117,18 +117,16 @@ class P2PoolRemotePane(Container):
         elif button_id == DButton.UPDATE:
             # There was an original instance, so this is an update            
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.UPDATE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.DELETE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                 DField.ELEMENT: self.p2pool,
             }

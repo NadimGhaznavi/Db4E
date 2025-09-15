@@ -1,5 +1,5 @@
 """
-db4e/Modules/DeploymentManager.py
+db4e/Modules/DeplMgr.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -13,8 +13,7 @@ from datetime import datetime, timezone
 import socket
 from copy import deepcopy
 
-from textual.containers import Container
-
+from db4e.Modules.DeplBase import DeplBase
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.JobQueue import JobQueue
@@ -49,7 +48,7 @@ class Default:
     XMRIG_CONFIG = DDef.XMRIG_CONFIG
 
 
-class DeploymentMgr(Container):
+class DeplMgr(DeplBase):
     
 
     def __init__(self):
@@ -61,7 +60,8 @@ class DeploymentMgr(Container):
 
 
     def add_deployment(self, elem):
-        #print(f"DeploymentMgr:add_deployment(): {rec}")
+        # Check for duplicate instance names and missing fields
+        self.check_instance_and_fields(elem)
         elem_class = type(elem)
 
         # Add the Db4E Core deployment
@@ -77,7 +77,7 @@ class DeploymentMgr(Container):
             return self.add_remote_monerod_deployment(elem)
 
         # A P2Pool deployment
-        elif elem_class == P2Pool:
+        elif isinstance(elem, P2Pool):
             return self.add_p2pool_deployment(elem)
 
         # Add a remote P2Pool deployment
@@ -155,15 +155,13 @@ class DeploymentMgr(Container):
     
 
     def add_p2pool_deployment(self, p2pool):
+        update = False
 
-        if type(p2pool) == InternalP2Pool:
+        if p2pool.parent():
             update = True
-        elif not p2pool.parent():
-            update = False
-        else:
             p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
 
-        if update:
+        if update or isinstance(p2pool, InternalP2Pool):
             p2pool.ip_addr(socket.gethostname())
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.P2POOL)
@@ -190,7 +188,6 @@ class DeploymentMgr(Container):
 
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
-
         self.insert_one(p2pool)
         job = Job(
             op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
@@ -201,6 +198,7 @@ class DeploymentMgr(Container):
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
 
+        update = True
         if not xmrig.parent():
             update = False
         else:
@@ -251,7 +249,7 @@ class DeploymentMgr(Container):
         return db4e, update_flag
 
 
-    def del_deployment(self, elem):
+    def delete_deployment(self, elem):
         self.db_cache.delete_one(elem)
 
 
@@ -281,10 +279,6 @@ class DeploymentMgr(Container):
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         return self.db_cache.get_deployment(elem_type, instance)
-
-
-    def get_deployment_by_id(self, id):
-        return self.db_cache.get_deployment_by_id(id)
 
 
     def get_deployment_ids_and_instances(self, elem_type):

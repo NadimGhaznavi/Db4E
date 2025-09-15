@@ -1,5 +1,5 @@
 """
-db4e/Modules/DeploymentClient.py
+db4e/Modules/DeplBase.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -7,7 +7,6 @@ db4e/Modules/DeploymentClient.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-
 from typing import overload
 
 from db4e.Modules.Db4E import Db4E
@@ -22,6 +21,7 @@ from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 
 
+from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DJob import DJob
 from db4e.Constants.DStatus import DStatus
@@ -29,35 +29,14 @@ from db4e.Constants.DLabel import DLabel
 
 
 
-class DeploymentClient:
+class DeplBase:
 
-    # add_deployment() is overloaded ...
-    @overload
-    def add_deployment(self, elem: Db4E) -> Db4E: ...
-    @overload
-    def add_deployment(self, elem: MoneroD) -> MoneroD: ...
-    @overload
-    def add_deployment(self, elem: MoneroDRemote) -> MoneroDRemote: ...
-    @overload
-    def add_deployment(self, elem: P2Pool) -> P2Pool: ...
-    @overload
-    def add_deployment(self, elem: P2PoolRemote) -> P2PoolRemote: ...
-    @overload
-    def add_deployment(self, elem: XMRig) -> XMRig: ...
-    
-    # update_deployment() is overloaded ...
-    @overload
-    def update_deployment(self, elem: Db4E) -> Db4E: ...
-    @overload
-    def update_deployment(self, elem: MoneroD) -> MoneroD: ...
-    @overload
-    def update_deployment(self, elem: MoneroDRemote) -> MoneroDRemote: ...
-    @overload
-    def update_deployment(self, elem: P2Pool) -> P2Pool: ...
-    @overload
-    def update_deployment(self, elem: P2PoolRemote) -> P2PoolRemote: ...
-    @overload
-    def update_deployment(self, elem: XMRig) -> XMRig: ...
+
+    def __init__(self):
+        db_mgr = DbMgr()
+        self.db_cache = DbCache(db=db_mgr)
+        self.job_queue = JobQueue(db=db_mgr)
+
 
     # check_instance_and_fields is overloaded
     @overload
@@ -72,23 +51,6 @@ class DeploymentClient:
     def check_instance_and_fields(self, elem: P2PoolRemote) -> P2PoolRemote: ...
     @overload
     def check_instance_and_fields(self, elem: XMRig) -> XMRig: ...
-
-
-
-    def __init__(self):
-        db_mgr = DbMgr()
-        self.db_cache = DbCache(db=db_mgr)
-        self.job_queue = JobQueue(db=db_mgr)
-
-
-    def add_deployment(self, elem):
-        # Check for duplicate instance names and missing fields
-        self.check_instance_and_fields(elem)
-
-        # Create an add job
-        job = Job(op=DJob.NEW, elem=elem)
-        self.job_queue.post_job(job)
-        return elem
 
 
     def check_db4e_fields(self, db4e: Db4E) -> bool:
@@ -114,7 +76,7 @@ class DeploymentClient:
         if instance_exists:
                 msg = f"A deployment with the same name ({elem.instance()}) " \
                     f"already exists"
-                elem.add_msg(DLabel.MONEROD, DStatus.WARN, msg)
+                elem.msg(DLabel.MONEROD, DStatus.WARN, msg)
                 return elem
 
         # Make sure we have all the required fields
@@ -194,30 +156,13 @@ class DeploymentClient:
             xmrig.parent(),
         ]
         return not all(required)
+    
 
-
-    def get_monerods(self) -> list[MoneroD | MoneroDRemote]:
-        return self.db_cache.get_monerods()
-
-
-    def get_p2pools(self) -> list[P2Pool | P2PoolRemote]:
-        return self.db_cache.get_p2pools()
-
-
-    def get_xmrigs(self) -> list[XMRig]:
-        return self.db_cache.get_xmrigs()
+    def get_deployment_by_id(self, id):
+        return self.db_cache.get_deployment_by_id(id)
 
 
     def instance_exists(self, elem, collection) -> bool:
         return any(e.instance() == elem.instance() for e in collection)
 
 
-    def update_deployment(self, elem):
-        # Chceck for duplicate intance names and missing fields
-        self.check_instance_and_fields(elem)
-
-        # Create an update job
-        job = Job(op=DJob.UPDATE, elem=elem)
-        self.job_queue.post_job(job)
-        return elem
-    

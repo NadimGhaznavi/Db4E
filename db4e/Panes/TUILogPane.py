@@ -63,24 +63,36 @@ class TUILogPane(Static):
         table.add_column("Details")
         for job in jobs_list:
             date, time = job.updated_at().strftime("%Y-%m-%d %H:%M:%S").split()
+            msg_text = job.msg()
 
-            if ":" in job.msg():
-                print(f"TUILogPane:set_data(): {job.msg()}")
-                msg, details = job.msg().split(":")
-                details = f"[b]{details}[/]"
-            else:
-                msg = job.msg()
-                details = ""
+            # Break into separate lines
+            lines = [line.strip() for line in msg_text.splitlines() if line.strip()]
 
-            table.add_row(
-                str(f"[b]{date}[/] [b green]{time}[/]"),
-                str(job.status()).upper(),
-                str(f"[b]{job.op().capitalize()}[/]"),
-                str(TYPE_TABLE.get(job.elem_type())),
-                str(f"[yellow]{job.instance()}[/]"),
-                msg,
-                details,
-            )
+            for i, line in enumerate(lines):
+                if ":" in line:
+                    msg, details = line.split(":", 1)
+                    msg, details = msg.strip(), details.strip()
+                else:
+                    msg, details = line.strip(), ""
+
+                # First line gets all job metadata, following lines leave them blank
+                if i == 0:
+                    table.add_row(
+                        f"[b]{date}[/] [b green]{time}[/]",
+                        job.status().upper(),
+                        f"[b]{job.op().capitalize()}[/]",
+                        TYPE_TABLE.get(job.elem_type()),
+                        f"[yellow]{job.instance()}[/]",
+                        msg,
+                        f"[b]{details}[/]" if details else "",
+                    )
+                else:
+                    table.add_row(
+                        "", "", "", "", "",  # empty metadata for continuation lines
+                        msg,
+                        f"[b]{details}[/]" if details else "",
+                    )
+
         self.log_widget.update(table)
         
 

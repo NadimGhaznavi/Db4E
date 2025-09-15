@@ -29,13 +29,16 @@ except Exception:
 from db4e.Widgets.TopBar import TopBar
 from db4e.Widgets.NavPane import NavPane
 from db4e.Widgets.Clock import Clock
+
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.UpdateTopBar import UpdateTopBar
+
 from db4e.Modules.MessageRouter import MessageRouter
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.OpsMgr import OpsMgr
+
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
 
@@ -78,7 +81,6 @@ class Db4EApp(App):
             message.form_data
         )
         self.pane_mgr.set_pane(name=pane, data=data)
-
 
     # Handle requests to refresh the NavPane
     @work(exclusive=True)

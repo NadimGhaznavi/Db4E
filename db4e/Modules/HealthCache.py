@@ -12,7 +12,7 @@ import json, hashlib
 import threading, time
 
 from db4e.Modules.HealthMgr import HealthMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.DeplClient import DeplClient
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -27,9 +27,9 @@ XMRIGS_MAP = "xmrigs_map"
 class HealthCache:
 
 
-    def __init__(self, health_mgr: HealthMgr, depl_mgr: DeploymentMgr):
+    def __init__(self, health_mgr: HealthMgr, depl_client: DeplClient):
         self.health_mgr = health_mgr
-        self.depl_mgr = depl_mgr
+        self.depl_client = depl_client
 
         self.monerods, self.p2pools, self.xmrigs = [], [], []
         self.monerods_map, self.p2pools_map, self.xmrigs_map = {}, {}, {}
@@ -146,15 +146,15 @@ class HealthCache:
 
 
     def refresh_monerods(self):
-        self.refresh_elements(DElem.MONEROD, self.depl_mgr.get_monerods, MONERODS, MONERODS_MAP)
+        self.refresh_elements(DElem.MONEROD, self.depl_client.get_monerods, MONERODS, MONERODS_MAP)
 
 
     def refresh_p2pools(self):
-        self.refresh_elements(DElem.P2POOL, self.depl_mgr.get_p2pools, P2POOLS, P2POOLS_MAP)
+        self.refresh_elements(DElem.P2POOL, self.depl_client.get_p2pools, P2POOLS, P2POOLS_MAP)
 
 
     def refresh_xmrigs(self):
-        self.refresh_elements(DElem.XMRIG, self.depl_mgr.get_xmrigs, XMRIGS, XMRIGS_MAP)
+        self.refresh_elements(DElem.XMRIG, self.depl_client.get_xmrigs, XMRIGS, XMRIGS_MAP)
 
 
 

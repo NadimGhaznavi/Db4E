@@ -13,12 +13,15 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DDef import DDef
+
+
 
 P2P_PORT_OFFSET = 100
 STRATUM_PORT_OFFSET = 40000
 
 CHAIN_CONFIG = {
-    DLabel.MAIN_CHAIN: (DField.MINI_CHAIN, 0),
+    DLabel.MAIN_CHAIN: (DField.MAIN_CHAIN, 0),
     DLabel.MINI_CHAIN: (DField.MINI_CHAIN, 1),
     DLabel.NANO_CHAIN: (DField.NANO_CHAIN, 2),
 }
@@ -49,3 +52,4 @@ class InternalP2Pool(P2Pool):
         self.p2p_port(self.p2p_port() + P2P_PORT_OFFSET + offset)
         self.stratum_port(self.stratum_port() + STRATUM_PORT_OFFSET + offset)
         self.instance(chain_label)
+        self.user_wallet(DDef.DONATION_WALLET)

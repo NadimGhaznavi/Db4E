@@ -295,7 +295,6 @@ class DbCache:
             for msg in msgs:
                 elem.add_msg(msg)
 
-            print(f"DbCache:insert_one(): before {self.p2pool_map.values()}")
             if type(elem) == MoneroD or type(elem) == MoneroDRemote:
                 self.monerod_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
@@ -308,7 +307,6 @@ class DbCache:
                 self.xmrig_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
 
-            print(f"DbCache:insert_one(): after {self.p2pool_map.values()}")
             return elem
 
 

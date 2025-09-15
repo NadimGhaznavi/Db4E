@@ -9,7 +9,7 @@ db4e/Modules/OpsMgr.py
 """
 
 from db4e.Modules.Db4E import Db4E
-from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.P2Pool import P2Pool
@@ -26,9 +26,9 @@ class OpsMgr:
 
     def __init__(self):
         self.db = DbMgr()
-        self.depl_mgr = DeploymentMgr()
+        self.depl_client = DeplClient()
         self.health_mgr = HealthMgr()
-        self.health_cache = HealthCache(health_mgr=self.health_mgr, depl_mgr=self.depl_mgr)
+        self.health_cache = HealthCache(health_mgr=self.health_mgr, depl_client=self.depl_client)
         self.depl_col = DDef.DEPLOYMENT_COL
 
 
@@ -39,7 +39,7 @@ class OpsMgr:
         
         # TODO Make sure the remote monerod and monerod records don't share an instance name.
         # TODO Same for p2pool.
-        elem = self.depl_mgr.add_deployment(elem)
+        elem = self.depl_client.add_deployment(elem)
         self.health_mgr.check(elem)
         return elem
  
@@ -50,25 +50,25 @@ class OpsMgr:
                 instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
-        elem = self.depl_mgr.get_deployment(elem_type=elem_type, instance=instance)
+        elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
 
         # TODO : Is this block required????
         if not elem:
             if elem_type == DElem.MONEROD:
-                elem = self.depl_mgr.get_deployment(
+                elem = self.depl_client.get_deployment(
                     elem_type=DElem.MONEROD_REMOTE, instance=instance)
                 elem_type = DElem.MONEROD_REMOTE
             elif elem_type == DElem.P2POOL:
-                elem = self.depl_mgr.get_deployment(
+                elem = self.depl_client.get_deployment(
                     elem_type=DElem.P2POOL_REMOTE, instance=instance)
                 elem_type = DElem.P2POOL_REMOTE
         
         if type(elem) == Db4E:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
+            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
         elif type(elem) == XMRig:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.P2POOL))
+            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
         elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
+            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
 
         elem = self.health_mgr.check(elem)
         return elem
@@ -87,22 +87,22 @@ class OpsMgr:
 
 
     def get_new(self, form_data: dict):
-        elem = self.depl_mgr.get_new(form_data[DField.ELEMENT_TYPE])
+        elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
         if type(elem) == XMRig:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.P2POOL))
+            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
         elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_mgr.get_deployment_ids_and_instances(DElem.MONEROD))
+            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
         return elem
     
 
     def get_tui_log(self, job_list: list):
-        return self.depl_mgr.job_queue.get_jobs() 
+        return self.depl_client.job_queue.get_jobs() 
 
 
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]
         instance = form_data[DField.INSTANCE]
-        elem = self.depl_mgr.get_deployment(
+        elem = self.depl_client.get_deployment(
             elem_type=elem_type, instance=instance)
         return elem
 
@@ -115,7 +115,7 @@ class OpsMgr:
         print(f"OpsMgr:update_deployment(): {data}")
 
         elem = data[DField.ELEMENT]
-        self.depl_mgr.update_deployment(elem)
+        self.depl_client.update_deployment(elem)
         self.health_mgr.check(elem)
         return elem
         

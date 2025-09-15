@@ -210,36 +210,32 @@ class P2PoolPane(Container):
 
         elif button_id == DButton.UPDATE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.UPDATE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.ENABLE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.ENABLE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.DISABLE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.DISABLE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.DELETE:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_MGR,
-                DField.TO_METHOD: DMethod.POST_JOB,
-                DField.OP: DJob.DELETE,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }            

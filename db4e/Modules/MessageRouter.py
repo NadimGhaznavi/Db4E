@@ -9,7 +9,7 @@ db4e/Modules/MessageRouter.py
 """
 
 from db4e.Modules.InstallMgr import InstallMgr
-from db4e.Modules.DeploymentMgr import DeploymentMgr
+from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
@@ -28,7 +28,7 @@ class MessageRouter:
         self.routes: dict[tuple[str, str, str], tuple[callable, str]] = {}
         self._panes = {}
         self.install_mgr = InstallMgr()
-        self.depl_mgr = DeploymentMgr()
+        self.depl_client = DeplClient()
         self.ops_mgr = OpsMgr()
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self._route_handlers = []
@@ -42,8 +42,8 @@ class MessageRouter:
                       self.install_mgr.initial_setup, DPane.RESULTS)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.DB4E,
                       self.ops_mgr.get_deployment, DPane.DB4E)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.DB4E,
-                      self.depl_mgr.post_job, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
+                      self.depl_client.update_deployment, DPane.WELCOME)
 
         # MoneroD = Type: local or remote
         self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.MONEROD,
@@ -53,25 +53,29 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
                       self.ops_mgr.get_new, DPane.MONEROD)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD,
-                      self.ops_mgr.add_deployment, DPane.MONEROD)
+                      self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD,
                       self.ops_mgr.get_deployment, DPane.MONEROD)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.MONEROD,
-                      self.depl_mgr.post_job, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD,
-                      self.depl_mgr.del_deployment, DPane.MONEROD)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.MONEROD,
+                      self.depl_client.disable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.MONEROD,
+                      self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD,
+                      self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # MoneroD - remote
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_new, DPane.MONEROD_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD_REMOTE,
-                      self.ops_mgr.add_deployment, DPane.MONEROD_REMOTE)
+                      self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_deployment, DPane.MONEROD_REMOTE)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.MONEROD_REMOTE,
-                      self.depl_mgr.post_job, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD_REMOTE,
-                      self.depl_mgr.del_deployment, DPane.MONEROD_REMOTE)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD_REMOTE,
+                      self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD_REMOTE,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
         
 
         # MoneroD = Type: local or remote
@@ -82,37 +86,45 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL,
                       self.ops_mgr.get_new, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL,
-                      self.ops_mgr.add_deployment, DPane.P2POOL)
+                      self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.P2POOL,
-                      self.depl_mgr.post_job, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL,
-                      self.depl_mgr.del_deployment, DPane.P2POOL)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.P2POOL,
+                      self.depl_client.disable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.P2POOL,
+                      self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL,
+                      self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # P2Pool - remote
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_new, DPane.P2POOL_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL_REMOTE,
-                      self.ops_mgr.add_deployment, DPane.P2POOL_REMOTE)
+                      self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_deployment, DPane.P2POOL_REMOTE)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.P2POOL_REMOTE,
-                      self.depl_mgr.post_job, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL_REMOTE,
-                      self.depl_mgr.del_deployment, DPane.P2POOL_REMOTE)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL_REMOTE,
+                      self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL_REMOTE,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # XMRig
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,
                       self.ops_mgr.get_new, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.XMRIG,
-                      self.ops_mgr.add_deployment, DPane.XMRIG)
+                      self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.XMRIG,
                       self.ops_mgr.get_deployment, DPane.XMRIG)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.POST_JOB, DElem.XMRIG,
-                      self.depl_mgr.post_job, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_MGR, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
-                      self.depl_mgr.del_deployment, DPane.XMRIG)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.XMRIG,
+                      self.depl_client.disable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.XMRIG,
+                      self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.XMRIG,
+                      self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # Log Viewer
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.MONEROD,

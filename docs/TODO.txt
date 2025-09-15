@@ -4,6 +4,8 @@
 2025-09-12T14:55:28.631-04:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
 ```
 
+---
+
 # Tune Mongo
 
 ```
@@ -19,7 +21,20 @@ sudo sysctl -w vm.max_map_count=262144
 
 on the command line when you start the db4e service.
 
+---
+
 # Edge Cases
 
 - Primary Monero Node is deleted: Update Db4E.primary_server
 
+---
+
+# Wallet Changes
+
+- Make sure P2Pool instances are updated and restarted
+
+---
+
+# Enable/Disable Db4E service
+
+...
