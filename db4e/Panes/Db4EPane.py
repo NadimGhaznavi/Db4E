@@ -108,6 +108,7 @@ class Db4EPane(Container):
 
         # Create the Monerod radio buttons
         self.instance_map = db4e.instance_map()
+        self.instance_map[DLabel.DISABLE] = DField.DISABLE
         instance_list = []
         for instance in db4e.instance_map().keys():
             instance_list.append(instance)

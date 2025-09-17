@@ -91,7 +91,13 @@ class NavPane(Container):
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
-        self.depls_branches_added = False
+        self.depls_branches_added, self.initial_branches_added = False, False
+        
+        self.depls_branch_state = {
+            DElem.MONEROD: {},
+            DElem.P2POOL: {},
+            DElem.XMRIG: {}
+        }
 
         self.refresh_nav_pane()
 
@@ -297,7 +303,8 @@ class NavPane(Container):
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
         
-        if not self.is_initialized():
+        if not self.is_initialized() and not self.initial_branches_added:
+            self.initial_branches_added = True
             # Initial setup
             self.depls.root.add_leaf(
                 f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}", data=DLabel.INITIAL_SETUP)
@@ -305,8 +312,11 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
             return
-        
+        if not self.is_initialized():
+            return
+
         if not self.depls_branches_added:
+
             # Db4E Core
             self.depls.root.add_leaf(
                 f"{ICON[CORE]} {DLabel.DB4E}", data=DLabel.DB4E)

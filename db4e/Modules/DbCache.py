@@ -124,7 +124,9 @@ class DbCache:
                         self.p2pool_map[elem.instance()] = elem
                     elif elem_type == DElem.INT_P2POOL:
                         elem = InternalP2Pool(rec)
-                        self.int_p2pool_map[elem.instance()] = elem
+                        # TODO: Track down this bug, instance() is empty and Nano gets added twice
+                        if elem.instance():
+                            self.int_p2pool_map[elem.instance()] = elem
                     elif elem_type == DElem.XMRIG:
                         elem = XMRig(rec)
                         if elem.parent():
@@ -221,6 +223,7 @@ class DbCache:
 
 
     def get_deployments(self):
+        print(f"DbCache:get_deployments(): {self.int_p2pool_map}")
         return [self.db4e] + list(self.monerod_map.values()) + \
             list(self.p2pool_map.values()) + list(self.xmrig_map.values()) + \
             list(self.int_p2pool_map.values())

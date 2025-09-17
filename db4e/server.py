@@ -125,14 +125,12 @@ class Db4eServer:
                 continue 
 
             # Look for primary Monero deployments
-            if elem_type == MoneroDRemote or elem_type == MoneroD:
-                if elem.primary_server():
-                    found_primary = True
-                    self.set_int_p2pool_primary(elem)
-            elif elem_type == Db4E:
-                if elem.primary_server():
-                    monerod = self.depl_mgr.get_deployment_by_id(
-                        elem.primary_server())
+            if elem_type == Db4E:
+                primary_server = elem.primary_server()
+                if primary_server == DField.DISABLE:
+                    self.unset_int_p2pool_primary()
+                else:
+                    monerod = self.depl_mgr.get_deployment_by_id(elem.primary_server())
                     self.set_int_p2pool_primary(monerod)
                     found_primary = True
                 continue
@@ -376,11 +374,6 @@ class Db4eServer:
     def set_int_p2pool_primary(self, monerod):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
-        # Update the internal P2Pool servers.....
-        if not monerod.primary_server():
-            monerod.primary_server(True)
-            self.depl_mgr.update_deployment(monerod)
-
         if monerod.enabled():
             # Don't do anything if the primary is disabled
             for p2pool in self.depl_mgr.get_internal_p2pools():

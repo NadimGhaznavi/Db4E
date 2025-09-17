@@ -160,7 +160,7 @@ class Parent(Component):
 class PrimaryServer(Component):
     def __init__(self):
         super().__init__(
-            DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, False)
+            DField.PRIMARY_SERVER, DLabel.PRIMARY_SERVER, DField.DISABLE)
 
 
 class PriorityNode1(Component):

@@ -46,7 +46,6 @@ class MoneroD(LocalSoftwareSystem):
         self.add_component(DField.MAX_LOG_SIZE, MaxLogSize())
         self.add_component(DField.OUT_PEERS, OutPeers())
         self.add_component(DField.P2P_BIND_PORT, P2PBindPort())
-        self.add_component(DField.PRIMARY_SERVER, PrimaryServer())
         self.add_component(DField.PRIORITY_NODE_1, PriorityNode1())
         self.add_component(DField.PRIORITY_PORT_1, PriorityPort1())
         self.add_component(DField.PRIORITY_NODE_2, PriorityNode2())
@@ -71,7 +70,6 @@ class MoneroD(LocalSoftwareSystem):
         self.max_log_size = self.components[DField.MAX_LOG_SIZE]
         self.out_peers = self.components[DField.OUT_PEERS]
         self.p2p_bind_port = self.components[DField.P2P_BIND_PORT]
-        self.primary_server = self.components[DField.PRIMARY_SERVER]
         self.priority_node_1 = self.components[DField.PRIORITY_NODE_1]
         self.priority_port_1 = self.components[DField.PRIORITY_PORT_1]
         self.priority_node_2 = self.components[DField.PRIORITY_NODE_2]

@@ -31,14 +31,12 @@ class MoneroDRemote(SoftwareSystem):
         self.add_component(DField.REMOTE, Remote())
         self.add_component(DField.RPC_BIND_PORT, RpcBindPort())
         self.add_component(DField.IP_ADDR, IpAddr())
-        self.add_component(DField.PRIMARY_SERVER, PrimaryServer())
         self.add_component(DField.ZMQ_PUB_PORT, ZmqPubPort())
 
         self.instance = self.components[DField.INSTANCE]
         self.remote = self.components[DField.REMOTE]
         self.rpc_bind_port = self.components[DField.RPC_BIND_PORT]
         self.ip_addr = self.components[DField.IP_ADDR]
-        self.primary_server = self.components[DField.PRIMARY_SERVER]
         self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
 
         if rec:
