@@ -62,10 +62,9 @@ class DeplClient(DeplBase):
     def update_deployment(self, elem: XMRig) -> XMRig: ...
 
 
-    def __init__(self):
-        db_mgr = DbMgr()
-        self.db_cache = DbCache(db=db_mgr)
-        self.job_queue = JobQueue(db=db_mgr)
+    def __init__(self, db: DbMgr, db_cache: DbCache):
+        self.db_cache = db_cache
+        self.job_queue = JobQueue(db=db)
 
 
     def add_deployment(self, elem):

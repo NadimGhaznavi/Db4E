@@ -16,11 +16,14 @@ import stat
 
 from textual.containers import Container
 
-from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.Db4E import Db4E
-from db4e.Modules.InternalP2Pool import InternalP2Pool
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.DbCache import DbCache
+from db4e.Modules.HealthCache import HealthCache
+from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.Helper import result_row
+from db4e.Modules.InternalP2Pool import InternalP2Pool
+
 from db4e.Constants.DDir import DDir
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DLabel import DLabel
@@ -38,10 +41,10 @@ SUDO_CMD = DDef.SUDO_CMD
 
 class InstallMgr(Container):
     
-    def __init__(self):
+    def __init__(self, db: DbMgr, db_cache: DbCache):
         super().__init__()
-        self.ops_mgr = OpsMgr()
-        self.depl_mgr = DeplMgr()
+        self.db_cache = db_cache
+        self.depl_mgr = DeplMgr(db=db)
         self.col_name = DDef.DEPLOYMENT_COL
         self.tmp_dir = None
 
@@ -127,7 +130,7 @@ class InstallMgr(Container):
         
 
     def initial_setup_proceed(self, form_data: dict):
-        db4e = self.ops_mgr.get_deployment(elem_type=DElem.DB4E)
+        db4e = self.depl_mgr.get_deployment(elem_type=DElem.DB4E)
         return db4e
         
 

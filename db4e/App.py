@@ -34,10 +34,17 @@ from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Messages.RefreshNavPane import RefreshNavPane
 from db4e.Messages.UpdateTopBar import UpdateTopBar
 
+from db4e.Modules.DbCache import DbCache
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.DeplClient import DeplClient
+from db4e.Modules.DeplMgr import DeplMgr
+from db4e.Modules.HealthCache import HealthCache
+from db4e.Modules.HealthMgr import HealthMgr
+from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.MessageRouter import MessageRouter
+from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
-from db4e.Modules.OpsMgr import OpsMgr
 
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
@@ -48,11 +55,20 @@ class Db4EApp(App):
     REFRESH_TIME = 2
 
     def __init__(self):
+        # App Class Relationships diagram: 
+        # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
-        self.ops_mgr = OpsMgr()
+        db = DbMgr()
+        db_cache = DbCache(db=db)
+        depl_client = DeplClient(db=db, db_cache=db_cache)
+        health_cache = HealthCache(depl_client=depl_client)
+        ops_mgr = OpsMgr(depl_client=depl_client, health_cache=health_cache)
+        install_mgr = InstallMgr(db=db, db_cache=db_cache)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(ops_mgr=self.ops_mgr)
-        self.msg_router = MessageRouter()
+        self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)
+        self.msg_router = MessageRouter(
+            depl_client=depl_client, install_mgr=install_mgr, pane_mgr=self.pane_mgr,
+            ops_mgr=ops_mgr)
 
 
     def compose(self):
@@ -85,7 +101,6 @@ class Db4EApp(App):
     # Handle requests to refresh the NavPane
     @work(exclusive=True)
     async def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
-        #self.ops_mgr.depl_mgr.db_cache.refresh()
         self.nav_pane.refresh_nav_pane()
 
 

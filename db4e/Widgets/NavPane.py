@@ -16,7 +16,8 @@ from textual.widgets import Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
-#from db4e.Messages.NavLeafSelected import NavLeafSelected
+from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.OpsMgr import OpsMgr
 
 from db4e.Messages.Db4eMsg import Db4eMsg
@@ -79,10 +80,10 @@ STATE_ICON = {
 class NavPane(Container):
 
 
-    def __init__(self, ops_mgr: OpsMgr):
+    def __init__(self, health_cache: HealthCache, ops_mgr: OpsMgr):
         super().__init__()
         self.ops_mgr = ops_mgr
-        self.health_mgr = ops_mgr.health_mgr
+        self.health_cache = health_cache
         self._initialized = False
 
         # Deployments tree

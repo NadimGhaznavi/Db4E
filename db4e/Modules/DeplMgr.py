@@ -57,9 +57,8 @@ class DeplMgr(DeplBase):
     def update_p2pool_deployment(self, p2pool: InternalP2Pool) -> InternalP2Pool: ...
 
 
-    def __init__(self):
+    def __init__(self, db: DbMgr):
         super().__init__()
-        db = DbMgr()
         self.db_cache = DbCache(db=db)
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

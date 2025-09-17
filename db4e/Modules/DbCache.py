@@ -62,12 +62,16 @@ class DbCache:
     def build_cache(self):
         with self._lock:
             recs = self.db.find_many(self.depl_col, {})
-            #print(f"DbCache:build_cache(): # recs: {len(recs)}")
+            print(f"DbCache:build_cache(): # recs: {len(recs)}")
 
             seen_ids = set()
 
+            count = 1
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
+                print(f"[{count}/{len(recs)}]: {elem_type}")
+                count += 1
+
                 obj_id = rec[DField.OBJECT_ID]
                 seen_ids.add(obj_id)
 

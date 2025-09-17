@@ -11,25 +11,36 @@ db4e/Modules/HealthCache.py
 import json, hashlib
 import threading, time
 
+from db4e.Modules.DbCache import DbCache
 from db4e.Modules.HealthMgr import HealthMgr
+from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.DeplClient import DeplClient
+from db4e.Modules.Db4E import Db4E
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 
-MONERODS = "monerods"
-P2POOLS = "p2pools"
-XMRIGS = "xmrigs"
-MONERODS_MAP = "monerods_map"
-P2POOLS_MAP = "p2pools_map"
-XMRIGS_MAP = "xmrigs_map"
+MONERODS = DField.MONERODS
+P2POOLS = DField.P2POOLS
+XMRIGS = DField.XMRIGS
+
+MONERODS_MAP = DField.MONERODS_MAP
+P2POOLS_MAP = DField.P2POOLS_MAP
+XMRIGS_MAP = DField.XMRIGS_MAP
+
+REFRESH_INTERVAL = 5
 
 class HealthCache:
 
 
-    def __init__(self, health_mgr: HealthMgr, depl_client: DeplClient):
-        self.health_mgr = health_mgr
+    def __init__(self, depl_client: DeplClient):
         self.depl_client = depl_client
+        self.health_mgr = HealthMgr()
 
         self.monerods, self.p2pools, self.xmrigs = [], [], []
         self.monerods_map, self.p2pools_map, self.xmrigs_map = {}, {}, {}
@@ -49,12 +60,35 @@ class HealthCache:
     
     def bg_refresh(self):
         while True:
-            time.sleep(10)
             self.refresh_now[DElem.MONEROD] = True
-            time.sleep(10)
+            time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.P2POOL] = True
-            time.sleep(10)
+            time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.XMRIG] = True
+            time.sleep(REFRESH_INTERVAL)
+
+
+    def check(self, elem):
+        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            try:
+                return self.monerods_map[elem.instance()]
+            except KeyError:
+                self.force_refresh(DElem.MONEROD)
+                return self.monerods_map[elem.instance()]
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            try:
+                return self.p2pools_map[elem.instance()]
+            except KeyError:
+                self.force_refresh(DElem.P2POOL)
+                return self.p2pools_map[elem.instance()]
+        elif type(elem) == XMRig:
+            try:
+                return self.xmrigs_map[elem.instance()]
+            except KeyError:
+                self.force_refresh(DElem.XMRIG)
+                return self.xmrigs_map[elem.instance()]
+        else:
+            raise ValueError(f"Unsupported element type: {type(elem)}")
 
 
     def force_refresh(self, elem_type: str):

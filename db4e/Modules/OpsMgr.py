@@ -24,11 +24,9 @@ from db4e.Constants.DDef import DDef
 class OpsMgr:
 
 
-    def __init__(self):
-        self.db = DbMgr()
-        self.depl_client = DeplClient()
-        self.health_mgr = HealthMgr()
-        self.health_cache = HealthCache(health_mgr=self.health_mgr, depl_client=self.depl_client)
+    def __init__(self, depl_client: DeplClient, health_cache: HealthCache):
+        self.depl_client = depl_client
+        self.health_cache = health_cache
         self.depl_col = DDef.DEPLOYMENT_COL
 
 
@@ -40,7 +38,7 @@ class OpsMgr:
         # TODO Make sure the remote monerod and monerod records don't share an instance name.
         # TODO Same for p2pool.
         elem = self.depl_client.add_deployment(elem)
-        self.health_mgr.check(elem)
+        self.health_cache.check(elem)
         return elem
  
    
@@ -70,7 +68,7 @@ class OpsMgr:
         elif type(elem) == P2Pool:
             elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
 
-        elem = self.health_mgr.check(elem)
+        elem = self.health_cache.check(elem)
         return elem
 
 
@@ -116,6 +114,6 @@ class OpsMgr:
 
         elem = data[DField.ELEMENT]
         self.depl_client.update_deployment(elem)
-        self.health_mgr.check(elem)
+        self.health_cache.check(elem)
         return elem
         

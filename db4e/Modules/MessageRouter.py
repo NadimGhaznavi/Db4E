@@ -8,11 +8,13 @@ db4e/Modules/MessageRouter.py
     License: GPL 3.0
 """
 
-from db4e.Modules.InstallMgr import InstallMgr
+from db4e.Modules.DbCache import DbCache
+from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeplClient import DeplClient
-from db4e.Modules.PaneMgr import PaneMgr
+from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Modules.PaneMgr import PaneMgr
 
 from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DField import DField
@@ -24,13 +26,15 @@ from db4e.Constants.DModule import DModule
 
 
 class MessageRouter:
-    def __init__(self):
+    def __init__(
+            self, depl_client: DeplClient, install_mgr: 
+            InstallMgr, pane_mgr: PaneMgr, ops_mgr: OpsMgr):
         self.routes: dict[tuple[str, str, str], tuple[callable, str]] = {}
         self._panes = {}
-        self.install_mgr = InstallMgr()
-        self.depl_client = DeplClient()
-        self.ops_mgr = OpsMgr()
-        self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
+        self.install_mgr = install_mgr
+        self.depl_client = depl_client
+        self.ops_mgr = ops_mgr
+        self.pane_mgr = pane_mgr
         self._route_handlers = []
         self.load_routes()
 

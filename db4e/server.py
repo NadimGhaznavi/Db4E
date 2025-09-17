@@ -50,7 +50,7 @@ from db4e.Constants.DJob import DJob
 from db4e.Constants.DFile import DFile
 
 
-DDebug.FUNCTION = True
+DDebug.FUNCTION = False
 
 
 POLL_INTERVAL = 5
@@ -145,7 +145,7 @@ class Db4eServer:
                     self.spawn_log_watcher(elem) 
 
             # Makre sure anything that's disabled is stopped
-            print(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
+            #print(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
             if elem_type != MoneroDRemote and not elem.enabled():
                 self.ensure_stopped(elem)
 

@@ -20,10 +20,9 @@ from db4e.Constants.DMongo import DMongo
 
 
 class JobQueue:
-    def __init__(self, db: DbMgr, log=None):
+    def __init__(self, db: DbMgr):
         self.col_name = DDef.OPS_COL
         self.db = db
-        self.log = log
 
 
     def complete_job(self, job: Job):
