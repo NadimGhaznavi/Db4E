@@ -109,6 +109,10 @@ class DeplClient(DeplBase):
         self.job_queue.post_job(job)
 
 
+    def get_db4e(self):
+        return self.db_cache.get_db4e()
+
+
     def get_deployment(self, elem_type: str, instance=None):
         return self.db_cache.get_deployment(elem_type, instance)
 

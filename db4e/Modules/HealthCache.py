@@ -45,14 +45,17 @@ class HealthCache:
         self.depl_client = depl_client
         self.health_mgr = HealthMgr()
 
+        self.db4e = None
         self.monerods, self.p2pools, self.xmrigs = [], [], []
         self.monerods_map, self.p2pools_map, self.xmrigs_map = {}, {}, {}
 
         self.refresh_now = {
+            DElem.DB4E: True,
             DElem.MONEROD: True,
             DElem.P2POOL: True,
             DElem.XMRIG: True,
         }
+        self.refresh_db4e()
         self.refresh_monerods()
         self.refresh_p2pools()
         self.refresh_xmrigs()
@@ -92,7 +95,9 @@ class HealthCache:
                 return self.force_refresh(DElem.XMRIG, elem.instance())
         """
         
-        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+        if type(elem) == Db4E:
+            return self.db4e
+        elif type(elem) == MoneroD or type(elem) == MoneroDRemote:
             try:
                 return self.monerods_map[elem.instance()][DField.INSTANCE]
             except KeyError:
@@ -144,6 +149,14 @@ class HealthCache:
         """
         if DDebug.FUNCTION:
             print(f"DEBUG HealthCache:refresh_elements(): {element_type}")
+
+        if element_type == DElem.DB4E:
+            db4e = get_elements_fn()
+            self.db4e = self.health_mgr.check(db4e)
+            self.refresh_now[DElem.DB4E] = False
+            return
+
+
         elements = get_elements_fn()
         new_map = {}
         new_list = []
@@ -229,6 +242,11 @@ class HealthCache:
         serialized = json.dumps(dict_list, sort_keys=True, default=str)
         return hashlib.blake2b(serialized.encode(), digest_size=16).hexdigest()
 
+
+    def refresh_db4e(self):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:refresh_db4e():")
+        self.refresh_elements(DElem.DB4E, self.depl_client.get_db4e, DElem.DB4E, DElem.DB4E)
 
     def refresh_monerods(self):
         if DDebug.FUNCTION:

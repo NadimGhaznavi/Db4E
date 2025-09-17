@@ -227,7 +227,9 @@ class DbCache:
 
 
     def get_db4e(self):
-        return deepcopy(self.db4e)
+        db4e = deepcopy(self.db4e)
+        db4e.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
+        return db4e
 
 
     def get_deployment_by_id(self, id):
