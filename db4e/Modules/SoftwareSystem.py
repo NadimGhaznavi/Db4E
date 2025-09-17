@@ -81,6 +81,8 @@ class SoftwareSystem:
     def status(self):
         # The status is defined as the worst status message in the self.msgs list.
         #print(f"SoftwareSystem:status(): self.msgs: {self.msgs}")
+        if len(self.msgs) == 0:
+            return DStatus.UNKNOWN
         worst_status = DStatus.GOOD
         for line_item in self.msgs:
             #print(f"SoftwareSystem:status(): line_item: {line_item}")

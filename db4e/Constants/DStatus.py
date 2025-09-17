@@ -14,6 +14,7 @@ from db4e.Modules.ConstGroup import ConstGroup
 class DStatus(ConstGroup):
     ERROR : str = "error"
     GOOD : str = "good"
+    UNKNOWN : str = "unknown"
     WARN : str = "warn"
 
     

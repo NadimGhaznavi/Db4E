@@ -91,6 +91,7 @@ class HealthCache:
             except KeyError:
                 return self.force_refresh(DElem.XMRIG, elem.instance())
         """
+        
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             return self.monerods_map[elem.instance()][DField.INSTANCE]
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:

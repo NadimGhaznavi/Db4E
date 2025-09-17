@@ -68,7 +68,11 @@ class OpsMgr:
         elif type(elem) == P2Pool:
             elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
 
-        elem = self.health_cache.check(elem)
+        checked_elem = self.health_cache.check(elem)
+        if checked_elem:
+            return checked_elem
+        
+        # The item isn't in the HealthMgr cache yet
         return elem
 
 

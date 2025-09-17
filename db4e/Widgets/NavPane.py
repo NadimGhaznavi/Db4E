@@ -73,6 +73,7 @@ STATE_ICON = {
     DStatus.GOOD: '🟢',
     DStatus.WARN: '🟡',
     DStatus.ERROR: '🔴',
+    DStatus.UNKNOWN: '⚪',
 }
 
 
