@@ -58,23 +58,33 @@ POLL_INTERVAL = 5
 class Db4eServer:
     """
     Db4E Server
+    Server Class Relationships Diagram
     """
+
     def __init__(self):
-        if DDebug.FUNCTION:
-            print("DEBUG Db4eServer.__init__():")
+        # Get a Mongo DB manager
+        self.db = DbMgr()
 
         # Get a deployment manager
-        self.depl_mgr = DeplMgr()
+        self.depl_mgr = DeplMgr(db=self.db)
+
+        # Setup logging
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+        logs_dir = DDef.LOG_DIR
+        log_file = DDef.DB4E_LOG_FILE
+        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
+        self.log = Db4ELogger(
+            elem_type=DDef.DB4E_SERVER,
+            log_file=fq_log_file
+        )
+        if DDebug.FUNCTION:
+            self.log.debug("DEBUG Db4eServer.__init__():")
 
         # Get a systemd object
         self.systemd = Db4ESystemD()
 
-        # Get a Mongo manager
-        self.db = DbMgr()
-
         # Get a Mining DB object (part of the DAL)
         self.mining_db = MiningDb(db=self.db)
-
 
         # Get a JobQueue
         self.job_queue = JobQueue(db=self.db)
@@ -87,16 +97,6 @@ class Db4eServer:
         self.starting = set()
         self.stopping = set()
 
-        # Setup logging
-        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-        logs_dir = DDef.LOG_DIR
-        log_file = DDef.DB4E_LOG_FILE
-        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
-        self.log = Db4ELogger(
-            elem_type=DDef.DB4E_SERVER,
-            log_file=fq_log_file
-        )
-
         # Flag this process as "running"
         self.running = threading.Event()
         self.running.set()
@@ -104,7 +104,7 @@ class Db4eServer:
 
     def add_deployment(self, job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:add_deployment(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:add_deployment(): {job}")
         elem = job.elem()
         self.log.debug(f"Db4eServer:add_deployment(): {elem}")
         self.depl_mgr.add_deployment(elem)
@@ -114,7 +114,7 @@ class Db4eServer:
     def check_deployments(self):
         depls = self.depl_mgr.get_deployments()
         if DDebug.FUNCTION:
-            print(f"Db4eServer:check_deployments(): {depls}")
+            self.log.debug(f"Db4eServer:check_deployments(): {depls}")
         found_primary = False
         for elem in depls:
             time.sleep(0.25)
@@ -145,7 +145,7 @@ class Db4eServer:
                     self.spawn_log_watcher(elem) 
 
             # Makre sure anything that's disabled is stopped
-            #print(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
+            #self.log.debug(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
             if elem_type != MoneroDRemote and not elem.enabled():
                 self.ensure_stopped(elem)
 
@@ -156,7 +156,7 @@ class Db4eServer:
 
     def check_jobs(self):
         if DDebug.FUNCTION:
-            print("DEBUG Db4eServer:check_jobs():")
+            self.log.debug("DEBUG Db4eServer:check_jobs():")
         jobs = []
         found_job = True
         while found_job:
@@ -167,7 +167,7 @@ class Db4eServer:
                 found_job = False
         
         for job in jobs:
-            #print(f"Db4eServer:check_jobs(): job.elem(): {job.elem()}")
+            #self.log.debug(f"Db4eServer:check_jobs(): job.elem(): {job.elem()}")
             op = job.op()
             if op == DJob.NEW:
                 self.add_deployment(job=job)
@@ -187,7 +187,7 @@ class Db4eServer:
 
     def delete(self, job: Job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:delete(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:delete(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Deleting {elem_type}/{instance}")
@@ -228,7 +228,7 @@ class Db4eServer:
 
     def disable(self, job: Job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:disable(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:disable(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
@@ -245,7 +245,7 @@ class Db4eServer:
 
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:disable_downstream(): {elem}")
+            self.log.debug(f"DEBUG Db4eServer:disable_downstream(): {elem}")
         elems = self.depl_mgr.get_downstream(elem)
         for elem in elems:
             elem.disable()
@@ -257,7 +257,7 @@ class Db4eServer:
 
     def enable(self, job: Job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:enable(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:enable(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
         self.log.info(f"Enabling {elem_type}/{instance}")
@@ -271,7 +271,7 @@ class Db4eServer:
     def ensure_running(self, elem):
         time.sleep(0.25)
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:ensure_running(): {elem}")
+            self.log.debug(f"DEBUG Db4eServer:ensure_running(): {elem}")
         # Check if the deployment service is running, start it if it's not
         sd = self.systemd
         if type(elem) == MoneroD:
@@ -307,7 +307,7 @@ class Db4eServer:
 
     def ensure_stopped(self, elem):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:ensure_stopped(): {elem}")
+            self.log.debug(f"DEBUG Db4eServer:ensure_stopped(): {elem}")
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
@@ -348,7 +348,7 @@ class Db4eServer:
 
     def restart(self, job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:restart(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:restart(): {job}")
         # Note that XMRig does not need to be restarted, it's smart enough to notice that
         # the JSON config has been updated and reload the settings
         elem_type = job.elem_type()
@@ -367,7 +367,7 @@ class Db4eServer:
 
     def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:shutdown(): {signum}")
+            self.log.debug(f"DEBUG Db4eServer:shutdown(): {signum}")
         self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
         sys.exit(0)
@@ -375,7 +375,7 @@ class Db4eServer:
 
     def set_int_p2pool_primary(self, monerod):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
+            self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
         # Update the internal P2Pool servers.....
         if not monerod.primary_server():
             monerod.primary_server(True)
@@ -401,12 +401,12 @@ class Db4eServer:
 
     def set_primary(self, job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:set_primary(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:set_primary(): {job}")
         monerod = job.elem()
-        print(f"Db4eServer:set_primary(): {monerod}")
+        #self.log.debug(f"Db4eServer:set_primary(): {monerod}")
         for aMonerod in self.depl_mgr.get_monerods():
             if monerod.instance() != aMonerod.instance():
-                print(f"Db4eServer:set_primary(): checking {aMonerod}: {aMonerod.primary_server()}")
+                #self.log.debug(f"Db4eServer:set_primary(): checking {aMonerod}: {aMonerod.primary_server()}")
                 if aMonerod.primary_server():
                     aMonerod.primary_server(False)
                     self.depl_mgr.update_deployment(aMonerod)
@@ -416,7 +416,7 @@ class Db4eServer:
 
     def start(self):
         if DDebug.FUNCTION:
-            print("DEBUG Db4eServer:start():")
+            self.log.debug("DEBUG Db4eServer:start():")
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
         self.log.info("Starting Db4E Server")
@@ -431,7 +431,7 @@ class Db4eServer:
 
     def spawn_log_watcher(self, p2pool):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:spawn_log_watcher(): {p2pool}")
+            self.log.debug(f"DEBUG Db4eServer:spawn_log_watcher(): {p2pool}")
         instance = p2pool.instance()
         if instance in self.log_watchers:
             # Already watching
@@ -472,9 +472,9 @@ class Db4eServer:
 
     def update(self, job):
         if DDebug.FUNCTION:
-            print(f"DEBUG Db4eServer:update(): {job}")
+            self.log.debug(f"DEBUG Db4eServer:update(): {job}")
         elem = job.elem()
-        print(f"Db4eServer:update(): {elem}")
+        self.log.debug(f"Db4eServer:update(): {elem}")
 
         elem = self.depl_mgr.update_deployment(elem)
 
@@ -488,7 +488,7 @@ class Db4eServer:
 
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:
-            print("DEBUG Db4eServer:unset_int_p2pool_primary():")
+            self.log.debug("DEBUG Db4eServer:unset_int_p2pool_primary():")
         for p2pool in self.depl_mgr.get_internal_p2pools():
             if p2pool.parent():
                 p2pool.parent(False)
