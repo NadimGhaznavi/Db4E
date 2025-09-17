@@ -91,6 +91,8 @@ class NavPane(Container):
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
+        self.depls_branches_added = False
+
         self.refresh_nav_pane()
 
 
@@ -294,7 +296,6 @@ class NavPane(Container):
 
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
-        self.depls.root.remove_children()
         
         if not self.is_initialized():
             # Initial setup
@@ -304,16 +305,28 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
             return
+        
+        if not self.depls_branches_added:
+            # Db4E Core
+            self.depls.root.add_leaf(
+                f"{ICON[CORE]} {DLabel.DB4E}", data=DLabel.DB4E)
+            # MoneroD deployment branch
+            self.monerod_tree = self.depls.root.add(
+                f"{ICON[MON]} {DLabel.MONEROD_SHORT}", data=DLabel.MONEROD_SHORT, expand=True)
+            self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+            # P2Pool deployment branch
+            self.p2pool_tree = self.depls.root.add(
+                f"{ICON[P2P]} {DLabel.P2POOL_SHORT}", data=DLabel.P2POOL_SHORT, expand=True)
+            self.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+            # XMRig deployment branch
+            self.xmrig_tree = self.depls.root.add(
+                f"{ICON[XMR]} {DLabel.XMRIG_SHORT}", data=DLabel.XMRIG_SHORT, expand=True)
+            self.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
 
-        self.depls.root.add_leaf(
-            f"{ICON[CORE]} {DLabel.DB4E}", data=DLabel.DB4E)
-                
-        monerod_tree = self.depls.root.add(
-            f"{ICON[MON]} {DLabel.MONEROD_SHORT}", data=DLabel.MONEROD_SHORT, expand=True)
-        monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.monerod_tree.remove_children()
         for monerod in self.ops_mgr.get_monerods():
             state = monerod.status()
-            instance_branch = monerod_tree.add(
+            instance_branch = self.monerod_tree.add(
                 f"{ICON[MON]} {monerod.instance()}", data=monerod.instance(), expand=True)
             instance_branch.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance())
@@ -321,12 +334,10 @@ class NavPane(Container):
                 instance_branch.add_leaf(
                     f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
 
-        p2pool_tree = self.depls.root.add(
-            f"{ICON[P2P]} {DLabel.P2POOL_SHORT}", data=DLabel.P2POOL_SHORT, expand=True)
-        p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.p2pool_tree.remove_children()
         for p2pool in self.ops_mgr.get_p2pools():
             state = p2pool.status()
-            instance_branch = p2pool_tree.add(
+            instance_branch = self.p2pool_tree.add(
                 f"{ICON[P2P]} {p2pool.instance()}", data=p2pool.instance(), expand=True)
             instance_branch.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance())
@@ -334,23 +345,24 @@ class NavPane(Container):
                 instance_branch.add_leaf(
                     f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
 
-        xmrig_tree = self.depls.root.add(
-            f"{ICON[XMR]} {DLabel.XMRIG_SHORT}", data=DLabel.XMRIG_SHORT, expand=True)
-        xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.xmrig_tree.remove_children()
         for xmrig in self.ops_mgr.get_xmrigs():
             state = xmrig.status()
-            instance_branch = xmrig_tree.add(
+            instance_branch = self.xmrig_tree.add(
                 f"{ICON[XMR]} {xmrig.instance()}", data=xmrig.instance(), expand=True)
             instance_branch.add_leaf(
                 f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance())
             instance_branch.add_leaf(
                 f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
         
-        # Add Log link
-        self.depls.root.add_leaf(f"{ICON[LOG]} {DLabel.TUI_LOG}", data=DLabel.TUI_LOG)
+        if not self.depls_branches_added:
+            self.depls_branches_added = True
 
-        # Add Donations link
-        self.depls.root.add_leaf(f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
+            # Add Log link
+            self.depls.root.add_leaf(f"{ICON[LOG]} {DLabel.TUI_LOG}", data=DLabel.TUI_LOG)
+
+            # Add Donations link
+            self.depls.root.add_leaf(f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
 
         
 

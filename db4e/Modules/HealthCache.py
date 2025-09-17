@@ -93,11 +93,20 @@ class HealthCache:
         """
         
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
-            return self.monerods_map[elem.instance()][DField.INSTANCE]
+            try:
+                return self.monerods_map[elem.instance()][DField.INSTANCE]
+            except KeyError:
+                return None
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
-            return self.p2pools_map[elem.instance()][DField.INSTANCE]
+            try:
+                return self.p2pools_map[elem.instance()][DField.INSTANCE]
+            except KeyError:
+                return None
         elif type(elem) == XMRig:
-            return self.xmrigs_map[elem.instance()][DField.INSTANCE]
+            try:
+                return self.xmrigs_map[elem.instance()][DField.INSTANCE]
+            except KeyError:
+                return None
         else:
             raise ValueError(f"Unsupported element type: {type(elem)}")
 
@@ -161,7 +170,7 @@ class HealthCache:
             }
 
             new_list.append(elem)
-            print(f"HealthCache:refresh_elements(): {element_type}: {new_list}")
+            #print(f"HealthCache:refresh_elements(): {element_type}: {new_list}")
 
 
         setattr(self, target_list_name, new_list)
