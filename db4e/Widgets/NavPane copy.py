@@ -12,7 +12,7 @@ from typing import Callable, Dict, List, Tuple
 import time
 
 from textual import work
-from textual.widgets import Label, Tree
+from textual.widgets import Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
@@ -29,6 +29,7 @@ from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DPane import DPane
 from db4e.Constants.DStatus import DStatus
+
 
 # Icon dictionary keys
 BLOCK = 'BLOCK'
@@ -89,6 +90,9 @@ class NavPane(Container):
         self.depls = Tree(f"{ICON[DEPL]} {DLabel.DEPLOYMENTS}")
         self.depls.guide_depth = 3
         self.depls.root.expand()
+
+        # Track the state of the Chain Stats tree state
+        self.chain_is_expanded = False
 
         self.refresh_nav_pane()
 
@@ -160,7 +164,6 @@ class NavPane(Container):
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
-
             # New Monero (remote) deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_SHORT:
                 #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT}/{NEW}")
@@ -196,12 +199,12 @@ class NavPane(Container):
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
                 print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
+
                 # View/Update a Monero deployment
                 if grandparent_data == DLabel.MONEROD_SHORT:
 
                     monerod = self.ops_mgr.get_deployment(
                         elem_type=DElem.MONEROD, instance=parent_data)
-                    print(f"NavPane:on_tree_node_selected(): monerod: {monerod}")
                     
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
@@ -288,7 +291,6 @@ class NavPane(Container):
                     CHAIN: chain,
                     DField.PLOT_TYPE: metric
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
 
     def refresh_nav_pane(self) -> None:
@@ -345,13 +347,47 @@ class NavPane(Container):
             instance_branch.add_leaf(
                 f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
         
-        # Add Log link
+        # Chain metrics
+        chain = self.depls.root.add(
+            f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}", data=DLabel.CHAIN_STATS, expand=True)
+        #chain.id = "chain_tree"
+        #cur_state = self.query_one("#chain_tree", Tree).value
+        #print(f"Chain DEBUG: {chain.is_expanded}")
+        #self.chain_is_expanded = chain.is_expanded
+
+        # Main chain
+        main = chain.add(
+            f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=True) 
+        main.add_leaf(
+            f"{ICON[BLOCK]} {DLabel.BLOCKS_FOUND}", data=DLabel.BLOCKS_FOUND)
+        main.add_leaf(
+            f"{ICON[MINERS]} {DLabel.ACTIVE_MINERS}", data=DLabel.ACTIVE_MINERS)
+        main.add_leaf(
+            f"{ICON[HASH]} {DLabel.HASHRATES}", data=DLabel.HASHRATES)
+        # Mini sidechain
+        mini = chain.add(
+            f"{ICON[MINI]} {DLabel.MINI_CHAIN}", data=DLabel.MINI_CHAIN, expand=True)
+        mini.add_leaf(
+            f"{ICON[BLOCK]} {DLabel.BLOCKS_FOUND}", data=DLabel.BLOCKS_FOUND)
+        mini.add_leaf(
+            f"{ICON[MINERS]} {DLabel.ACTIVE_MINERS}", data=DLabel.ACTIVE_MINERS)
+        mini.add_leaf(
+            f"{ICON[HASH]} {DLabel.HASHRATES}", data=DLabel.HASHRATES)
+        # Nano sidechain
+        nano = chain.add(
+            f"{ICON[NANO]} {DLabel.NANO_CHAIN}", data=DLabel.NANO_CHAIN, expand=True)
+        nano.add_leaf(
+            f"{ICON[BLOCK]} {DLabel.BLOCKS_FOUND}", data=DLabel.BLOCKS_FOUND)
+        nano.add_leaf(
+            f"{ICON[MINERS]} {DLabel.ACTIVE_MINERS}", data=DLabel.ACTIVE_MINERS)
+        nano.add_leaf(
+            f"{ICON[HASH]} {DLabel.HASHRATES}", data=DLabel.HASHRATES)
+
+        # Add Console Log
         self.depls.root.add_leaf(f"{ICON[LOG]} {DLabel.TUI_LOG}", data=DLabel.TUI_LOG)
 
         # Add Donations link
         self.depls.root.add_leaf(f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
-
-        
 
 
     def set_initialized(self):

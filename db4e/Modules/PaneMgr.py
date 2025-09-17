@@ -49,7 +49,11 @@ class PaneMgr(Widget):
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
-        #print(f"PaneMgr:set_pane(): {name}/{data}")
+        print(f"PaneMgr:set_pane(): {name}/{data}")
+        if type(name) == dict:
+            if DField.DATA in name:
+                data = name[DField.DATA]
+            name = name[DField.NAME]
         self.pane_state = PaneState(name, data)
         # If the pane supports set_data, update it with new data
         if data and name in self.panes:
@@ -64,7 +68,7 @@ class PaneMgr(Widget):
         except NoMatches:
             return
         content_switcher.current = new.name
-        #print(f"PaneMgr: {new.name}")
+        print(f"PaneMgr: {new.name}")
         pane = self.catalogue.get_pane(new.name)
         if hasattr(pane, DField.RESET_DATA):
             pane.reset_data()

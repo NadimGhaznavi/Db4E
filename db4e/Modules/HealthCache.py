@@ -24,6 +24,9 @@ from db4e.Modules.XMRig import XMRig
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
+from db4e.Constants.DDebug import DDebug
+
+DDebug.FUNCTION = False
 
 MONERODS = DField.MONERODS
 P2POOLS = DField.P2POOLS
@@ -69,30 +72,53 @@ class HealthCache:
 
 
     def check(self, elem):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:check(): {elem}")
+        """
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             try:
                 return self.monerods_map[elem.instance()]
             except KeyError:
-                self.force_refresh(DElem.MONEROD)
-                return self.monerods_map[elem.instance()]
+                return self.force_refresh(DElem.MONEROD, elem.instance())
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
             try:
                 return self.p2pools_map[elem.instance()]
             except KeyError:
-                self.force_refresh(DElem.P2POOL)
-                return self.p2pools_map[elem.instance()]
+                return self.force_refresh(DElem.P2POOL, elem.instance())
         elif type(elem) == XMRig:
             try:
                 return self.xmrigs_map[elem.instance()]
             except KeyError:
-                self.force_refresh(DElem.XMRIG)
-                return self.xmrigs_map[elem.instance()]
+                return self.force_refresh(DElem.XMRIG, elem.instance())
+        """
+        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            return self.monerods_map[elem.instance()][DField.INSTANCE]
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            return self.p2pools_map[elem.instance()][DField.INSTANCE]
+        elif type(elem) == XMRig:
+            return self.xmrigs_map[elem.instance()][DField.INSTANCE]
         else:
             raise ValueError(f"Unsupported element type: {type(elem)}")
 
 
-    def force_refresh(self, elem_type: str):
-        self.refresh_now[elem_type] = True
+    def force_refresh(self, elem_type: str, instance=None):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:force_refresh(): {elem_type}, {instance}")
+        if instance:
+            elem = self.depl_client.get_deployment(elem_type, instance)
+            elem = self.health_mgr.check(elem)
+            if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+                self.monerods_map[elem.instance()] = elem
+                return elem
+            elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+                self.p2pools_map[elem.instance()] = elem
+                return elem
+            elif type(elem) == XMRig:
+                self.xmrigs_map[elem.instance()] = elem
+                return elem
+            return elem
+        else:
+            self.refresh_now[elem_type] = True
 
 
     def refresh_elements(self, element_type: str, get_elements_fn, 
@@ -106,6 +132,8 @@ class HealthCache:
             target_list_name: Attribute name for the list (e.g. 'monerods').
             target_map_name: Attribute name for the map (e.g. 'monerods_map').
         """
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:refresh_elements(): {element_type}")
         elements = get_elements_fn()
         new_map = {}
         new_list = []
@@ -132,6 +160,7 @@ class HealthCache:
             }
 
             new_list.append(elem)
+            print(f"HealthCache:refresh_elements(): {element_type}: {new_list}")
 
 
         setattr(self, target_list_name, new_list)
@@ -141,37 +170,49 @@ class HealthCache:
 
 
     def get_deployment(self, elem_type, instance):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:get_deployment(): {elem_type}, {instance}")
         if elem_type == DElem.MONEROD:
-            return self.monerods_map.get(instance)
+            return self.monerods_map.get(instance)[DField.INSTANCE]
         elif elem_type == DElem.P2POOL:
-            return self.p2pools_map.get(instance)
+            return self.p2pools_map.get(instance)[DField.INSTANCE]
         elif elem_type == DElem.XMRIG:
-            return self.xmrigs_map.get(instance)
+            return self.xmrigs_map.get(instance)[DField.INSTANCE]
         else:
             raise ValueError(f"Unsupported element type: {elem_type}")
 
         
     def get_monerods(self) -> list:
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:get_monerods():")
         self.refresh_monerods()
         return self.monerods
 
 
     def get_p2pools(self) -> list:
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:get_p2pools():")
         self.refresh_p2pools()
         return self.p2pools
 
 
     def get_xmrigs(self) -> list:
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:get_xmrigs():")
         self.refresh_xmrigs()
         return self.xmrigs
     
 
     def hash_unit(self, unit) -> str:
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:hash_unit(): {unit}")
         serialized = json.dumps(unit.to_rec(), sort_keys=True, default=str)
         return hashlib.blake2b(serialized.encode(), digest_size=16).hexdigest()
 
 
     def hash_units(self, units) -> str:
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:hash_units(): {units}")
         dict_list = []
         for unit in units:
             dict_list.append(unit.to_rec())
@@ -180,14 +221,20 @@ class HealthCache:
 
 
     def refresh_monerods(self):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:refresh_monerods():")
         self.refresh_elements(DElem.MONEROD, self.depl_client.get_monerods, MONERODS, MONERODS_MAP)
 
 
     def refresh_p2pools(self):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:refresh_p2pools():")
         self.refresh_elements(DElem.P2POOL, self.depl_client.get_p2pools, P2POOLS, P2POOLS_MAP)
 
 
     def refresh_xmrigs(self):
+        if DDebug.FUNCTION:
+            print(f"DEBUG HealthCache:refresh_xmrigs():")
         self.refresh_elements(DElem.XMRIG, self.depl_client.get_xmrigs, XMRIGS, XMRIGS_MAP)
 
 
