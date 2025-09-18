@@ -13,7 +13,7 @@ from datetime import datetime
 from decimal import Decimal
 from bson.decimal128 import Decimal128
 import threading
-import time
+import json
 import os
 import re
 
@@ -29,12 +29,13 @@ class InternalP2PoolWatcher(P2PoolWatcher):
 
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str,
-            stop_event: threading.Event):
+            stop_event: threading.Event, stats_mod: str):
         super().__init__(mining_db=mining_db, chain=chain, log_file=log_file, 
                          stop_event=stop_event)
         self.mining_db = mining_db
         self._chain = chain
         self._log_file = log_file
+        self._stats_mod = stats_mod
         self._stop_event = stop_event
 
 
@@ -49,6 +50,26 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         return handlers
 
 
+    def get_sidechain_miners(self):
+        """
+        Sample API stats_mod contents (one line...):
+
+        {"config":{"ports":[{"port":3333,"tls":false}],
+        "fee":0,"minPaymentThreshold":300000000},"network":
+        {"height":3502949},"pool":{"stats":{"lastBlockFound":"0000"},
+        "blocks":["0000...0000:0","0"],
+        "miners":306,"hashrate":2335864,"roundHashes":19272205524784}}
+        """
+        
+        stats_mod = self.stats_mod()
+        if not os.path.exists(stats_mod):
+            raise ValueError(f"InternalP2PoolWatcher:get_sidechain_miners(): API file ({stats_mod}) not found")
+        with open(stats_mod, 'r') as file:
+            api_string_data = file.read()
+            api_data = json.loads(api_string_data)
+            return api_data[DField.POOL][DField.MINERS]
+            
+      
     def is_block_found(self, log_line):
         """
         Sample log messages to watch for:

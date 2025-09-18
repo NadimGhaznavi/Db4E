@@ -11,7 +11,7 @@ db4e/Modules/InternalP2Pool.py
 
 from db4e.Modules.P2Pool import P2Pool
 
-from db4e.Modules.Helper import get_component_value
+from db4e.Modules.Components import StatsMod
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -38,15 +38,19 @@ class InternalP2Pool(P2Pool):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._elem_type = DElem.INT_P2POOL
 
+        self.add_component(DField.STATS_MOD, StatsMod())
+        self._stats_mod = self.components[DField.STATS_MOD]
+
+        self._elem_type = DElem.INT_P2POOL
         self.in_peers(2)
         self.out_peers(2)
 
         if rec:
             self.from_rec(rec)
 
-    def set_type(self, chain_label, log_file):
+
+    def set_type(self, chain_label, log_file, stats_mod):
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]
@@ -59,6 +63,12 @@ class InternalP2Pool(P2Pool):
         self.instance(chain_label)
         self.user_wallet(DDef.DONATION_WALLET)
         self.log_file(log_file)
+        self.stats_mod(stats_mod)
 
+
+    def stats_mod(self, stats_mod=None):
+        if stats_mod is not None:
+            self._stats_mod = stats_mod
+        return self._stats_mod
         
 

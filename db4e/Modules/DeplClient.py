@@ -264,14 +264,14 @@ class DeplClient:
             p2pool = P2Pool()
             db4e = self.db_cache.get_db4e()
             p2pool.user_wallet(db4e.user_wallet())
-            p2pool.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
+            p2pool.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
             return p2pool
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
         elif elem_type == DElem.XMRIG:
             xmrig = XMRig()
-            xmrig.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
-            xmrig
+            xmrig.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+            return xmrig
         else:
             raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")            
 

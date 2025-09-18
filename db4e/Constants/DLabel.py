@@ -86,6 +86,7 @@ class DLabel(ConstGroup):
     SOFTWARE_SYSTEM : str = "Software System"
     START : str = "Start"
     STARTUP_SCRIPT : str = "Startup Script"
+    STATS_MOD : str = "API stats_mod"
     STDIN : str = "Standard Input"
     STOP : str = "Stop"
     STRATUM_PORT : str = "Stratum Port"

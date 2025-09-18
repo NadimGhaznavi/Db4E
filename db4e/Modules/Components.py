@@ -208,6 +208,11 @@ class ShowTimeStats(Component):
             str(DDef.SHOW_TIME_STATS))
 
 
+class StatsMod(Component):
+    def __init__(self):
+        super().__init__(DField.STATS_MOD, DLabel.STATS_MOD)
+
+
 class Stdin(Component):
     def __init__(self):
         super().__init__(DField.STDIN, DLabel.STDIN)

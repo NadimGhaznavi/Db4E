@@ -382,7 +382,9 @@ class InstallMgr(Container):
             p2pool = InternalP2Pool()
             log_file = os.path.join(
                 vendor_dir, DElem.P2POOL, chain_label, DDef.LOG_DIR, DFile.P2POOL_LOG)
-            p2pool.set_type(chain_label=chain_label, log_file=log_file)
+            stats_mod = os.path.join(
+                vendor_dir, DElem.P2POOL, chain_label, DDef.API_DIR, DFile.STATS_MOD)
+            p2pool.set_type(chain_label=chain_label, log_file=log_file, stats_mod=stats_mod)
             self.depl_mgr.add_deployment(p2pool)
             db4e.msg(
                 chain_label, DStatus.GOOD,

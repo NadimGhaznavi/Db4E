@@ -66,7 +66,6 @@ class PaneMgr(Widget):
         except NoMatches:
             return
         content_switcher.current = new.name
-        print(f"PaneMgr: {new.name}")
         pane = self.catalogue.get_pane(new.name)
         if hasattr(pane, DField.RESET_DATA):
             pane.reset_data()

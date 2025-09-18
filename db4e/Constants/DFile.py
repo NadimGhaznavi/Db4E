@@ -18,3 +18,4 @@ class DFile(ConstGroup):
     CONFIG_FILE : str = DField.CONFIG_FILE
     P2POOL_LOG : str = "p2pool.log"
     P2POOL_STDIN : str = "p2pool.stdin"
+    STATS_MOD : str = "stats_mod"
