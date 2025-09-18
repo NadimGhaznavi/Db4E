@@ -142,6 +142,7 @@ class P2PoolPane(Container):
 
         # Create the Monerod radio buttons
         self.instance_map = p2pool.instance_map()
+        print(f"P2PoolPane:set_data(): instance_map: {self.instance_map}")
         instance_list = []
         for instance in p2pool.instance_map().keys():
             instance_list.append(instance)

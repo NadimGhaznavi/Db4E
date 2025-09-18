@@ -232,16 +232,19 @@ class DeplClient:
 
 
     def get_deployment(self, elem_type: str, instance=None):
-        return self.db_cache.get_deployment(elem_type, instance)
-
+        #return self.db_cache.get_deployment(elem_type, instance)
+        elem = self.db_cache.get_deployment(elem_type, instance)
+        if type(elem) == Db4E:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+        elif type(elem) == XMRig:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+        elif type(elem) == P2Pool:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            print(f"DeplClient:get_deployment(): instance map: {elem.instance_map()}")
+        return elem
 
     def get_deployment_by_id(self, id):
         return self.db_cache.get_deployment_by_id(id)
-
-
-    def get_deployment_ids_and_instances(self, elem_type):
-        return self.db_cache.get_deployment_ids_and_instances(elem_type)
-    
 
     def get_deployments(self):
         return self.db_cache.get_deployments()
@@ -261,20 +264,29 @@ class DeplClient:
             p2pool = P2Pool()
             db4e = self.db_cache.get_db4e()
             p2pool.user_wallet(db4e.user_wallet())
+            p2pool.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
             return p2pool
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
         elif elem_type == DElem.XMRIG:
-            return XMRig()
+            xmrig = XMRig()
+            xmrig.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
+            xmrig
         else:
-            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
-
+            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")            
 
     def get_p2pools(self) -> list[P2Pool | P2PoolRemote]:
+        instance_map = self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+        for p2pool in self.db_cache.get_p2pools():
+            if type(p2pool) == P2Pool:
+                p2pool.instance_map(instance_map)
         return self.db_cache.get_p2pools()
 
 
     def get_xmrigs(self) -> list[XMRig]:
+        instance_map = self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL)
+        for xmrig in self.db_cache.get_xmrigs():
+            xmrig.instance_map(instance_map)
         return self.db_cache.get_xmrigs()
 
 

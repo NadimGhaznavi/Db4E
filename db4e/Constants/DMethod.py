@@ -18,7 +18,7 @@ class DMethod(ConstGroup):
     ENABLE_DEPLOYMENT: str = "enable_deployment"
     DISABLE_DEPLOYMENT: str = "disable_deployment"
     GET_NEW: str = "get_new"
-    GET_REC: str = "get_deployment"
+    GET_DEPL: str = "get_deployment"
     GET_TUI_LOG: str = "get_tui_log"
     INITIAL_SETUP: str = "initial_setup"
     INITIAL_SETUP_PROCEED: str = "initial_setup_proceed"

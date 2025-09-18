@@ -46,7 +46,7 @@ class InternalP2Pool(P2Pool):
         if rec:
             self.from_rec(rec)
 
-    def set_type(self, chain_label):
+    def set_type(self, chain_label, log_file):
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]
@@ -58,3 +58,7 @@ class InternalP2Pool(P2Pool):
         self.stratum_port(self.stratum_port() + STRATUM_PORT_OFFSET + offset)
         self.instance(chain_label)
         self.user_wallet(DDef.DONATION_WALLET)
+        self.log_file(log_file)
+
+        
+

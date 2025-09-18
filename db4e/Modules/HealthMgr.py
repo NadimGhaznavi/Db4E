@@ -196,6 +196,8 @@ class HealthMgr:
 
 
     def check_p2pool(self, p2pool: P2Pool) -> P2Pool:
+        print(f"HealthMgr:check_p2pool(): instance map: {p2pool.instance_map()}")
+        # Check for minssing fields
         missing_field = False
         if not p2pool.instance():
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.INSTANCE} missing")
@@ -231,21 +233,21 @@ class HealthMgr:
 
         if missing_field:
             return p2pool
-        
+        # Check enabled/disabled
         if p2pool.enabled():
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
                        f"{DLabel.P2POOL} ({p2pool.instance()}) is enabled")
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR,
                        f"{DLabel.P2POOL} ({p2pool.instance()}) is disabled")
-
+        # Check connectivity to stratum port
         if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
                        f"Connection to {DLabel.STRATUM_PORT} successful")
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.WARN,
                        f"Connection to {DLabel.STRATUM_PORT} failed")
-        
+        # Check upstgream monerod
         if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
             self.check(p2pool.monerod)
             if p2pool.monerod.status() == DStatus.GOOD:
@@ -257,7 +259,7 @@ class HealthMgr:
                 p2pool.push_msgs(p2pool.monerod.pop_msgs())
         else:
             p2pool.msg(DLabel.MONEROD, DStatus.WARN,
-                      f"Missing upstream Blockchain deployment")            
+                      f"Missing upstream Monero deployment")            
 
         #print(f"HealthMgr:check_p2pool(): msgs: {p2pool.pop_msgs()}")
         return p2pool

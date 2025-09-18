@@ -90,12 +90,14 @@ class Db4EApp(App):
     # Every form sends the form data here
     @work(exclusive=True)
     async def on_db4e_msg(self, message: Db4eMsg) -> None:
-        print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
+        #print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = self.msg_router.dispatch(
             message.form_data[DField.TO_MODULE],
             message.form_data[DField.TO_METHOD],
             message.form_data
         )
+        print(f"Db4EApp:on_db4e_msg(): pane: {pane}, data: {data}")
+        print(f"instance_map: {data.instance_map()}")
         self.pane_mgr.set_pane(name=pane, data=data)
 
     # Handle requests to refresh the NavPane

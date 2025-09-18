@@ -44,7 +44,7 @@ class MessageRouter:
                       self.install_mgr.initial_setup_proceed, DPane.INITIAL_SETUP)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP, DElem.DB4E,
                       self.install_mgr.initial_setup, DPane.RESULTS)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.DB4E,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.DB4E,
                       self.ops_mgr.get_deployment, DPane.DB4E)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
                       self.depl_client.update_deployment, DPane.WELCOME)
@@ -58,7 +58,7 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.MONEROD)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.MONEROD,
                       self.ops_mgr.get_deployment, DPane.MONEROD)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_client.disable_deployment, DPane.WELCOME)
@@ -74,7 +74,7 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.MONEROD_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.MONEROD_REMOTE,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_deployment, DPane.MONEROD_REMOTE)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.depl_client.update_deployment, DPane.WELCOME)
@@ -91,7 +91,7 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_client.disable_deployment, DPane.WELCOME)
@@ -107,7 +107,7 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.P2POOL_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.P2POOL_REMOTE,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL_REMOTE,
                       self.ops_mgr.get_deployment, DPane.P2POOL_REMOTE)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.depl_client.update_deployment, DPane.WELCOME)
@@ -119,7 +119,7 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.XMRIG,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_REC, DElem.XMRIG,
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG,
                       self.ops_mgr.get_deployment, DPane.XMRIG)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_client.disable_deployment, DPane.WELCOME)
@@ -134,6 +134,8 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.MONEROD,
                       self.ops_mgr.log_viewer, DPane.LOG_VIEW)
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.P2POOL,
+                      self.ops_mgr.log_viewer, DPane.LOG_VIEW)
+        self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.INT_P2POOL,
                       self.ops_mgr.log_viewer, DPane.LOG_VIEW)
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.XMRIG,
                       self.ops_mgr.log_viewer, DPane.LOG_VIEW)
@@ -158,7 +160,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, some_module: str, some_method: str = None, payload: dict = None):
-        print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
+        #print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(DField.ELEMENT_TYPE, "")
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:

@@ -247,14 +247,14 @@ class DbCache:
                 instance_map = {}
                 for p2pool in self.p2pool_map.values():
                     instance_map[p2pool.instance()] = p2pool.id()
-                #print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
+                print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
                     
             elif elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 instance_map = {}
                 for monerod in self.monerod_map.values():
                     instance_map[monerod.instance()] = monerod.id()
-                #print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
+                print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
 
     def get_downstream(self, elem):

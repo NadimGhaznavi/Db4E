@@ -120,7 +120,7 @@ class P2Pool(LocalSoftwareSystem):
         
         
     def instance_map(self, map=None):
-        if map:
+        if map is not None:
             self._instance_map = map
         return self._instance_map
     

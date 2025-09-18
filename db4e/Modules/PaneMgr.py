@@ -49,7 +49,6 @@ class PaneMgr(Widget):
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
-        print(f"PaneMgr:set_pane(): {name}/{data}")
         if type(name) == dict:
             if DField.DATA in name:
                 data = name[DField.DATA]
@@ -59,7 +58,6 @@ class PaneMgr(Widget):
         if data and name in self.panes:
             pane = self.panes[name]
             if hasattr(pane, DField.SET_DATA):
-                print(f"PaneMgr:set_pane(): {name}/{data}")
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):

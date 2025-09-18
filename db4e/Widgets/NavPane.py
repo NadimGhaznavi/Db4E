@@ -127,7 +127,7 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_data = event.node.data
             parent_data = event.node.parent.data
-            print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_data}), parent_item ({parent_data})")
+            #print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_data}), parent_item ({parent_data})")
 
             # Initial Setup
             if leaf_data == DLabel.INITIAL_SETUP:
@@ -145,7 +145,7 @@ class NavPane(Container):
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
                     DField.TO_MODULE: DModule.OPS_MGR,
-                    DField.TO_METHOD: DMethod.GET_REC,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -204,13 +204,13 @@ class NavPane(Container):
 
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
-                print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
+                #print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
                 # View/Update a Monero deployment
                 if grandparent_data == DLabel.MONEROD_SHORT:
 
                     monerod = self.ops_mgr.get_deployment(
                         elem_type=DElem.MONEROD, instance=parent_data)
-                    print(f"NavPane:on_tree_node_selected(): monerod: {monerod}")
+                    #print(f"NavPane:on_tree_node_selected(): monerod: {monerod}")
                     
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
@@ -224,14 +224,14 @@ class NavPane(Container):
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                             DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.GET_REC,
+                            DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data
                         }
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
                             DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.GET_REC,
+                            DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
@@ -241,7 +241,7 @@ class NavPane(Container):
 
                     p2pool = self.ops_mgr.get_deployment(
                         elem_type=DElem.P2POOL, instance=parent_data)
-
+                    # P2Pool log file
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
@@ -249,19 +249,20 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: parent_data
                         }
-                        
+                    # Remote P2Pool
                     elif p2pool.remote():
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
                             DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.GET_REC,
+                            DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data
                         }
+                    # Local P2Pool
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
                             DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.GET_REC,
+                            DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
@@ -281,7 +282,7 @@ class NavPane(Container):
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.XMRIG,
                             DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.GET_REC,
+                            DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
@@ -290,7 +291,7 @@ class NavPane(Container):
                 elif grandparent_data == DLabel.CHAIN_STATS:
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
-                            DField.ELEMENT_TYPE: DElem.P2POOL,
+                            DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                             DField.TO_MODULE: DModule.OPS_MGR,
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: parent_data

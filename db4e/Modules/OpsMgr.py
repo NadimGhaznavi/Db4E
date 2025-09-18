@@ -52,30 +52,15 @@ class OpsMgr:
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
-
-        # TODO : Is this block required????
-        if not elem:
-            if elem_type == DElem.MONEROD:
-                elem = self.depl_client.get_deployment(
-                    elem_type=DElem.MONEROD_REMOTE, instance=instance)
-                elem_type = DElem.MONEROD_REMOTE
-            elif elem_type == DElem.P2POOL:
-                elem = self.depl_client.get_deployment(
-                    elem_type=DElem.P2POOL_REMOTE, instance=instance)
-                elem_type = DElem.P2POOL_REMOTE
-        
-        if type(elem) == Db4E:
-            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
-        elif type(elem) == XMRig:
-            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
-        elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
-
+        print(f"OpsMgr:get_deployment(): 1 instance_map: {elem.instance_map()}")
         checked_elem = self.health_cache.check(elem)
         if checked_elem:
+            # Return the elem with health check messages
+            print(f"OpsMgr:get_deployment(): 2a instance_map: {checked_elem.instance_map()}")
             return checked_elem
         
-        # The item isn't in the HealthMgr cache yet
+        # The item isn't in the HealthMgr cache yet, return it with no health check messages
+        print(f"OpsMgr:get_deployment(): 2b instance_map: {elem.instance_map()}")
         return elem
 
 
@@ -93,10 +78,6 @@ class OpsMgr:
 
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
-        if type(elem) == XMRig:
-            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.P2POOL))
-        elif type(elem) == P2Pool:
-            elem.instance_map(self.depl_client.get_deployment_ids_and_instances(DElem.MONEROD))
         return elem
     
 
