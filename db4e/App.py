@@ -96,8 +96,7 @@ class Db4EApp(App):
             message.form_data[DField.TO_METHOD],
             message.form_data
         )
-        print(f"Db4EApp:on_db4e_msg(): pane: {pane}, data: {data}")
-        print(f"instance_map: {data.instance_map()}")
+        #print(f"Db4EApp:on_db4e_msg(): pane: {pane}, data: {data}")
         self.pane_mgr.set_pane(name=pane, data=data)
 
     # Handle requests to refresh the NavPane

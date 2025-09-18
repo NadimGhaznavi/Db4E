@@ -52,15 +52,12 @@ class OpsMgr:
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
-        print(f"OpsMgr:get_deployment(): 1 instance_map: {elem.instance_map()}")
         checked_elem = self.health_cache.check(elem)
         if checked_elem:
             # Return the elem with health check messages
-            print(f"OpsMgr:get_deployment(): 2a instance_map: {checked_elem.instance_map()}")
             return checked_elem
         
         # The item isn't in the HealthMgr cache yet, return it with no health check messages
-        print(f"OpsMgr:get_deployment(): 2b instance_map: {elem.instance_map()}")
         return elem
 
 
