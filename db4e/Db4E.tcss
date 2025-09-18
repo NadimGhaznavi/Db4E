@@ -125,14 +125,14 @@ Tree {
     width: 100%; 
     height: 9; }
 
-.form_17 {
+.form_16 {
     padding: 0 2;
     color: #31b8e6;
     border: round #0c323e;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
-    height: 19; }
+    height: 18; }
 
 /* A central informational box */
 .info_msg {

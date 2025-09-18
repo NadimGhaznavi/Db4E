@@ -30,9 +30,9 @@ hi = "#d7e556"
 
 class MoneroDPane(Container):
 
-    config_label = Label("", classes=DForm.STATIC)
     any_ip_label = Label("", classes=DForm.STATIC)
     blockchain_dir_label = Label("", classes=DForm.STATIC)
+    config_label = Label("", classes=DForm.STATIC)
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
 
     in_peers_input = Input(
@@ -56,8 +56,6 @@ class MoneroDPane(Container):
     p2p_bind_port_input = Input(
         id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
-    primary_server_checkbox = Checkbox(
-        "", compact=True, id="primary_server_checkbox")
     priority_node_1_input = Input(
         id="priority_node_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
@@ -99,9 +97,6 @@ class MoneroDPane(Container):
                 Label(INTRO, classes=DForm.INTRO),
 
                 Vertical(
-                    Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=DForm.FORM_LABEL),
-                        self.primary_server_checkbox),
                     Horizontal(
                         Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
@@ -150,7 +145,7 @@ class MoneroDPane(Container):
                     Horizontal(
                         Label(DLabel.BLOCKCHAIN_DIR, classes=DForm.FORM_LABEL),
                         self.blockchain_dir_label),
-                    classes=DForm.FORM_17),
+                    classes=DForm.FORM_16),
                     
                     Vertical(
                         self.health_msgs,
@@ -177,7 +172,6 @@ class MoneroDPane(Container):
         self.blockchain_dir_label.update(monerod.blockchain_dir())
         self.in_peers_input.value = str(monerod.in_peers())
         self.out_peers_input.value = str(monerod.out_peers())
-        self.primary_server_checkbox.value = monerod.primary_server()
         self.p2p_bind_port_input.value = str(monerod.p2p_bind_port())
         self.rpc_bind_port_input.value = str(monerod.rpc_bind_port())
         self.zmq_pub_port_input.value = str(monerod.zmq_pub_port())
@@ -185,7 +179,6 @@ class MoneroDPane(Container):
         self.log_level_input.value = str(monerod.log_level())
         self.max_log_files_input.value = str(monerod.max_log_files())
         self.max_log_size_input.value = str(monerod.max_log_size())
-        self.primary_server_checkbox.value = monerod.primary_server()
         self.priority_node_1_input.value = str(monerod.priority_node_1())
         self.priority_port_1_input.value = str(monerod.priority_port_1())
         self.priority_node_2_input.value = str(monerod.priority_node_2())
@@ -218,19 +211,17 @@ class MoneroDPane(Container):
         self.monerod.instance(self.query_one("#instance_input", Input).value)
         self.monerod.in_peers(self.query_one("#in_peers_input", Input).value)
         self.monerod.out_peers(self.query_one("#out_peers_input", Input).value)
-        self.monerod.p2p_bind_port(self.query_one("#p2p_bind_port_input", Input).value)
-        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
-        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
-        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
-        self.monerod.zmq_rpc_port(self.query_one("#zmq_rpc_port_input", Input).value)
         self.monerod.log_level(self.query_one("#log_level_input", Input).value)
         self.monerod.max_log_files(self.query_one("#max_log_files_input", Input).value)
         self.monerod.max_log_size(self.query_one("#max_log_size_input", Input).value)
-        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
+        self.monerod.p2p_bind_port(self.query_one("#p2p_bind_port_input", Input).value)
         self.monerod.priority_node_1(self.query_one("#priority_node_1_input", Input).value)
         self.monerod.priority_port_1(self.query_one("#priority_port_1_input", Input).value)
         self.monerod.priority_node_2(self.query_one("#priority_node_2_input", Input).value)
         self.monerod.priority_port_2(self.query_one("#priority_port_2_input", Input).value)
+        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
+        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
+        self.monerod.zmq_rpc_port(self.query_one("#zmq_rpc_port_input", Input).value)
 
         if button_id == DButton.NEW:
             form_data = {

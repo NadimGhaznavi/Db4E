@@ -147,8 +147,8 @@ class MessageRouter:
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
 
         # Donations
-        self.register(DModule.PANE_MGR, DMethod.SET_PANE, DField.DONATIONS,
-                      self.pane_mgr.set_pane, DPane.DONATIONS)
+        self.register(DModule.OPS_MGR, DMethod.SET_DONATIONS, DField.DONATIONS,
+                      self.ops_mgr.set_donations, DPane.DONATIONS)
 
 
     def get_handler(self, module: str, method: str, component: str = ""):

@@ -13,11 +13,10 @@ from datetime import datetime, timezone
 import socket
 from typing import overload
 
-from db4e.Modules.DeplBase import DeplBase
-from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DbCache import DbCache
-from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
+from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
@@ -48,7 +47,7 @@ class Default:
     XMRIG_CONFIG = DDef.XMRIG_CONFIG
 
 
-class DeplMgr(DeplBase):
+class DeplMgr:
     
     # update_p2pool_deployment() is overloaded ...
     @overload
@@ -57,16 +56,13 @@ class DeplMgr(DeplBase):
     def update_p2pool_deployment(self, p2pool: InternalP2Pool) -> InternalP2Pool: ...
 
 
-    def __init__(self, db: DbMgr):
-        super().__init__()
-        self.db_cache = DbCache(db=db)
+    def __init__(self, db: DbMgr, db_cache: DbCache):
+        self.db_cache = db_cache
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
     def add_deployment(self, elem):
-        # Check for duplicate instance names and missing fields
-        self.check_instance_and_fields(elem)
         elem_class = type(elem)
 
         # Add the Db4E Core deployment
@@ -132,14 +128,6 @@ class DeplMgr(DeplBase):
         monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         self.insert_one(monerod)
-        if monerod.primary_server():
-            self.set_primary_server(monerod)
-        job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
-        job.msg("New deployment")
-        if monerod.primary_server():
-            self.set_int_p2pool_primary_server(monerod)
-
-        self.job_queue.post_completed_job(job)        
         return monerod
 
 
@@ -150,12 +138,6 @@ class DeplMgr(DeplBase):
             DElem.MONEROD_REMOTE, monerod.instance())
         job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
         job.msg("New deployment")
-        self.job_queue.post_completed_job(job)
-
-        if monerod.primary_server():
-            job = Job(op=DJob.SET_PRIMARY, instance=monerod)
-            self.job_queue.post_job(job)          
-
         return monerod
     
 
@@ -186,18 +168,11 @@ class DeplMgr(DeplBase):
                                      DDef.RUN_DIR), exist_ok=True)
             p2pool.stdin(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
                                       DDef.LOG_DIR, DFile.P2POOL_STDIN))
-            job = Job(op=DJob.NEW, elem_type=DElem.P2POOL, instance=p2pool.instance())
-            job.msg("New deployment")
-            self.job_queue.post_completed_job(job)
         return p2pool
 
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
         self.insert_one(p2pool)
-        job = Job(
-            op=DJob.NEW, elem_type=DElem.P2POOL_REMOTE, instance=p2pool.instance())
-        job.msg(f"New deployment")
-        self.job_queue.post_completed_job(job)
         return p2pool
 
 
@@ -217,9 +192,6 @@ class DeplMgr(DeplBase):
             xmrig.log_file(os.path.join(
                 vendor_dir, xmrig_dir, DDef.LOG_DIR, xmrig.instance() + '.log'))
             self.insert_one(xmrig)
-            job = Job(op=DJob.NEW, elem_type=DElem.XMRIG, instance=xmrig.instance())
-            job.msg(f"New deployment")
-            self.job_queue.post_completed_job(job)
         return xmrig
 
 
@@ -284,6 +256,10 @@ class DeplMgr(DeplBase):
     def get_deployment(self, elem_type, instance=None):
         #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
         return self.db_cache.get_deployment(elem_type, instance)
+
+
+    def get_deployment_by_id(self, id):
+        return self.db_cache.get_deployment_by_id(id)
 
 
     def get_deployment_ids_and_instances(self, elem_type):
@@ -390,10 +366,6 @@ class DeplMgr(DeplBase):
         return self.db_cache.get_p2pools()
     
     
-    def get_primary_monerod(self):
-        return self.db_cache.get_primary_monerod()
-
-
     def get_xmrigs(self):
         return self.db_cache.get_xmrigs()
 
@@ -449,11 +421,7 @@ class DeplMgr(DeplBase):
             update_flag = True
 
         # Updating the primary server
-        print(f"DeploymentMgr:update_db4e_deployment(): primary server: {new_db4e.primary_server()}")
         if db4e.primary_server != new_db4e.primary_server:
-            #msg = f"Updated primary server: {db4e.primary_server()} > " \
-            #    f"{new_db4e.primary_server()}"
-            #db4e.msg(DLabel.PRIMARY_SERVER, DStatus.GOOD, msg)
             db4e.primary_server(new_db4e.primary_server())
             update_flag = True
 
@@ -465,7 +433,6 @@ class DeplMgr(DeplBase):
         return db4e
 
 
-
     def update_deployment(self, elem):
         #print(f"DeploymentMgr:update_deployment(): {rec}")
         if type(elem) == Db4E:
@@ -474,7 +441,7 @@ class DeplMgr(DeplBase):
             return self.update_monerod_deployment(elem)
         elif type(elem) == MoneroDRemote:
             return self.update_monerod_remote_deployment(elem)
-        elif isinstance(elem, P2Pool):
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             return self.update_p2pool_deployment(elem)
         elif type(elem) == P2PoolRemote:
             return self.update_p2pool_remote_deployment(elem)
@@ -483,11 +450,11 @@ class DeplMgr(DeplBase):
         else:
             raise ValueError(
                 f"{DModule.DEPLOYMENT_MGR}:update_deployment(): " \
-                f" No handler for component ({elem})")
+                f" No handler for ({elem})")
 
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
-        update, update_config, restart, update_primary = False, False, False, False
+        update, update_config, restart = False, False, False
 
         monerod = self.db_cache.get_deployment(
             DElem.MONEROD, new_monerod.instance())
@@ -611,22 +578,6 @@ class DeplMgr(DeplBase):
                 monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
                 update, update_config = True, True
 
-            # Set/Unset primary server flag
-            if monerod.primary_server != new_monerod.primary_server:
-                update_primary = True
-                db4e = self.db_cache.get_db4e()
-                if new_monerod.primary_server():
-                    msg = f"Flagged as primary server"
-                    monerod.primary_server(True)
-                    monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
-                    db4e.primary_server(new_monerod.instance())
-                else:
-                    msg = f"Flagged as secondary server"
-                    monerod.primary_server(False)
-                    monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
-                    db4e.primary_server(False)
-                update = True                    
-
         if update_config:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.MONEROD)
@@ -639,12 +590,6 @@ class DeplMgr(DeplBase):
                 job = Job(op=DJob.RESTART, elem_type=DElem.MONEROD,
                         elem=monerod,
                         instance=monerod.instance())
-                self.job_queue.post_job(job)
-
-            if update_primary:
-                job = Job(
-                    op=DJob.SET_PRIMARY, instance=monerod.instance(), 
-                    elem_type=DElem.MONEROD, elem=monerod)
                 self.job_queue.post_job(job)
 
         else:
@@ -685,25 +630,6 @@ class DeplMgr(DeplBase):
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
             monerod.msg(DLabel.MONEROD, DStatus.GOOD, msg)
             update = True
-
-        # Set/Unset primary server flag
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): primary server: {new_monerod.primary_server()}")
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): old primary server: {monerod.primary_server()}")
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): type: {type(new_monerod.primary_server())}")
-        if monerod.primary_server != new_monerod.primary_server:
-            db4e = self.db_cache.get_db4e()
-            if new_monerod.primary_server():
-                msg = f"Flagged as primary server"
-                monerod.primary_server(True)
-                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
-                db4e.primary_server(new_monerod.instance())
-            else:
-                msg = f"Flagged as a secondary server"
-                monerod.primary_server(False)
-                monerod.msg(DLabel.MONEROD_SHORT, DStatus.GOOD, msg)
-                db4e.primary_server(False)
-            update = True                    
-
 
         if update:
             monerod = self.db_cache.update_one(monerod)

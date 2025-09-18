@@ -32,9 +32,6 @@ class MoneroDRemotePane(Container):
     ip_addr_input = Input(
         compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
         classes=DForm.INPUT_30)
-    primary_server_checkbox = Checkbox(
-        #PRIMARY_SERVER, compact=True, id="primary_server_checkbox")
-        "", compact=True, id="primary_server_checkbox")
     rpc_bind_port_input = Input(
         compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
@@ -59,9 +56,6 @@ class MoneroDRemotePane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.PRIMARY_SERVER, classes=DForm.FORM_LABEL),
-                        self.primary_server_checkbox),
-                    Horizontal(
                         Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_input, self.instance_label),
                     Horizontal(
@@ -73,7 +67,7 @@ class MoneroDRemotePane(Container):
                     Horizontal(
                         Label(DLabel.ZMQ_PUB_PORT, classes=DForm.FORM_LABEL),
                         self.zmq_pub_port_input),
-                    classes=DForm.FORM_5),
+                    classes=DForm.FORM_4),
 
                 Vertical(
                     self.health_msgs,
@@ -115,7 +109,6 @@ class MoneroDRemotePane(Container):
         self.monerod.ip_addr(self.query_one("#ip_addr_input", Input).value)
         self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
         self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
-        self.monerod.primary_server(self.query_one("#primary_server_checkbox", Checkbox).value)
 
 
         if button_id == DButton.NEW:

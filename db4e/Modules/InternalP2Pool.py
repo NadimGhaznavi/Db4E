@@ -10,6 +10,9 @@ db4e/Modules/InternalP2Pool.py
 """
 
 from db4e.Modules.P2Pool import P2Pool
+
+from db4e.Modules.Helper import get_component_value
+
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -40,6 +43,8 @@ class InternalP2Pool(P2Pool):
         self.in_peers(2)
         self.out_peers(2)
 
+        if rec:
+            self.from_rec(rec)
 
     def set_type(self, chain_label):
 

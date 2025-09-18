@@ -164,8 +164,8 @@ class NavPane(Container):
                 #print(f"NavPane:on_tree_node_selected(): {DONATIONS}")
                 form_data = {
                     DField.ELEMENT_TYPE: DField.DONATIONS,
-                    DField.TO_MODULE: DModule.PANE_MGR,
-                    DField.TO_METHOD: DMethod.SET_PANE,
+                    DField.TO_MODULE: DModule.OPS_MGR,
+                    DField.TO_METHOD: DMethod.SET_DONATIONS,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
@@ -241,7 +241,6 @@ class NavPane(Container):
 
                     p2pool = self.ops_mgr.get_deployment(
                         elem_type=DElem.P2POOL, instance=parent_data)
-                    print(f"NavPane:on_tree_node_selected(): p2pool: {p2pool}")
 
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
@@ -287,9 +286,21 @@ class NavPane(Container):
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
+                # Chain Stats
+                elif grandparent_data == DLabel.CHAIN_STATS:
+                    if leaf_data == DLabel.LOG_FILE:
+                        form_data = {
+                            DField.ELEMENT_TYPE: DElem.P2POOL,
+                            DField.TO_MODULE: DModule.OPS_MGR,
+                            DField.TO_METHOD: DMethod.LOG_VIEWER,
+                            DField.INSTANCE: parent_data
+                        }
+                    self.post_message(Db4eMsg(self, form_data=form_data))
+
             elif leaf_data in (BLOCK, MINERS, HASH) and parent_data in (MAIN, MINI, NANO):
                 chain = parent_data
                 metric = leaf_data
+                print(f"NavPane:on_tree_node_selected(): {chain}/{metric}")
                 form_data = {
                     DField.ELEMENT_TYPE: CHAIN,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -303,37 +314,51 @@ class NavPane(Container):
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
         
-        if not self.is_initialized() and not self.initial_branches_added:
-            self.initial_branches_added = True
-            # Initial setup
-            self.depls.root.add_leaf(
-                f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}", data=DLabel.INITIAL_SETUP)
-            # Donations
-            self.depls.root.add_leaf(
-                f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
-            return
         if not self.is_initialized():
-            return
+            if not self.initial_branches_added:
+                self.initial_branches_added = True
+                # Initial setup
+                self.depls.root.add_leaf(
+                    f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}", data=DLabel.INITIAL_SETUP)
+                # Donations
+                self.depls.root.add_leaf(
+                    f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
+                return
+            else:
+                return
+
+        if self.is_initialized() and self.initial_branches_added:
+            self.depls.root.remove_children()
+            self.initial_branches_added = False
+
 
         if not self.depls_branches_added:
-
-            # Db4E Core
             self.depls.root.add_leaf(
                 f"{ICON[CORE]} {DLabel.DB4E}", data=DLabel.DB4E)
-            # MoneroD deployment branch
             self.monerod_tree = self.depls.root.add(
                 f"{ICON[MON]} {DLabel.MONEROD_SHORT}", data=DLabel.MONEROD_SHORT, expand=True)
-            self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
-            # P2Pool deployment branch
             self.p2pool_tree = self.depls.root.add(
                 f"{ICON[P2P]} {DLabel.P2POOL_SHORT}", data=DLabel.P2POOL_SHORT, expand=True)
-            self.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
-            # XMRig deployment branch
             self.xmrig_tree = self.depls.root.add(
                 f"{ICON[XMR]} {DLabel.XMRIG_SHORT}", data=DLabel.XMRIG_SHORT, expand=True)
-            self.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+            chain = self.depls.root.add(
+                f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}", data=DLabel.CHAIN_STATS, expand=True)
+            main = chain.add(
+                f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=True)
+            main.add_leaf(
+                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)            
+            mini = chain.add(
+                f"{ICON[MINI]} {DLabel.MINI_CHAIN}", data=DLabel.MINI_CHAIN, expand=True)            
+            mini.add_leaf(
+                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
+            nano = chain.add(
+                f"{ICON[NANO]} {DLabel.NANO_CHAIN}", data=DLabel.NANO_CHAIN, expand=True)
+            nano.add_leaf(
+                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
+
 
         self.monerod_tree.remove_children()
+        self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.ops_mgr.get_monerods():
             state = monerod.status()
             instance_branch = self.monerod_tree.add(
@@ -345,6 +370,7 @@ class NavPane(Container):
                     f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
 
         self.p2pool_tree.remove_children()
+        self.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for p2pool in self.ops_mgr.get_p2pools():
             state = p2pool.status()
             instance_branch = self.p2pool_tree.add(
@@ -356,6 +382,7 @@ class NavPane(Container):
                     f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
 
         self.xmrig_tree.remove_children()
+        self.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for xmrig in self.ops_mgr.get_xmrigs():
             state = xmrig.status()
             instance_branch = self.xmrig_tree.add(

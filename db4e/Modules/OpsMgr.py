@@ -18,6 +18,9 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
+from db4e.Constants.DPane import DPane
+
+
 
 
 
@@ -111,6 +114,10 @@ class OpsMgr:
 
     def plot(self, plot_metadata: dict):
         return plot_metadata
+
+
+    def set_donations(self, form_data: dict):
+        return DPane.DONATIONS
 
 
     def update_deployment(self, data: dict):

@@ -90,8 +90,7 @@ class DbCache:
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                             if type(elem.monerod) == MoneroD or type(elem.monerod) == MoneroDRemote:
                                 self.monerod_map[elem.monerod.instance()] = elem.monerod
-                        self.int_p2pool_map[elem.instance()] = elem
-
+                            self.int_p2pool_map[elem.instance()] = elem
 
                     elif elem_type == DElem.P2POOL:
                         elem.monerod = self.get_deployment_by_id(elem.parent())
@@ -124,9 +123,7 @@ class DbCache:
                         self.p2pool_map[elem.instance()] = elem
                     elif elem_type == DElem.INT_P2POOL:
                         elem = InternalP2Pool(rec)
-                        # TODO: Track down this bug, instance() is empty and Nano gets added twice
-                        if elem.instance():
-                            self.int_p2pool_map[elem.instance()] = elem
+                        self.int_p2pool_map[elem.instance()] = elem
                     elif elem_type == DElem.XMRIG:
                         elem = XMRig(rec)
                         if elem.parent():
@@ -193,6 +190,8 @@ class DbCache:
         #print(f"DbCache:get_deployment(): {elem_type} {instance}")
         #print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
         #print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
+        #print(f"DbCache:get_deployment(): int_p2pool_map: {self.int_p2pool_map}")
+        #print(f"DbCache:get_deployment(): xmrig_map: {self.xmrig_map}")
         with self._lock:
             if elem_type == DElem.DB4E:
                 return deepcopy(self.db4e)
@@ -223,7 +222,6 @@ class DbCache:
 
 
     def get_deployments(self):
-        print(f"DbCache:get_deployments(): {self.int_p2pool_map}")
         return [self.db4e] + list(self.monerod_map.values()) + \
             list(self.p2pool_map.values()) + list(self.xmrig_map.values()) + \
             list(self.int_p2pool_map.values())
@@ -249,13 +247,14 @@ class DbCache:
                 instance_map = {}
                 for p2pool in self.p2pool_map.values():
                     instance_map[p2pool.instance()] = p2pool.id()
-                print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
+                #print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
                     
             elif elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
                 instance_map = {}
                 for monerod in self.monerod_map.values():
                     instance_map[monerod.instance()] = monerod.id()
+                #print(f"DbCache:get_deployment_ids_and_instances(): {instance_map}")
                 return instance_map
 
     def get_downstream(self, elem):

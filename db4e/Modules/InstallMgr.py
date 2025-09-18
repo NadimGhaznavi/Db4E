@@ -31,6 +31,7 @@ from db4e.Constants.DDef import DDef
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DPlaceholder import DPlaceholder
 from db4e.Constants.DField import DField
+from db4e.Constants.DFile import DFile
 
 
 # The Mongo collection that houses the deployment records
@@ -44,7 +45,7 @@ class InstallMgr(Container):
     def __init__(self, db: DbMgr, db_cache: DbCache):
         super().__init__()
         self.db_cache = db_cache
-        self.depl_mgr = DeplMgr(db=db)
+        self.depl_mgr = DeplMgr(db=db, db_cache=db_cache)
         self.col_name = DDef.DEPLOYMENT_COL
         self.tmp_dir = None
 
@@ -377,13 +378,15 @@ class InstallMgr(Container):
 
     # Deploy metrics gathering P2Pool instances
     def _deploy_internal_p2pools(self, vendor_dir: str, db4e: Db4E):
-        for chain_type in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
+        for chain_label in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
             p2pool = InternalP2Pool()
-            p2pool.set_type(chain_type)
+            log_file = os.path.join(
+                vendor_dir, DElem.P2POOL, chain_label, DDef.LOG_DIR, DFile.P2POOL_LOG)
+            p2pool.set_type(chain_label=chain_label, log_file=log_file)
             self.depl_mgr.add_deployment(p2pool)
             db4e.msg(
-                chain_type, DStatus.GOOD,
-                f"Created internal P2Pool deployment: {chain_type}")
+                chain_label, DStatus.GOOD,
+                f"Created internal P2Pool deployment: {chain_label}")
         return db4e
 
 

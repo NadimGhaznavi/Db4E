@@ -25,6 +25,7 @@ class DMethod(ConstGroup):
     LOG_VIEWER: str = DField.LOG_VIEWER
     PLOT: str = "plot"
     POST_JOB: str = "post_job"
+    SET_DONATIONS: str = "set_donations"
     SET_PANE: str = DField.SET_PANE
     SET_PRIMARY: str = "set_primary"
     UPDATE_DEPLOYMENT: str = "update_deployment"

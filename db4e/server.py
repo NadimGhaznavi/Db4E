@@ -26,6 +26,7 @@ except Exception:
 
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.Db4ESystemD import Db4ESystemD
+from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DeplMgr import DeplMgr
@@ -33,6 +34,7 @@ from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.InternalP2PoolWatcher import InternalP2PoolWatcher
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
+from db4e.Modules.DbCache import DbCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
@@ -62,11 +64,25 @@ class Db4eServer:
     """
 
     def __init__(self):
-        # Get a Mongo DB manager
+
+        #  systemd wrapper
+        self.systemd = Db4ESystemD()
+
+        # Mongo DB Manager
         self.db = DbMgr()
 
-        # Get a deployment manager
-        self.depl_mgr = DeplMgr(db=self.db)
+        # Mining DB object (part of the DAL)
+        self.mining_db = MiningDb(db=self.db)
+
+        # Database Cache
+        self.db_cache = DbCache(db=self.db)
+
+        # Deployment Manager
+        self.depl_mgr = DeplMgr(db=self.db, db_cache=self.db_cache)
+
+        # Job Queue
+        self.job_queue = JobQueue(db=self.db)
+        
 
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
@@ -79,15 +95,6 @@ class Db4eServer:
         )
         if DDebug.FUNCTION:
             self.log.debug("DEBUG Db4eServer.__init__():")
-
-        # Get a systemd object
-        self.systemd = Db4ESystemD()
-
-        # Get a Mining DB object (part of the DAL)
-        self.mining_db = MiningDb(db=self.db)
-
-        # Get a JobQueue
-        self.job_queue = JobQueue(db=self.db)
 
         # {instance_name: (thread, stop_event)}
         self.log_watchers = {}
@@ -181,6 +188,7 @@ class Db4eServer:
                 self.update(job=job)
             elif op == DJob.SET_PRIMARY:
                 self.set_primary(job=job)
+            self.job_queue.complete_job(job)
 
 
     def delete(self, job: Job):
@@ -230,15 +238,18 @@ class Db4eServer:
         elem_type = job.elem_type()
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        if elem.enabled():
-            job.msg(f"Disabled deployment")
-            elem.disable()
-            self.depl_mgr.update_deployment(elem)
-            self.job_queue.complete_job(job)
-            if type(elem) == P2Pool or type(elem) == MoneroD or \
-                type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
-                self.disable_downstream(elem)
-            self.log.critical(f"Disabled deployment {elem}")
+
+        if not elem.enabled():
+            return
+
+        job.msg(f"Disabled deployment")
+        elem.disable()
+        self.depl_mgr.update_deployment(elem)
+        self.job_queue.complete_job(job)
+        if type(elem) == P2Pool or type(elem) == MoneroD or \
+            type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
+            self.disable_downstream(elem)
+        self.log.critical(f"Disabled deployment {elem}")
 
 
     def disable_downstream(self, elem):
@@ -246,6 +257,10 @@ class Db4eServer:
             self.log.debug(f"DEBUG Db4eServer:disable_downstream(): {elem}")
         elems = self.depl_mgr.get_downstream(elem)
         for elem in elems:
+            
+            if not elem.enabled():
+                continue
+
             elem.disable()
             self.depl_mgr.update_deployment(elem)
             job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
@@ -258,8 +273,11 @@ class Db4eServer:
             self.log.debug(f"DEBUG Db4eServer:enable(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
-        self.log.info(f"Enabling {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
+
+        if elem.enabled():
+            return
+        
         job.msg(f"Enabled deployment")
         elem.enable()
         self.depl_mgr.update_deployment(elem)
@@ -267,7 +285,6 @@ class Db4eServer:
 
 
     def ensure_running(self, elem):
-        time.sleep(0.25)
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:ensure_running(): {elem}")
         # Check if the deployment service is running, start it if it's not
@@ -300,6 +317,8 @@ class Db4eServer:
             self.log.critical(f'Started {elem}')
         else:
             self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
+            self.stopping.discard(instance)
+            self.starting.discard(instance)            
             
 
 

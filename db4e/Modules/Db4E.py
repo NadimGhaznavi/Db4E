@@ -14,7 +14,7 @@ import os, grp, getpass
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import (
     DonationWallet, Db4eGroup, InstallDir, Db4eUser, UserWallet, VendorDir,
-    PrimaryServer)
+    PrimaryServer, Instance)
 from db4e.Constants.DField import DField
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DLabel import DLabel

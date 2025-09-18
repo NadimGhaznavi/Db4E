@@ -183,7 +183,7 @@ class P2PoolPane(Container):
         monerod_instance = None
         monerod_id = None
         if radio_set.pressed_button:
-            monerod_instance = radio_set.pressed_button.label
+            monerod_instance = str(radio_set.pressed_button.label)
             monerod_id = self.instance_map[monerod_instance]
         
         chain_radio_set = self.query_one("#chain_radio_set", RadioSet)
