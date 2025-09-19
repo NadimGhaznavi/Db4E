@@ -118,7 +118,7 @@ class DField(ConstGroup) :
     STARTING : str = "starting"
     STATS_MOD : str = "stats_mod"
     STOPPING : str = "stopping"
-    STDIN : str = "stdin"
+    STDIN_PATH : str = "stdin_path"
     STRATUM_PORT : str = "stratum_port"
     SOFTWARE_SYSTEM : str = "software_system"
     STARTED : str = "started"

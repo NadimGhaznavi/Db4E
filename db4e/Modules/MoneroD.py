@@ -17,7 +17,7 @@ from db4e.Modules.Components import (
     BlockchainDir, ConfigFile, InPeers, Instance, Local, LogLevel, LogFile, 
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
-    PriorityPort1, PriorityPort2, IpAddr, Version, Stdin, PrimaryServer)
+    PriorityPort1, PriorityPort2, IpAddr, Version, StdinPath, PrimaryServer)
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -53,7 +53,7 @@ class MoneroD(LocalSoftwareSystem):
         self.add_component(DField.REMOTE, Local())
         self.add_component(DField.RPC_BIND_PORT, RpcBindPort())
         self.add_component(DField.SHOW_TIME_STATS, ShowTimeStats())
-        self.add_component(DField.STDIN, Stdin())
+        self.add_component(DField.STDIN_PATH, StdinPath())
         self.add_component(DField.VERSION, Version())
         self.add_component(DField.ZMQ_PUB_PORT, ZmqPubPort())
         self.add_component(DField.ZMQ_RPC_PORT, ZmqRpcPort())
@@ -77,7 +77,7 @@ class MoneroD(LocalSoftwareSystem):
         self.remote = self.components[DField.REMOTE]
         self.rpc_bind_port = self.components[DField.RPC_BIND_PORT]
         self.show_time_stats = self.components[DField.SHOW_TIME_STATS]
-        self.stdin = self.components[DField.STDIN]
+        self.stdin_path = self.components[DField.STDIN_PATH]
         self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
         self.zmq_rpc_port = self.components[DField.ZMQ_RPC_PORT]
         self.version = self.components[DField.VERSION]
@@ -116,7 +116,7 @@ class MoneroD(LocalSoftwareSystem):
             DPlaceholder.PRIORITY_PORT_2 : self.priority_port_2(),
             DPlaceholder.RPC_BIND_PORT : self.rpc_bind_port(),
             DPlaceholder.SHOW_TIME_STATS : self.show_time_stats(),
-            DPlaceholder.STDIN_PATH : self.stdin(),
+            DPlaceholder.STDIN_PATH : self.stdin_path(),
             DPlaceholder.ZMQ_PUB_PORT : self.zmq_pub_port(),
             DPlaceholder.ZMQ_RPC_PORT : self.zmq_rpc_port(),
         }

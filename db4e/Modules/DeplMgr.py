@@ -120,7 +120,7 @@ class DeplMgr:
             os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
         
         # Path to STDIN named pipe
-        monerod.stdin(
+        monerod.stdin_path(
             os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), 
                             DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE))
         
@@ -166,7 +166,7 @@ class DeplMgr:
                                      DDef.API_DIR), exist_ok=True)
             os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
                                      DDef.RUN_DIR), exist_ok=True)
-            p2pool.stdin(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+            p2pool.stdin_path(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
                                       DDef.LOG_DIR, DFile.P2POOL_STDIN))
         return p2pool
 

@@ -33,7 +33,6 @@ class DDef(ConstGroup):
     DB4E_OLD_GROUP_ENVIRON: str  = "DB4E_OLD_GROUP"
     DB4E_PROCESS: str  = "db4e"
     DB4E_REFRESH: int  = 15
-    DB4E_SERVER: str = "Db4eServer"
     DB4E_SERVICE_FILE: str = "db4e.service"
     DB4E_START_SCRIPT: str = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: str = "db4e-uninstall-service.sh"

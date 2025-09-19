@@ -32,11 +32,12 @@ class P2PoolWatcher:
 
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str, 
-            stop_event: threading.Event):
+            stop_event: threading.Event, p2pool_stdin: str):
         self.mining_db = mining_db
         self._chain = chain
         self._log_file = log_file
         self._stop_event = stop_event
+        self._p2pool_stdin = p2pool_stdin
 
 
     def chain(self):
@@ -48,7 +49,6 @@ class P2PoolWatcher:
             self.is_pool_hashrate
         ]
         return handlers
-
 
 
     def is_pool_hashrate(self, log_line):
@@ -189,6 +189,11 @@ class P2PoolWatcher:
             except Exception as e:
                 print(f"{self.__class__.__name__}:monitor_log(): ERROR: {e}")
                 time.sleep(1)
+
+    def p2pool_stdin(self, p2pool_stdin=None) -> str:
+        if p2pool_stdin is not None:
+            self._p2pool_stdin = p2pool_stdin
+        return self._p2pool_stdin
 
 
     def stop_event(self):

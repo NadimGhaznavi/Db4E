@@ -9,7 +9,7 @@ db4e/Modules/InternalP2PoolWatcher.py
 
 Everything P2Pool
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from bson.decimal128 import Decimal128
 import threading
@@ -41,6 +41,26 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         self._stats_mod = stats_mod
         self._stop_event = stop_event
         self._stats_mod = stats_mod
+
+        self.running = threading.Event()
+        self.running.set()
+
+
+    def spawn_status_cmd(self):
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:spawn_status_cmd()")
+
+        stop_event = threading.Event()
+
+        def _runner():
+            try:
+                now = datetime.now(timezone.utc)
+                cur_minute = now.minute
+                if cur_minute % 5 == 0:
+                    pass
+            except:
+                pass
+
 
 
     def get_handlers(self):

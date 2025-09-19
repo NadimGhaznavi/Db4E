@@ -16,7 +16,7 @@ import time
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
-    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, Stdin)
+    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, StdinPath)
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -45,7 +45,7 @@ class P2Pool(LocalSoftwareSystem):
         self.add_component(DField.OUT_PEERS, OutPeers())
         self.add_component(DField.P2P_PORT, P2PPort())
         self.add_component(DField.PARENT, Parent())
-        self.add_component(DField.STDIN, Stdin())
+        self.add_component(DField.STDIN_PATH, StdinPath())
         self.add_component(DField.STRATUM_PORT, StratumPort())
         self.add_component(DField.USER_WALLET, UserWallet())
         self.add_component(DField.VERSION, Version())
@@ -63,7 +63,7 @@ class P2Pool(LocalSoftwareSystem):
         self.p2p_port = self.components[DField.P2P_PORT]
         self.parent = self.components[DField.PARENT]
         self.stratum_port = self.components[DField.STRATUM_PORT]
-        self.stdin = self.components[DField.STDIN]
+        self.stdin_path = self.components[DField.STDIN_PATH]
         self.user_wallet = self.components[DField.USER_WALLET]
         self.version = self.components[DField.VERSION]
         self.version(DDef.P2POOL_VERSION)
@@ -124,6 +124,11 @@ class P2Pool(LocalSoftwareSystem):
             self._instance_map = map
         return self._instance_map
     
+
+    def stdin_path(self, p2pool_stdin=None) -> str:
+        if p2pool_stdin is not None:
+            self._p2pool_stdin = p2pool_stdin
+        return self._p2pool_stdin
 
 
 

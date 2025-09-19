@@ -51,7 +51,7 @@ class InternalP2Pool(P2Pool):
             self.from_rec(rec)
 
 
-    def set_type(self, chain_label, log_file, stats_mod):
+    def set_type(self, chain_label, log_file, stats_mod, stdin_path):
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]
@@ -64,6 +64,7 @@ class InternalP2Pool(P2Pool):
         self.instance(chain_label)
         self.user_wallet(DDef.DONATION_WALLET)
         self.log_file(log_file)
+        self.stdin_path(stdin_path)
         self.stats_mod(stats_mod)
 
 

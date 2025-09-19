@@ -213,9 +213,9 @@ class StatsMod(Component):
         super().__init__(DField.STATS_MOD, DLabel.STATS_MOD)
 
 
-class Stdin(Component):
+class StdinPath(Component):
     def __init__(self):
-        super().__init__(DField.STDIN, DLabel.STDIN)
+        super().__init__(DField.STDIN_PATH, DLabel.STDIN_PATH)
 
 
 class StratumPort(Component):
