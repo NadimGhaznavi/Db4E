@@ -13,6 +13,7 @@ from db4e.Constants.DField import DField
 
 # Mongo
 class DMongo(ConstGroup):
+    CHAIN : str = "chain"
     COLLECTION : str = "collection"
     CONFIG : str = "config"
     DB : str = "db"

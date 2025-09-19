@@ -10,8 +10,8 @@ db4e/Modules/InternalP2Pool.py
 """
 
 from db4e.Modules.P2Pool import P2Pool
-
 from db4e.Modules.Components import StatsMod
+from db4e.Modules.Helper import get_component_value, set_component_value
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -38,11 +38,12 @@ class InternalP2Pool(P2Pool):
 
     def __init__(self, rec=None):
         super().__init__()
+        self._elem_type = DElem.INT_P2POOL
+        self.name = DLabel.P2POOL_INTERNAL
 
         self.add_component(DField.STATS_MOD, StatsMod())
         self._stats_mod = self.components[DField.STATS_MOD]
 
-        self._elem_type = DElem.INT_P2POOL
         self.in_peers(2)
         self.out_peers(2)
 
@@ -71,4 +72,18 @@ class InternalP2Pool(P2Pool):
             self._stats_mod = stats_mod
         return self._stats_mod
         
+
+    def from_rec(self, rec):
+        super().from_rec(rec)
+        self.stats_mod(get_component_value(rec, DField.STATS_MOD))
+
+
+    def to_rec(self):
+        rec = super().to_rec()
+        set_component_value(rec, { DField.STATS_MOD: self.stats_mod() })
+        return rec
+        
+
+                       
+
 

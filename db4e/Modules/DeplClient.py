@@ -241,6 +241,7 @@ class DeplClient:
         elif type(elem) == P2Pool:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
             print(f"DeplClient:get_deployment(): instance map: {elem.instance_map()}")
+        print(f"DeplClient:get_deployment(): {elem}")
         return elem
 
     def get_deployment_by_id(self, id):

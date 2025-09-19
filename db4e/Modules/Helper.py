@@ -119,7 +119,7 @@ def result_row(label: str, status: str, msg:str ):
     return {label: {'status': status, 'msg': msg}}
 
 
-def update_component_values(rec, updates):
+def set_component_value(rec, updates):
     """Updates multiple component values in a deployment record from a dictionary.
 
     This function iterates through the 'components' list of a given record.

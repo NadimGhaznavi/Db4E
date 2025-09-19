@@ -19,11 +19,13 @@ import os
 import re
 
 
-from db4e.Constants.DField import DField
-
 from db4e.Modules.MiningDb import MiningDb
+from db4e.Constants.DField import DField
+from db4e.Constants.DDebug import DDebug
 
 
+
+DDebug.FUNCTION = True
 
 class P2PoolWatcher:
 
@@ -181,25 +183,25 @@ class P2PoolWatcher:
                         for handler in self.get_handlers():
                             handler(log_line)
 
-                        # === your regex handlers ===
-                        #self.is_miner_stats(log_line)
-                        #self.is_share_found(log_line)
-                        #self.is_share_position(log_line)
-                        #self.is_block_found(log_line)
-                        #self.is_xmr_payment(log_line)
-                        #self.is_side_chain_hashrate(log_line)
-                        #self.is_main_chain_hashrate(log_line)
-                        #self.is_pool_hashrate(log_line)
-
             except FileNotFoundError:
                 # File not created yet, retry later
                 time.sleep(1)
             except Exception as e:
-                print(f"P2PoolWatcher:monitor_log(): ERROR: {e}")
+                print(f"{self.__class__.__name__}:monitor_log(): ERROR: {e}")
                 time.sleep(1)
 
 
     def stop_event(self):
         return self._stop_event
 
+
+    # === regex handlers ===
+    #self.is_miner_stats(log_line)
+    #self.is_share_found(log_line)
+    #self.is_share_position(log_line)
+    #self.is_block_found(log_line)
+    #self.is_xmr_payment(log_line)
+    #self.is_side_chain_hashrate(log_line)
+    #self.is_main_chain_hashrate(log_line)
+    #self.is_pool_hashrate(log_line)
 

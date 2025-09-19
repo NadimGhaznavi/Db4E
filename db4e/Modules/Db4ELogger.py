@@ -31,9 +31,9 @@ LOG_LEVELS = {
 }
 
 class Db4ELogger:
-    def __init__(self, elem_type: str, db=False, log_file=None):
-        logger_name = f'{DElem.DB4E}.{elem_type}'
-        self._elem_type = elem_type
+    def __init__(self, db4e_module: str, db=False, log_file=None):
+        logger_name = f'{db4e_module}'
+        self._db4e_module = db4e_module
         self._logger = logging.getLogger(logger_name)
 
         # Set the logger log level, should always be 'debug'
@@ -66,27 +66,27 @@ class Db4ELogger:
     # Basic log message handling, wraps Python's logging object
     def info(self, message, extra=None):
         extra = extra or {} # Make sure extra isn't 'None'
-        extra[DField.ELEMENT_TYPE] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.info(message, extra=extra)
 
     def debug(self, message, extra=None):
         extra = extra or {} 
-        extra[DField.ELEMENT_TYPE] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.debug(message, extra=extra)
 
     def warning(self, message, extra=None):
         extra = extra or {} 
-        extra[DField.ELEMENT_TYPE] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.warning(message, extra=extra)
 
     def error(self, message, extra=None):
         extra = extra or {} 
-        extra[DField.ELEMENT_TYPE] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.error(message, extra=extra)
 
     def critical(self, message, extra=None):
         extra = extra or {} 
-        extra[DField.ELEMENT_TYPE] = self._elem_type
+        extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.critical(message, extra=extra)
             
 

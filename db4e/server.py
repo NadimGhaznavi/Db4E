@@ -50,6 +50,7 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DDir import DDir
 from db4e.Constants.DJob import DJob
 from db4e.Constants.DFile import DFile
+from db4e.Constants.DModule import DModule
 
 
 DDebug.FUNCTION = False
@@ -71,9 +72,6 @@ class Db4eServer:
         # Mongo DB Manager
         self.db = DbMgr()
 
-        # Mining DB object (part of the DAL)
-        self.mining_db = MiningDb(db=self.db)
-
         # Database Cache
         self.db_cache = DbCache(db=self.db)
 
@@ -89,12 +87,13 @@ class Db4eServer:
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
-        self.log = Db4ELogger(
-            elem_type=DDef.DB4E_SERVER,
-            log_file=fq_log_file
-        )
+        self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
+
         if DDebug.FUNCTION:
             self.log.debug("DEBUG Db4eServer.__init__():")
+
+        # Mining DB object (part of the DAL)
+        self.mining_db = MiningDb(db=self.db, log_file=fq_log_file)
 
         # {instance_name: (thread, stop_event)}
         self.log_watchers = {}
@@ -466,6 +465,7 @@ class Db4eServer:
                         mining_db=self.mining_db,
                         chain=p2pool.chain(),
                         log_file=p2pool.log_file(),
+                        stats_mod=p2pool.stats_mod(),
                         stop_event=stop_event
                     )
                 else:

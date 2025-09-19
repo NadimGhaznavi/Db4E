@@ -14,25 +14,20 @@ from db4e.Constants.DField import DField
 class DMining(ConstGroup):
     """
     Mining related constants
+
+    CAUTION: Modifying these will change the effective DB Schema
     """
 
-    ACTIVE: str = DField.ACTIVE
-    BLOCK_FOUND_EVENT: str = 'block_found_event'
-    EFFORT: str = 'effort'
-    HASHRATE: str = 'hashrate'
-    INSTANCE: str = DField.INSTANCE
+    ACTIVE: str = "active"
+    BLOCK_FOUND_EVENT: str = "block_found_event"
+    EFFORT: str = "effort"
+    HASHRATE: str = "hashrate"
+    INSTANCE: str = "instance"
     IP_ADDR = DField.IP_ADDR
-    MAINCHAIN_HASHRATE: str = 'mainchain_hashrate'
-    MINER: str = 'miner'
-    POOL_HASHRATE: str = 'pool_hashrate'
-    RT_MAINCHAIN_HASHRATE: str = 'rt_mainchain_hashrate'
-    RT_POOL_HASHRATE: str = 'rt_pool_hashrate'
-    RT_SIDECHAIN_HASHRATE: str = 'rt_sidechain_hashrate'
-    SHARE_FOUND_EVENT: str = 'share_found_event'
-    SHARE_POSITION: str = 'share_position'
-    SHARE_FOUND_EVENT: str = 'share_found_event'
-    SHARE_POSITION: str = 'share_position'
-    SIDECHAIN_HASHRATE: str = 'sidechain_hashrate'
-    SIDECHAIN_MINERS: str = 'sidechain_miners'
-    WALLET_BALANCE: str = 'wallet_balance'
-    XMR_PAYMENT: str = 'xmr_payment'
+    MINER: str = "miner"
+    RT_HASHRATE: str = "rt_hashrate"
+    SHARE_FOUND_EVENT: str = "share_found_event"
+    SHARE_POSITION: str = "share_position"
+    MINERS: str = "miners"
+    WALLET_BALANCE: str = "wallet_balance"
+    XMR_PAYMENT: str = "xmr_payment"

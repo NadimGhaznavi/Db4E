@@ -12,8 +12,10 @@ from db4e.Modules.ConstGroup import ConstGroup
 
 # Modules
 class DModule(ConstGroup):
+    DB4E_SERVER: str = "Db4eServer"
     DEPLOYMENT_CLIENT : str = "DeploymentClient"
     DEPLOYMENT_MGR : str = "DeploymentMgr"
     INSTALL_MGR : str = "InstallMgr"
+    MINING_DB : str = "MiningDb"
     OPS_MGR : str = "OpsManager"
     PANE_MGR : str = "PaneMgr"

@@ -48,12 +48,12 @@ class Db4EPane(Container):
     radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
 
     def compose(self):
-        INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core[/] " \
-            f"[{hi}]configuration screen[/]. On this screen you can update your " \
+        INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core " \
+            f"configuration screen[/]. On this screen you can update your " \
             f"[{hi}]Monero Wallet[/], [{hi}]Primary Server[/] and relocate the " \
             f"[{hi}]Deployment Directory[/]. The [{hi}]Primary Server[/] is the " \
             f"[{hi}]Monero server[/] that is used by the internal [i]Main[/], " \
-            f"[i]Mini[/] and [i]Nano[/i] [{hi}]P2Pool servers[/] that collect  " \
+            f"[i]Mini[/] and [i]Nano[/i] [{hi}]P2Pool servers[/] that collect " \
             f"chain metrics data." 
         yield Vertical(
             ScrollableContainer(

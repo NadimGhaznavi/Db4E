@@ -22,6 +22,9 @@ from db4e.Modules.P2PoolWatcher import P2PoolWatcher
 from db4e.Modules.MiningDb import MiningDb
 
 from db4e.Constants.DField import DField
+from db4e.Constants.DDebug import DDebug
+
+DDebug.FUNCTION = False
 
 
 class InternalP2PoolWatcher(P2PoolWatcher):
@@ -37,6 +40,7 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         self._log_file = log_file
         self._stats_mod = stats_mod
         self._stop_event = stop_event
+        self._stats_mod = stats_mod
 
 
     def get_handlers(self):
@@ -50,7 +54,9 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         return handlers
 
 
-    def get_sidechain_miners(self):
+    def get_num_miners(self):
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:get_sidechain_miners()")
         """
         Sample API stats_mod contents (one line...):
 
@@ -60,7 +66,6 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         "blocks":["0000...0000:0","0"],
         "miners":306,"hashrate":2335864,"roundHashes":19272205524784}}
         """
-        
         stats_mod = self.stats_mod()
         if not os.path.exists(stats_mod):
             raise ValueError(f"InternalP2PoolWatcher:get_sidechain_miners(): API file ({stats_mod}) not found")
@@ -77,14 +82,15 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         2024-11-09 19:52:19.1734 P2Pool BLOCK FOUND: main chain block at height 3277801 was mined by someone else in this p2pool
 
         """
-        print(f"is_block_found: {log_line}")
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_block_found()")
         pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} P2Pool BLOCK FOUND"
         match = re.search(pattern, log_line)
         if match:
             timestamp = match.group('timestamp')
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
             # Create a new blocks_found_event in the DB
-            self.mining_db.add_block_found(timestamp)
+            self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
             print(f"Block found: {timestamp}")
 
 
@@ -95,13 +101,18 @@ class InternalP2PoolWatcher(P2PoolWatcher):
         Main chain hashrate       = 3.105 GH/s
         Main chain hashrate       = 5.079 GH/s
         """
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_main_chain_hashrate()")
         pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
         match = re.search(pattern, log_line)
         localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_mainchain_hashrate(hashrate)
-            print(f"Detected mainchain hashrate ({hashrate})")
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+
+            # While we're at it, let's also collect the number of miners on the chain
+            num_miners = self.get_num_miners()
+            self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
 
 
     def is_side_chain_hashrate(self, log_line):
@@ -110,18 +121,20 @@ class InternalP2PoolWatcher(P2PoolWatcher):
 
         Side chain hashrate       = 12.291 MH/s
         """
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_side_chain_hashrate()")
         pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
         match = re.search(pattern, log_line)
         localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_sidechain_hashrate(hashrate)
-            print(f'Detected sidechain hashrate ({hashrate})')
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
 
-            # While we're at it, let's also collect the number of miners 
-            # on the sidechain at this time.
-            sidechain_miners = self.get_sidechain_miners()
-            self.mining_db.add_sidechain_miners(sidechain_miners)
-            print(f'Detected sidechain miners ({sidechain_miners})')
+            # While we're at it, let's also collect the number of miners on the chain
+            num_miners = self.get_num_miners()
+            self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
 
-
+    def stats_mod(self, stats_mod=None):
+        if stats_mod is not None:
+            self._stats_mod = stats_mod
+        return self._stats_mod
