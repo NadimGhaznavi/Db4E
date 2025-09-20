@@ -32,7 +32,7 @@ MONERODS_MAP = "monerods_map"
 P2POOLS_MAP = "p2pools_map"
 XMRIGS_MAP = "xmrigs_map"
 
-
+POLL_INTERVAL = 5
 
 class DbCache:
     
@@ -56,20 +56,20 @@ class DbCache:
     def bg_build_cache(self):
         while True:
             self.build_cache()
-            time.sleep(2)
+            time.sleep(POLL_INTERVAL)
 
 
     def build_cache(self):
         with self._lock:
             recs = self.db.find_many(self.depl_col, {})
-            #print(f"DbCache:build_cache(): # recs: {len(recs)}")
+            print(f"DbCache:build_cache(): # recs: {len(recs)}")
 
             seen_ids = set()
 
             count = 1
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
-                #print(f"[{count}/{len(recs)}]: {elem_type}")
+                print(f"[{count}/{len(recs)}]: {elem_type}")
                 count += 1
 
                 obj_id = rec[DField.OBJECT_ID]
@@ -80,7 +80,11 @@ class DbCache:
                     elem = self.id_map[obj_id]
                     elem.from_rec(rec)
 
-                    if elem_type == DElem.XMRIG:
+                    if elem_type == DElem.DB4E:
+                        self.db4e = elem
+                        print(f"DbCache:build_cache(): 1. db4e.vendor_dir(): {elem.vendor_dir()}")
+
+                    elif elem_type == DElem.XMRIG:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
                         if type(elem.p2pool) == P2Pool or type(elem.p2pool) == P2PoolRemote:
                             self.p2pool_map[elem.p2pool.instance()] = elem.p2pool
@@ -106,8 +110,10 @@ class DbCache:
                 else:
                     # Create new object
                     if elem_type == DElem.DB4E:
-                        elem = Db4E(rec)
-                        self.db4e = elem
+                        # Special case this
+                        db4e_rec = self.db.find_one(self.depl_col, {DField.ELEMENT_TYPE: DElem.DB4E})
+                        elem = Db4E(db4e_rec)
+                        print(f"DbCache:build_cache(): 2. db4e.vendor_dir(): {elem.vendor_dir()}")
                     elif elem_type == DElem.MONEROD:
                         elem = MoneroD(rec)
                         self.monerod_map[elem.instance()] = elem
@@ -186,7 +192,7 @@ class DbCache:
                     del self.xmrig_map[instance]
 
 
-    def get_deployment(self, elem_type, instance):
+    def get_deployment(self, elem_type, instance=None):
         #print(f"DbCache:get_deployment(): {elem_type} {instance}")
         #print(f"DbCache:get_deployment(): monerod_map: {self.monerod_map}")
         #print(f"DbCache:get_deployment(): p2pool_map: {self.p2pool_map}")
@@ -225,12 +231,6 @@ class DbCache:
         return [self.db4e] + list(self.monerod_map.values()) + \
             list(self.p2pool_map.values()) + list(self.xmrig_map.values()) + \
             list(self.int_p2pool_map.values())
-
-
-    def get_db4e(self):
-        db4e = deepcopy(self.db4e)
-        db4e.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
-        return db4e
 
 
     def get_deployment_by_id(self, id):
@@ -327,7 +327,12 @@ class DbCache:
             print(f"DbCache:update_one(): {elem}")
             self.db.update_one(self.depl_col, { DField.OBJECT_ID: elem.id() }, elem.to_rec())
 
-            if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            if type(elem) == Db4E:
+                self.db4e = elem
+                self.id_map[elem.id()] = elem
+                print(f"DbCache:update_one(): db4e.vendor_dir(): {elem.vendor_dir()}")
+
+            elif type(elem) == MoneroD or type(elem) == MoneroDRemote:
                 self.monerod_map[elem.instance()] = elem
                 self.id_map[elem.id()] = elem
 

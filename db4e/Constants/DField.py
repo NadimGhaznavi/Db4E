@@ -139,6 +139,7 @@ class DField(ConstGroup) :
     VALUE : str = "value"
     VERSION : str = "version"
     WALLET : str = "wallet"
+    WORKERS : str = "workers"
     XMRIGS : str = "xmrigs"
     XMRIGS_MAP : str = "xmrigs_map"
     ZMQ_PUB_PORT : str = "zmq_pub_port"

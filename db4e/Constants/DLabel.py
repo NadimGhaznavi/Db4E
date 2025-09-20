@@ -68,6 +68,7 @@ class DLabel(ConstGroup):
     P2P_BIND_PORT : str = "P2P Bind Port"
     P2POOL : str = "P2Pool Daemon"
     P2POOL_INTERNAL : str = "Internal P2Pool Daemon"
+    P2POOL_INTERNAL_SHORT : str = "Internal P2Pool"
     P2POOL_REMOTE : str = "Remote P2Pool Daemon"
     P2POOL_REMOTE_SHORT : str = "Remote P2Pool"
     P2POOL_SHORT : str = "P2Pool"

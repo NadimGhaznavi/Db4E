@@ -195,7 +195,7 @@ class Db4eServer:
             self.log.debug(f"DEBUG Db4eServer:delete(): {job}")
         elem_type = job.elem_type()
         instance = job.instance()
-        self.log.info(f"Deleting {elem_type}/{instance}")
+        self.log.info(f"Job: Deleting {elem_type}/{instance}")
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         job.msg("Deleted deployment")
         if type(elem) == XMRig:
@@ -240,7 +240,6 @@ class Db4eServer:
 
         if not elem.enabled():
             return
-
         job.msg(f"Disabled deployment")
         elem.disable()
         self.depl_mgr.update_deployment(elem)
@@ -248,7 +247,7 @@ class Db4eServer:
         if type(elem) == P2Pool or type(elem) == MoneroD or \
             type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.disable_downstream(elem)
-        self.log.critical(f"Disabled deployment {elem}")
+        self.log.info(f"Disable: {elem}")
 
 
     def disable_downstream(self, elem):
@@ -273,9 +272,9 @@ class Db4eServer:
         elem_type = job.elem_type()
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-
         if elem.enabled():
             return
+        self.log.info(f"Enable: {elem}")
         
         job.msg(f"Enabled deployment")
         elem.enable()
@@ -313,7 +312,7 @@ class Db4eServer:
         self.starting.add(instance)
         rc = sd.start()
         if rc == 0:
-            self.log.critical(f'Started {elem}')
+            self.log.info(f'Started: {elem}')
         else:
             self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
             self.stopping.discard(instance)
@@ -351,11 +350,12 @@ class Db4eServer:
         self.stopping.add(instance)
         rc = sd.stop()
         if rc == 0:
-            self.log.critical(f'Stopped {elem}')
-            if isinstance(elem,P2Pool):
-                watcher = self.log_watchers.pop(instance, None)
-                if watcher:
-                    thread, stop_event = watcher
+            self.log.info(f'Stopped: {elem}')
+            if isinstance(elem, P2Pool):
+                control = self.log_watchers.pop(instance, None)
+                if control:
+                    thread, stop_event, watcher = control
+                    watcher.stop_sub_thread()
                     stop_event.set()
                     thread.join()
         else:
@@ -410,7 +410,7 @@ class Db4eServer:
                 self.ensure_running(p2pool)
 
 
-    def set_primary(self, job):
+    def UNUSED_set_primary(self, job):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:set_primary(): {job}")
         monerod = job.elem()
@@ -449,46 +449,50 @@ class Db4eServer:
             return
 
         stop_event = threading.Event()
+        # User defined, local P2Pool instance
+        if type(p2pool) == P2Pool:
+            watcher = P2PoolWatcher(
+                mining_db=self.mining_db,
+                chain=p2pool.chain(),
+                log_file=p2pool.log_file(),
+                stdin_path=p2pool.stdin_path(),
+                stop_event=stop_event,
+            )
+        elif type(p2pool) == InternalP2Pool:
+            watcher = InternalP2PoolWatcher(
+                mining_db=self.mining_db,
+                chain=p2pool.chain(),
+                log_file=p2pool.log_file(),
+                stdin_path=p2pool.stdin_path(),
+                stop_event=stop_event,
+                stats_mod=p2pool.stats_mod(),
+            )
+        else:
+            raise ValueError(
+                f"spawn_log_watcher(): Unknown deployment type: {type(p2pool)}")
 
         def _runner():
             try:
-                # User defined, local P2Pool instance
-                if type(p2pool) == P2Pool:
-                    watcher = P2PoolWatcher(
-                        mining_db=self.mining_db,
-                        chain=p2pool.chain(),
-                        log_file=p2pool.log_file(),
-                        stop_event=stop_event
-                    )
-                elif type(p2pool) == InternalP2Pool:
-                    watcher = InternalP2PoolWatcher(
-                        mining_db=self.mining_db,
-                        chain=p2pool.chain(),
-                        log_file=p2pool.log_file(),
-                        stats_mod=p2pool.stats_mod(),
-                        stop_event=stop_event
-                    )
-                else:
-                    raise ValueError(
-                        f"spawn_log_watcher(): Unknown deployment type: {type(p2pool)}")
-
                 watcher.monitor_log()
             finally:
                 # Cleanup on exit
+                watcher.stop_sub_thread()
                 self.log_watchers.pop(instance, None)
 
+
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
-        self.log_watchers[instance] = (t, stop_event)
+        self.log_watchers[instance] = (t, stop_event, watcher)
         t.start()
+        self.log.info(f"Started P2Pool watcher: {instance}")
 
 
     def update(self, job):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:update(): {job}")
         elem = job.elem()
-        self.log.debug(f"Db4eServer:update(): {elem}")
 
         elem = self.depl_mgr.update_deployment(elem)
+        self.log.info(f"Updated: {elem}")
 
         msgs = ""
         for msg in elem.pop_msgs():

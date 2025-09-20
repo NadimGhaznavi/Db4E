@@ -116,7 +116,7 @@ class MiningDb():
             DMongo.DOC_TYPE: DMining.MINERS,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
-            DMining.MINERS: num_miners
+            DMongo.MINERS: num_miners
         }
         existing = self.db.find_one(self.mining_col, {
             DMongo.DOC_TYPE: DMining.MINERS, DMongo.CHAIN: chain,
@@ -132,7 +132,7 @@ class MiningDb():
             self.log.info(f'Created new {chain} miners ({num_miners}) record')
 
 
-    def add_pool_hashrate(self, hashrate):
+    def add_pool_hashrate(self, chain, hashrate):
         """
         Store the pool hashrate
         """
@@ -142,8 +142,9 @@ class MiningDb():
         rt_timestamp = datetime.now(timezone.utc)
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE,
+            DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: rt_timestamp,
-            DMining.HASHRATE: hashrate
+            DMongo.HASHRATE: hashrate
         }
         existing = self.db.find_one(self.mining_col, {
               DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE,
@@ -151,7 +152,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {'$set': {DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp}})
+                {DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp})
             print(f'Updated existing real-time pool hashrate ({hashrate}) record')
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -161,24 +162,26 @@ class MiningDb():
         timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
         jdoc = {
             DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
+            DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
-            DMining.HASHRATE: hashrate
+            DMongo.HASHRATE: hashrate
         }
         existing = self.db.find_one(self.mining_col, {
             DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
+            DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp
         })
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {'$set': {DMining.HASHRATE: hashrate }})
+                {DMining.HASHRATE: hashrate })
             print(f'Updated existing pool hashrate ({hashrate}) record')
         else:
             self.db.insert_one(self.mining_col, jdoc)
             print(f'Created new real-time pool hashrate ({hashrate}) record')
 
 
-    def add_share_found(self, timestamp, miner, ip_addr, effort):
+    def add_share_found(self, chain, timestamp, miner, ip_addr, effort):
         """
         Create a JSON document and pass it to the Db4eDb to be added to the backend database
         """
@@ -187,15 +190,16 @@ class MiningDb():
         jdoc = {
             DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT,
             DMongo.TIMESTAMP: timestamp,
-            DMining.MINER: miner,
-            DMining.IP_ADDR: ip_addr,
+            DMongo.MINER: miner,
+            DMongo.CHAIN: chain,
+            DMongo.IP_ADDR: ip_addr,
             DMining.EFFORT: effort
         }
         self.db.insert_uniq_by_timestamp(self.mining_col, jdoc)
         print(f'New share found record', { DMining.MINER: miner })
 
 
-    def add_share_position(self, timestamp, position):
+    def add_share_position(self, chain, timestamp, position):
         """
         Store the share position
         """
@@ -205,6 +209,7 @@ class MiningDb():
         timestamp = datetime.now(timezone.utc)
         jdoc = {
             DMongo.DOC_TYPE: DMining.SHARE_POSITION,
+            DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
             DMining.SHARE_POSITION : position
         }
@@ -218,52 +223,6 @@ class MiningDb():
         else:
             self.db.insert_one(self.mining_col, jdoc)
             print(f'Created a new share position ({position}) record')
-
-
-    def add_sidechain_hashrate(self, hashrate):
-        """
-        Store the sidechain hashrate
-        """
-        if DDebug.FUNCTION:
-            print(f"MiningDb:add_sidechain_hashrate")
-        # Update the 'realtime' (rt) record first
-        rt_timestamp = datetime.now(timezone.utc)
-        jdoc = {
-            DMongo.DOC_TYPE: DMining.RT_SIDECHAIN_HASHRATE,
-            DMongo.TIMESTAMP: rt_timestamp,
-            DMining.HASHRATE: hashrate
-        }
-        existing = self.db.find_one(self.mining_col, {
-            DMongo.DOC_TYPE: DMining.RT_SIDECHAIN_HASHRATE,
-        })
-        if existing:
-            self.db.update_one(
-                self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {'$set': {DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp}})
-            print(f'Updated existing real-time sidechain hashrate ({hashrate}) record')
-        else:
-            self.db.insert_one(self.mining_col, jdoc)
-            print(f'Created new real-time sidechain hashrate ({hashrate}) record')
-
-        # Update the historical, hourly record next
-        timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
-        jdoc = {
-            DMongo.DOC_TYPE: DMining.SIDECHAIN_HASHRATE,
-            DMongo.TIMESTAMP: timestamp,
-            DMining.HASHRATE: hashrate
-        }
-        existing = self.db.find_one(self.mining_col, {
-            DMongo.DOC_TYPE: DMining.SIDECHAIN_HASHRATE,
-            DMongo.TIMESTAMP: timestamp
-        })
-        if existing:
-            self.db.update_one(
-                self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {'$set': {DMining.HASHRATE: hashrate }})
-            print(f'Updated existing sidechain hashrate ({hashrate}) record')
-        else:
-            self.db.insert_one(self.mining_col, jdoc)
-            print(f'Created new real-time sidechain hashrate ({hashrate}) record')
 
 
     def add_to_wallet(self, amount):

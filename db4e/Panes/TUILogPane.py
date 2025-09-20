@@ -24,6 +24,8 @@ from db4e.Constants.DField import DField
 
 
 TYPE_TABLE = {
+    DElem.DB4E: DLabel.DB4E,
+    DElem.INT_P2POOL: DLabel.P2POOL_INTERNAL_SHORT,
     DElem.MONEROD: DLabel.MONEROD_SHORT,
     DElem.MONEROD_REMOTE: DLabel.MONEROD_REMOTE_SHORT,
     DElem.P2POOL: DLabel.P2POOL_SHORT,

@@ -10,13 +10,14 @@ db4e/Modules/P2PoolWatcher.py
 Everything P2Pool
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from bson.decimal128 import Decimal128
 import threading
 import time
 import os
 import re
+import errno
 
 
 from db4e.Modules.MiningDb import MiningDb
@@ -32,12 +33,14 @@ class P2PoolWatcher:
 
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str, 
-            stop_event: threading.Event, p2pool_stdin: str):
+            stop_event: threading.Event, stdin_path: str, stats_mod=None):
         self.mining_db = mining_db
         self._chain = chain
         self._log_file = log_file
         self._stop_event = stop_event
-        self._p2pool_stdin = p2pool_stdin
+        self._stdin_path = stdin_path
+        self.thread_control = None
+        self._stats_mod = stats_mod
 
 
     def chain(self):
@@ -45,10 +48,103 @@ class P2PoolWatcher:
     
 
     def get_handlers(self):
-        handlers = [
-            self.is_pool_hashrate
-        ]
+
+        if self.stats_mod():
+            # This is only used when the P2PoolWatcher is watching an internal P2Pool
+            handlers = [
+                self.is_block_found,
+            ]
+            if self.chain == DField.MAIN_CHAIN:
+                handlers.extend([ self.is_main_chain_hashrate ])
+            else:
+                handlers.extend([ self.is_side_chain_hashrate ])            
+
+        else:
+            handlers = [
+                self.is_pool_hashrate
+            ]
         return handlers
+
+
+    def get_num_miners(self):
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:get_sidechain_miners()")
+        """
+        Sample API stats_mod contents (one line...):
+
+        {"config":{"ports":[{"port":3333,"tls":false}],
+        "fee":0,"minPaymentThreshold":300000000},"network":
+        {"height":3502949},"pool":{"stats":{"lastBlockFound":"0000"},
+        "blocks":["0000...0000:0","0"],
+        "miners":306,"hashrate":2335864,"roundHashes":19272205524784}}
+        """
+        stats_mod = self.stats_mod()
+        if not os.path.exists(stats_mod):
+            raise ValueError(f"InternalP2PoolWatcher:get_sidechain_miners(): API file ({stats_mod}) not found")
+        with open(stats_mod, 'r') as file:
+            api_string_data = file.read()
+            api_data = json.loads(api_string_data)
+            return api_data[DField.POOL][DField.MINERS]
+            
+      
+    def is_block_found(self, log_line):
+        """
+        Sample log messages to watch for:
+
+        2024-11-09 19:52:19.1734 P2Pool BLOCK FOUND: main chain block at height 3277801 was mined by someone else in this p2pool
+
+        """
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_block_found()")
+        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} P2Pool BLOCK FOUND"
+        match = re.search(pattern, log_line)
+        if match:
+            timestamp = match.group('timestamp')
+            timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
+            # Create a new blocks_found_event in the DB
+            self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
+            print(f"Block found: {timestamp}")
+
+
+    def is_main_chain_hashrate(self, log_line):
+        """
+        Sample log message to watch for:
+
+        Main chain hashrate       = 3.105 GH/s
+        Main chain hashrate       = 5.079 GH/s
+        """
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_main_chain_hashrate()")
+        pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
+        match = re.search(pattern, log_line)
+        localtime = datetime.now().strftime("%H:%M")
+        if match:
+            hashrate = match.group('hashrate')
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+
+            # While we're at it, let's also collect the number of miners on the chain
+            num_miners = self.get_num_miners()
+            self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
+
+
+    def is_side_chain_hashrate(self, log_line):
+        """
+        Sample log message to watch for:
+
+        Side chain hashrate       = 12.291 MH/s
+        """
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:is_side_chain_hashrate()")
+        pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
+        match = re.search(pattern, log_line)
+        localtime = datetime.now().strftime("%H:%M")
+        if match:
+            hashrate = match.group('hashrate')
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+
+            # While we're at it, let's also collect the number of miners on the chain
+            num_miners = self.get_num_miners()
+            self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
 
 
     def is_pool_hashrate(self, log_line):
@@ -63,8 +159,7 @@ class P2PoolWatcher:
         localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_pool_hashrate(hashrate)
-            print(f"Detected pool hashrate ({hashrate})")
+            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate)
 
 
     def is_share_found(self, log_line):
@@ -74,7 +169,7 @@ class P2PoolWatcher:
         2024-11-10 00:47:47.5596 StratumServer SHARE FOUND: mainchain height 3277956, sidechain height 9143872, diff 126624856, client 192.168.0.86:37294, user sally, effort 91.663%
     
         """
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.* sidechain height (?P<height>\d+).*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<worker>.*), effort (?P<effort>\d+.\d+)"
+        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.* sidechain height (?P<height>\d+).*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<miner>.*), effort (?P<effort>\d+.\d+)"
         match = re.search(pattern, log_line)
         if match:
             sidechain_height = int(match.group('height'))
@@ -82,10 +177,11 @@ class P2PoolWatcher:
                 timestamp = match.group('timestamp')
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
                 ip_addr = match.group('ip_addr')
-                worker = match.group('worker')
+                miner = match.group('miner')
                 effort = float(match.group('effort'))
-                self.mining_db.add_share_found(timestamp, worker, ip_addr, effort)
-                print('Share found event', { 'miner': worker }) 
+                self.mining_db.add_share_found(
+                    chain=self.chain(), timestamp=timestamp, miner=miner, 
+                    ip_addr=ip_addr, effort=effort)
 
 
     def is_share_position(self, log_line):
@@ -107,7 +203,8 @@ class P2PoolWatcher:
         if match:
             position = '[..............................]'
             timestamp = datetime.now()
-            self.mining_db.add_share_position(timestamp, position)
+            self.mining_db.add_share_position(
+                chain=self.chain(), timestamp=timestamp, position=position)
             print(f'Detected share position ({position})')
 
 
@@ -155,10 +252,9 @@ class P2PoolWatcher:
 
     def monitor_log(self):
 
-        chain = self.chain()
+        self.spawn_p2pool_cmds()
         log_file = self.log_file()
-        stop_event = self.stop_event()
-
+        stop_event = threading.Event()
 
         while not stop_event.is_set():
             try:
@@ -190,14 +286,84 @@ class P2PoolWatcher:
                 print(f"{self.__class__.__name__}:monitor_log(): ERROR: {e}")
                 time.sleep(1)
 
-    def p2pool_stdin(self, p2pool_stdin=None) -> str:
-        if p2pool_stdin is not None:
-            self._p2pool_stdin = p2pool_stdin
-        return self._p2pool_stdin
+
+    def send_cmd(self, cmd: str):
+        if not cmd.endswith("\n"):
+            cmd += "\n"
+        encoded_cmd = cmd.encode("utf-8")  # encode explicitly for non-blocking write
+
+        try:
+            # Make sure the socket has been setup 
+            stdin_path = self.stdin_path()
+            if not os.path.exists(stdin_path):
+                return
+            fd = os.open(stdin_path, os.O_WRONLY | os.O_NONBLOCK)
+        except OSError as e:
+            if e.errno == errno.ENXIO:
+                # No reader yet
+                return
+            else:
+                raise
+
+        try:
+            os.write(fd, encoded_cmd)
+        finally:
+            os.close(fd)
 
 
-    def stop_event(self):
-        return self._stop_event
+    def send_status(self):
+        self.send_cmd(DField.STATUS)
+
+
+    def send_workers(self):
+        self.send_cmd(DField.WORKERS)
+
+
+    def stats_mod(self, stats_mod=None):
+        if stats_mod is not None:
+            self._stats_mod = stats_mod
+        return self._stats_mod
+
+
+    def stdin_path(self, stdin_path=None) -> str:
+        if stdin_path is not None:
+            self._stdin_path = stdin_path
+        return self._stdin_path
+
+
+    def spawn_p2pool_cmds(self):
+        if DDebug.FUNCTION:
+            print(f"InternalP2PoolWatcher:spawn_status_cmd()")
+
+        stop_event = threading.Event()
+
+        def _runner():
+            while not stop_event.is_set():
+                try:
+                    now = datetime.now(timezone.utc)
+                    cur_minute = now.minute
+                    if cur_minute == 0 or cur_minute % 5 == 0:
+                        self.send_status()
+                    self.send_workers()
+                    for _ in range(60):
+                        if stop_event.is_set():
+                            return
+                        time.sleep(1)
+                finally:
+                    pass
+
+        t = threading.Thread(target=_runner, name=f"Logwatcher-{self.chain()}", daemon=True)
+        self.thread_control = (t, stop_event)
+        t.start()
+
+
+    def stop_sub_thread(self):
+        if not self.thread_control:
+            return
+        t, stop_event = self.thread_control
+        stop_event.set()   # signal the thread to exit
+        t.join(timeout=2)
+        self.thread_control = None
 
 
     # === regex handlers ===

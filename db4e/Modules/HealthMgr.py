@@ -196,7 +196,6 @@ class HealthMgr:
 
 
     def check_p2pool(self, p2pool: P2Pool) -> P2Pool:
-        print(f"HealthMgr:check_p2pool(): instance map: {p2pool.instance_map()}")
         # Check for minssing fields
         missing_field = False
         if not p2pool.instance():

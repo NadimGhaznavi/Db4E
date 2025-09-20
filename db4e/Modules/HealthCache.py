@@ -96,6 +96,9 @@ class HealthCache:
         """
         
         if type(elem) == Db4E:
+            db4e = self.depl_client.get_db4e()
+            self.health_mgr.check(db4e)
+            self.db4e = db4e
             return self.db4e
         elif type(elem) == MoneroD or type(elem) == MoneroDRemote:
             try:

@@ -228,8 +228,7 @@ class DeplClient:
 
 
     def get_db4e(self):
-        return self.db_cache.get_db4e()
-
+        return self.get_deployment(DElem.DB4E)
 
     def get_deployment(self, elem_type: str, instance=None):
         #return self.db_cache.get_deployment(elem_type, instance)
@@ -296,7 +295,7 @@ class DeplClient:
 
 
     def is_initialized(self):
-        db4e = self.db_cache.get_db4e()
+        db4e = self.get_db4e()
         if db4e:
             if db4e.vendor_dir() and db4e.user_wallet():
                 return True

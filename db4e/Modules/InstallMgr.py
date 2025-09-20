@@ -19,8 +19,8 @@ from textual.containers import Container
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DbCache import DbCache
-from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.DeplMgr import DeplMgr
+from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.Helper import result_row
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 
@@ -55,6 +55,7 @@ class InstallMgr(Container):
 
         # This is the data from the form on the InitialSetup pane
         db4e = form_data[DField.ELEMENT]
+        
         db4e.pop_msgs()
         user_wallet = db4e.user_wallet()
         vendor_dir = db4e.vendor_dir()
@@ -76,12 +77,13 @@ class InstallMgr(Container):
         if abort_install:
             db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
             db4e.vendor_dir("") # Reset the vendor dir to null
-            self.depl_mgr.update_deployment(db4e)
+            self.db_cache.update_one(db4e)
             return db4e
         
 
         # We have everything we need to finish the install. Update the record.
-        self.depl_mgr.update_deployment(db4e)
+        self.db_cache.update_one(db4e)
+        db4e = self.db_cache.get_deployment(DElem.DB4E)
 
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(vendor_dir=vendor_dir, db4e=db4e)
@@ -145,7 +147,7 @@ class InstallMgr(Container):
             return db4e, abort_install
         
         db4e.user_wallet(user_wallet)
-        self.depl_mgr.update_one(db4e)
+        self.db_cache.update_one(db4e)
         db4e.msg(
             DLabel.USER_WALLET, DStatus.GOOD, f"Set the user wallet: {user_wallet[:7]}...")
 

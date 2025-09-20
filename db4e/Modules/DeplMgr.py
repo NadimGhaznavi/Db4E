@@ -159,7 +159,6 @@ class DeplMgr:
                         vendor_dir, DDir.P2POOL, p2pool.instance(), 
                         DDef.LOG_DIR, DFile.P2POOL_LOG))
                 
-            self.insert_one(p2pool)
             os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
                                      DDef.LOG_DIR), exist_ok=True)
             os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
@@ -167,7 +166,12 @@ class DeplMgr:
             os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
                                      DDef.RUN_DIR), exist_ok=True)
             p2pool.stdin_path(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                                      DDef.LOG_DIR, DFile.P2POOL_STDIN))
+                                      DDef.RUN_DIR, DFile.P2POOL_STDIN))
+            self.insert_one(p2pool)
+            job = Job(op=DJob.NEW, instance=p2pool.instance(), elem_type=DElem.INT_P2POOL)
+            job.msg("New instance")
+            self.job_queue.post_completed_job(job)
+
         return p2pool
 
 
@@ -291,7 +295,7 @@ class DeplMgr:
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
         elif aDir == DDir.VENDOR:
-            db4e = self.db_cache.get_db4e()
+            db4e = self.db_cache.get_deployment(DElem.DB4E)
             return db4e.vendor_dir()
 
         elif aDir == DElem.MONEROD:
@@ -391,7 +395,7 @@ class DeplMgr:
         update_flag = False
 
         # The current record, we'll update this and write it back in
-        db4e = self.db_cache.get_db4e()
+        db4e = self.db_cache.get_deployment(DElem.DB4E)
 
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:

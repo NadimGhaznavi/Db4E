@@ -11,7 +11,7 @@ Everything P2Pool
 """
 
 import os
-import time
+import errno
 
 from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
 from db4e.Modules.Components import(
@@ -124,12 +124,6 @@ class P2Pool(LocalSoftwareSystem):
             self._instance_map = map
         return self._instance_map
     
-
-    def stdin_path(self, p2pool_stdin=None) -> str:
-        if p2pool_stdin is not None:
-            self._p2pool_stdin = p2pool_stdin
-        return self._p2pool_stdin
-
 
 
 
