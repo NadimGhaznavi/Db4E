@@ -176,6 +176,9 @@ class MiningDb():
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] },
                 {DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp})
             self.log.info(f"Updated existing ({chain}) real-time miner ({miner_name}) hashrate ({hashrate}) record")
+        else:
+            self.db.insert_one(self.mining_col, jdoc)
+            self.log.info(f"Created new ({chain}) real-time miner ({miner_name}) hashrate ({hashrate}) record")
                           
 
 
