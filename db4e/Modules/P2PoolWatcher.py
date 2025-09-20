@@ -252,14 +252,14 @@ class P2PoolWatcher:
         2024-11-09 19:52:19.1740 P2Pool Your wallet 48wY7nYBsQNSw7fDEG got a payout of 0.001080066485 XMR in block 3277801
         2025-06-02 21:42:53.0727 P2Pool Your wallet 48wdY6fDEG got a payout of 0.000295115076 XMR in block 3425427
         """
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payout>0.\d+) XMR"
+        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payment>0.\d+) XMR"
         match = re.search(pattern, log_line)
         if match:
             timestamp = match.group('timestamp')
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-            payout = Decimal128(match.group('payout'))
-            self.mining_db.add_xmr_payment(timestamp, payout)
-            print(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
+            payment = Decimal128(match.group('payment'))
+            self.mining_db.add_xmr_payment(
+                chain=self.chain(), timestamp=timestamp, payment=payment)
 
 
     def log_file(self):
