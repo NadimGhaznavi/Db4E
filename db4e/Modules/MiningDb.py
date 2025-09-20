@@ -132,6 +132,36 @@ class MiningDb():
             self.log.info(f'Created new {chain} miners ({num_miners}) record')
 
 
+    def add_miner_hashrate(self, chain, miner_name, hashrate):
+        """
+        Store the miner hashrate
+        """
+        if DDebug.FUNCTION:
+            print(f"MiningDb:add_miner_hashrate()")
+        timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        jdoc = {
+            DMongo.DOC_TYPE: DMining.MINER_HASHRATE,
+            DMongo.CHAIN: chain,
+            DMongo.TIMESTAMP: timestamp,
+            DMining.MINER: miner_name,
+            DMining.HASHRATE: hashrate
+        }
+        existing = self.db.find_one(self.mining_col, {
+            DMongo.DOC_TYPE: DMining.MINER_HASHRATE,
+            DMongo.CHAIN: chain,
+            DMining.MINER: miner_name,
+            DMongo.TIMESTAMP: timestamp
+        })
+        if existing:
+            self.db.update_one(
+                self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
+                {DMining.HASHRATE: hashrate})
+            self.log.info(f'Updated existing miner hashrate ({hashrate}) record')
+        else:
+            self.db.insert_one(self.mining_col, jdoc)
+            self.log.info(f'Created new miner hashrate ({hashrate}) record')
+
+
     def add_pool_hashrate(self, chain, hashrate):
         """
         Store the pool hashrate
@@ -218,7 +248,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {'$set': {DMongo.TIMESTAMP: timestamp, DMining.SHARE_POSITION: position}})
+                {DMongo.TIMESTAMP: timestamp, DMining.SHARE_POSITION: position})
             print(f'Updated share position ({position}) record')
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -235,8 +265,7 @@ class MiningDb():
         dbRec = self.db.find_one(self.mining_col, {DMongo.DOC_TYPE: DMining.WALLET_BALANCE})
         self.db.update_one(
             self.mining_col, {DMongo.OBJECT_ID: dbRec[DMongo.OBJECT_ID]},
-            {'$set': {DMining.WALLET_BALANCE: new_balance}})
-        print(f'Updated XMR Wallet balance ({new_balance}) record')
+            {DMining.WALLET_BALANCE: new_balance})
 
 
     def add_xmr_payment(self, timestamp, payment):
@@ -249,7 +278,6 @@ class MiningDb():
         }
         if self.db.insert_uniq_by_timestamp(self.mining_col, jdoc):
             self.add_to_wallet(payment)
-        print(f'New XMR payment ({payment}) record')
 
 
     def get_docs(self, doc_type):
@@ -395,7 +423,7 @@ class MiningDb():
         return payments_dict
 
 
-    def update_miner(self, instance, hashrate):
+    def UNUSED_update_miner(self, instance, hashrate):
         if DDebug.FUNCTION:
             print(f"MiningDb:update_miner()")
         timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)

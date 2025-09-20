@@ -49,6 +49,15 @@ class P2PoolWatcher:
     
 
     def get_handlers(self):
+        #self.is_miner_stats(log_line)
+        #self.is_share_found(log_line)
+        #self.is_share_position(log_line)
+        #self.is_block_found(log_line)
+        #self.is_xmr_payment(log_line)
+        #self.is_side_chain_hashrate(log_line)
+        #self.is_main_chain_hashrate(log_line)
+        #self.is_pool_hashrate(log_line)
+
 
         if self.stats_mod():
             # This is only used when the P2PoolWatcher is watching an internal P2Pool
@@ -61,8 +70,13 @@ class P2PoolWatcher:
                 handlers.extend([ self.is_side_chain_hashrate ])            
 
         else:
+            # User defined P2Pool, where they mine
             handlers = [
-                self.is_pool_hashrate
+                self.is_pool_hashrate,
+                self.is_share_found,
+                self.is_share_position,
+                self.is_miner_stats,
+                self.is_xmr_payment,
             ]
         return handlers
 
@@ -197,7 +211,8 @@ class P2PoolWatcher:
         if match:
             position = match.group('position')
             timestamp = datetime.now()
-            self.mining_db.add_share_position(timestamp, position)
+            self.mining_db.add_share_position(
+                chain=self.chain(), timestamp=timestamp, position=position)
             print(f'Detected share position ({position})')
         pattern = r"Your shares .* = 0 .*"
         match = re.search(pattern, log_line)
@@ -226,8 +241,8 @@ class P2PoolWatcher:
                 hashrate = hashrate * 1000
                 hashrate = int(hashrate)
             miner_name = match.group('worker_name')
-            self.mining_db.update_miner(miner_name, hashrate)
-            print(f'Detected miner ({miner_name}) hashrate ({hashrate} H/s)') 
+            self.mining_db.add_miner_hashrate(
+                chain=self.chain(), miner_name=miner_name, hashrate=hashrate)
 
 
     def is_xmr_payment(self, log_line):
@@ -366,14 +381,4 @@ class P2PoolWatcher:
         t.join(timeout=2)
         self.thread_control = None
 
-
-    # === regex handlers ===
-    #self.is_miner_stats(log_line)
-    #self.is_share_found(log_line)
-    #self.is_share_position(log_line)
-    #self.is_block_found(log_line)
-    #self.is_xmr_payment(log_line)
-    #self.is_side_chain_hashrate(log_line)
-    #self.is_main_chain_hashrate(log_line)
-    #self.is_pool_hashrate(log_line)
 
