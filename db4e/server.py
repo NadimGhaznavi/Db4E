@@ -31,7 +31,6 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.InternalP2Pool import InternalP2Pool
-from db4e.Modules.InternalP2PoolWatcher import InternalP2PoolWatcher
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.DbCache import DbCache
@@ -114,6 +113,9 @@ class Db4eServer:
         elem = job.elem()
         self.log.debug(f"Db4eServer:add_deployment(): {elem}")
         self.depl_mgr.add_deployment(elem)
+        job.msg(f"Added deployment")
+        job.elem_type(elem.elem_type())
+        job.instance(elem.instance())
         self.job_queue.complete_job(job)
 
 
@@ -201,9 +203,11 @@ class Db4eServer:
         if type(elem) == XMRig:
             self.ensure_stopped(elem)
             config_file = elem.config_file()
-            os.remove(config_file)
+            if os.path.exists(config_file):
+                os.remove(config_file)
             log_file = elem.log_file()
-            os.remove(log_file)
+            if os.path.exists(log_file):
+                os.remove(log_file)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
@@ -224,7 +228,8 @@ class Db4eServer:
             vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
             monerod_dir = DElem.MONEROD + '-' + elem.version()
             conf_file = elem.config_file()
-            os.remove(conf_file)
+            if os.path.exists(conf_file):
+                os.remove(conf_file)
             rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
             self.depl_mgr.delete_deployment(elem)  
             self.job_queue.complete_job(job=job)
@@ -459,7 +464,7 @@ class Db4eServer:
                 stop_event=stop_event,
             )
         elif type(p2pool) == InternalP2Pool:
-            watcher = InternalP2PoolWatcher(
+            watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
                 log_file=p2pool.log_file(),

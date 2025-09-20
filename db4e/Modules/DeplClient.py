@@ -239,8 +239,6 @@ class DeplClient:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
         elif type(elem) == P2Pool:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
-            print(f"DeplClient:get_deployment(): instance map: {elem.instance_map()}")
-        print(f"DeplClient:get_deployment(): {elem}")
         return elem
 
     def get_deployment_by_id(self, id):
@@ -262,7 +260,7 @@ class DeplClient:
             return MoneroDRemote()
         elif elem_type == DElem.P2POOL:
             p2pool = P2Pool()
-            db4e = self.db_cache.get_db4e()
+            db4e = self.db_cache.get_deployment(DElem.DB4E)
             p2pool.user_wallet(db4e.user_wallet())
             p2pool.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
             return p2pool

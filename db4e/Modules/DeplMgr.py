@@ -169,7 +169,7 @@ class DeplMgr:
                                       DDef.RUN_DIR, DFile.P2POOL_STDIN))
             self.insert_one(p2pool)
             job = Job(op=DJob.NEW, instance=p2pool.instance(), elem_type=DElem.INT_P2POOL)
-            job.msg("New instance")
+            job.msg("New deployment")
             self.job_queue.post_completed_job(job)
 
         return p2pool

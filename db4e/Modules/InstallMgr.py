@@ -83,7 +83,6 @@ class InstallMgr(Container):
 
         # We have everything we need to finish the install. Update the record.
         self.db_cache.update_one(db4e)
-        db4e = self.db_cache.get_deployment(DElem.DB4E)
 
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(vendor_dir=vendor_dir, db4e=db4e)

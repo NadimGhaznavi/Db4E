@@ -62,14 +62,14 @@ class DbCache:
     def build_cache(self):
         with self._lock:
             recs = self.db.find_many(self.depl_col, {})
-            print(f"DbCache:build_cache(): # recs: {len(recs)}")
+            #print(f"DbCache:build_cache(): # recs: {len(recs)}")
 
             seen_ids = set()
 
             count = 1
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
-                print(f"[{count}/{len(recs)}]: {elem_type}")
+                #print(f"[{count}/{len(recs)}]: {elem_type}")
                 count += 1
 
                 obj_id = rec[DField.OBJECT_ID]
@@ -82,7 +82,6 @@ class DbCache:
 
                     if elem_type == DElem.DB4E:
                         self.db4e = elem
-                        print(f"DbCache:build_cache(): 1. db4e.vendor_dir(): {elem.vendor_dir()}")
 
                     elif elem_type == DElem.XMRIG:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
@@ -113,7 +112,6 @@ class DbCache:
                         # Special case this
                         db4e_rec = self.db.find_one(self.depl_col, {DField.ELEMENT_TYPE: DElem.DB4E})
                         elem = Db4E(db4e_rec)
-                        print(f"DbCache:build_cache(): 2. db4e.vendor_dir(): {elem.vendor_dir()}")
                     elif elem_type == DElem.MONEROD:
                         elem = MoneroD(rec)
                         self.monerod_map[elem.instance()] = elem

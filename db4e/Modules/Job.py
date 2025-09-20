@@ -63,7 +63,9 @@ class Job:
         return self._element
 
 
-    def elem_type(self):
+    def elem_type(self, elem_type=None):
+        if elem_type is not None:
+            self._element_type = elem_type
         return self._element_type
 
 
