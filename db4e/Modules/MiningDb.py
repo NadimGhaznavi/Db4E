@@ -23,6 +23,12 @@ from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DMining import DMining
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DDebug import DDebug
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
+
+
+
 
 DDebug.FUNCTION = True
 
@@ -30,10 +36,11 @@ DDebug.FUNCTION = True
 class MiningDb():
 
 
-    def __init__(self, db: DbMgr, log_file: str):
+    def __init__(self, db: DbMgr, log_file=None):
         self.db = db
         self.mining_col = DDef.MINING_COL
-        self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
+        if log_file:
+            self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
     
 
     def add_block_found(self, timestamp, chain):
@@ -125,7 +132,7 @@ class MiningDb():
             self.log.info(f"Created new {chain} miners ({num_miners}) record")
 
 
-    def add_miner_hashrate(self, chain, miner_name, hashrate):
+    def add_miner_hashrate(self, chain, miner_name, ip_addr, hashrate):
         """
         Store the miner hashrate
         """
@@ -136,6 +143,7 @@ class MiningDb():
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
             DMining.MINER: miner_name,
+            DMongo.IP_ADDR: ip_addr,
             DMining.HASHRATE: hashrate
         }
 
@@ -149,7 +157,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {DMining.HASHRATE: hashrate})
+                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr})
             self.log.info(f"Updated existing ({chain}) historical miner ({miner_name}) hashrate ({hashrate}) record")
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -161,6 +169,7 @@ class MiningDb():
             DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: rt_timestamp,
+            DMongo.IP_ADDR: ip_addr,
             DMining.MINER: miner_name,
             DMining.HASHRATE: hashrate
         }
@@ -174,7 +183,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] },
-                {DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp})
+                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, DMongo.TIMESTAMP: rt_timestamp})
             self.log.info(f"Updated existing ({chain}) real-time miner ({miner_name}) hashrate ({hashrate}) record")
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -272,8 +281,6 @@ class MiningDb():
 
 
     def add_to_wallet(self, amount):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:add_to_wallet()")
         # CAREFUL with datatypes here!!!
         amount = amount.to_decimal()
         balance = self.get_wallet_balance().to_decimal() # This call ensures the DB record exists
@@ -286,8 +293,6 @@ class MiningDb():
 
 
     def add_xmr_payment(self, chain, timestamp, payment):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:add_xmr_payment()")
         jdoc = {
             DMongo.DOC_TYPE: DMining.XMR_PAYMENT,
             DMongo.CHAIN: chain,
@@ -300,15 +305,11 @@ class MiningDb():
 
 
     def get_docs(self, doc_type):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_docs()")
         dbCursor = self.db.find_many(self.mining_col, {DMongo.DOC_TYPE: doc_type})
         return dbCursor
 
 
     def get_mainchain_hashrate(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_mainchain_hashrate()")        
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.RT_MAINCHAIN_HASHRATE})
         if record:
@@ -321,13 +322,10 @@ class MiningDb():
             DMining.HASHRATE: None
         }
         self.db.insert_one(self.mining_col, jdoc)
-        print(f"Created new (rt_mainchain_hashrate) record")
         return None
 
 
     def get_pool_hashrate(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_pool_hashrate()")
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE})
         if record:
@@ -340,13 +338,50 @@ class MiningDb():
             DMining.HASHRATE: None
         }
         self.db.insert_one(self.mining_col, jdoc)
-        print(f"Created new (rt_pool_hashrate) record")
         return None
 
 
+    def get_xmrigs_remote(self):
+        recs = self.db.find_many(self.mining_col, {
+            DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE})
+        recs_list = []
+        for aRec in recs:
+            new_rec = {
+                DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                DField.OBJECT_ID: aRec[DMongo.OBJECT_ID],
+                DField.COMPONENTS: [
+                    {
+                        DField.FIELD: DField.INSTANCE,
+                        DField.LABEL: DLabel.INSTANCE,
+                        DField.VALUE: aRec[DMining.MINER]
+                    },
+                    {
+                        DField.FIELD: DField.IP_ADDR,
+                        DField.LABEL: DLabel.IP_ADDR,
+                        DField.VALUE: aRec[DMongo.IP_ADDR]
+                    },
+                    {
+                        DField.FIELD: DField.REMOTE,
+                        DField.LABEL: DLabel.REMOTE,
+                        DField.VALUE: True
+                    },
+                    {
+                        DField.FIELD: DField.HASHRATE,
+                        DField.LABEL: DLabel.HASHRATE,
+                        DField.VALUE: aRec[DMining.HASHRATE]
+                    },
+                    {
+                        DField.FIELD: DField.TIMESTAMP,
+                        DField.LABEL: DLabel.TIMESTAMP,
+                        DField.VALUE: aRec[DMongo.TIMESTAMP]
+                    }
+                ],
+            }
+            recs_list.append(new_rec)
+        return recs_list
+
+
     def get_share_position(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_share_position()")
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.SHARE_POSITION})
         if record:
@@ -358,12 +393,9 @@ class MiningDb():
             DMining.SHARE_POSITION: None
         }
         self.db.insert_one(self.mining_col, jdoc)
-        print(f"Created a new (share_position) record")
 
 
     def get_shares(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_shares()")
         dbCursor = self.db.find_many(
             self.mining_col, {DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT})
         resDict = {}
@@ -375,8 +407,6 @@ class MiningDb():
 
 
     def get_sidechain_hashrate(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_sidechain_hashrate()")
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.RT_SIDECHAIN_HASHRATE})
         if record:
@@ -389,13 +419,10 @@ class MiningDb():
             DMining.HASHRATE: None
         }
         self.db.insert_one(self.mining_col, jdoc)
-        print(f"Created new (rt_sidechain_hashrate) record")
         return None            
 
 
     def get_wallet_balance(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_wallet_balance()")
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.WALLET_BALANCE})
 
@@ -405,13 +432,10 @@ class MiningDb():
         jdoc = {DMongo.DOC_TYPE: DMining.WALLET_BALANCE,
                 DMining.WALLET_BALANCE: Decimal128("0") }
         self.db.insert_one(self.mining_col, jdoc)
-        print(f"Created a new (wallet_balance) record with balance (0)")
         return Decimal128("0")
   
 
     def get_miners(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_miners()")
         dbCursor = self.db.find_many(
             self.mining_col, {DMongo.DOC_TYPE: DMining.MINER})
         resDict = {}
@@ -430,8 +454,6 @@ class MiningDb():
   
 
     def get_xmr_payments(self):
-        if DDebug.FUNCTION:
-            print(f"MiningDb:get_xmr_payments()")
         payments_cursor = self.db.find_many(
             self.mining_col, {DMongo.DOC_TYPE: DMining.XMR_PAYMENT})
         payments_dict = {}

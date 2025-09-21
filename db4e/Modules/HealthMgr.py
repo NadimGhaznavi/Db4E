@@ -10,6 +10,7 @@ db4e/Modules/HealthMgr.py
 
 import os
 import socket
+from datetime import datetime, timezone
 
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.MoneroD import MoneroD
@@ -17,6 +18,8 @@ from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
+from db4e.Modules.XMRigRemote import XMRigRemote
+
 
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DLabel import DLabel
@@ -37,6 +40,8 @@ class HealthMgr:
             return self.check_p2pool_remote(elem)
         elif type(elem) == XMRig:
             return self.check_xmrig(elem)
+        elif type(elem) == XMRigRemote:
+            return self.check_xmrig_remote(elem)
         else:
             raise ValueError(f"HealthMgr:check(): No handler for {elem}")
 
@@ -232,6 +237,7 @@ class HealthMgr:
 
         if missing_field:
             return p2pool
+        
         # Check enabled/disabled
         if p2pool.enabled():
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
@@ -239,6 +245,7 @@ class HealthMgr:
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR,
                        f"{DLabel.P2POOL} ({p2pool.instance()}) is disabled")
+            
         # Check connectivity to stratum port
         if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
             p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
@@ -246,6 +253,7 @@ class HealthMgr:
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.WARN,
                        f"Connection to {DLabel.STRATUM_PORT} failed")
+            
         # Check upstgream monerod
         if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
             self.check(p2pool.monerod)
@@ -308,6 +316,25 @@ class HealthMgr:
         else:
             xmrig.msg(DLabel.P2POOL, DStatus.WARN,
                       f"Missing upstream P2pool deployment")
+        return xmrig
+
+    def check_xmrig_remote(self, xmrig: XMRigRemote) -> XMRigRemote:
+        # Check if the real-time timetamp is more than 2 minutes ago
+        now = datetime.now(timezone.utc)
+        cur_minute = now.minute
+        rt_now = xmrig.timestamp()
+        rt_minute = rt_now.minute
+        
+        diff = abs(cur_minute - rt_minute)
+        if diff == 58 or diff < 3:
+            xmrig.msg(DLabel.XMRIG, DStatus.GOOD,
+                      f"{DLabel.XMRIG} ({xmrig.instance()}) is mining")
+        elif diff > 5:
+            xmrig.msg(DLabel.XMRIG, DStatus.ERROR,
+                      f"{DLabel.XMRIG} ({xmrig.instance()}) is not mining")
+        else:
+            xmrig.msg(DLabel.XMRIG, DStatus.WARN,
+                f"{DLabel.XMRIG_REMOTE} ({xmrig.instance()}) is not mining")
         return xmrig
 
 

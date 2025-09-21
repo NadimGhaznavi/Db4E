@@ -44,17 +44,16 @@ class SoftwareSystem:
 
 
     def from_rec(self, rec: dict):
-
         if not self.components:
             raise RuntimeError(
                 "SoftwareSystem:from_rec(): Missing 'components' dict in subclass.")
+
 
         for component in rec[DField.COMPONENTS]:
             field_name = component[DField.FIELD]
             if field_name in self.components:
                 self.components[field_name].value = component[DField.VALUE]
             else:
-                print(f"SoftwareSystem:from_rec(): rec: {rec}")
                 raise ValueError(f"SoftwareSystem:from_rec(): {rec[DField.ELEMENT_TYPE]} - Unknown component field: {field_name}")
         self._object_id = rec[DField.OBJECT_ID]
         self._elem_type = rec[DField.ELEMENT_TYPE]
@@ -108,4 +107,22 @@ class SoftwareSystem:
                 DField.VALUE: self.components[component].value
             })
 
+        return rec
+    
+    def to_health_rec(self) -> dict:
+        rec = {
+            DField.OBJECT_ID: self.id(),
+            DField.NAME: self.name,
+            DField.ELEMENT_TYPE: self.elem_type(),
+            DField.COMPONENTS: [],
+            DField.MESSAGES: [],
+        }
+        for component in self.components.keys():
+            rec[DField.COMPONENTS].append({
+                DField.FIELD: component,
+                DField.LABEL: self.components[component].label,
+                DField.VALUE: self.components[component].value
+            })
+        for msg in self.pop_msgs():
+            rec[DField.MESSAGES].append(msg)
         return rec

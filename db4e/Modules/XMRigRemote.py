@@ -1,5 +1,5 @@
 """
-db4e/Modules/P2PoolRemote.py
+db4e/Modules/XMRigRemote.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -7,36 +7,37 @@ db4e/Modules/P2PoolRemote.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 
-Everything P2Pool Remote
+Everything XMRig Remote
 """
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
-from db4e.Modules.Components import (Instance, Remote, IpAddr, StratumPort)
+from db4e.Modules.Components import (
+    Instance, Remote, IpAddr, Hashrate, Timestamp)
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
 
 
 
-class P2PoolRemote(SoftwareSystem):
+class XMRigRemote(SoftwareSystem):
 
 
     def __init__(self, rec=None):
         super().__init__()
-        self._elem_type = DElem.P2POOL_REMOTE
-        self.name = DLabel.P2POOL_REMOTE
+        self._elem_type = DElem.XMRIG_REMOTE
+        self.name = DLabel.XMRIG_REMOTE
 
         self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.IP_ADDR, IpAddr())
         self.add_component(DField.REMOTE, Remote())
-        self.add_component(DField.STRATUM_PORT, StratumPort())
+        self.add_component(DField.HASHRATE, Hashrate())
+        self.add_component(DField.TIMESTAMP, Timestamp())
 
         self.instance = self.components[DField.INSTANCE]
         self.ip_addr = self.components[DField.IP_ADDR]
         self.remote = self.components[DField.REMOTE]
-        self.stratum_port = self.components[DField.STRATUM_PORT]
+        self.hashrate = self.components[DField.HASHRATE]
+        self.timestamp = self.components[DField.TIMESTAMP]
 
         if rec:
             self.from_rec(rec)
-
-

@@ -62,7 +62,7 @@ class Db4EApp(App):
         db_cache = DbCache(db=db)
         depl_client = DeplClient(db=db, db_cache=db_cache)
         health_cache = HealthCache(depl_client=depl_client)
-        ops_mgr = OpsMgr(depl_client=depl_client, health_cache=health_cache)
+        ops_mgr = OpsMgr(depl_client=depl_client, health_cache=health_cache, db_cache=db_cache)
         install_mgr = InstallMgr(db=db, db_cache=db_cache)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)

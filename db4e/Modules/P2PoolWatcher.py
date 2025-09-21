@@ -118,7 +118,6 @@ class P2PoolWatcher:
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
             # Create a new blocks_found_event in the DB
             self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
-            print(f"Block found: {timestamp}")
 
 
     def is_main_chain_hashrate(self, log_line):
@@ -213,7 +212,6 @@ class P2PoolWatcher:
             timestamp = datetime.now()
             self.mining_db.add_share_position(
                 chain=self.chain(), timestamp=timestamp, position=position)
-            print(f'Detected share position ({position})')
         pattern = r"Your shares .* = 0 .*"
         match = re.search(pattern, log_line)
         if match:
@@ -221,7 +219,6 @@ class P2PoolWatcher:
             timestamp = datetime.now()
             self.mining_db.add_share_position(
                 chain=self.chain(), timestamp=timestamp, position=position)
-            print(f'Detected share position ({position})')
 
 
     def is_miner_stats(self, log_line):
@@ -241,8 +238,9 @@ class P2PoolWatcher:
                 hashrate = hashrate * 1000
                 hashrate = int(hashrate)
             miner_name = match.group('worker_name')
+            ip_addr = match.group('ip_addr')
             self.mining_db.add_miner_hashrate(
-                chain=self.chain(), miner_name=miner_name, hashrate=hashrate)
+                chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate)
 
 
     def is_xmr_payment(self, log_line):

@@ -83,6 +83,11 @@ class DonationWallet(Component):
             DDef.DONATION_WALLET)
 
 
+class Hashrate(Component):
+    def __init__(self):
+        super().__init__(DField.HASHRATE, DLabel.HASHRATE)
+
+
 class InPeers(Component):
     def __init__(self):
         super().__init__(DField.IN_PEERS, DLabel.IN_PEERS, DDef.IN_PEERS)
@@ -222,6 +227,11 @@ class StratumPort(Component):
     def __init__(self):
         super().__init__(
             DField.STRATUM_PORT, DLabel.STRATUM_PORT, DDef.STRATUM_PORT)
+
+
+class Timestamp(Component):
+    def __init__(self):
+        super().__init__(DField.TIMESTAMP, DLabel.TIMESTAMP)
 
 
 class Version(Component):

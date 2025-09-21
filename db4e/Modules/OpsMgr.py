@@ -9,6 +9,7 @@ db4e/Modules/OpsMgr.py
 """
 
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.HealthCache import HealthCache
@@ -22,14 +23,13 @@ from db4e.Constants.DPane import DPane
 
 
 
-
-
 class OpsMgr:
 
 
-    def __init__(self, depl_client: DeplClient, health_cache: HealthCache):
+    def __init__(self, depl_client: DeplClient, health_cache: HealthCache, db_cache: DbCache):
         self.depl_client = depl_client
         self.health_cache = health_cache
+        self.db_cache = db_cache
         self.depl_col = DDef.DEPLOYMENT_COL
 
 
@@ -51,13 +51,21 @@ class OpsMgr:
                 instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
-        elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
-        checked_elem = self.health_cache.check(elem)
-        if checked_elem:
+        elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
+        if type(elem) == P2Pool:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+        elif type(elem) == XMRig:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+        
+        #checked_elem = self.health_cache.check(elem)
+        #if checked_elem:
             # Return the elem with health check messages
-            return checked_elem
+        #    if type(checked_elem) == P2Pool:
+        #        print(f"OpsMgr:get_deployment(): 1. P2Pool's monerod: {checked_elem.monerod})")
+        #    return checked_elem
         
         # The item isn't in the HealthMgr cache yet, return it with no health check messages
+        #print(f"OpsMgr:get_deployment(): 1. P2Pool's monerod: {elem.monerod})")
         return elem
 
 
@@ -67,6 +75,10 @@ class OpsMgr:
 
     def get_p2pools(self) -> list:
         return self.health_cache.get_p2pools()
+
+
+    def get_xmrigs_remote(self) -> list:
+        return self.health_cache.get_xmrigs_remote()
 
 
     def get_xmrigs(self) -> list:

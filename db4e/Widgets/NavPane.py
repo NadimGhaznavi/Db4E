@@ -205,6 +205,7 @@ class NavPane(Container):
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
                 #print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
+                
                 # View/Update a Monero deployment
                 if grandparent_data == DLabel.MONEROD_SHORT:
 
@@ -392,6 +393,13 @@ class NavPane(Container):
                 f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance())
             instance_branch.add_leaf(
                 f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
+        
+        for remote_xmrig in self.ops_mgr.get_xmrigs_remote():
+            state = remote_xmrig.status()
+            instance_branch = self.xmrig_tree.add(
+                f"{ICON[XMR]} {remote_xmrig.instance()}", data=remote_xmrig.instance(), expand=True)
+            instance_branch.add_leaf(
+                f"{STATE_ICON[state]} {remote_xmrig.instance()}", data=remote_xmrig.instance())
         
         if not self.depls_branches_added:
             self.depls_branches_added = True
