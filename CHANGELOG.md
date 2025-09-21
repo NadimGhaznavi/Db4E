@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.37.0] - 2025-09-19
+## [0.38.0] - 2025-09-19
 
 ### Added 
 - Updated `Fields`, `Labels` and created a new `Mining` constants file

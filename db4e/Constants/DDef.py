@@ -36,7 +36,7 @@ class DDef(ConstGroup):
     DB4E_SERVICE_FILE: str = "db4e.service"
     DB4E_START_SCRIPT: str = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: str = "db4e-uninstall-service.sh"
-    DB4E_VERSION: str = "0.37.0"
+    DB4E_VERSION: str = "0.38.0"
     DEPLOYMENT_COL: str = "depl"
     DEV_DIR: str = "dev"
     DONATION_WALLET: str = "48aTDJfRH2JLcKW2fz4m9HJeLLVK5rMo1bKiNHFc43Ht2e2kPVh2tmk3Md7npz1WsSU7bpgtX2Xnf59RHCLUEaHfQHwao4j"
