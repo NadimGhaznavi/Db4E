@@ -130,6 +130,10 @@ class MessageRouter:
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_client.delete_deployment, DPane.WELCOME)
 
+        # XMRig Remote
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG_REMOTE,
+                      self.ops_mgr.get_deployment, DPane.XMRIG_REMOTE)
+
         # Log Viewer
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.MONEROD,
                       self.ops_mgr.log_viewer, DPane.LOG_VIEW)

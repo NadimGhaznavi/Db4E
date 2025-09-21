@@ -18,4 +18,5 @@ class DElem(ConstGroup):
     MONEROD_REMOTE : str = "monerod_remote"
     P2POOL : str = "p2pool"
     P2POOL_REMOTE : str = "p2pool_remote"
-    XMRIG : str ="xmrig"
+    XMRIG : str = "xmrig"
+    XMRIG_REMOTE : str = "xmrig_remote"

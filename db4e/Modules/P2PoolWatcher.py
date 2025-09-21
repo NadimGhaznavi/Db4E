@@ -49,6 +49,15 @@ class P2PoolWatcher:
     
 
     def get_handlers(self):
+        #self.is_miner_stats(log_line)
+        #self.is_share_found(log_line)
+        #self.is_share_position(log_line)
+        #self.is_block_found(log_line)
+        #self.is_xmr_payment(log_line)
+        #self.is_side_chain_hashrate(log_line)
+        #self.is_main_chain_hashrate(log_line)
+        #self.is_pool_hashrate(log_line)
+
 
         if self.stats_mod():
             # This is only used when the P2PoolWatcher is watching an internal P2Pool
@@ -61,8 +70,13 @@ class P2PoolWatcher:
                 handlers.extend([ self.is_side_chain_hashrate ])            
 
         else:
+            # User defined P2Pool, where they mine
             handlers = [
-                self.is_pool_hashrate
+                self.is_pool_hashrate,
+                self.is_share_found,
+                self.is_share_position,
+                self.is_miner_stats,
+                self.is_xmr_payment,
             ]
         return handlers
 
@@ -104,7 +118,6 @@ class P2PoolWatcher:
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
             # Create a new blocks_found_event in the DB
             self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
-            print(f"Block found: {timestamp}")
 
 
     def is_main_chain_hashrate(self, log_line):
@@ -126,6 +139,45 @@ class P2PoolWatcher:
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
             self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
+
+
+    def is_miner_stats(self, log_line):
+        """
+        Sample log message to watch for:
+        2025-09-21 10:33:36.2717 StratumServer 192.168.0.176:40816        no     0h 6m 21s           125002              4.166 kH/s     kermit
+        2024-11-09 20:05:01.4647 StratumServer 192.168.0.27:57888         no     14h 59m 52s         23666               788 H/s        paris
+        2025-09-21 10:33:36.2717 StratumServer 192.168.0.122:54958        no     1d 7h 28m 31s       49595               1.653 kH/s     islands
+        """
+        # Look for a worker stat line
+        pattern = (
+            r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)\s+"
+            r"StratumServer\s+(?P<ip_addr>\d+\.\d+\.\d+\.\d+):\d+\s+"
+            r"no\s+"
+            r"(?P<uptime>(?:\d+d\s+)?\d+h \d+m \d+s)\s+"
+            r"\d+\s+"
+            r"(?P<hashrate_value>\d+(?:\.\d+)?)\s*"
+            r"(?P<unit>(?:k|M)?H/s)\s+"
+            r"(?P<miner_name>\S+)$"
+        )
+
+        match = re.search(pattern, log_line, flags=re.IGNORECASE)
+        if match:
+            hashrate = float(match.group("hashrate_value"))
+            unit = match.group("unit").lower()  # normalize case
+
+            if unit == "kh/s":
+                hashrate *= 1_000
+            elif unit == "mh/s":
+                hashrate *= 1_000_000
+            # "h/s" stays as-is
+
+            hashrate = int(hashrate)
+            miner_name = match.group('miner_name')
+            ip_addr = match.group('ip_addr')
+            uptime = match.group('uptime')
+            self.mining_db.add_miner_hashrate(
+                chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
+                hashrate=hashrate, uptime=uptime)
 
 
     def is_side_chain_hashrate(self, log_line):
@@ -197,8 +249,8 @@ class P2PoolWatcher:
         if match:
             position = match.group('position')
             timestamp = datetime.now()
-            self.mining_db.add_share_position(timestamp, position)
-            print(f'Detected share position ({position})')
+            self.mining_db.add_share_position(
+                chain=self.chain(), timestamp=timestamp, position=position)
         pattern = r"Your shares .* = 0 .*"
         match = re.search(pattern, log_line)
         if match:
@@ -206,28 +258,6 @@ class P2PoolWatcher:
             timestamp = datetime.now()
             self.mining_db.add_share_position(
                 chain=self.chain(), timestamp=timestamp, position=position)
-            print(f'Detected share position ({position})')
-
-
-    def is_miner_stats(self, log_line):
-        """
-        Sample log message to watch for:
-        
-        2024-11-09 20:05:01.4647 StratumServer 192.168.0.27:57888         no     14h 59m 52s         23666               788 H/s        paris
-        """
-        # Look for a worker stat line
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer (?P<ip_addr>\d+.\d+.\d+.\d+):\d+\s+no\s+\d+h \d+m \d+s\s+\d+\s+(?P<hashrate>\d+.*) (?P<unit>[H|K]).*/s\s+ (?P<worker_name>.*$)"
-        match = re.search(pattern, log_line)
-        if match:
-            hashrate = float(match.group('hashrate'))
-            unit = match.group('unit')
-            if unit == 'K':
-                # Convert KH/s into H/s
-                hashrate = hashrate * 1000
-                hashrate = int(hashrate)
-            miner_name = match.group('worker_name')
-            self.mining_db.update_miner(miner_name, hashrate)
-            print(f'Detected miner ({miner_name}) hashrate ({hashrate} H/s)') 
 
 
     def is_xmr_payment(self, log_line):
@@ -237,14 +267,14 @@ class P2PoolWatcher:
         2024-11-09 19:52:19.1740 P2Pool Your wallet 48wY7nYBsQNSw7fDEG got a payout of 0.001080066485 XMR in block 3277801
         2025-06-02 21:42:53.0727 P2Pool Your wallet 48wdY6fDEG got a payout of 0.000295115076 XMR in block 3425427
         """
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payout>0.\d+) XMR"
+        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payment>0.\d+) XMR"
         match = re.search(pattern, log_line)
         if match:
             timestamp = match.group('timestamp')
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
-            payout = Decimal128(match.group('payout'))
-            self.mining_db.add_xmr_payment(timestamp, payout)
-            print(f"Payout event ({payout}) XMR", {'payout': {payout.to_decimal()}})
+            payment = Decimal128(match.group('payment'))
+            self.mining_db.add_xmr_payment(
+                chain=self.chain(), timestamp=timestamp, payment=payment)
 
 
     def log_file(self):
@@ -366,14 +396,4 @@ class P2PoolWatcher:
         t.join(timeout=2)
         self.thread_control = None
 
-
-    # === regex handlers ===
-    #self.is_miner_stats(log_line)
-    #self.is_share_found(log_line)
-    #self.is_share_position(log_line)
-    #self.is_block_found(log_line)
-    #self.is_xmr_payment(log_line)
-    #self.is_side_chain_hashrate(log_line)
-    #self.is_main_chain_hashrate(log_line)
-    #self.is_pool_hashrate(log_line)
 

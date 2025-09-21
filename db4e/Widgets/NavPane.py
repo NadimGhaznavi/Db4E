@@ -131,7 +131,6 @@ class NavPane(Container):
 
             # Initial Setup
             if leaf_data == DLabel.INITIAL_SETUP:
-                #print(f"NavPane:on_tree_node_selected(): {INITIAL_SETUP}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
                     DField.TO_MODULE: DModule.INSTALL_MGR,
@@ -141,7 +140,6 @@ class NavPane(Container):
 
             # View/Update Db4E Core
             elif leaf_data == DLabel.DB4E:
-                #print(f"NavPane:on_tree_node_selected(): {DB4E}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -151,7 +149,6 @@ class NavPane(Container):
 
             # TUI Log
             elif leaf_data == DLabel.TUI_LOG:
-                #print(f"NavPane:on_tree_node_selected(): {TUI_LOG}")
                 form_data = {
                     DField.ELEMENT_TYPE: DField.TUI_LOG,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -161,7 +158,6 @@ class NavPane(Container):
 
             # Donations
             elif leaf_data == DLabel.DONATIONS:
-                #print(f"NavPane:on_tree_node_selected(): {DONATIONS}")
                 form_data = {
                     DField.ELEMENT_TYPE: DField.DONATIONS,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -172,7 +168,6 @@ class NavPane(Container):
 
             # New Monero (remote) deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_SHORT:
-                #print(f"NavPane:on_tree_node_selected(): {MONEROD_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.MONEROD,
                     DField.TO_MODULE: DModule.PANE_MGR,
@@ -183,7 +178,6 @@ class NavPane(Container):
 
             # New P2Pool (remote) deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_SHORT:
-                #print(f"NavPane:on_tree_node_selected(): {P2POOL_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.P2POOL,
                     DField.TO_MODULE: DModule.PANE_MGR,
@@ -194,7 +188,6 @@ class NavPane(Container):
 
             # New XMRig deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.XMRIG_SHORT:
-                #print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT}/{NEW}")
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.XMRIG,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -202,9 +195,19 @@ class NavPane(Container):
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
+            elif parent_data == DLabel.XMRIG_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                    DField.TO_MODULE: DModule.OPS_MGR,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data
+                }
+                self.post_message(Db4eMsg(self, form_data=form_data))
+
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
                 #print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
+                
                 # View/Update a Monero deployment
                 if grandparent_data == DLabel.MONEROD_SHORT:
 
@@ -301,7 +304,7 @@ class NavPane(Container):
             elif leaf_data in (BLOCK, MINERS, HASH) and parent_data in (MAIN, MINI, NANO):
                 chain = parent_data
                 metric = leaf_data
-                print(f"NavPane:on_tree_node_selected(): {chain}/{metric}")
+                #print(f"NavPane:on_tree_node_selected(): {chain}/{metric}")
                 form_data = {
                     DField.ELEMENT_TYPE: CHAIN,
                     DField.TO_MODULE: DModule.OPS_MGR,
@@ -342,6 +345,8 @@ class NavPane(Container):
                 f"{ICON[P2P]} {DLabel.P2POOL_SHORT}", data=DLabel.P2POOL_SHORT, expand=True)
             self.xmrig_tree = self.depls.root.add(
                 f"{ICON[XMR]} {DLabel.XMRIG_SHORT}", data=DLabel.XMRIG_SHORT, expand=True)
+            self.xmrig_remote_tree = self.depls.root.add(
+                f"{ICON[XMR]} {DLabel.XMRIG_REMOTE_SHORT}", data=DLabel.XMRIG_REMOTE_SHORT, expand=True)
             chain = self.depls.root.add(
                 f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}", data=DLabel.CHAIN_STATS, expand=True)
             main = chain.add(
@@ -392,6 +397,12 @@ class NavPane(Container):
                 f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance())
             instance_branch.add_leaf(
                 f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
+        
+        self.xmrig_remote_tree.remove_children()
+        for remote_xmrig in self.ops_mgr.get_xmrigs_remote():
+            state = remote_xmrig.status()
+            self.xmrig_remote_tree.add_leaf(
+                f"{STATE_ICON[state]} {remote_xmrig.instance()}", data=remote_xmrig.instance())
         
         if not self.depls_branches_added:
             self.depls_branches_added = True
