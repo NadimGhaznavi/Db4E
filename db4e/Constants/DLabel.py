@@ -96,6 +96,7 @@ class DLabel(ConstGroup):
     TIMESTAMP : str = "Timestamp"
     TUI_LOG : str = "Console Log"
     UPDATE : str = "Update"
+    UPTIME : str = "Uptime"
     UPSTREAM_MONERO : str = "Upstream Monero"
     UPSTREAM_P2POOL : str = "Upstream P2Pool"
     USER : str = "User"

@@ -33,3 +33,4 @@ class DMongo(ConstGroup):
     POOL : str = "pool"
     TEMPLATES_COLLECTION : str = "templates"
     TIMESTAMP : str = "timestamp"
+    UPTIME : str = "uptime"

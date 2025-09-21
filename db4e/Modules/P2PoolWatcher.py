@@ -141,6 +141,45 @@ class P2PoolWatcher:
             self.mining_db.add_chain_miners(chain=self.chain(), num_miners=num_miners)
 
 
+    def is_miner_stats(self, log_line):
+        """
+        Sample log message to watch for:
+        2025-09-21 10:33:36.2717 StratumServer 192.168.0.176:40816        no     0h 6m 21s           125002              4.166 kH/s     kermit
+        2024-11-09 20:05:01.4647 StratumServer 192.168.0.27:57888         no     14h 59m 52s         23666               788 H/s        paris
+        2025-09-21 10:33:36.2717 StratumServer 192.168.0.122:54958        no     1d 7h 28m 31s       49595               1.653 kH/s     islands
+        """
+        # Look for a worker stat line
+        pattern = (
+            r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)\s+"
+            r"StratumServer\s+(?P<ip_addr>\d+\.\d+\.\d+\.\d+):\d+\s+"
+            r"no\s+"
+            r"(?P<uptime>(?:\d+d\s+)?\d+h \d+m \d+s)\s+"
+            r"\d+\s+"
+            r"(?P<hashrate_value>\d+(?:\.\d+)?)\s*"
+            r"(?P<unit>(?:k|M)?H/s)\s+"
+            r"(?P<miner_name>\S+)$"
+        )
+
+        match = re.search(pattern, log_line, flags=re.IGNORECASE)
+        if match:
+            hashrate = float(match.group("hashrate_value"))
+            unit = match.group("unit").lower()  # normalize case
+
+            if unit == "kh/s":
+                hashrate *= 1_000
+            elif unit == "mh/s":
+                hashrate *= 1_000_000
+            # "h/s" stays as-is
+
+            hashrate = int(hashrate)
+            miner_name = match.group('miner_name')
+            ip_addr = match.group('ip_addr')
+            uptime = match.group('uptime')
+            self.mining_db.add_miner_hashrate(
+                chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
+                hashrate=hashrate, uptime=uptime)
+
+
     def is_side_chain_hashrate(self, log_line):
         """
         Sample log message to watch for:
@@ -219,28 +258,6 @@ class P2PoolWatcher:
             timestamp = datetime.now()
             self.mining_db.add_share_position(
                 chain=self.chain(), timestamp=timestamp, position=position)
-
-
-    def is_miner_stats(self, log_line):
-        """
-        Sample log message to watch for:
-        2025-09-21 10:33:36.2717 StratumServer 192.168.0.176:40816        no     0h 6m 21s           125002              4.166 kH/s     kermit
-        2024-11-09 20:05:01.4647 StratumServer 192.168.0.27:57888         no     14h 59m 52s         23666               788 H/s        paris
-        """
-        # Look for a worker stat line
-        pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer (?P<ip_addr>\d+.\d+.\d+.\d+):\d+\s+no\s+.*\d+h \d+m \d+s\s+\d+\s+(?P<hashrate>\d+.*) (?P<unit>[H|k]).*/s\s+ (?P<worker_name>.*$)"
-        match = re.search(pattern, log_line)
-        if match:
-            hashrate = float(match.group('hashrate'))
-            unit = match.group('unit')
-            if unit == 'K':
-                # Convert KH/s into H/s
-                hashrate = hashrate * 1000
-                hashrate = int(hashrate)
-            miner_name = match.group('worker_name')
-            ip_addr = match.group('ip_addr')
-            self.mining_db.add_miner_hashrate(
-                chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate)
 
 
     def is_xmr_payment(self, log_line):

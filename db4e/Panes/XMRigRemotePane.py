@@ -32,6 +32,7 @@ class XMRigRemotePane(Container):
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     ip_addr_label = Label("", id="ip_addr_label", classes=DForm.STATIC)
     hashrate_label = Label("", id="hashrate_label", classes=DForm.STATIC)
+    uptime_label = Label("", id="uptime_label", classes=DForm.STATIC)
     xmrig_remote = None
 
 
@@ -54,7 +55,10 @@ class XMRigRemotePane(Container):
                     Horizontal(
                         Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL),
                         self.hashrate_label),
-                    classes=DForm.FORM_3, id="form_field"),
+                    Horizontal(
+                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL),
+                        self.uptime_label),
+                    classes=DForm.FORM_4, id="form_field"),
                 
             classes=DForm.PANE_BOX))
 
@@ -63,5 +67,6 @@ class XMRigRemotePane(Container):
         self.xmrig = xmrig
         self.instance_label.update(xmrig.instance())
         self.ip_addr_label.update(xmrig.ip_addr())
-        self.hashrate_label.update(str(xmrig.hashrate()))
+        self.hashrate_label.update(str(xmrig.hashrate()) + " H/s")
+        self.uptime_label.update(xmrig.uptime())
         

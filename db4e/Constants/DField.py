@@ -137,6 +137,7 @@ class DField(ConstGroup) :
     USER : str = "user"
     USER_WALLET : str = "user_wallet"
     UPDATE_DEPLOYMENT : str = "update_deployment"
+    UPTIME : str = "uptime"
     VENDOR_DIR : str = "vendor_dir"
     VALUE : str = "value"
     VERSION : str = "version"

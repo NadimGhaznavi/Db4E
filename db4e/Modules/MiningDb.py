@@ -133,7 +133,7 @@ class MiningDb():
             self.log.info(f"Created new {chain} miners ({num_miners}) record")
 
 
-    def add_miner_hashrate(self, chain, miner_name, ip_addr, hashrate):
+    def add_miner_hashrate(self, chain, miner_name, ip_addr, hashrate, uptime):
         """
         Store the miner hashrate
         """
@@ -145,7 +145,7 @@ class MiningDb():
             DMongo.TIMESTAMP: timestamp,
             DMining.MINER: miner_name,
             DMongo.IP_ADDR: ip_addr,
-            DMining.HASHRATE: hashrate
+            DMining.HASHRATE: hashrate,
         }
 
         existing = self.db.find_one(self.mining_col, {
@@ -172,7 +172,8 @@ class MiningDb():
             DMongo.TIMESTAMP: rt_timestamp,
             DMongo.IP_ADDR: ip_addr,
             DMining.MINER: miner_name,
-            DMining.HASHRATE: hashrate
+            DMining.HASHRATE: hashrate,
+            DMongo.UPTIME: uptime,
         }
 
         existing = self.db.find_one(self.mining_col, {
@@ -184,7 +185,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] },
-                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, DMongo.TIMESTAMP: rt_timestamp})
+                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, DMongo.TIMESTAMP: rt_timestamp, DMongo.UPTIME: uptime})
             self.log.info(f"Updated existing ({chain}) real-time miner ({miner_name}) hashrate ({hashrate}) record")
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -375,6 +376,11 @@ class MiningDb():
                         DField.FIELD: DField.TIMESTAMP,
                         DField.LABEL: DLabel.TIMESTAMP,
                         DField.VALUE: aRec[DMongo.TIMESTAMP]
+                    },
+                    {
+                        DField.FIELD: DField.UPTIME,
+                        DField.LABEL: DLabel.UPTIME,
+                        DField.VALUE: aRec[DMongo.UPTIME]
                     }
                 ],
             }

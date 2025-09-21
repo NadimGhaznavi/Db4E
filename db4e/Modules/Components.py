@@ -239,6 +239,10 @@ class Version(Component):
         super().__init__(DField.VERSION, DLabel.VERSION)
 
 
+class Uptime(Component):
+    def __init__(self):
+        super().__init__(DField.UPTIME, DLabel.UPTIME)
+
 class UserWallet(Component):
     def __init__(self):
         super().__init__(DField.USER_WALLET, DLabel.USER_WALLET)
