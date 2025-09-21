@@ -12,6 +12,7 @@ from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import (
     Label, Input, Button, RadioSet, RadioButton)
+from textual_plotext import PlotextPlot
 
 from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRigRemote import XMRigRemote

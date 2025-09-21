@@ -17,6 +17,7 @@ from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -31,7 +32,7 @@ from db4e.Constants.DDebug import DDebug
 
 DDebug.FUNCTION = False
 
-REFRESH_INTERVAL = 5
+REFRESH_INTERVAL = 2
 
 class HealthCache:
 
@@ -41,21 +42,24 @@ class HealthCache:
         self.health_mgr = HealthMgr()
 
         self.db4e = None
-        self.monerods, self.p2pools, self.xmrigs, self.xmrigs_remote = [], [], [], []
-        self.monerods_map, self.p2pools_map, self.xmrigs_map, self.xmrigs_remote_map = \
-            {}, {}, {}, {}
+        self.monerods, self.p2pools, self.int_p2pools, self.xmrigs, self.xmrigs_remote  = \
+            [], [], [], [], []
+        self.monerods_map, self.p2pools_map, self.int_p2pools_map, self.xmrigs_map, \
+            self.xmrigs_remote_map = {}, {}, {}, {}, {}
         self.id_map = {}
 
         self.refresh_now = {
             DElem.DB4E: True,
             DElem.MONEROD: True,
             DElem.P2POOL: True,
+            DElem.INT_P2POOL: True,
             DElem.XMRIG: True,
             DElem.XMRIG_REMOTE: True,
         }
         self.refresh_db4e()
         self.refresh_monerods()
         self.refresh_p2pools()
+        self.refresh_int_p2pools()
         self.refresh_xmrigs()
         self.refresh_xmrigs_remote()
 
@@ -68,6 +72,8 @@ class HealthCache:
             self.refresh_now[DElem.MONEROD] = True
             time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.P2POOL] = True
+            time.sleep(REFRESH_INTERVAL)
+            self.refresh_now[DElem.INT_P2POOL] = True
             time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.XMRIG] = True
             time.sleep(REFRESH_INTERVAL)
@@ -98,13 +104,21 @@ class HealthCache:
             except KeyError:
                 print(f"HealthCache:check(): P2Pool key error: {elem}")
                 return None
-            
+
         # Remote P2Pool
         elif type(elem) == P2PoolRemote:
             try:
                 return deepcopy(self.p2pools_map[elem.instance()])
             except KeyError:
                 print(f"HealthCache:check(): P2PoolRemote key error: {elem}")
+                return None
+
+        # Internal P2Pool
+        elif type(elem) == InternalP2Pool:
+            try:
+                return deepcopy(self.p2pools_map[elem.instance()])
+            except KeyError:
+                print(f"HealthCache:check(): InternalP2Pool key error: {elem}")
                 return None
 
         # XMRig
@@ -195,7 +209,9 @@ class HealthCache:
             p2pool = self.p2pools_map.get(instance)[DField.INSTANCE]
             return deepcopy(p2pool)
         
-
+        elif elem_type == DElem.INT_P2POOL:
+            int_p2pool = self.int_p2pools_map.get(instance)[DField.INSTANCE]
+            return deepcopy(int_p2pool)
         
         elif elem_type == DElem.XMRIG:
             xmrig = self.xmrigs_map.get(instance)[DField.INSTANCE]
@@ -213,6 +229,11 @@ class HealthCache:
     def get_p2pools(self) -> list:
         self.refresh_p2pools()
         return deepcopy(self.p2pools)
+    
+
+    def get_int_p2pools(self) -> list:
+        self.refresh_int_p2pools()
+        return deepcopy(self.int_p2pools)
 
 
     def get_xmrigs_remote(self) -> list:
@@ -247,47 +268,6 @@ class HealthCache:
         print(f"HealthCache:refresh_id(): ERROR: {elem} not in cache")
         
 
-    def UNUSED_refresh_instance(self, elem_type, instance):
-        # MoneroD and Remote MoneroD
-        if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
-            monerod = self.depl_client.get_deployment(elem_type, instance)
-            self.health_mgr.check(monerod)
-            self.monerods_map[monerod.instance()] = monerod
-            self.id_map[monerod.id()] = monerod
-
-        # P2Pool
-        elif elem_type == DElem.P2POOL:
-            p2pool = self.depl_client.get_deployment(elem_type, instance)
-            p2pool.monerod = self.depl_client.get_deployment_by_id(p2pool.parent())
-            self.health_mgr.check(p2pool)
-            self.p2pools_map[p2pool.instance()] = p2pool
-            self.id_map[p2pool.id()] = p2pool
-
-        # Remote P2Pool
-        elif elem_type == DElem.P2POOL_REMOTE:
-            p2pool = self.depl_client.get_deployment(elem_type, instance)
-            self.health_mgr.check(p2pool)
-            self.p2pools_map[p2pool.instance()] = p2pool
-            self.id_map[p2pool.id()] = p2pool
-
-        # XMRig
-        elif elem_type == DElem.XMRIG:
-            xmrig = self.depl_client.get_deployment(elem_type, instance)
-            #xmrig.p2pool = self.depl_client.get_deployment_by_id(xmrig.parent())
-            #if xmrig.p2pool == DElem.P2POOL:
-            #    xmrig.p2pool.monerod = self.depl_client.get_deployment_by_id(xmrig.p2pool.parent())
-            self.health_mgr.check(xmrig)
-            self.xmrigs_map[xmrig.instance()] = xmrig
-            self.id_map[xmrig.id()] = xmrig
-
-        # Remote XMRig
-        elif elem_type == DElem.XMRIG_REMOTE:
-            xmrig = self.depl_client.get_deployment(elem_type, instance)
-            self.health_mgr.check(xmrig)
-            self.xmrigs_remote_map[xmrig.instance()] = xmrig
-            self.id_map[xmrig.id()] = xmrig
-
-
     def refresh_monerods(self):
         self.refresh_elements(
             DElem.MONEROD, self.depl_client.get_monerods, 
@@ -298,6 +278,12 @@ class HealthCache:
         self.refresh_elements(
             DElem.P2POOL, self.depl_client.get_p2pools, 
             DField.P2POOLS, DField.P2POOLS_MAP)
+
+
+    def refresh_int_p2pools(self):
+        self.refresh_elements(
+            DElem.INT_P2POOL, self.depl_client.get_int_p2pools, 
+            DField.INT_P2POOLS, DField.INT_P2POOLS_MAP)
 
 
     def refresh_xmrigs_remote(self):

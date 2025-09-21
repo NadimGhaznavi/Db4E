@@ -230,14 +230,21 @@ class DeplClient:
     def get_db4e(self):
         return self.get_deployment(DElem.DB4E)
 
+
     def get_deployment(self, elem_type: str, instance=None):
         return self.db_cache.get_deployment(elem_type, instance)
+
 
     def get_deployment_by_id(self, id):
         return self.db_cache.get_deployment_by_id(id)
 
+
     def get_deployments(self):
         return self.db_cache.get_deployments()
+
+
+    def get_int_p2pools(self):
+        return self.db_cache.get_int_p2pools()
 
 
     def get_monerods(self) -> list[MoneroD | MoneroDRemote]:

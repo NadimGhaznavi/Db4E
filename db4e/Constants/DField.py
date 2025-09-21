@@ -46,6 +46,8 @@ class DField(ConstGroup) :
     INFO_MSG : str = "info_msg"
     INSTALL_DIR : str = "install_dir"
     INSTANCE : str = "instance"
+    INT_P2POOLS : str = "int_p2pools"
+    INT_P2POOLS_MAP : str = "int_p2pools_map"
     IP_ADDR : str = "ip_addr"
     JOB : str = "job"
     JOBS : str = "jobs"

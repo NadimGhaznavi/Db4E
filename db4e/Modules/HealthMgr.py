@@ -13,6 +13,7 @@ import socket
 from datetime import datetime, timezone
 
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -34,7 +35,7 @@ class HealthMgr:
             return self.check_monerod(elem)
         elif type(elem) == MoneroDRemote:
             return self.check_monerod_remote(elem)
-        elif type(elem) == P2Pool:
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             return self.check_p2pool(elem)
         elif type(elem) == P2PoolRemote:
             return self.check_p2pool_remote(elem)
@@ -227,7 +228,7 @@ class HealthMgr:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.STRATUM_PORT} missing")
             missing_field = True
 
-        if not p2pool.log_level():
+        if type(p2pool) != InternalP2Pool and not p2pool.log_level():
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.LOG_LEVEL} missing")
             missing_field = True
 

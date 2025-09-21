@@ -64,6 +64,10 @@ class OpsMgr:
         return elem
 
 
+    def get_int_p2pools(self) -> list:
+        return self.health_cache.get_int_p2pools()
+
+
     def get_monerods(self) -> list:
         return self.health_cache.get_monerods()
 

@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.36.0] - 2025-09-21
+## [Unreleased]
+
+### Added
+- Health checks for *Internal P2Pool* deployments, in the `NavPane` and `HealthMgr`
+
+### Changed
+- *Chain Stats* tree layout in the `NavPane`
+
+---
+
+## [0.38.0] - 2025-09-21
 
 ### Added 
 - Major refactoring of how contants are handled:

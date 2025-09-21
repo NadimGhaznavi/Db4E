@@ -38,11 +38,8 @@ DEPL = 'DEPL'
 GIFT = 'GIFT'
 HASH = 'HASH'
 LOG = 'LOG'
-MAIN = 'MAIN'
 MET = 'MET'
 MINERS = 'MINERS'
-MINI = 'MINI'
-NANO = 'NANO'
 MON = 'MON'
 NEW = 'NEW'
 P2P = 'P2P'
@@ -57,11 +54,8 @@ ICON = {
     GIFT: '🎉',
     HASH: '📉',
     LOG: '📚',
-    MAIN: '🌕',
     MET: '🔎',
     MINERS: '👷',
-    MINI: '🌗',
-    NANO: '🌘',
     MON: '🌿',
     NEW: '🔧',
     P2P: '🌊',
@@ -301,19 +295,6 @@ class NavPane(Container):
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
-            elif leaf_data in (BLOCK, MINERS, HASH) and parent_data in (MAIN, MINI, NANO):
-                chain = parent_data
-                metric = leaf_data
-                #print(f"NavPane:on_tree_node_selected(): {chain}/{metric}")
-                form_data = {
-                    DField.ELEMENT_TYPE: CHAIN,
-                    DField.TO_MODULE: DModule.OPS_MGR,
-                    DField.TO_METHOD: DMethod.PLOT,
-                    CHAIN: chain,
-                    DField.PLOT_TYPE: metric
-                }
-                self.post_message(Db4eMsg(self, form_data=form_data))
-
 
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
@@ -347,21 +328,17 @@ class NavPane(Container):
                 f"{ICON[XMR]} {DLabel.XMRIG_SHORT}", data=DLabel.XMRIG_SHORT, expand=True)
             self.xmrig_remote_tree = self.depls.root.add(
                 f"{ICON[XMR]} {DLabel.XMRIG_REMOTE_SHORT}", data=DLabel.XMRIG_REMOTE_SHORT, expand=True)
-            chain = self.depls.root.add(
+            self.chain = self.depls.root.add(
                 f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}", data=DLabel.CHAIN_STATS, expand=True)
-            main = chain.add(
-                f"{ICON[MAIN]} {DLabel.MAIN_CHAIN}", data=DLabel.MAIN_CHAIN, expand=True)
-            main.add_leaf(
-                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)            
-            mini = chain.add(
-                f"{ICON[MINI]} {DLabel.MINI_CHAIN}", data=DLabel.MINI_CHAIN, expand=True)            
-            mini.add_leaf(
-                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
-            nano = chain.add(
-                f"{ICON[NANO]} {DLabel.NANO_CHAIN}", data=DLabel.NANO_CHAIN, expand=True)
-            nano.add_leaf(
-                    f"{ICON[LOG]} {DLabel.LOG_FILE}", data=DLabel.LOG_FILE)
 
+        self.chain.remove_children()
+        for int_p2pool in self.ops_mgr.get_int_p2pools():
+            state = int_p2pool.status()
+            print(f"NavPane:refresh_nav_pane(): int_pool status:{state}")
+            print(f"navPane:refresh_nav_pane(): msgs: {int_p2pool.msgs}")
+            instance = int_p2pool.instance()
+            self.chain.add_leaf(
+                f"{STATE_ICON[state]} {instance}", data=instance)
 
         self.monerod_tree.remove_children()
         self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
