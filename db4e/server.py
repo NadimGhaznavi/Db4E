@@ -60,7 +60,8 @@ POLL_INTERVAL = 5
 class Db4eServer:
     """
     Db4E Server
-    Server Class Relationships Diagram
+    Server Class Relationships Diagram:
+    https://app.diagrams.net/#G1ytFOrYGglEs5p85JfAUTwwLgGR8sZYdD#%7B%22pageId%22%3A%22hYJ4WWheaxyqbM-ibf4z%22%7D
     """
 
     def __init__(self):
