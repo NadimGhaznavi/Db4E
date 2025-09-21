@@ -51,21 +51,16 @@ class OpsMgr:
                 instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
+        if elem_type == DElem.XMRIG_REMOTE:
+            return self.db_cache.get_xmrig_remote(instance=instance)
+
+
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
         if type(elem) == P2Pool:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
         elif type(elem) == XMRig:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
         
-        #checked_elem = self.health_cache.check(elem)
-        #if checked_elem:
-            # Return the elem with health check messages
-        #    if type(checked_elem) == P2Pool:
-        #        print(f"OpsMgr:get_deployment(): 1. P2Pool's monerod: {checked_elem.monerod})")
-        #    return checked_elem
-        
-        # The item isn't in the HealthMgr cache yet, return it with no health check messages
-        #print(f"OpsMgr:get_deployment(): 1. P2Pool's monerod: {elem.monerod})")
         return elem
 
 

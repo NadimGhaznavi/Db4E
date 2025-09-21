@@ -106,6 +106,7 @@ class DLabel(ConstGroup):
     WALLET : str = "Monero Wallet"
     XMRIG : str = "XMRig Miner"
     XMRIG_REMOTE : str = "Remote XMRig Miner"
+    XMRIG_REMOTE_SHORT : str = "Remote XMRig"
     XMRIG_SHORT : str = "XMRig"
     ZMQ_PUB_PORT : str = "ZMQ Pub Port"
     ZMQ_RPC_PORT : str = "ZMQ RPC Port"

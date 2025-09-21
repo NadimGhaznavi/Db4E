@@ -347,6 +347,9 @@ class DbCache:
         return p2pools_list
     
 
+    def get_xmrig_remote(self, instance):
+        return self.xmrigs_remote_map[instance]
+
     def get_xmrigs_remote(self):
         return list(self.xmrigs_remote_map.values())
 

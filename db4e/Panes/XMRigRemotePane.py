@@ -14,7 +14,7 @@ from textual.widgets import (
     Label, Input, Button, RadioSet, RadioButton)
 
 from db4e.Modules.Helper import gen_results_table
-from db4e.Modules.XMRig import XMRig
+from db4e.Modules.XMRigRemote import XMRigRemote
 from db4e.Messages.Db4eMsg import Db4eMsg
 from db4e.Constants.DButton import DButton
 from db4e.Constants.DJob import DJob
@@ -30,6 +30,8 @@ class XMRigRemotePane(Container):
 
 
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    ip_addr_label = Label("", id="ip_addr_label", classes=DForm.STATIC)
+    hashrate_label = Label("", id="hashrate_label", classes=DForm.STATIC)
     xmrig_remote = None
 
 
@@ -46,6 +48,12 @@ class XMRigRemotePane(Container):
                     Horizontal(
                         Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_label),
+                    Horizontal(
+                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL),
+                        self.ip_addr_label),
+                    Horizontal(
+                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL),
+                        self.hashrate_label),
                     classes=DForm.FORM_3, id="form_field"),
                 
             classes=DForm.PANE_BOX))
@@ -54,4 +62,6 @@ class XMRigRemotePane(Container):
         #print(f"XMRig:set_data(): {xmrig}")
         self.xmrig = xmrig
         self.instance_label.update(xmrig.instance())
+        self.ip_addr_label.update(xmrig.ip_addr())
+        self.hashrate_label.update(str(xmrig.hashrate()))
         

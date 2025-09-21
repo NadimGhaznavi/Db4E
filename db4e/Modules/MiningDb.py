@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 # Import DB4E modules
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DMongo import DMongo

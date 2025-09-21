@@ -25,6 +25,7 @@ from db4e.Panes.ResultsPane import ResultsPane
 from db4e.Panes.TUILogPane import TUILogPane
 from db4e.Panes.WelcomePane import WelcomePane
 from db4e.Panes.XMRigPane import XMRigPane
+from db4e.Panes.XMRigRemotePane import XMRigRemotePane
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DPane import DPane
@@ -44,6 +45,7 @@ REGISTRY = {
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.PLOT_VIEW: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG_REMOTE, DLabel.ANALYTICS),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
