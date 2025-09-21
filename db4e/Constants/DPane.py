@@ -21,6 +21,7 @@ class DPane(ConstGroup):
     MONEROD_REMOTE: str  = "MoneroDRemotePane"
     P2POOL_TYPE: str  = "P2PoolTypePane"
     P2POOL: str  = "P2PoolPane"
+    P2POOL_INTERNAL: str  = "P2PoolInternalPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
     PLOT_VIEW: str  = "PlotViewPane"
     RESULTS: str  = "ResultsPane"

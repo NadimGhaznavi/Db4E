@@ -18,6 +18,7 @@ from db4e.Panes.MoneroDPane import MoneroDPane
 from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
 from db4e.Panes.MoneroDTypePane import MoneroDTypePane
 from db4e.Panes.P2PoolPane import P2PoolPane
+from db4e.Panes.P2PoolInternalPane import P2PoolInternalPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.P2PoolTypePane import P2PoolTypePane
 from db4e.Panes.PlotViewPane import PlotViewPane
@@ -42,6 +43,7 @@ REGISTRY = {
     DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
     DPane.P2POOL_TYPE: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
+    DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.ANALYTICS),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.PLOT_VIEW: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),

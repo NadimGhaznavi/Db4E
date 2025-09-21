@@ -121,7 +121,7 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_data = event.node.data
             parent_data = event.node.parent.data
-            #print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_data}), parent_item ({parent_data})")
+            print(f"NavPane:on_tree_node_selected(): leaf_item ({leaf_data}), parent_item ({parent_data})")
 
             # Initial Setup
             if leaf_data == DLabel.INITIAL_SETUP:
@@ -192,6 +192,15 @@ class NavPane(Container):
             elif parent_data == DLabel.XMRIG_REMOTE_SHORT:
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                    DField.TO_MODULE: DModule.OPS_MGR,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data
+                }
+                self.post_message(Db4eMsg(self, form_data=form_data))
+
+            elif parent_data == DLabel.CHAIN_STATS:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                     DField.TO_MODULE: DModule.OPS_MGR,
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data
@@ -284,17 +293,6 @@ class NavPane(Container):
                         }
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
-                # Chain Stats
-                elif grandparent_data == DLabel.CHAIN_STATS:
-                    if leaf_data == DLabel.LOG_FILE:
-                        form_data = {
-                            DField.ELEMENT_TYPE: DElem.INT_P2POOL,
-                            DField.TO_MODULE: DModule.OPS_MGR,
-                            DField.TO_METHOD: DMethod.LOG_VIEWER,
-                            DField.INSTANCE: parent_data
-                        }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
-
 
     def refresh_nav_pane(self) -> None:
         self.set_initialized()
@@ -334,8 +332,6 @@ class NavPane(Container):
         self.chain.remove_children()
         for int_p2pool in self.ops_mgr.get_int_p2pools():
             state = int_p2pool.status()
-            print(f"NavPane:refresh_nav_pane(): int_pool status:{state}")
-            print(f"navPane:refresh_nav_pane(): msgs: {int_p2pool.msgs}")
             instance = int_p2pool.instance()
             self.chain.add_leaf(
                 f"{STATE_ICON[state]} {instance}", data=instance)
