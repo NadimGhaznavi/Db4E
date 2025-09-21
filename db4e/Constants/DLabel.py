@@ -103,6 +103,7 @@ class DLabel(ConstGroup):
     USER_WALLET : str = "Monero User Wallet"
     VENDOR_DIR : str = "Deployment Directory"
     VERSION : str = "Version"
+    VIEW_LOG : str = "View Log"
     WELCOME : str = "Welcome"
     WALLET : str = "Monero Wallet"
     XMRIG : str = "XMRig Miner"

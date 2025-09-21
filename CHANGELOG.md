@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Health checks for *Internal P2Pool* deployments, in the `NavPane` and `HealthMgr`
+- Added a *View Log* button to the *Internal P2Pool* pane
 
 ### Changed
 - *Chain Stats* tree layout in the `NavPane`
 
+### Removed
+- Removed `PlotViewPane`: Plot views are integrated into  existing panes
 ---
 
 ## [0.38.0] - 2025-09-21

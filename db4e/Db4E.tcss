@@ -300,6 +300,10 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#view_log_button {
+    color: #5fc442;
+    text-style: bold; }
+
 .new #update_button {
     display: none; }
 

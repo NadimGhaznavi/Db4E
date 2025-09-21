@@ -11,15 +11,16 @@ db4e/Constants/DButton.py
 from db4e.Modules.ConstGroup import ConstGroup
 
 class DButton(ConstGroup):
-    ABORT: str = "abort_button"
-    DELETE: str  = "delete_button"
-    DISABLE: str  = "disable_button"
-    ENABLE: str  = "enable_button"
-    NEW: str  = "new_button"
-    PROCEED: str  = "proceed_button"
-    START: str  = "start_button"
-    STOP: str  = "stop_button"
-    UPDATE: str  = "update_button"
+    ABORT : str = "abort_button"
+    DELETE : str  = "delete_button"
+    DISABLE : str  = "disable_button"
+    ENABLE : str  = "enable_button"
+    NEW : str  = "new_button"
+    PROCEED : str  = "proceed_button"
+    START : str  = "start_button"
+    STOP : str  = "stop_button"
+    UPDATE : str  = "update_button"
+    VIEW_LOG : str = "view_log_button"
 
 
 

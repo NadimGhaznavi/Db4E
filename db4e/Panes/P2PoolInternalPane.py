@@ -33,6 +33,7 @@ class P2PoolInternalPane(Container):
     config_file_label = Label("", id="config_label", classes=DForm.STATIC)
     stratum_port_label = Label("", id="stratum_port_label", classes=DForm.STATIC)
     p2p_port_label = Label("", id="p2p_port_label", classes=DForm.STATIC)
+    view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     p2pool = None
 
 
@@ -59,8 +60,11 @@ class P2PoolInternalPane(Container):
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_file_label),
                     classes=DForm.FORM_4, id="form_field"),
-                
-            classes=DForm.PANE_BOX))
+
+                Vertical(
+                    self.view_log_button
+                )),
+                classes=DForm.PANE_BOX)
 
     def set_data(self, p2pool: InternalP2Pool):
         self.p2pool = p2pool
@@ -69,3 +73,11 @@ class P2PoolInternalPane(Container):
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
         
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        form_data = {
+            DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+            DField.TO_MODULE: DModule.OPS_MGR,
+            DField.TO_METHOD: DMethod.LOG_VIEWER,
+            DField.INSTANCE: self.p2pool.instance()
+        }
+        self.app.post_message(Db4eMsg(self, form_data=form_data))
