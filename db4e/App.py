@@ -48,6 +48,28 @@ from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
 
+from textual.theme import Theme
+
+db4e_theme = Theme(
+    name="db4e",
+    primary="#88C0D0",
+    secondary="#81A1C1",
+    accent="#B48EAD",
+    foreground="#31b8e6",
+    background="#2E3440",
+    success="#A3BE8C",
+    warning="#EBCB8B",
+    error="#BF616A",
+    surface="black",
+    panel="#434C5E",
+    dark=True,
+    variables={
+        "block-cursor-text-style": "none",
+        "footer-key-foreground": "#88C0D0",
+        "input-selection-background": "#81a1c1 35%",
+    },
+)
+
 class Db4EApp(App):
     TITLE = DDef.APP_TITLE
     CSS_PATH = DDef.CSS_PATH
@@ -82,6 +104,13 @@ class Db4EApp(App):
         )
         yield self.pane_mgr
 
+
+    def on_mount(self) -> None:
+        # Register the theme
+        self.register_theme(db4e_theme)  
+
+        # Set the app's theme
+        self.theme = "db4e"  
 
     ### Message handling happens here...#31b8e6;
 
