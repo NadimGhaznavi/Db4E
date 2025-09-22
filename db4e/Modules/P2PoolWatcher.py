@@ -49,15 +49,6 @@ class P2PoolWatcher:
     
 
     def get_handlers(self):
-        #self.is_miner_stats(log_line)
-        #self.is_share_found(log_line)
-        #self.is_share_position(log_line)
-        #self.is_block_found(log_line)
-        #self.is_xmr_payment(log_line)
-        #self.is_side_chain_hashrate(log_line)
-        #self.is_main_chain_hashrate(log_line)
-        #self.is_pool_hashrate(log_line)
-
 
         if self.stats_mod():
             # This is only used when the P2PoolWatcher is watching an internal P2Pool
@@ -129,12 +120,14 @@ class P2PoolWatcher:
         """
         if DDebug.FUNCTION:
             print(f"InternalP2PoolWatcher:is_main_chain_hashrate()")
-        pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
+        pattern = r"Main chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
+
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
@@ -188,12 +181,13 @@ class P2PoolWatcher:
         """
         if DDebug.FUNCTION:
             print(f"InternalP2PoolWatcher:is_side_chain_hashrate()")
-        pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
+        pattern = r"Side chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
@@ -207,12 +201,12 @@ class P2PoolWatcher:
         Your hashrate (pool-side) = 13.137 KH/s
         Hashrate (1h  est)   = 7.384 KH/s
         """
-        pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>.*H/s)"
+        pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
 
     def is_share_found(self, log_line):

@@ -41,8 +41,8 @@ class OpsMgr:
 
 
     def add_deployment(self, form_data: dict):
-        elem_type = form_data[DField.ELEMENT]
-        elem = self.depl_client.add_deployment(elem_type)
+        elem = form_data[DField.ELEMENT]
+        elem = self.depl_client.add_deployment(elem)
         self.health_cache.check(elem)
         return elem
  
@@ -53,20 +53,18 @@ class OpsMgr:
                 instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
-        if elem_type == DElem.XMRIG_REMOTE:
-            return self.db_cache.get_xmrig_remote(instance=instance)
-
-        elif elem_type == DElem.INT_P2POOL:
-            elem = self.db_cache.get_deployment(elem_type=elem_type, instance=instance)
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
-            return elem
-
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
-        if type(elem) == P2Pool:
+
+        if elem_type == DElem.INT_P2POOL:
+            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
+
+        elif type(elem) == P2Pool:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+
         elif type(elem) == XMRig:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
         
+        return elem
 
 
     def get_int_p2pools(self) -> list:

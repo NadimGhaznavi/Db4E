@@ -21,11 +21,6 @@ NavPane {
     border: round #0c323e;
     background: black; }
 
-HashratePlot {
-    color: black;
-    background: black; 
-    border: round #0c323e; }
-
 RadioButton {
     color: #31b8e6;
 }

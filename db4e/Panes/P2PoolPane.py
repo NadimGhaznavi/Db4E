@@ -201,6 +201,7 @@ class P2PoolPane(Container):
         self.p2pool.log_level(self.query_one("#log_level_input", Input).value)
 
         if button_id == DButton.NEW:
+            print(self.p2pool.instance())
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,

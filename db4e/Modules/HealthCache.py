@@ -202,20 +202,23 @@ class HealthCache:
 
 
     def get_deployment(self, elem_type, instance):
-        if elem_type == DElem.MONEROD:
-            return deepcopy(self.monerods_map[instance][DField.INSTANCE])
+        if elem_type == DElem.DB4E:
+            return deepcopy(self.db4e)
+        
+        elif elem_type == DElem.MONEROD:
+            return deepcopy(self.monerods_map.get(instance)[DField.INSTANCE])
         
         elif elem_type == DElem.P2POOL:
-            p2pool = self.p2pools_map.get(instance)[DField.INSTANCE]
-            return deepcopy(p2pool)
+            return deepcopy(self.p2pools_map.get(instance)[DField.INSTANCE])
         
         elif elem_type == DElem.INT_P2POOL:
-            int_p2pool = self.int_p2pools_map.get(instance)[DField.INSTANCE]
-            return deepcopy(int_p2pool)
+            return deepcopy(self.int_p2pools_map.get(instance)[DField.INSTANCE])
         
         elif elem_type == DElem.XMRIG:
-            xmrig = self.xmrigs_map.get(instance)[DField.INSTANCE]
-            return deepcopy(xmrig)
+            return deepcopy (self.xmrigs_map.get(instance)[DField.INSTANCE])
+
+        elif elem_type == DElem.XMRIG_REMOTE:
+            return deepcopy(self.xmrigs_remote_map.get(instance)[DField.INSTANCE])
             
         else:
             raise ValueError(f"Unsupported element type: {elem_type}")

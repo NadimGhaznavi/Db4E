@@ -72,8 +72,11 @@ class Db4eServer:
         # Mongo DB Manager
         self.db = DbMgr()
 
+        # Mining DB, part of the DAL
+        self.mining_db = MiningDb(db=self.db)
+
         # Database Cache
-        self.db_cache = DbCache(db=self.db)
+        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Deployment Manager
         self.depl_mgr = DeplMgr(db=self.db, db_cache=self.db_cache)
@@ -401,6 +404,9 @@ class Db4eServer:
         if monerod.enabled():
             # Don't do anything if the primary is disabled
             for p2pool in self.depl_mgr.get_internal_p2pools():
+                if p2pool.enabled():
+                    return
+                
                 p2pool = deepcopy(p2pool)
                 p2pool.monerod = monerod
                 p2pool.parent(monerod.id())

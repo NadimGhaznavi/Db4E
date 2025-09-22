@@ -192,23 +192,23 @@ class InstallMgr(Container):
         
     # Copy monerod files
     def _copy_monerod_files(self, vendor_dir, db4e: Db4E):
-        monerod_dir = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
+        versioned_monerod_dir = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
 
         # Copy in the Monero daemon and startup scripts
-        fq_dst_bin_dir =  os.path.join(vendor_dir, monerod_dir, DDef.BIN_DIR)
+        fq_dst_bin_dir =  os.path.join(vendor_dir, DElem.MONEROD, DDef.BIN_DIR)
         fq_dst_monerod_dest_script = os.path.join(
-            vendor_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
+            vendor_dir, DElem.MONEROD, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
         fq_src_monerod = os.path.join(
-            tmpl_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_PROCESS)
+            tmpl_dir, versioned_monerod_dir, DDef.BIN_DIR, DDef.MONEROD_PROCESS)
 
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
         db4e.msg(DLabel.MONEROD, DStatus.GOOD,
             f"Installed: {fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}")
         
         fq_src_monerod_start_script = os.path.join(
-            tmpl_dir, monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
+            tmpl_dir, versioned_monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT)
         shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
         db4e.msg(DLabel.MONEROD, DStatus.GOOD,
             f"Installed: {fq_dst_monerod_dest_script}")
@@ -223,16 +223,15 @@ class InstallMgr(Container):
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # P2Pool directory
-        p2pool_version = DDef.P2POOL_VERSION
-        p2pool_dir = DElem.P2POOL +'-' + str(p2pool_version)
+        versioned_p2pool_dir = DElem.P2POOL +'-' + str(DDef.P2POOL_VERSION)
         # Copy in the P2Pool daemon and startup script
         fq_src_p2pool = os.path.join(
-            tmpl_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_PROCESS)
-        fq_dst_bin_dir = os.path.join(vendor_dir, p2pool_dir, DDef.BIN_DIR)
+            tmpl_dir, versioned_p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_PROCESS)
+        fq_dst_bin_dir = os.path.join(vendor_dir, DElem.P2POOL, DDef.BIN_DIR)
         fq_src_p2pool_start_script  = os.path.join(
-            tmpl_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
+            tmpl_dir, versioned_p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
         fq_dst_p2pool_start_script = os.path.join(
-            vendor_dir, p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
+            vendor_dir, DElem.P2POOL, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT)
         shutil.copy(fq_src_p2pool, fq_dst_bin_dir)
         db4e.msg(DLabel.P2POOL, DStatus.GOOD,
             f"Installed: {fq_dst_bin_dir}/{DDef.P2POOL_PROCESS}")
@@ -247,20 +246,17 @@ class InstallMgr(Container):
     def _copy_xmrig_file(self, vendor_dir:str , db4e: Db4E) -> Db4E:
         xmrig_binary = DDef.XMRIG_PROCESS
         # XMRig directory
-        xmrig_version = DDef.XMRIG_VERSION
-        xmrig_dir = DElem.XMRIG + '-' + str(xmrig_version)
+        versioned_xmrig_dir = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
-        fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, xmrig_dir, DDef.BIN_DIR)
-        fq_src_xmrig = os.path.join(tmpl_dir, xmrig_dir, DDef.BIN_DIR, xmrig_binary)
+        fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, DElem.XMRIG, DDef.BIN_DIR)
+        fq_src_xmrig = os.path.join(tmpl_dir, versioned_xmrig_dir, DDef.BIN_DIR, xmrig_binary)
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
         db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Installed: {fq_dst_xmrig_bin_dir}/{xmrig_binary}")
         return db4e
 
     def _create_db4e_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        #print(f"InstallMgr:_create_db4e_dirs(): vendor_dir {vendor_dir}")
-        db4e_with_version = DElem.DB4E + '-' + str(DDef.DB4E_VERSION)
-        fq_db4e_dir = os.path.join(vendor_dir, db4e_with_version)
+        fq_db4e_dir = os.path.join(vendor_dir, DElem.DB4E)
         # Create the base Db4E directory
         os.makedirs(os.path.join(fq_db4e_dir))
         db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}")
@@ -268,20 +264,10 @@ class InstallMgr(Container):
         for sub_dir in [DDef.LOG_DIR]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
             db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
-        # Create a symlink
-        os.chdir(vendor_dir)
-        os.symlink(
-            os.path.join(db4e_with_version),
-            os.path.join(DElem.DB4E))
-        # Create a health message, the directories will be logged later...
-        db4e.msg(
-            DLabel.DB4E, DStatus.GOOD,
-            f"Created symlink to directory: {DElem.DB4E} > {db4e_with_version}")
         return db4e
 
     def _create_monerod_dirs(self, vendor_dir, db4e):
-        monerod_with_version = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
-        fq_monerod_dir = os.path.join(vendor_dir, monerod_with_version)
+        fq_monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
 
         # Create the base Monero directory
         os.mkdir(fq_monerod_dir)
@@ -293,19 +279,10 @@ class InstallMgr(Container):
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.MONEROD, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
 
-        os.chdir(vendor_dir)
-        os.symlink(
-            os.path.join(monerod_with_version),
-            os.path.join(DElem.MONEROD))
-        # Create a health message, the directories will be logged later...
-        db4e.msg(
-            DLabel.MONEROD, DStatus.GOOD,
-            f"Created symlink to directory: {DElem.MONEROD} > {monerod_with_version}")
         return db4e
 
     def _create_p2pool_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        p2pool_with_version = DElem.P2POOL + '-' + str(DDef.P2POOL_VERSION)  
-        fq_p2pool_dir = os.path.join(vendor_dir, p2pool_with_version)
+        fq_p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
 
         # Create the base P2Pool directory
         os.mkdir(os.path.join(fq_p2pool_dir))
@@ -317,13 +294,6 @@ class InstallMgr(Container):
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.P2POOL, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
 
-        os.chdir(vendor_dir)
-        os.symlink(
-            os.path.join(p2pool_with_version),
-            os.path.join(DElem.P2POOL))
-        db4e.msg(DLabel.P2POOL, DStatus.GOOD,
-            f"Created symlink to directory: {DElem.P2POOL} > {p2pool_with_version}")
-        
         return db4e
 
 
@@ -362,18 +332,13 @@ class InstallMgr(Container):
         return db4e, abort_install
 
     def _create_xmrig_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
-        xmrig_with_version = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
-        fq_xmrig_dir = os.path.join(vendor_dir, xmrig_with_version)
+        fq_xmrig_dir = os.path.join(vendor_dir, DElem.XMRIG)
         os.mkdir(os.path.join(fq_xmrig_dir))
         db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Created directory: {fq_xmrig_dir}")
         for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.LOG_DIR]:
             fq_sub_dir = os.path.join(fq_xmrig_dir, sub_dir)
             os.mkdir(fq_sub_dir)
             db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
-        os.chdir(vendor_dir)
-        os.symlink(xmrig_with_version, DElem.XMRIG)
-        db4e.msg(DLabel.XMRIG, DStatus.GOOD,
-            f"Created symlink to directory: {DElem.XMRIG} > {xmrig_with_version}")
         return db4e
 
 
