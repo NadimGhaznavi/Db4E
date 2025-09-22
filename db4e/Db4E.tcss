@@ -306,7 +306,7 @@ Button {
     text-style: bold; }
 
 #view_log_button {
-    color: #5fc442;
+    color: #c49b42ff;
     text-style: bold; }
 
 .new #update_button {

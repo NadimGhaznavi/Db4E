@@ -116,9 +116,9 @@ class P2PoolPane(Container):
                         self.new_button,
                         self.update_button,
                         self.enable_button,
+                        self.view_log_button,
                         self.disable_button,
                         self.delete_button,
-                        self.view_log_button,
                         classes=DForm.BUTTON_ROW))),
                 
             classes=DForm.PANE_BOX)
