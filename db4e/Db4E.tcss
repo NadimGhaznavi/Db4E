@@ -156,27 +156,32 @@ Tree {
 .form_input_7 {
     color: cyan;
     padding: 0 1; 
-    width: 9; }
+    width: 9; 
+    background: #111111; }
 
 .form_input_15 {
     color: cyan;
     padding: 0 1;
-    width: 15; }
+    width: 15; 
+    background: #111111; }
 
 .form_input_30 {
     color: cyan;
     padding: 0 1;
-    width: 30; }
+    width: 30; 
+    background: #111111; }
 
 .form_input_40 {
     color: cyan;
     padding: 0 1;
-    width: 40; }
+    width: 40; 
+    background: #111111; }
 
 .form_input_70 {
     color: cyan;
     padding: 0 1;
-    width: 70; }
+    width: 70; 
+    background: #111111; }
     
 .form_label {
     color: #31b8e6;
