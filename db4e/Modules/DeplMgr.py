@@ -191,10 +191,9 @@ class DeplMgr:
         if update:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.XMRIG)
-            xmrig_dir = self.get_dir(DElem.XMRIG)
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             xmrig.log_file(os.path.join(
-                vendor_dir, xmrig_dir, DDef.LOG_DIR, xmrig.instance() + '.log'))
+                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
             self.insert_one(xmrig)
         return xmrig
 

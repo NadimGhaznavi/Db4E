@@ -49,6 +49,7 @@ class XMRigPane(Container):
     enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     xmrig = None
 
 
@@ -88,6 +89,7 @@ class XMRigPane(Container):
                         self.enable_button,
                         self.disable_button,
                         self.delete_button,
+                        self.view_log_button,
                         classes=DForm.BUTTON_ROW))),
                 
             classes=DForm.PANE_BOX)
@@ -188,7 +190,15 @@ class XMRigPane(Container):
                 DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
-            }            
+            }
+        elif button_id == DButton.VIEW_LOG:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.LOG_VIEWER,
+                DField.INSTANCE: self.xmrig.instance()
+            }               
+
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
         #self.app.post_message(RefreshNavPane(self))
