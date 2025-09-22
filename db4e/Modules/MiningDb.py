@@ -311,20 +311,11 @@ class MiningDb():
         return dbCursor
 
 
-    def get_mainchain_hashrate(self):
-        record = self.db.find_one(
-            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_MAINCHAIN_HASHRATE})
-        if record:
-            return record
-
-        # Create a new doc if it doesn't already exist
-        jdoc = {
-            DMongo.DOC_TYPE: DMining.RT_MAINCHAIN_HASHRATE,
-            DMongo.TIMESTAMP: None,
-            DMining.HASHRATE: None
-        }
-        self.db.insert_one(self.mining_col, jdoc)
-        return None
+    def get_chain_hashrates(self, chain):
+        return self.db.find_many(
+            self.mining_col, 
+            { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain },
+            { DMongo.TIMESTAMP: 1 })
 
 
     def get_pool_hashrate(self):
@@ -411,22 +402,6 @@ class MiningDb():
             miner = share[DMining.MINER]
             resDict[timestamp] = miner
         return resDict
-
-
-    def get_sidechain_hashrate(self):
-        record = self.db.find_one(
-            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_SIDECHAIN_HASHRATE})
-        if record:
-            return record
-
-        # Create a new doc if it doesn't already exist
-        jdoc = {
-            DMongo.DOC_TYPE: DMining.RT_SIDECHAIN_HASHRATE,
-            DMongo.TIMESTAMP: None,
-            DMining.HASHRATE: None
-        }
-        self.db.insert_one(self.mining_col, jdoc)
-        return None            
 
 
     def get_wallet_balance(self):

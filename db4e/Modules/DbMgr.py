@@ -95,9 +95,14 @@ class DbMgr:
 
 
     @as_worker
-    def find_many(self, col_name, filter, use_worker=True):
+    def find_many(self, col_name, filter, res_sort=None, use_worker=True):
         col = self.get_collection(col_name)
-        return list(col.find(filter))
+        cursor = col.find(filter)
+        if res_sort:
+            # convert dict to list of tuples
+            sort_list = list(res_sort.items())
+            cursor = cursor.sort(sort_list)
+        return list(cursor)
 
 
     @as_worker

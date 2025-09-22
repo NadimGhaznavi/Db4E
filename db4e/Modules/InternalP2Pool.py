@@ -47,8 +47,16 @@ class InternalP2Pool(P2Pool):
         self.in_peers(2)
         self.out_peers(2)
 
+        self._hashrates = None
+
         if rec:
             self.from_rec(rec)
+
+
+    def hashrates(self, hashrates=None):
+        if hashrates is not None:
+            self._hashrates = hashrates
+        return self._hashrates
 
 
     def set_type(self, chain_label, log_file, stats_mod, stdin_path):

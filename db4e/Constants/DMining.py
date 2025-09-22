@@ -26,7 +26,10 @@ class DMining(ConstGroup):
     MINER_HASHRATE: str = "miner_hashrate"
     INSTANCE: str = "instance"
     IP_ADDR = DField.IP_ADDR
+    MAIN_CHAIN = DField.MAIN_CHAIN
     MINER: str = "miner"
+    MINI_CHAIN = DField.MINI_CHAIN
+    NANO_CHAIN = DField.NANO_CHAIN
     RT_HASHRATE: str = "rt_hashrate"
     RT_POOL_HASHRATE: str = "rt_pool_hashrate"
     RT_MINER_HASHRATE: str = "rt_miner_hashrate"

@@ -40,9 +40,9 @@ POLL_INTERVAL = 5
 class DbCache:
     
 
-    def __init__(self, db: DbMgr):
+    def __init__(self, db: DbMgr, mining_db=None):
         self.db = db
-        self.mining_db = MiningDb(db=db)
+        self.mining_db = mining_db
         self.depl_col = DDef.DEPLOYMENT_COL
 
         self.db4e = None

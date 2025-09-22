@@ -316,7 +316,7 @@ class DeplMgr:
 
 
     def get_internal_p2pools(self):
-        return self.db_cache.get_internal_p2pools()
+        return self.db_cache.get_int_p2pools()
 
 
     def get_template(self, elem_type):
