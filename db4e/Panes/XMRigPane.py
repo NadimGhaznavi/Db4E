@@ -66,13 +66,13 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_25),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL),
+                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL_25),
                         self.num_threads_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_25),
                         self.config_label),
                     classes=DForm.FORM_3, id="form_field"),
 

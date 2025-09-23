@@ -49,20 +49,20 @@ class P2PoolInternalPane(Container):
 
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                Label(INTRO, classes=DForm.INTRO, id=DForm.INTRO),
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_20),
                         self.instance_label),
                     Horizontal(
-                        Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL),
+                        Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL_20),
                         self.stratum_port_label),
                     Horizontal(
-                        Label(DLabel.P2P_PORT, classes=DForm.FORM_LABEL),
+                        Label(DLabel.P2P_PORT, classes=DForm.FORM_LABEL_20),
                         self.p2p_port_label),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_20),
                         self.config_file_label),
                     classes=DForm.FORM_4, id="form_field"),
 

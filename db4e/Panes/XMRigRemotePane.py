@@ -43,16 +43,16 @@ class XMRigRemotePane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_20),
                         self.instance_label),
                     Horizontal(
-                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL),
+                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL_20),
                         self.ip_addr_label),
                     Horizontal(
-                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_20),
                         self.hashrate_label),
                     Horizontal(
-                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL),
+                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_20),
                         self.uptime_label),
                     classes=DForm.FORM_4, id="form_field"),
 

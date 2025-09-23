@@ -25,6 +25,7 @@ from db4e.Constants.DForm import DForm
 
 class MoneroDRemotePane(Container):
 
+    intro_label = Label("", classes=DForm.INTRO, id=DForm.INTRO)
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     instance_input = Input(
         compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
@@ -46,15 +47,9 @@ class MoneroDRemotePane(Container):
 
     def compose(self):
         # Remote Monero daemon deployment form
-        INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{DLabel.MONEROD_REMOTE}[/] deployment here. **NOTE**: This will " \
-            f"**not** install the [cyan]{DLabel.MONEROD_REMOTE}[/] software on a " \
-            f"remote machine. This record is used to support the deployment of local " \
-            f"[cyan]{DLabel.P2POOL}[/] deployments." 
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -96,14 +91,22 @@ class MoneroDRemotePane(Container):
         # Set update button or new button visibility, using the .tcss definitions
         if monerod.instance():
             # This is an update operation
+            INTRO = f"Configure the settings for the " \
+            f"[cyan]{monerod.instance()} {DLabel.MONEROD_REMOTE}[/] deployment."
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
 
         else:
+            INTRO = f"Configure the deployment settings for a new " \
+            f"[cyan]{DLabel.MONEROD_REMOTE}[/] deployment here. [b]NOTE[/]: This will " \
+            f"[b]not[/] install the [cyan]{DLabel.MONEROD_REMOTE}[/] software on a " \
+            f"remote machine. This record is used to support the deployment of local " \
+            f"[cyan]{DLabel.P2POOL}[/] deployments." 
             # This is a new operation
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
-        
+        self.intro_label.update(INTRO)
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id

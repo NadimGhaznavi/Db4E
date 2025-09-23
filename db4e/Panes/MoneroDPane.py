@@ -29,7 +29,7 @@ color = "#9cae41"
 hi = "#d7e556"
 
 class MoneroDPane(Container):
-
+    intro_label = Label("", classes=DForm.INTRO, id=DForm.INTRO)
     any_ip_label = Label("", classes=DForm.STATIC)
     blockchain_dir_label = Label("", classes=DForm.STATIC)
     config_label = Label("", classes=DForm.STATIC)
@@ -90,12 +90,9 @@ class MoneroDPane(Container):
 
     def compose(self):
         # Local Monero daemon deployment form
-        INTRO = "This screen provides a form for creating a new " \
-            f"[bold cyan]{DLabel.MONEROD}[/] deployment."
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -188,6 +185,9 @@ class MoneroDPane(Container):
 
         # Configure button visibility
         if monerod.instance():
+            INTRO = "Configure the settings for the " \
+            f"[bold cyan]{monerod.instance()} {DLabel.MONEROD}[/] deployment."
+
             # This is an update operation
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
@@ -201,9 +201,12 @@ class MoneroDPane(Container):
 
         else:
             # This is a new operation
+            INTRO = "Configure the settings for a new " \
+            f"[bold cyan]{DLabel.MONEROD}[/] deployment."
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
 
+        self.intro_label.update(INTRO)
         self.health_msgs.update(gen_results_table(monerod.pop_msgs()))
 
 

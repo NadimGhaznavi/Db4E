@@ -70,6 +70,9 @@ class P2Pool(LocalSoftwareSystem):
         self._instance_map = {}
 
         self.monerod = None
+        self._hashrates = None
+        self._hashrate = None
+        
         if rec:
             self.from_rec(rec)
 
@@ -118,6 +121,12 @@ class P2Pool(LocalSoftwareSystem):
             f.write(final_config)
         self.config_file(fq_config)
 
+
+    def hashrate(self, hashrate=None):
+        if hashrate is not None:
+            self._hashrate = hashrate
+        return self._hashrate
+    
 
     def hashrates(self, hashrate_data=None):
         if hashrate_data is not None:

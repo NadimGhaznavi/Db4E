@@ -189,6 +189,24 @@ Tree {
     padding: 0 1;
     width: 30; }
 
+.form_label_15 {
+    color: #31b8e6;
+    text-style: bold;
+    padding: 0 1;
+    width: 15; }
+
+.form_label_20 {
+    color: #31b8e6;
+    text-style: bold;
+    padding: 0 1;
+    width: 20; }
+
+.form_label_25 {
+    color: #31b8e6;
+    text-style: bold;
+    padding: 0 1;
+    width: 25; }
+
 
 /* Health Box */
 
@@ -329,6 +347,9 @@ Button {
     display: none; }
 
 .new #delete_button {
+    display: none; }
+
+.new #view_log_button {
     display: none; }
 
 .disable #disable_button {

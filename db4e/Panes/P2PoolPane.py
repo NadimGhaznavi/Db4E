@@ -28,6 +28,7 @@ from db4e.Constants.DForm import DForm
 
 class P2PoolPane(Container):
 
+    intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id="instance_label",classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
@@ -70,12 +71,9 @@ class P2PoolPane(Container):
     def compose(self):
 
         # Local P2Pool daemon deployment form
-        INTRO = "This screen provides a form for creating a new " \
-            f"[bold cyan]{DLabel.P2POOL}[/] deployment."
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -161,6 +159,8 @@ class P2PoolPane(Container):
         # Configure button visibility
         if p2pool.instance():
             # This is an update operation
+            INTRO = f"Configure settings for the [b]{p2pool.instance()} " \
+                f"{DLabel.P2POOL}[/] deployment."
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
 
@@ -172,9 +172,12 @@ class P2PoolPane(Container):
                 self.add_class(DField.DISABLE)
         else:
             # This is a new operation
+            INTRO = "Configure settings for a new " \
+                f"[bold cyan]{DLabel.P2POOL}[/] deployment."
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
-
+        
+        self.intro_label.update(INTRO)
         self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))                    
 
 

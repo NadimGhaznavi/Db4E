@@ -353,7 +353,7 @@ class MiningDb():
         record = self.db.find_one(
             self.mining_col, {DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE, DMongo.CHAIN: chain})
         if record:
-            return record
+            return record[DMining.HASHRATE]
         return None
 
 

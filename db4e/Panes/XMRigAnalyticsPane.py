@@ -28,7 +28,7 @@ class XMRigAnalyticsPane(Container):
 
     def compose(self):
 
-        INTRO = f"View analytics information about the [cyan]{DLabel.XMRIG}[/] deployment here."
+        INTRO = f"View analytics information about the [cyan]{DLabel.XMRIG}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
@@ -36,13 +36,13 @@ class XMRigAnalyticsPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_15),
                         self.instance_label),
                     Horizontal(
-                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_15),
                         self.hashrate_label),
                     Horizontal(
-                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL),
+                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_15),
                         self.uptime_label),
                     classes=DForm.FORM_3, id="form_field"),
 
