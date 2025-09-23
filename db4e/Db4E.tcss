@@ -142,6 +142,9 @@ Tree {
     width: 100%;
 }
 
+.form_box {
+    border: round #0c323e; }
+
 /* Intro text at the top */
 
 .form_intro {

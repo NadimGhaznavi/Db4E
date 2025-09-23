@@ -9,7 +9,7 @@ db4e/Panes/P2PoolAnalyticsPane.py
 """
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
-from textual.widgets import Label
+from textual.widgets import Label, Select
 
 from db4e.Modules.P2Pool import P2Pool
 
@@ -19,6 +19,13 @@ from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
 
+SELECT_LIST = [
+    (DLabel.WEEK_1, DField.WEEK_1),
+    (DLabel.WEEKS_2, DField.WEEKS_2),
+    (DLabel.MONTH_1, DField.MONTH_1),
+    (DLabel.MONTHS_3, DField.MONTHS_3),
+    (DLabel.MONTHS_6, DField.MONTHS_6),
+]
 
 
 class P2PoolAnalyticsPane(Container):

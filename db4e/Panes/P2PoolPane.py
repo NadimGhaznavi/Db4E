@@ -97,7 +97,7 @@ class P2PoolPane(Container):
                     Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
-                    classes=DForm.FORM_7, id=DForm.FORM_BOX),
+                    id=DForm.FORM_BOX, classes=DForm.FORM_7),
                     
                 self.chain_radio_set,
 

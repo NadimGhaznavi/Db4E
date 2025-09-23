@@ -64,7 +64,7 @@ class MoneroDRemotePane(Container):
                     Horizontal(
                         Label(DLabel.ZMQ_PUB_PORT, classes=DForm.FORM_LABEL),
                         self.zmq_pub_port_input),
-                    classes=DForm.FORM_4),
+                    classes=DForm.FORM_4, id=DForm.FORM_BOX),
 
                 Vertical(
                     self.health_msgs,
@@ -77,6 +77,10 @@ class MoneroDRemotePane(Container):
                     classes=DForm.BUTTON_ROW)),
 
             classes=DForm.PANE_BOX)
+
+    def on_mount(self):
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
+        form_box.border_subtitle = DLabel.CONFIG
 
 
     def set_data(self, monerod: MoneroDRemote):

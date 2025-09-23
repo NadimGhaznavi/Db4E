@@ -75,7 +75,7 @@ class MoneroDPane(Container):
         compact=True, id=DForm.ZMQ_PUB_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
     zmq_rpc_port_input = Input(
-        compact=True, id=DField.ZMQ_RPC_PORT_INPUT, restrict=f"[0-9]*",
+        compact=True, id=DForm.ZMQ_RPC_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
 
     health_msgs = Label()
@@ -143,7 +143,7 @@ class MoneroDPane(Container):
                     Horizontal(
                         Label(DLabel.BLOCKCHAIN_DIR, classes=DForm.FORM_LABEL),
                         self.blockchain_dir_label),
-                    classes=DForm.FORM_16),
+                    classes=DForm.FORM_16, id=DForm.FORM_BOX),
                     
                     Vertical(
                         self.health_msgs,
@@ -161,7 +161,11 @@ class MoneroDPane(Container):
                         classes=DForm.BUTTON_ROW))),
                 
             classes=DForm.PANE_BOX)
-        
+    
+
+    def on_mount(self):
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
+        form_box.border_subtitle = DLabel.CONFIG
 
     def set_data(self, monerod: MoneroD):
         self.monerod = monerod

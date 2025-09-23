@@ -47,6 +47,7 @@ class DForm(ConstGroup):
     LOG_LEVEL_INPUT : str = "log_level_input"
     MAX_LOG_FILES_INPUT : str = "max_log_files_input"
     MAX_LOG_SIZE_INPUT : str = "max_log_size_input"
+    NUM_THREADS_INPUT : str = "num_threads_input"
     OUT_PEERS_INPUT : str = "out_peers_input"
     P2P_BIND_PORT_INPUT : str = "MAX_LOG_SIZE_INPUT"
     P2P_PORT_INPUT : str = "p2p_port_input"
