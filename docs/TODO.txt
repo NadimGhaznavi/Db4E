@@ -25,7 +25,7 @@ on the command line when you start the db4e service.
 
 # Edge Cases
 
-- Primary Monero Node is deleted: Update Db4E.primary_server
+- If upstream Monero or P2Pool is deleted, set downstream element's parent attribute to False.
 
 ---
 
@@ -39,4 +39,3 @@ on the command line when you start the db4e service.
 
 ...
 
-# Make sure local P2Pool instances use unique port numbers

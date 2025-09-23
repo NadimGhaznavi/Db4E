@@ -76,8 +76,7 @@ class XMRigPane(Container):
                         self.config_label),
                     classes=DForm.FORM_3, id="form_field"),
 
-                Vertical(
-                    self.radio_set),
+                self.radio_set,
 
                 Vertical(
                     self.health_msgs,

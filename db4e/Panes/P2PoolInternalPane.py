@@ -67,12 +67,12 @@ class P2PoolInternalPane(Container):
                     classes=DForm.FORM_4, id="form_field"),
 
                 Vertical(
-                    HashratePlot("Hashrate", id="hashrate_plot")
+                    HashratePlot("Hashrate", id="hashrate_plot"),
+                    classes=DForm.PANE_BOX
                 ),
 
-                Vertical(
-                    self.view_log_button
-                )),
+                self.view_log_button
+                ),
                 classes=DForm.PANE_BOX)
         
 

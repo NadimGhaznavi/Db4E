@@ -57,7 +57,8 @@ class XMRigRemotePane(Container):
                     classes=DForm.FORM_4, id="form_field"),
 
                 Vertical(
-                    HashratePlot("Hashrate", id="hashrate_plot")
+                    HashratePlot("Hashrate", id="hashrate_plot"),
+                    classes=DForm.PANE_BOX
                 ),
                 
             classes=DForm.PANE_BOX))

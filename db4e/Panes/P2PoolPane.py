@@ -101,11 +101,9 @@ class P2PoolPane(Container):
                         self.config_label),
                     classes=DForm.FORM_7, id="form_box"),
                     
-                Vertical(
-                    self.chain_radio_set),
+                self.chain_radio_set,
 
-                Vertical(
-                    self.radio_set),
+                self.radio_set,
 
                 Vertical(
                     self.health_msgs,
