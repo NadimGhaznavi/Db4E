@@ -44,6 +44,7 @@ class XMRigPane(Container):
     
     health_msgs = Label()
 
+    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
@@ -84,6 +85,7 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
+                        self.analytics_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
@@ -152,7 +154,15 @@ class XMRigPane(Container):
         self.xmrig.num_threads(self.query_one("#num_threads_input", Input).value)
 
 
-        if button_id == DButton.NEW:
+        if button_id == DButton.ANALYTICS:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        elif button_id == DButton.NEW:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,

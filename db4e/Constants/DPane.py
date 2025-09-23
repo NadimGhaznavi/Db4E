@@ -28,4 +28,5 @@ class DPane(ConstGroup):
     TUI_LOG: str  = "TuiLogPane"
     WELCOME: str  = "WelcomePane"
     XMRIG: str  = "XMRigPane"
+    XMRIG_ANALYTICS: str  = "XMRigAnalyticsPane"
     XMRIG_REMOTE: str  = "XMRigRemotePane"

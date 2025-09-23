@@ -10,7 +10,7 @@ db = DbMgr()
 
 
 
-recs = db.find_many("tmp", {"doc_type": "block_found_event"})
+recs = db.find_many("tmp", {"doc_type": "miner_hashrate"})
 new_recs = []
 
 for rec in recs:

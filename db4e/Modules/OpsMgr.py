@@ -50,7 +50,10 @@ class OpsMgr:
 
     def analytics(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
-        elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
+        if type(elem) == P2Pool:
+            elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
+        elif type(elem) == XMRig:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
         return elem
  
    

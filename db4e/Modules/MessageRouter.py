@@ -113,6 +113,8 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.XMRIG,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.XMRIG,
+                      self.ops_mgr.analytics, DPane.XMRIG_ANALYTICS)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG,
                       self.ops_mgr.get_deployment, DPane.XMRIG)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.XMRIG,

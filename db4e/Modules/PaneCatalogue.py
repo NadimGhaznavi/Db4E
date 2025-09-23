@@ -23,6 +23,7 @@ from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.ResultsPane import ResultsPane
 from db4e.Panes.TUILogPane import TUILogPane
 from db4e.Panes.WelcomePane import WelcomePane
+from db4e.Panes.XMRigAnalyticsPane import XMRigAnalyticsPane
 from db4e.Panes.XMRigPane import XMRigPane
 from db4e.Panes.XMRigRemotePane import XMRigRemotePane
 
@@ -42,11 +43,12 @@ REGISTRY = {
     DPane.P2POOL_ANALYTICS: (P2PoolAnalyticsPane, DLabel.P2POOL, DLabel.ANALYTICS),
     DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.ANALYTICS),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
-    DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
-    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.ANALYTICS),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
+    DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    DPane.XMRIG_ANALYTICS: (XMRigAnalyticsPane, DLabel.XMRIG, DLabel.ANALYTICS),
+    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.ANALYTICS),
 }
 
 class PaneCatalogue:
