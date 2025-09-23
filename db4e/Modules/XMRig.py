@@ -48,6 +48,9 @@ class XMRig(LocalSoftwareSystem):
         self.version = self.components[DField.VERSION]
         self.version(DDef.XMRIG_VERSION)
         self._instance_map = {}
+        self._hashrates = {}
+        self._hashrate = None
+        self._uptime = None
         self.p2pool = None
 
         if rec:
@@ -83,6 +86,12 @@ class XMRig(LocalSoftwareSystem):
         with open(fq_config, 'w') as f:
             f.write(final_config)
         self.config_file(fq_config)
+
+
+    def hashrate(self, hashrate=None):
+        if hashrate is not None:
+            self._hashrate = hashrate
+        return self._hashrate
     
 
     def hashrates(self, hashrate_data=None):
@@ -95,3 +104,9 @@ class XMRig(LocalSoftwareSystem):
         if map:
             self._instance_map = map
         return self._instance_map
+    
+
+    def uptime(self, uptime=None):
+        if uptime is not None:
+            self._uptime = uptime
+        return self._uptime

@@ -324,11 +324,29 @@ class MiningDb():
             { DMongo.TIMESTAMP: 1 })
     
 
+    def get_miner_hashrate(self, miner):
+        rec = self.db.find_one(
+            self.mining_col,
+            { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
+        if rec:
+            return rec[DMining.HASHRATE]
+        return None
+
+
     def get_miner_hashrates(self, miner):
         return self.db.find_many(
             self.mining_col,
             { DMongo.DOC_TYPE: DMining.MINER_HASHRATE, DMining.MINER: miner},
             { DMongo.TIMESTAMP: 1 })
+
+
+    def get_miner_uptime(self, miner):
+        rec = self.db.find_one(
+            self.mining_col,
+            { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
+        if rec:
+            return rec[DMongo.UPTIME]
+        return None
 
 
     def get_pool_hashrate(self, chain):

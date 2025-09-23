@@ -54,6 +54,8 @@ class OpsMgr:
             elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_db.get_miner_hashrate(elem.instance()))
+            elem.uptime(self.mining_db.get_miner_uptime(elem.instance()))
         return elem
  
    
