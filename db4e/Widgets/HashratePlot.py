@@ -35,6 +35,7 @@ class HashratePlot(PlotextPlot):
 
     def on_mount(self) -> None:
         """Plot the data using Plotext."""
+        self.plt.clear_data()
         self.plt.date_form("Y-m-d H:M")
         self.plt.title(self._title)
         self.plt.xlabel("Time")
