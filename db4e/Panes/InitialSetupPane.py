@@ -36,10 +36,10 @@ class InitialSetupPane(Container):
     group_name_static = Label("", classes=DForm.STATIC)
     install_dir_static = Label("", classes=DForm.STATIC)
     vendor_dir_input = Input(
-        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id="vendor_dir_input", 
+        restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, id=DForm.VENDOR_DIR_INPUT, 
         classes=DForm.INPUT_70)
     user_wallet_input = Input(
-        restrict=r"[a-zA-Z0-9]*", compact=True, id="user_wallet_input", 
+        restrict=r"[a-zA-Z0-9]*", compact=True, id=DForm.USER_WALLET_INPUT, 
         classes=DForm.INPUT_70)
 
     def compose(self):
@@ -94,8 +94,8 @@ class InitialSetupPane(Container):
         event.stop()
         button_id = event.button.id
         if button_id == DButton.PROCEED:
-            self.db4e.user_wallet(self.query_one("#user_wallet_input", Input).value)
-            self.db4e.vendor_dir(self.query_one("#vendor_dir_input", Input).value)
+            self.db4e.user_wallet(self.query_one("#" + DForm.USER_WALLET_INPUT, Input).value)
+            self.db4e.vendor_dir(self.query_one("#" + DForm.VENDOR_DIR_INPUT, Input).value)
             form_data = {
                 DField.TO_MODULE: DModule.INSTALL_MGR,
                 DField.TO_METHOD: DMethod.INITIAL_SETUP,

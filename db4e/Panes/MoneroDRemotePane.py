@@ -26,18 +26,18 @@ from db4e.Constants.DForm import DForm
 class MoneroDRemotePane(Container):
 
     intro_label = Label("", classes=DForm.INTRO, id=DForm.INTRO)
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     instance_input = Input(
-        compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
+        compact=True, id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*",
         classes=DForm.INPUT_30)
     ip_addr_input = Input(
-        compact=True, id="ip_addr_input", restrict=f"[a-z0-9._\-]*",
+        compact=True, id=DForm.IP_ADDR_INPUT, restrict=f"[a-z0-9._\-]*",
         classes=DForm.INPUT_30)
     rpc_bind_port_input = Input(
-        compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
+        compact=True, id=DForm.RPC_BIND_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
     zmq_pub_port_input = Input(
-        compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
+        compact=True, id=DForm.ZMQ_PUB_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
     health_msgs = Label()
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
@@ -110,10 +110,10 @@ class MoneroDRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        self.monerod.instance(self.query_one("#instance_input", Input).value)
-        self.monerod.ip_addr(self.query_one("#ip_addr_input", Input).value)
-        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
-        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
+        self.monerod.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.monerod.ip_addr(self.query_one("#" + DForm.IP_ADDR_INPUT, Input).value)
+        self.monerod.rpc_bind_port(self.query_one("#" + DForm.RPC_BIND_PORT_INPUT, Input).value)
+        self.monerod.zmq_pub_port(self.query_one("#" + DForm.ZMQ_PUB_PORT_INPUT, Input).value)
 
 
         if button_id == DButton.NEW:

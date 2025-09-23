@@ -27,15 +27,15 @@ from db4e.Constants.DForm import DForm
 
 class P2PoolRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
+        id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
         classes=DForm.INPUT_30)
     ip_addr_input = Input(
-        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
+        id=DForm.IP_ADDR_INPUT, restrict=f"[a-z0-9._\-]*", compact=True,
         classes=DForm.INPUT_30)
     stratum_port_input = Input(
-        id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
+        id=DForm.STRATUM_PORT_INPUT, restrict=f"[0-9]*", compact=True, 
         classes=DForm.INPUT_30)
     health_msgs = Label()
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
@@ -103,9 +103,9 @@ class P2PoolRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        self.p2pool.instance(self.query_one("#instance_input", Input).value)
-        self.p2pool.ip_addr(self.query_one("#ip_addr_input", Input).value)
-        self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
+        self.p2pool.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.p2pool.ip_addr(self.query_one("#" + DForm.IP_ADDR_INPUT, Input).value)
+        self.p2pool.stratum_port(self.query_one("#" + DForm.STRATUM_PORT_INPUT, Input).value)
 
 
         if button_id == DButton.NEW:

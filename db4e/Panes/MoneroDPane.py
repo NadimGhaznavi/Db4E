@@ -33,49 +33,49 @@ class MoneroDPane(Container):
     any_ip_label = Label("", classes=DForm.STATIC)
     blockchain_dir_label = Label("", classes=DForm.STATIC)
     config_label = Label("", classes=DForm.STATIC)
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
 
     in_peers_input = Input(
-        id="in_peers_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.IN_PEERS_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     instance_input = Input(
-        compact=True, id="instance_input", restrict=f"[a-zA-Z0-9_\-]*",
+        compact=True, id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*",
         classes=DForm.INPUT_30)
     log_level_input = Input(
-        id="log_level_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.LOG_LEVEL_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     max_log_files_input = Input(
-        id="max_log_files_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.MAX_LOG_FILES_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     max_log_size_input = Input(
-        id="max_log_size_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.MAX_LOG_SIZE_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     out_peers_input = Input(
-        id="out_peers_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.OUT_PEERS_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     p2p_bind_port_input = Input(
-        id="p2p_bind_port_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.P2P_BIND_PORT_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     priority_node_1_input = Input(
-        id="priority_node_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        id=DForm.PRIORITY_NODE_1_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
     priority_port_1_input = Input(
-        id="priority_port_1_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        id=DForm.PRIORITY_NODE_1_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
     priority_node_2_input = Input(
-        id="priority_node_2_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.PRIORITY_NODE_2_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     priority_port_2_input = Input(
-        id="priority_port_2_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.PRIORITY_PORT_2_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     rpc_bind_port_input = Input(
-        compact=True, id="rpc_bind_port_input", restrict=f"[0-9]*",
+        compact=True, id=DForm.RPC_BIND_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
     zmq_pub_port_input = Input(
-        compact=True, id="zmq_pub_port_input", restrict=f"[0-9]*",
+        compact=True, id=DForm.ZMQ_PUB_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
     zmq_rpc_port_input = Input(
-        compact=True, id="zmq_rpc_port_input", restrict=f"[0-9]*",
+        compact=True, id=DField.ZMQ_RPC_PORT_INPUT, restrict=f"[0-9]*",
         classes=DForm.INPUT_30)
 
     health_msgs = Label()
@@ -213,20 +213,20 @@ class MoneroDPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
-        self.monerod.instance(self.query_one("#instance_input", Input).value)
-        self.monerod.in_peers(self.query_one("#in_peers_input", Input).value)
-        self.monerod.out_peers(self.query_one("#out_peers_input", Input).value)
-        self.monerod.log_level(self.query_one("#log_level_input", Input).value)
-        self.monerod.max_log_files(self.query_one("#max_log_files_input", Input).value)
-        self.monerod.max_log_size(self.query_one("#max_log_size_input", Input).value)
-        self.monerod.p2p_bind_port(self.query_one("#p2p_bind_port_input", Input).value)
-        self.monerod.priority_node_1(self.query_one("#priority_node_1_input", Input).value)
-        self.monerod.priority_port_1(self.query_one("#priority_port_1_input", Input).value)
-        self.monerod.priority_node_2(self.query_one("#priority_node_2_input", Input).value)
-        self.monerod.priority_port_2(self.query_one("#priority_port_2_input", Input).value)
-        self.monerod.rpc_bind_port(self.query_one("#rpc_bind_port_input", Input).value)
-        self.monerod.zmq_pub_port(self.query_one("#zmq_pub_port_input", Input).value)
-        self.monerod.zmq_rpc_port(self.query_one("#zmq_rpc_port_input", Input).value)
+        self.monerod.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.monerod.in_peers(self.query_one("#" + DForm.IN_PEERS_INPUT, Input).value)
+        self.monerod.out_peers(self.query_one("#" + DForm.OUT_PEERS_INPUT, Input).value)
+        self.monerod.log_level(self.query_one("#" + DForm.LOG_LEVEL_INPUT, Input).value)
+        self.monerod.max_log_files(self.query_one("#" + DForm.MAX_LOG_FILES_INPUT, Input).value)
+        self.monerod.max_log_size(self.query_one("#" + DForm.MAX_LOG_SIZE_INPUT, Input).value)
+        self.monerod.p2p_bind_port(self.query_one("#" + DForm.P2P_BIND_PORT_INPUT, Input).value)
+        self.monerod.priority_node_1(self.query_one("#" + DForm.PRIORITY_NODE_1_INPUT, Input).value)
+        self.monerod.priority_port_1(self.query_one("#" + DForm.PRIORITY_PORT_1_INPUT, Input).value)
+        self.monerod.priority_node_2(self.query_one("#" + DForm.PRIORITY_NODE_2_INPUT, Input).value)
+        self.monerod.priority_port_2(self.query_one("#" + DForm.PRIORITY_PORT_2_INPUT, Input).value)
+        self.monerod.rpc_bind_port(self.query_one("#" + DForm.RPC_BIND_PORT_INPUT, Input).value)
+        self.monerod.zmq_pub_port(self.query_one("#" + DForm.ZMQ_PUB_PORT_INPUT, Input).value)
+        self.monerod.zmq_rpc_port(self.query_one("#" + DForm.ZMQ_RPC_PORT_INPUT, Input).value)
 
         if button_id == DButton.NEW:
             form_data = {

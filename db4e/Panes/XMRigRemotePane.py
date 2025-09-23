@@ -12,23 +12,22 @@ from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import (Label)
 
-from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Widgets.HashratePlot import HashratePlot
 
-
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
 
 
 class XMRigRemotePane(Container):
 
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
-    ip_addr_label = Label("", id="ip_addr_label", classes=DForm.STATIC)
-    hashrate_label = Label("", id="hashrate_label", classes=DForm.STATIC)
-    uptime_label = Label("", id="uptime_label", classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
+    ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
+    hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
+    uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
     xmrig_remote = None
 
 
@@ -54,10 +53,10 @@ class XMRigRemotePane(Container):
                     Horizontal(
                         Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_20),
                         self.uptime_label),
-                    classes=DForm.FORM_4, id="form_field"),
+                    classes=DForm.FORM_4, id=DForm.FORM_FIELD),
 
                 Vertical(
-                    HashratePlot("Hashrate", id="hashrate_plot"),
+                    HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
                     classes=DForm.PANE_BOX
                 ),
                 
@@ -68,7 +67,7 @@ class XMRigRemotePane(Container):
         self.xmrig = xmrig
         self.instance_label.update(xmrig.instance())
         self.ip_addr_label.update(xmrig.ip_addr())
-        self.hashrate_label.update(str(xmrig.hashrate()) + " H/s")
+        self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
         self.uptime_label.update(xmrig.uptime())
-        hashrate_plot = self.query_one("#hashrate_plot")
+        hashrate_plot = self.query_one("#" + DField.HASHRATE_PLOT)
         hashrate_plot.update(xmrig.hashrates())        

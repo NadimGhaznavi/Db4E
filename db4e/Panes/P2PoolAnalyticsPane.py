@@ -16,6 +16,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Widgets.HashratePlot import HashratePlot
 
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
 
 
@@ -23,8 +24,8 @@ from db4e.Constants.DForm import DForm
 class P2PoolAnalyticsPane(Container):
 
     intro_label = Label("", classes=DForm.INTRO)
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
-    hashrate_label = Label("", id="hashrate_label", classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
+    hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
 
     def compose(self):
 
@@ -42,14 +43,14 @@ class P2PoolAnalyticsPane(Container):
                     classes=DForm.FORM_2),                 
 
                 Vertical(
-                    HashratePlot("Hashrate", id="hashrate_plot"),
+                    HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
                     classes=DForm.PANE_BOX
                 ),
                 classes=DForm.PANE_BOX))
 
 
     def set_data(self, p2pool: P2Pool):
-        hashrate_plot = self.query_one("#hashrate_plot")
+        hashrate_plot = self.query_one("#" + DField.HASHRATE_PLOT)
         hashrate_plot.update(p2pool.hashrates())
         INTRO = f"View analytics information for the " \
             f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment."

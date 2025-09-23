@@ -40,6 +40,7 @@ class DField(ConstGroup) :
     GROUP : str = "group"
     HASH : str = "hash"
     HASHRATE : str = "hashrate"
+    HASHRATE_PLOT : str = "hashrate_plot"
     HEALTH : str = "health"
     HEALTH_MSGS : str = "health_msgs"
     IN_PEERS : str = "in_peers"

@@ -35,10 +35,10 @@ from db4e.Constants.DForm import DForm
 class P2PoolInternalPane(Container):
 
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
-    config_file_label = Label("", id="config_label", classes=DForm.STATIC)
-    stratum_port_label = Label("", id="stratum_port_label", classes=DForm.STATIC)
-    p2p_port_label = Label("", id="p2p_port_label", classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
+    config_file_label = Label("", id=DForm.CONFIG_LABEL, classes=DForm.STATIC)
+    stratum_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
+    p2p_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     p2pool = None
 
@@ -64,10 +64,10 @@ class P2PoolInternalPane(Container):
                     Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_20),
                         self.config_file_label),
-                    classes=DForm.FORM_4, id="form_field"),
+                    classes=DForm.FORM_4, id=DForm.FORM_FIELD),
 
                 Vertical(
-                    HashratePlot("Hashrate", id="hashrate_plot"),
+                    HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
                     classes=DForm.PANE_BOX
                 ),
 
@@ -82,7 +82,7 @@ class P2PoolInternalPane(Container):
         self.config_file_label.update(p2pool.config_file())
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
-        hashrate_plot = self.query_one("#hashrate_plot")
+        hashrate_plot = self.query_one("#" + DField.HASHRATE_PLOT)
         hashrate_plot.update(p2pool.hashrates())
 
 
