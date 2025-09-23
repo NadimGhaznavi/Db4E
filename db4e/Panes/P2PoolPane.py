@@ -261,7 +261,7 @@ class P2PoolPane(Container):
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
-    
+
     def watch_radio_button_list(self, old, new):
         for child in list(self.radio_set.children):
             child.remove()

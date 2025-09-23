@@ -313,6 +313,9 @@ Button {
     color: #c49b42ff;
     text-style: bold; }
 
+.new #analytics_button {
+    display: none; }
+
 .new #update_button {
     display: none; }
 
