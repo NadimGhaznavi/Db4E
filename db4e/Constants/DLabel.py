@@ -15,7 +15,7 @@ class DLabel(ConstGroup):
     ABORT : str = "Abort"
     ACTIVE_MINERS : str = "Active Miners"
     ANY_IP : str = "Listen on IP"
-    ANALYTICS : str = "Mining Analytics"
+    ANALYTICS : str = "Analytics"
     API : str = "API"
     BLOCKCHAIN : str = "Blockchain"
     BLOCKCHAIN_DIR : str = "Blockchain Directory"

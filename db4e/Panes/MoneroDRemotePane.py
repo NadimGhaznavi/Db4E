@@ -47,8 +47,10 @@ class MoneroDRemotePane(Container):
     def compose(self):
         # Remote Monero daemon deployment form
         INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{DLabel.MONEROD_REMOTE}[/] deployment here."
-
+            f"[cyan]{DLabel.MONEROD_REMOTE}[/] deployment here. **NOTE**: This will " \
+            f"**not** install the [cyan]{DLabel.MONEROD_REMOTE}[/] software on a " \
+            f"remote machine. This record is used to support the deployment of local " \
+            f"[cyan]{DLabel.P2POOL}[/] deployments." 
 
         yield Vertical(
             ScrollableContainer(

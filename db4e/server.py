@@ -148,15 +148,15 @@ class Db4eServer:
                 continue
 
             # Make sure anything that's enabled is running
-            if elem_type != MoneroDRemote and elem.enabled():
+            if elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig] and elem.enabled():
                 self.ensure_running(elem)
-                if isinstance(elem, P2Pool):
+                if elem_type in [P2Pool, InternalP2Pool]:
                     # Make sure there's a log watcher running                    
                     self.spawn_log_watcher(elem) 
 
             # Makre sure anything that's disabled is stopped
             #self.log.debug(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
-            if elem_type != MoneroDRemote and not elem.enabled():
+            if elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig] and not elem.enabled():
                 self.ensure_stopped(elem)
 
             # There are no primary Monery deployments

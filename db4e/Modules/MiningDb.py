@@ -310,15 +310,24 @@ class MiningDb():
         self.log.info(f"Added new ({chain}) XMR payment ({payment}) record)")
 
 
-    def get_docs(self, doc_type):
-        dbCursor = self.db.find_many(self.mining_col, {DMongo.DOC_TYPE: doc_type})
-        return dbCursor
+    def get_block_found_events(self, chain):
+        return self.db.find_many(
+            self.mining_col, 
+            { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.CHAIN: chain },
+            { DMongo.TIMESTAMP: 1 })
 
 
     def get_chain_hashrates(self, chain):
         return self.db.find_many(
             self.mining_col, 
             { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain },
+            { DMongo.TIMESTAMP: 1 })
+    
+
+    def get_miner_hashrates(self, miner):
+        return self.db.find_many(
+            self.mining_col,
+            { DMongo.DOC_TYPE: DMining.MINER_HASHRATE, DMining.MINER: miner},
             { DMongo.TIMESTAMP: 1 })
 
 

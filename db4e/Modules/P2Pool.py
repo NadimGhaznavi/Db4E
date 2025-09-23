@@ -117,7 +117,13 @@ class P2Pool(LocalSoftwareSystem):
         with open(fq_config, 'w') as f:
             f.write(final_config)
         self.config_file(fq_config)
-        
+
+
+    def hashrates(self, hashrate_data=None):
+        if hashrate_data is not None:
+            self._hashrates = hashrate_data
+        return self._hashrates
+    
         
     def instance_map(self, map=None):
         if map is not None:

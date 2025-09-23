@@ -48,9 +48,17 @@ class InternalP2Pool(P2Pool):
         self.out_peers(2)
 
         self._hashrates = None
+        self._blocks_found = None
+
 
         if rec:
             self.from_rec(rec)
+
+    def blocks_found(self, blocks_found=None):
+        if blocks_found is not None:
+            self._blocks_found = blocks_found
+        return self._blocks_found
+
 
 
     def hashrates(self, hashrates=None):

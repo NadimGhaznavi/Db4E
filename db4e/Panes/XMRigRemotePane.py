@@ -10,20 +10,15 @@ db4e/Panes/XMRigRemotePane.py
 
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
-from textual.widgets import (
-    Label, Input, Button, RadioSet, RadioButton)
-from textual_plotext import PlotextPlot
+from textual.widgets import (Label)
 
 from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DJob import DJob
+
+from db4e.Widgets.HashratePlot import HashratePlot
+
+
 from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DElem import DElem
 from db4e.Constants.DForm import DForm
 
 
@@ -60,6 +55,10 @@ class XMRigRemotePane(Container):
                         Label(DLabel.UPTIME, classes=DForm.FORM_LABEL),
                         self.uptime_label),
                     classes=DForm.FORM_4, id="form_field"),
+
+                Vertical(
+                    HashratePlot("Hashrate", id="hashrate_plot")
+                ),
                 
             classes=DForm.PANE_BOX))
 
@@ -70,4 +69,5 @@ class XMRigRemotePane(Container):
         self.ip_addr_label.update(xmrig.ip_addr())
         self.hashrate_label.update(str(xmrig.hashrate()) + " H/s")
         self.uptime_label.update(xmrig.uptime())
-        
+        hashrate_plot = self.query_one("#hashrate_plot")
+        hashrate_plot.update(xmrig.hashrates())        

@@ -18,6 +18,7 @@ from db4e.Modules.MiningETL import MiningETL
 
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.XMRig import XMRig
+from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -45,6 +46,12 @@ class OpsMgr:
         elem = self.depl_client.add_deployment(elem)
         self.health_cache.check(elem)
         return elem
+    
+
+    def analytics(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+        elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
+        return elem
  
    
     def get_deployment(self, elem_type, instance=None):
@@ -63,28 +70,39 @@ class OpsMgr:
 
         elif type(elem) == XMRig:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+
+        elif type(elem) == XMRigRemote:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
         
         return elem
+
+
+    def get_monerods(self) -> list:
+        return self.health_cache.get_monerods()
+
+    
+    def get_monerods_remote(self) -> list:
+        return self.health_cache.get_monerods_remote()
+
+
+    def get_p2pools(self) -> list:
+        return self.health_cache.get_p2pools()
+    
+
+    def get_p2pools_remote(self) -> list:
+        return self.health_cache.get_p2pools_remote()
 
 
     def get_int_p2pools(self) -> list:
         return self.health_cache.get_int_p2pools()
 
 
-    def get_monerods(self) -> list:
-        return self.health_cache.get_monerods()
-
-
-    def get_p2pools(self) -> list:
-        return self.health_cache.get_p2pools()
+    def get_xmrigs(self) -> list:
+        return self.health_cache.get_xmrigs()
 
 
     def get_xmrigs_remote(self) -> list:
         return self.health_cache.get_xmrigs_remote()
-
-
-    def get_xmrigs(self) -> list:
-        return self.health_cache.get_xmrigs()
 
 
     def get_new(self, form_data: dict):

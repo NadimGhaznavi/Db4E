@@ -1,5 +1,5 @@
 """
-db4e/Panes/P2PoolInternal.py
+db4e/Panes/P2PoolInternalPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -42,13 +42,8 @@ class P2PoolInternalPane(Container):
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     p2pool = None
 
-    @dataclass
-    class HashrateData(Message):
-        history: dict[str, Any]
-
-
     def compose(self):
-        # Internal P2Pool daemon deployment form
+        # Internal P2Pool daemon analythics form
         INTRO = f"View information about the [cyan]{DLabel.P2POOL_INTERNAL}[/] deployment here."
 
 
@@ -88,8 +83,8 @@ class P2PoolInternalPane(Container):
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
         hashrate_plot = self.query_one("#hashrate_plot")
-        print(p2pool.hashrates())
         hashrate_plot.update(p2pool.hashrates())
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {

@@ -8,17 +8,13 @@ db4e/Modules/MessageRouter.py
     License: GPL 3.0
 """
 
-from db4e.Modules.DbCache import DbCache
-from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.PaneCatalogue import PaneCatalogue
 from db4e.Modules.PaneMgr import PaneMgr
 
 from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DField import DField
-from db4e.Constants.DJob import DJob
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DPane import DPane
 from db4e.Constants.DModule import DModule
@@ -49,10 +45,6 @@ class MessageRouter:
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
                       self.depl_client.update_deployment, DPane.WELCOME)
 
-        # MoneroD = Type: local or remote
-        self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.MONEROD,
-                      self.pane_mgr.set_pane, DPane.MONEROD_TYPE)
-
         # MoneroD - local
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
                       self.ops_mgr.get_new, DPane.MONEROD)
@@ -82,15 +74,13 @@ class MessageRouter:
                       self.depl_client.delete_deployment, DPane.WELCOME)
         
 
-        # MoneroD = Type: local or remote
-        self.register(DModule.PANE_MGR, DField.SET_PANE, DElem.P2POOL,
-                      self.pane_mgr.set_pane, DPane.P2POOL_TYPE)
-
         # P2Pool - Local
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL,
                       self.ops_mgr.get_new, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.P2POOL,
+                      self.ops_mgr.analytics, DPane.P2POOL_ANALYTICS)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.P2POOL,
@@ -164,7 +154,7 @@ class MessageRouter:
         return self._panes.get((module, method, component))
 
     def dispatch(self, some_module: str, some_method: str = None, payload: dict = None):
-        #print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
+        print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(DField.ELEMENT_TYPE, "")
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:

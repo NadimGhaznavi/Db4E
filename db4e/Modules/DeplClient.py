@@ -247,8 +247,12 @@ class DeplClient:
         return self.db_cache.get_int_p2pools()
 
 
-    def get_monerods(self) -> list[MoneroD | MoneroDRemote]:
+    def get_monerods(self) -> list[MoneroD]:
         return self.db_cache.get_monerods()
+
+
+    def get_monerods_remote(self):
+        return self.db_cache.get_monerods_remote()
 
 
     def get_new(self, elem_type):
@@ -272,16 +276,20 @@ class DeplClient:
         else:
             raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")            
 
-    def get_p2pools(self) -> list[P2Pool | P2PoolRemote]:
+    def get_p2pools(self) -> list[P2Pool]:
         return self.db_cache.get_p2pools()
 
 
-    def get_xmrigs_remote(self) -> dict:
-        return self.db_cache.get_xmrigs_remote()
+    def get_p2pools_remote(self) -> list[P2PoolRemote]:
+        return self.db_cache.get_p2pools_remote()
 
 
     def get_xmrigs(self) -> list[XMRig]:
         return self.db_cache.get_xmrigs()
+
+
+    def get_xmrigs_remote(self) -> dict:
+        return self.db_cache.get_xmrigs_remote()
 
 
     def instance_exists(self, elem, collection) -> bool:
