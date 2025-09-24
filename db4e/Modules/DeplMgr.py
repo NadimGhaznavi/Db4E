@@ -602,9 +602,9 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
-        monerod = self.db_cache.get_deployment(DElem.MONEROD, new_monerod.instance())
+        monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
             raise ValueError(f"DeploymentMgr:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")

@@ -401,25 +401,24 @@ class Db4eServer:
     def set_int_p2pool_primary(self, monerod):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
-        if monerod.enabled():
-            # Don't do anything if the primary is disabled
-            for p2pool in self.depl_mgr.get_internal_p2pools():
-                if p2pool.enabled():
-                    return
-                
-                p2pool = deepcopy(p2pool)
-                p2pool.monerod = monerod
-                p2pool.parent(monerod.id())
-                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
-                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-                p2pool.log_file(
-                    os.path.join(
-                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
-                        DDir.LOG, DFile.P2POOL_LOG))
-                p2pool.enable()
-                self.depl_mgr.update_deployment(p2pool)
-                self.ensure_running(p2pool)
+        # Don't do anything if the primary is disabled
+        for p2pool in self.depl_mgr.get_internal_p2pools():
+            if p2pool.enabled():
+                return
+            
+            p2pool = deepcopy(p2pool)
+            p2pool.monerod = monerod
+            p2pool.parent(monerod.id())
+            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+            tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            p2pool.log_file(
+                os.path.join(
+                    vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                    DDir.LOG, DFile.P2POOL_LOG))
+            p2pool.enable()
+            self.depl_mgr.update_deployment(p2pool)
+            self.ensure_running(p2pool)
 
 
     def UNUSED_set_primary(self, job):

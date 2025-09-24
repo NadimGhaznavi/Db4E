@@ -89,7 +89,7 @@ class DbCache:
 
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
-                #print(f"[{count}/{len(recs)}]: {elem_type}")
+                print(f"[{count}/{len(recs)}]: {elem_type}")
                 count += 1
 
                 obj_id = rec[DField.OBJECT_ID]
