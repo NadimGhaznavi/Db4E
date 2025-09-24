@@ -102,7 +102,7 @@ class DeplMgr:
 
         # Monero log file
         os.makedirs(os.path.join(
-            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR))
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR), exist_ok=True)
         monerod.log_file(
             os.path.join(
                 vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR, 
@@ -110,14 +110,17 @@ class DeplMgr:
         
         # Blockchain directory
         os.makedirs(os.path.join(
-            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR), 
+            exist_ok=True)
         monerod.blockchain_dir(
             os.path.join(
                 vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
         
         # Run directory
         os.makedirs(
-            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
+            os.path.join(
+                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR), 
+                exist_ok=True)
         
         # Path to STDIN named pipe
         monerod.stdin_path(

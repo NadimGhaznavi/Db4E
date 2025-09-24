@@ -39,3 +39,12 @@ on the command line when you start the db4e service.
 
 ...
 
+# Enter Wattage per Miner
+
+I agree with you about electricity costs, for sure!!! I've added a note for a future feature to input wattage per miner and cost of power. Then I can calculate the electricity costs of the mining op and plot it against XMR earnings.
+
+---
+
+# Enable/Disable based on CPU utilization
+
+Mine when the miner is idle, stop if it hits a CPU threshold.

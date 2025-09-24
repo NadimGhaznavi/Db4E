@@ -424,6 +424,7 @@ class NavPane(Container):
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance())
 
         self.chain.remove_children()
+        print(f"NavPane:refresh_nav_pane(): int_p2pools: {self.ops_mgr.get_int_p2pools()}")
         for int_p2pool in self.ops_mgr.get_int_p2pools():
             state = int_p2pool.status()
             instance = int_p2pool.instance()

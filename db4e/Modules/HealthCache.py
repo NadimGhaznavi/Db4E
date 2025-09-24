@@ -180,7 +180,7 @@ class HealthCache:
             return
                 
         elements = get_elements_fn()
-
+        #print(f"HealthCache: {element_type} elements: {len(elements)}")
         new_map = {}
         new_list = []
 
@@ -213,6 +213,8 @@ class HealthCache:
         setattr(self, target_map_name, new_map)
 
         self.refresh_now[element_type] = False
+        #print(f"HealthCache:refresh_elements(): {element_type} map: {new_map}")
+        #print(f"HealthCache:refresh_elements(): int_p2pools_map: {self.int_p2pools_map}")
 
 
     def get_deployment(self, elem_type, instance):

@@ -89,7 +89,8 @@ class DbCache:
 
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
-                print(f"[{count}/{len(recs)}]: {elem_type}")
+                #print(f"DbCache:build_cache(): [{count}/{len(recs)}]: {elem_type}")
+                #print(f"DbCache:build_cache(): elem_type: {elem_type}")
                 count += 1
 
                 obj_id = rec[DField.OBJECT_ID]
@@ -155,7 +156,7 @@ class DbCache:
                         elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
                         if elem.parent():
                             elem.monerod = self.get_deployment_by_id(elem.parent())
-                            self.p2pool_map[elem.instance()] = elem
+                        self.p2pool_map[elem.instance()] = elem
 
                     elif elem_type == DElem.P2POOL_REMOTE:
                         elem = P2PoolRemote(rec)
@@ -165,7 +166,7 @@ class DbCache:
                         elem = InternalP2Pool(rec)
                         if elem.parent():
                             elem.monerod = self.get_deployment_by_id(elem.parent())
-                            self.int_p2pool_map[elem.instance()] = elem
+                        self.int_p2pool_map[elem.instance()] = elem
 
                     elif elem_type == DElem.XMRIG:
                         elem = XMRig(rec)
@@ -257,6 +258,7 @@ class DbCache:
                     db4e_rec = self.db.find_one(self.depl_col, {DField.ELEMENT_TYPE: DElem.DB4E})
                     self.db4e = Db4E(db4e_rec)
                     self.db4e.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
+                print(f"DbCache:get_deployment(): instance map: {self.db4e.instance_map()}")
                 return deepcopy(self.db4e)
             
             # MoneroD
