@@ -63,6 +63,7 @@ class DForm(ConstGroup):
     STATIC : str = "static_content"
     STRATUM_PORT_INPUT : str = "stratum_port_input"
     STRATUM_PORT_LABEL : str = "stratum_port_label"
+    TIMES : str = "times"
     UPTIME_LABEL : str = "uptime_label"
     USER_WALLET_INPUT : str = "user_wallet_input"
     VENDOR_DIR_INPUT : str = "vendor_dir_input"

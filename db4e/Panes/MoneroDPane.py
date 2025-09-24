@@ -60,7 +60,7 @@ class MoneroDPane(Container):
         id=DForm.PRIORITY_NODE_1_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
     priority_port_1_input = Input(
-        id=DForm.PRIORITY_NODE_1_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        id=DForm.PRIORITY_PORT_1_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
     priority_node_2_input = Input(
         id=DForm.PRIORITY_NODE_2_INPUT, restrict=f"[0-9]*", compact=True,

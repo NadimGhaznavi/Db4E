@@ -22,8 +22,10 @@ NavPane {
     background: black; }
 
 RadioButton {
-    color: #31b8e6;
-}
+    color: #31b8e6; }
+
+Select {
+    width: 15; }
 
 TopBar {
     height: 3;

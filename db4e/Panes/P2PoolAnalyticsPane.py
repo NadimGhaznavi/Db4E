@@ -10,6 +10,8 @@ db4e/Panes/P2PoolAnalyticsPane.py
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
+from textual.reactive import reactive
+
 
 from db4e.Modules.P2Pool import P2Pool
 
@@ -18,21 +20,22 @@ from db4e.Widgets.HashratePlot import HashratePlot
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
+from db4e.Constants.DSelect import DSelect
 
-SELECT_LIST = [
-    (DLabel.WEEK_1, DField.WEEK_1),
-    (DLabel.WEEKS_2, DField.WEEKS_2),
-    (DLabel.MONTH_1, DField.MONTH_1),
-    (DLabel.MONTHS_3, DField.MONTHS_3),
-    (DLabel.MONTHS_6, DField.MONTHS_6),
-]
+
+
+# The values are for selecting the amount of data to show.
+# There is one data point per hour....
 
 
 class P2PoolAnalyticsPane(Container):
 
+    selected_time = DSelect.ONE_WEEK
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
+    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+
 
     def compose(self):
 
@@ -50,19 +53,31 @@ class P2PoolAnalyticsPane(Container):
                     classes=DForm.FORM_2),                 
 
                 Vertical(
-                    HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
-                    classes=DForm.PANE_BOX
-                ),
-                classes=DForm.PANE_BOX))
+                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
+                    self.hashrate_plot,
+                    classes=DForm.PANE_BOX)),
+                classes=DForm.PANE_BOX)
+        
+    
+    def on_select_changed(self, event: Select.Changed) -> None:
+        selected_time = event.value
+        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
+        hashrate_widget.update_time_range(selected_time)
 
 
     def set_data(self, p2pool: P2Pool):
-        hashrate_plot = self.query_one("#" + DField.HASHRATE_PLOT)
-        hashrate_plot.update(p2pool.hashrates())
         INTRO = f"View analytics information for the " \
             f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment."
         self.intro_label.update(INTRO)
         self.instance_label.update(p2pool.instance())
         self.hashrate_label.update(str(p2pool.hashrate()))
+
+        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
+        hashrate_widget.load_all_data(p2pool.hashrates())
+        hashrate_widget.update_time_range(self.selected_time)
+
+        select_widget = self.query_one("#" + DForm.TIMES)
+        select_widget.value = self.selected_time
+
 
 

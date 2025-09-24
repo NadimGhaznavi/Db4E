@@ -13,7 +13,7 @@ from typing import Any
 
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.message import Message
-from textual.widgets import (Label, Button)
+from textual.widgets import (Label, Button, Select)
 from textual.reactive import var
 from textual import on, work
 
@@ -31,15 +31,20 @@ from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DForm import DForm
+from db4e.Constants.DSelect import DSelect
+
+
+
 
 class P2PoolInternalPane(Container):
 
-
+    selected_time = DSelect.ONE_WEEK
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     config_file_label = Label("", id=DForm.CONFIG_LABEL, classes=DForm.STATIC)
     stratum_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
     p2p_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
+    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
     p2pool = None
 
     def compose(self):
@@ -67,14 +72,19 @@ class P2PoolInternalPane(Container):
                     classes=DForm.FORM_4, id=DForm.FORM_FIELD),
 
                 Vertical(
-                    HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
-                    classes=DForm.PANE_BOX
-                ),
+                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
+                    self.hashrate_plot,
+                    classes=DForm.PANE_BOX),
 
-                self.view_log_button
-                ),
+                self.view_log_button),
                 classes=DForm.PANE_BOX)
         
+
+    def on_select_changed(self, event: Select.Changed) -> None:
+        selected_time = event.value
+        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
+        hashrate_widget.update_time_range(selected_time)
+
 
     def set_data(self, p2pool: InternalP2Pool):
         self.p2pool = p2pool
@@ -82,9 +92,13 @@ class P2PoolInternalPane(Container):
         self.config_file_label.update(p2pool.config_file())
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
-        hashrate_plot = self.query_one("#" + DField.HASHRATE_PLOT)
-        hashrate_plot.update(p2pool.hashrates())
 
+        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
+        hashrate_widget.load_all_data(p2pool.hashrates())
+        hashrate_widget.update_time_range(self.selected_time)
+
+        select_widget = self.query_one("#" + DForm.TIMES)
+        select_widget.value = self.selected_time
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         form_data = {

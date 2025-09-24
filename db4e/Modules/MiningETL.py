@@ -116,8 +116,6 @@ class MiningETL:
         parts = str(recs[0][DMining.HASHRATE]).split(" ")
         units = parts[1] if len(parts) > 1 else ""
 
-        print(value_list)
-
         return {
             "values": value_list,
             "times": time_list,
