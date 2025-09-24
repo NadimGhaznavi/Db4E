@@ -258,7 +258,6 @@ class DbCache:
                     db4e_rec = self.db.find_one(self.depl_col, {DField.ELEMENT_TYPE: DElem.DB4E})
                     self.db4e = Db4E(db4e_rec)
                     self.db4e.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
-                print(f"DbCache:get_deployment(): instance map: {self.db4e.instance_map()}")
                 return deepcopy(self.db4e)
             
             # MoneroD

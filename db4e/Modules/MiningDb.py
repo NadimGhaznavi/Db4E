@@ -61,6 +61,9 @@ class MiningDb():
         """
         Historical and real-time chain hashrate record
         """
+        # Convert the hashrate to a float
+        hashrate = float(hashrate)
+
         # Update the "realtime" (rt) record first
         rt_timestamp = datetime.now(timezone.utc)
         jdoc = {
@@ -114,6 +117,10 @@ class MiningDb():
         """
         Store the number of unique wallets on the sidechain
         """
+        # Convert the num_miners to an int
+        num_miners = int(num_miners)
+
+        # Update the historical, hourly record
         timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
         jdoc = {
             DMongo.DOC_TYPE: DMining.MINERS,
@@ -139,6 +146,9 @@ class MiningDb():
         """
         Store the miner hashrate
         """
+        # Convert the hashrate to a float
+        hashrate = float(hashrate)
+
         # Historical, hourly miner hashrate
         timestamp = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
         jdoc = {
@@ -199,6 +209,9 @@ class MiningDb():
         """
         Store the pool hashrate
         """
+        # Convert the hashrate to a float
+        hashrate = float(hashrate)
+
         # Update the "realtime" (rt) record first
         rt_timestamp = datetime.now(timezone.utc)
         jdoc = {
@@ -248,6 +261,9 @@ class MiningDb():
         """
         Create a JSON document and pass it to the Db4eDb to be added to the backend database
         """
+        # Convert the effort to a float
+        effort = float(effort)
+
         jdoc = {
             DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT,
             DMongo.TIMESTAMP: timestamp,

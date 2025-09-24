@@ -298,6 +298,7 @@ class DeplMgr:
         
         elif aDir == DDir.VENDOR:
             db4e = self.db_cache.get_deployment(DElem.DB4E)
+            print(f"DeploymentMgr:get_dir(): db4e: {db4e}")
             return db4e.vendor_dir()
 
         elif aDir == DElem.MONEROD:

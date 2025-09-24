@@ -299,7 +299,7 @@ class Db4eServer:
         if type(elem) == MoneroD:
             instance = elem.instance()
             sd.service_name('monerod@' + instance)
-        elif isinstance(elem, P2Pool):
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             instance = elem.instance()
             sd.service_name('p2pool@' + instance)
         elif type(elem) == XMRig:
