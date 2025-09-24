@@ -41,11 +41,8 @@ class HealthCache:
         self.depl_client = depl_client
         self.health_mgr = HealthMgr()
 
-        self.db4e = None
-        self.monerods, self.monerods_remote = [], []
-        self.p2pools, self.p2pools_remote, self.int_p2pools = [], [], []
-        self.xmrigs, self.xmrigs_remote = [], []
-        self.monerods_map, self.monerods_remote_ma = {}, {}
+        self.db4es_map = {}
+        self.monerods_map, self.monerods_remote_map = {}, {}
         self.p2pools_map, self.p2pools_remote_map, self.int_p2pools_map = {}, {}, {}
         self.xmrigs_map, self.xmrigs_remote_map = {}, {}
         self.id_map = {}
@@ -60,7 +57,7 @@ class HealthCache:
             DElem.XMRIG: True,
             DElem.XMRIG_REMOTE: True,
         }
-        self.refresh_db4e()
+        self.refresh_db4es()
         self.refresh_monerods()
         self.refresh_monerods_remote()
         self.refresh_p2pools()
@@ -75,6 +72,8 @@ class HealthCache:
     
     def bg_refresh(self):
         while True:
+            self.refresh_now[DElem.DB4E] = True
+            time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.MONEROD] = True
             time.sleep(REFRESH_INTERVAL)
             self.refresh_now[DElem.MONEROD_REMOTE] = True
@@ -94,10 +93,11 @@ class HealthCache:
     def check(self, elem):
         # Db4E        
         if type(elem) == Db4E:
-            db4e = self.depl_client.get_db4e()
-            self.health_mgr.check(db4e)
-            self.db4e = db4e
-            return deepcopy(self.db4e)
+            try:
+                return deepcopy(self.db4es_map[DField.INSTANCE][DField.INSTANCE])
+            except KeyError:
+                print(f"HealthCache:check(): Db4E key error: {elem}")
+                return None
         
         # Monero
         elif type(elem) == MoneroD:
@@ -162,8 +162,8 @@ class HealthCache:
         self.refresh_now[elem_type] = True
 
 
-    def refresh_elements(self, element_type: str, get_elements_fn, 
-                         target_list_name: str, target_map_name: str):
+    def refresh_elements(
+            self, element_type: str, get_elements_fn: str, target_map_name: str):
         """
         Generic refresh for an element type (monerod, p2pool, xmrig, ...).
 
@@ -173,18 +173,10 @@ class HealthCache:
             target_list_name: Attribute name for the list (e.g. 'monerods').
             target_map_name: Attribute name for the map (e.g. 'monerods_map').
         """
-        if element_type == DElem.DB4E:
-            db4e = get_elements_fn()
-            self.db4e = self.health_mgr.check(db4e)
-            self.refresh_now[DElem.DB4E] = False
-            return
-                
         elements = get_elements_fn()
-        #print(f"HealthCache: {element_type} elements: {len(elements)}")
         new_map = {}
-        new_list = []
-
         old_map = getattr(self, target_map_name, {})
+
         force_refresh = self.refresh_now[element_type]
 
         for elem in elements:
@@ -206,20 +198,19 @@ class HealthCache:
                 DField.INSTANCE: elem,
             }
 
-            new_list.append(elem)
             self.id_map[elem.id()] = elem
 
-        setattr(self, target_list_name, new_list)
         setattr(self, target_map_name, new_map)
 
         self.refresh_now[element_type] = False
-        #print(f"HealthCache:refresh_elements(): {element_type} map: {new_map}")
         #print(f"HealthCache:refresh_elements(): int_p2pools_map: {self.int_p2pools_map}")
 
 
     def get_deployment(self, elem_type, instance):
         if elem_type == DElem.DB4E:
-            return deepcopy(self.db4e)
+            if instance not in self.db4es_map:
+                self.refresh_db4es()
+            return deepcopy(self.db4es_map[instance][DField.INSTANCE])
         
         elif elem_type == DElem.MONEROD:
             return deepcopy(self.monerods_map.get(instance)[DField.INSTANCE])
@@ -245,40 +236,69 @@ class HealthCache:
         else:
             raise ValueError(f"Unsupported element type: {elem_type}")
 
-        
+
+    def get_db4es(self) -> Db4E:
+        self.refresh_db4es()
+        elem_list = []
+        for elem in self.db4es_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
+    
+
     def get_monerods(self) -> list:
         self.refresh_monerods()
-        return deepcopy(self.monerods)
-    
+        elem_list = []
+        for elem in self.monerods_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
+
 
     def get_monerods_remote(self) -> list:
         self.refresh_monerods_remote()
-        return deepcopy(self.monerods_remote)
+        elem_list = []
+        for elem in self.monerods_remote_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
 
 
     def get_p2pools(self) -> list:
         self.refresh_p2pools()
-        return deepcopy(self.p2pools)
+        elem_list = []
+        for elem in self.p2pools_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
 
 
     def get_p2pools_remote(self) -> list:
         self.refresh_p2pools_remote()
-        return deepcopy(self.p2pools_remote)    
+        elem_list = []
+        for elem in self.p2pools_remote_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
 
 
     def get_int_p2pools(self) -> list:
         self.refresh_int_p2pools()
-        return deepcopy(self.int_p2pools)
+        elem_list = []
+        for elem in self.int_p2pools_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
 
 
     def get_xmrigs(self) -> list:
         self.refresh_xmrigs()
-        return deepcopy(self.xmrigs)
-    
+        elem_list = []
+        for elem in self.xmrigs_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
+
 
     def get_xmrigs_remote(self) -> list:
         self.refresh_xmrigs_remote()
-        return deepcopy(self.xmrigs_remote)
+        elem_list = []
+        for elem in self.xmrigs_remote_map.values():
+            elem_list.append(deepcopy(elem[DField.INSTANCE]))
+        return elem_list
 
 
     def hash_unit(self, unit) -> str:
@@ -294,55 +314,48 @@ class HealthCache:
         return hashlib.blake2b(serialized.encode(), digest_size=16).hexdigest()
 
 
-    def refresh_db4e(self):
-        self.refresh_elements(DElem.DB4E, self.depl_client.get_db4e, DElem.DB4E, DElem.DB4E)
 
+    def refresh_db4es(self):
+        self.refresh_elements(
+            DElem.DB4E, self.depl_client.get_db4es, DField.DB4E_MAP)
 
-    def refresh_id(self, object_id):
-        elem = self.depl_client.get_deployment_by_id(object_id)
-        print(f"HealthCache:refresh_id(): ERROR: {elem} not in cache")
-        
 
     def refresh_monerods(self):
         self.refresh_elements(
-            DElem.MONEROD, self.depl_client.get_monerods, 
-            DField.MONERODS, DField.MONERODS_MAP)
+            DElem.MONEROD, self.depl_client.get_monerods, DField.MONERODS_MAP)
 
 
     def refresh_monerods_remote(self):
         self.refresh_elements(
             DElem.MONEROD_REMOTE, self.depl_client.get_monerods_remote, 
-            DField.MONERODS_REMOTE, DField.MONERODS_REMOTE_MAP)
+            DField.MONERODS_REMOTE_MAP)
 
 
     def refresh_p2pools(self):
         self.refresh_elements(
-            DElem.P2POOL, self.depl_client.get_p2pools, 
-            DField.P2POOLS, DField.P2POOLS_MAP)
+            DElem.P2POOL, self.depl_client.get_p2pools, DField.P2POOLS_MAP)
 
 
     def refresh_p2pools_remote(self):
         self.refresh_elements(
             DElem.P2POOL_REMOTE, self.depl_client.get_p2pools_remote, 
-            DField.P2POOLS_REMOTE, DField.P2POOLS_REMOTE_MAP)
+            DField.P2POOLS_REMOTE_MAP)
 
 
     def refresh_int_p2pools(self):
         self.refresh_elements(
-            DElem.INT_P2POOL, self.depl_client.get_int_p2pools, 
-            DField.INT_P2POOLS, DField.INT_P2POOLS_MAP)
+            DElem.INT_P2POOL, self.depl_client.get_int_p2pools, DField.INT_P2POOLS_MAP)
 
 
     def refresh_xmrigs(self):
         self.refresh_elements(
-            DElem.XMRIG, self.depl_client.get_xmrigs, 
-            DField.XMRIGS, DField.XMRIGS_MAP)
+            DElem.XMRIG, self.depl_client.get_xmrigs, DField.XMRIGS_MAP)
 
 
     def refresh_xmrigs_remote(self):
         self.refresh_elements(
             DElem.XMRIG_REMOTE, self.depl_client.get_xmrigs_remote, 
-            DField.XMRIGS_REMOTE, DField.XMRIGS_REMOTE_MAP)
+            DField.XMRIGS_REMOTE_MAP)
 
 
 

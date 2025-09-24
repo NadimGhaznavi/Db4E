@@ -55,7 +55,6 @@ class InstallMgr(Container):
 
         # This is the data from the form on the InitialSetup pane
         db4e = form_data[DField.ELEMENT]
-        
         db4e.pop_msgs()
         user_wallet = db4e.user_wallet()
         vendor_dir = db4e.vendor_dir()
@@ -87,11 +86,15 @@ class InstallMgr(Container):
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(vendor_dir=vendor_dir, db4e=db4e)
 
+        print(f"Db4e vendor dir 1: {db4e.vendor_dir()}")
+
         # Copy in the Db4E start script
         #results += self._copy_db4e_files(vendor_dir=vendor_dir)
 
         # Generate the Db4E service file (installed by the sudo installer)
         self._generate_db4e_service_file(db4e=db4e)
+
+        print(f"Db4e vendor dir 2: {db4e.vendor_dir()}")
 
         # Create the Monero daemon vendor directories
         db4e = self._create_monerod_dirs(vendor_dir=vendor_dir, db4e=db4e)
@@ -352,9 +355,12 @@ class InstallMgr(Container):
                 vendor_dir, DElem.P2POOL, chain_label, DDef.API_DIR, DFile.STATS_MOD)
             stdin_path = os.path.join(
                 vendor_dir, DElem.P2POOL, chain_label, DDef.RUN_DIR, DFile.P2POOL_STDIN)
+            config_file = os.path.join(
+                vendor_dir, DElem.P2POOL, DDef.CONF_DIR, chain_label + DField.INI_SUFFIX)
+
             p2pool.set_type(
                 chain_label=chain_label, log_file=log_file, stats_mod=stats_mod,
-                stdin_path=stdin_path)
+                stdin_path=stdin_path, config_file=config_file)
             self.depl_mgr.add_deployment(p2pool)
             db4e.msg(
                 chain_label, DStatus.GOOD,

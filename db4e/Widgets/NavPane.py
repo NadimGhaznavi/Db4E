@@ -130,6 +130,7 @@ class NavPane(Container):
             elif leaf_data == DLabel.DB4E:
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
+                    DField.INSTANCE: DElem.DB4E,
                     DField.TO_MODULE: DModule.OPS_MGR,
                     DField.TO_METHOD: DMethod.GET_DEPL,
                 }
@@ -425,6 +426,7 @@ class NavPane(Container):
 
         self.chain.remove_children()
         for int_p2pool in self.ops_mgr.get_int_p2pools():
+            print(int_p2pool)
             state = int_p2pool.status()
             instance = int_p2pool.instance()
             self.chain.add_leaf(

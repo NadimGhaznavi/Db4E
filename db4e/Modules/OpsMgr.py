@@ -71,12 +71,6 @@ class OpsMgr:
         if elem_type == DElem.INT_P2POOL:
             elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
 
-        elif type(elem) == P2Pool:
-            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
-
-        elif type(elem) == XMRig:
-            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
-
         elif type(elem) == XMRigRemote:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
         

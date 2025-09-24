@@ -227,10 +227,6 @@ class DeplClient:
         self.job_queue.post_job(job)
 
 
-    def get_db4e(self):
-        return self.get_deployment(DElem.DB4E)
-
-
     def get_deployment(self, elem_type: str, instance=None):
         return self.db_cache.get_deployment(elem_type, instance)
 
@@ -243,8 +239,8 @@ class DeplClient:
         return self.db_cache.get_deployments()
 
 
-    def get_int_p2pools(self):
-        return self.db_cache.get_int_p2pools()
+    def get_db4es(self) -> list[Db4E]:
+        return self.db_cache.get_db4es()
 
 
     def get_monerods(self) -> list[MoneroD]:
@@ -253,6 +249,26 @@ class DeplClient:
 
     def get_monerods_remote(self):
         return self.db_cache.get_monerods_remote()
+
+
+    def get_p2pools(self) -> list[P2Pool]:
+        return self.db_cache.get_p2pools()
+
+
+    def get_p2pools_remote(self) -> list[P2PoolRemote]:
+        return self.db_cache.get_p2pools_remote()
+
+
+    def get_int_p2pools(self):
+        return self.db_cache.get_int_p2pools()
+
+
+    def get_xmrigs(self) -> list[XMRig]:
+        return self.db_cache.get_xmrigs()
+
+
+    def get_xmrigs_remote(self) -> dict:
+        return self.db_cache.get_xmrigs_remote()
 
 
     def get_new(self, elem_type):
@@ -276,28 +292,12 @@ class DeplClient:
         else:
             raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")            
 
-    def get_p2pools(self) -> list[P2Pool]:
-        return self.db_cache.get_p2pools()
-
-
-    def get_p2pools_remote(self) -> list[P2PoolRemote]:
-        return self.db_cache.get_p2pools_remote()
-
-
-    def get_xmrigs(self) -> list[XMRig]:
-        return self.db_cache.get_xmrigs()
-
-
-    def get_xmrigs_remote(self) -> dict:
-        return self.db_cache.get_xmrigs_remote()
-
-
     def instance_exists(self, elem, collection) -> bool:
         return any(e.instance() == elem.instance() for e in collection)
 
 
     def is_initialized(self):
-        db4e = self.get_db4e()
+        db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
         if db4e:
             if db4e.vendor_dir() and db4e.user_wallet():
                 return True

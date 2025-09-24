@@ -67,7 +67,7 @@ class InternalP2Pool(P2Pool):
         return self._hashrates
 
 
-    def set_type(self, chain_label, log_file, stats_mod, stdin_path):
+    def set_type(self, chain_label, log_file, stats_mod, stdin_path, config_file):
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]
@@ -81,6 +81,7 @@ class InternalP2Pool(P2Pool):
         self.user_wallet(DDef.DONATION_WALLET)
         self.log_file(log_file)
         self.stdin_path(stdin_path)
+        self.config_file(config_file)
         self.stats_mod(stats_mod)
 
 

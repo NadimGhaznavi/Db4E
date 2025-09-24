@@ -33,6 +33,7 @@ class Db4E(LocalSoftwareSystem):
         self.add_component(DField.DONATION_WALLET, DonationWallet())
         self.add_component(DField.GROUP, Db4eGroup())
         self.add_component(DField.INSTALL_DIR, InstallDir())
+        self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.PRIMARY_SERVER, PrimaryServer())
         self.add_component(DField.USER, Db4eUser())
         self.add_component(DField.USER_WALLET, UserWallet())
@@ -41,12 +42,14 @@ class Db4E(LocalSoftwareSystem):
         self.donation_wallet = self.components[DField.DONATION_WALLET]
         self.group = self.components[DField.GROUP]
         self.install_dir = self.components[DField.INSTALL_DIR]
+        self.instance = self.components[DField.INSTANCE]
         self.primary_server = self.components[DField.PRIMARY_SERVER]
         self.user = self.components[DField.USER]
         self.user_wallet = self.components[DField.USER_WALLET]
         self.vendor_dir = self.components[DField.VENDOR_DIR]
 
         self.donation_wallet(DDef.DONATION_WALLET)
+        self.instance(DElem.DB4E)
         self.set_effective_identity()
         self.set_install_dir()
         self.enable()
