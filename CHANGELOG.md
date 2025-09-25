@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.38.1] - 2025-09-25
 
 ### Added
 - Health checks for *Internal P2Pool* deployments, in the `NavPane` and `HealthMgr`
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - *Chain Stats* tree layout in the `NavPane`
+- Replaced `textual-plotext` wrapper class with native `textual-plot`
 
 ### Removed
 - Removed `PlotViewPane`: Plot views are integrated into  existing panes
