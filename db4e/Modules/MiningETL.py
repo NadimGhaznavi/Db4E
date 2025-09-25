@@ -121,3 +121,10 @@ class MiningETL:
             "times": time_list,
             "units": units,
         }
+
+
+    def get_remote_xmrig_timestamp(self, instance):
+        rec = self.mining_db.get_rt_miner_rec(instance)
+        if rec:
+            return rec[DMongo.TIMESTAMP]
+        return None

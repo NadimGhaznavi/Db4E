@@ -440,6 +440,7 @@ class NavPane(Container):
         
         self.xmrig_remote_tree.remove_children()
         for remote_xmrig in self.ops_mgr.get_xmrigs_remote():
+            remote_xmrig.timestamp(self.ops_mgr.get_remote_xmrig_timestamp(remote_xmrig))
             state = remote_xmrig.status()
             self.xmrig_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {remote_xmrig.instance()}", data=remote_xmrig.instance())

@@ -41,7 +41,7 @@ REGISTRY = {
     DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
     DPane.P2POOL_ANALYTICS: (P2PoolAnalyticsPane, DLabel.P2POOL, DLabel.ANALYTICS),
-    DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.ANALYTICS),
+    DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),

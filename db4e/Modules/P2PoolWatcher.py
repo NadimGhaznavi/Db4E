@@ -22,8 +22,12 @@ import json
 
 
 from db4e.Modules.MiningDb import MiningDb
+from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Constants.DField import DField
 from db4e.Constants.DDebug import DDebug
+from db4e.Constants.DModule import DModule
+
+
 
 
 
@@ -37,12 +41,17 @@ class P2PoolWatcher:
             stop_event: threading.Event, stdin_path: str, stats_mod=None):
         self.mining_db = mining_db
         self._chain = chain
-        self._log_file = log_file
         self._stop_event = stop_event
         self._stdin_path = stdin_path
         self.thread_control = None
         self._stats_mod = stats_mod
-
+        self._log_file = log_file
+        if stats_mod:
+            # If stats_mod was passed in, then this watcher is watching an InternalP2Pool
+            logger_id = DModule.P2POOL_WATCHER + "-" + chain
+        else:
+            logger_id = DModule.P2POOL_WATCHER + "-USER-" + chain
+        self.log = Db4ELogger(db4e_module=logger_id, log_file=log_file)
 
     def chain(self):
         return self._chain
@@ -281,6 +290,7 @@ class P2PoolWatcher:
         log_file = self.log_file()
         stop_event = threading.Event()
 
+        self.log.info(f"Monitoring log file: {log_file}")
         while not stop_event.is_set():
             try:
                 with open(log_file, "r") as log_handle:

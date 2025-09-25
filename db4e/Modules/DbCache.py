@@ -111,19 +111,18 @@ class DbCache:
 
                     elif  elem_type == DElem.MONEROD_REMOTE:
                         self.monerod_remote_map[elem.instance()] = elem
-
     
                     elif elem_type == DElem.P2POOL:
                         elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
                         if elem.parent():
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
-
                     
                     elif elem_type == DElem.P2POOL_REMOTE:
                         self.p2pool_remote_map[elem.instance()] = elem
                     
                     elif elem_type == DElem.INT_P2POOL:
+                        elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
                         if elem.parent():
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.int_p2pool_map[elem.instance()] = elem

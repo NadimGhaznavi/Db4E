@@ -7,19 +7,11 @@ db4e/Panes/P2PoolInternalPane.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-
-from dataclasses import dataclass
-from typing import Any
-
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
-from textual.message import Message
-from textual.widgets import (Label, Button, Select)
-from textual.reactive import var
-from textual import on, work
+from textual.widgets import (Label, Button)
 
+from db4e.Modules.Helper import gen_results_table
 from db4e.Modules.InternalP2Pool import InternalP2Pool
-
-from db4e.Widgets.HashratePlot import HashratePlot
 
 from db4e.Messages.Db4eMsg import Db4eMsg
 
@@ -31,20 +23,25 @@ from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DForm import DForm
-from db4e.Constants.DSelect import DSelect
 
 
 
 
 class P2PoolInternalPane(Container):
 
-    selected_time = DSelect.ONE_WEEK
-    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
-    config_file_label = Label("", id=DForm.CONFIG_LABEL, classes=DForm.STATIC)
-    stratum_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
-    p2p_port_label = Label("", id=DForm.STRATUM_PORT_LABEL, classes=DForm.STATIC)
+    instance_label = Label("", classes=DForm.STATIC)
+    config_file_label = Label("", classes=DForm.STATIC)
+    stratum_port_label = Label("", classes=DForm.STATIC)
+    p2p_port_label = Label("", classes=DForm.STATIC)
+    in_peers_label = Label("", classes=DForm.STATIC)
+    out_peers_label = Label("", classes=DForm.STATIC)
+    log_level_label = Label("", classes=DForm.STATIC)
+    parent_label = Label("", classes=DForm.STATIC)
+
+    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
-    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+    health_msgs = Label()
+
     p2pool = None
 
     def compose(self):
@@ -58,53 +55,84 @@ class P2PoolInternalPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
                         self.instance_label),
                     Horizontal(
-                        Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL_20),
-                        self.stratum_port_label),
+                        Label(DLabel.IN_PEERS, classes=DForm.FORM_LABEL),
+                        self.in_peers_label),
                     Horizontal(
-                        Label(DLabel.P2P_PORT, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.OUT_PEERS, classes=DForm.FORM_LABEL),
+                        self.out_peers_label),
+                    Horizontal(
+                        Label(DLabel.P2P_PORT, classes=DForm.FORM_LABEL),
                         self.p2p_port_label),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL),
+                        self.stratum_port_label),
+                    Horizontal(
+                        Label(DLabel.LOG_LEVEL, classes=DForm.FORM_LABEL),
+                        self.log_level_label),
+                    Horizontal(
+                        Label(DLabel.UPSTREAM_MONERO, classes=DForm.FORM_LABEL),
+                        self.parent_label),
+                    Horizontal(
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_file_label),
-                    classes=DForm.FORM_4, id=DForm.FORM_FIELD),
+                    id=DForm.FORM_BOX, classes=DForm.FORM_8),
 
                 Vertical(
-                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
-                    self.hashrate_plot,
-                    classes=DForm.PANE_BOX),
+                    self.health_msgs,
+                    classes=DForm.HEALTH_BOX,
+                ),
 
-                self.view_log_button),
-                classes=DForm.PANE_BOX)
+                Vertical(
+                    Horizontal(
+                        self.analytics_button,
+                        self.view_log_button,
+                        classes=DForm.BUTTON_ROW))),
+            classes=DForm.PANE_BOX)        
+
+
+    def on_mount(self):
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
+        form_box.border_subtitle = DLabel.CONFIG        
         
-
-    def on_select_changed(self, event: Select.Changed) -> None:
-        selected_time = event.value
-        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
-        hashrate_widget.update_time_range(selected_time)
-
-
+        
     def set_data(self, p2pool: InternalP2Pool):
         self.p2pool = p2pool
         self.instance_label.update(p2pool.instance())
         self.config_file_label.update(p2pool.config_file())
+        self.in_peers_label.update(str(p2pool.in_peers()))
+        self.out_peers_label.update(str(p2pool.out_peers()))
+        self.p2p_port_label.update(str(p2pool.p2p_port()))
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
+        self.parent_label.update(str(p2pool.monerod.instance()))
+        self.log_level_label.update(str(p2pool.log_level()))
 
-        hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
-        hashrate_widget.load_all_data(p2pool.hashrates())
-        hashrate_widget.update_time_range(self.selected_time)
 
-        select_widget = self.query_one("#" + DForm.TIMES)
-        select_widget.value = self.selected_time
+        # Health messages
+        self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))                    
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        form_data = {
-            DField.ELEMENT_TYPE: DElem.INT_P2POOL,
-            DField.TO_MODULE: DModule.OPS_MGR,
-            DField.TO_METHOD: DMethod.LOG_VIEWER,
-            DField.INSTANCE: self.p2pool.instance()
-        }
+        button_id = event.button.id
+
+        if button_id == DButton.ANALYTICS:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.VIEW_LOG:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.LOG_VIEWER,
+                DField.INSTANCE: self.p2pool.instance()
+            }
+
         self.app.post_message(Db4eMsg(self, form_data=form_data))
+

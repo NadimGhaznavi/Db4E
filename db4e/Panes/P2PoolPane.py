@@ -29,7 +29,7 @@ from db4e.Constants.DForm import DForm
 class P2PoolPane(Container):
 
     intro_label = Label("", classes=DForm.INTRO)
-    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
+    instance_label = Label("", classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET)
     instance_map = {}

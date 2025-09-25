@@ -54,7 +54,7 @@ from db4e.Constants.DFile import DFile
 from db4e.Constants.DModule import DModule
 
 
-DDebug.FUNCTION = True
+DDebug.FUNCTION = False
 
 POLL_INTERVAL = 5
 
@@ -404,10 +404,8 @@ class Db4eServer:
     def set_int_p2pool_primary(self, monerod):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
-        # Don't do anything if the primary is disabled
+
         for p2pool in self.depl_mgr.get_internal_p2pools():
-            if p2pool.enabled():
-                return
             
             p2pool = deepcopy(p2pool)
             p2pool.monerod = monerod

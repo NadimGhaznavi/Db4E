@@ -24,6 +24,7 @@ from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DModule import DModule
 
 class HealthMgr:
 

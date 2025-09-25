@@ -48,3 +48,12 @@ I agree with you about electricity costs, for sure!!! I've added a note for a fu
 # Enable/Disable based on CPU utilization
 
 Mine when the miner is idle, stop if it hits a CPU threshold.
+
+---
+
+# Rotate All Log files
+
+---
+
+# Don't collect num_miners until p2pool is synced
+
