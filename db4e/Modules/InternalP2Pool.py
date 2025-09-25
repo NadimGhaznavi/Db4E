@@ -47,11 +47,27 @@ class InternalP2Pool(P2Pool):
         self.in_peers(2)
         self.out_peers(2)
 
+        self._hashrates = None
+        self._blocks_found = None
+
+
         if rec:
             self.from_rec(rec)
 
+    def blocks_found(self, blocks_found=None):
+        if blocks_found is not None:
+            self._blocks_found = blocks_found
+        return self._blocks_found
 
-    def set_type(self, chain_label, log_file, stats_mod, stdin_path):
+
+
+    def hashrates(self, hashrates=None):
+        if hashrates is not None:
+            self._hashrates = hashrates
+        return self._hashrates
+
+
+    def set_type(self, chain_label, log_file, stats_mod, stdin_path, config_file):
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]
@@ -65,6 +81,7 @@ class InternalP2Pool(P2Pool):
         self.user_wallet(DDef.DONATION_WALLET)
         self.log_file(log_file)
         self.stdin_path(stdin_path)
+        self.config_file(config_file)
         self.stats_mod(stats_mod)
 
 

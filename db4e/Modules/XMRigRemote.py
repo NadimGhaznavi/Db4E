@@ -44,3 +44,9 @@ class XMRigRemote(SoftwareSystem):
         if rec:
             self.from_rec(rec)
             #print(f"XMRigRemote: rec: {rec}, uptime: {self.uptime()}")
+
+
+    def hashrates(self, hashrate_data=None):
+        if hashrate_data is not None:
+            self._hashrates = hashrate_data
+        return self._hashrates

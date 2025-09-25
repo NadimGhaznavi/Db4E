@@ -95,9 +95,14 @@ class DbMgr:
 
 
     @as_worker
-    def find_many(self, col_name, filter, use_worker=True):
+    def find_many(self, col_name, filter, res_sort=None, use_worker=True):
         col = self.get_collection(col_name)
-        return list(col.find(filter))
+        cursor = col.find(filter)
+        if res_sort:
+            # convert dict to list of tuples
+            sort_list = list(res_sort.items())
+            cursor = cursor.sort(sort_list)
+        return list(cursor)
 
 
     @as_worker
@@ -163,14 +168,6 @@ class DbMgr:
         self.ensure_indexes()
         db4e_rec = self.find_one(
             col_name=depl_col, filter={DField.ELEMENT_TYPE: DElem.DB4E})
-
-        # Make sure there's a Db4E deployment record for Db4E
-        if not db4e_rec:
-            db4e = Db4E()
-            print(f"DbMgr:init_db(): db4e: {db4e}")
-            rec = db4e.to_rec()
-            rec.pop("_id", None)
-            self.insert_one(col_name=depl_col, jdoc=db4e.to_rec())
             
 
     @as_worker
@@ -182,8 +179,7 @@ class DbMgr:
         col = self.get_collection(col_name)
         jdoc.pop("_id", None)
         insert_result = col.insert_one(jdoc)
-        jdoc['_id'] = insert_result.inserted_id
-        return jdoc
+        return insert_result.inserted_id
 
 
     def insert_uniq_by_timestamp(self, collection, jdoc):

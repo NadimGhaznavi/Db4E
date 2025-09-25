@@ -10,6 +10,8 @@ db4e/server.py
 """
 
 import os, sys
+# Turn off buffering
+sys.stdout.reconfigure(line_buffering=True)
 import time
 import signal
 import threading
@@ -54,14 +56,16 @@ from db4e.Constants.DModule import DModule
 
 DDebug.FUNCTION = False
 
-
 POLL_INTERVAL = 5
 
 class Db4eServer:
     """
     Db4E Server
-    Server Class Relationships Diagram
+    Server Class Relationships Diagram:
+    https://app.diagrams.net/#G1ytFOrYGglEs5p85JfAUTwwLgGR8sZYdD#%7B%22pageId%22%3A%22hYJ4WWheaxyqbM-ibf4z%22%7D
     """
+
+
 
     def __init__(self):
 
@@ -71,8 +75,11 @@ class Db4eServer:
         # Mongo DB Manager
         self.db = DbMgr()
 
+        # Mining DB, part of the DAL
+        self.mining_db = MiningDb(db=self.db)
+
         # Database Cache
-        self.db_cache = DbCache(db=self.db)
+        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Deployment Manager
         self.depl_mgr = DeplMgr(db=self.db, db_cache=self.db_cache)
@@ -144,15 +151,15 @@ class Db4eServer:
                 continue
 
             # Make sure anything that's enabled is running
-            if elem_type != MoneroDRemote and elem.enabled():
+            if elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig] and elem.enabled():
                 self.ensure_running(elem)
-                if isinstance(elem, P2Pool):
+                if elem_type in [P2Pool, InternalP2Pool]:
                     # Make sure there's a log watcher running                    
                     self.spawn_log_watcher(elem) 
 
             # Makre sure anything that's disabled is stopped
             #self.log.debug(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
-            if elem_type != MoneroDRemote and not elem.enabled():
+            if elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig] and not elem.enabled():
                 self.ensure_stopped(elem)
 
             # There are no primary Monery deployments
@@ -295,7 +302,7 @@ class Db4eServer:
         if type(elem) == MoneroD:
             instance = elem.instance()
             sd.service_name('monerod@' + instance)
-        elif isinstance(elem, P2Pool):
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
             instance = elem.instance()
             sd.service_name('p2pool@' + instance)
         elif type(elem) == XMRig:
@@ -397,52 +404,22 @@ class Db4eServer:
     def set_int_p2pool_primary(self, monerod):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
-        if monerod.enabled():
-            # Don't do anything if the primary is disabled
-            for p2pool in self.depl_mgr.get_internal_p2pools():
-                p2pool = deepcopy(p2pool)
-                p2pool.monerod = monerod
-                p2pool.parent(monerod.id())
-                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
-                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-                p2pool.log_file(
-                    os.path.join(
-                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
-                        DDir.LOG, DFile.P2POOL_LOG))
-                p2pool.enable()
-                self.depl_mgr.update_deployment(p2pool)
-                self.ensure_running(p2pool)
 
-
-    def UNUSED_set_primary(self, job):
-        if DDebug.FUNCTION:
-            self.log.debug(f"DEBUG Db4eServer:set_primary(): {job}")
-        monerod = job.elem()
-        #self.log.debug(f"Db4eServer:set_primary(): {monerod}")
-        for aMonerod in self.depl_mgr.get_monerods():
-            if monerod.instance() != aMonerod.instance():
-                #self.log.debug(f"Db4eServer:set_primary(): checking {aMonerod}: {aMonerod.primary_server()}")
-                if aMonerod.primary_server():
-                    aMonerod.primary_server(False)
-                    self.depl_mgr.update_deployment(aMonerod)
-        monerod.primary_server(True)
-        self.depl_mgr.job_queue.complete_job(job)
-
-
-    def start(self):
-        if DDebug.FUNCTION:
-            self.log.debug("DEBUG Db4eServer:start():")
-        signal.signal(signal.SIGINT, self.shutdown)
-        signal.signal(signal.SIGTERM, self.shutdown)
-        self.log.info("Starting Db4E Server")
-        count = 0
-        while self.running.is_set():
-            count += 1
-            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
-            self.check_deployments()
-            self.check_jobs()
-            time.sleep(POLL_INTERVAL)
+        for p2pool in self.depl_mgr.get_internal_p2pools():
+            
+            p2pool = deepcopy(p2pool)
+            p2pool.monerod = monerod
+            p2pool.parent(monerod.id())
+            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+            tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            p2pool.log_file(
+                os.path.join(
+                    vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                    DDir.LOG, DFile.P2POOL_LOG))
+            p2pool.enable()
+            self.depl_mgr.update_deployment(p2pool)
+            self.ensure_running(p2pool)
 
 
     def spawn_log_watcher(self, p2pool):
@@ -479,10 +456,13 @@ class Db4eServer:
         def _runner():
             try:
                 watcher.monitor_log()
+            except Exception as e:
+                self.log.error(f"Watcher for {instance} crashed: {e}", exc_info=True)
             finally:
                 # Cleanup on exit
                 watcher.stop_sub_thread()
                 self.log_watchers.pop(instance, None)
+                self.log.debug(f"Watcher thread exiting: {instance}")
 
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
@@ -491,11 +471,25 @@ class Db4eServer:
         self.log.info(f"Started P2Pool watcher: {instance}")
 
 
+    def start(self):
+        if DDebug.FUNCTION:
+            self.log.debug("DEBUG Db4eServer:start():")
+        self.log.info("Starting Db4E Server")
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
+        count = 0
+        while self.running.is_set():
+            count += 1
+            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
+            self.check_deployments()
+            self.check_jobs()
+            time.sleep(POLL_INTERVAL)
+
+
     def update(self, job):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:update(): {job}")
         elem = job.elem()
-
         elem = self.depl_mgr.update_deployment(elem)
         self.log.info(f"Updated: {elem}")
 

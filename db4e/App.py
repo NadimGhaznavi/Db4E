@@ -37,17 +37,38 @@ from db4e.Messages.UpdateTopBar import UpdateTopBar
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DeplClient import DeplClient
-from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.HealthCache import HealthCache
-from db4e.Modules.HealthMgr import HealthMgr
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.MessageRouter import MessageRouter
+from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
 
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
+
+from textual.theme import Theme
+
+db4e_theme = Theme(
+    name="db4e",
+    primary="#88C0D0",
+    secondary="#751BC4",
+    accent="#B48EAD",
+    foreground="#31b8e6",
+    background="#2E3440",
+    success="#A3BE8C",
+    warning="#EBCB8B",
+    error="#BF616A",
+    surface="black",
+    panel="#434C5E",
+    dark=True,
+    variables={
+        "block-cursor-text-style": "none",
+        "footer-key-foreground": "#88C0D0",
+        "input-selection-background": "#81a1c1 35%",
+    },
+)
 
 class Db4EApp(App):
     TITLE = DDef.APP_TITLE
@@ -59,10 +80,13 @@ class Db4EApp(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         db = DbMgr()
-        db_cache = DbCache(db=db)
+        mining_db = MiningDb(db=db)
+        db_cache = DbCache(db=db, mining_db=mining_db)
         depl_client = DeplClient(db=db, db_cache=db_cache)
         health_cache = HealthCache(depl_client=depl_client)
-        ops_mgr = OpsMgr(depl_client=depl_client, health_cache=health_cache, db_cache=db_cache)
+        ops_mgr = OpsMgr(
+            depl_client=depl_client, health_cache=health_cache, db_cache=db_cache, 
+            mining_db=mining_db)
         install_mgr = InstallMgr(db=db, db_cache=db_cache)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)
@@ -80,6 +104,13 @@ class Db4EApp(App):
         )
         yield self.pane_mgr
 
+
+    def on_mount(self) -> None:
+        # Register the theme
+        self.register_theme(db4e_theme)  
+
+        # Set the app's theme
+        self.theme = "db4e"  
 
     ### Message handling happens here...#31b8e6;
 

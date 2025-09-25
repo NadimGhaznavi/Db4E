@@ -59,7 +59,9 @@ class SoftwareSystem:
         self._elem_type = rec[DField.ELEMENT_TYPE]
 
 
-    def id(self):
+    def id(self, object_id=None):
+        if object_id is not None:
+            self._object_id = object_id
         return self._object_id
 
 

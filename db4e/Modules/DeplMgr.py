@@ -102,7 +102,7 @@ class DeplMgr:
 
         # Monero log file
         os.makedirs(os.path.join(
-            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR))
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR), exist_ok=True)
         monerod.log_file(
             os.path.join(
                 vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR, 
@@ -110,14 +110,17 @@ class DeplMgr:
         
         # Blockchain directory
         os.makedirs(os.path.join(
-            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
+            vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR), 
+            exist_ok=True)
         monerod.blockchain_dir(
             os.path.join(
                 vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR))
         
         # Run directory
         os.makedirs(
-            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR))
+            os.path.join(
+                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR), 
+                exist_ok=True)
         
         # Path to STDIN named pipe
         monerod.stdin_path(
@@ -191,10 +194,9 @@ class DeplMgr:
         if update:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.XMRIG)
-            xmrig_dir = self.get_dir(DElem.XMRIG)
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             xmrig.log_file(os.path.join(
-                vendor_dir, xmrig_dir, DDef.LOG_DIR, xmrig.instance() + '.log'))
+                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
             self.insert_one(xmrig)
         return xmrig
 
@@ -295,7 +297,7 @@ class DeplMgr:
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
         elif aDir == DDir.VENDOR:
-            db4e = self.db_cache.get_deployment(DElem.DB4E)
+            db4e = self.db_cache.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
             return db4e.vendor_dir()
 
         elif aDir == DElem.MONEROD:
@@ -316,7 +318,7 @@ class DeplMgr:
 
 
     def get_internal_p2pools(self):
-        return self.db_cache.get_internal_p2pools()
+        return self.db_cache.get_int_p2pools()
 
 
     def get_template(self, elem_type):
@@ -395,7 +397,7 @@ class DeplMgr:
         update_flag = False
 
         # The current record, we'll update this and write it back in
-        db4e = self.db_cache.get_deployment(DElem.DB4E)
+        db4e = self.db_cache.get_deployment(DElem.DB4E, DElem.DB4E)
 
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:
@@ -603,9 +605,9 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
-        monerod = self.db_cache.get_deployment(DElem.MONEROD, new_monerod.instance())
+        monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
             raise ValueError(f"DeploymentMgr:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")

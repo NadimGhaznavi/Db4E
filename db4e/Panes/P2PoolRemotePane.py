@@ -27,15 +27,15 @@ from db4e.Constants.DForm import DForm
 
 class P2PoolRemotePane(Container):
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
+        id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
         classes=DForm.INPUT_30)
     ip_addr_input = Input(
-        id="ip_addr_input", restrict=f"[a-z0-9._\-]*", compact=True,
+        id=DForm.IP_ADDR_INPUT, restrict=f"[a-z0-9._\-]*", compact=True,
         classes=DForm.INPUT_30)
     stratum_port_input = Input(
-        id="stratum_port_input", restrict=f"[0-9]*", compact=True, 
+        id=DForm.STRATUM_PORT_INPUT, restrict=f"[0-9]*", compact=True, 
         classes=DForm.INPUT_30)
     health_msgs = Label()
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
@@ -46,7 +46,10 @@ class P2PoolRemotePane(Container):
     def compose(self):
         # Remote P2Pool deployment form
         INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{DLabel.P2POOL_REMOTE}[/] deployment here."
+            f"[cyan]{DLabel.P2POOL_REMOTE}[/] deployment here. **NOTE**: This will " \
+            f"**not** install the [cyan]{DLabel.P2POOL_REMOTE}[/] software on a " \
+            f"remote machine. This record is used to support the deployment of local " \
+            f"[cyan]{DLabel.XMRIG}[/] deployments." 
 
         yield Vertical(
             ScrollableContainer(
@@ -62,7 +65,7 @@ class P2PoolRemotePane(Container):
                     Horizontal(
                         Label(DLabel.STRATUM_PORT, classes=DForm.FORM_LABEL),
                         self.stratum_port_input),
-                    classes=DForm.FORM_3),
+                    classes=DForm.FORM_3, id=DForm.FORM_BOX),
 
                 Vertical(
                     self.health_msgs,
@@ -78,6 +81,10 @@ class P2PoolRemotePane(Container):
         
                 classes=DForm.PANE_BOX))
 
+
+    def on_mount(self):
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
+        form_box.border_subtitle = DLabel.CONFIG
 
     def set_data(self, p2pool: P2PoolRemote):
         self.instance_input.value = p2pool.instance()
@@ -100,9 +107,9 @@ class P2PoolRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        self.p2pool.instance(self.query_one("#instance_input", Input).value)
-        self.p2pool.ip_addr(self.query_one("#ip_addr_input", Input).value)
-        self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
+        self.p2pool.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.p2pool.ip_addr(self.query_one("#" + DForm.IP_ADDR_INPUT, Input).value)
+        self.p2pool.stratum_port(self.query_one("#" + DForm.STRATUM_PORT_INPUT, Input).value)
 
 
         if button_id == DButton.NEW:

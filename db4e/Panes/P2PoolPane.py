@@ -28,52 +28,52 @@ from db4e.Constants.DForm import DForm
 
 class P2PoolPane(Container):
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    intro_label = Label("", classes=DForm.INTRO)
+    instance_label = Label("", classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
+    radio_set = RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET)
     instance_map = {}
 
-    chain_radio_set = RadioSet(id="chain_radio_set", classes=DForm.RADIO_SET)
+    chain_radio_set = RadioSet(id=DForm.CHAIN_RADIO_SET, classes=DForm.RADIO_SET)
 
     config_label = Label("", classes=DForm.STATIC)
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_30)
     in_peers_input = Input(
-        id="in_peers_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.IN_PEERS_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     out_peers_input = Input(
-        id="out_peers_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.OUT_PEERS_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     log_level_input = Input(
-        id="log_level_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.LOG_LEVEL_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     p2p_port_input = Input(
-        id="p2p_port_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.P2P_PORT_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
     stratum_port_input = Input(
-        id="stratum_port_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.STRATUM_PORT_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_30)
 
     health_msgs = Label()
 
+    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     p2pool = None
 
 
     def compose(self):
 
         # Local P2Pool daemon deployment form
-        INTRO = "This screen provides a form for creating a new " \
-            f"[bold cyan]{DLabel.P2POOL}[/] deployment."
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -97,13 +97,11 @@ class P2PoolPane(Container):
                     Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         self.config_label),
-                    classes=DForm.FORM_7, id="form_box"),
+                    id=DForm.FORM_BOX, classes=DForm.FORM_7),
                     
-                Vertical(
-                    self.chain_radio_set),
+                self.chain_radio_set,
 
-                Vertical(
-                    self.radio_set),
+                self.radio_set,
 
                 Vertical(
                     self.health_msgs,
@@ -112,9 +110,11 @@ class P2PoolPane(Container):
 
                 Vertical(
                     Horizontal(
+                        self.analytics_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
+                        self.view_log_button,
                         self.disable_button,
                         self.delete_button,
                         classes=DForm.BUTTON_ROW))),
@@ -126,7 +126,7 @@ class P2PoolPane(Container):
         #radio_set = self.query_one("#radio_set", RadioSet")
         self.radio_set.border_subtitle = DLabel.UPSTREAM_MONERO
         self.chain_radio_set.border_subtitle = DLabel.CHAIN
-        form_box = self.query_one("#form_box", Vertical)
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG        
 
     def set_data(self, p2pool: P2Pool):
@@ -150,7 +150,7 @@ class P2PoolPane(Container):
         # Create the chain radio buttons
         for child in list(self.chain_radio_set.children):
             child.remove()
-        for chain in ['mainchain', 'minisidechain', 'nanosidechain']:
+        for chain in [DField.MAIN_CHAIN, DField.MINI_CHAIN, DField.NANO_CHAIN]:
             radio_button = RadioButton(chain, classes=DForm.RADIO_BUTTON_TYPE)
             if p2pool.chain() == chain:
                 radio_button.value = True
@@ -159,6 +159,8 @@ class P2PoolPane(Container):
         # Configure button visibility
         if p2pool.instance():
             # This is an update operation
+            INTRO = f"Configure settings for the [b]{p2pool.instance()} " \
+                f"{DLabel.P2POOL}[/] deployment."
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
 
@@ -170,37 +172,48 @@ class P2PoolPane(Container):
                 self.add_class(DField.DISABLE)
         else:
             # This is a new operation
+            INTRO = "Configure settings for a new " \
+                f"[bold cyan]{DLabel.P2POOL}[/] deployment."
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
-
+        
+        self.intro_label.update(INTRO)
         self.health_msgs.update(gen_results_table(p2pool.pop_msgs()))                    
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
-        radio_set = self.query_one("#radio_set", RadioSet)
+        radio_set = self.query_one("#" + DForm.RADIO_SET, RadioSet)
         monerod_instance = None
         monerod_id = None
         if radio_set.pressed_button:
             monerod_instance = str(radio_set.pressed_button.label)
             monerod_id = self.instance_map[monerod_instance]
         
-        chain_radio_set = self.query_one("#chain_radio_set", RadioSet)
+        chain_radio_set = self.query_one("#" + DForm.CHAIN_RADIO_SET, RadioSet)
         chain = None
         if chain_radio_set.pressed_button:
             chain = chain_radio_set.pressed_button.label
             
         self.p2pool.parent(monerod_id)
         self.p2pool.chain(str(chain))
-        self.p2pool.instance(self.query_one("#instance_input", Input).value)
-        self.p2pool.in_peers(self.query_one("#in_peers_input", Input).value)
-        self.p2pool.out_peers(self.query_one("#out_peers_input", Input).value)
-        self.p2pool.p2p_port(self.query_one("#p2p_port_input", Input).value)
-        self.p2pool.stratum_port(self.query_one("#stratum_port_input", Input).value)
-        self.p2pool.log_level(self.query_one("#log_level_input", Input).value)
+        self.p2pool.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.p2pool.in_peers(self.query_one("#" + DForm.IN_PEERS_INPUT, Input).value)
+        self.p2pool.out_peers(self.query_one("#" + DForm.OUT_PEERS_INPUT, Input).value)
+        self.p2pool.p2p_port(self.query_one("#" + DForm.P2P_PORT_INPUT, Input).value)
+        self.p2pool.stratum_port(self.query_one("#" + DForm.STRATUM_PORT_INPUT, Input).value)
+        self.p2pool.log_level(self.query_one("#" + DForm.LOG_LEVEL_INPUT, Input).value)
 
-        if button_id == DButton.NEW:
+        if button_id == DButton.ANALYTICS:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.NEW:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
@@ -238,11 +251,18 @@ class P2PoolPane(Container):
                 DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
-            }            
+            }
+        elif button_id == DButton.VIEW_LOG:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.LOG_VIEWER,
+                DField.INSTANCE: self.p2pool.instance()
+            }               
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
-    
+
     def watch_radio_button_list(self, old, new):
         for child in list(self.radio_set.children):
             child.remove()

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "db4e"
-version = "0.38.0"
+version = "0.38.1"
 license = "GPL-3.0-or-later"
 description = "A unified Monero XMR mining dashboard for deployment, operation and real-time analytics."
 authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]
@@ -31,7 +31,7 @@ loguru = "^0.7.3"
 myloginpath = "^0.0.4"
 textual = {extras = ["syntax"], version = "^6.0.0"}
 textual-dev = "^1.7.0"
-textual-plotext = "^1.0.1"
+textual-plot = "^0.8.0"
 plotext = "^5.3.2"
 requests = "^2.32.3"
 zstandard = "^0.23.0"

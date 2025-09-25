@@ -25,7 +25,7 @@ on the command line when you start the db4e service.
 
 # Edge Cases
 
-- Primary Monero Node is deleted: Update Db4E.primary_server
+- If upstream Monero or P2Pool is deleted, set downstream element's parent attribute to False.
 
 ---
 
@@ -39,4 +39,21 @@ on the command line when you start the db4e service.
 
 ...
 
-# Make sure local P2Pool instances use unique port numbers
+# Enter Wattage per Miner
+
+I agree with you about electricity costs, for sure!!! I've added a note for a future feature to input wattage per miner and cost of power. Then I can calculate the electricity costs of the mining op and plot it against XMR earnings.
+
+---
+
+# Enable/Disable based on CPU utilization
+
+Mine when the miner is idle, stop if it hits a CPU threshold.
+
+---
+
+# Rotate All Log files
+
+---
+
+# Don't collect num_miners until p2pool is synced
+

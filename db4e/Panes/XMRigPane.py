@@ -29,26 +29,28 @@ from db4e.Constants.DForm import DForm
 class XMRigPane(Container):
 
 
-    instance_label = Label("", id="instance_label",classes=DForm.STATIC)
+    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
+    radio_set = RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET)
     instance_map = {}
     
     config_label = Label("", classes=DForm.STATIC)
     instance_input = Input(
-        id="instance_input", restrict=f"[a-zA-Z0-9_\-]*", compact=True,
+        id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_15)
     num_threads_input = Input(
-        id="num_threads_input", restrict=f"[0-9]*", compact=True,
+        id=DForm.NUM_THREADS_INPUT, restrict=f"[0-9]*", compact=True,
         classes=DForm.INPUT_15)
     
     health_msgs = Label()
 
+    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
+    view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     xmrig = None
 
 
@@ -64,18 +66,17 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_25),
                         self.instance_input, self.instance_label),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL),
+                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL_25),
                         self.num_threads_input),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
+                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_25),
                         self.config_label),
-                    classes=DForm.FORM_3, id="form_field"),
+                    classes=DForm.FORM_3, id=DForm.FORM_BOX),
 
-                Vertical(
-                    self.radio_set),
+                self.radio_set,
 
                 Vertical(
                     self.health_msgs,
@@ -83,9 +84,11 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
+                        self.analytics_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
+                        self.view_log_button,
                         self.disable_button,
                         self.delete_button,
                         classes=DForm.BUTTON_ROW))),
@@ -99,7 +102,7 @@ class XMRigPane(Container):
     
     def on_mount(self):
         self.radio_set.border_subtitle = DLabel.P2POOL
-        form_box = self.query_one("#form_field", Vertical)
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
 
 
@@ -140,17 +143,25 @@ class XMRigPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
-        radio_set = self.query_one("#radio_set", RadioSet)
+        radio_set = self.query_one("#" + DForm.RADIO_SET, RadioSet)
         if radio_set.pressed_button:
             p2pool_instance = str(radio_set.pressed_button.label)
             if p2pool_instance:
                 p2pool = self.instance_map[p2pool_instance]
                 self.xmrig.parent(p2pool)
-        self.xmrig.instance(self.query_one("#instance_input", Input).value)
-        self.xmrig.num_threads(self.query_one("#num_threads_input", Input).value)
+        self.xmrig.instance(self.query_one("#" + DForm.INSTANCE_INPUT, Input).value)
+        self.xmrig.num_threads(self.query_one("#" + DForm.NUM_THREADS_INPUT, Input).value)
 
 
-        if button_id == DButton.NEW:
+        if button_id == DButton.ANALYTICS:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        elif button_id == DButton.NEW:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
@@ -188,7 +199,15 @@ class XMRigPane(Container):
                 DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
-            }            
+            }
+        elif button_id == DButton.VIEW_LOG:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.LOG_VIEWER,
+                DField.INSTANCE: self.xmrig.instance()
+            }               
+
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
         #self.app.post_message(RefreshNavPane(self))

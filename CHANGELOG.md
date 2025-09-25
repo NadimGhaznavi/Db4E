@@ -7,17 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.38.0] - 2025-09-19
+## [0.38.1] - 2025-09-25
+
+### Added
+- Health checks for *Internal P2Pool* deployments, in the `NavPane` and `HealthMgr`
+- Added a *View Log* button to the *Internal P2Pool* pane
+
+### Changed
+- *Chain Stats* tree layout in the `NavPane`
+- Replaced `textual-plotext` wrapper class with native `textual-plot`
+
+### Removed
+- Removed `PlotViewPane`: Plot views are integrated into  existing panes
+---
+
+## [0.38.0] - 2025-09-21
 
 ### Added 
-- Updated `Fields`, `Labels` and created a new `Mining` constants file
-- Added a `Stdin` component to `Modules/Components` to support the STDIN pipe
-- Added the `Stdin` component to `P2Pool` and `MoneroD` classes
-- Created `Modules/MiningDb` as part of the DAL
-- Created a `Modules/P2PoolWatcher` class to collect mining data from a deployed *P2Pool* instance
+- Major refactoring of how contants are handled:
+  - Added `DDebug`, `DDef`, `DDir`, `DElem`, `DField`, `DFile`, `DForm`, `DJob`, `DLabel`, `DMethod`, `DMining`, `DModule`, `DMongo`, `DPane`, `DPlaceholder`, `DStatus` classes to hold constants.
+  - Removed `Buttons`, `Defaults`, `Fields`, `Jobs`, `Labels`, `Panes`, `SystemdTemplates`
+- Added new classes to `Components`:
+  - `BlockchainDir`, `Hashrate`, `P2PPort`, `PrimaryServer`, `StatsMod`, `StdinPath`, `Timestamp`, `Uptime`.
+  - Removed `ObjectId`.
+- Added three internal P2Pool deployments as part of the install to collect metrics for the *Main*, *Mini Sidechain* and *Nano Sidechain*
+- Added a `MiningDb` and `P2PoolWatcher` modules to collect metrics from the user defined and internal *P2Pool* deployments.
+- Stubbed out a `PlotDb` module as part of the *Data Abstration Layer*
+- Added a new `XMRigRemote` class to encapsulate remote miners
+- Added a `XMRigRemotePane` to display collected information about detected remote miners
+
+### Changed
+- Refactor of `DbCache` and `HealthCache`.
+- Refactor of class relationships, see:
+  - https://db4e.osoyalce.com/images/App-Relationships.png
+  - https://db4e.osoyalce.com/images/Server-Relationships.png
+- Refactored the `Modules\DeploymentMgr` into `DeplClient` and `DeplMgr`
+- Changed the left-hand `NavPane`:
+  - To use a single *Textual* tree
+  - Included remote miners that are detected; no user action required
+- 
 
 ### Fixed
 - Fixed paths in the `Templates/p2pool-4.9.1/systemd/p2pool@.service` file to actually create a functional STDIN pipe for the running P2Pool service
+
 
 ---
 

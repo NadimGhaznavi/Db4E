@@ -16,14 +16,14 @@ from db4e.Panes.InitialSetupPane import InitialSetupPane
 from db4e.Panes.LogViewPane import LogViewPane
 from db4e.Panes.MoneroDPane import MoneroDPane
 from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
-from db4e.Panes.MoneroDTypePane import MoneroDTypePane
 from db4e.Panes.P2PoolPane import P2PoolPane
+from db4e.Panes.P2PoolAnalyticsPane import P2PoolAnalyticsPane
+from db4e.Panes.P2PoolInternalPane import P2PoolInternalPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
-from db4e.Panes.P2PoolTypePane import P2PoolTypePane
-from db4e.Panes.PlotViewPane import PlotViewPane
 from db4e.Panes.ResultsPane import ResultsPane
 from db4e.Panes.TUILogPane import TUILogPane
 from db4e.Panes.WelcomePane import WelcomePane
+from db4e.Panes.XMRigAnalyticsPane import XMRigAnalyticsPane
 from db4e.Panes.XMRigPane import XMRigPane
 from db4e.Panes.XMRigRemotePane import XMRigRemotePane
 
@@ -37,18 +37,18 @@ REGISTRY = {
     DPane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
     DPane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
     DPane.LOG_VIEW: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
-    DPane.MONEROD_TYPE: (MoneroDTypePane, DLabel.MONEROD, DLabel.NEW),
     DPane.MONEROD: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
     DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
-    DPane.P2POOL_TYPE: (P2PoolTypePane, DLabel.P2POOL, DLabel.NEW),
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
+    DPane.P2POOL_ANALYTICS: (P2PoolAnalyticsPane, DLabel.P2POOL, DLabel.ANALYTICS),
+    DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
-    DPane.PLOT_VIEW: (PlotViewPane, DLabel.ANALYTICS, DLabel.PLOT),
-    DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
-    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG_REMOTE, DLabel.ANALYTICS),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
+    DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    DPane.XMRIG_ANALYTICS: (XMRigAnalyticsPane, DLabel.XMRIG, DLabel.ANALYTICS),
+    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.ANALYTICS),
 }
 
 class PaneCatalogue:

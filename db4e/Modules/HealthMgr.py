@@ -13,6 +13,7 @@ import socket
 from datetime import datetime, timezone
 
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
@@ -23,6 +24,7 @@ from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DModule import DModule
 
 class HealthMgr:
 
@@ -38,6 +40,8 @@ class HealthMgr:
             return self.check_p2pool(elem)
         elif type(elem) == P2PoolRemote:
             return self.check_p2pool_remote(elem)
+        elif type(elem) == InternalP2Pool:
+            return self.check_int_p2pool(elem)
         elif type(elem) == XMRig:
             return self.check_xmrig(elem)
         elif type(elem) == XMRigRemote:
@@ -227,7 +231,7 @@ class HealthMgr:
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.STRATUM_PORT} missing")
             missing_field = True
 
-        if not p2pool.log_level():
+        if  not p2pool.log_level():
             p2pool.msg(DLabel.P2POOL, DStatus.ERROR, f"{DLabel.LOG_LEVEL} missing")
             missing_field = True
 
@@ -280,8 +284,41 @@ class HealthMgr:
         else:
             p2pool.msg(DLabel.P2POOL, DStatus.WARN,
                        f"Connection to {DLabel.STRATUM_PORT} failed")
-            
         return p2pool        
+
+
+    def check_int_p2pool(self, p2pool: InternalP2Pool) -> InternalP2Pool:
+        # Check enabled/disabled
+        if p2pool.enabled():
+            p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
+                       f"{DLabel.P2POOL} ({p2pool.instance()}) is enabled")
+        else:
+            p2pool.msg(DLabel.P2POOL, DStatus.ERROR,
+                       f"{DLabel.P2POOL} ({p2pool.instance()}) is disabled")
+            
+        # Check connectivity to stratum port
+        if self.is_port_open(p2pool.ip_addr(), p2pool.stratum_port()):
+            p2pool.msg(DLabel.P2POOL, DStatus.GOOD,
+                       f"Connection to {DLabel.STRATUM_PORT} successful")
+        else:
+            p2pool.msg(DLabel.P2POOL, DStatus.WARN,
+                       f"Connection to {DLabel.STRATUM_PORT} failed")
+            
+        # Check upstgream monerod
+        if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
+            self.check(p2pool.monerod)
+            if p2pool.monerod.status() == DStatus.GOOD:
+                p2pool.msg(DLabel.MONEROD, DStatus.GOOD,
+                        f"Upstream MoneroD ({p2pool.monerod.instance()}) is healthy")
+            else:
+                p2pool.msg(DLabel.MONEROD, DStatus.WARN,
+                        f"Upstream MoneroD ({p2pool.monerod.instance()}) has issues:")
+                p2pool.push_msgs(p2pool.monerod.pop_msgs())
+        else:
+            p2pool.msg(DLabel.MONEROD, DStatus.WARN,
+                      f"Missing upstream Monero deployment")       
+        return p2pool     
+
 
     def check_xmrig(self, xmrig: XMRig) -> XMRig:
         #print(f"HealthMgr:check_xmrig(): p2pool_rec: {p2pool_rec}")

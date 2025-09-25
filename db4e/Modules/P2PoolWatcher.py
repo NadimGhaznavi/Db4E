@@ -22,8 +22,12 @@ import json
 
 
 from db4e.Modules.MiningDb import MiningDb
+from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Constants.DField import DField
 from db4e.Constants.DDebug import DDebug
+from db4e.Constants.DModule import DModule
+
+
 
 
 
@@ -37,27 +41,23 @@ class P2PoolWatcher:
             stop_event: threading.Event, stdin_path: str, stats_mod=None):
         self.mining_db = mining_db
         self._chain = chain
-        self._log_file = log_file
         self._stop_event = stop_event
         self._stdin_path = stdin_path
         self.thread_control = None
         self._stats_mod = stats_mod
-
+        self._log_file = log_file
+        if stats_mod:
+            # If stats_mod was passed in, then this watcher is watching an InternalP2Pool
+            logger_id = DModule.P2POOL_WATCHER + "-" + chain
+        else:
+            logger_id = DModule.P2POOL_WATCHER + "-USER-" + chain
+        self.log = Db4ELogger(db4e_module=logger_id, log_file=log_file)
 
     def chain(self):
         return self._chain
     
 
     def get_handlers(self):
-        #self.is_miner_stats(log_line)
-        #self.is_share_found(log_line)
-        #self.is_share_position(log_line)
-        #self.is_block_found(log_line)
-        #self.is_xmr_payment(log_line)
-        #self.is_side_chain_hashrate(log_line)
-        #self.is_main_chain_hashrate(log_line)
-        #self.is_pool_hashrate(log_line)
-
 
         if self.stats_mod():
             # This is only used when the P2PoolWatcher is watching an internal P2Pool
@@ -129,12 +129,14 @@ class P2PoolWatcher:
         """
         if DDebug.FUNCTION:
             print(f"InternalP2PoolWatcher:is_main_chain_hashrate()")
-        pattern = r"Main chain hashrate .* = (?P<hashrate>.*H/s)"
+        pattern = r"Main chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
+
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
@@ -188,12 +190,13 @@ class P2PoolWatcher:
         """
         if DDebug.FUNCTION:
             print(f"InternalP2PoolWatcher:is_side_chain_hashrate()")
-        pattern = r"Side chain hashrate .* = (?P<hashrate>.*H/s)"
+        pattern = r"Side chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+
+            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
@@ -207,12 +210,12 @@ class P2PoolWatcher:
         Your hashrate (pool-side) = 13.137 KH/s
         Hashrate (1h  est)   = 7.384 KH/s
         """
-        pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>.*H/s)"
+        pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
         match = re.search(pattern, log_line)
-        localtime = datetime.now().strftime("%H:%M")
         if match:
             hashrate = match.group('hashrate')
-            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate)
+            unit = match.group('unit')
+            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
 
 
     def is_share_found(self, log_line):
@@ -287,6 +290,7 @@ class P2PoolWatcher:
         log_file = self.log_file()
         stop_event = threading.Event()
 
+        self.log.info(f"Monitoring log file: {log_file}")
         while not stop_event.is_set():
             try:
                 with open(log_file, "r") as log_handle:

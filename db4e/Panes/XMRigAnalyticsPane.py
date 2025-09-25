@@ -1,5 +1,5 @@
 """
-db4e/Panes/XMRigRemotePane.py
+db4e/Panes/XMRigAnalyticsPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -8,36 +8,31 @@ db4e/Panes/XMRigRemotePane.py
     License: GPL 3.0
 """
 
-from textual.reactive import reactive
-from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
+from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
 
-from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.Modules.XMRig import XMRig
 
 from db4e.Widgets.HashratePlot import HashratePlot
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
+from db4e.Constants.DField import DField
+from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DSelect import DSelect
 
 
 
-class XMRigRemotePane(Container):
+class XMRigAnalyticsPane(Container):
 
     selected_time = DSelect.ONE_WEEK
     instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
-    ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
     #hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
-    xmrig_remote = None
-
 
     def compose(self):
-        # Remote P2Pool daemon deployment form
-        INTRO = f"View information about the [cyan]{DLabel.XMRIG_REMOTE}[/] deployment here."
 
+        INTRO = f"View analytics information about the [cyan]{DLabel.XMRIG}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
@@ -45,32 +40,27 @@ class XMRigRemotePane(Container):
 
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_15),
                         self.instance_label),
                     Horizontal(
-                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL_20),
-                        self.ip_addr_label),
-                    Horizontal(
-                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_15),
                         self.hashrate_label),
                     Horizontal(
-                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_20),
+                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_15),
                         self.uptime_label),
-                    classes=DForm.FORM_4, id=DForm.FORM_FIELD)),
+                    classes=DForm.FORM_3, id=DForm.FORM_FIELD)),
 
                 classes=DForm.PANE_BOX)
-        
+
+
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
         #hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
         #hashrate_widget.update_time_range(selected_time)
 
 
-    def set_data(self, xmrig: XMRigRemote):
-        #print(f"XMRig:set_data(): {xmrig}")
-        self.xmrig = xmrig
+    def set_data(self, xmrig: XMRig):
         self.instance_label.update(xmrig.instance())
-        self.ip_addr_label.update(xmrig.ip_addr())
         self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
         self.uptime_label.update(xmrig.uptime())
 

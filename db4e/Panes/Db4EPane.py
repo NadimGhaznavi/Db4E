@@ -38,14 +38,14 @@ class Db4EPane(Container):
     user_name_label = Label("", classes=DForm.STATIC)
     group_name_label = Label("", classes=DForm.STATIC)
     install_dir_label = Label("", classes=DForm.STATIC)
-    vendor_dir_input = Input(id="vendor_dir_input",
+    vendor_dir_input = Input(id=DForm.VENDOR_DIR_INPUT,
         restrict=r"/[a-zA-Z0-9/_.\- ]*", compact=True, classes=DForm.INPUT_30)
-    user_wallet_input = Input(id="user_wallet_input",
+    user_wallet_input = Input(id=DForm.USER_WALLET_INPUT,
         restrict=r"[a-zA-Z0-9]*", compact=True, classes=DForm.INPUT_70)
     health_msgs = Label()
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
-    radio_set = RadioSet(id="radio_set", classes=DForm.RADIO_SET)
+    radio_set = RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET)
 
     def compose(self):
         INTRO = f"Welcome to the [bold {hi}]Database 4 Everything Core " \
@@ -75,7 +75,7 @@ class Db4EPane(Container):
                     Horizontal(
                         Label(DLabel.USER_WALLET, classes=DForm.FORM_LABEL),
                         self.user_wallet_input),
-                    classes=DForm.FORM_5, id="form_field"),
+                    classes=DForm.FORM_5, id=DForm.FORM_BOX),
 
                 Vertical(
                     self.radio_set),
@@ -94,7 +94,7 @@ class Db4EPane(Container):
 
     def on_mount(self):
         self.radio_set.border_subtitle = DLabel.PRIMARY_SERVER
-        form_box = self.query_one("#form_field", Vertical)
+        form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
 
 
@@ -117,9 +117,9 @@ class Db4EPane(Container):
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.db4e.user_wallet(self.query_one("#user_wallet_input", Input).value)
-        self.db4e.vendor_dir(self.query_one("#vendor_dir_input", Input).value)
-        radio_set = self.query_one("#radio_set", RadioSet)
+        self.db4e.user_wallet(self.query_one("#" + DForm.USER_WALLET_INPUT, Input).value)
+        self.db4e.vendor_dir(self.query_one("#" + DForm.VENDOR_DIR_INPUT, Input).value)
+        radio_set = self.query_one("#" + DForm.RADIO_SET, RadioSet)
         primary_instance = radio_set.pressed_button.label
         self.db4e.primary_server(self.instance_map[primary_instance])
         
