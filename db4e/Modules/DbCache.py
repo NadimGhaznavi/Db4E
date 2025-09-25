@@ -91,6 +91,7 @@ class DbCache:
                 elem_type = rec[DField.ELEMENT_TYPE]
                 #print(f"DbCache:build_cache(): [{count}/{len(recs)}]: {elem_type}")
                 #print(f"DbCache:build_cache(): elem_type: {elem_type}")
+                #print(f"DbCache:build_cache(): rec: {rec}")
                 count += 1
 
                 obj_id = rec[DField.OBJECT_ID]
@@ -137,7 +138,6 @@ class DbCache:
                 else:
                     # Create new object
                     if elem_type == DElem.DB4E:
-                        # Special case this
                         elem = Db4E(rec)
                         elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
                         self.db4es_map[elem.instance()] = elem
@@ -237,7 +237,7 @@ class DbCache:
             if id in self.id_map:
                 del self.id_map[id]
 
-            if elem_type == DElem.MONEROD:
+            elif elem_type == DElem.MONEROD:
                 if instance in self.monerod_map:
                     del self.monerod_map[instance]
 
@@ -258,7 +258,7 @@ class DbCache:
                     del self.xmrig_map[instance]
 
 
-    def get_deployment(self, elem_type, instance=None):
+    def get_deployment(self, elem_type, instance):
         with self._lock:
 
             # Db4E
@@ -391,11 +391,13 @@ class DbCache:
     def insert_one(self, elem):
         with self._lock:
             msgs = elem.pop_msgs()
-            self.db.insert_one(self.depl_col, elem.to_rec())
+            object_id = self.db.insert_one(self.depl_col, elem.to_rec())
+            elem.id(object_id)
             for msg in msgs:
                 elem.add_msg(msg)
             self.id_map[elem.id()] = elem
-
+            return elem
+        
 
     def update_one(self, elem):
         with self._lock:

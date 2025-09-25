@@ -297,8 +297,7 @@ class DeplMgr:
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
         elif aDir == DDir.VENDOR:
-            db4e = self.db_cache.get_deployment(DElem.DB4E)
-            print(f"DeploymentMgr:get_dir(): db4e: {db4e}")
+            db4e = self.db_cache.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
             return db4e.vendor_dir()
 
         elif aDir == DElem.MONEROD:
@@ -398,7 +397,7 @@ class DeplMgr:
         update_flag = False
 
         # The current record, we'll update this and write it back in
-        db4e = self.db_cache.get_deployment(DElem.DB4E)
+        db4e = self.db_cache.get_deployment(DElem.DB4E, DElem.DB4E)
 
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:

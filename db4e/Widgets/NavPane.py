@@ -426,7 +426,6 @@ class NavPane(Container):
 
         self.chain.remove_children()
         for int_p2pool in self.ops_mgr.get_int_p2pools():
-            print(int_p2pool)
             state = int_p2pool.status()
             instance = int_p2pool.instance()
             self.chain.add_leaf(

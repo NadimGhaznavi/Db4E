@@ -10,6 +10,8 @@ db4e/server.py
 """
 
 import os, sys
+# Turn off buffering
+sys.stdout.reconfigure(line_buffering=True)
 import time
 import signal
 import threading
@@ -52,8 +54,7 @@ from db4e.Constants.DFile import DFile
 from db4e.Constants.DModule import DModule
 
 
-DDebug.FUNCTION = False
-
+DDebug.FUNCTION = True
 
 POLL_INTERVAL = 5
 
@@ -63,6 +64,8 @@ class Db4eServer:
     Server Class Relationships Diagram:
     https://app.diagrams.net/#G1ytFOrYGglEs5p85JfAUTwwLgGR8sZYdD#%7B%22pageId%22%3A%22hYJ4WWheaxyqbM-ibf4z%22%7D
     """
+
+
 
     def __init__(self):
 
@@ -421,36 +424,6 @@ class Db4eServer:
             self.ensure_running(p2pool)
 
 
-    def UNUSED_set_primary(self, job):
-        if DDebug.FUNCTION:
-            self.log.debug(f"DEBUG Db4eServer:set_primary(): {job}")
-        monerod = job.elem()
-        #self.log.debug(f"Db4eServer:set_primary(): {monerod}")
-        for aMonerod in self.depl_mgr.get_monerods():
-            if monerod.instance() != aMonerod.instance():
-                #self.log.debug(f"Db4eServer:set_primary(): checking {aMonerod}: {aMonerod.primary_server()}")
-                if aMonerod.primary_server():
-                    aMonerod.primary_server(False)
-                    self.depl_mgr.update_deployment(aMonerod)
-        monerod.primary_server(True)
-        self.depl_mgr.job_queue.complete_job(job)
-
-
-    def start(self):
-        if DDebug.FUNCTION:
-            self.log.debug("DEBUG Db4eServer:start():")
-        signal.signal(signal.SIGINT, self.shutdown)
-        signal.signal(signal.SIGTERM, self.shutdown)
-        self.log.info("Starting Db4E Server")
-        count = 0
-        while self.running.is_set():
-            count += 1
-            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
-            self.check_deployments()
-            self.check_jobs()
-            time.sleep(POLL_INTERVAL)
-
-
     def spawn_log_watcher(self, p2pool):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:spawn_log_watcher(): {p2pool}")
@@ -485,10 +458,13 @@ class Db4eServer:
         def _runner():
             try:
                 watcher.monitor_log()
+            except Exception as e:
+                self.log.error(f"Watcher for {instance} crashed: {e}", exc_info=True)
             finally:
                 # Cleanup on exit
                 watcher.stop_sub_thread()
                 self.log_watchers.pop(instance, None)
+                self.log.debug(f"Watcher thread exiting: {instance}")
 
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
@@ -497,11 +473,25 @@ class Db4eServer:
         self.log.info(f"Started P2Pool watcher: {instance}")
 
 
+    def start(self):
+        if DDebug.FUNCTION:
+            self.log.debug("DEBUG Db4eServer:start():")
+        self.log.info("Starting Db4E Server")
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
+        count = 0
+        while self.running.is_set():
+            count += 1
+            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
+            self.check_deployments()
+            self.check_jobs()
+            time.sleep(POLL_INTERVAL)
+
+
     def update(self, job):
         if DDebug.FUNCTION:
             self.log.debug(f"DEBUG Db4eServer:update(): {job}")
         elem = job.elem()
-
         elem = self.depl_mgr.update_deployment(elem)
         self.log.info(f"Updated: {elem}")
 

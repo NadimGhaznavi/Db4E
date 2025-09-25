@@ -118,7 +118,7 @@ class Db4EPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.db4e.user_wallet(self.query_one("#" + DForm.USER_WALLET_INPUT, Input).value)
-        self.db4e.vendor_dir(self.query_one("#" + DForm.USER_WALLET_INPUT, Input).value)
+        self.db4e.vendor_dir(self.query_one("#" + DForm.VENDOR_DIR_INPUT, Input).value)
         radio_set = self.query_one("#" + DForm.RADIO_SET, RadioSet)
         primary_instance = radio_set.pressed_button.label
         self.db4e.primary_server(self.instance_map[primary_instance])

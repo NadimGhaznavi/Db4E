@@ -55,24 +55,21 @@ class InstallMgr(Container):
 
         # This is the data from the form on the InitialSetup pane
         db4e = form_data[DField.ELEMENT]
-        db4e.pop_msgs()
-        user_wallet = db4e.user_wallet()
-        vendor_dir = db4e.vendor_dir()
 
         # Check that the user entered their wallet
-        db4e, abort_install = self._check_wallet(user_wallet=user_wallet, db4e=db4e)
+        db4e, abort_install = self._check_wallet(db4e=db4e)
         if abort_install:
             db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
             return db4e
         
         # Check that the user entered a vendor directory
-        db4e, abort_install = self._check_vendor_dir(vendor_dir=vendor_dir, db4e=db4e)
+        db4e, abort_install = self._check_vendor_dir(db4e=db4e)
         if abort_install:
             db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
             return db4e
 
         # Create the vendor directory on the filesystem
-        db4e, abort_install = self._create_vendor_dir(vendor_dir=vendor_dir, db4e=db4e)
+        db4e, abort_install = self._create_vendor_dir(db4e=db4e)
         if abort_install:
             db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
             db4e.vendor_dir("") # Reset the vendor dir to null
@@ -84,86 +81,80 @@ class InstallMgr(Container):
         self.db_cache.update_one(db4e)
 
         # Create the Db4E vendor directories
-        db4e = self._create_db4e_dirs(vendor_dir=vendor_dir, db4e=db4e)
-
-        print(f"Db4e vendor dir 1: {db4e.vendor_dir()}")
-
-        # Copy in the Db4E start script
-        #results += self._copy_db4e_files(vendor_dir=vendor_dir)
+        db4e = self._create_db4e_dirs(db4e=db4e)
 
         # Generate the Db4E service file (installed by the sudo installer)
         self._generate_db4e_service_file(db4e=db4e)
 
-        print(f"Db4e vendor dir 2: {db4e.vendor_dir()}")
-
         # Create the Monero daemon vendor directories
-        db4e = self._create_monerod_dirs(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._create_monerod_dirs(db4e=db4e)
 
         # Generate the Monero service files (installed by the sudo installer)
-        self._generate_tmp_monerod_service_files(vendor_dir=vendor_dir, db4e=db4e)
+        self._generate_tmp_monerod_service_files(db4e=db4e)
 
         # Copy in the Monero daemon and start script
-        db4e = self._copy_monerod_files(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._copy_monerod_files(db4e=db4e)
 
         # Create the P2Pool daemon vendor directories
-        db4e = self._create_p2pool_dirs(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._create_p2pool_dirs(db4e=db4e)
 
         # Generate the P2Pool service files (installed by the sudo installer)
-        self._generate_tmp_p2pool_service_files(vendor_dir=vendor_dir, db4e=db4e)
+        self._generate_tmp_p2pool_service_files(db4e=db4e)
 
         # Copy in the P2Pool daemon and start script
-        db4e = self._copy_p2pool_files(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._copy_p2pool_files(db4e=db4e)
 
         # Create the XMRig miner vendor directories
-        db4e = self._create_xmrig_dirs(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._create_xmrig_dirs(db4e=db4e)
 
         # Generate the XMRig service file (installed by the sudo installer)
-        self._generate_tmp_xmrig_service_file(vendor_dir=vendor_dir, db4e=db4e)
+        self._generate_tmp_xmrig_service_file(db4e=db4e)
 
         # Copy in the XMRig miner
-        db4e = self._copy_xmrig_file(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._copy_xmrig_file(db4e=db4e)
 
         # Deploy internal P2Pool instances to gather metrics
-        db4e = self._deploy_internal_p2pools(vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._deploy_internal_p2pools(db4e=db4e)
 
         # Run the installer (with sudo)
-        db4e = self._run_sudo_installer(
-            vendor_dir=vendor_dir, db4e=db4e)
+        db4e = self._run_sudo_installer(db4e=db4e)
 
         # Return the updated Db4E deployment object with embded results
         return db4e
         
 
     def initial_setup_proceed(self, form_data: dict):
-        db4e = self.depl_mgr.get_deployment(elem_type=DElem.DB4E)
+        db4e = Db4E()
+        object_id = self.db_cache.insert_one(db4e)
+        db4e.id(object_id)
         return db4e
         
 
-    def _check_wallet(self, user_wallet:str, db4e: Db4E):
+    def _check_wallet(self, db4e: Db4E):
         #print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
         abort_install = False
         # User did not provide any wallet
-        if not user_wallet:
+        if not db4e.user_wallet():
             abort_install = True
             db4e.msg(DLabel.USER_WALLET, DStatus.ERROR, f"{DLabel.USER_WALLET} missing")
             return db4e, abort_install
         
-        db4e.user_wallet(user_wallet)
         self.db_cache.update_one(db4e)
         db4e.msg(
-            DLabel.USER_WALLET, DStatus.GOOD, f"Set the user wallet: {user_wallet[:7]}...")
+            DLabel.USER_WALLET, DStatus.GOOD, f"Set the user wallet: {db4e.user_wallet()[:7]}...")
 
         return db4e, abort_install
 
 
-    def _check_vendor_dir(self, vendor_dir: str, db4e: Db4E):
+    def _check_vendor_dir(self, db4e: Db4E):
         #print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
         abort_install = False
-        if not vendor_dir:
+        if not db4e.vendor_dir():
             abort_install = True
             db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, f"{DLabel.VENDOR_DIR} missing")
         return db4e, abort_install
-        
+    
+
     # Copy Db4E files
     def _copy_db4e_files(self, vendor_dir):
         results = []
@@ -194,7 +185,8 @@ class InstallMgr(Container):
         return results
         
     # Copy monerod files
-    def _copy_monerod_files(self, vendor_dir, db4e: Db4E):
+    def _copy_monerod_files(self, db4e: Db4E):
+        vendor_dir = db4e.vendor_dir()
         versioned_monerod_dir = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
@@ -222,7 +214,8 @@ class InstallMgr(Container):
         os.chmod(fq_dst_monerod_dest_script, new_permissions)
         return db4e
 
-    def _copy_p2pool_files(self, vendor_dir:str , db4e: Db4E) -> Db4E:
+    def _copy_p2pool_files(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
         # P2Pool directory
@@ -246,7 +239,8 @@ class InstallMgr(Container):
         db4e.msg(DLabel.P2POOL, DStatus.GOOD, f"Installed: {fq_dst_p2pool_start_script}")
         return db4e
 
-    def _copy_xmrig_file(self, vendor_dir:str , db4e: Db4E) -> Db4E:
+    def _copy_xmrig_file(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         xmrig_binary = DDef.XMRIG_PROCESS
         # XMRig directory
         versioned_xmrig_dir = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
@@ -258,7 +252,8 @@ class InstallMgr(Container):
         db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Installed: {fq_dst_xmrig_bin_dir}/{xmrig_binary}")
         return db4e
 
-    def _create_db4e_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
+    def _create_db4e_dirs(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         fq_db4e_dir = os.path.join(vendor_dir, DElem.DB4E)
         # Create the base Db4E directory
         os.makedirs(os.path.join(fq_db4e_dir))
@@ -269,7 +264,8 @@ class InstallMgr(Container):
             db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
         return db4e
 
-    def _create_monerod_dirs(self, vendor_dir, db4e):
+    def _create_monerod_dirs(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         fq_monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
 
         # Create the base Monero directory
@@ -284,7 +280,8 @@ class InstallMgr(Container):
 
         return db4e
 
-    def _create_p2pool_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
+    def _create_p2pool_dirs(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         fq_p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
 
         # Create the base P2Pool directory
@@ -300,9 +297,10 @@ class InstallMgr(Container):
         return db4e
 
 
-    def _create_vendor_dir(self, vendor_dir: str, db4e: Db4E):
+    def _create_vendor_dir(self, db4e: Db4E):
         #print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
         abort_install = False
+        vendor_dir = db4e.vendor_dir()
         if os.path.exists(vendor_dir):
             db4e.msg(DLabel.VENDOR_DIR, DStatus.WARN, 
                 f'Found existing deployment directory: {vendor_dir}')
@@ -334,7 +332,8 @@ class InstallMgr(Container):
 
         return db4e, abort_install
 
-    def _create_xmrig_dirs(self, vendor_dir: str, db4e: Db4E) -> Db4E:
+    def _create_xmrig_dirs(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         fq_xmrig_dir = os.path.join(vendor_dir, DElem.XMRIG)
         os.mkdir(os.path.join(fq_xmrig_dir))
         db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Created directory: {fq_xmrig_dir}")
@@ -346,7 +345,8 @@ class InstallMgr(Container):
 
 
     # Deploy metrics gathering P2Pool instances
-    def _deploy_internal_p2pools(self, vendor_dir: str, db4e: Db4E):
+    def _deploy_internal_p2pools(self, db4e: Db4E):
+        vendor_dir = db4e.vendor_dir()
         for chain_label in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
             p2pool = InternalP2Pool()
             log_file = os.path.join(
@@ -386,7 +386,8 @@ class InstallMgr(Container):
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
-    def _generate_tmp_monerod_service_files(self, vendor_dir: str, db4e: Db4E):
+    def _generate_tmp_monerod_service_files(self, db4e: Db4E):
+        vendor_dir = db4e.vendor_dir()
         monerod_with_version = DElem.MONEROD + '-' + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
@@ -417,7 +418,8 @@ class InstallMgr(Container):
             f.write(service_contents)
 
 
-    def _generate_tmp_p2pool_service_files(self, vendor_dir: str, db4e: Db4E):
+    def _generate_tmp_p2pool_service_files(self, db4e: Db4E):
+        vendor_dir = db4e.vendor_dir()
         p2pool_with_version  = DElem.P2POOL + '-' + str(DDef.P2POOL_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
@@ -450,7 +452,8 @@ class InstallMgr(Container):
         with open(tmp_service_file, 'w') as f:
             f.write(service_contents)
 
-    def _generate_tmp_xmrig_service_file(self, vendor_dir, db4e: Db4E) -> None:
+    def _generate_tmp_xmrig_service_file(self, db4e: Db4E) -> None:
+        vendor_dir = db4e.vendor_dir()
         xmrig_with_version = DElem.XMRIG + '-' + str(DDef.XMRIG_VERSION)
         # Template directory
         tmpl_dir = self.depl_mgr.get_dir(DDir.TEMPLATE)
@@ -493,7 +496,8 @@ class InstallMgr(Container):
             content = content.replace(f'[[{key}]]', str(val))
         return content
 
-    def _run_sudo_installer(self, vendor_dir: str, db4e: Db4E) -> Db4E:
+    def _run_sudo_installer(self, db4e: Db4E) -> Db4E:
+        vendor_dir = db4e.vendor_dir()
         # Temporary directory
         tmp_dir = self._get_tmp_dir()
         db4e_install_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
