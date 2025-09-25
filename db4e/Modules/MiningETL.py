@@ -83,6 +83,7 @@ class MiningETL:
 
         value_list = []
         time_list = []
+        day_list = []
 
         prev_time = recs[0][DMongo.TIMESTAMP]
         prev_hashrate = recs[0][DMining.HASHRATE]
@@ -91,13 +92,20 @@ class MiningETL:
         else:
             units = "H/s"
 
+
+        # Number of data points
+        cur_day = - float(len(recs) / 24)
+
+
         # Append first record
         time_list.append(prev_time.strftime("%Y-%m-%d %H:%M"))
+        day_list.append(cur_day)
         value_list.append(float(prev_hashrate))
 
         for rec in recs[1:]:
             cur_time = rec[DMongo.TIMESTAMP]
             cur_hashrate = float(rec[DMining.HASHRATE])
+            cur_day += float(1 / 24)
 
             # Fill gaps
             gap_time = prev_time + timedelta(hours=1)
@@ -105,10 +113,14 @@ class MiningETL:
                 time_list.append(gap_time.strftime("%Y-%m-%d %H:%M"))
                 value_list.append(cur_hashrate)
                 gap_time += timedelta(hours=1)
+                day_list.append(cur_day)
+                cur_day += float(1 / 24)
+
 
             # Append current record
             time_list.append(cur_time.strftime("%Y-%m-%d %H:%M"))
             value_list.append(cur_hashrate)
+            day_list.append(cur_day)
 
             prev_time = cur_time
 
@@ -118,7 +130,7 @@ class MiningETL:
 
         return {
             "values": value_list,
-            "times": time_list,
+            "days": day_list,
             "units": units,
         }
 

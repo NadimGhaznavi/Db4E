@@ -11,10 +11,9 @@ db4e/Panes/XMRigRemotePane.py
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Select
+from textual_plot import PlotWidget, HiResMode
 
 from db4e.Modules.XMRigRemote import XMRigRemote
-
-from db4e.Widgets.HashratePlot import HashratePlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
@@ -30,8 +29,8 @@ class XMRigRemotePane(Container):
     ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    #hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
-    xmrig_remote = None
+    hashrate_plot = PlotWidget(id=DField.HASHRATE_PLOT)
+    xmrig = None
 
 
     def compose(self):
@@ -56,10 +55,15 @@ class XMRigRemotePane(Container):
                     Horizontal(
                         Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_20),
                         self.uptime_label),
-                    classes=DForm.FORM_4, id=DForm.FORM_FIELD)),
+                    classes=DForm.FORM_4, id=DForm.FORM_FIELD),
+
+                Vertical(
+                    self.hashrate_plot,
+                    classes=DForm.PANE_BOX)),
 
                 classes=DForm.PANE_BOX)
-        
+
+
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
         #hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
@@ -67,12 +71,20 @@ class XMRigRemotePane(Container):
 
 
     def set_data(self, xmrig: XMRigRemote):
-        #print(f"XMRig:set_data(): {xmrig}")
+        print(f"XMRig:set_data(): {xmrig}")
         self.xmrig = xmrig
         self.instance_label.update(xmrig.instance())
         self.ip_addr_label.update(xmrig.ip_addr())
         self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
         self.uptime_label.update(xmrig.uptime())
+
+        data = xmrig.hashrates()
+        days = data["days"]
+        hashrates = data["values"]
+
+        plot = self.query_one("#" + DField.HASHRATE_PLOT, PlotWidget)
+        plot.clear()
+        plot.plot(x=days, y=hashrates, hires_mode=HiResMode.BRAILLE, line_style="green")
 
         #hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
         #hashrate_widget.load_all_data(xmrig.hashrates())
