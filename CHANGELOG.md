@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- 
-
-
+- Replaced `textual-plotext` wrapper class with native `textual-plot`
+  - Moved date selection into a separate box on the analytics panes
+  - Fixed `Hashrate` metric in analytics panes
 
 ---
 
