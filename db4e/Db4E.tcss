@@ -25,7 +25,7 @@ RadioButton {
     color: #31b8e6; }
 
 Select {
-    width: 15; }
+    width: 20; }
 
 TopBar {
     height: 3;

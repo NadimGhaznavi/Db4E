@@ -98,7 +98,7 @@ class DbMgr:
     def find_many(self, col_name, filter, res_sort=None, use_worker=True):
         col = self.get_collection(col_name)
         cursor = col.find(filter)
-        if res_sort:
+        if res_sort is not None:
             # convert dict to list of tuples
             sort_list = list(res_sort.items())
             cursor = cursor.sort(sort_list)

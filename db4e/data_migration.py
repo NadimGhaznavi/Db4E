@@ -10,28 +10,32 @@ db = DbMgr()
 
 
 
-recs = db.find_many("tmp", {"doc_type": "pool_hashrate"})
 
-for rec in recs:
-    if type(rec[DMongo.TIMESTAMP]) == str:
-        date_str, hour = rec[DMongo.TIMESTAMP].split(" ")
-        hashrate, units = rec[DMining.HASHRATE].split(" ")
-        #print(f"{date_str} -- {hour} -- {hashrate} -- {units}")
+def migrate_pool_hashrates():
+    recs = db.find_many(col_name="kermit", filter={"doc_type": "pool_hashrate"})
 
-        datetime_object = datetime.strptime(date_str, "%Y-%m-%d")
-        datetime_object = datetime_object + timedelta(hours=int(hour))
+    for rec in recs:
+        if type(rec[DMongo.TIMESTAMP]) == str:
+            date_str, hour = rec[DMongo.TIMESTAMP].split(" ")
+            hashrate, units = rec[DMining.HASHRATE].split(" ")
+            #print(f"{date_str} -- {hour} -- {hashrate} -- {units}")
 
-        #print(f"{datetime_object} -- {float(hashrate)} -- {units}")
-        #print(f"{type(datetime_object)} -- {type(float(hashrate))} -- {type(units)}")
+            datetime_object = datetime.strptime(date_str, "%Y-%m-%d")
+            datetime_object = datetime_object + timedelta(hours=int(hour))
 
-        new_rec = {
-            DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
-            DMongo.TIMESTAMP: datetime_object,
-            DMining.HASHRATE: float(hashrate),
-            DMining.UNIT: units,
-            DMongo.CHAIN: "minisidechain"
-        }
-        db.insert_one("mining", new_rec)
+            #print(f"{datetime_object} -- {float(hashrate)} -- {units}")
+            #print(f"{type(datetime_object)} -- {type(float(hashrate))} -- {type(units)}")
+
+            new_rec = {
+                DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
+                DMongo.TIMESTAMP: datetime_object,
+                DMining.HASHRATE: float(hashrate),
+                DMining.UNIT: units,
+                DMongo.CHAIN: "minisidechain"
+            }
+            db.insert_one("mining", new_rec)
+            print(new_rec)
 
 
 
+migrate_pool_hashrates()

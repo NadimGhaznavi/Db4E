@@ -11,9 +11,9 @@ db4e/Panes/XMRigRemotePane.py
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Select
-from textual_plot import PlotWidget, HiResMode
 
 from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.Widgets.HashratePlot import HashratePlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
@@ -29,14 +29,14 @@ class XMRigRemotePane(Container):
     ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    hashrate_plot = PlotWidget(id=DField.HASHRATE_PLOT)
+    hashrate_plot = HashratePlot("Hashrates", id=DField.HASHRATE_PLOT)
+    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
     xmrig = None
 
 
     def compose(self):
         # Remote P2Pool daemon deployment form
-        INTRO = f"View information about the [cyan]{DLabel.XMRIG_REMOTE}[/] deployment here."
-
+        INTRO = f"View information about the [cyan]{DLabel.XMRIG_REMOTE}[/] deployment."
 
         yield Vertical(
             ScrollableContainer(
@@ -58,6 +58,7 @@ class XMRigRemotePane(Container):
                     classes=DForm.FORM_4, id=DForm.FORM_FIELD),
 
                 Vertical(
+                    self.select_widget,
                     self.hashrate_plot,
                     classes=DForm.PANE_BOX)),
 
@@ -66,12 +67,10 @@ class XMRigRemotePane(Container):
 
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
-        #hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
-        #hashrate_widget.update_time_range(selected_time)
+        self.hashrate_plot.update_time_range(selected_time)
 
 
     def set_data(self, xmrig: XMRigRemote):
-        print(f"XMRig:set_data(): {xmrig}")
         self.xmrig = xmrig
         self.instance_label.update(xmrig.instance())
         self.ip_addr_label.update(xmrig.ip_addr())
@@ -79,16 +78,11 @@ class XMRigRemotePane(Container):
         self.uptime_label.update(xmrig.uptime())
 
         data = xmrig.hashrates()
-        days = data["days"]
-        hashrates = data["values"]
+        days = data[DField.DAYS]
+        hashrates = data[DField.VALUES]
 
-        plot = self.query_one("#" + DField.HASHRATE_PLOT, PlotWidget)
-        plot.clear()
-        plot.plot(x=days, y=hashrates, hires_mode=HiResMode.BRAILLE, line_style="green")
+        plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
+        plot.load_data(days=days, hashrates=hashrates)
+        plot.hashrate_plot()
 
-        #hashrate_widget = self.query_one("#" + DField.HASHRATE_PLOT)
-        #hashrate_widget.load_all_data(xmrig.hashrates())
-        #hashrate_widget.update_time_range(self.selected_time)
 
-        #select_widget = self.query_one("#" + DForm.TIMES)
-        #select_widget.value = self.selected_time
