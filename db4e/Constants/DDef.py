@@ -43,6 +43,7 @@ class DDef(ConstGroup):
     IN_PEERS: int = 16
     INI_SUFFIX: str = ".ini"
     INITIAL_SETUP: str = "db4e-initial-setup.sh"
+    JOBS_COL: str = "jobs"
     JSON_SUFFIX: str = ".json"
     LOCALHOST: str = "127.0.0.1"
     LOG_DIR: str = "logs"
@@ -67,6 +68,7 @@ class DDef(ConstGroup):
     MONEROD_VERSION: str = "0.18.4.2"
     NUM_THREADS: int = 1
     OPS_COL: str = "ops"
+    P2P_DIR: str = "p2p"
     OUT_PEERS: int = 16
     P2P_BIND_PORT: int = 18080
     P2P_PORT: int = 37889

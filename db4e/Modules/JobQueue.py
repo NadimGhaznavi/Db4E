@@ -21,7 +21,7 @@ from db4e.Constants.DMongo import DMongo
 
 class JobQueue:
     def __init__(self, db: DbMgr):
-        self.col_name = DDef.OPS_COL
+        self.col_name = DDef.JOBS_COL
         self.db = db
 
 
@@ -33,7 +33,7 @@ class JobQueue:
 
     def get_jobs(self):
         jobs = []
-        for rec in self.db.get_jobs():
+        for rec in self.db.find_many(self.col_name, {}, {DJob.UPDATED_AT: -1}):
             job = Job()
             job.from_rec(rec)
             jobs.append(job)

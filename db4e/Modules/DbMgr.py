@@ -124,11 +124,6 @@ class DbMgr:
         return self.db4e[str(col_name)]
 
 
-    def get_jobs(self):
-        collection = self.get_collection(self.ops_col)
-        return collection.find().sort(DJob.UPDATED_AT, -1)
-
-
     def grab_job(self):
         collection = self.get_collection(self.ops_col)
         #print(f"DbMgr:grab_job():\nSTATUS_FIELD: {STATUS_FIELD}\nPROCESSING_FIELD: {PROCESSING_FIELD}")

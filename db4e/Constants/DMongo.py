@@ -25,11 +25,13 @@ class DMongo(ConstGroup):
     DOC_TYPE : str = "doc_type"
     HASHRATE : str = "hashrate"
     IP_ADDR : str = "ip_addr"
+    JOBS_COLLECTION : str = "jobs_collection"
     LOG_COLLECTION : str = "log_collection"
     METRICS_COLLECTION : str = "metrics_collection"
     MINER : str = "miner"
     MINERS : str = "miners"
     OBJECT_ID : str = DField.OBJECT_ID
+    OPS_COLLECTION: str = "ops"
     POOL : str = "pool"
     TEMPLATES_COLLECTION : str = "templates"
     TIMESTAMP : str = "timestamp"

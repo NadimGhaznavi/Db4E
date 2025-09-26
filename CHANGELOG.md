@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Disabled pan and zoom for HashratePlot widget, it's not helpful.
+- Removed unused *tmpl* (Templates) Mongo collection
+
+
+### Changed
+- Renamed *ops* Mongo collection to *jobs*
+
 --- 
 
 ## [0.39.0] - 2025-09-26
