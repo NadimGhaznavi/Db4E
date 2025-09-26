@@ -26,6 +26,7 @@ class DLabel(ConstGroup):
     CHAIN_STATS : str = "Chain Stats"
     CONFIG : str = "Configuration"
     CONFIG_FILE : str = "Configuration File"
+    DAYS : str = "Days"
     DB4E : str = "Db4E Core"
     DB4E_LONG : str = "Database 4 Everything"
     DB4E_GROUP : str = "Db4E Group"

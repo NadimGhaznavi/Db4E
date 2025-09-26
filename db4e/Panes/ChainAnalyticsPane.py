@@ -55,6 +55,9 @@ class ChainAnalyticsPane(Container):
 
                 Vertical(
                     self.select_widget,
+                    classes=DForm.PANE_BOX),
+
+                Vertical(
                     self.hashrate_plot,
                     classes=DForm.PANE_BOX)),
 

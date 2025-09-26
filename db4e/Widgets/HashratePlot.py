@@ -16,6 +16,7 @@ from textual_plot import PlotWidget, HiResMode
 from db4e.Constants.DLabel import DLabel
 
 
+
 # Hashrate data is collected once per hour
 ONE_WEEK = 7 * 24
 
@@ -29,8 +30,8 @@ class HashratePlot(PlotWidget):
         self._hashrate_id = id
         self._all_days = None
         self._all_values = None
-        self._hashrate_x_label = "Days"
-        self._hashrate_y_label = "Hashrate"
+        self.set_xlabel(DLabel.DAYS)
+        self.set_ylabel(DLabel.HASHRATE)
 
 
     def load_data(self, days, hashrates):
@@ -46,8 +47,6 @@ class HashratePlot(PlotWidget):
             plot_days = self._all_days
             plot_values = self._all_values
         self.clear()
-        self.set_xlabel(self._hashrate_x_label)
-        self.set_ylabel(self._hashrate_y_label)
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
         self.plot(x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE)
 
