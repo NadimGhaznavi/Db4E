@@ -12,6 +12,7 @@ db4e/server.py
 import os, sys
 # Turn off buffering
 sys.stdout.reconfigure(line_buffering=True)
+from datetime import datetime
 import time
 import signal
 import threading
@@ -52,6 +53,9 @@ from db4e.Constants.DDir import DDir
 from db4e.Constants.DJob import DJob
 from db4e.Constants.DFile import DFile
 from db4e.Constants.DModule import DModule
+from db4e.Constants.DMongo import DMongo
+from db4e.Constants.DSystemD import DSystemD
+from db4e.Constants.DLabel import DLabel
 
 
 DDebug.FUNCTION = False
@@ -69,11 +73,11 @@ class Db4eServer:
 
     def __init__(self):
 
-        #  systemd wrapper
-        self.systemd = Db4ESystemD()
-
         # Mongo DB Manager
         self.db = DbMgr()
+
+        #  systemd wrapper
+        self.systemd = Db4ESystemD(db=self.db)
 
         # Mining DB, part of the DAL
         self.mining_db = MiningDb(db=self.db)
@@ -112,6 +116,17 @@ class Db4eServer:
         # Flag this process as "running"
         self.running = threading.Event()
         self.running.set()
+
+        # Create an Ops record to record the startup time
+        self.ops_col = DDef.OPS_COL
+        timestamp = datetime.now().replace(microsecond=0)
+        event = {
+            DMongo.ELEM_TYPE: DElem.DB4E,
+            DMongo.INSTANCE: DElem.DB4E,
+            DMongo.EVENT: DSystemD.START,
+            DMongo.TIMESTAMP: timestamp
+        }
+        self.db.insert_one(self.ops_col, event)
 
 
     def add_deployment(self, job):
@@ -260,7 +275,16 @@ class Db4eServer:
             type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.disable_downstream(elem)
         self.log.info(f"Disable: {elem}")
-
+        # Create an Ops record when remote elements are disabled
+        if elem_type == DElem.MONEROD_REMOTE or elem_type == DElem.P2POOL_REMOTE:
+            timestamp = datetime.now().replace(microsecond=0)
+            event = {
+                DMongo.ELEM_TYPE: elem_type,
+                DMongo.INSTANCE: instance,
+                DMongo.EVENT: DSystemD.STOP,
+                DMongo.TIMESTAMP: timestamp
+            }
+            self.db.insert_one(self.ops_col, event)        
 
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
@@ -292,6 +316,16 @@ class Db4eServer:
         elem.enable()
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
+        # Create an Ops record when remote elements are enabled
+        if elem_type == DElem.MONEROD_REMOTE or elem_type == DElem.P2POOL_REMOTE:
+            timestamp = datetime.now().replace(microsecond=0)
+            event = {
+                DMongo.ELEM_TYPE: elem_type,
+                DMongo.INSTANCE: instance,
+                DMongo.EVENT: DSystemD.START,
+                DMongo.TIMESTAMP: timestamp
+            }
+            self.db.insert_one(self.ops_col, event)            
 
 
     def ensure_running(self, elem):
@@ -398,6 +432,15 @@ class Db4eServer:
             self.log.debug(f"DEBUG Db4eServer:shutdown(): {signum}")
         self.log.info(f'Shutdown requested (signal {signum})')
         self.running.clear()
+        # Create a stop event in the ops collection
+        timestamp = datetime.now().replace(microsecond=0)
+        event = {
+            DMongo.ELEM_TYPE: DElem.DB4E,
+            DMongo.INSTANCE: DElem.DB4E,
+            DMongo.EVENT: DSystemD.STOP,
+            DMongo.TIMESTAMP: timestamp
+        }
+        self.db.insert_one(self.ops_col, event)        
         sys.exit(0)
 
 
@@ -440,6 +483,14 @@ class Db4eServer:
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
             )
+            timestamp = datetime.now().replace(microsecond=0)
+            event = {
+                DMongo.ELEM_TYPE: DElem.P2POOL_WATCHER,
+                DMongo.INSTANCE: instance,
+                DMongo.EVENT: DSystemD.START,
+                DMongo.TIMESTAMP: timestamp
+            }
+            self.mining_db.db.insert_one(self.ops_col, event)         
         elif type(p2pool) == InternalP2Pool:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
@@ -463,6 +514,16 @@ class Db4eServer:
                 watcher.stop_sub_thread()
                 self.log_watchers.pop(instance, None)
                 self.log.debug(f"Watcher thread exiting: {instance}")
+                if instance not in [ DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, 
+                                    DLabel.NANO_CHAIN]:
+                    timestamp = datetime.now().replace(microsecond=0)
+                    event = {
+                        DMongo.ELEM_TYPE: DElem.P2POOL_WATCHER,
+                        DMongo.INSTANCE: instance,
+                        DMongo.EVENT: DSystemD.START,
+                        DMongo.TIMESTAMP: timestamp
+                    }
+                    self.mining_db.db.insert_one(self.ops_col, event)   
 
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)

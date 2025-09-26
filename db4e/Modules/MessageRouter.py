@@ -146,6 +146,10 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_TUI_LOG, DField.TUI_LOG,
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
 
+        # Runtime Log
+        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DField.RUNTIME_LOG,
+                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
+
         # Donations
         self.register(DModule.OPS_MGR, DMethod.SET_DONATIONS, DField.DONATIONS,
                       self.ops_mgr.set_donations, DPane.DONATIONS)

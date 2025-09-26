@@ -19,3 +19,5 @@ class DFile(ConstGroup):
     P2POOL_LOG : str = "p2pool.log"
     P2POOL_STDIN : str = "p2pool.stdin"
     STATS_MOD : str = "stats_mod"
+    SUDO : str = "sudo"
+    SYSTEMCTL : str = "systemctl"

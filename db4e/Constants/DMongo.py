@@ -11,9 +11,15 @@ db4e/Constants/DMongo.py
 from db4e.Modules.ConstGroup import ConstGroup
 from db4e.Constants.DField import DField
 
-# Mongo
-#
-# CAUTION: Changes here will result in Mongo schema changes
+###############################################################
+#                                                             #
+#  CAUTION: Changes here will result in Mongo schema changes  #
+#                                                             #
+#       You will likely break historical reporting!           #
+#                                                             #
+###############################################################
+
+
 class DMongo(ConstGroup):
     CHAIN : str = "chain"
     COLLECTION : str = "collection"
@@ -23,7 +29,11 @@ class DMongo(ConstGroup):
     DB4E_REFRESH : str = "db4e_refresh"
     DEPLOYMENT_COL : str = "depl_collection"
     DOC_TYPE : str = "doc_type"
+    ELEM_TYPE : str = "elem_type"
+    ENABLED : str = "enabled"
+    EVENT : str = "event"
     HASHRATE : str = "hashrate"
+    INSTANCE : str = "instance"
     IP_ADDR : str = "ip_addr"
     JOBS_COLLECTION : str = "jobs_collection"
     LOG_COLLECTION : str = "log_collection"

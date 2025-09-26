@@ -149,8 +149,9 @@ class DbMgr:
         log_col = self.log_col
         depl_col = self.depl_col
         metrics_col = self.metrics_col
+        ops_col = self.ops_col
         db_col_names = self.db4e.list_collection_names()
-        for aCol in [ db_col, log_col, depl_col, metrics_col, jobs_col ]:
+        for aCol in [ db_col, log_col, depl_col, metrics_col, jobs_col, ops_col ]:
             if aCol not in db_col_names:
                 try:
                     self.db4e.create_collection(aCol)

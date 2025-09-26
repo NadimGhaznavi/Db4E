@@ -26,6 +26,7 @@ class DPane(ConstGroup):
     P2POOL_INTERNAL: str  = "P2PoolInternalPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
     RESULTS: str  = "ResultsPane"
+    RUNTIME_LOG: str  = "RuntimeLogPane"
     TUI_LOG: str  = "TuiLogPane"
     WELCOME: str  = "WelcomePane"
     XMRIG: str  = "XMRigPane"

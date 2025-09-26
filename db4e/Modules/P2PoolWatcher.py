@@ -26,8 +26,10 @@ from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Constants.DField import DField
 from db4e.Constants.DDebug import DDebug
 from db4e.Constants.DModule import DModule
-
-
+from db4e.Constants.DMongo import DMongo
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DSystemD import DSystemD
+from db4e.Constants.DDef import DDef
 
 
 
@@ -40,6 +42,7 @@ class P2PoolWatcher:
             self, mining_db: MiningDb, chain: str, log_file: str, 
             stop_event: threading.Event, stdin_path: str, stats_mod=None):
         self.mining_db = mining_db
+        self.ops_col = DDef.OPS_COL
         self._chain = chain
         self._stop_event = stop_event
         self._stdin_path = stdin_path
@@ -51,6 +54,8 @@ class P2PoolWatcher:
             logger_id = DModule.P2POOL_WATCHER + "-" + chain
         else:
             logger_id = DModule.P2POOL_WATCHER + "-USER-" + chain
+            # Create an Ops record when a P2PoolWatcher is created for a user defined P2Pool   
+
         self.log = Db4ELogger(db4e_module=logger_id, log_file=log_file)
 
     def chain(self):

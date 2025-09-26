@@ -25,6 +25,9 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DPane import DPane
+from db4e.Constants.DMongo import DMongo
+
+
 
 
 
@@ -34,12 +37,15 @@ class OpsMgr:
     def __init__(
         self, depl_client: DeplClient, health_cache: HealthCache, 
         db_cache: DbCache, mining_db: MiningDb):
+
         self.depl_client = depl_client
         self.health_cache = health_cache
         self.db_cache = db_cache
+        self.db = db_cache.db
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
+        self.ops_col = DDef.OPS_COL
 
 
     def add_deployment(self, form_data: dict):
@@ -101,10 +107,12 @@ class OpsMgr:
 
     def get_xmrigs_remote(self) -> list:
         return self.health_cache.get_xmrigs_remote()
+    ## End of get deployments by type...
 
 
     def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
+
 
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
@@ -112,7 +120,11 @@ class OpsMgr:
     
 
     def get_tui_log(self, job_list: list):
-        return self.depl_client.job_queue.get_jobs() 
+        return self.depl_client.job_queue.get_jobs()
+    
+
+    def get_runtime_log(self, event_list: list):
+        return self.db.find_many(self.ops_col, {}, { DMongo.TIMESTAMP: -1 })
 
 
     def log_viewer(self, form_data: dict):

@@ -145,6 +145,15 @@ class NavPane(Container):
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
+            # Runtime Log
+            elif leaf_data == DLabel.RUNTIME_LOG:
+                form_data = {
+                    DField.ELEMENT_TYPE: DField.RUNTIME_LOG,
+                    DField.TO_MODULE: DModule.OPS_MGR,
+                    DField.TO_METHOD: DMethod.GET_RUNTIME_LOG,
+                }
+                self.post_message(Db4eMsg(self, form_data=form_data))
+
             # Donations
             elif leaf_data == DLabel.DONATIONS:
                 form_data = {
@@ -448,10 +457,13 @@ class NavPane(Container):
         if not self.depls_branches_added:
             self.depls_branches_added = True
 
-            # Add Log link
+            # Add Console Log item
             self.depls.root.add_leaf(f"{ICON[LOG]} {DLabel.TUI_LOG}", data=DLabel.TUI_LOG)
 
-            # Add Donations link
+            # Add Console Log item
+            self.depls.root.add_leaf(f"{ICON[LOG]} {DLabel.RUNTIME_LOG}", data=DLabel.RUNTIME_LOG)
+
+            # Add Donations item
             self.depls.root.add_leaf(f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS)
 
 

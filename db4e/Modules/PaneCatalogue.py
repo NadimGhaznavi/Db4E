@@ -22,6 +22,7 @@ from db4e.Panes.P2PoolAnalyticsPane import P2PoolAnalyticsPane
 from db4e.Panes.P2PoolInternalPane import P2PoolInternalPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.ResultsPane import ResultsPane
+from db4e.Panes.RuntimeLogPane import RuntimeLogPane
 from db4e.Panes.TUILogPane import TUILogPane
 from db4e.Panes.WelcomePane import WelcomePane
 from db4e.Panes.XMRigAnalyticsPane import XMRigAnalyticsPane
@@ -46,6 +47,7 @@ REGISTRY = {
     DPane.P2POOL_INTERNAL: (P2PoolInternalPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
+    DPane.RUNTIME_LOG: (RuntimeLogPane, DLabel.LOG, DLabel.RUNTIME_LOG),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
