@@ -41,7 +41,19 @@ class JobQueue:
 
 
     def grab_job(self):
-        job_rec = self.db.grab_job()
+        job_rec = self.db.find_one_and_update(
+            self.col_name, 
+            {DJob.STATUS: DJob.PENDING},
+            {
+                "$set": {
+                    DJob.STATUS: DJob.PROCESSING,
+                    DJob.UPDATED_AT: datetime.now()
+                },
+                "$inc": {
+                    DJob.ATTEMPTS: 1
+                }
+            },
+)
         if job_rec:
             #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")

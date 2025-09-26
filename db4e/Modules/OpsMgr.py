@@ -15,6 +15,7 @@ from db4e.Modules.HealthCache import HealthCache
 
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MiningETL import MiningETL
+from db4e.Modules.OpsDb import OpsDb
 
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.InternalP2Pool import InternalP2Pool
@@ -26,8 +27,6 @@ from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DPane import DPane
 from db4e.Constants.DMongo import DMongo
-
-
 
 
 
@@ -45,7 +44,7 @@ class OpsMgr:
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
-        self.ops_col = DDef.OPS_COL
+        self.ops_db = OpsDb(db=self.db)
 
 
     def add_deployment(self, form_data: dict):
@@ -124,8 +123,8 @@ class OpsMgr:
     
 
     def get_runtime_log(self, event_list: list):
-        return self.db.find_many(self.ops_col, {}, { DMongo.TIMESTAMP: -1 })
-
+        return self.ops_db.get_ops_events()
+    
 
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]

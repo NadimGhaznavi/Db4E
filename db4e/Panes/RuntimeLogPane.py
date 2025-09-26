@@ -24,20 +24,6 @@ from db4e.Constants.DMongo import DMongo
 
 
 
-
-
-TYPE_TABLE = {
-    DElem.DB4E: DLabel.DB4E,
-    DElem.INT_P2POOL: DLabel.P2POOL_INTERNAL_SHORT,
-    DElem.MONEROD: DLabel.MONEROD_SHORT,
-    DElem.MONEROD_REMOTE: DLabel.MONEROD_REMOTE_SHORT,
-    DElem.P2POOL: DLabel.P2POOL_SHORT,
-    DElem.P2POOL_WATCHER: DLabel.P2POOL_WATCHER,
-    DElem.P2POOL_REMOTE: DLabel.P2POOL_REMOTE_SHORT,
-    DElem.XMRIG: DLabel.XMRIG_SHORT,
-    DElem.XMRIG_REMOTE: DLabel.XMRIG_REMOTE_SHORT,
-}
-
 class RuntimeLogPane(Static):
 
     log_widget = Static()
@@ -64,7 +50,7 @@ class RuntimeLogPane(Static):
             date, time = event[DMongo.TIMESTAMP].strftime("%Y-%m-%d %H:%M:%S").split()
             table.add_row(
                 f"[b]{date}[/] [b green]{time}[/]",
-                TYPE_TABLE[event[DMongo.ELEM_TYPE]],
+                event[DMongo.ELEM_TYPE],
                 event[DMongo.INSTANCE],
                 event[DMongo.EVENT].upper()
             )

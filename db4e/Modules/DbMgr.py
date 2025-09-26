@@ -124,24 +124,6 @@ class DbMgr:
         return self.db4e[str(col_name)]
 
 
-    def grab_job(self):
-        collection = self.get_collection(self.ops_col)
-        #print(f"DbMgr:grab_job():\nSTATUS_FIELD: {STATUS_FIELD}\nPROCESSING_FIELD: {PROCESSING_FIELD}")
-        return collection.find_one_and_update(
-            {DJob.STATUS: DJob.PENDING},
-            {
-                "$set": {
-                    DJob.STATUS: DJob.PROCESSING,
-                    DJob.UPDATED_AT: datetime.now()
-                },
-                "$inc": {
-                    DJob.ATTEMPTS: 1
-                }
-            },
-            return_document=ReturnDocument.AFTER
-        )
-
-
     def init_db(self):
         # Make sure the 'db4e' database, core collections and indexes exist.
         db_col = self.db_col
