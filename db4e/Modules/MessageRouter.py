@@ -108,7 +108,7 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.INT_P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL_INTERNAL)
         self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.INT_P2POOL,
-                      self.ops_mgr.analytics, DPane.P2POOL_ANALYTICS)
+                      self.ops_mgr.analytics, DPane.CHAIN_ANALYTICS)
 
         # XMRig
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,

@@ -10,6 +10,7 @@ db4e/Modules/PaneCatalogue.py
 
 from textual.containers import Container
 
+from db4e.Panes.ChainAnalyticsPane import ChainAnalyticsPane
 from db4e.Panes.Db4EPane import Db4EPane
 from db4e.Panes.DonationsPane import DonationsPane
 from db4e.Panes.InitialSetupPane import InitialSetupPane
@@ -33,6 +34,7 @@ from db4e.Constants.DPane import DPane
 
 
 REGISTRY = {
+    DPane.CHAIN_ANALYTICS: (ChainAnalyticsPane, DLabel.CHAIN, DLabel.ANALYTICS),
     DPane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
     DPane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
     DPane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),

@@ -12,6 +12,7 @@ from db4e.Modules.ConstGroup import ConstGroup
 
 
 class DPane(ConstGroup):
+    CHAIN_ANALYTICS : str = "ChainAnalyticsPane"
     DB4E: str = "Db4EPane"
     DONATIONS: str  = "DonationsPane"
     INITIAL_SETUP: str  = "InitialSetupPane"

@@ -68,9 +68,30 @@ class MiningETL:
         return self.get_hashrates(recs)
     
 
+    def get_miner_hashrate(self, miner):
+        rec = self.mining_db.get_miner_hashrate(miner)
+        if rec:
+            hashrate = str(rec[DMining.HASHRATE])
+            units = rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
+
+
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
         return self.get_hashrates(recs)
+
+
+    def get_miner_uptime(self, miner):
+        rec = self.mining_db.get_miner_uptime(miner)
+        if rec:
+            uptime = str(rec[DMongo.UPTIME])
+        else:
+            uptime = "Unknown"
+        return uptime
+
 
     def get_pool_hashrates(self, chain):
         recs = self.mining_db.get_pool_hashrates(chain)
@@ -133,6 +154,17 @@ class MiningETL:
             "days": day_list,
             "units": units,
         }
+
+
+    def get_pool_hashrate(self, chain):
+        hashrate_rec = self.mining_db.get_pool_hashrate(chain)
+        if hashrate_rec:
+            hashrate = str(hashrate_rec[DMining.HASHRATE])
+            units = hashrate_rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
 
 
     def get_remote_xmrig_timestamp(self, instance):

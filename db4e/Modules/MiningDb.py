@@ -64,7 +64,7 @@ class MiningDb():
         # Convert the hashrate to a float
         hashrate = float(hashrate)
 
-        # Update the "realtime" (rt) record first
+        # Update the "realttime" (rt) record first
         rt_timestamp = datetime.now(timezone.utc)
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_HASHRATE,
@@ -176,7 +176,7 @@ class MiningDb():
             self.db.insert_one(self.mining_col, jdoc)
             self.log.info(f"Created new ({chain}) historical miner ({miner_name}) hashrate ({hashrate}) record")
         
-        # Realtime, miner hashrate
+        # Real-time, miner hashrate
         rt_timestamp = datetime.now(timezone.utc)
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE,
@@ -341,12 +341,9 @@ class MiningDb():
     
 
     def get_miner_hashrate(self, miner):
-        rec = self.db.find_one(
+        return self.db.find_one(
             self.mining_col,
             { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
-        if rec:
-            return rec[DMining.HASHRATE]
-        return None
 
 
     def get_miner_hashrates(self, miner):
@@ -357,20 +354,14 @@ class MiningDb():
 
 
     def get_miner_uptime(self, miner):
-        rec = self.db.find_one(
+        return self.db.find_one(
             self.mining_col,
             { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
-        if rec:
-            return rec[DMongo.UPTIME]
-        return None
 
 
     def get_pool_hashrate(self, chain):
-        record = self.db.find_one(
-            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE, DMongo.CHAIN: chain})
-        if record:
-            return record[DMining.HASHRATE]
-        return None
+        return self.db.find_one(
+            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_HASHRATE, DMongo.CHAIN: chain})
 
 
     def get_pool_hashrates(self, chain):

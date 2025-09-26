@@ -18,13 +18,9 @@ def migrate_pool_hashrates():
         if type(rec[DMongo.TIMESTAMP]) == str:
             date_str, hour = rec[DMongo.TIMESTAMP].split(" ")
             hashrate, units = rec[DMining.HASHRATE].split(" ")
-            #print(f"{date_str} -- {hour} -- {hashrate} -- {units}")
 
             datetime_object = datetime.strptime(date_str, "%Y-%m-%d")
             datetime_object = datetime_object + timedelta(hours=int(hour))
-
-            #print(f"{datetime_object} -- {float(hashrate)} -- {units}")
-            #print(f"{type(datetime_object)} -- {type(float(hashrate))} -- {type(units)}")
 
             new_rec = {
                 DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
@@ -37,5 +33,4 @@ def migrate_pool_hashrates():
             print(new_rec)
 
 
-
-migrate_pool_hashrates()
+# migrate_pool_hashrates()
