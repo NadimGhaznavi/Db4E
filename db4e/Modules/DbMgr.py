@@ -47,11 +47,11 @@ class DbMgr:
         self.db_name       = DDef.DB_NAME
         self.db_col        = DDef.MINING_COL
         self.depl_col      = DDef.DEPLOYMENT_COL
+        self.jobs_col      = DDef.JOBS_COL
         self.log_col       = DDef.LOG_COLLECTION
         self.log_retention = DDef.LOG_RETENTION_DAYS
         self.metrics_col   = DDef.METRICS_COLLECTION
         self.ops_col       = DDef.OPS_COL
-        self.tmpl_col      = DDef.TEMPLATES_COLLECTION
 
         # Connect to MongoDB
         db_uri = f'mongodb://{db_server}:{db_port}'
@@ -150,12 +150,12 @@ class DbMgr:
     def init_db(self):
         # Make sure the 'db4e' database, core collections and indexes exist.
         db_col = self.db_col
+        jobs_col = self.jobs_col
         log_col = self.log_col
         depl_col = self.depl_col
         metrics_col = self.metrics_col
-        tmpl_col = self.tmpl_col
         db_col_names = self.db4e.list_collection_names()
-        for aCol in [ db_col, log_col, depl_col, metrics_col, tmpl_col ]:
+        for aCol in [ db_col, log_col, depl_col, metrics_col, jobs_col ]:
             if aCol not in db_col_names:
                 try:
                     self.db4e.create_collection(aCol)
