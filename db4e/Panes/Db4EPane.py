@@ -81,7 +81,10 @@ class Db4EPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX,
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX),
+
+                Horizontal(
+                    Button(label=DLabel.NEW, id=DButton.NEW),
                 ),
 
                 Horizontal(
@@ -95,6 +98,8 @@ class Db4EPane(Container):
         self.radio_set.border_subtitle = DLabel.PRIMARY_SERVER
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
 
 
     def set_data(self, db4e: Db4E):

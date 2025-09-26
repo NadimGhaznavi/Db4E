@@ -80,7 +80,7 @@ class XMRigPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX),
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX),
 
                 Vertical(
                     Horizontal(
@@ -104,6 +104,8 @@ class XMRigPane(Container):
         self.radio_set.border_subtitle = DLabel.P2POOL
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
 
 
     def set_data(self, xmrig: XMRig):

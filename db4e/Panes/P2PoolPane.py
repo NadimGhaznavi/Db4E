@@ -105,7 +105,7 @@ class P2PoolPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX,
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX
                 ),
 
                 Vertical(
@@ -127,7 +127,10 @@ class P2PoolPane(Container):
         self.radio_set.border_subtitle = DLabel.UPSTREAM_MONERO
         self.chain_radio_set.border_subtitle = DLabel.CHAIN
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
-        form_box.border_subtitle = DLabel.CONFIG        
+        form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
+
 
     def set_data(self, p2pool: P2Pool):
         self.p2pool = p2pool

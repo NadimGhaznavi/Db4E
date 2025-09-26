@@ -69,7 +69,7 @@ class P2PoolRemotePane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX,
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX
                 ),
 
                 Horizontal(
@@ -85,6 +85,9 @@ class P2PoolRemotePane(Container):
     def on_mount(self):
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
+
 
     def set_data(self, p2pool: P2PoolRemote):
         self.instance_input.value = p2pool.instance()
