@@ -77,8 +77,7 @@ class Db4EPane(Container):
                         self.user_wallet_input),
                     classes=DForm.FORM_5, id=DForm.FORM_BOX),
 
-                Vertical(
-                    self.radio_set),
+                self.radio_set,
 
                 Vertical(
                     self.health_msgs,
