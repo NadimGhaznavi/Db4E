@@ -26,7 +26,7 @@ class HashratePlot(PlotWidget):
     """
 
     def __init__(self, title, id):
-        super().__init__(title, id)
+        super().__init__(title, id, allow_pan_and_zoom=False)
         self._hashrate_id = id
         self._all_days = None
         self._all_values = None
