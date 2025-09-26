@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DMining import DMining
+from db4e.Constants.DLabel import DLabel
 
 from db4e.Modules.MiningDb import MiningDb
 
@@ -72,11 +73,9 @@ class MiningETL:
         rec = self.mining_db.get_miner_hashrate(miner)
         if rec:
             hashrate = str(rec[DMining.HASHRATE])
-            units = rec[DMining.UNIT]
         else:
             hashrate = "Unknown"
-            units = ""
-        return hashrate + " " + units
+        return hashrate + " " + DLabel.H_PER_S
 
 
     def get_miner_hashrates(self, miner):

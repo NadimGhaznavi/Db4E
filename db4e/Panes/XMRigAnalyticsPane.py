@@ -54,6 +54,9 @@ class XMRigAnalyticsPane(Container):
 
                 Vertical(
                     self.select_widget,
+                    classes=DForm.SELECT_BOX),
+
+                Vertical(
                     self.hashrate_plot,
                     classes=DForm.PANE_BOX)),
 
@@ -67,7 +70,7 @@ class XMRigAnalyticsPane(Container):
 
     def set_data(self, xmrig: XMRig):
         self.instance_label.update(xmrig.instance())
-        self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
+        self.hashrate_label.update(str(xmrig.hashrate()))
         self.uptime_label.update(xmrig.uptime())
 
         data = xmrig.hashrates()

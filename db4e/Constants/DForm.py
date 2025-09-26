@@ -64,6 +64,7 @@ class DForm(ConstGroup):
     RADIO_BUTTON_TYPE : str = "radio_button_type"
     RADIO_SET : str = "radio_set"
     RPC_BIND_PORT_INPUT : str = "rpc_bind_port_input"
+    SELECT_BOX : str = "select_box"
     STATIC : str = "static_content"
     STRATUM_PORT_INPUT : str = "stratum_port_input"
     STRATUM_PORT_LABEL : str = "stratum_port_label"

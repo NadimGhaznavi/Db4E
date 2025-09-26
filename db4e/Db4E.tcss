@@ -247,6 +247,13 @@ Tree {
     background: black;
 }
 
+.select_box {
+    color: #31b8e6;
+    border: round #0c323e;
+    padding: 0 1;
+    height: 3;
+    background: black;
+}
 
 /* Radio Button Width */
 
