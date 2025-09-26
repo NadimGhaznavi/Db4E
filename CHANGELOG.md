@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+--- 
+
+## [0.39.0] - 2025-09-26
+
+### Changed
+- Replaced `textual-plotext` wrapper class with native `textual-plot`
+  - Moved date selection into a separate box on the analytics panes
+  - Fixed `Hashrate` metric in analytics panes
+
 ---
 
 ## [0.38.1] - 2025-09-25
@@ -16,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - *Chain Stats* tree layout in the `NavPane`
 - Replaced `textual-plotext` wrapper class with native `textual-plot`
+- Modified the output of `MiningETL.get_hashrates()` for `textual-plot`
 
 ### Removed
 - Removed `PlotViewPane`: Plot views are integrated into  existing panes

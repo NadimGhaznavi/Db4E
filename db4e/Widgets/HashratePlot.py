@@ -10,70 +10,50 @@ db4e/Modules/HashratePlot.py
 
 from typing import Any
 
-from textual_plotext import PlotextPlot
+from textual.widgets import Select
+from textual_plot import PlotWidget, HiResMode
+
+from db4e.Constants.DLabel import DLabel
+
+
 
 # Hashrate data is collected once per hour
 ONE_WEEK = 7 * 24
 
-class HashratePlot(PlotextPlot):
+class HashratePlot(PlotWidget):
     """
     A widget for plotting hashrate data.
     """
 
-    def __init__(
-        self,
-        title: str,
-        *,
-        name: str | None = None,
-        id: str | None = None,  # pylint:disable=redefined-builtin
-        classes: str | None = None,
-        disabled: bool = False,
-    ) -> None:
-        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self._title = title
-        self._unit = "Loading..."
-        self._data: list[float] = []
-        self._time: list[str] = []
-
-    def hashrate_data(self, hashrate_data=None):
-        if hashrate_data is not None:
-            self._hashrate_data = hashrate_data
-        return self._hashrate_data
-    
-    def times(self, times=None):
-        if times is not None:
-            self._times = times
-        return self._times
-    
-
-    def on_mount(self) -> None:
-        """Plot the data using Plotext."""
-        self.plt.clear_data()
-        self.plt.date_form("Y-m-d H:M")
-        self.plt.title(self._title)
-        self.plt.xlabel("Time")
-        self.plt.ylabel(self._unit)
-        self.plt.canvas_color("black")
+    def __init__(self, title, id):
+        super().__init__(title, id)
+        self._hashrate_id = id
+        self._all_days = None
+        self._all_values = None
+        self.set_xlabel(DLabel.DAYS)
+        self.set_ylabel(DLabel.HASHRATE)
 
 
-    def load_all_data(self, hashrate_data: dict[str, Any]) -> None:
-        """Load the hashrate data"""
-        self.hashrate_data(hashrate_data["values"])
-        self.times(hashrate_data["times"])
-        self.units(hashrate_data["units"])
+    def load_data(self, days, hashrates):
+        self._all_days = days
+        self._all_values = hashrates
 
 
-    def plot(self) -> None:
-        """Redraw the plot."""
-        self.plt.clear_data()
-        self.plt.ylabel(self._unit)
-        self.plt.plot(self._time, self._data, marker="braille")
-        self.refresh()
+    def hashrate_plot(self, days=None, values=None) -> None:
+        if days is not None and values is not None:
+            plot_days = days
+            plot_values = values
+        else:
+            plot_days = self._all_days
+            plot_values = self._all_values
+        self.clear()
+        reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
+        self.plot(x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE)
 
 
-    def reduce_data(self, times, values, max_points=ONE_WEEK):
+    def reduce_data(self, times, values):
         # Reduce the total number of data points, otherwise the plot gets "blurry"
-        step = max(1, len(times) // max_points)
+        step = max(1, len(times) // ONE_WEEK)
 
         # Reduce times with step
         reduced_times = times[::step]
@@ -83,39 +63,20 @@ class HashratePlot(PlotextPlot):
             sum(values[i:i+step]) / len(values[i:i+step])
             for i in range(0, len(values), step)
         ]
-
         return reduced_times[:len(reduced_values)], reduced_values
     
 
-    def units(self, units):
-        self._unit = units
-
-
     def update_time_range(self, selected_time):
         if selected_time == -1:
-            new_times, new_values = self.reduce_data(self.times(), self.hashrate_data())
-            self.replot({"times": new_times, "values": new_values, "units": self.units})
             return
 
         selected_time = int(selected_time)
-        max_length = len(self.hashrate_data())
+        max_length = len(self._all_days)
         if selected_time > max_length:
             selected_time = max_length
-        new_values = self.hashrate_data()[-selected_time:]
-        new_times = self.times()[-selected_time:]
-        new_times, new_values = self.reduce_data(new_times, new_values)
-        self.replot({"times": new_times, "values": new_values})
+        new_values = self._all_values[-selected_time:]
+        new_times = self._all_days[-selected_time:]
+        self.hashrate_plot(new_times, new_values)
 
 
-    def replot(self, data: dict[str, Any]) -> None:
-        """Update the data for the weather plot.
-
-        Args:
-            data: Hashrate data.
-            values: The name of the values to plot.
-        """
-        self.plt.clear_data()
-        self._data = data["values"]
-        self._time = data["times"]
-        self.plot()
 

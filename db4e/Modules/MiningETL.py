@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DMining import DMining
+from db4e.Constants.DLabel import DLabel
 
 from db4e.Modules.MiningDb import MiningDb
 
@@ -68,9 +69,28 @@ class MiningETL:
         return self.get_hashrates(recs)
     
 
+    def get_miner_hashrate(self, miner):
+        rec = self.mining_db.get_miner_hashrate(miner)
+        if rec:
+            hashrate = str(rec[DMining.HASHRATE])
+        else:
+            hashrate = "Unknown"
+        return hashrate + " " + DLabel.H_PER_S
+
+
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
         return self.get_hashrates(recs)
+
+
+    def get_miner_uptime(self, miner):
+        rec = self.mining_db.get_miner_uptime(miner)
+        if rec:
+            uptime = str(rec[DMongo.UPTIME])
+        else:
+            uptime = "Unknown"
+        return uptime
+
 
     def get_pool_hashrates(self, chain):
         recs = self.mining_db.get_pool_hashrates(chain)
@@ -83,6 +103,7 @@ class MiningETL:
 
         value_list = []
         time_list = []
+        day_list = []
 
         prev_time = recs[0][DMongo.TIMESTAMP]
         prev_hashrate = recs[0][DMining.HASHRATE]
@@ -91,13 +112,20 @@ class MiningETL:
         else:
             units = "H/s"
 
+
+        # Number of data points
+        cur_day = - float(len(recs) / 24)
+
+
         # Append first record
         time_list.append(prev_time.strftime("%Y-%m-%d %H:%M"))
+        day_list.append(cur_day)
         value_list.append(float(prev_hashrate))
 
         for rec in recs[1:]:
             cur_time = rec[DMongo.TIMESTAMP]
             cur_hashrate = float(rec[DMining.HASHRATE])
+            cur_day += float(1 / 24)
 
             # Fill gaps
             gap_time = prev_time + timedelta(hours=1)
@@ -105,10 +133,14 @@ class MiningETL:
                 time_list.append(gap_time.strftime("%Y-%m-%d %H:%M"))
                 value_list.append(cur_hashrate)
                 gap_time += timedelta(hours=1)
+                day_list.append(cur_day)
+                cur_day += float(1 / 24)
+
 
             # Append current record
             time_list.append(cur_time.strftime("%Y-%m-%d %H:%M"))
             value_list.append(cur_hashrate)
+            day_list.append(cur_day)
 
             prev_time = cur_time
 
@@ -118,9 +150,20 @@ class MiningETL:
 
         return {
             "values": value_list,
-            "times": time_list,
+            "days": day_list,
             "units": units,
         }
+
+
+    def get_pool_hashrate(self, chain):
+        hashrate_rec = self.mining_db.get_pool_hashrate(chain)
+        if hashrate_rec:
+            hashrate = str(hashrate_rec[DMining.HASHRATE])
+            units = hashrate_rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
 
 
     def get_remote_xmrig_timestamp(self, instance):

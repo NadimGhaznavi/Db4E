@@ -53,10 +53,10 @@ from textual.theme import Theme
 db4e_theme = Theme(
     name="db4e",
     primary="#88C0D0",
-    secondary="#751BC4",
+    secondary="#1f6a83ff",
     accent="#B48EAD",
     foreground="#31b8e6",
-    background="#2E3440",
+    background="black",
     success="#A3BE8C",
     warning="#EBCB8B",
     error="#BF616A",
