@@ -56,19 +56,25 @@ class OpsMgr:
 
     def analytics(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
-        if type(elem) == P2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.instance()))
 
-            elem.hashrates(self.mining_etl.get_pool_hashrates(elem.instance()))
+        if type(elem) == P2Pool:
+            elem.hashrate(self.mining_etl.get_pool_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_pool_hashrates(instance=elem.instance()))
+
         if type(elem) == InternalP2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.instance()))
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.instance()))
-            elem.blocks_found(self.mining_etl.get_block_found_events(elem.instance()))
+            elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
+            elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
 
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
             elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
             elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            print(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+
         return elem
  
    
@@ -80,11 +86,10 @@ class OpsMgr:
 
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
 
-        if elem_type == DElem.INT_P2POOL:
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
+        if type(elem) == XMRigRemote:
+            # The Remote XMRig pane displays analytics
+            return self.analytics(form_data={DField.ELEMENT: elem})
 
-        elif type(elem) == XMRigRemote:
-            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
         
         return elem
 

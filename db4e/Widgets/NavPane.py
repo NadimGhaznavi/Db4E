@@ -249,7 +249,7 @@ class NavPane(Container):
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
 
-            # XMRig deployments
+            # Existing XMRig deployment
             elif parent_data == DLabel.XMRIG_SHORT:
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.XMRIG,

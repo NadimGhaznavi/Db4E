@@ -51,11 +51,14 @@ class P2PoolWatcher:
         self.thread_control = None
         self._stats_mod = stats_mod
         self._log_file = log_file
+
+
+        # If stats_mod was passed in, then this watcher is watching an InternalP2Pool
         if stats_mod:
-            # If stats_mod was passed in, then this watcher is watching an InternalP2Pool
             logger_id = DModule.P2POOL_WATCHER + "-" + chain
+        
         else:
-            logger_id = DModule.P2POOL_WATCHER + "-USER-" + chain
+            logger_id = DModule.P2POOL_WATCHER + "-" + instance + "-" + chain
             # Create an Ops record when a P2PoolWatcher is created for a user defined P2Pool   
 
         self.log = Db4ELogger(db4e_module=logger_id, log_file=log_file)
@@ -149,7 +152,8 @@ class P2PoolWatcher:
             hashrate = match.group('hashrate')
             unit = match.group('unit')
 
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
+            self.mining_db.add_chain_hashrate(
+                chain=self.chain(), instance=self.instance(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()
@@ -209,7 +213,8 @@ class P2PoolWatcher:
             hashrate = match.group('hashrate')
             unit = match.group('unit')
 
-            self.mining_db.add_chain_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
+            self.mining_db.add_chain_hashrate(
+                chain=self.chain(), instance=self.instance(), hashrate=hashrate, unit=unit)
 
             # While we're at it, let's also collect the number of miners on the chain
             num_miners = self.get_num_miners()

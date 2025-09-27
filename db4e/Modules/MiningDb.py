@@ -58,7 +58,7 @@ class MiningDb():
         self.log.info(f"Creating a new ({chain}) block found event record")
 
 
-    def add_chain_hashrate(self, chain, hashrate, unit):
+    def add_chain_hashrate(self, chain, instance, hashrate, unit):
         """
         Historical and real-time chain hashrate record
         """
@@ -70,6 +70,7 @@ class MiningDb():
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_HASHRATE,
             DMongo.CHAIN: chain,
+            DMongo.INSTANCE: instance,
             DMongo.TIMESTAMP: rt_timestamp,
             DMining.HASHRATE: hashrate,
             DMining.UNIT: unit
@@ -81,7 +82,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, { DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] }, 
-                { DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp })
+                { DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp, DMongo.INSTANCE: instance})
             self.log.debug(f"Updated existing ({chain}) real-time {chain} hashrate ({hashrate}) record")
 
         else:
@@ -94,13 +95,14 @@ class MiningDb():
             DMongo.DOC_TYPE: DMining.HASHRATE,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
+            DMongo.INSTANCE: instance,
             DMining.HASHRATE: hashrate,
             DMining.UNIT: unit
         }
 
         existing = self.db.find_one(self.mining_col, {
             DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain, 
-            DMongo.TIMESTAMP: timestamp
+            DMongo.TIMESTAMP: timestamp, DMongo.INSTANCE: instance
         })
 
         if existing:
@@ -335,6 +337,12 @@ class MiningDb():
             { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.INSTANCE: instance },
             { DMongo.TIMESTAMP: 1 })
 
+
+    def get_chain_hashrate(self, instance):
+        return self.db.find_one(
+            self.mining_col, 
+            { DMongo.DOC_TYPE: DMining.RT_HASHRATE, DMongo.INSTANCE: instance })
+    
 
     def get_chain_hashrates(self, instance):
         return self.db.find_many(

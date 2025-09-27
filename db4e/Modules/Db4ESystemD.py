@@ -20,6 +20,8 @@ from db4e.Constants.DFile import DFile
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
+
 
 
 from db4e.Modules.DbMgr import DbMgr
@@ -90,9 +92,15 @@ class Db4ESystemD:
     
     def log_event(self, event, service_name):
         elem_type, instance = service_name.split('@')
+        # Map the field names to the labels for the Runtime Log
+        TYPE_TABLE = {
+            DElem.MONEROD: DLabel.MONEROD_SHORT,
+            DElem.P2POOL: DLabel.P2POOL_SHORT,
+            DElem.XMRIG: DLabel.XMRIG
+        }
         timestamp = datetime.now().replace(microsecond=0)
         event = {
-            DMongo.ELEM_TYPE: elem_type,
+            DMongo.ELEM_TYPE: TYPE_TABLE[elem_type],
             DMongo.INSTANCE: instance,
             DMongo.EVENT: event,
             DMongo.TIMESTAMP: timestamp
