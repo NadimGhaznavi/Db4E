@@ -72,6 +72,7 @@ class P2PoolAnalyticsPane(Container):
         self.hashrate_label.update(str(p2pool.hashrate()))
 
         data = p2pool.hashrates()
+        print(data)
         days = data[DField.DAYS]
         hashrates = data[DField.VALUES]
         

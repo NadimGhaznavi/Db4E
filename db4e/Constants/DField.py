@@ -148,6 +148,7 @@ class DField(ConstGroup) :
     TIMESTAMP : str = "timestamp"
     TO_METHOD : str = "to_method"
     TUI_LOG : str = "tui_log"
+    UNITS : str = "units"
     UNKNOWN : str = "unknown"
     UPDATE : str = "update"
     USER : str = "user"

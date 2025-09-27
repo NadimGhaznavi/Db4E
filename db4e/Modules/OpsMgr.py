@@ -57,8 +57,9 @@ class OpsMgr:
     def analytics(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
         if type(elem) == P2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.chain()))
-            elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
+            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.instance()))
+
+            elem.hashrates(self.mining_etl.get_pool_hashrates(elem.instance()))
         if type(elem) == InternalP2Pool:
             elem.hashrate(self.mining_etl.get_pool_hashrate(elem.instance()))
             elem.hashrates(self.mining_etl.get_chain_hashrates(elem.instance()))

@@ -336,10 +336,10 @@ class MiningDb():
             { DMongo.TIMESTAMP: 1 })
 
 
-    def get_chain_hashrates(self, chain):
+    def get_chain_hashrates(self, instance):
         return self.db.find_many(
             self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain },
+            { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.INSTANCE: instance },
             { DMongo.TIMESTAMP: 1 })
     
 

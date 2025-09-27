@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DMining import DMining
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
 
 from db4e.Modules.MiningDb import MiningDb
 
@@ -66,8 +67,8 @@ class MiningETL:
         }
 
     
-    def get_chain_hashrates(self, chain):
-        recs = self.mining_db.get_chain_hashrates(chain)
+    def get_chain_hashrates(self, instance):
+        recs = self.mining_db.get_chain_hashrates(instance)
         return self.get_hashrates(recs)
     
 
@@ -82,7 +83,7 @@ class MiningETL:
 
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
-        return self.get_hashrates(recs)
+        return self.get_hashrates(recs) or []
 
 
     def get_miner_uptime(self, miner):
@@ -105,14 +106,14 @@ class MiningETL:
         return hashrate + " " + units
 
 
-    def get_pool_hashrates(self, chain):
-        recs = self.mining_db.get_pool_hashrates(chain)
+    def get_pool_hashrates(self, instance):
+        recs = self.mining_db.get_pool_hashrates(instance=instance)
         return self.get_hashrates(recs)
 
 
     def get_hashrates(self, recs):
         if not recs:
-            return {"values": [], "times": [], "units": ""}
+            return {DField.VALUES: [], DField.DAYS: [], DField.UNITS: ""}
 
         value_list = []
         time_list = []
@@ -162,9 +163,9 @@ class MiningETL:
         units = parts[1] if len(parts) > 1 else ""
 
         return {
-            "values": value_list,
-            "days": day_list,
-            "units": units,
+            DField.VALUES: value_list,
+            DField.DAYS: day_list,
+            DField.UNITS: units,
         }
 
 

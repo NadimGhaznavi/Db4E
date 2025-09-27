@@ -84,10 +84,6 @@ class Db4EPane(Container):
                     classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX),
 
                 Horizontal(
-                    Button(label=DLabel.NEW, id=DButton.NEW),
-                ),
-
-                Horizontal(
                     Button(label=DLabel.UPDATE, id=DButton.UPDATE),
                     classes=DForm.BUTTON_ROW
                 ),
