@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added a *Status* sub-title to the various panes' health check box.
+- Added a *Runtime* log to track the uptime of the various components.
+- Added a *Runtime* item to the NavPane to expose the log.
+
 ### Fixed
 - Disabled pan and zoom for HashratePlot widget, it's not helpful.
-- Removed unused `tmpl` (Templates) Mongo collection
-
+- Removed unused `tmpl` (Templates) Mongo collection.
+- Fixed layout issue with the `Db4E` pane.
 
 ### Changed
 - Renamed *ops* Mongo collection to *jobs*

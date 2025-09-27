@@ -468,6 +468,7 @@ class Db4eServer:
                 log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
+                instance=instance,
             )
         elif type(p2pool) == InternalP2Pool:
             watcher = P2PoolWatcher(
@@ -476,6 +477,7 @@ class Db4eServer:
                 log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
+                instance=instance,
                 stats_mod=p2pool.stats_mod(),
             )
         else:

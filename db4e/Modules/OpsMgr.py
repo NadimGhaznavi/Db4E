@@ -60,8 +60,10 @@ class OpsMgr:
             elem.hashrate(self.mining_etl.get_pool_hashrate(elem.chain()))
             elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
         if type(elem) == InternalP2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.chain()))
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
+            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.instance()))
+            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.instance()))
+            elem.blocks_found(self.mining_etl.get_block_found_events(elem.instance()))
+
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
             elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))

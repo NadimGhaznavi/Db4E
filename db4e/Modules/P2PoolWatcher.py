@@ -40,12 +40,14 @@ class P2PoolWatcher:
 
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str, 
-            stop_event: threading.Event, stdin_path: str, stats_mod=None):
+            stop_event: threading.Event, stdin_path: str, instance: str, 
+            stats_mod=None):
         self.mining_db = mining_db
         self.ops_col = DDef.OPS_COL
         self._chain = chain
         self._stop_event = stop_event
         self._stdin_path = stdin_path
+        self._instance = instance
         self.thread_control = None
         self._stats_mod = stats_mod
         self._log_file = log_file
@@ -105,7 +107,13 @@ class P2PoolWatcher:
             api_string_data = file.read()
             api_data = json.loads(api_string_data)
             return api_data[DField.POOL][DField.MINERS]
-            
+
+
+    def instance(self, instance=None):
+        if instance is not None:
+            self._instance = instance
+        return self._instance
+
       
     def is_block_found(self, log_line):
         """
@@ -122,7 +130,7 @@ class P2PoolWatcher:
             timestamp = match.group('timestamp')
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
             # Create a new blocks_found_event in the DB
-            self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
+            self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain(), instance=self.instance())
 
 
     def is_main_chain_hashrate(self, log_line):
@@ -212,15 +220,15 @@ class P2PoolWatcher:
         """
         Sample log message to watch for:
 
-        Your hashrate (pool-side) = 13.137 KH/s
-        Hashrate (1h  est)   = 7.384 KH/s
+        Hashrate (1h  est)   = 5.515 kH/s
         """
-        pattern = r"Hashrate \(1h  est\) .* = (?P<hashrate>[\d.]+)\s*(?P<unit>[KMGT]?H/s)"
+        pattern = r"Hashrate\s*\(1h\s*est\)\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<unit>[kKMmGgTt]?H/s)"
         match = re.search(pattern, log_line)
         if match:
             hashrate = match.group('hashrate')
             unit = match.group('unit')
-            self.mining_db.add_pool_hashrate(chain=self.chain(), hashrate=hashrate, unit=unit)
+            self.mining_db.add_pool_hashrate(
+                chain=self.chain(), instance=self.instance(), hashrate=hashrate, unit=unit)
 
 
     def is_share_found(self, log_line):

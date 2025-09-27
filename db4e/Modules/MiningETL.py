@@ -26,8 +26,8 @@ class MiningETL:
         self.mining_db = mining_db
 
 
-    def get_block_found_events(self, chain):
-        recs = self.mining_db.get_block_found_events(chain)
+    def get_block_found_events(self, instance):
+        recs = self.mining_db.get_block_found_events(instance)
         if not recs:
             return {"values": [], "times": [], "units": "blocks"}
 
@@ -52,6 +52,8 @@ class MiningETL:
         times = [day.strftime("%Y-%m-%d %H:%M") for day in sorted(results.keys())]
         values = [results[day] for day in sorted(results.keys())]
 
+        # Replace datetime days with integers for plotting
+        new_times = range(- len(times), 0, 1)
 
         new_values = []
         for value in values:
@@ -59,7 +61,7 @@ class MiningETL:
 
         return {
             "values": new_values,
-            "times": times,
+            "days": new_times,
             "units": "blocks",
         }
 
@@ -90,6 +92,17 @@ class MiningETL:
         else:
             uptime = "Unknown"
         return uptime
+
+
+    def get_pool_hashrate(self, instance):
+        hashrate_rec = self.mining_db.get_pool_hashrate(instance)
+        if hashrate_rec:
+            hashrate = str(hashrate_rec[DMining.HASHRATE])
+            units = hashrate_rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
 
 
     def get_pool_hashrates(self, chain):
@@ -153,17 +166,6 @@ class MiningETL:
             "days": day_list,
             "units": units,
         }
-
-
-    def get_pool_hashrate(self, chain):
-        hashrate_rec = self.mining_db.get_pool_hashrate(chain)
-        if hashrate_rec:
-            hashrate = str(hashrate_rec[DMining.HASHRATE])
-            units = hashrate_rec[DMining.UNIT]
-        else:
-            hashrate = "Unknown"
-            units = ""
-        return hashrate + " " + units
 
 
     def get_remote_xmrig_timestamp(self, instance):
