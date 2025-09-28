@@ -24,6 +24,7 @@ from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.ResultsPane import ResultsPane
 from db4e.Panes.RuntimeLogPane import RuntimeLogPane
 from db4e.Panes.TUILogPane import TUILogPane
+from db4e.Panes.UptimePane import UptimePane
 from db4e.Panes.WelcomePane import WelcomePane
 from db4e.Panes.XMRigHashratesPane import XMRigHashratesPane
 from db4e.Panes.XMRigPane import XMRigPane
@@ -49,6 +50,7 @@ REGISTRY = {
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.RUNTIME_LOG: (RuntimeLogPane, DLabel.LOG, DLabel.RUNTIME_LOG),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
+    DPane.UPTIME: (UptimePane, DLabel.DB4E_LONG, DLabel.UPTIME),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
     DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATES),

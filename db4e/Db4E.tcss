@@ -358,6 +358,10 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#uptime_button {
+    color: #9a71c9ff;
+    text-style: bold; }
+
 #view_log_button {
     color: #c49b42ff;
     text-style: bold; }

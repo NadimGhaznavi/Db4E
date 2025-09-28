@@ -32,3 +32,4 @@ class DMethod(ConstGroup):
     SET_PANE : str = DField.SET_PANE
     SET_PRIMARY : str = "set_primary"
     UPDATE_DEPLOYMENT : str = "update_deployment"
+    UPTIME : str = "uptime"

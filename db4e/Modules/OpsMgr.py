@@ -158,4 +158,8 @@ class OpsMgr:
         self.depl_client.update_deployment(elem)
         self.health_cache.check(elem)
         return elem
+    
+
+    def uptime(self, form_data: dict):
+        return []
         
