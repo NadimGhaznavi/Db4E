@@ -435,7 +435,15 @@ class Db4eServer:
             self.log.debug(f"DEBUG Db4eServer:set_int_p2pool_primary(): {monerod}")
 
         for p2pool in self.depl_mgr.get_internal_p2pools():
-            
+            new_monerod_flag = False
+            if p2pool.parent():
+                cur_monerod = self.depl_mgr.get_deployment_by_id(p2pool.parent())
+                if cur_monerod.instance() != monerod.instance():
+                    new_monerod_flag = True
+            if not new_monerod_flag and p2pool.parent():
+                continue
+
+            self.log.info(f"Regenerating {p2pool.instance()} 7P2Pool config file")
             p2pool = deepcopy(p2pool)
             p2pool.monerod = monerod
             p2pool.parent(monerod.id())
