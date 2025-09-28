@@ -23,7 +23,7 @@ from db4e.Constants.DField import DField
 
 
 
-class UptimePane(Static):
+class RunTimePane(Static):
 
 
     def __init__(self, **kwargs):
@@ -33,7 +33,7 @@ class UptimePane(Static):
     def compose(self):
         yield Vertical(
             ScrollableContainer(
-                Static(DLabel.UPTIME)
+                Static(DLabel.RUNTIME)
             ),
             classes=DForm.PANE_BOX)
 

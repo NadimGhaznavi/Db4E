@@ -147,6 +147,10 @@ class OpsMgr:
         return plot_metadata
 
 
+    def runtime(self, form_data: dict):
+        return []
+
+
     def set_donations(self, form_data: dict):
         return DPane.DONATIONS
 
@@ -160,6 +164,4 @@ class OpsMgr:
         return elem
     
 
-    def uptime(self, form_data: dict):
-        return []
         

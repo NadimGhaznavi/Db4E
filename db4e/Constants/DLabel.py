@@ -100,6 +100,7 @@ class DLabel(ConstGroup):
     REMOTE : str = "Remote"
     RESULTS : str = "Results"
     RPC_BIND_PORT : str = "RPC Bind Port"
+    RUNTIME : str = "Run Time"
     RUNTIME_LOG : str = "Runtime Log"
     SHOW_TIME_STATS : str = "Show Time Stats"
     SOFTWARE_SYSTEM : str = "Software System"
