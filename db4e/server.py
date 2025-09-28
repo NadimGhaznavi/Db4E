@@ -440,7 +440,7 @@ class Db4eServer:
                 cur_monerod = self.depl_mgr.get_deployment_by_id(p2pool.parent())
                 if cur_monerod.instance() != monerod.instance():
                     new_monerod_flag = True
-            if not new_monerod_flag and p2pool.parent():
+            if not new_monerod_flag:
                 continue
 
             self.log.info(f"Regenerating {p2pool.instance()} 7P2Pool config file")
