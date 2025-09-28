@@ -49,6 +49,8 @@ Db4E runs on [Debian Linux](https://www.debian.org/) and includes the following 
 * [MongoDB](https://www.mongodb.com/) for historical data storage.
 * [systemd](https://en.wikipedia.org/wiki/Systemd) for service management.
 
+The [Architecture](/pages/Architecture.html) page provides additional detail on the internals of **Db4E**.
+
 ---
 
 # Release Management

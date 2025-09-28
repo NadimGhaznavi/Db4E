@@ -60,8 +60,9 @@ class P2PoolPane(Container):
 
     analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
+    hashrates_button = Button(label=DLabel.HASHRATES, id=DButton.HASHRATES)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
@@ -105,12 +106,13 @@ class P2PoolPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX,
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX
                 ),
 
                 Vertical(
                     Horizontal(
                         self.analytics_button,
+                        self.hashrates_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
@@ -127,7 +129,10 @@ class P2PoolPane(Container):
         self.radio_set.border_subtitle = DLabel.UPSTREAM_MONERO
         self.chain_radio_set.border_subtitle = DLabel.CHAIN
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
-        form_box.border_subtitle = DLabel.CONFIG        
+        form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
+
 
     def set_data(self, p2pool: P2Pool):
         self.p2pool = p2pool
@@ -205,10 +210,10 @@ class P2PoolPane(Container):
         self.p2pool.stratum_port(self.query_one("#" + DForm.STRATUM_PORT_INPUT, Input).value)
         self.p2pool.log_level(self.query_one("#" + DForm.LOG_LEVEL_INPUT, Input).value)
 
-        if button_id == DButton.ANALYTICS:
+        if button_id == DButton.HASHRATES:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }

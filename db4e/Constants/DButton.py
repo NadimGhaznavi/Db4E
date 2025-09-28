@@ -16,6 +16,7 @@ class DButton(ConstGroup):
     DELETE : str  = "delete_button"
     DISABLE : str  = "disable_button"
     ENABLE : str  = "enable_button"
+    HASHRATES : str  = "hashrates_button"
     NEW : str  = "new_button"
     PROCEED : str  = "proceed_button"
     START : str  = "start_button"

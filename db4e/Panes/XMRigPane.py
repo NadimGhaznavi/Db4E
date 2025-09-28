@@ -28,7 +28,7 @@ from db4e.Constants.DForm import DForm
 
 class XMRigPane(Container):
 
-
+    intro_label = Label("", classes=DForm.INTRO, id=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     radio_button_list = reactive([], always_update=True)
     radio_set = RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET)
@@ -48,6 +48,7 @@ class XMRigPane(Container):
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    hashrates_button = Button(label=DLabel.HASHRATES, id=DButton.HASHRATES)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
@@ -56,13 +57,9 @@ class XMRigPane(Container):
 
     def compose(self):
         # Remote P2Pool daemon deployment form
-        INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{DLabel.XMRIG}[/] deployment here."
-
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -80,11 +77,12 @@ class XMRigPane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX),
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX),
 
                 Vertical(
                     Horizontal(
                         self.analytics_button,
+                        self.hashrates_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
@@ -104,6 +102,8 @@ class XMRigPane(Container):
         self.radio_set.border_subtitle = DLabel.P2POOL
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
 
 
     def set_data(self, xmrig: XMRig):
@@ -124,6 +124,8 @@ class XMRigPane(Container):
         # Configure button visibility
         if xmrig.instance():
             # This is an update operation
+            INTRO = f"Configure the settings for the " \
+            f"[cyan]{xmrig.instance()} {DLabel.XMRIG}[/] deployment. "
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
 
@@ -135,9 +137,12 @@ class XMRigPane(Container):
                 self.add_class(DField.DISABLE)
         else:
             # This is a new operation
+            INTRO = "Configure the settings for a new " \
+            f"[bold cyan]{DLabel.XMRIG}[/] deployment."
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
 
+        self.intro_label.update(INTRO)
         self.health_msgs.update(gen_results_table(xmrig.pop_msgs()))
 
 
@@ -153,10 +158,10 @@ class XMRigPane(Container):
         self.xmrig.num_threads(self.query_one("#" + DForm.NUM_THREADS_INPUT, Input).value)
 
 
-        if button_id == DButton.ANALYTICS:
+        if button_id == DButton.HASHRATES:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.XMRIG,
                 DField.ELEMENT: self.xmrig,
             }

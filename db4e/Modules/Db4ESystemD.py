@@ -8,27 +8,42 @@ db4e/Modules/Db4ESystemd.py
     License: GPL 3.0
 """
 # Import supporting modules
-import os, sys
+import os
+from datetime import datetime
 import subprocess
 import re
 import time
 
+from db4e.Constants.DField import DField
+from db4e.Constants.DSystemD import DSystemD
+from db4e.Constants.DFile import DFile
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DMongo import DMongo
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
+
+
+
+from db4e.Modules.DbMgr import DbMgr
 
 # How long to wait until timing out
 TIMEOUT = 30
 
 class Db4ESystemD:
 
-    def __init__(self, service_name=None):
+
+    def __init__(self, db: DbMgr, service_name=None):
         # Make sure systemd doesn't clutter the output with color codes or use a pager
-        os.environ['SYSTEMD_COLORS'] = '0'
-        os.environ['SYSTEMD_PAGER'] = ''
+        self.ops_col = DDef.OPS_COL
+        self.db = db
+        os.environ[DField.SYSTEMD_COLORS] = '0'
+        os.environ[DField.SYSTEMD_PAGER] = ''
         self.result = {
-            'active': None,
-            'pid': None,
-            'enabled': None,
-            'raw_stdout': '',
-            'raw_stderr': ''
+            DSystemD.ACTIVE: None,
+            DSystemD.PID: None,
+            DSystemD.ENABLED: None,
+            DSystemD.RAW_STDOUT: '',
+            DSystemD.RAW_STDERR: ''
         }
         if service_name:
             self._service_name = service_name
@@ -36,31 +51,36 @@ class Db4ESystemD:
             self._service_name = None
         self.status()
 
+
     def active(self):
         """
         Return a boolean indicating if the service is running or not.
         """
         self.status()
-        return self.result['active']
+        return self.result[DSystemD.ACTIVE]
+
 
     def disable(self):
         """
         Disable the service.
         """
-        return self._run_systemd('disable')
+        return self._run_systemd(DSystemD.DISABLE)
+
 
     def enable(self):
         """
         Enable the service.
         """
-        return self._run_systemd('enable')
+        return self._run_systemd(DSystemD.ENABLE)
+
 
     def enabled(self):
         """
         Return a boolean indicating if a service is enabled or not.
         """
-        return self.result['enabled']
+        return self.result[DSystemD.ENABLED]
     
+
     def installed(self):
         """
         Return a boolean indicating if the service is present at all.
@@ -68,12 +88,32 @@ class Db4ESystemD:
         if self.stderr():
             return False
         return True
+
+    
+    def log_event(self, event, service_name):
+        elem_type, instance = service_name.split('@')
+        # Map the field names to the labels for the Runtime Log
+        TYPE_TABLE = {
+            DElem.MONEROD: DLabel.MONEROD_SHORT,
+            DElem.P2POOL: DLabel.P2POOL_SHORT,
+            DElem.XMRIG: DLabel.XMRIG
+        }
+        timestamp = datetime.now().replace(microsecond=0)
+        event = {
+            DMongo.ELEM_TYPE: TYPE_TABLE[elem_type],
+            DMongo.INSTANCE: instance,
+            DMongo.EVENT: event,
+            DMongo.TIMESTAMP: timestamp
+        }
+        self.db.insert_one(self.ops_col, event)
+
     
     def pid(self):
         """
         Return the PID of a running service.
         """
-        return self.result['pid']
+        return self.result[DSystemD.PID]
+
 
     def restart(self):
         """
@@ -82,6 +122,7 @@ class Db4ESystemD:
         self.stop()
         time.sleep(1)
         self.start()
+
 
     def service_name(self, service_name=None):
         """
@@ -94,18 +135,20 @@ class Db4ESystemD:
                 self.status()
         return self._service_name
 
+
     def start(self):
         """
         Start a systemd service.
         """
-        return self._run_systemd('start')
+        return self._run_systemd(DSystemD.START)
+
 
     def status(self):
         """
         (Re)load the instance's result's dictionary.
         """
 
-        self._run_systemd('status')
+        self._run_systemd(DSystemD.STATUS)
         stdout = self.stdout()
         stderr = self.stderr()
 
@@ -115,50 +158,54 @@ class Db4ESystemD:
         #print(f"Db4ESystemD:status(): stdout: {stdout}")
         # Check for active state
         if re.search(r'^\s*Active:\s+active \(running\).*', stdout, re.MULTILINE):
-            self.result['active'] = True
+            self.result[DSystemD.ACTIVE] = True
         elif re.search(r'^\s*Active:\s+inactive \(dead\).*', stdout, re.MULTILINE):
-            self.result['active'] = False
+            self.result[DSystemD.ACTIVE] = False
         elif re.search(r'^\s*Active:\s+failed.*', stdout, re.MULTILINE):
-            self.result['active'] = False
+            self.result[DSystemD.ACTIVE] = False
 
         # Check for enabled state
         if re.search(r'Loaded: .*; enabled;', stdout):
-            self.result['enabled'] = True
+            self.result[DSystemD.ENABLED] = True
         elif re.search(r'Loaded: .*; disabled;', stdout):
-            self.result['enabled'] = False
+            self.result[DSystemD.ENABLED] = False
 
         # Get PID
         pid_match = re.search(r'^\s*Main PID:\s+(\d+)', stdout, re.MULTILINE)
-        if pid_match and self.result['active']:
-            self.result['pid'] = int(pid_match.group(1))
+        if pid_match and self.result[DSystemD.ACTIVE]:
+            self.result[DSystemD.PID] = int(pid_match.group(1))
+
 
     def stdout(self):
         """
         Return the raw STDOUT of a 'systemctl status service_name' command.
         """
-        return self.result['raw_stdout']
+        return self.result[DSystemD.RAW_STDOUT]
     
+
     def stderr(self):
         """
         Return the raw STDERR of a 'systemctl status service_name' command.
         """
-        return self.result['raw_stderr']
+        return self.result[DSystemD.RAW_STDERR]
     
+
     def stop(self):
         """
         Stop a systemd service.
         """
-        return self._run_systemd('stop')
+        return self._run_systemd(DSystemD.STOP)
+
 
     def _run_systemd(self, arg):
         """
         Execute a 'systemd [start|stop|status|enable|disable] service_name' command and load the
         instance's result dictionary.
         """
-        if arg == 'status':
-            cmd = ['systemctl', arg, self._service_name]
+        if arg == DSystemD.STATUS:
+            cmd = [DFile.SYSTEMCTL, arg, self._service_name]
         else:
-            cmd = ['sudo', 'systemctl', arg, self._service_name]
+            cmd = [DFile.SUDO, DFile.SYSTEMCTL, arg, self._service_name]
             
         try:
             proc = subprocess.run(cmd,
@@ -170,19 +217,24 @@ class Db4ESystemD:
             stderr = proc.stderr.decode(errors='replace')
 
         except subprocess.TimeoutExpired:
-            self.result['raw_stderr'] = 'systemctl timed out'
+            self.result[DSystemD.RAW_STDERR] = 'systemctl timed out'
             return 5
 
         except Exception as e:
-            self.result['raw_stderr'] = str(e)
+            self.result[DSystemD.RAW_STDERR] = str(e)
             return 5
 
-        self.result['raw_stdout'] = stdout
-        self.result['raw_stderr'] = stderr
+        self.result[DSystemD.RAW_STDOUT] = stdout
+        self.result[DSystemD.RAW_STDERR] = stderr
 
-        if arg == 'enable' or arg == 'disable':
+        if arg == DSystemD.ENABLE or arg == DSystemD.DISABLE:
             # Reload the status information
             self.status()
         
+        if proc.returncode == 0 and arg == DSystemD.START:
+                self.log_event(event=DSystemD.START, service_name=self._service_name)
+        elif proc.returncode == 0 and arg == DSystemD.STOP:
+                self.log_event(event=DSystemD.STOP, service_name=self._service_name)
+
         # Return the return code for the systemctl command
         return proc.returncode

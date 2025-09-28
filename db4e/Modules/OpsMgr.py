@@ -15,6 +15,7 @@ from db4e.Modules.HealthCache import HealthCache
 
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MiningETL import MiningETL
+from db4e.Modules.OpsDb import OpsDb
 
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.InternalP2Pool import InternalP2Pool
@@ -25,6 +26,7 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DPane import DPane
+from db4e.Constants.DMongo import DMongo
 
 
 
@@ -34,12 +36,15 @@ class OpsMgr:
     def __init__(
         self, depl_client: DeplClient, health_cache: HealthCache, 
         db_cache: DbCache, mining_db: MiningDb):
+
         self.depl_client = depl_client
         self.health_cache = health_cache
         self.db_cache = db_cache
+        self.db = db_cache.db
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
+        self.ops_db = OpsDb(db=self.db)
 
 
     def add_deployment(self, form_data: dict):
@@ -49,18 +54,28 @@ class OpsMgr:
         return elem
     
 
-    def analytics(self, form_data: dict):
+    def hashrates(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
+
         if type(elem) == P2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.chain()))
-            elem.hashrates(self.mining_etl.get_pool_hashrates(elem.chain()))
+            elem.hashrate(self.mining_etl.get_pool_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_pool_hashrates(instance=elem.instance()))
+
         if type(elem) == InternalP2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(elem.chain()))
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
+            elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
+            elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            print(elem.hashrates())
+
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
             elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
             elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            print(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+
         return elem
  
    
@@ -72,11 +87,10 @@ class OpsMgr:
 
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
 
-        if elem_type == DElem.INT_P2POOL:
-            elem.hashrates(self.mining_etl.get_chain_hashrates(elem.chain()))
+        if type(elem) == XMRigRemote:
+            # The Remote XMRig pane displays analytics
+            return self.hashrates(form_data={DField.ELEMENT: elem})
 
-        elif type(elem) == XMRigRemote:
-            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
         
         return elem
 
@@ -101,10 +115,12 @@ class OpsMgr:
 
     def get_xmrigs_remote(self) -> list:
         return self.health_cache.get_xmrigs_remote()
+    ## End of get deployments by type...
 
 
     def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
+
 
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
@@ -112,8 +128,12 @@ class OpsMgr:
     
 
     def get_tui_log(self, job_list: list):
-        return self.depl_client.job_queue.get_jobs() 
+        return self.depl_client.job_queue.get_jobs()
+    
 
+    def get_runtime_log(self, event_list: list):
+        return self.ops_db.get_ops_events()
+    
 
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]

@@ -44,20 +44,21 @@ class MiningDb():
             self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
     
 
-    def add_block_found(self, timestamp, chain):
+    def add_block_found(self, timestamp, chain, instance):
         """
         Block found record
         """
         jdoc = {
             DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT,
             DMongo.CHAIN: chain,
+            DMongo.INSTANCE: instance,
             DMongo.TIMESTAMP: timestamp
         }
         self.db.insert_uniq_by_timestamp(self.mining_col, jdoc)
         self.log.info(f"Creating a new ({chain}) block found event record")
 
 
-    def add_chain_hashrate(self, chain, hashrate, unit):
+    def add_chain_hashrate(self, chain, instance, hashrate, unit):
         """
         Historical and real-time chain hashrate record
         """
@@ -69,6 +70,7 @@ class MiningDb():
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_HASHRATE,
             DMongo.CHAIN: chain,
+            DMongo.INSTANCE: instance,
             DMongo.TIMESTAMP: rt_timestamp,
             DMining.HASHRATE: hashrate,
             DMining.UNIT: unit
@@ -80,7 +82,7 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, { DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] }, 
-                { DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp })
+                { DMining.HASHRATE: hashrate, DMongo.TIMESTAMP: rt_timestamp, DMongo.INSTANCE: instance})
             self.log.debug(f"Updated existing ({chain}) real-time {chain} hashrate ({hashrate}) record")
 
         else:
@@ -93,13 +95,14 @@ class MiningDb():
             DMongo.DOC_TYPE: DMining.HASHRATE,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
+            DMongo.INSTANCE: instance,
             DMining.HASHRATE: hashrate,
             DMining.UNIT: unit
         }
 
         existing = self.db.find_one(self.mining_col, {
             DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain, 
-            DMongo.TIMESTAMP: timestamp
+            DMongo.TIMESTAMP: timestamp, DMongo.INSTANCE: instance
         })
 
         if existing:
@@ -205,7 +208,7 @@ class MiningDb():
                           
 
 
-    def add_pool_hashrate(self, chain, hashrate, unit):
+    def add_pool_hashrate(self, chain, instance, hashrate, unit):
         """
         Store the pool hashrate
         """
@@ -217,6 +220,7 @@ class MiningDb():
         jdoc = {
             DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE,
             DMongo.CHAIN: chain,
+            DMining.INSTANCE: instance,
             DMongo.TIMESTAMP: rt_timestamp,
             DMongo.HASHRATE: hashrate,
             DMining.UNIT: unit
@@ -238,6 +242,7 @@ class MiningDb():
         jdoc = {
             DMongo.DOC_TYPE: DMining.POOL_HASHRATE,
             DMongo.CHAIN: chain,
+            DMining.INSTANCE: instance,
             DMongo.TIMESTAMP: timestamp,
             DMongo.HASHRATE: hashrate,
             DMining.UNIT: unit
@@ -326,17 +331,23 @@ class MiningDb():
         self.log.info(f"Added new ({chain}) XMR payment ({payment}) record)")
 
 
-    def get_block_found_events(self, chain):
+    def get_block_found_events(self, instance):
         return self.db.find_many(
             self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.CHAIN: chain },
+            { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.INSTANCE: instance },
             { DMongo.TIMESTAMP: 1 })
 
 
-    def get_chain_hashrates(self, chain):
+    def get_chain_hashrate(self, instance):
+        return self.db.find_one(
+            self.mining_col, 
+            { DMongo.DOC_TYPE: DMining.RT_HASHRATE, DMongo.INSTANCE: instance })
+    
+
+    def get_chain_hashrates(self, instance):
         return self.db.find_many(
             self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.CHAIN: chain },
+            { DMongo.DOC_TYPE: DMining.HASHRATE, DMongo.INSTANCE: instance },
             { DMongo.TIMESTAMP: 1 })
     
 
@@ -359,15 +370,15 @@ class MiningDb():
             { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
 
 
-    def get_pool_hashrate(self, chain):
+    def get_pool_hashrate(self, instance):
         return self.db.find_one(
-            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_HASHRATE, DMongo.CHAIN: chain})
+            self.mining_col, {DMongo.DOC_TYPE: DMining.RT_POOL_HASHRATE, DMongo.INSTANCE: instance})
 
 
-    def get_pool_hashrates(self, chain):
+    def get_pool_hashrates(self, instance):
         return self.db.find_many(
             self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.POOL_HASHRATE, DMongo.CHAIN: chain },
+            { DMongo.DOC_TYPE: DMining.POOL_HASHRATE, DMongo.INSTANCE: instance },
             { DMongo.TIMESTAMP: 1 })
 
 

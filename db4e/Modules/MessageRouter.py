@@ -79,8 +79,8 @@ class MessageRouter:
                       self.ops_mgr.get_new, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.P2POOL,
-                      self.ops_mgr.analytics, DPane.P2POOL_ANALYTICS)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.P2POOL,
+                      self.ops_mgr.hashrates, DPane.P2POOL_HASHRATES)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.P2POOL,
@@ -107,16 +107,16 @@ class MessageRouter:
         # P2Pool - Internal
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.INT_P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL_INTERNAL)
-        self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.INT_P2POOL,
-                      self.ops_mgr.analytics, DPane.CHAIN_ANALYTICS)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.INT_P2POOL,
+                      self.ops_mgr.hashrates, DPane.CHAIN_ANALYTICS)
 
         # XMRig
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,
                       self.ops_mgr.get_new, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.XMRIG,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.ANALYTICS, DElem.XMRIG,
-                      self.ops_mgr.analytics, DPane.XMRIG_ANALYTICS)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.XMRIG,
+                      self.ops_mgr.hashrates, DPane.XMRIG_HASHRATES)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG,
                       self.ops_mgr.get_deployment, DPane.XMRIG)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.XMRIG,
@@ -145,6 +145,10 @@ class MessageRouter:
         # TUI Log
         self.register(DModule.OPS_MGR, DMethod.GET_TUI_LOG, DField.TUI_LOG,
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
+
+        # Runtime Log
+        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DField.RUNTIME_LOG,
+                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
 
         # Donations
         self.register(DModule.OPS_MGR, DMethod.SET_DONATIONS, DField.DONATIONS,

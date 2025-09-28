@@ -32,6 +32,7 @@ class DMining(ConstGroup):
     NANO_CHAIN = DField.NANO_CHAIN
     RT_HASHRATE : str = "rt_hashrate"
     RT_MINER_HASHRATE : str = "rt_miner_hashrate"
+    RT_POOL_HASHRATE : str = "rt_pool_hashrate"
     SHARE_FOUND_EVENT : str = "share_found_event"
     SHARE_POSITION : str = "share_position"
     MINERS : str = "miners"

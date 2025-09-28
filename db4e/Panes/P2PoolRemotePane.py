@@ -27,6 +27,7 @@ from db4e.Constants.DForm import DForm
 
 class P2PoolRemotePane(Container):
 
+    intro_label = Label("", classes=DForm.INTRO, id=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     instance_input = Input(
         id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True, 
@@ -45,15 +46,9 @@ class P2PoolRemotePane(Container):
 
     def compose(self):
         # Remote P2Pool deployment form
-        INTRO = f"View and edit the deployment settings for the " \
-            f"[cyan]{DLabel.P2POOL_REMOTE}[/] deployment here. **NOTE**: This will " \
-            f"**not** install the [cyan]{DLabel.P2POOL_REMOTE}[/] software on a " \
-            f"remote machine. This record is used to support the deployment of local " \
-            f"[cyan]{DLabel.XMRIG}[/] deployments." 
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -69,7 +64,7 @@ class P2PoolRemotePane(Container):
 
                 Vertical(
                     self.health_msgs,
-                    classes=DForm.HEALTH_BOX,
+                    classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX
                 ),
 
                 Horizontal(
@@ -85,6 +80,9 @@ class P2PoolRemotePane(Container):
     def on_mount(self):
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
+        health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
+        health_box.border_subtitle = DLabel.STATUS
+
 
     def set_data(self, p2pool: P2PoolRemote):
         self.instance_input.value = p2pool.instance()
@@ -95,14 +93,24 @@ class P2PoolRemotePane(Container):
         self.p2pool = p2pool
         # Set update button or new button visibility, using the .tcss definitions
         if p2pool.instance():
+            INTRO = f"Configure the settings for the " \
+            f"[cyan]{p2pool.instance()} {DLabel.P2POOL_REMOTE}[/] deployment. " \
+            f"[b]NOTE[/]: Clicking the [cyan]enable/disable[/] " \
+            f"button will not start/stop the software on the remote instance. "
             # This is an update operation
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
 
         else:
+            INTRO = f"Configure the deployment settings for a new " \
+            f"[cyan]{DLabel.P2POOL_REMOTE}[/] deployment here. [b]NOTE[/]: This will " \
+            f"[b]not[/] install the [cyan]{DLabel.P2POOL_REMOTE}[/] software on a " \
+            f"remote machine. This record is used to support the deployment of local " \
+            f"[cyan]{DLabel.XMRIG}[/] deployments." 
             # This is a new operation
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
+        self.intro_label.update(INTRO)
         
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

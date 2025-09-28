@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DMining import DMining
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
 
 from db4e.Modules.MiningDb import MiningDb
 
@@ -26,8 +27,8 @@ class MiningETL:
         self.mining_db = mining_db
 
 
-    def get_block_found_events(self, chain):
-        recs = self.mining_db.get_block_found_events(chain)
+    def get_block_found_events(self, instance):
+        recs = self.mining_db.get_block_found_events(instance)
         if not recs:
             return {"values": [], "times": [], "units": "blocks"}
 
@@ -52,6 +53,8 @@ class MiningETL:
         times = [day.strftime("%Y-%m-%d %H:%M") for day in sorted(results.keys())]
         values = [results[day] for day in sorted(results.keys())]
 
+        # Replace datetime days with integers for plotting
+        new_times = range(- len(times), 0, 1)
 
         new_values = []
         for value in values:
@@ -59,14 +62,25 @@ class MiningETL:
 
         return {
             "values": new_values,
-            "times": times,
+            "days": new_times,
             "units": "blocks",
         }
 
     
-    def get_chain_hashrates(self, chain):
-        recs = self.mining_db.get_chain_hashrates(chain)
-        return self.get_hashrates(recs)
+    def get_chain_hashrate(self, instance):
+        rec = self.mining_db.get_chain_hashrate(instance)
+        if rec:
+            hashrate = str(rec[DMining.HASHRATE])
+            units = rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
+    
+
+    def get_chain_hashrates(self, instance):
+        recs = self.mining_db.get_chain_hashrates(instance)
+        return self.get_hashrates(recs) or {}
     
 
     def get_miner_hashrate(self, miner):
@@ -80,7 +94,7 @@ class MiningETL:
 
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
-        return self.get_hashrates(recs)
+        return self.get_hashrates(recs) or {}
 
 
     def get_miner_uptime(self, miner):
@@ -92,14 +106,25 @@ class MiningETL:
         return uptime
 
 
-    def get_pool_hashrates(self, chain):
-        recs = self.mining_db.get_pool_hashrates(chain)
+    def get_pool_hashrate(self, instance):
+        hashrate_rec = self.mining_db.get_pool_hashrate(instance)
+        if hashrate_rec:
+            hashrate = str(hashrate_rec[DMining.HASHRATE])
+            units = hashrate_rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
+
+
+    def get_pool_hashrates(self, instance):
+        recs = self.mining_db.get_pool_hashrates(instance=instance)
         return self.get_hashrates(recs)
 
 
     def get_hashrates(self, recs):
         if not recs:
-            return {"values": [], "times": [], "units": ""}
+            return {DField.VALUES: [], DField.DAYS: [], DField.UNITS: ""}
 
         value_list = []
         time_list = []
@@ -144,27 +169,18 @@ class MiningETL:
 
             prev_time = cur_time
 
-        # Extract units safely
-        parts = str(recs[0][DMining.HASHRATE]).split(" ")
-        units = parts[1] if len(parts) > 1 else ""
+
+        if DMining.UNIT in recs[0]:
+            units = recs[0][DMining.UNIT]
+        else:
+            units = "H/s"
 
         return {
-            "values": value_list,
-            "days": day_list,
-            "units": units,
+            DField.VALUES: value_list,
+            DField.DAYS: day_list,
+            DField.UNITS: units
         }
-
-
-    def get_pool_hashrate(self, chain):
-        hashrate_rec = self.mining_db.get_pool_hashrate(chain)
-        if hashrate_rec:
-            hashrate = str(hashrate_rec[DMining.HASHRATE])
-            units = hashrate_rec[DMining.UNIT]
-        else:
-            hashrate = "Unknown"
-            units = ""
-        return hashrate + " " + units
-
+    
 
     def get_remote_xmrig_timestamp(self, instance):
         rec = self.mining_db.get_rt_miner_rec(instance)

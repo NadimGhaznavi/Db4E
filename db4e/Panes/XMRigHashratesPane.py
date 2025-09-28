@@ -22,7 +22,7 @@ from db4e.Constants.DSelect import DSelect
 
 
 
-class XMRigAnalyticsPane(Container):
+class XMRigHashratesPane(Container):
 
     selected_time = DSelect.ONE_WEEK
     instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
@@ -74,9 +74,11 @@ class XMRigAnalyticsPane(Container):
         self.uptime_label.update(xmrig.uptime())
 
         data = xmrig.hashrates()
-        days = data[DField.DAYS]
-        hashrates = data[DField.VALUES]
-        
-        plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-        plot.load_data(days=days, hashrates=hashrates)
-        plot.hashrate_plot()  
+        if type(data) == dict:
+            days = data[DField.DAYS]
+            hashrates = data[DField.VALUES]
+            units = data[DField.UNITS]
+            
+            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
+            plot.load_data(days=days, hashrates=hashrates, units=units)
+            plot.hashrate_plot()  

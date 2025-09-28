@@ -145,6 +145,12 @@ Tree {
     width: 100%;
     height: 18; }
 
+.health_box {
+    color: #31b8e6;
+    border-subtitle-color: #31b8e6;
+    border-subtitle-style: bold;
+}
+
 /* A central informational box */
 .info_msg {
     padding: 0 2;
@@ -326,6 +332,10 @@ Button {
 
 #enable_button {
     color: #5fc442;
+    text-style: bold; }
+
+#hashrates_button {
+    color: #9a71c9ff;
     text-style: bold; }
 
 #new_button {

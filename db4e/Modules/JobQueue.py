@@ -21,7 +21,7 @@ from db4e.Constants.DMongo import DMongo
 
 class JobQueue:
     def __init__(self, db: DbMgr):
-        self.col_name = DDef.OPS_COL
+        self.col_name = DDef.JOBS_COL
         self.db = db
 
 
@@ -33,7 +33,7 @@ class JobQueue:
 
     def get_jobs(self):
         jobs = []
-        for rec in self.db.get_jobs():
+        for rec in self.db.find_many(self.col_name, {}, {DJob.UPDATED_AT: -1}):
             job = Job()
             job.from_rec(rec)
             jobs.append(job)
@@ -41,7 +41,19 @@ class JobQueue:
 
 
     def grab_job(self):
-        job_rec = self.db.grab_job()
+        job_rec = self.db.find_one_and_update(
+            self.col_name, 
+            {DJob.STATUS: DJob.PENDING},
+            {
+                "$set": {
+                    DJob.STATUS: DJob.PROCESSING,
+                    DJob.UPDATED_AT: datetime.now()
+                },
+                "$inc": {
+                    DJob.ATTEMPTS: 1
+                }
+            },
+)
         if job_rec:
             #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
             #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
