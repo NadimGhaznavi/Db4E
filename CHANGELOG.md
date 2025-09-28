@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Renamed *ops* Mongo collection to *jobs*
 - Moved `DbMgr:get_jobs()` to `JobQueue`
+- Renamed *Analytics* to *Hashrates* for the pane titles, buttons and functions.
 
 --- 
 
