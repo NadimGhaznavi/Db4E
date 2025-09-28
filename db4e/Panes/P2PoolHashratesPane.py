@@ -22,7 +22,7 @@ from db4e.Constants.DSelect import DSelect
 
 
 
-class P2PoolAnalyticsPane(Container):
+class P2PoolHashratesPane(Container):
 
     selected_time = DSelect.ONE_WEEK
     intro_label = Label("", classes=DForm.INTRO)
@@ -72,11 +72,12 @@ class P2PoolAnalyticsPane(Container):
         self.hashrate_label.update(str(p2pool.hashrate()))
 
         data = p2pool.hashrates()
-        print(data)
-        days = data[DField.DAYS]
-        hashrates = data[DField.VALUES]
-        
-        plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-        plot.load_data(days=days, hashrates=hashrates)
-        plot.hashrate_plot()        
+        if type(data) == dict:
+            days = data[DField.DAYS]
+            hashrates = data[DField.VALUES]
+            units = data[DField.UNITS]
+            
+            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
+            plot.load_data(days=days, hashrates=hashrates, units=units)
+            plot.hashrate_plot()        
 

@@ -334,6 +334,10 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#hashrates_button {
+    color: #9a71c9ff;
+    text-style: bold; }
+
 #new_button {
     color: #5fc442;
     text-style: bold; }

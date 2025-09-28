@@ -81,8 +81,8 @@ class MoneroDPane(Container):
     health_msgs = Label()
 
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)

@@ -28,7 +28,7 @@ from db4e.Constants.DSelect import DSelect
 # There is one data point per hour....
 
 
-class ChainAnalyticsPane(Container):
+class ChainHashratesPane(Container):
 
     selected_time = DSelect.ONE_WEEK
     intro_label = Label("", classes=DForm.INTRO)
@@ -78,12 +78,14 @@ class ChainAnalyticsPane(Container):
         self.hashrate_label.update(p2pool.hashrate())
 
         data = p2pool.hashrates()
-        days = data[DField.DAYS]
-        hashrates = data[DField.VALUES]
-        
-        plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-        plot.load_data(days=days, hashrates=hashrates)
-        plot.hashrate_plot()     
+        if type(data) == dict:
+            days = data[DField.DAYS]
+            hashrates = data[DField.VALUES]
+            units = data[DField.UNITS]
+            
+            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
+            plot.load_data(days=days, hashrates=hashrates, units=units)
+            plot.hashrate_plot()     
 
 
 

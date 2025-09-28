@@ -67,9 +67,20 @@ class MiningETL:
         }
 
     
+    def get_chain_hashrate(self, instance):
+        rec = self.mining_db.get_chain_hashrate(instance)
+        if rec:
+            hashrate = str(rec[DMining.HASHRATE])
+            units = rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
+    
+
     def get_chain_hashrates(self, instance):
         recs = self.mining_db.get_chain_hashrates(instance)
-        return self.get_hashrates(recs)
+        return self.get_hashrates(recs) or {}
     
 
     def get_miner_hashrate(self, miner):
@@ -83,7 +94,7 @@ class MiningETL:
 
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
-        return self.get_hashrates(recs) or []
+        return self.get_hashrates(recs) or {}
 
 
     def get_miner_uptime(self, miner):
@@ -158,16 +169,18 @@ class MiningETL:
 
             prev_time = cur_time
 
-        # Extract units safely
-        parts = str(recs[0][DMining.HASHRATE]).split(" ")
-        units = parts[1] if len(parts) > 1 else ""
+
+        if DMining.UNIT in recs[0]:
+            units = recs[0][DMining.UNIT]
+        else:
+            units = "H/s"
 
         return {
             DField.VALUES: value_list,
             DField.DAYS: day_list,
-            DField.UNITS: units,
+            DField.UNITS: units
         }
-
+    
 
     def get_remote_xmrig_timestamp(self, instance):
         rec = self.mining_db.get_rt_miner_rec(instance)

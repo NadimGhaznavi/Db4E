@@ -81,11 +81,13 @@ class XMRigRemotePane(Container):
         self.uptime_label.update(xmrig.uptime())
 
         data = xmrig.hashrates()
-        days = data[DField.DAYS]
-        hashrates = data[DField.VALUES]
+        if type(data) == dict:
+            days = data[DField.DAYS]
+            hashrates = data[DField.VALUES]
+            units = data[DField.UNITS]
 
-        plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-        plot.load_data(days=days, hashrates=hashrates)
-        plot.hashrate_plot()
+            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
+            plot.load_data(days=days, hashrates=hashrates, units=units)
+            plot.hashrate_plot()
 
 

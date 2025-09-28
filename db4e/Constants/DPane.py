@@ -13,6 +13,7 @@ from db4e.Modules.ConstGroup import ConstGroup
 
 class DPane(ConstGroup):
     CHAIN_ANALYTICS : str = "ChainAnalyticsPane"
+    CHAIN_HASHRATES : str = "ChainHashratesPane"
     DB4E: str = "Db4EPane"
     DONATIONS: str  = "DonationsPane"
     INITIAL_SETUP: str  = "InitialSetupPane"
@@ -23,6 +24,7 @@ class DPane(ConstGroup):
     P2POOL_TYPE: str  = "P2PoolTypePane"
     P2POOL: str  = "P2PoolPane"
     P2POOL_ANALYTICS: str  = "P2PoolAnalyticsPane"
+    P2POOL_HASHRATES: str  = "P2PoolHashratesPane"
     P2POOL_INTERNAL: str  = "P2PoolInternalPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
     RESULTS: str  = "ResultsPane"
@@ -30,5 +32,5 @@ class DPane(ConstGroup):
     TUI_LOG: str  = "TuiLogPane"
     WELCOME: str  = "WelcomePane"
     XMRIG: str  = "XMRigPane"
-    XMRIG_ANALYTICS: str  = "XMRigAnalyticsPane"
+    XMRIG_HASHRATES: str  = "XMRigHashratesPane"
     XMRIG_REMOTE: str  = "XMRigRemotePane"

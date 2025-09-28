@@ -39,6 +39,7 @@ class P2PoolInternalPane(Container):
     parent_label = Label("", classes=DForm.STATIC)
 
     analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
+    hashrates_button = Button(label=DLabel.HASHRATES, id=DButton.HASHRATES)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     health_msgs = Label()
 
@@ -87,7 +88,7 @@ class P2PoolInternalPane(Container):
 
                 Vertical(
                     Horizontal(
-                        self.analytics_button,
+                        self.hashrates_button,
                         self.view_log_button,
                         classes=DForm.BUTTON_ROW))),
             classes=DForm.PANE_BOX)        
@@ -120,10 +121,10 @@ class P2PoolInternalPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
-        if button_id == DButton.ANALYTICS:
+        if button_id == DButton.HASHRATES:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.ANALYTICS,
+                DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                 DField.ELEMENT: self.p2pool,
             }

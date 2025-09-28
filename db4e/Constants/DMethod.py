@@ -22,6 +22,7 @@ class DMethod(ConstGroup):
     GET_DEPL : str = "get_deployment"
     GET_TUI_LOG : str = "get_tui_log"
     GET_RUNTIME_LOG : str = "get_runtime_log"
+    HASHRATES : str = "hashrates"
     INITIAL_SETUP : str = "initial_setup"
     INITIAL_SETUP_PROCEED : str = "initial_setup_proceed"
     LOG_VIEWER : str = DField.LOG_VIEWER

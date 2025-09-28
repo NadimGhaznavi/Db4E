@@ -54,7 +54,7 @@ class OpsMgr:
         return elem
     
 
-    def analytics(self, form_data: dict):
+    def hashrates(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
 
         if type(elem) == P2Pool:
@@ -65,6 +65,7 @@ class OpsMgr:
             elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
             elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
             elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            print(elem.hashrates())
 
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
@@ -88,7 +89,7 @@ class OpsMgr:
 
         if type(elem) == XMRigRemote:
             # The Remote XMRig pane displays analytics
-            return self.analytics(form_data={DField.ELEMENT: elem})
+            return self.hashrates(form_data={DField.ELEMENT: elem})
 
         
         return elem
