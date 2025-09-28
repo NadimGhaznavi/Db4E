@@ -29,7 +29,8 @@ class XMRigRemotePane(Container):
     ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    hashrate_plot = HashratePlot("Hashrates", id=DField.HASHRATE_PLOT)
+    hashrate_plot = HashratePlot(
+        DLabel.XMRIG_REMOTE + " " + DLabel.HASHRATES, id=DField.HASHRATE_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
     xmrig = None
 
