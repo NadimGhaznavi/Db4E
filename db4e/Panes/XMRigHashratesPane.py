@@ -28,7 +28,7 @@ class XMRigHashratesPane(Container):
     instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    hashrate_plot = HashratePlot(DLabel.XMRIG + " " + DLabel.HASHRATES, id=DField.HASHRATE_PLOT)
+    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
 
 
