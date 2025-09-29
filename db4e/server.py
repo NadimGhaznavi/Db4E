@@ -154,7 +154,7 @@ class Db4eServer:
             # Look for primary Monero deployments
             if elem_type == Db4E:
                 primary_server = elem.primary_server()
-                print(f"Db4eServer:check_deployments(): primary_server: {primary_server}")
+                #print(f"Db4eServer:check_deployments(): primary_server: {primary_server}")
                 if primary_server == DField.DISABLE:
                     self.unset_int_p2pool_primary()
                 else:
@@ -262,7 +262,7 @@ class Db4eServer:
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
 
-        print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
+        #print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
         if not elem.enabled():
             return
         job.msg(f"Disabled deployment")
@@ -302,7 +302,7 @@ class Db4eServer:
         elem_type = job.elem_type()
         instance = job.instance()
         elem = self.depl_mgr.get_deployment(elem_type, instance)
-        print(f"Db4eServer:enable(): {elem}: current: {elem.enabled()}")
+        #print(f"Db4eServer:enable(): {elem}: current: {elem.enabled()}")
         if elem.enabled():
             return
         self.log.info(f"Enable: {elem}")

@@ -606,7 +606,7 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
         monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
@@ -669,8 +669,6 @@ class DeplMgr:
         else:
             p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
 
-        print(f"orig p2pool: {p2pool.to_rec()}")
-        print(f"new p2pool: {new_p2pool.to_rec()}")
         if not p2pool:
             p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
             if not p2pool:
@@ -850,7 +848,7 @@ class DeplMgr:
         update_config = False
 
         xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
-        print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
+        #print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
         if not xmrig:
             raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")

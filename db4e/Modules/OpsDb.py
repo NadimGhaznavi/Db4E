@@ -57,7 +57,9 @@ class OpsDb:
             DOps.TOTAL_UPTIME: None
         })
         cur_event[DOps.STOP_TIME] = datetime.now().replace(microsecond=0)
-        cur_event[DOps.TOTAL_UPTIME] = cur_event[DOps.STOP_TIME] - cur_event[DOps.START_TIME]
+        total_uptime = cur_event[DOps.STOP_TIME] - cur_event[DOps.START_TIME]
+        # Convert the total_uptime into an int for Mongo
+        cur_event[DOps.TOTAL_UPTIME] = int(total_uptime.total_seconds())
         self.db.update_one(
             self.ops_col, {DMongo.OBJECT_ID: cur_event[DMongo.OBJECT_ID]}, cur_event)
         # Get the total uptime record
@@ -103,6 +105,8 @@ class OpsETL:
     def get_ops_summary(self):
         now = datetime.now().replace(microsecond=0)
         summary = []
+        summary_dict = {}
+
 
         # Grab all current uptime docs
         current = self.ops_db.db.find_many(
@@ -131,12 +135,21 @@ class OpsETL:
 
             total_uptime = total_event[DOps.TOTAL_UPTIME] if total_event else cur_uptime
 
-            summary.append({
-                DMongo.TIMESTAMP: now,
+            # Convert the total_uptime (secs) into a datetime.timedelta object
+            if type(total_uptime) == int:
+                total_uptime = str(timedelta(seconds=total_uptime))
+
+            if type(cur_uptime) == int:
+                cur_uptime = str(timedelta(seconds=cur_uptime))
+
+            summary_dict[c[DMongo.ELEM_TYPE] + "-" + c[DMongo.INSTANCE]] = {
                 DMongo.ELEM_TYPE: c[DMongo.ELEM_TYPE],
                 DMongo.INSTANCE: c[DMongo.INSTANCE],
                 DOps.CURRENT_UPTIME: str(cur_uptime),
                 DOps.TOTAL_UPTIME: str(total_uptime),
-            })
+            }
 
-        return summary
+        for key in summary_dict.keys():
+            summary.append(summary_dict[key])
+
+        return sorted(summary, key=lambda x: (x[DMongo.ELEM_TYPE], x[DMongo.INSTANCE]))

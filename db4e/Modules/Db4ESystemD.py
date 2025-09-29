@@ -97,14 +97,14 @@ class Db4ESystemD:
         elem_type, instance = service_name.split('@')
         # Map the field names to the labels for the Runtime Log
         TYPE_TABLE = {
-            DElem.MONEROD: DLabel.MONEROD_SHORT,
-            DElem.P2POOL: DLabel.P2POOL_SHORT,
+            DElem.MONEROD: DLabel.MONEROD,
+            DElem.P2POOL: DLabel.P2POOL,
             DElem.XMRIG: DLabel.XMRIG
         }
         if event == DSystemD.START:
-            self.ops_db.add_start_event(elem_type, instance)
+            self.ops_db.add_start_event(TYPE_TABLE[elem_type], instance)
         elif event == DSystemD.STOP:
-            self.ops_db.add_stop_event(elem_type, instance)
+            self.ops_db.add_stop_event(TYPE_TABLE[elem_type], instance)
 
     
     def pid(self):

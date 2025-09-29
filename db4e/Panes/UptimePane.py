@@ -39,20 +39,17 @@ class UptimePane(Static):
 
     def set_data(self, events):
         table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
-        table.add_column(DLabel.TIMESTAMP)
         table.add_column(DLabel.ELEMENT_TYPE)
         table.add_column(DLabel.INSTANCE)
         table.add_column(DLabel.CURRENT_UPTIME)
         table.add_column(DLabel.TOTAL_UPTIME)
 
         for event in events:
-            date, time = event[DMongo.TIMESTAMP].strftime("%Y-%m-%d %H:%M:%S").split()
             table.add_row(
-                f"[b]{date}[/] [b green]{time}[/]",
-                event[DMongo.ELEM_TYPE],
+                f"[b]{event[DMongo.ELEM_TYPE]}[/]",
                 f"[yellow]{event[DMongo.INSTANCE]}[/]",
-                event[DOps.CURRENT_UPTIME],
-                event[DOps.TOTAL_UPTIME]
+                f"[green]{event[DOps.CURRENT_UPTIME]}[/]",
+                f"[b green]{event[DOps.TOTAL_UPTIME]}[/]"
             )
         self.uptime_data.update(table)
         
