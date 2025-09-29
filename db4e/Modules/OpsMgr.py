@@ -129,7 +129,7 @@ class OpsMgr:
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
 
 
-    def get_runtime_summary(self, form_data: dict):
+    def get_uptime(self, form_data: dict):
         return self.ops_etl.get_ops_summary()
 
 

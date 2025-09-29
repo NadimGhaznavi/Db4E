@@ -46,8 +46,8 @@ class XMRigPane(Container):
 
     analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
+    disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
     hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)

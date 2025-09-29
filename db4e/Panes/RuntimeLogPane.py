@@ -51,7 +51,7 @@ class RuntimeLogPane(Static):
             table.add_row(
                 f"[b]{date}[/] [b green]{time}[/]",
                 event[DMongo.ELEM_TYPE],
-                event[DMongo.INSTANCE],
+                f"[yellow]{event[DMongo.INSTANCE]}[/]",
                 event[DMongo.EVENT].upper()
             )
         self.log_widget.update(table)

@@ -30,7 +30,7 @@ class DPane(ConstGroup):
     RESULTS: str  = "ResultsPane"
     RUNTIME_LOG: str  = "RuntimeLogPane"
     TUI_LOG: str  = "TuiLogPane"
-    RUNTIME: str  = "RuntimePane"
+    UPTIME: str  = "UptimePane"
     WELCOME: str  = "WelcomePane"
     XMRIG: str  = "XMRigPane"
     XMRIG_HASHRATES: str  = "XMRigHashratesPane"

@@ -22,3 +22,7 @@ from db4e.Constants.DField import DField
 
 class DOps(ConstGroup):
     CURRENT_UPTIME : str = "current_uptime"
+    START_STOP_EVENT : str = "start_stop_event"
+    START_TIME : str = "start_time"
+    STOP_TIME : str = "stop_time"
+    TOTAL_UPTIME : str = "total_uptime"

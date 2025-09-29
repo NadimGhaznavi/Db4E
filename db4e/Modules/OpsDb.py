@@ -28,7 +28,8 @@ class OpsDb:
         self.ops_col = DDef.OPS_COL
 
     def get_ops_events(self):
-        return list(self.db.find_many(self.ops_col, {}, { DMongo.TIMESTAMP: -1 }))
+        return list(self.db.find_many(
+            self.ops_col, { DMongo.DOC_TYPE: DOps.START_STOP_EVENT }))
     
 
     def add_start_event(self, elem_type, instance):
@@ -100,4 +101,42 @@ class OpsETL:
 
 
     def get_ops_summary(self):
-        pass
+        now = datetime.now().replace(microsecond=0)
+        summary = []
+
+        # Grab all current uptime docs
+        current = self.ops_db.db.find_many(
+            self.ops_db.ops_col,
+            { DMongo.DOC_TYPE: DOps.CURRENT_UPTIME }
+        )
+
+        # Grab all total uptime docs
+        totals = self.ops_db.db.find_many(
+            self.ops_db.ops_col,
+            { DMongo.DOC_TYPE: DOps.TOTAL_UPTIME }
+        )
+        totals_map = {
+            (t[DMongo.ELEM_TYPE], t[DMongo.INSTANCE]): t for t in totals
+        }
+
+        for c in current:
+            key = (c[DMongo.ELEM_TYPE], c[DMongo.INSTANCE])
+            total_event = totals_map.get(key)
+
+            # If still running, compute delta from START_TIME to now
+            if c[DOps.STOP_TIME] is None:
+                cur_uptime = now - c[DOps.START_TIME]
+            else:
+                cur_uptime = c[DOps.TOTAL_UPTIME]
+
+            total_uptime = total_event[DOps.TOTAL_UPTIME] if total_event else cur_uptime
+
+            summary.append({
+                DMongo.TIMESTAMP: now,
+                DMongo.ELEM_TYPE: c[DMongo.ELEM_TYPE],
+                DMongo.INSTANCE: c[DMongo.INSTANCE],
+                DOps.CURRENT_UPTIME: str(cur_uptime),
+                DOps.TOTAL_UPTIME: str(total_uptime),
+            })
+
+        return summary

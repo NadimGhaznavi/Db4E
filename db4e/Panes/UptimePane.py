@@ -18,10 +18,11 @@ from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DField import DField
 from db4e.Constants.DMongo import DMongo
+from db4e.Constants.DOps import DOps
 
 
 
-class RunTimePane(Static):
+class UptimePane(Static):
 
     uptime_data = Static("Missing Data", id="events")
 
@@ -44,13 +45,14 @@ class RunTimePane(Static):
         table.add_column(DLabel.CURRENT_UPTIME)
         table.add_column(DLabel.TOTAL_UPTIME)
 
-        for row in events:
+        for event in events:
+            date, time = event[DMongo.TIMESTAMP].strftime("%Y-%m-%d %H:%M:%S").split()
             table.add_row(
-                row[DMongo.TIMESTAMP],
-                row[DMongo.ELEM_TYPE],
-                row[DMongo.INSTANCE],
-                row[DField.CURRENT_UPTIME],
-                row[DField.TOTAL_UPTIME]
+                f"[b]{date}[/] [b green]{time}[/]",
+                event[DMongo.ELEM_TYPE],
+                f"[yellow]{event[DMongo.INSTANCE]}[/]",
+                event[DOps.CURRENT_UPTIME],
+                event[DOps.TOTAL_UPTIME]
             )
         self.uptime_data.update(table)
         

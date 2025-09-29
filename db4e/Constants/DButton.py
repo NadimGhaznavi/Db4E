@@ -24,6 +24,7 @@ class DButton(ConstGroup):
     STOP : str  = "stop_button"
     UPDATE : str  = "update_button"
     RUNTIME : str = "runtime_button"
+    UPTIME : str = "uptime_button"
     VIEW_LOG : str = "view_log_button"
 
 

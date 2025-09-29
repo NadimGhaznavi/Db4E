@@ -84,7 +84,7 @@ class Db4EPane(Container):
 
                 Horizontal(
                     Button(label=DLabel.UPDATE, id=DButton.UPDATE),
-                    Button(label=DLabel.RUNTIME, id=DButton.RUNTIME),
+                    Button(label=DLabel.UPTIME, id=DButton.UPTIME),
                     classes=DForm.BUTTON_ROW
                 ),
             classes=DForm.PANE_BOX))
@@ -133,10 +133,10 @@ class Db4EPane(Container):
                 DField.ELEMENT: self.db4e,
             }
 
-        elif button_id == DButton.RUNTIME:
+        elif button_id == DButton.UPTIME:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.GET_RUNTIME_SUMMARY,
+                DField.TO_METHOD: DMethod.GET_UPTIME,
                 DField.ELEMENT_TYPE: DElem.DB4E,
                 DField.ELEMENT: self.db4e,
             }

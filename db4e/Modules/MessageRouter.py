@@ -44,8 +44,8 @@ class MessageRouter:
                       self.ops_mgr.get_deployment, DPane.DB4E)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
                       self.depl_client.update_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_SUMMARY, DElem.DB4E,
-                      self.ops_mgr.get_runtime_summary, DPane.RUNTIME)
+        self.register(DModule.OPS_MGR, DMethod.GET_UPTIME, DElem.DB4E,
+                      self.ops_mgr.get_uptime, DPane.UPTIME)
 
         # MoneroD - local
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
