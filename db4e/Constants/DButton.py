@@ -19,6 +19,7 @@ class DButton(ConstGroup):
     HASHRATE : str  = "hashrate_button"
     NEW : str  = "new_button"
     PROCEED : str  = "proceed_button"
+    RESTART : str  = "restart_button"
     START : str  = "start_button"
     STOP : str  = "stop_button"
     UPDATE : str  = "update_button"

@@ -346,6 +346,10 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#restart_button {
+    color: #4292c4ff;
+    text-style: bold; }
+
 #runtime_button {
     color: #9a71c9ff;
     text-style: bold; }

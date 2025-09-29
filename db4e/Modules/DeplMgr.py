@@ -12,6 +12,8 @@ import os
 from datetime import datetime, timezone
 import socket
 from typing import overload
+from copy import deepcopy
+
 
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DbMgr import DbMgr
@@ -135,10 +137,9 @@ class DeplMgr:
 
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
-        self.insert_one(monerod)
+        object_id = self.insert_one(monerod)
+        monerod.id(object_id)
         # We need to get the _id field
-        monerod = self.db_cache.get_deployment(
-            DElem.MONEROD_REMOTE, monerod.instance())
         job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
         job.msg("New deployment")
         return monerod
@@ -662,9 +663,14 @@ class DeplMgr:
     def update_p2pool_deployment(self, new_p2pool):
         update = False
         update_config = False
-        restart = True
 
-        p2pool = self.db_cache.get_deployment(DElem.P2POOL, new_p2pool.instance())
+        if new_p2pool.elem_type() == DElem.P2POOL:
+            p2pool = self.db_cache.get_deployment(DElem.P2POOL, new_p2pool.instance())
+        else:
+            p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
+
+        print(f"orig p2pool: {p2pool.to_rec()}")
+        print(f"new p2pool: {new_p2pool.to_rec()}")
         if not p2pool:
             p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
             if not p2pool:
@@ -678,71 +684,68 @@ class DeplMgr:
             else:
                 p2pool.enable()
             update = True
-            restart = False
 
-        else:
-            # This is an update op
-            
-            # In Peers
-            if p2pool.in_peers != new_p2pool.in_peers:
-                msg = f"Updated in peers: {p2pool.in_peers()} > " \
-                    f"{new_p2pool.in_peers()}"
-                p2pool.in_peers(new_p2pool.in_peers())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
+        # In Peers
+        if p2pool.in_peers != new_p2pool.in_peers:
+            msg = f"Updated in peers: {p2pool.in_peers()} > " \
+                f"{new_p2pool.in_peers()}"
+            p2pool.in_peers(new_p2pool.in_peers())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Out Peers
+        if p2pool.out_peers != new_p2pool.out_peers:
+            msg = f"Updated out peers: {p2pool.out_peers()} > " \
+                f"{new_p2pool.out_peers()}"
+            p2pool.out_peers(new_p2pool.out_peers())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # P2P Bind Port
+        if p2pool.p2p_port != new_p2pool.p2p_port:
+            msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
+                f"{new_p2pool.p2p_port()}"
+            p2pool.p2p_bind_port(new_p2pool.p2p_port())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Stratum port
+        if p2pool.stratum_port != new_p2pool.stratum_port:
+            msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
+                f"{new_p2pool.stratum_port()}"
+            p2pool.stratum_port(new_p2pool.stratum_port())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Log level
+        if p2pool.log_level != new_p2pool.log_level:
+            msg = f"Updated log level: {p2pool.log_level()} > " \
+                f"{new_p2pool.log_level()}"
+            p2pool.log_level(new_p2pool.log_level())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Upstream Monerod
+        print(f"p2pool.parent: {p2pool.parent()}, new_p2pool.parent: {new_p2pool.parent()}")
+        if p2pool.parent != new_p2pool.parent:
+            if new_p2pool.parent() == DField.DISABLE:
+                p2pool.parent(DField.DISABLE)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, "Unset upstream Monero")
                 update = True
-
-            # Out Peers
-            if p2pool.out_peers != new_p2pool.out_peers:
-                msg = f"Updated out peers: {p2pool.out_peers()} > " \
-                    f"{new_p2pool.out_peers()}"
-                p2pool.out_peers(new_p2pool.out_peers())
+            else:                           
+                monerod = self.get_deployment_by_id(new_p2pool.parent())
+                monerod_instance = monerod.instance()
+                new_monerod = self.get_deployment_by_id(p2pool.parent())
+                new_monerod_instance = new_monerod.instance()
+                msg = f"Updated upstream P2Pool: {monerod_instance} > " \
+                    f"{new_monerod_instance}"
+                p2pool.parent(new_p2pool.parent())
                 p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # P2P Bind Port
-            if p2pool.p2p_port != new_p2pool.p2p_port:
-                msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
-                    f"{new_p2pool.p2p_port()}"
-                p2pool.p2p_bind_port(new_p2pool.p2p_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Stratum port
-            if p2pool.stratum_port != new_p2pool.stratum_port:
-                msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
-                    f"{new_p2pool.stratum_port()}"
-                p2pool.stratum_port(new_p2pool.stratum_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Log level
-            if p2pool.log_level != new_p2pool.log_level:
-                msg = f"Updated log level: {p2pool.log_level()} > " \
-                    f"{new_p2pool.log_level()}"
-                p2pool.log_level(new_p2pool.log_level())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Upstream Monerod
-            if p2pool.parent != new_p2pool.parent:
-                parent = self.get_deployment_by_id(new_p2pool.parent())
-                parent_instance = parent.instance()
-                new_parent = self.get_deployment_by_id(p2pool.parent())
-                if new_parent:
-                    msg = f"Updated upstream P2Pool: {parent_instance} > " \
-                        f"{new_parent.instance()}"
-                    p2pool.parent(new_p2pool.parent())
-                    new_parent_instance = new_parent.instance()
-                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                else:
-                    msg = f"Updated upstream P2Pool: {parent_instance}???"
-                    p2pool.parent(new_p2pool.parent())
-                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
@@ -754,11 +757,6 @@ class DeplMgr:
 
         if update:
             self.update_one(p2pool)
-            if restart:
-                job = Job(op=DJob.RESTART, elem_type=DElem.P2POOL, 
-                        elem=p2pool,
-                        instance=p2pool.instance())
-                self.job_queue.post_job(job)
         else:
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
 

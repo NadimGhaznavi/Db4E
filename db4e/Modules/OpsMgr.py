@@ -8,14 +8,18 @@ db4e/Modules/OpsMgr.py
     License: GPL 3.0
 """
 
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.HealthCache import HealthCache
-
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MiningETL import MiningETL
 from db4e.Modules.OpsDb import OpsDb
+from db4e.Modules.OpsDb import OpsETL
 
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.InternalP2Pool import InternalP2Pool
@@ -45,6 +49,8 @@ class OpsMgr:
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
         self.ops_db = OpsDb(db=self.db)
+        self.ops_etl = OpsETL(ops_db=self.ops_db)
+
 
 
     def add_deployment(self, form_data: dict):
@@ -65,7 +71,6 @@ class OpsMgr:
             elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
             elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
             elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
-            print(elem.hashrates())
 
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
@@ -94,7 +99,8 @@ class OpsMgr:
         
         return elem
 
-    ## Get deployments by type...
+    ### Get deployments by type...
+    
     def get_monerods(self) -> list:
         return self.health_cache.get_monerods()
     
@@ -115,11 +121,16 @@ class OpsMgr:
 
     def get_xmrigs_remote(self) -> list:
         return self.health_cache.get_xmrigs_remote()
-    ## End of get deployments by type...
+    
+    ### End of get deployments by type...
 
 
     def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
+
+
+    def get_runtime_summary(self, form_data: dict):
+        return self.ops_etl.get_ops_summary()
 
 
     def get_new(self, form_data: dict):
@@ -145,10 +156,6 @@ class OpsMgr:
 
     def plot(self, plot_metadata: dict):
         return plot_metadata
-
-
-    def runtime(self, form_data: dict):
-        return []
 
 
     def set_donations(self, form_data: dict):

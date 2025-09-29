@@ -25,7 +25,7 @@ class DPane(ConstGroup):
     P2POOL: str  = "P2PoolPane"
     P2POOL_ANALYTICS: str  = "P2PoolAnalyticsPane"
     P2POOL_HASHRATES: str  = "P2PoolHashratesPane"
-    P2POOL_INTERNAL: str  = "P2PoolInternalPane"
+    CHAIN: str  = "ChainPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
     RESULTS: str  = "ResultsPane"
     RUNTIME_LOG: str  = "RuntimeLogPane"

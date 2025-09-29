@@ -26,7 +26,6 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DButton import DButton
-from db4e.Constants.DJob import DJob
 from db4e.Constants.DLabel import DLabel
 
 color = "#9cae41"
@@ -137,7 +136,7 @@ class Db4EPane(Container):
         elif button_id == DButton.RUNTIME:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.RUNTIME,
+                DField.TO_METHOD: DMethod.GET_RUNTIME_SUMMARY,
                 DField.ELEMENT_TYPE: DElem.DB4E,
                 DField.ELEMENT: self.db4e,
             }

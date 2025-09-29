@@ -27,7 +27,7 @@ from db4e.Constants.DForm import DForm
 
 
 
-class P2PoolInternalPane(Container):
+class ChainPane(Container):
 
     instance_label = Label("", classes=DForm.STATIC)
     config_file_label = Label("", classes=DForm.STATIC)
@@ -41,6 +41,8 @@ class P2PoolInternalPane(Container):
     analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
+    restart_button = Button(label=DLabel.RESTART, id=DButton.RESTART)
+
     health_msgs = Label()
 
     p2pool = None
@@ -90,6 +92,7 @@ class P2PoolInternalPane(Container):
                     Horizontal(
                         self.hashrate_button,
                         self.view_log_button,
+                        self.restart_button,
                         classes=DForm.BUTTON_ROW))),
             classes=DForm.PANE_BOX)        
 
@@ -127,6 +130,14 @@ class P2PoolInternalPane(Container):
                 DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                 DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.RESTART:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.RESTART,
+                DField.INSTANCE: self.p2pool.instance()
             }
 
         elif button_id == DButton.VIEW_LOG:
