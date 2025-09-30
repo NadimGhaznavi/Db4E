@@ -377,13 +377,16 @@ Button {
 .new #analytics_button {
     display: none; }
 
-.new #update_button {
+.new #disable_button {
     display: none; }
 
 .new #enable_button {
     display: none; }
 
-.new #disable_button {
+.new #hashrate_button {
+    display: none; }
+
+.new #update_button {
     display: none; }
 
 .update #new_button {

@@ -50,6 +50,7 @@ class DDef(ConstGroup):
     LOG_LEVEL: int = 0
     LOG_COLLECTION: str = "logging"
     LOG_RETENTION_DAYS: int = 7
+    LOG_ROTATE : str = "logrotate"
     LOG_SUFFIX: str = ".log"
     MAX_BACKUPS: int = 7
     MAX_LOG_FILES: int = 7

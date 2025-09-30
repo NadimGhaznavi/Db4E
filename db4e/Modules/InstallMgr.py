@@ -259,7 +259,7 @@ class InstallMgr(Container):
         os.makedirs(os.path.join(fq_db4e_dir))
         db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}")
         # Create the sub-directories
-        for sub_dir in [DDef.LOG_DIR]:
+        for sub_dir in [DDef.LOG_DIR, DDef.LOG_ROTATE ]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
             db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
         return db4e
