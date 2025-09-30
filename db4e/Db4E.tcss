@@ -334,7 +334,7 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
-#hashrates_button {
+#hashrate_button {
     color: #9a71c9ff;
     text-style: bold; }
 
@@ -344,6 +344,14 @@ Button {
 
 #proceed_button {
     color: #5fc442;
+    text-style: bold; }
+
+#restart_button {
+    color: #4292c4ff;
+    text-style: bold; }
+
+#runtime_button {
+    color: #9a71c9ff;
     text-style: bold; }
 
 #start_button {
@@ -356,6 +364,10 @@ Button {
 
 #update_button {
     color: #5fc442;
+    text-style: bold; }
+
+#uptime_button {
+    color: #4292c4ff;
     text-style: bold; }
 
 #view_log_button {

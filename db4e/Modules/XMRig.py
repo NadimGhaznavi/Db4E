@@ -14,7 +14,7 @@ import os
 from copy import deepcopy
 
 
-from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
+from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
@@ -22,10 +22,10 @@ from db4e.Constants.DDef import DDef
 from db4e.Constants.DPlaceholder import DPlaceholder
 
 from db4e.Modules.Components import (
-    ConfigFile, Instance, Local, LogFile, NumThreads, Parent, Version)
+    ConfigFile, Enabled, Instance, Local, LogFile, NumThreads, Parent, Version)
 
 
-class XMRig(LocalSoftwareSystem):
+class XMRig(SoftwareSystem):
     
     def __init__(self, rec=None):
         super().__init__()
@@ -33,6 +33,7 @@ class XMRig(LocalSoftwareSystem):
         self.name = DLabel.XMRIG
 
         self.add_component(DField.CONFIG_FILE, ConfigFile())
+        self.add_component(DField.ENABLED, Enabled())
         self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.LOG_FILE, LogFile())
         self.add_component(DField.REMOTE, Local())
@@ -41,12 +42,14 @@ class XMRig(LocalSoftwareSystem):
         self.add_component(DField.PARENT, Parent())
 
         self.config_file = self.components[DField.CONFIG_FILE]
+        self.enabled = self.components[DField.ENABLED]
         self.instance = self.components[DField.INSTANCE]
         self.log_file = self.components[DField.LOG_FILE]
         self.num_threads = self.components[DField.NUM_THREADS]
         self.parent = self.components[DField.PARENT]
         self.version = self.components[DField.VERSION]
         self.version(DDef.XMRIG_VERSION)
+        self.parent(DField.DISABLE)
         self._instance_map = {}
         self._hashrates = {}
         self._hashrate = None

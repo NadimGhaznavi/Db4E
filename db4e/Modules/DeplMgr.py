@@ -12,6 +12,8 @@ import os
 from datetime import datetime, timezone
 import socket
 from typing import overload
+from copy import deepcopy
+
 
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DbMgr import DbMgr
@@ -24,6 +26,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.InternalP2Pool import InternalP2Pool
+from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -35,6 +38,7 @@ from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DModule import DModule
 from db4e.Constants.DFile import DFile
 from db4e.Constants.DMethod import DMethod
+from db4e.Constants.DMongo import DMongo
 
 
 class Default:
@@ -56,11 +60,11 @@ class DeplMgr:
     def update_p2pool_deployment(self, p2pool: InternalP2Pool) -> InternalP2Pool: ...
 
 
-    def __init__(self, db: DbMgr, db_cache: DbCache):
-        self.db_cache = db_cache
+    def __init__(self, db: DbMgr):
+        self.db = db
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
+        self.depl_col = DDef.DEPLOYMENT_COL
 
     def add_deployment(self, elem):
         elem_class = type(elem)
@@ -135,45 +139,43 @@ class DeplMgr:
 
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
-        self.insert_one(monerod)
+        object_id = self.insert_one(monerod)
+        monerod.id(object_id)
         # We need to get the _id field
-        monerod = self.db_cache.get_deployment(
-            DElem.MONEROD_REMOTE, monerod.instance())
         job = Job(op=DJob.NEW, elem_type=DElem.MONEROD, instance=monerod.instance())
         job.msg("New deployment")
         return monerod
     
 
     def add_p2pool_deployment(self, p2pool):
-        update = False
 
-        if p2pool.parent():
-            update = True
+        has_parent = False
+        if p2pool.parent() != DField.DISABLE:
+            has_parent = True
             p2pool.monerod = self.get_deployment_by_id(p2pool.parent())
 
-        if update or isinstance(p2pool, InternalP2Pool):
-            p2pool.ip_addr(socket.gethostname())
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            tmpl_file = self.get_template(DElem.P2POOL)
-            if type(p2pool) == P2Pool:
-                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-                p2pool.log_file(
-                    os.path.join(
-                        vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                        DDef.LOG_DIR, DFile.P2POOL_LOG))
-                
-            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                                     DDef.LOG_DIR), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                                     DDef.API_DIR), exist_ok=True)
-            os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                                     DDef.RUN_DIR), exist_ok=True)
-            p2pool.stdin_path(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
-                                      DDef.RUN_DIR, DFile.P2POOL_STDIN))
-            self.insert_one(p2pool)
-            job = Job(op=DJob.NEW, instance=p2pool.instance(), elem_type=DElem.INT_P2POOL)
-            job.msg("New deployment")
-            self.job_queue.post_completed_job(job)
+        p2pool.ip_addr(socket.gethostname())
+        vendor_dir = self.get_dir(DDir.VENDOR)
+        tmpl_file = self.get_template(DElem.P2POOL)
+        if has_parent:
+            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            p2pool.log_file(
+                os.path.join(
+                    vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                    DDef.LOG_DIR, DFile.P2POOL_LOG))
+            
+        os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                    DDef.LOG_DIR), exist_ok=True)
+        os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                    DDef.API_DIR), exist_ok=True)
+        os.makedirs(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                    DDef.RUN_DIR), exist_ok=True)
+        p2pool.stdin_path(os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), 
+                                    DDef.RUN_DIR, DFile.P2POOL_STDIN))
+        self.insert_one(p2pool)
+        job = Job(op=DJob.NEW, instance=p2pool.instance(), elem_type=DElem.INT_P2POOL)
+        job.msg("New deployment")
+        self.job_queue.post_completed_job(job)
 
         return p2pool
 
@@ -189,7 +191,7 @@ class DeplMgr:
         if not xmrig.parent():
             update = False
         else:
-            xmrig.p2pool = self.db_cache.get_deployment_by_id(xmrig.parent())
+            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
                     
         if update:
             vendor_dir = self.get_dir(DDir.VENDOR)
@@ -233,7 +235,37 @@ class DeplMgr:
 
 
     def delete_deployment(self, elem):
-        self.db_cache.delete_one(elem)
+        self.delete_one(elem)
+
+
+    def delete_one(self, elem):
+        elem_type = elem.elem_type()
+        instance = elem.instance()
+        self.db.delete_one(
+            self.depl_col, {DMongo.ELEM_TYPE: elem_type, DMongo.INSTANCE: instance})
+
+
+    def factory(self, rec=None):
+        elem_type = rec.get(DMongo.ELEMENT_TYPE)
+        if elem_type == DElem.DB4E:
+            return Db4E(rec)
+        elif elem_type == DElem.MONEROD:
+            return MoneroD(rec)
+        elif elem_type == DElem.MONEROD_REMOTE:
+            return MoneroDRemote(rec)
+        elif elem_type == DElem.P2POOL:
+            return P2Pool(rec)
+        elif elem_type == DElem.P2POOL_REMOTE:
+            return P2PoolRemote(rec)
+        elif elem_type == DElem.INT_P2POOL:
+            return InternalP2Pool(rec)
+        elif elem_type == DElem.XMRIG:
+            return XMRig(rec)
+        elif elem_type == DElem.XMRIG_REMOTE:
+            return XMRigRemote(rec)
+        else:
+            raise ValueError(f"DeploymentMgr:factory(): No handler for {elem_type}")
+       
 
 
     def get_component_value(self, data, field_name):
@@ -259,21 +291,68 @@ class DeplMgr:
         return None
 
 
-    def get_deployment(self, elem_type, instance=None):
-        #print(f"DeploymentMgr:get_deployment(): {component}/{instance}")
-        return self.db_cache.get_deployment(elem_type, instance)
+    def get_deployment(self, elem_type, instance):
+        db_filter =  {
+                DField.ELEMENT_TYPE: elem_type, 
+                DField.COMPONENTS: {
+                    "$elemMatch": {
+                        DField.FIELD: DField.INSTANCE,
+                        DField.VALUE: instance
+                    }
+                }
+            }
+        rec = self.db.find_one(self.depl_col, db_filter)
+        if rec:
+            obj = self.factory(rec)
+            if type(obj) == P2Pool or type(obj) == InternalP2Pool:
+                if obj.parent() != DField.DISABLE:
+                    obj.monerod = self.get_deployment_by_id(obj.parent())
+            elif type(obj) == XMRig:
+                obj.p2pool = self.get_deployment_by_id(obj.parent())
+                if obj.p2pool.parent() != DField.DISABLE:
+                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+                obj.instance_map = self.get_deployment_ids_and_instances(DElem.P2POOL)
+            return obj
+        else:
+            return None
 
 
     def get_deployment_by_id(self, id):
-        return self.db_cache.get_deployment_by_id(id)
+        rec = self.db.find_one(self.depl_col, {DMongo.OBJECT_ID: id})
+        return self.factory(rec)
 
 
     def get_deployment_ids_and_instances(self, elem_type):
-        return self.db_cache.get_deployment_ids_and_instances(elem_type)
+        instance_map = {}
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: elem_type})
+        for rec in recs:
+            instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+        if elem_type == DElem.P2POOL:
+            recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.INT_P2POOL})
+            for rec in recs:
+                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+        elif elem_type == DElem.MONEROD:
+            recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.MONEROD_REMOTE})
+            for rec in recs:
+                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+        return instance_map
+            
     
 
     def get_deployments(self):
-        return self.db_cache.get_deployments()
+        recs = self.db.find_many(self.depl_col, {})
+        obj_list = []
+        for rec in recs:
+            obj = self.factory(rec)
+            if type(obj) == P2Pool or type(obj) == InternalP2Pool:
+                if obj.parent() != DField.DISABLE:
+                    obj.monerod = self.get_deployment_by_id(obj.parent())
+            elif type(obj) == XMRig:
+                obj.p2pool = self.get_deployment_by_id(obj.parent())
+                if obj.p2pool.parent() != DField.DISABLE:
+                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+            obj_list.append(obj)
+        return obj_list
 
 
     def get_dir(self, aDir: str) -> str:
@@ -297,7 +376,7 @@ class DeplMgr:
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
         elif aDir == DDir.VENDOR:
-            db4e = self.db_cache.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
+            db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
             return db4e.vendor_dir()
 
         elif aDir == DElem.MONEROD:
@@ -314,11 +393,34 @@ class DeplMgr:
 
 
     def get_downstream(self, elem):
-        return self.db_cache.get_downstream(elem)
+        elem_type = elem.elem_type()
+        obj_id = elem.id()
+        obj_list = []
 
+        if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
+            p2pools = self.get_p2pools()
+            for p2pool in p2pools:
+                if p2pool.parent() == obj_id:
+                    obj_list.append(p2pool)
+
+        elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
+            xmrigs = self.get_xmrigs()
+            for xmrig in xmrigs:
+                if xmrig.parent() == obj_id:
+                    obj_list.append(xmrig)
+
+        return obj_list
+    
 
     def get_internal_p2pools(self):
-        return self.db_cache.get_int_p2pools()
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.INT_P2POOL})
+        obj_list = []
+        for rec in recs:
+            obj = self.factory(rec)
+            if obj.parent() != DField.DISABLE:
+                obj.monerod = self.get_deployment_by_id(obj.parent())
+            obj_list.append(obj)
+        return obj_list
 
 
     def get_template(self, elem_type):
@@ -346,8 +448,12 @@ class DeplMgr:
 
 
     def get_monerods(self):
-        return self.db_cache.get_monerods()
-    
+        obj_list = []
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.MONEROD})
+        for rec in recs:
+            obj_list.append(self.factory(rec))
+        return obj_list
+
     
     def get_new(self, elem_type):
 
@@ -357,33 +463,53 @@ class DeplMgr:
             return MoneroDRemote()
         elif elem_type == DElem.P2POOL:
             p2pool = P2Pool()
-            db4e = self.db_cache.get_db4e()
+            db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
             p2pool.user_wallet(db4e.user_wallet())
             return p2pool
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
+        elif elem_type == DElem.INT_P2POOL:
+            p2pool = InternalP2Pool()
+            p2pool.user_wallet(DDef.DONATION_WALLET)
         elif elem_type == DElem.XMRIG:
             return XMRig()
+        elif elem_type == DElem.XMRIG_REMOTE:
+            return XMRigRemote()
         else:
             raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
 
 
     def get_p2pools(self):
-        return self.db_cache.get_p2pools()
+        obj_list = []
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.P2POOL})
+        for rec in recs:
+            obj = self.factory(rec)
+            if obj.parent() != DField.DISABLE:
+                obj.monerod = self.get_deployment_by_id(obj.parent())
+            obj_list.append(obj)
+        return obj_list
     
     
     def get_xmrigs(self):
-        return self.db_cache.get_xmrigs()
+        obj_list = []
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.XMRIG})
+        for rec in recs:
+            obj = self.factory(rec)
+            if obj.parent() != DField.DISABLE:
+                obj.p2pool = self.get_deployment_by_id(obj.parent())
+                if obj.p2pool.parent() != DField.DISABLE:
+                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+            obj_list.append(obj)
+        return obj_list
 
 
     def insert_one(self, elem):
-        ## Don't put the HEALTH_MSGS_FIELD (the status messages) into the DB
-        # Pop off 
-        return self.db_cache.insert_one(elem)
-        
+        obj_id = self.db.insert_one(self.depl_col, elem.to_rec())
+        return obj_id
+       
 
     def is_initialized(self):
-        db4e = self.db_cache.get_db4e()
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
         if db4e:
             if db4e.vendor_dir() and db4e.user_wallet():
                 return True
@@ -397,7 +523,7 @@ class DeplMgr:
         update_flag = False
 
         # The current record, we'll update this and write it back in
-        db4e = self.db_cache.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
 
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:
@@ -432,7 +558,7 @@ class DeplMgr:
             update_flag = True
 
         if update_flag:
-            self.db_cache.update_one(db4e)
+            self.update_one(db4e)
         else:
             db4e.msg(DElem.DB4E, DStatus.WARN, "Nothing to update")
 
@@ -462,7 +588,7 @@ class DeplMgr:
     def update_monerod_deployment(self, new_monerod: MoneroD):
         update, update_config, restart = False, False, False
 
-        monerod = self.db_cache.get_deployment(
+        monerod = self.get_deployment(
             DElem.MONEROD, new_monerod.instance())
         if not monerod:
             raise ValueError(f"DeploymentMgr:update_monerod_deployment(): " \
@@ -471,9 +597,9 @@ class DeplMgr:
         if monerod.enabled() != new_monerod.enabled():
             # This is an enable/disable operation
             if monerod.enabled():
-                monerod.disable()
+                monerod.enabled(False)
             else:
-                monerod.enable()
+                monerod.enabled(True)
             update = True
             restart = False
 
@@ -605,9 +731,9 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
-        monerod = self.db_cache.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
+        monerod = self.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
             raise ValueError(f"DeploymentMgr:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")
@@ -638,7 +764,7 @@ class DeplMgr:
             update = True
 
         if update:
-            monerod = self.db_cache.update_one(monerod)
+            monerod = self.update_one(monerod)
 
         else:
             monerod.msg(DLabel.MONEROD, DStatus.WARN,
@@ -649,12 +775,11 @@ class DeplMgr:
 
     def update_one(self, elem):
         #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
+        
         # Don't store status messages in the DB
         msgs = elem.pop_msgs()
-        #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
-
-        elem = self.db_cache.update_one(elem)
-
+        self.db.update_one(
+            self.depl_col, {DMongo.OBJECT_ID: elem.id()}, elem.to_rec())
         elem.push_msgs(msgs)
         return elem
     
@@ -662,103 +787,93 @@ class DeplMgr:
     def update_p2pool_deployment(self, new_p2pool):
         update = False
         update_config = False
-        restart = True
 
-        p2pool = self.db_cache.get_deployment(DElem.P2POOL, new_p2pool.instance())
-        if not p2pool:
-            p2pool = self.db_cache.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
-            if not p2pool:
-                raise ValueError(f"DeploymentMgg:update_p2pool_deployment(): " \
-                                f"Nothing found for {new_p2pool}")
+        if new_p2pool.elem_type() == DElem.P2POOL:
+            p2pool = self.get_deployment(DElem.P2POOL, new_p2pool.instance())
+        else:
+            p2pool = self.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
 
         if p2pool.enabled() != new_p2pool.enabled():
             # This is an enable/disable operation
             if p2pool.enabled():
-                p2pool.disable()
+                p2pool.enabled(False)
             else:
-                p2pool.enable()
+                p2pool.enabled(True)
             update = True
-            restart = False
 
-        else:
-            # This is an update op
-            
-            # In Peers
-            if p2pool.in_peers != new_p2pool.in_peers:
-                msg = f"Updated in peers: {p2pool.in_peers()} > " \
-                    f"{new_p2pool.in_peers()}"
-                p2pool.in_peers(new_p2pool.in_peers())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
+        # In Peers
+        if p2pool.in_peers != new_p2pool.in_peers:
+            msg = f"Updated in peers: {p2pool.in_peers()} > " \
+                f"{new_p2pool.in_peers()}"
+            p2pool.in_peers(new_p2pool.in_peers())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Out Peers
+        if p2pool.out_peers != new_p2pool.out_peers:
+            msg = f"Updated out peers: {p2pool.out_peers()} > " \
+                f"{new_p2pool.out_peers()}"
+            p2pool.out_peers(new_p2pool.out_peers())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # P2P Bind Port
+        if p2pool.p2p_port != new_p2pool.p2p_port:
+            msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
+                f"{new_p2pool.p2p_port()}"
+            p2pool.p2p_bind_port(new_p2pool.p2p_port())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Stratum port
+        if p2pool.stratum_port != new_p2pool.stratum_port:
+            msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
+                f"{new_p2pool.stratum_port()}"
+            p2pool.stratum_port(new_p2pool.stratum_port())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Log level
+        if p2pool.log_level != new_p2pool.log_level:
+            msg = f"Updated log level: {p2pool.log_level()} > " \
+                f"{new_p2pool.log_level()}"
+            p2pool.log_level(new_p2pool.log_level())
+            p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            update_config = True
+            update = True
+
+        # Upstream Monerod
+        if p2pool.parent != new_p2pool.parent:
+            if new_p2pool.parent() == DField.DISABLE:
+                p2pool.parent(DField.DISABLE)
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, "Unset upstream Monero")
                 update = True
-
-            # Out Peers
-            if p2pool.out_peers != new_p2pool.out_peers:
-                msg = f"Updated out peers: {p2pool.out_peers()} > " \
-                    f"{new_p2pool.out_peers()}"
-                p2pool.out_peers(new_p2pool.out_peers())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # P2P Bind Port
-            if p2pool.p2p_port != new_p2pool.p2p_port:
-                msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
-                    f"{new_p2pool.p2p_port()}"
-                p2pool.p2p_bind_port(new_p2pool.p2p_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Stratum port
-            if p2pool.stratum_port != new_p2pool.stratum_port:
-                msg = f"Updated stratum port: {p2pool.stratum_port()} > " \
-                    f"{new_p2pool.stratum_port()}"
-                p2pool.stratum_port(new_p2pool.stratum_port())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Log level
-            if p2pool.log_level != new_p2pool.log_level:
-                msg = f"Updated log level: {p2pool.log_level()} > " \
-                    f"{new_p2pool.log_level()}"
-                p2pool.log_level(new_p2pool.log_level())
-                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
-                update_config = True
-                update = True
-
-            # Upstream Monerod
-            if p2pool.parent != new_p2pool.parent:
-                parent = self.get_deployment_by_id(new_p2pool.parent())
-                parent_instance = parent.instance()
-                new_parent = self.get_deployment_by_id(p2pool.parent())
-                if new_parent:
-                    msg = f"Updated upstream P2Pool: {parent_instance} > " \
-                        f"{new_parent.instance()}"
-                    p2pool.parent(new_p2pool.parent())
-                    new_parent_instance = new_parent.instance()
-                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+            else:                           
+                old_parent = p2pool.parent()
+                if old_parent == DField.DISABLE:
+                    old_parent_instance = "None"
                 else:
-                    msg = f"Updated upstream P2Pool: {parent_instance}???"
-                    p2pool.parent(new_p2pool.parent())
-                    p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
+                    old_parent_instance = self.get_deployment_by_id(old_parent).instance()
+                new_parent_instance = self.get_deployment_by_id(new_p2pool.parent()).instance()
+                p2pool.monerod = self.get_deployment_by_id(new_p2pool.parent())
+                msg = f"Updated upstream P2Pool: {old_parent_instance} > " \
+                    f"{new_parent_instance}"
+                p2pool.parent(new_p2pool.parent())
+                p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
                 update_config = True
                 update = True
 
         if update_config:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.P2POOL)
-            p2pool.monerod = self.db_cache.get_deployment_by_id(p2pool.parent())
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
             self.update_one(p2pool)
-            if restart:
-                job = Job(op=DJob.RESTART, elem_type=DElem.P2POOL, 
-                        elem=p2pool,
-                        instance=p2pool.instance())
-                self.job_queue.post_job(job)
         else:
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
 
@@ -769,7 +884,7 @@ class DeplMgr:
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
 
-        p2pool = self.db_cache.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
+        p2pool = self.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
         if not p2pool:
             raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
@@ -852,7 +967,7 @@ class DeplMgr:
         update_config = False
 
         xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
-        print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
+        #print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
         if not xmrig:
             raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
@@ -860,9 +975,9 @@ class DeplMgr:
         if xmrig.enabled() != new_xmrig.enabled():
             # This is an enable/disable operation
             if xmrig.enabled():
-                xmrig.disable()
+                xmrig.enabled(False)
             else:
-                xmrig.enable()
+                xmrig.enabled(True)
             update = True
 
         else:
@@ -894,8 +1009,10 @@ class DeplMgr:
         if update_config:
             vendor_dir = self.get_dir(DDir.VENDOR)
             tmpl_file = self.get_template(DElem.XMRIG)
-            xmrig.p2pool = self.db_cache.get_deployment_by_id(xmrig.parent())
+            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            if xmrig.p2pool.parent() != DField.DISABLE:
+                xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
 
         if update:
             self.update_one(xmrig)

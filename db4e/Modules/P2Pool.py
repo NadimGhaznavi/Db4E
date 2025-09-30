@@ -13,9 +13,9 @@ Everything P2Pool
 import os
 import errno
 
-from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
+from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import(
-    AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers,
+    AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers, Enabled,
     P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, StdinPath)
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
@@ -25,7 +25,7 @@ from db4e.Constants.DPlaceholder import DPlaceholder
 
 
 
-class P2Pool(LocalSoftwareSystem):
+class P2Pool(SoftwareSystem):
     
     
     def __init__(self, rec=None):
@@ -36,6 +36,7 @@ class P2Pool(LocalSoftwareSystem):
         self.add_component(DField.ANY_IP, AnyIP())
         self.add_component(DField.CHAIN, Chain())
         self.add_component(DField.CONFIG_FILE, ConfigFile())
+        self.add_component(DField.ENABLED, Enabled())
         self.add_component(DField.IN_PEERS, InPeers())
         self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.IP_ADDR, IpAddr())
@@ -53,6 +54,7 @@ class P2Pool(LocalSoftwareSystem):
         self.any_ip = self.components[DField.ANY_IP]
         self.chain = self.components[DField.CHAIN]
         self.config_file = self.components[DField.CONFIG_FILE]
+        self.enabled = self.components[DField.ENABLED]
         self.in_peers = self.components[DField.IN_PEERS]
         self.instance = self.components[DField.INSTANCE]
         self.ip_addr = self.components[DField.IP_ADDR]
@@ -70,6 +72,7 @@ class P2Pool(LocalSoftwareSystem):
         self._instance_map = {}
 
         self.monerod = None
+        self.parent(DField.DISABLE)
         self._hashrates = None
         self._hashrate = None
         

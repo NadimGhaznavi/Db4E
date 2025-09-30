@@ -307,16 +307,21 @@ class DeplClient:
             return False
 
 
+    def restart(self, form_data):
+        # Create a restart job
+        elem = form_data[DField.ELEMENT]
+        job = Job(op=DJob.RESTART, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        self.job_queue.post_job(job)
+        return elem
+
+
     def update_deployment(self, form_data):
         # Chceck for duplicate intance names and missing fields
         elem = form_data[DField.ELEMENT]
         self.check_instance_and_fields(elem)
 
         # Create an update job
-        if type(elem) == Db4E:
-            job = Job(op=DJob.UPDATE, instance=DLabel.DB4E, elem_type=elem.elem_type(), elem=elem)
-        else:
-            job = Job(op=DJob.UPDATE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(op=DJob.UPDATE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
         self.job_queue.post_job(job)
         return elem
     

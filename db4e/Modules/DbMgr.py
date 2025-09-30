@@ -108,6 +108,7 @@ class DbMgr:
     @as_worker
     def find_one(self, col_name, filter, use_worker=True):
         col = self.get_collection(col_name)
+        #print(f"DbMgr:find_one(): collection: {col_name}, filter: {filter}")
         return col.find_one(filter)
 
 

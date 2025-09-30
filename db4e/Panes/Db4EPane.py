@@ -26,7 +26,6 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DMethod import DMethod
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DButton import DButton
-from db4e.Constants.DJob import DJob
 from db4e.Constants.DLabel import DLabel
 
 color = "#9cae41"
@@ -85,6 +84,7 @@ class Db4EPane(Container):
 
                 Horizontal(
                     Button(label=DLabel.UPDATE, id=DButton.UPDATE),
+                    Button(label=DLabel.UPTIME, id=DButton.UPTIME),
                     classes=DForm.BUTTON_ROW
                 ),
             classes=DForm.PANE_BOX))
@@ -117,20 +117,30 @@ class Db4EPane(Container):
 
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        button_id = event.button.id
+
         self.db4e.user_wallet(self.query_one("#" + DForm.USER_WALLET_INPUT, Input).value)
         self.db4e.vendor_dir(self.query_one("#" + DForm.VENDOR_DIR_INPUT, Input).value)
         radio_set = self.query_one("#" + DForm.RADIO_SET, RadioSet)
         primary_instance = radio_set.pressed_button.label
         self.db4e.primary_server(self.instance_map[primary_instance])
         
-        # Create an update job
+        if button_id == DButton.UPDATE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.DB4E,
+                DField.ELEMENT: self.db4e,
+            }
 
-        form_data = {
-            DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-            DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
-            DField.ELEMENT_TYPE: DElem.DB4E,
-            DField.ELEMENT: self.db4e,
-        }
+        elif button_id == DButton.UPTIME:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.GET_UPTIME,
+                DField.ELEMENT_TYPE: DElem.DB4E,
+                DField.ELEMENT: self.db4e,
+            }
+
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
 

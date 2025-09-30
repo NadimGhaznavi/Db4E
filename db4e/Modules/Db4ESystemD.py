@@ -14,6 +14,8 @@ import subprocess
 import re
 import time
 
+from db4e.Modules.OpsDb import OpsDb
+
 from db4e.Constants.DField import DField
 from db4e.Constants.DSystemD import DSystemD
 from db4e.Constants.DFile import DFile
@@ -36,6 +38,7 @@ class Db4ESystemD:
         # Make sure systemd doesn't clutter the output with color codes or use a pager
         self.ops_col = DDef.OPS_COL
         self.db = db
+        self.ops_db = OpsDb(db=db)
         os.environ[DField.SYSTEMD_COLORS] = '0'
         os.environ[DField.SYSTEMD_PAGER] = ''
         self.result = {
@@ -90,22 +93,18 @@ class Db4ESystemD:
         return True
 
     
-    def log_event(self, event, service_name):
+    def log_event(self, service_name, event):
         elem_type, instance = service_name.split('@')
         # Map the field names to the labels for the Runtime Log
         TYPE_TABLE = {
-            DElem.MONEROD: DLabel.MONEROD_SHORT,
-            DElem.P2POOL: DLabel.P2POOL_SHORT,
+            DElem.MONEROD: DLabel.MONEROD,
+            DElem.P2POOL: DLabel.P2POOL,
             DElem.XMRIG: DLabel.XMRIG
         }
-        timestamp = datetime.now().replace(microsecond=0)
-        event = {
-            DMongo.ELEM_TYPE: TYPE_TABLE[elem_type],
-            DMongo.INSTANCE: instance,
-            DMongo.EVENT: event,
-            DMongo.TIMESTAMP: timestamp
-        }
-        self.db.insert_one(self.ops_col, event)
+        if event == DSystemD.START:
+            self.ops_db.add_start_event(TYPE_TABLE[elem_type], instance)
+        elif event == DSystemD.STOP:
+            self.ops_db.add_stop_event(TYPE_TABLE[elem_type], instance)
 
     
     def pid(self):

@@ -82,7 +82,11 @@ class DonationWallet(Component):
             DField.DONATION_WALLET, DLabel.DONATIONS_WALLET, 
             DDef.DONATION_WALLET)
 
+class Enabled(Component):
+    def __init__(self):
+        super().__init__(DField.ENABLED, DLabel.ENABLED, False)
 
+        
 class Hashrate(Component):
     def __init__(self):
         super().__init__(DField.HASHRATE, DLabel.HASHRATE)

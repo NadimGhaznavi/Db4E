@@ -29,7 +29,7 @@ class DMongo(ConstGroup):
     DB4E_REFRESH : str = "db4e_refresh"
     DEPLOYMENT_COL : str = "depl_collection"
     DOC_TYPE : str = "doc_type"
-    ELEM_TYPE : str = "elem_type"
+    ELEMENT_TYPE : str = "element_type"
     ENABLED : str = "enabled"
     EVENT : str = "event"
     HASHRATE : str = "hashrate"

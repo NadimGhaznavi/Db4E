@@ -126,7 +126,7 @@ class DbCache:
                         if elem.parent():
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.int_p2pool_map[elem.instance()] = elem
-
+                        
                     elif elem_type == DElem.XMRIG:
                         elem.p2pool = self.get_deployment_by_id(elem.parent())
                         if type(elem.p2pool) == P2Pool:
@@ -262,52 +262,87 @@ class DbCache:
 
             # Db4E
             if elem_type == DElem.DB4E:
-                return deepcopy(self.db4es_map.get(instance))
+                elem = deepcopy(self.db4es_map.get(instance))
             
             # MoneroD
-            if elem_type == DElem.MONEROD:
-                return deepcopy(self.monerod_map.get(instance))
+            elif elem_type == DElem.MONEROD:
+                elem = deepcopy(self.monerod_map.get(instance))
             
             elif elem_type == DElem.MONEROD_REMOTE:
-                return deepcopy(self.monerod_remote_map.get(instance))
+                elem = deepcopy(self.monerod_remote_map.get(instance))
 
             # P2Pool
             elif elem_type == DElem.P2POOL:
-                return deepcopy(self.p2pool_map.get(instance))
+                elem = deepcopy(self.p2pool_map.get(instance))
             
             # Remote P2Pool
             elif elem_type == DElem.P2POOL_REMOTE:
-                return deepcopy(self.p2pool_remote_map.get(instance))
+                elem = deepcopy(self.p2pool_remote_map.get(instance))
 
             # Internal P2Pool
             elif elem_type == DElem.INT_P2POOL:
-                return deepcopy(self.int_p2pool_map.get(instance))
-
-            # Internal P2Pool
-            elif elem_type == DElem.INT_P2POOL:
-                return deepcopy(self.int_p2pool_map.get(instance))
+                elem = deepcopy(self.int_p2pool_map.get(instance))
 
             # XMRig
             elif elem_type == DElem.XMRIG:
-                return deepcopy(self.xmrig_map.get(instance))
+                elem = deepcopy(self.xmrig_map.get(instance))
             
             # Remote XMRig
             elif elem_type == DElem.XMRIG_REMOTE:
-                return deepcopy(self.xmrig_remote_map.get(instance))
+                elem = deepcopy(self.xmrig_remote_map.get(instance))
             
             else:
                 raise ValueError(f"DbCache:get_deployment(): No handler for {elem_type}")
 
+            if not elem:
+                self.build_cache()
+                # Db4E
+                if elem_type == DElem.DB4E:
+                    elem = deepcopy(self.db4es_map.get(instance))
+                
+                # MoneroD
+                if elem_type == DElem.MONEROD:
+                    elem = deepcopy(self.monerod_map.get(instance))
+                
+                elif elem_type == DElem.MONEROD_REMOTE:
+                    elem = deepcopy(self.monerod_remote_map.get(instance))
+
+                # P2Pool
+                elif elem_type == DElem.P2POOL:
+                    elem = deepcopy(self.p2pool_map.get(instance))
+                
+                # Remote P2Pool
+                elif elem_type == DElem.P2POOL_REMOTE:
+                    elem = deepcopy(self.p2pool_remote_map.get(instance))
+
+                # Internal P2Pool
+                elif elem_type == DElem.INT_P2POOL:
+                    elem = deepcopy(self.int_p2pool_map.get(instance))
+
+                # Internal P2Pool
+                elif elem_type == DElem.INT_P2POOL:
+                    elem = deepcopy(self.int_p2pool_map.get(instance))
+
+                # XMRig
+                elif elem_type == DElem.XMRIG:
+                    elem = deepcopy(self.xmrig_map.get(instance))
+                
+                # Remote XMRig
+                elif elem_type == DElem.XMRIG_REMOTE:
+                    elem = deepcopy(self.xmrig_remote_map.get(instance))
+                
+                return elem
+            return elem
 
     def get_deployments(self):
-        return list(self.db4es_map.values()) + \
-            list(self.monerod_map.values()) + \
-            list(self.monerod_remote_map.values()) + \
-            list(self.p2pool_map.values()) + \
-            list(self.p2pool_remote_map.values()) +\
-            list(self.int_p2pool_map.values()) + \
-            list(self.xmrig_map.values()) + \
-            list(self.xmrig_remote_map.values())
+        return deepcopy(list(self.db4es_map.values())) + \
+            deepcopy(list(self.monerod_map.values())) + \
+            deepcopy(list(self.monerod_remote_map.values())) + \
+            deepcopy(list(self.p2pool_map.values())) + \
+            deepcopy(list(self.p2pool_remote_map.values())) +\
+            deepcopy(list(self.int_p2pool_map.values())) + \
+            deepcopy(list(self.xmrig_map.values())) + \
+            deepcopy(list(self.xmrig_remote_map.values()))
 
 
     def get_deployment_by_id(self, id):
@@ -356,35 +391,35 @@ class DbCache:
 
 
     def get_db4es(self):
-        return list(self.db4es_map.values())
+        return deepcopy(list(self.db4es_map.values()))
 
 
     def get_monerods(self):
-        return list(self.monerod_map.values())
+        return deepcopy(list(self.monerod_map.values()))
 
 
     def get_monerods_remote(self):
-        return list(self.monerod_remote_map.values())
+        return deepcopy(list(self.monerod_remote_map.values()))
 
 
     def get_p2pools(self):
-        return list(self.p2pool_map.values())
+        return deepcopy(list(self.p2pool_map.values()))
 
 
     def get_p2pools_remote(self):
-        return list(self.p2pool_remote_map.values())
+        return deepcopy(list(self.p2pool_remote_map.values()))
 
 
     def get_int_p2pools(self):
-        return list(self.int_p2pool_map.values())
+        return deepcopy(list(self.int_p2pool_map.values()))
 
 
     def get_xmrigs(self):
-        return list(self.xmrig_map.values())
+        return deepcopy(list(self.xmrig_map.values()))
 
 
     def get_xmrigs_remote(self):
-        return list(self.xmrig_remote_map.values())
+        return deepcopy(list(self.xmrig_remote_map.values()))
 
 
     def insert_one(self, elem):
@@ -395,7 +430,7 @@ class DbCache:
             for msg in msgs:
                 elem.add_msg(msg)
             self.id_map[elem.id()] = elem
-            return elem
+            return object_id
         
 
     def update_one(self, elem):

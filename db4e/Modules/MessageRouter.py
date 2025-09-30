@@ -44,6 +44,8 @@ class MessageRouter:
                       self.ops_mgr.get_deployment, DPane.DB4E)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
                       self.depl_client.update_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_UPTIME, DElem.DB4E,
+                      self.ops_mgr.get_uptime, DPane.UPTIME)
 
         # MoneroD - local
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
@@ -106,7 +108,7 @@ class MessageRouter:
 
         # P2Pool - Internal
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.INT_P2POOL,
-                      self.ops_mgr.get_deployment, DPane.P2POOL_INTERNAL)
+                      self.ops_mgr.get_deployment, DPane.CHAIN)
         self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.INT_P2POOL,
                       self.ops_mgr.hashrates, DPane.CHAIN_ANALYTICS)
 

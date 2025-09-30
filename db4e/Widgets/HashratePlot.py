@@ -30,13 +30,14 @@ class HashratePlot(PlotWidget):
         self._hashrate_id = id
         self._all_days = None
         self._all_values = None
+        self._title = title
         self.set_xlabel(DLabel.DAYS)        
 
 
     def load_data(self, days, hashrates, units):
         self._all_days = days
         self._all_values = hashrates
-        self.set_ylabel(DLabel.HASHRATE + " (" + units + ")")
+        self.set_ylabel(self._title + " (" + units + ")")
 
 
     def hashrate_plot(self, days=None, values=None) -> None:

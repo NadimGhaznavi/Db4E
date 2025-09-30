@@ -46,9 +46,9 @@ class XMRigPane(Container):
 
     analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
-    disable_button = Button(label=DLabel.DISABLE, id=DButton.DISABLE)
-    enable_button = Button(label=DLabel.ENABLE, id=DButton.ENABLE)
-    hashrates_button = Button(label=DLabel.HASHRATES, id=DButton.HASHRATES)
+    disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
+    enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
+    hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
@@ -82,7 +82,7 @@ class XMRigPane(Container):
                 Vertical(
                     Horizontal(
                         self.analytics_button,
-                        self.hashrates_button,
+                        self.hashrate_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,
@@ -158,7 +158,7 @@ class XMRigPane(Container):
         self.xmrig.num_threads(self.query_one("#" + DForm.NUM_THREADS_INPUT, Input).value)
 
 
-        if button_id == DButton.HASHRATES:
+        if button_id == DButton.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.HASHRATES,
