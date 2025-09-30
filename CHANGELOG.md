@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- `OpsDb` to support operations to the *ops* Mongo collection:
+  - `get_ops_events()` - Return start/stop events
+  - `add_start_event()` and `add_stop_event()` - Add start/stop events
+  - This module creates `start_stop_event`, `current_uptime` and `total_uptime` Mongo documents to track the current and cumulative uptime of the various components.
+  - Added a *Runtime Log* item to the `NavPane` that shows timestamped *start/stop* events.
+  - Added a *Uptime* button to the *Db4E Core* pane to show cummulative and current uptime of the various components.
+  - Added `Runtime` pane.
+- Added `ChainPane` and `ChainHashrates` panes.
+- Added `XMRigHashratesPane`
+- Added a `DOps` contants file.
+  
+### Changed
+- Removed the `DbCache` from the `DeplMgr`, it now does direct database operations.
+- Moved the `enabled` boolean in the Mongo deployment records into `Components`.
+- Removed redundant parameters to the various `InstallMgr` functions.
+- Changed the inheritance hierarchy for `Monerod`, `P2Pool` and `XMRig` classes, they used to inheirit from `LocalSoftwareSystem`, now they inheirit from `SoftwareSystem`.
+
+### Fixed
+- Internal `P2Pool` startup and shutdown based on the selection (or disable) of the *primary server*
+
+### Removed
+- Unused `PlotViewPane`
+
+---
+
 ## [0.40.0] - 2025-09-27
 
 ### Added
@@ -14,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a *Runtime* log to track the uptime of the various components.
 - Added a *Runtime* item to the NavPane to expose the log.
 - Added an *Instance* field to multiple Mongo mining metrics records
+- Added a `DSelect` constants file.
 
 ### Fixed
 - Disabled pan and zoom for HashratePlot widget, it's not helpful.
