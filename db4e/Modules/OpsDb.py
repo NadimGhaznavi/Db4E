@@ -37,7 +37,7 @@ class OpsDb:
         # Add a current uptime record
         cur_event = {
             DMongo.DOC_TYPE: DOps.CURRENT_UPTIME,
-            DMongo.ELEM_TYPE: elem_type,
+            DMongo.ELEMENT_TYPE: elem_type,
             DMongo.INSTANCE: instance,
             DOps.START_TIME: datetime.now().replace(microsecond=0),
             DOps.STOP_TIME: None,
@@ -51,11 +51,13 @@ class OpsDb:
         # Update the current uptime record
         cur_event = self.db.find_one(self.ops_col, {
             DMongo.DOC_TYPE: DOps.CURRENT_UPTIME,
-            DMongo.ELEM_TYPE: elem_type,
+            DMongo.ELEMENT_TYPE: elem_type,
             DMongo.INSTANCE: instance,
             DOps.STOP_TIME: None,
             DOps.TOTAL_UPTIME: None
         })
+        if not cur_event:
+            return
         cur_event[DOps.STOP_TIME] = datetime.now().replace(microsecond=0)
         total_uptime = cur_event[DOps.STOP_TIME] - cur_event[DOps.START_TIME]
         # Convert the total_uptime into an int for Mongo
@@ -65,7 +67,7 @@ class OpsDb:
         # Get the total uptime record
         total_event = self.db.find_one(self.ops_col, {
             DMongo.DOC_TYPE: DOps.TOTAL_UPTIME,
-            DMongo.ELEM_TYPE: elem_type,
+            DMongo.ELEMENT_TYPE: elem_type,
             DMongo.INSTANCE: instance
         })
         # Update existing total uptime record
@@ -77,7 +79,7 @@ class OpsDb:
         else:
             total_event = {
                 DMongo.DOC_TYPE: DOps.TOTAL_UPTIME,
-                DMongo.ELEM_TYPE: elem_type,
+                DMongo.ELEMENT_TYPE: elem_type,
                 DMongo.INSTANCE: instance,
                 DOps.TOTAL_UPTIME: cur_event[DOps.TOTAL_UPTIME]
             }
@@ -87,7 +89,7 @@ class OpsDb:
         timestamp = datetime.now().replace(microsecond=0)
         event = {
             DMongo.DOC_TYPE: DOps.START_STOP_EVENT,
-            DMongo.ELEM_TYPE: elem_type,
+            DMongo.ELEMENT_TYPE: elem_type,
             DMongo.INSTANCE: instance,
             DMongo.EVENT: event,
             DMongo.TIMESTAMP: timestamp
@@ -120,11 +122,11 @@ class OpsETL:
             { DMongo.DOC_TYPE: DOps.TOTAL_UPTIME }
         )
         totals_map = {
-            (t[DMongo.ELEM_TYPE], t[DMongo.INSTANCE]): t for t in totals
+            (t[DMongo.ELEMENT_TYPE], t[DMongo.INSTANCE]): t for t in totals
         }
 
         for c in current:
-            key = (c[DMongo.ELEM_TYPE], c[DMongo.INSTANCE])
+            key = (c[DMongo.ELEMENT_TYPE], c[DMongo.INSTANCE])
             total_event = totals_map.get(key)
 
             # If still running, compute delta from START_TIME to now
@@ -142,8 +144,8 @@ class OpsETL:
             if type(cur_uptime) == int:
                 cur_uptime = str(timedelta(seconds=cur_uptime))
 
-            summary_dict[c[DMongo.ELEM_TYPE] + "-" + c[DMongo.INSTANCE]] = {
-                DMongo.ELEM_TYPE: c[DMongo.ELEM_TYPE],
+            summary_dict[c[DMongo.ELEMENT_TYPE] + "-" + c[DMongo.INSTANCE]] = {
+                DMongo.ELEMENT_TYPE: c[DMongo.ELEMENT_TYPE],
                 DMongo.INSTANCE: c[DMongo.INSTANCE],
                 DOps.CURRENT_UPTIME: str(cur_uptime),
                 DOps.TOTAL_UPTIME: str(total_uptime),
@@ -152,4 +154,4 @@ class OpsETL:
         for key in summary_dict.keys():
             summary.append(summary_dict[key])
 
-        return sorted(summary, key=lambda x: (x[DMongo.ELEM_TYPE], x[DMongo.INSTANCE]))
+        return sorted(summary, key=lambda x: (x[DMongo.ELEMENT_TYPE], x[DMongo.INSTANCE]))

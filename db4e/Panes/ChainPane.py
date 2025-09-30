@@ -113,7 +113,10 @@ class ChainPane(Container):
         self.p2p_port_label.update(str(p2pool.p2p_port()))
         self.stratum_port_label.update(str(p2pool.stratum_port()))
         self.p2p_port_label.update(str(p2pool.p2p_port()))
-        self.parent_label.update(str(p2pool.monerod.instance()))
+        if p2pool.monerod:
+            self.parent_label.update(str(p2pool.monerod.instance()))
+        else:
+            self.parent_label.update("Primary server disabled")
         self.log_level_label.update(str(p2pool.log_level()))
 
 

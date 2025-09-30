@@ -12,12 +12,12 @@ Everything Monero Daemon
 
 import os
 
-from db4e.Modules.LocalSoftwareSystem import LocalSoftwareSystem
+from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
     BlockchainDir, ConfigFile, InPeers, Instance, Local, LogLevel, LogFile, 
     MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
     ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
-    PriorityPort1, PriorityPort2, IpAddr, Version, StdinPath, PrimaryServer)
+    PriorityPort1, PriorityPort2, IpAddr, Version, StdinPath, Enabled)
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -26,7 +26,7 @@ from db4e.Constants.DElem import DElem
 from db4e.Constants.DPlaceholder import DPlaceholder
 
 
-class MoneroD(LocalSoftwareSystem):
+class MoneroD(SoftwareSystem):
 
 
     def __init__(self, rec=None):
@@ -37,6 +37,7 @@ class MoneroD(LocalSoftwareSystem):
         self.add_component(DField.ANY_IP, AnyIP())
         self.add_component(DField.BLOCKCHAIN_DIR, BlockchainDir())
         self.add_component(DField.CONFIG_FILE, ConfigFile())
+        self.add_component(DField.ENABLED, Enabled())
         self.add_component(DField.IN_PEERS, InPeers())
         self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.IP_ADDR, IpAddr())
@@ -61,6 +62,7 @@ class MoneroD(LocalSoftwareSystem):
         self.any_ip = self.components[DField.ANY_IP]
         self.blockchain_dir = self.components[DField.BLOCKCHAIN_DIR]
         self.config_file = self.components[DField.CONFIG_FILE]
+        self.enabled = self.components[DField.ENABLED]
         self.in_peers = self.components[DField.IN_PEERS]
         self.instance = self.components[DField.INSTANCE]
         self.ip_addr = self.components[DField.IP_ADDR]

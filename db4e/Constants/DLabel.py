@@ -39,6 +39,7 @@ class DLabel(ConstGroup):
     DONATIONS : str = "Donations"
     DONATIONS_WALLET : str = "Donations Wallet"
     ENABLE : str = "Enable"
+    ENABLED : str = "Enabled"
     ELEMENT_TYPE : str = "Component"
     END : str = "End"
     ERROR : str = "Error"

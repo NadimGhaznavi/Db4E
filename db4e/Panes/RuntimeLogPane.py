@@ -50,7 +50,7 @@ class RuntimeLogPane(Static):
             date, time = event[DMongo.TIMESTAMP].strftime("%Y-%m-%d %H:%M:%S").split()
             table.add_row(
                 f"[b]{date}[/] [b green]{time}[/]",
-                event[DMongo.ELEM_TYPE],
+                event[DMongo.ELEMENT_TYPE],
                 f"[yellow]{event[DMongo.INSTANCE]}[/]",
                 event[DMongo.EVENT].upper()
             )

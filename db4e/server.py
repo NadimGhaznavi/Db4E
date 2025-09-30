@@ -91,7 +91,7 @@ class Db4eServer:
         self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Deployment Manager
-        self.depl_mgr = DeplMgr(db=self.db, db_cache=self.db_cache)
+        self.depl_mgr = DeplMgr(db=self.db)
 
         # Job Queue
         self.job_queue = JobQueue(db=self.db)
@@ -266,7 +266,7 @@ class Db4eServer:
         if not elem.enabled():
             return
         job.msg(f"Disabled deployment")
-        elem.disable()
+        elem.enabled(False)
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
         if type(elem) == P2Pool or type(elem) == MoneroD or \
@@ -289,7 +289,7 @@ class Db4eServer:
             if not elem.enabled():
                 continue
 
-            elem.disable()
+            elem.enabled(False)
             self.depl_mgr.update_deployment(elem)
             job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
             job.msg(f"Disabled downstream instance: {elem.instance()}")
@@ -308,7 +308,7 @@ class Db4eServer:
         self.log.info(f"Enable: {elem}")
         
         job.msg(f"Enabled deployment")
-        elem.enable()
+        elem.enabled(True)
         self.depl_mgr.update_deployment(elem)
         self.job_queue.complete_job(job)
         # Create an Ops record when remote elements are enabled
@@ -433,14 +433,11 @@ class Db4eServer:
     def set_int_p2pool_primary(self, monerod_id):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
-        self.log.critical(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
-
         for p2pool in self.depl_mgr.get_internal_p2pools():
             if p2pool.parent() == monerod_id:
                 continue
 
             self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
-            p2pool = deepcopy(p2pool)
             p2pool.parent(monerod_id)
             p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
             vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
@@ -450,7 +447,7 @@ class Db4eServer:
                 os.path.join(
                     vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
                     DDir.LOG, DFile.P2POOL_LOG))
-            p2pool.enable()
+            p2pool.enabled(True)
             self.depl_mgr.update_deployment(p2pool)
             self.ensure_running(p2pool)
 
@@ -550,10 +547,9 @@ class Db4eServer:
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:
             self.log.debug("Db4eServer:unset_int_p2pool_primary():")
-        self.log.critical("Db4eServer:unset_int_p2pool_primary():")
         for p2pool in self.depl_mgr.get_internal_p2pools():
             p2pool.parent(DField.DISABLE)
-            p2pool.disable()
+            p2pool.enabled(False)
             self.depl_mgr.update_deployment(p2pool)
 
 

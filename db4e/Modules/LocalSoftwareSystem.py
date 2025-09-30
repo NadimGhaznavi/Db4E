@@ -43,15 +43,17 @@ class LocalSoftwareSystem(SoftwareSystem):
         super().from_rec(rec)
         try:
             if rec[DField.ENABLED]:
-                self.enable()
+                self._enabled = True
             else:
-                self.disable()
+                self._enabled = False
         except KeyError:
             raise ValueError(
                 f"LocalSoftwareSystem:from_rec(): Missing '{DField.ENABLED}' field")
 
-
     def to_rec(self):
         rec = super().to_rec()
-        rec[DField.ENABLED] = bool(self.enabled())
+        if self._enabled == True:
+            rec[DField.ENABLED] = True
+        else:
+            rec[DField.ENABLED] = False
         return rec

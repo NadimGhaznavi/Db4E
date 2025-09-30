@@ -45,7 +45,7 @@ class InstallMgr(Container):
     def __init__(self, db: DbMgr, db_cache: DbCache):
         super().__init__()
         self.db_cache = db_cache
-        self.depl_mgr = DeplMgr(db=db, db_cache=db_cache)
+        self.depl_mgr = DeplMgr(db=db)
         self.col_name = DDef.DEPLOYMENT_COL
         self.tmp_dir = None
 

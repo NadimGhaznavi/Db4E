@@ -46,7 +46,7 @@ class UptimePane(Static):
 
         for event in events:
             table.add_row(
-                f"[b]{event[DMongo.ELEM_TYPE]}[/]",
+                f"[b]{event[DMongo.ELEMENT_TYPE]}[/]",
                 f"[yellow]{event[DMongo.INSTANCE]}[/]",
                 f"[green]{event[DOps.CURRENT_UPTIME]}[/]",
                 f"[b green]{event[DOps.TOTAL_UPTIME]}[/]"
