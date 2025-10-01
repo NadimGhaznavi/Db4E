@@ -87,6 +87,7 @@ class DDef(ConstGroup):
     PRIORITY_NODE_2 : str = "nodes.hashvault.pro"
     PYPI_REPO : str = 'https://pypi.org/pypi/db4e/json'
     PYTHON : str = "python"
+    ROOT : str = "root"
     RPC_BIND_PORT : int = 18081
     RUN_DIR : str = "run"
     SERVICE_STATUS : str = "stopped"

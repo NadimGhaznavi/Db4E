@@ -11,24 +11,31 @@ Everything XMRig
 """
 
 import os
-from copy import deepcopy
+import subprocess
 
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DField import DField
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DPlaceholder import DPlaceholder
+from db4e.Modules.Db4ELogger import Db4ELogger
 
 from db4e.Modules.Components import (
     ConfigFile, Enabled, Instance, Local, LogFile, NumThreads, Parent, Version,
     MaxLogFiles, MaxLogSize, LogRotateConfig)
 
+from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DField import DField
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DPlaceholder import DPlaceholder
+from db4e.Constants.DFile import DFile
+from db4e.Constants.DModule import DModule
+
+
+
+
 
 class XMRig(SoftwareSystem):
     
-    def __init__(self, rec=None):
+    def __init__(self, rec=None, log_file=None):
         super().__init__()
         self._elem_type = DElem.XMRIG
         self.name = DLabel.XMRIG
@@ -65,6 +72,9 @@ class XMRig(SoftwareSystem):
 
         if rec:
             self.from_rec(rec)
+
+        if log_file:
+            self.log = Db4ELogger(db4e_module=DModule.XMRIG, log_file=log_file)
   
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
@@ -122,6 +132,19 @@ class XMRig(SoftwareSystem):
         with open(fq_config, 'w') as f:
             f.write(final_config)
         self.logrotate_config(fq_config)
+
+        # XMRig is run as root, so the log files are owned by root, chown the 
+        # logrotate file to match the permisions (else logrotate will fail).
+        try:
+            cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_config]
+            proc = subprocess.run(
+                cmd, 
+                stderr=subprocess.PIPE, 
+                input='')
+            stderr = proc.stderr.decode('utf-8')
+            
+        except Exception as e:
+            self.log.critical(f"gen_logrotate_config(): {e} {stderr}")
 
 
     def hashrate(self, hashrate=None):

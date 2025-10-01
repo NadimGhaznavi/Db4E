@@ -9,7 +9,8 @@ db4e/Modules/DeplMgr.py
 """
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+from shutil import rmtree
 import socket
 from typing import overload
 from copy import deepcopy
@@ -20,12 +21,12 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DField import DField
@@ -244,6 +245,19 @@ class DeplMgr:
 
 
     def delete_deployment(self, elem):
+        if type(elem) == MoneroD:
+            os.remove(elem.config_file())
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            rmtree(os.path.join(vendor_dir, DDir.MONEROD, elem.instance()))
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+            os.remove(elem.config_file())
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            rmtree(os.path.join(vendor_dir, DDir.P2POOL, elem.instance()))
+        elif type(elem) == XMRig:
+            os.remove(elem.config_file())
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            rmtree(os.path.join(vendor_dir, DElem.XMRIG, elem.instance()))
+            os.remove(elem.logrotate_file())
         self.delete_one(elem)
 
 
@@ -380,12 +394,6 @@ class DeplMgr:
         if aDir == DElem.DB4E:
             return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
         
-        elif aDir == DField.PYTHON:
-            python = os.path.abspath(
-                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
-                             DDir.BIN, Default.PYTHON))
-            return python
-        
         elif aDir == DDir.INSTALL:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
@@ -395,15 +403,25 @@ class DeplMgr:
                 os.path.join(os.path.dirname(
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
-        elif aDir == DDir.VENDOR:
-            db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
-            return db4e.vendor_dir()
+        elif aDir == DDir.LOGROTATE:
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            return os.path.abspath(os.path.join(vendor_dir, DElem.DB4E, DDir.LOGROTATE))
 
         elif aDir == DElem.MONEROD:
             return DElem.MONEROD + '-' + Default.MONEROD_VERSION
         
         elif aDir == DElem.P2POOL:
             return DElem.P2POOL + '-' + Default.P2POOL_VERSION
+
+        elif aDir == DField.PYTHON:
+            python = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
+                             DDir.BIN, Default.PYTHON))
+            return python
+        
+        elif aDir == DDir.VENDOR:
+            db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
+            return db4e.vendor_dir()
 
         elif aDir == DElem.XMRIG:
             return DElem.XMRIG + '-' + Default.XMRIG_VERSION
@@ -477,7 +495,7 @@ class DeplMgr:
 
     def get_monerods(self):
         obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.MONEROD})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.MONEROD})
         for rec in recs:
             obj_list.append(self.factory(rec))
         return obj_list
@@ -509,7 +527,7 @@ class DeplMgr:
 
     def get_p2pools(self):
         obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.P2POOL})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.P2POOL})
         for rec in recs:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:
@@ -520,7 +538,7 @@ class DeplMgr:
     
     def get_xmrigs(self):
         obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.XMRIG})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.XMRIG})
         for rec in recs:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:

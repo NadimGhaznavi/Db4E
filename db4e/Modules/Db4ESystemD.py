@@ -207,11 +207,12 @@ class Db4ESystemD:
             cmd = [DFile.SUDO, DFile.SYSTEMCTL, arg, self._service_name]
             
         try:
-            proc = subprocess.run(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  input='',
-                                  timeout=TIMEOUT)
+            proc = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                input='',
+                timeout=TIMEOUT)
             stdout = proc.stdout.decode(errors='replace')
             stderr = proc.stderr.decode(errors='replace')
 

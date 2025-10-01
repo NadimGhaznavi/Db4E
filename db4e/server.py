@@ -18,7 +18,7 @@ import signal
 import threading
 from importlib import metadata
 from shutil import rmtree
-from copy import deepcopy
+import subprocess
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -107,6 +107,9 @@ class Db4eServer:
 
         # Mining DB object (part of the DAL)
         self.mining_db = MiningDb(db=self.db, log_file=fq_log_file)
+
+        # Track when we last ran `logrotate`
+        self.last_logrotate = None
 
         # {instance_name: (thread, stop_event)}
         self.log_watchers = {}
@@ -415,6 +418,32 @@ class Db4eServer:
         self.job_queue.complete_job(job)
 
 
+    def rotate_logs(self):
+        # Run logrotate every two hours
+        cur_hour = datetime.now().hour
+        if self.last_logrotate is None or self.last_logrotate != cur_hour:
+            self.last_logrotate = cur_hour
+            try:
+                logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
+                cmd = [DFile.SUDO , DFile.LOGROTATE, logrotate_dir]
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    input='')
+                stdout = proc.stdout.decode()
+                stderr = proc.stderr.decode()
+                self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+                for xmrig in self.depl_mgr.get_xmrigs():
+                    sd = self.systemd
+                    sd.service_name('xmrig@' + xmrig.instance())
+                    sd.restart()
+
+            except Exception as e:
+                self.log.error(f"rotate_logs(): {e} {stderr}")
+                return
+            
+
     def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:shutdown(): {signum}")
@@ -497,7 +526,7 @@ class Db4eServer:
                                     DLabel.NANO_CHAIN]:
                     timestamp = datetime.now().replace(microsecond=0)
                     event = {
-                        DMongo.ELEM_TYPE: DElem.P2POOL_WATCHER,
+                        DMongo.ELEMENT_TYPE: DElem.P2POOL_WATCHER,
                         DMongo.INSTANCE: instance,
                         DMongo.EVENT: DSystemD.START,
                         DMongo.TIMESTAMP: timestamp
@@ -524,6 +553,7 @@ class Db4eServer:
             self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
             self.check_deployments()
             self.check_jobs()
+            self.rotate_logs()
             time.sleep(POLL_INTERVAL)
 
 
