@@ -16,6 +16,7 @@ from db4e.Constants.DField import DField
 class DFile(ConstGroup):
     BACKUP_SCRIPT : str = "backup_script"
     CONFIG_FILE : str = DField.CONFIG_FILE
+    LOGROTATE : str = = "logrotate"
     P2POOL_LOG : str = "p2pool.log"
     P2POOL_STDIN : str = "p2pool.stdin"
     STATS_MOD : str = "stats_mod"

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a `XMRig.gen_logrotate_config()` method.
 - Created a new `LogRotateConfig` `Component` class.
 - Added `max_log_files()`, `max_log_size()` and `logrotate_config()` methods and components to `XMRig`.
+- Added `XMRig:gen_logrotate.config()` function to create a logrotate file.
 
 ### Fixed
 - Configured the *Hashrate* button visibility i.e. it's not visible for the *New* screen.

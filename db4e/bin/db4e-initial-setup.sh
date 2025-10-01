@@ -39,7 +39,7 @@ echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable monerod@*" >> $DB4E_S
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl start xmrig@*" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl stop xmrig@*" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable xmrig@*" >> $DB4E_SUDOERS
-echo "$Db4E_USER ALL=(ALL) NOPASSWD: /usr/sbin/logrotate $VENDOR_DIR/logrotate/*" >> $DB4E_SUDOERS
+echo "$Db4E_USER ALL=(ALL) NOPASSWD: /usr/sbin/logrotate $VENDOR_DIR/logrotate" >> $DB4E_SUDOERS
 echo >> $DB4E_SUDOERS
 
 chgrp sudo "$SUDOERS_DROPIN"
