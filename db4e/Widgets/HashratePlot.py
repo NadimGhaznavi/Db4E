@@ -12,6 +12,7 @@ from typing import Any
 
 from textual.widgets import Select
 from textual_plot import PlotWidget, HiResMode
+from textual.app import ComposeResult
 
 from db4e.Constants.DLabel import DLabel
 
@@ -32,6 +33,9 @@ class HashratePlot(PlotWidget):
         self._all_values = None
         self._title = title
         self.set_xlabel(DLabel.DAYS)        
+
+
+    #def compose(self) -> ComposeResult:
 
 
     def load_data(self, days, hashrates, units):

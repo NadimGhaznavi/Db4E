@@ -86,7 +86,6 @@ class Db4eServer:
         # OpsDb
         self.ops_db = OpsDb(db=self.db)
 
-
         # Database Cache
         self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
@@ -96,7 +95,6 @@ class Db4eServer:
         # Job Queue
         self.job_queue = JobQueue(db=self.db)
         
-
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         logs_dir = DDef.LOG_DIR

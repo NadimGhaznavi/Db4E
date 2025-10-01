@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- Added a `deployment_dir/db4e/logrotate` directory to house logrotate files.
+- Added a logrotate template file for `XMRig` deployments.
+- Added a line to the `/etc/sudoers.d/db4e` file to allow the db4e user to rotate log files.
+(xmrig log files are owned by root).
+- Added a `XMRig.gen_logrotate_config()` method.
+- Created a new `LogRotateConfig` `Component` class.
+- Added `max_log_files()`, `max_log_size()` and `logrotate_config()` methods and components to `XMRig`.
+
+### Fixed
+- Configured the *Hashrate* button visibility i.e. it's not visible for the *New* screen.
+
+---
+
 ## [0.41.0] - 2025-09-30
 
 ### Added

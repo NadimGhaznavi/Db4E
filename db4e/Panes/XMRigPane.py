@@ -35,6 +35,8 @@ class XMRigPane(Container):
     instance_map = {}
     
     config_label = Label("", classes=DForm.STATIC)
+    logrotate_config_label = Label("", classes=DForm.STATIC)
+
     instance_input = Input(
         id=DForm.INSTANCE_INPUT, restrict=f"[a-zA-Z0-9_\-]*", compact=True,
         classes=DForm.INPUT_15)
@@ -71,7 +73,11 @@ class XMRigPane(Container):
                     Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_25),
                         self.config_label),
-                    classes=DForm.FORM_3, id=DForm.FORM_BOX),
+                    Horizontal(
+                        Label(DLabel.LOG_ROTATE_CONFIG, classes=DForm.FORM_LABEL_25),
+                        self.logrotate_config_label),
+
+                    classes=DForm.FORM_4, id=DForm.FORM_BOX),
 
                 self.radio_set,
 
@@ -113,6 +119,7 @@ class XMRigPane(Container):
         self.instance_label.update(xmrig.instance())
         self.num_threads_input.value = str(xmrig.num_threads())
         self.config_label.update(xmrig.config_file())
+        self.logrotate_config_label.update(xmrig.logrotate_config())
         
         self.instance_map = xmrig.instance_map()
         instance_list = []

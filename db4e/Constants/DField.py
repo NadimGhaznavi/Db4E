@@ -67,6 +67,7 @@ class DField(ConstGroup) :
     LOG_LEVEL : str = "log_level"
     LOG_NAME : str = "log_name"
     LOG_RETENTION_DAYS : str = "log_retention_days"
+    LOG_ROTATE_CONFIG : str = "logrotate_config"
     LOG_VIEWER : str = "log_viewer"
     MACHINE : str = "host"
     MAX_BACKUPS : str = "max_backups"

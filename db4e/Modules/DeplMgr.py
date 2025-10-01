@@ -195,11 +195,20 @@ class DeplMgr:
                     
         if update:
             vendor_dir = self.get_dir(DDir.VENDOR)
+            
             tmpl_file = self.get_template(DElem.XMRIG)
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
             xmrig.log_file(os.path.join(
                 vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
+            
+            logrotate_tmpl = self.get_logrotate_template(DElem.XMRIG)
+            db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+            db4e_group = db4e.group()
+            xmrig.gen_logrotate_config(
+                tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+            
             self.insert_one(xmrig)
+
         return xmrig
 
 
@@ -242,7 +251,15 @@ class DeplMgr:
         elem_type = elem.elem_type()
         instance = elem.instance()
         self.db.delete_one(
-            self.depl_col, {DMongo.ELEM_TYPE: elem_type, DMongo.INSTANCE: instance})
+            self.depl_col, {
+                DMongo.ELEMENT_TYPE: elem_type, 
+                DField.COMPONENTS: {
+                    "$elemMatch": {
+                        DField.FIELD: DField.INSTANCE,
+                        DField.VALUE: instance}
+                    }
+                }
+            )
 
 
     def factory(self, rec=None):
@@ -326,15 +343,18 @@ class DeplMgr:
         instance_map = {}
         recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: elem_type})
         for rec in recs:
-            instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+            instance = self.get_component_value(rec, DField.INSTANCE)
+            instance_map[instance] = rec[DMongo.OBJECT_ID]
         if elem_type == DElem.P2POOL:
             recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.INT_P2POOL})
             for rec in recs:
-                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+                instance = self.get_component_value(rec, DField.INSTANCE)
+                instance_map[instance] = rec[DMongo.OBJECT_ID]
         elif elem_type == DElem.MONEROD:
             recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.MONEROD_REMOTE})
             for rec in recs:
-                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+                instance = self.get_component_value(rec, DField.INSTANCE)
+                instance_map[instance] = rec[DMongo.OBJECT_ID]
         return instance_map
             
     
@@ -355,7 +375,7 @@ class DeplMgr:
         return obj_list
 
 
-    def get_dir(self, aDir: str) -> str:
+    def get_dir(self, aDir: str, elem_type=None) -> str:
 
         if aDir == DElem.DB4E:
             return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
@@ -369,7 +389,7 @@ class DeplMgr:
         elif aDir == DDir.INSTALL:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
-        
+
         elif aDir == DDir.TEMPLATE:
             return os.path.abspath(
                 os.path.join(os.path.dirname(
@@ -421,6 +441,14 @@ class DeplMgr:
                 obj.monerod = self.get_deployment_by_id(obj.parent())
             obj_list.append(obj)
         return obj_list
+
+
+    def get_logrotate_template(self, elem_type):
+        if elem_type == DElem.XMRIG:
+            tmpl_dir = self.get_dir(DDir.TEMPLATE)
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.XMRIG + "-" + DDef.XMRIG_VERSION, DDef.CONF_DIR,
+                DElem.XMRIG + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
 
 
     def get_template(self, elem_type):

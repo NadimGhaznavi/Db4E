@@ -117,14 +117,19 @@ class Local(Component):
         super().__init__(DField.REMOTE, DLabel.REMOTE, False)
 
 
+class LogFile(Component):
+    def __init__(self):
+        super().__init__(DField.LOG_FILE, DLabel.LOG_FILE)
+
+
 class LogLevel(Component):
     def __init__(self):
         super().__init__(DField.LOG_LEVEL, DLabel.LOG_LEVEL, DDef.LOG_LEVEL)
 
 
-class LogFile(Component):
+class LogRotateConfig(Component):
     def __init__(self):
-        super().__init__(DField.LOG_FILE, DLabel.LOG_FILE)
+        super().__init__(DField.LOG_ROTATE_CONFIG, DLabel.LOG_ROTATE_CONFIG)
 
 
 class MaxLogFiles(Component):

@@ -97,6 +97,8 @@ class Job:
                 self._element = P2PoolRemote(elem_rec)
             elif elem_type == DElem.XMRIG:
                 self._element = XMRig(elem_rec)
+            self._instance = self.elem().instance()
+            self._element_type = self.elem().elem_type()
 
 
     def id(self, object_id=None):
