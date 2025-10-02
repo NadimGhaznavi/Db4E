@@ -178,6 +178,12 @@ class DeplMgr:
         job.msg("New deployment")
         self.job_queue.post_completed_job(job)
 
+        logrotate_tmpl = self.get_logrotate_template(DElem.P2POOL)
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e_group = db4e.group()
+        p2pool.gen_logrotate_config(
+            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+
         return p2pool
 
 
@@ -188,27 +194,25 @@ class DeplMgr:
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
 
-        update = True
-        if not xmrig.parent():
-            update = False
-        else:
-            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
-                    
-        if update:
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            
-            tmpl_file = self.get_template(DElem.XMRIG)
-            xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            xmrig.log_file(os.path.join(
-                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
-            
-            logrotate_tmpl = self.get_logrotate_template(DElem.XMRIG)
-            db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
-            db4e_group = db4e.group()
-            xmrig.gen_logrotate_config(
-                tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
-            
-            self.insert_one(xmrig)
+        xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+        vendor_dir = self.get_dir(DDir.VENDOR)
+        
+        tmpl_file = self.get_template(DElem.XMRIG)
+        xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+        xmrig.log_file(os.path.join(
+            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
+        
+        logrotate_tmpl = self.get_logrotate_template(DElem.XMRIG)
+        print(f"DeplMgr:add_xmrig_deployment(): logrotate_tmpl: {logrotate_tmpl}")
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e_group = db4e.group()
+        xmrig.gen_logrotate_config(
+            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+        
+        self.insert_one(xmrig)
+        job = Job(op=DJob.NEW, instance=xmrig.instance(), elem_type=DElem.INT_P2POOL)
+        job.msg("New deployment")
+        self.job_queue.post_completed_job(job)
 
         return xmrig
 
@@ -257,6 +261,9 @@ class DeplMgr:
             config = elem.config_file()
             if os.path.exists(config):
                 os.remove(config)
+            logrotate_config = elem.logrotate_config()
+            if os.path.exists(logrotate_config):
+                os.remove(logrotate_config)
             depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
@@ -362,7 +369,6 @@ class DeplMgr:
 
 
     def get_deployment_by_id(self, id):
-        print(f"DeploymentMgr:get_deployment_by_id(): {id}")
         if id == DField.DISABLE:
             return None
         else:
@@ -479,12 +485,19 @@ class DeplMgr:
 
 
     def get_logrotate_template(self, elem_type):
-        if elem_type == DElem.XMRIG:
+        if elem_type == DElem.P2POOL or elem_type == DElem.INT_P2POOL:
+            tmpl_dir = self.get_dir(DDir.TEMPLATE)
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.P2POOL + "-" + DDef.P2POOL_VERSION, DDef.CONF_DIR,
+                DElem.P2POOL + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
+        
+        elif elem_type == DElem.XMRIG:
             tmpl_dir = self.get_dir(DDir.TEMPLATE)
             return os.path.abspath(os.path.join(
                 tmpl_dir, DElem.XMRIG + "-" + DDef.XMRIG_VERSION, DDef.CONF_DIR,
                 DElem.XMRIG + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
 
+        print(f"DeploymentMgr:get_logrotate_template(): {tmpl_file}")
 
     def get_template(self, elem_type):
         tmpl_dir = self.get_dir(DDir.TEMPLATE)

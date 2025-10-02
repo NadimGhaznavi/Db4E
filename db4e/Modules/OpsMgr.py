@@ -101,8 +101,6 @@ class OpsMgr:
             elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
             if elem.parent() != DField.DISABLE:
                 elem.p2pool = self.db_cache.get_deployment_by_id(elem.parent())
-                if elem.p2pool.parent() != DField.DISABLE:
-                    elem.p2pool.monerod = self.db_cache.get_deployment_by_id(elem.p2pool.parent())
 
         elif type(elem) == XMRigRemote:
             # The Remote XMRig pane displays analytics

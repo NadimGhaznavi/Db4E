@@ -56,7 +56,7 @@ class DDef(ConstGroup):
     MAX_BACKUPS : int = 7
     MAX_LOG_FILES : int = 7
     MAX_LOG_LINES : int = 500
-    MAX_LOG_SIZE : int = 100000
+    MAX_LOG_SIZE : int = 10000000
     METRICS_COLLECTION : str = "metrics"
     MINING_COL : str = "mining"
     MONEROD_CONFIG : str = "monerod.ini"
