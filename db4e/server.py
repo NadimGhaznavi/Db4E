@@ -40,7 +40,7 @@ from db4e.Modules.DbCache import DbCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
-from db4e.Modules.OpsDb import OpsDb
+from db4e.Modules.OpsDb import OpsDb, OpsETL
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
@@ -80,14 +80,8 @@ class Db4eServer:
         #  systemd wrapper
         self.systemd = Db4ESystemD(db=self.db)
 
-        # Mining DB
-        self.mining_db = MiningDb(db=self.db)
-
         # OpsDb
         self.ops_db = OpsDb(db=self.db)
-
-        # Database Cache
-        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Deployment Manager
         self.depl_mgr = DeplMgr(db=self.db)
@@ -102,11 +96,12 @@ class Db4eServer:
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer.__init__():")
+        # Mining DB object 
+        self.mining_db = MiningDb(
+            db=self.db, log_file=fq_log_file, ops_etl=OpsETL(ops_db=OpsDb(db=self.db)))
 
-        # Mining DB object (part of the DAL)
-        self.mining_db = MiningDb(db=self.db, log_file=fq_log_file)
+        # Database Cache
+        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Track when we last ran `logrotate`
         self.last_logrotate = None
@@ -233,24 +228,23 @@ class Db4eServer:
         elif type(elem) == P2Pool:
             self.ensure_stopped(elem)
             vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            p2pool_dir = DElem.P2POOL + '-' + elem.version()
-            rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
+            rmtree(os.path.join(vendor_dir, DElem.P2POOL, elem.instance()), ignore_errors=True)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
+            self.depl_mgr.delete_deployment(elem)
             self.disable_downstream(elem)
         elif type(elem) == MoneroD:
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
             vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            monerod_dir = DElem.MONEROD + '-' + elem.version()
             conf_file = elem.config_file()
             if os.path.exists(conf_file):
                 os.remove(conf_file)
-            rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
+            rmtree(os.path.join(vendor_dir, DElem.MONEROD, elem.instance()))
             self.depl_mgr.delete_deployment(elem)  
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
@@ -287,10 +281,12 @@ class Db4eServer:
         elems = self.depl_mgr.get_downstream(elem)
         for elem in elems:
             
-            if not elem.enabled():
-                continue
-
             elem.enabled(False)
+            elem.parent(DField.DISABLE)
+            if type(elem) == P2Pool or type(elem) == InternalP2Pool:
+                self.monerod = None
+            elif type(elem) == XMRig:
+                self.p2pool = None
             self.depl_mgr.update_deployment(elem)
             job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
             job.msg(f"Disabled downstream instance: {elem.instance()}")
@@ -425,7 +421,7 @@ class Db4eServer:
             self.last_logrotate = cur_hour
             try:
                 logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
-                cmd = [DFile.SUDO , DFile.LOGROTATE, logrotate_dir]
+                cmd = [DFile.SUDO , DFile.LOGROTATE, "-v", logrotate_dir]
                 proc = subprocess.run(
                     cmd,
                     stdout=subprocess.PIPE,

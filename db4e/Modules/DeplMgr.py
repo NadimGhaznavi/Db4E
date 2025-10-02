@@ -339,9 +339,10 @@ class DeplMgr:
                 if obj.parent() != DField.DISABLE:
                     obj.monerod = self.get_deployment_by_id(obj.parent())
             elif type(obj) == XMRig:
-                obj.p2pool = self.get_deployment_by_id(obj.parent())
-                if obj.p2pool.parent() != DField.DISABLE:
-                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+                if obj.parent() != DField.DISABLE:
+                    obj.p2pool = self.get_deployment_by_id(obj.parent())
+                    if obj.p2pool.parent() != DField.DISABLE:
+                        obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
                 obj.instance_map = self.get_deployment_ids_and_instances(DElem.P2POOL)
             return obj
         else:
@@ -382,9 +383,9 @@ class DeplMgr:
                 if obj.parent() != DField.DISABLE:
                     obj.monerod = self.get_deployment_by_id(obj.parent())
             elif type(obj) == XMRig:
-                obj.p2pool = self.get_deployment_by_id(obj.parent())
-                if obj.p2pool.parent() != DField.DISABLE:
-                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+                if obj.p2pool:
+                    if obj.p2pool.parent() != DField.DISABLE:
+                        obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
             obj_list.append(obj)
         return obj_list
 

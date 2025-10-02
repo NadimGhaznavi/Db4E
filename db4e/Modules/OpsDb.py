@@ -97,6 +97,18 @@ class OpsDb:
         self.db.insert_one(self.ops_col, event)
 
 
+    def get_uptime(self, elem_type, instance):
+        cur_uptime = self.db.find_one(self.ops_col, {
+            DMongo.DOC_TYPE: DOps.CURRENT_UPTIME,
+            DMongo.ELEMENT_TYPE: elem_type,
+            DMongo.INSTANCE: instance
+        })
+        if not cur_uptime:
+            return None
+        return cur_uptime
+
+
+
 
 class OpsETL:
 
@@ -155,3 +167,10 @@ class OpsETL:
             summary.append(summary_dict[key])
 
         return sorted(summary, key=lambda x: (x[DMongo.ELEMENT_TYPE], x[DMongo.INSTANCE]))
+
+
+    def get_uptime(self, elem_type, instance):
+        rec = self.ops_db.get_uptime(elem_type, instance)
+        if not rec:
+            return 0
+        return rec[DOps.TOTAL_UPTIME]]

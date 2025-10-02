@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 # Import DB4E modules
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.OpsDb import OpsETL
 from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DDef import DDef
@@ -37,8 +38,9 @@ DDebug.FUNCTION = True
 class MiningDb():
 
 
-    def __init__(self, db: DbMgr, log_file=None):
+    def __init__(self, db: DbMgr, ops_etl: OpsETL, log_file=None):
         self.db = db
+        self.ops_etl = ops_etl
         self.mining_col = DDef.MINING_COL
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
@@ -145,10 +147,22 @@ class MiningDb():
             self.log.info(f"Created new {chain} miners ({num_miners}) record")
 
 
-    def add_miner_hashrate(self, chain, miner_name, ip_addr, hashrate, uptime):
+    def add_miner_hashrate(
+            self, chain, miner_name, ip_addr, hashrate, uptime, instance):
         """
         Store the miner hashrate
         """
+        # The miner hashrate reported by P2Pool when it is first started is extremely
+        # high. If this event happens to occur just before the beginning of the hour,
+        # Then this value is recorded, which throws off the overall miner hashrate.
+        #
+        # Don't record the miner hashrate if the upstream P2Pool has been running
+        # for less than 3 minutes.
+        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=instance)
+        if minutes < 3:
+            return
+
+
         # Convert the hashrate to a float
         hashrate = float(hashrate)
 

@@ -18,9 +18,7 @@ from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MiningETL import MiningETL
-from db4e.Modules.OpsDb import OpsDb
 from db4e.Modules.OpsDb import OpsETL
-
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.XMRig import XMRig
@@ -39,7 +37,7 @@ class OpsMgr:
 
     def __init__(
         self, depl_client: DeplClient, health_cache: HealthCache, 
-        db_cache: DbCache, mining_db: MiningDb):
+        db_cache: DbCache, mining_db: MiningDb, ops_etl: OpsETL):
 
         self.depl_client = depl_client
         self.health_cache = health_cache
@@ -48,8 +46,8 @@ class OpsMgr:
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
-        self.ops_db = OpsDb(db=self.db)
-        self.ops_etl = OpsETL(ops_db=self.ops_db)
+        self.ops_etl = ops_etl
+        self.ops_db = ops_etl.ops_db
 
 
 

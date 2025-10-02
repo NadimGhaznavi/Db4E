@@ -196,8 +196,7 @@ class P2PoolWatcher:
             uptime = match.group('uptime')
             self.mining_db.add_miner_hashrate(
                 chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
-                hashrate=hashrate, uptime=uptime)
-
+                hashrate=hashrate, uptime=uptime, instance=self.instance())
 
     def is_side_chain_hashrate(self, log_line):
         """

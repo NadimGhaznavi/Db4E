@@ -11,16 +11,19 @@ Everything P2Pool
 """
 
 import os
-import errno
+import subprocess
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import(
     AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers, Enabled,
-    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, StdinPath)
+    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, StdinPath,
+    LogRotateConfig)
+
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
+from db4e.Constants.DFile import DFile
 from db4e.Constants.DPlaceholder import DPlaceholder
 
 
@@ -41,6 +44,7 @@ class P2Pool(SoftwareSystem):
         self.add_component(DField.INSTANCE, Instance())
         self.add_component(DField.IP_ADDR, IpAddr())
         self.add_component(DField.LOG_FILE, LogFile())
+        self.add_component(DField.LOG_ROTATE_CONFIG, LogRotateConfig())
         self.add_component(DField.REMOTE, Local())
         self.add_component(DField.LOG_LEVEL, LogLevel())
         self.add_component(DField.OUT_PEERS, OutPeers())
@@ -59,6 +63,7 @@ class P2Pool(SoftwareSystem):
         self.instance = self.components[DField.INSTANCE]
         self.ip_addr = self.components[DField.IP_ADDR]
         self.log_file = self.components[DField.LOG_FILE]
+        self.logrotate_config = self.components[DField.LOG_ROTATE_CONFIG]
         self.remote = self.components[DField.REMOTE]
         self.log_level = self.components[DField.LOG_LEVEL]
         self.out_peers = self.components[DField.OUT_PEERS]
@@ -124,6 +129,44 @@ class P2Pool(SoftwareSystem):
             f.write(final_config)
         self.config_file(fq_config)
 
+
+    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group:str):
+        # Logrotate configuration file
+        fq_config = os.path.join(
+            vendor_dir, DElem.DB4E, DDef.LOG_ROTATE, DElem.P2POOL + "-" + \
+                self.instance() + DDef.CONF_SUFFIX)
+        
+        # Populate the config template
+        placeholders = {
+            DPlaceholder.VENDOR_DIR: vendor_dir,
+            DPlaceholder.INSTANCE: self.instance(),
+            DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
+            DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
+            DPlaceholder.DB4E_GROUP: db4e_group,
+        }
+        with open(tmpl_file, 'r') as f:
+            config_contents = f.read()
+            final_config = config_contents
+            for key, val in placeholders.items():
+                final_config = final_config.replace(f'[[{key}]]', str(val))
+
+        # Write the config to file
+        with open(fq_config, 'w') as f:
+            f.write(final_config)
+        self.logrotate_config(fq_config)
+
+        # XMRig is run as root, so the log files are owned by root, chown the 
+        # logrotate file to match the permisions (else logrotate will fail).
+        try:
+            cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_config]
+            proc = subprocess.run(
+                cmd, 
+                stderr=subprocess.PIPE, 
+                input='')
+            stderr = proc.stderr.decode('utf-8')
+            
+        except Exception as e:
+            self.log.critical(f"gen_logrotate_config(): {e} {stderr}")
 
     def hashrate(self, hashrate=None):
         if hashrate is not None:

@@ -41,6 +41,7 @@ from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.InstallMgr import InstallMgr
 from db4e.Modules.MessageRouter import MessageRouter
 from db4e.Modules.MiningDb import MiningDb
+from db4e.Modules.OpsDb import OpsDb, OpsETL
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
@@ -80,19 +81,23 @@ class Db4EApp(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         db = DbMgr()
-        mining_db = MiningDb(db=db)
         db_cache = DbCache(db=db, mining_db=mining_db)
         depl_client = DeplClient(db=db, db_cache=db_cache)
         health_cache = HealthCache(depl_client=depl_client)
+        ops_db = OpsDb(db=db)
+        ops_etl = OpsETL(ops_db=ops_db)
+        mining_db = MiningDb(db=db, ops_etl=ops_etl)
         ops_mgr = OpsMgr(
             depl_client=depl_client, health_cache=health_cache, db_cache=db_cache, 
-            mining_db=mining_db)
+            mining_db=mining_db, ops_etl=ops_etl)
         install_mgr = InstallMgr(db=db, db_cache=db_cache)
+
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)
         self.msg_router = MessageRouter(
             depl_client=depl_client, install_mgr=install_mgr, pane_mgr=self.pane_mgr,
             ops_mgr=ops_mgr)
+
 
 
     def compose(self):
