@@ -173,4 +173,4 @@ class OpsETL:
         rec = self.ops_db.get_uptime(elem_type, instance)
         if not rec:
             return 0
-        return rec[DOps.TOTAL_UPTIME]]
+        return rec[DOps.TOTAL_UPTIME]

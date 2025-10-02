@@ -217,35 +217,19 @@ class Db4eServer:
         job.msg("Deleted deployment")
         if type(elem) == XMRig:
             self.ensure_stopped(elem)
-            config_file = elem.config_file()
-            if os.path.exists(config_file):
-                os.remove(config_file)
-            log_file = elem.log_file()
-            if os.path.exists(log_file):
-                os.remove(log_file)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
             self.ensure_stopped(elem)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            rmtree(os.path.join(vendor_dir, DElem.P2POOL, elem.instance()), ignore_errors=True)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.depl_mgr.delete_deployment(elem)
-            self.job_queue.complete_job(job=job)
-            self.depl_mgr.delete_deployment(elem)
             self.disable_downstream(elem)
         elif type(elem) == MoneroD:
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            conf_file = elem.config_file()
-            if os.path.exists(conf_file):
-                os.remove(conf_file)
-            rmtree(os.path.join(vendor_dir, DElem.MONEROD, elem.instance()))
-            self.depl_mgr.delete_deployment(elem)  
             self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
             
@@ -457,22 +441,20 @@ class Db4eServer:
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
         for p2pool in self.depl_mgr.get_internal_p2pools():
-            if p2pool.parent() == monerod_id:
-                continue
-
-            self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
-            p2pool.parent(monerod_id)
-            p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            p2pool.log_file(
-                os.path.join(
-                    vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
-                    DDir.LOG, DFile.P2POOL_LOG))
-            p2pool.enabled(True)
-            self.depl_mgr.update_deployment(p2pool)
-            self.ensure_running(p2pool)
+            if p2pool.parent() != monerod_id:
+                self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
+                p2pool.parent(monerod_id)
+                p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
+                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.log_file(
+                    os.path.join(
+                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                        DDir.LOG, DFile.P2POOL_LOG))
+                p2pool.enabled(True)
+                self.depl_mgr.update_deployment(p2pool)
+                self.ensure_running(p2pool)
 
 
     def spawn_log_watcher(self, p2pool):

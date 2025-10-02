@@ -81,12 +81,12 @@ class Db4EApp(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         db = DbMgr()
-        db_cache = DbCache(db=db, mining_db=mining_db)
-        depl_client = DeplClient(db=db, db_cache=db_cache)
-        health_cache = HealthCache(depl_client=depl_client)
         ops_db = OpsDb(db=db)
         ops_etl = OpsETL(ops_db=ops_db)
         mining_db = MiningDb(db=db, ops_etl=ops_etl)
+        db_cache = DbCache(db=db, mining_db=mining_db)
+        depl_client = DeplClient(db=db, db_cache=db_cache)
+        health_cache = HealthCache(depl_client=depl_client)
         ops_mgr = OpsMgr(
             depl_client=depl_client, health_cache=health_cache, db_cache=db_cache, 
             mining_db=mining_db, ops_etl=ops_etl)

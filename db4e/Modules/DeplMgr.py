@@ -245,19 +245,31 @@ class DeplMgr:
 
 
     def delete_deployment(self, elem):
+        vendor_dir = self.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
-            os.remove(elem.config_file())
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            rmtree(os.path.join(vendor_dir, DDir.MONEROD, elem.instance()))
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            depl_dir = os.path.join(vendor_dir, DDir.MONEROD, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
         elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
-            os.remove(elem.config_file())
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            rmtree(os.path.join(vendor_dir, DDir.P2POOL, elem.instance()))
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
         elif type(elem) == XMRig:
-            os.remove(elem.config_file())
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            rmtree(os.path.join(vendor_dir, DElem.XMRIG, elem.instance()))
-            os.remove(elem.logrotate_file())
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            logrotate_config = elem.logrotate_config()
+            if os.path.exists(logrotate_config):
+                os.remove(logrotate_config)
+            depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
         self.delete_one(elem)
 
 
