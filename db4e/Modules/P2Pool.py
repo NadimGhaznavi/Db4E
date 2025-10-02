@@ -146,7 +146,6 @@ class P2Pool(SoftwareSystem):
             DPlaceholder.INSTANCE: self.instance(),
             DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
             DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
-            DPlaceholder.DB4E_GROUP: db4e_group,
         }
         with open(tmpl_file, 'r') as f:
             config_contents = f.read()
