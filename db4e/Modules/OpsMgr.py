@@ -84,17 +84,30 @@ class OpsMgr:
    
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
-            if DField.INSTANCE in elem_type:
-                instance = elem_type[DField.INSTANCE]
+            instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
 
-        if type(elem) == XMRigRemote:
+        if type(elem) == Db4E:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            if elem.parent() != DField.DISABLE:
+                elem.monerod = self.db_cache.get_deployment_by_id(elem.parent())
+
+        elif type(elem) == XMRig:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+            if elem.parent() != DField.DISABLE:
+                elem.p2pool = self.db_cache.get_deployment_by_id(elem.parent())
+                if elem.p2pool.parent() != DField.DISABLE:
+                    elem.p2pool.monerod = self.db_cache.get_deployment_by_id(elem.p2pool.parent())
+
+        elif type(elem) == XMRigRemote:
             # The Remote XMRig pane displays analytics
             return self.hashrates(form_data={DField.ELEMENT: elem})
 
-        
         return elem
 
     ### Get deployments by type...

@@ -362,8 +362,12 @@ class DeplMgr:
 
 
     def get_deployment_by_id(self, id):
-        rec = self.db.find_one(self.depl_col, {DMongo.OBJECT_ID: id})
-        return self.factory(rec)
+        print(f"DeploymentMgr:get_deployment_by_id(): {id}")
+        if id == DField.DISABLE:
+            return None
+        else:
+            rec = self.db.find_one(self.depl_col, {DMongo.OBJECT_ID: id})
+            return self.factory(rec)
 
 
     def get_deployment_ids_and_instances(self, elem_type):
@@ -1054,15 +1058,24 @@ class DeplMgr:
 
             # Parent ID
             if xmrig.parent != new_xmrig.parent:
-                parent = self.get_deployment_by_id(new_xmrig.parent())
-                parent_instance = parent.instance()
-                new_parent = self.get_deployment_by_id(new_xmrig.parent())
-                new_parent_instance = new_parent.instance()
+                if new_xmrig.parent() == DField.DISABLE:
+                    new_parent_instance = "Not set"
+                    parent = self.get_deployment_by_id(xmrig.parent())
+                    parent_instance = parent.instance()
+                else:
+                    new_parent = self.get_deployment_by_id(new_xmrig.parent())
+                    new_parent_instance = new_parent.instance()
+                    if xmrig.parent() == DField.DISABLE:
+                        parent_instance = "Not set"
+                    else:
+                        parent = self.get_deployment_by_id(xmrig.parent())
+                        parent_instance = parent.instance()
+                    update_config = True
                 xmrig.parent(new_xmrig.parent())
                 msg = f"Updated parent: {parent_instance} > {new_parent_instance}"
                 xmrig.msg(DLabel.XMRIG_SHORT, DStatus.GOOD, msg)
                 update = True
-                update_config = True
+                
 
         # Regenerate config if required
         if update_config:

@@ -123,7 +123,7 @@ class XMRigPane(Container):
         
         self.instance_map = xmrig.instance_map()
         instance_list = []
-        #print(f"XMRigPane:set_data(): instance_map: {self.instance_map}")
+        print(f"XMRigPane:set_data(): instance_map: {self.instance_map}")
         for instance in self.instance_map.keys():
             instance_list.append(instance)
         self.radio_button_list = instance_list

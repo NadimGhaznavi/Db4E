@@ -305,15 +305,14 @@ class P2PoolWatcher:
 
         self.spawn_p2pool_cmds()
         log_file = self.log_file()
-        stop_event = threading.Event()
 
         self.log.info(f"Monitoring log file: {log_file}")
-        while not stop_event.is_set():
+        while not self._stop_event.is_set():
             try:
                 with open(log_file, "r") as log_handle:
                     log_handle.seek(0, os.SEEK_END)
 
-                    while not stop_event.is_set():
+                    while not self._stop_event.is_set():
                         line = log_handle.readline()
 
                         if not line:

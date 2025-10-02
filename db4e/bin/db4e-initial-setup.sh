@@ -52,13 +52,13 @@ echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl stop xmrig@*" >> $DB4E_SUDOE
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable xmrig@*" >> $DB4E_SUDOERS
 echo >> $DB4E_SUDOERS
 echo "# Run logrotate to manage Db4E, P2Pool and XMRig log files" >> $DB4E_SUDOERS
-echo "$Db4E_USER ALL=(ALL) NOPASSWD: /usr/sbin/logrotate $VENDOR_DIR/logrotate" >> $DB4E_SUDOERS
-echo "$Db4E_USER ALL=(ALL) NOPASSWD: /usr/bin/chown root $VENDOR_DIR/db4e/logrotate/*" >> $DB4E_SUDOERS
+echo "$DB4E_USER ALL=(ALL) NOPASSWD: /usr/sbin/logrotate $VENDOR_DIR/logrotate" >> $DB4E_SUDOERS
+echo "$DB4E_USER ALL=(ALL) NOPASSWD: /usr/bin/chown root $VENDOR_DIR/db4e/logrotate/*" >> $DB4E_SUDOERS
 
 echo >> $DB4E_SUDOERS
 
-chgrp sudo "$SUDOERS_DROPIN"
-chmod 440 "$SUDOERS_DROPIN"
+chgrp sudo "$DB4E_SUDOERS"
+chmod 440 "$DB4E_SUDOERS"
 
 # Validae the 
 visudo -c -f $DB4E_SUDOERS > /dev/null 2>&1

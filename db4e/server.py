@@ -216,22 +216,32 @@ class Db4eServer:
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         job.msg("Deleted deployment")
         if type(elem) == XMRig:
+            elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
+            self.disable_downstream(elem)
+            elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
-            self.disable_downstream(elem)
+            control = self.log_watchers.pop(instance, None)
+            if control:
+                thread, stop_event, watcher = control
+                watcher.stop_sub_thread()
+                stop_event.set()
+                thread.join()
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
-            self.depl_mgr.delete_deployment(elem)
             self.disable_downstream(elem)
+            elem.enabled(False)
+            self.depl_mgr.delete_deployment(elem)
         elif type(elem) == MoneroD:
+            self.disable_downstream(elem)
+            elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
-            self.disable_downstream(elem)
             
 
     def disable(self, job: Job):
@@ -262,19 +272,41 @@ class Db4eServer:
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable_downstream(): {elem}")
-        elems = self.depl_mgr.get_downstream(elem)
-        for elem in elems:
-            
-            elem.enabled(False)
-            elem.parent(DField.DISABLE)
-            if type(elem) == P2Pool or type(elem) == InternalP2Pool:
-                self.monerod = None
-            elif type(elem) == XMRig:
-                self.p2pool = None
-            self.depl_mgr.update_deployment(elem)
-            job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
-            job.msg(f"Disabled downstream instance: {elem.instance()}")
-            self.job_queue.complete_job(job)    
+
+        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            p2pools = self.depl_mgr.get_p2pools()
+            for p2pool in p2pools:
+                if p2pool.parent() == elem.id():
+                    p2pool.monerod = None
+                    self.ensure_stopped(p2pool)
+                    self.depl_mgr.update_deployment(p2pool)
+                    p2pool.enabled(False)
+                    p2pool.parent(DField.DISABLE)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+            int_p2pools = self.depl_mgr.get_internal_p2pools()
+            for int_p2pool in int_p2pools:
+                if int_p2pool.parent() == elem.id():
+                    int_p2pool.monerod = None
+                    self.ensure_stopped(int_p2pool)
+                    self.depl_mgr.update_deployment(int_p2pool)
+                    int_p2pool.enabled(False)
+                    int_p2pool.parent(DField.DISABLE)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            xmrigs = self.depl_mgr.get_xmrigs()
+            for xmrig in xmrigs:
+                if xmrig.parent() == elem.id():
+                    xmrig.p2pool = None
+                    self.ensure_stopped(xmrig)
+                    xmrig.enabled(False)
+                    xmrig.parent(DField.DISABLE)
+                    self.depl_mgr.update_deployment(xmrig)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    self.job_queue.complete_job(job)    
 
 
     def enable(self, job: Job):
@@ -502,14 +534,8 @@ class Db4eServer:
                 self.log.debug(f"Watcher thread exiting: {instance}")
                 if instance not in [ DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, 
                                     DLabel.NANO_CHAIN]:
-                    timestamp = datetime.now().replace(microsecond=0)
-                    event = {
-                        DMongo.ELEMENT_TYPE: DElem.P2POOL_WATCHER,
-                        DMongo.INSTANCE: instance,
-                        DMongo.EVENT: DSystemD.START,
-                        DMongo.TIMESTAMP: timestamp
-                    }
-                    self.mining_db.db.insert_one(self.ops_col, event)   
+                    self.ops_db.add_start_event(
+                        elem_type=DLabel.P2POOL_WATCHER, instance=instance)
 
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)

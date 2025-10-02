@@ -103,7 +103,6 @@ class DbCache:
                     elem.from_rec(rec)
 
                     if elem_type == DElem.DB4E:
-                        elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
                         self.db4es_map[elem.instance()] = elem
 
                     elif elem_type == DElem.MONEROD:
@@ -113,25 +112,15 @@ class DbCache:
                         self.monerod_remote_map[elem.instance()] = elem
     
                     elif elem_type == DElem.P2POOL:
-                        elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
-                        if elem.parent():
-                            elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
                     
                     elif elem_type == DElem.P2POOL_REMOTE:
                         self.p2pool_remote_map[elem.instance()] = elem
                     
                     elif elem_type == DElem.INT_P2POOL:
-                        elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
-                        if elem.parent():
-                            elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.int_p2pool_map[elem.instance()] = elem
                         
                     elif elem_type == DElem.XMRIG:
-                        elem.p2pool = self.get_deployment_by_id(elem.parent())
-                        if type(elem.p2pool) == P2Pool:
-                            elem.p2pool.monerod = self.get_deployment_by_id(elem.p2pool.parent())
-                            elem.instance_map(self.get_deployment_ids_and_instances(DElem.P2POOL))
                         self.xmrig_map[elem.instance()] = elem
                     
                 else:
