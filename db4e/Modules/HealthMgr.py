@@ -24,7 +24,7 @@ from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DModule import DModule
+from db4e.Constants.DField import DField
 
 class HealthMgr:
 
@@ -305,16 +305,7 @@ class HealthMgr:
                        f"Connection to {DLabel.STRATUM_PORT} failed")
             
         # Check upstgream monerod
-        if type(p2pool.monerod) == MoneroD or type(p2pool.monerod) == MoneroDRemote:
-            self.check(p2pool.monerod)
-            if p2pool.monerod.status() == DStatus.GOOD:
-                p2pool.msg(DLabel.MONEROD, DStatus.GOOD,
-                        f"Upstream MoneroD ({p2pool.monerod.instance()}) is healthy")
-            else:
-                p2pool.msg(DLabel.MONEROD, DStatus.WARN,
-                        f"Upstream MoneroD ({p2pool.monerod.instance()}) has issues:")
-                p2pool.push_msgs(p2pool.monerod.pop_msgs())
-        else:
+        if p2pool.parent() == DField.DISABLE:
             p2pool.msg(DLabel.MONEROD, DStatus.WARN,
                       f"Missing upstream Monero deployment")       
         return p2pool     
@@ -325,34 +316,26 @@ class HealthMgr:
 
         # Check that the XMRig configuration file exists
         if os.path.exists(xmrig.config_file()):
-            xmrig.msg(DLabel.CONFIG, DStatus.GOOD, f"Found: {xmrig.config_file()}")
+            xmrig.msg(DLabel.CONFIG_FILE, DStatus.GOOD, f"Found: {xmrig.config_file()}")
         elif not xmrig.config_file:
-            xmrig.msg(DLabel.CONFIG, DStatus.WARN, f"Missing")
+            xmrig.msg(DLabel.CONFIG_FILE, DStatus.WARN, f"Missing")
         else:
-            xmrig.msg(DLabel.CONFIG, DStatus.WARN, f"Not found: {xmrig.config_file()}")
+            xmrig.msg(DLabel.CONFIG_FILE, DStatus.WARN, f"Not found: {xmrig.config_file()}")
         
         # Check if the instance is enabled
         if xmrig.enabled():
             xmrig.msg(DLabel.XMRIG, DStatus.GOOD,
-                      f"{DLabel.XMRIG} ({xmrig.instance()} is enabled")
+                      f"{DLabel.XMRIG} ({xmrig.instance()}) is enabled")
         else:
             xmrig.msg(DLabel.XMRIG, DStatus.ERROR,
                       f"{DLabel.XMRIG} ({xmrig.instance()}) is disabled")
 
 
         # Check the upstream P2Pool
-        if type(xmrig.p2pool) == P2Pool or type(xmrig.p2pool) == P2PoolRemote:
-            self.check(xmrig.p2pool)
-            if xmrig.p2pool.status() == DStatus.GOOD:
-                xmrig.msg(DLabel.P2POOL, DStatus.GOOD,
-                        f"Upstream P2pool ({xmrig.p2pool.instance()}) is healthy")
-            else:
-                xmrig.msg(DLabel.P2POOL, DStatus.WARN,
-                        f"Upstream P2pool ({xmrig.p2pool.instance()}) has issues:")
-                xmrig.push_msgs(xmrig.p2pool.pop_msgs())
-        else:
+        if xmrig.parent() == DField.DISABLE:
             xmrig.msg(DLabel.P2POOL, DStatus.WARN,
                       f"Missing upstream P2pool deployment")
+
         return xmrig
 
     def check_xmrig_remote(self, xmrig: XMRigRemote) -> XMRigRemote:
