@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Configured the *Hashrate* button visibility so it's not visible for the *New* screens.
-
+- Passed `P2PoolWatcher` the *Db4E* log file instead of the P2Pool log file.
 ---
 
 ## [0.41.0] - 2025-09-30

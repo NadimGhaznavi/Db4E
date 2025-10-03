@@ -152,6 +152,11 @@ class MiningDb():
         """
         Store the miner hashrate
         """
+
+
+
+
+
         # The miner hashrate reported by P2Pool when it is first started is extremely
         # high. If this event happens to occur just before the beginning of the hour,
         # Then this value is recorded, which throws off the overall miner hashrate.
@@ -161,7 +166,6 @@ class MiningDb():
         minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=instance)
         if minutes < 3:
             return
-
 
         # Convert the hashrate to a float
         hashrate = float(hashrate)

@@ -23,6 +23,8 @@ import json
 
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.Db4ELogger import Db4ELogger
+from db4e.Modules.DeplMgr import DeplMgr
+
 from db4e.Constants.DField import DField
 from db4e.Constants.DDebug import DDebug
 from db4e.Constants.DModule import DModule
@@ -41,8 +43,9 @@ class P2PoolWatcher:
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str, 
             stop_event: threading.Event, stdin_path: str, instance: str, 
-            stats_mod=None):
+            depl_mgr: DeplMgr, db4e_log_file: str, stats_mod=None):
         self.mining_db = mining_db
+        self.depl_mgr = depl_mgr
         self.ops_col = DDef.OPS_COL
         self._chain = chain
         self._stop_event = stop_event
@@ -61,7 +64,7 @@ class P2PoolWatcher:
             logger_id = DModule.P2POOL_WATCHER + "-" + instance + "-" + chain
             # Create an Ops record when a P2PoolWatcher is created for a user defined P2Pool   
 
-        self.log = Db4ELogger(db4e_module=logger_id, log_file=log_file)
+        self.log = Db4ELogger(db4e_module=logger_id, log_file=db4e_log_file)
 
     def chain(self):
         return self._chain
@@ -197,6 +200,8 @@ class P2PoolWatcher:
             self.mining_db.add_miner_hashrate(
                 chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
                 hashrate=hashrate, uptime=uptime, instance=self.instance())
+            self.depl_mgr.add_remote_xmrig_deployment(
+                miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate, uptime=uptime)
 
     def is_side_chain_hashrate(self, log_line):
         """
@@ -363,10 +368,12 @@ class P2PoolWatcher:
 
 
     def send_status(self):
+        self.log.debug("Sending status command")
         self.send_cmd(DField.STATUS)
 
 
     def send_workers(self):
+        self.log.debug("Sending workers command")
         self.send_cmd(DField.WORKERS)
 
 

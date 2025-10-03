@@ -53,7 +53,9 @@ class HashratePlot(PlotWidget):
             plot_values = self._all_values
         self.clear()
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
-        self.plot(x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE)
+        self.plot(
+            x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE,
+            line_style="magenta2")
 
 
     def reduce_data(self, times, values):

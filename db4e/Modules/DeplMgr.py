@@ -13,7 +13,7 @@ from datetime import datetime
 from shutil import rmtree
 import socket
 from typing import overload
-from copy import deepcopy
+import re
 
 
 from db4e.Modules.DbCache import DbCache
@@ -66,6 +66,15 @@ class DeplMgr:
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.depl_col = DDef.DEPLOYMENT_COL
+        # Create a cache for remote XMRig deployments; these are scanned from the 
+        # P2Pool log and appear every minute, so cache...
+        self.remote_xmrigs = {}
+        # The local XMRigs also show up, we need to weed them out
+        self.xmrigs = {}
+        xmrigs = self.get_xmrigs()
+        for xmrig in xmrigs:
+            self.xmrigs[xmrig.instance()] = xmrig
+
 
     def add_deployment(self, elem):
         elem_class = type(elem)
@@ -192,6 +201,64 @@ class DeplMgr:
         return p2pool
 
 
+    def add_remote_xmrig_deployment(
+            self, miner_name: str, ip_addr: str, hashrate: str, uptime: str) -> XMRigRemote:
+
+
+        def uptime_to_minutes(uptime_str: str):
+            pattern = re.compile(r'(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?')
+            match = pattern.fullmatch(uptime_str)
+            if not match:
+                raise ValueError(f"Unrecognized uptime format: {uptime_str}")
+
+            days, hours, minutes, seconds = (int(x) if x else 0 for x in match.groups())
+
+            total_minutes = days * 24 * 60 + hours * 60 + minutes
+            # optionally: round up if seconds >= 30
+            if seconds >= 30:
+                total_minutes += 1
+            
+            return total_minutes
+
+
+        xmrigs = self.get_xmrigs()
+        for xmrig in xmrigs:
+            self.xmrigs[xmrig.instance()] = xmrig
+
+        remote_xmrigs = self.get_remote_xmrigs()
+        for xmrig in remote_xmrigs:
+            self.remote_xmrigs[xmrig.instance()] = xmrig
+
+        if miner_name in self.xmrigs:
+            return
+        if miner_name in self.remote_xmrigs:
+            xmrig = self.remote_xmrigs[miner_name]
+            # See if anything has changed
+            xmrig.ip_addr(ip_addr)
+            xmrig.hashrate(float(hashrate))
+            # Convert uptime into minutes, formats are:
+            # 0h 0m 45s
+            # 1d 7h 32m 15s
+
+            xmrig.uptime(uptime_to_minutes(uptime))
+            self.update_one(xmrig)
+
+        else:
+            xmrig = XMRigRemote()
+            xmrig.instance(miner_name)
+            xmrig.ip_addr(ip_addr)
+            xmrig.hashrate(float(hashrate))
+            xmrig.uptime(uptime_to_minutes(uptime))
+            self.insert_one(xmrig)
+            if miner_name in self.xmrigs:
+                del self.remote_xmrigs[miner_name]
+            else:
+                self.remote_xmrigs[miner_name] = xmrig
+
+        print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
+        return xmrig
+        
+
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
 
         xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
@@ -203,7 +270,6 @@ class DeplMgr:
             vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
         
         logrotate_tmpl = self.get_logrotate_template(DElem.XMRIG)
-        print(f"DeplMgr:add_xmrig_deployment(): logrotate_tmpl: {logrotate_tmpl}")
         db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
         db4e_group = db4e.group()
         xmrig.gen_logrotate_config(
@@ -213,6 +279,8 @@ class DeplMgr:
         job = Job(op=DJob.NEW, instance=xmrig.instance(), elem_type=DElem.INT_P2POOL)
         job.msg("New deployment")
         self.job_queue.post_completed_job(job)
+
+        self.xmrigs[xmrig.instance()] = xmrig
 
         return xmrig
 
@@ -565,9 +633,18 @@ class DeplMgr:
             obj_list.append(obj)
         return obj_list
     
+
+    def get_remote_xmrigs(self):
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.XMRIG_REMOTE})
+        obj_list = []
+        for rec in recs:
+            obj = self.factory(rec)
+            obj_list.append(obj)
+
+        return obj_list
+
     
     def get_xmrigs(self):
-        obj_list = []
         recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.XMRIG})
         for rec in recs:
             obj = self.factory(rec)
@@ -575,8 +652,8 @@ class DeplMgr:
                 obj.p2pool = self.get_deployment_by_id(obj.parent())
                 if obj.p2pool.parent() != DField.DISABLE:
                     obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
-            obj_list.append(obj)
-        return obj_list
+            self.remote_xmrigs[obj.instance()] = obj
+        return self.remote_xmrigs.values()
 
 
     def insert_one(self, elem):

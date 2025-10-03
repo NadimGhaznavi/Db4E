@@ -26,6 +26,8 @@ class OpsDb:
     def __init__(self, db: DbMgr):
         self.db = db
         self.ops_col = DDef.OPS_COL
+        self.depl_col = DDef.DEPLOYMENT_COL
+
 
     def get_ops_events(self):
         return list(self.db.find_many(
@@ -114,6 +116,10 @@ class OpsETL:
 
     def __init__(self, ops_db: OpsDb):
         self.ops_db = ops_db
+
+
+    def add_remote_xmrig_deployment(self, xmrig):
+        self.ops_db.add_remote_xmrig_deployment(xmrig)
 
 
     def get_ops_summary(self):

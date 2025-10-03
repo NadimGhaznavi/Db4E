@@ -62,7 +62,7 @@ db4e_theme = Theme(
     warning="#EBCB8B",
     error="#BF616A",
     surface="black",
-    panel="#434C5E",
+    panel="#202225",
     dark=True,
     variables={
         "block-cursor-text-style": "none",

@@ -504,21 +504,23 @@ class Db4eServer:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
-                log_file=self.log_file,
+                log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
                 depl_mgr=self.depl_mgr,
+                db4e_log_file=self.log_file,
             )
         elif type(p2pool) == InternalP2Pool:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
-                log_file=self.log_file,
+                log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
                 depl_mgr=self.depl_mgr,
+                db4e_log_file=self.log_file,
                 stats_mod=p2pool.stats_mod(),
             )
         else:

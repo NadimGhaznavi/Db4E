@@ -73,20 +73,6 @@ class DbCache:
 
             count = 1
 
-            ## Get remote xmrig instances
-            # The remote xmrig list is based on real-time miner stats, not the depl collection
-            remote_xmrig_recs = self.mining_db.get_xmrigs_remote()
-            for rec in remote_xmrig_recs:
-                xmrig = XMRigRemote(rec)
-                self.xmrig_remote_map[xmrig.instance()] = xmrig
-                self.id_map[xmrig.id()] = xmrig
-            
-            # Remove the local deployments from the map, the local instances
-            # show up in the depl collection's real-time miner stats
-            for xmrig in self.xmrig_map.values():
-                if xmrig.instance() in self.xmrig_remote_map:
-                    del self.xmrig_remote_map[xmrig.instance()]
-
             for rec in recs:
                 elem_type = rec[DField.ELEMENT_TYPE]
                 #print(f"DbCache:build_cache(): [{count}/{len(recs)}]: {elem_type}")
@@ -122,6 +108,9 @@ class DbCache:
                         
                     elif elem_type == DElem.XMRIG:
                         self.xmrig_map[elem.instance()] = elem
+
+                    elif elem_type == DElem.XMRIG_REMOTE:
+                        self.xmrig_remote_map[elem.instance()] = elem
                     
                 else:
                     # Create new object
@@ -141,7 +130,7 @@ class DbCache:
                     elif elem_type == DElem.P2POOL:
                         elem = P2Pool(rec)
                         elem.instance_map(self.get_deployment_ids_and_instances(DElem.MONEROD))
-                        if elem.parent():
+                        if elem.parent() != DField.DISABLE:
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.p2pool_map[elem.instance()] = elem
 
@@ -151,17 +140,21 @@ class DbCache:
 
                     elif elem_type == DElem.INT_P2POOL:
                         elem = InternalP2Pool(rec)
-                        if elem.parent():
+                        if elem.parent() != DField.DISABLE:
                             elem.monerod = self.get_deployment_by_id(elem.parent())
                         self.int_p2pool_map[elem.instance()] = elem
 
                     elif elem_type == DElem.XMRIG:
                         elem = XMRig(rec)
-                        if elem.parent():
+                        if elem.parent() != DField.DISABLE:
                             elem.p2pool = self.get_deployment_by_id(elem.parent())
                             if type(elem.p2pool) == P2Pool:
                                 elem.p2pool.monerod = self.get_deployment_by_id(elem.p2pool.parent())
                         self.xmrig_map[elem.instance()] = elem
+
+                    elif elem_type == DElem.XMRIG_REMOTE:
+                        elem = XMRigRemote(rec)
+                        self.xmrig_remote_map[elem.instance()] = elem
                     
                     self.id_map[obj_id] = elem
                 
@@ -193,6 +186,8 @@ class DbCache:
                         self.int_p2pool_map.pop(elem.instance(), None)
                     elif type(elem) == XMRig:
                         self.xmrig_map.pop(elem.instance(), None)
+                    elif type(elem) == XMRigRemote:
+                        self.xmrig_remote_map.pop(elem.instance(), None)
             
 
     def delete_one(self, elem):
@@ -203,7 +198,8 @@ class DbCache:
                 MoneroDRemote: DElem.MONEROD_REMOTE,
                 P2Pool: DElem.P2POOL,
                 P2PoolRemote: DElem.P2POOL_REMOTE,
-                XMRig: DElem.XMRIG
+                XMRig: DElem.XMRIG,
+                XMRigRemote: DElem.XMRIG_REMOTE,
             }
             elem_type = class_map[type(elem)]
             instance = elem.instance()        
@@ -244,6 +240,13 @@ class DbCache:
             elif elem_type == DElem.XMRIG:
                 if instance in self.xmrig_map:
                     del self.xmrig_map[instance]
+
+            elif elem_type == DElem.XMRIG_REMOTE:
+                if instance in self.xmrig_remote_map:
+                    del self.xmrig_remote_map[instance]
+
+            return results
+
 
 
     def get_deployment(self, elem_type, instance):
