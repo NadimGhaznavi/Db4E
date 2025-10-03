@@ -314,7 +314,6 @@ class HealthCache:
         return hashlib.blake2b(serialized.encode(), digest_size=16).hexdigest()
 
 
-
     def refresh_db4es(self):
         self.refresh_elements(
             DElem.DB4E, self.depl_client.get_db4es, DField.DB4E_MAP)

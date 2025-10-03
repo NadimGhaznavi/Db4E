@@ -28,6 +28,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.Modules.Helper import uptime_to_minutes
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -204,23 +205,6 @@ class DeplMgr:
     def add_remote_xmrig_deployment(
             self, miner_name: str, ip_addr: str, hashrate: str, uptime: str) -> XMRigRemote:
 
-
-        def uptime_to_minutes(uptime_str: str):
-            pattern = re.compile(r'(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?')
-            match = pattern.fullmatch(uptime_str)
-            if not match:
-                raise ValueError(f"Unrecognized uptime format: {uptime_str}")
-
-            days, hours, minutes, seconds = (int(x) if x else 0 for x in match.groups())
-
-            total_minutes = days * 24 * 60 + hours * 60 + minutes
-            # optionally: round up if seconds >= 30
-            if seconds >= 30:
-                total_minutes += 1
-            
-            return total_minutes
-
-
         xmrigs = self.get_xmrigs()
         for xmrig in xmrigs:
             self.xmrigs[xmrig.instance()] = xmrig
@@ -240,7 +224,7 @@ class DeplMgr:
             # 0h 0m 45s
             # 1d 7h 32m 15s
 
-            xmrig.uptime(uptime_to_minutes(uptime))
+            xmrig.uptime(int(uptime_to_minutes(uptime)))
             self.update_one(xmrig)
 
         else:
@@ -248,14 +232,14 @@ class DeplMgr:
             xmrig.instance(miner_name)
             xmrig.ip_addr(ip_addr)
             xmrig.hashrate(float(hashrate))
-            xmrig.uptime(uptime_to_minutes(uptime))
+            xmrig.uptime(int(uptime_to_minutes(uptime)))
             self.insert_one(xmrig)
             if miner_name in self.xmrigs:
                 del self.remote_xmrigs[miner_name]
             else:
                 self.remote_xmrigs[miner_name] = xmrig
 
-        print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
+        #print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
         return xmrig
         
 

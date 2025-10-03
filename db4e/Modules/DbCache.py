@@ -363,6 +363,7 @@ class DbCache:
                     instance_map[remote_monerod.instance()] = remote_monerod.id()
                 return instance_map
 
+
     def get_downstream(self, elem):
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             p2pools = []

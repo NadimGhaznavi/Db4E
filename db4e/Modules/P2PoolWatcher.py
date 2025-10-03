@@ -197,11 +197,14 @@ class P2PoolWatcher:
             miner_name = match.group('miner_name')
             ip_addr = match.group('ip_addr')
             uptime = match.group('uptime')
+            timestamp = match.group('timestamp')
+            timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
             self.mining_db.add_miner_hashrate(
                 chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
                 hashrate=hashrate, uptime=uptime, instance=self.instance())
             self.depl_mgr.add_remote_xmrig_deployment(
-                miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate, uptime=uptime)
+                miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate, uptime=uptime,
+                timestamp=timestamp)
 
     def is_side_chain_hashrate(self, log_line):
         """

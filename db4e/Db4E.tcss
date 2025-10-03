@@ -15,6 +15,10 @@ Clock {
     align: center middle;
     background: black; }
 
+HashratePlot {
+    background: black;
+}
+
 NavPane {
     height: 9fr;
     padding: 0 2;

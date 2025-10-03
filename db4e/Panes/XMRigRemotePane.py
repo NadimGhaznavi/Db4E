@@ -15,6 +15,8 @@ from textual.widgets import Label, Select
 from db4e.Modules.XMRigRemote import XMRigRemote
 from db4e.Widgets.HashratePlot import HashratePlot
 
+from db4e.Modules.Helper import minutes_to_uptime
+
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
@@ -78,7 +80,7 @@ class XMRigRemotePane(Container):
         self.instance_label.update(xmrig.instance())
         self.ip_addr_label.update(xmrig.ip_addr())
         self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
-        self.uptime_label.update(xmrig.uptime())
+        self.uptime_label.update(minutes_to_uptime(xmrig.uptime()))
 
         data = xmrig.hashrates()
         if type(data) == dict:
