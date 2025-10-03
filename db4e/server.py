@@ -93,7 +93,8 @@ class Db4eServer:
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
-        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
+        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)
+        self.log_file = fq_log_file 
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
         # Mining DB object 
@@ -503,19 +504,21 @@ class Db4eServer:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
-                log_file=p2pool.log_file(),
+                log_file=self.log_file,
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
+                depl_mgr=self.depl_mgr,
             )
         elif type(p2pool) == InternalP2Pool:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
-                log_file=p2pool.log_file(),
+                log_file=self.log_file,
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
+                depl_mgr=self.depl_mgr,
                 stats_mod=p2pool.stats_mod(),
             )
         else:
