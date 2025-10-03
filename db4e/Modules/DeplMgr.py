@@ -651,7 +651,7 @@ class DeplMgr:
 
 
     def insert_one(self, elem):
-        print(f"DeplMgr:insert_one(): {elem.to_rec()}")
+        #print(f"DeplMgr:insert_one(): {elem.to_rec()}")
         obj_id = self.db.insert_one(self.depl_col, elem.to_rec())
         return obj_id
        
@@ -864,7 +864,7 @@ class DeplMgr:
             monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
-            monerod.version(DDef.MONEROD_VERSION))
+            monerod.version(DDef.MONEROD_VERSION)
             self.update_one(monerod)
 
             if restart:
@@ -924,7 +924,7 @@ class DeplMgr:
 
     def update_one(self, elem):        
         # Don't store status messages in the DB
-        print(f"DeplMgr:update_one(): {elem.to_rec()}")
+        #print(f"DeplMgr:update_one(): {elem.to_rec()}")
         msgs = elem.pop_msgs()
         self.db.update_one(
             self.depl_col, {DMongo.OBJECT_ID: elem.id()}, elem.to_rec())
@@ -1021,7 +1021,7 @@ class DeplMgr:
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
-            p2pool.version(DDef.P2POOL_VERSION))
+            p2pool.version(DDef.P2POOL_VERSION)
             self.update_one(p2pool)
         else:
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
