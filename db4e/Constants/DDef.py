@@ -82,7 +82,7 @@ class DDef(ConstGroup):
     P2POOL_SERVICE_SOCKET_FILE : str = "p2pool@.socket"
     P2POOL_START_SCRIPT : str = "start-p2pool.sh"
     P2POOL_STDIN_PIPE : str = "p2pool.stdin"
-    P2POOL_VERSION : str = "4.10.1"
+    P2POOL_VERSION : str = "4.11"
     PRIORITY_NODE_1 : str = "p2pmd.xmrvsbeast.com"
     PRIORITY_NODE_2 : str = "nodes.hashvault.pro"
     PYPI_REPO : str = 'https://pypi.org/pypi/db4e/json'

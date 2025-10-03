@@ -19,6 +19,10 @@ HashratePlot {
     background: black;
 }
 
+PlotWidget {
+    background: black;
+}
+
 NavPane {
     height: 9fr;
     padding: 0 2;
@@ -231,6 +235,9 @@ Tree {
     padding: 0 1;
     width: 25; }
 
+.hashrate_plot {
+    background: black;
+}
 
 /* Health Box */
 

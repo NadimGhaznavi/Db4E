@@ -17,6 +17,8 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DSystemD import DSystemD
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DOps import DOps
 
@@ -100,14 +102,18 @@ class OpsDb:
 
 
     def get_uptime(self, elem_type, instance):
-        cur_uptime = self.db.find_one(self.ops_col, {
+        LABEL_TABLE = {
+            DElem.P2POOL: DLabel.P2POOL,
+            DElem.XMRIG: DLabel.XMRIG,
+        }
+        cur_uptime_rec = self.db.find_one(self.ops_col, {
             DMongo.DOC_TYPE: DOps.CURRENT_UPTIME,
-            DMongo.ELEMENT_TYPE: elem_type,
+            DMongo.ELEMENT_TYPE: LABEL_TABLE[elem_type],
             DMongo.INSTANCE: instance
         })
-        if not cur_uptime:
+        if not cur_uptime_rec:
             return None
-        return cur_uptime
+        return cur_uptime_rec
 
 
 

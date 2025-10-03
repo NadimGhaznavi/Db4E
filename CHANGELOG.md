@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added *logrotate* definitions to the `DFile` and `DDir` constants files.
 - Added a `DeplMgr:get_dir(DDir.LOGROTATE)` method.
 - Added a *P2Pool uptime* check before adding *Miner hashrate* records to avoid adding invalid, super-high hashrates when P2Pool first starts.
+- Implemented formal *Remote XMRig* deployment records.
+- Wrapped `P2PoolWatcher` functions in *try/except* blocks where exceptions are logged.
 
 ### Fixed
 - Configured the *Hashrate* button visibility so it's not visible for the *New* screens.

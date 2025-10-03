@@ -107,7 +107,7 @@ class DeplMgr:
         # Catchall
         else:
             raise ValueError(
-                f"DeploymentMgr:add_deployment(): No handler for {elem_class}")
+                f"DeplMgr:add_deployment(): No handler for {elem_class}")
 
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
@@ -203,44 +203,55 @@ class DeplMgr:
 
 
     def add_remote_xmrig_deployment(
-            self, miner_name: str, ip_addr: str, hashrate: str, uptime: str) -> XMRigRemote:
+            self, miner_name: str, ip_addr: str, hashrate: str, uptime: str,
+            timestamp: str) -> XMRigRemote:
 
-        xmrigs = self.get_xmrigs()
-        for xmrig in xmrigs:
-            self.xmrigs[xmrig.instance()] = xmrig
+        try:
+            xmrigs = self.get_xmrigs()
+            for xmrig in xmrigs:
+                self.xmrigs[xmrig.instance()] = xmrig
 
-        remote_xmrigs = self.get_remote_xmrigs()
-        for xmrig in remote_xmrigs:
-            self.remote_xmrigs[xmrig.instance()] = xmrig
+            remote_xmrigs = self.get_remote_xmrigs()
+            for xmrig in remote_xmrigs:
+                self.remote_xmrigs[xmrig.instance()] = xmrig
 
-        if miner_name in self.xmrigs:
-            return
-        if miner_name in self.remote_xmrigs:
-            xmrig = self.remote_xmrigs[miner_name]
-            # See if anything has changed
-            xmrig.ip_addr(ip_addr)
-            xmrig.hashrate(float(hashrate))
-            # Convert uptime into minutes, formats are:
-            # 0h 0m 45s
-            # 1d 7h 32m 15s
+            # Make sure the XMRig deployment is remote
+            if miner_name in self.xmrigs:
+                return
+            
+            if miner_name in self.remote_xmrigs:
+                xmrig = self.remote_xmrigs[miner_name]
+                # See if anything has changed
+                xmrig.ip_addr(ip_addr)
+                xmrig.hashrate(float(hashrate))
+                xmrig.uptime(int(uptime_to_minutes(uptime)))
+                # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
+                xmrig.timestamp(timestamp)
+                self.update_one(xmrig)
 
-            xmrig.uptime(int(uptime_to_minutes(uptime)))
-            self.update_one(xmrig)
+            else:
+                xmrig = XMRigRemote()
+                xmrig.instance(miner_name)
+                xmrig.ip_addr(ip_addr)
+                xmrig.hashrate(float(hashrate))
+                xmrig.uptime(int(uptime_to_minutes(uptime)))
+                # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
+                xmrig.timestamp(timestamp)
+                self.insert_one(xmrig)
 
-        else:
-            xmrig = XMRigRemote()
-            xmrig.instance(miner_name)
-            xmrig.ip_addr(ip_addr)
-            xmrig.hashrate(float(hashrate))
-            xmrig.uptime(int(uptime_to_minutes(uptime)))
-            self.insert_one(xmrig)
             if miner_name in self.xmrigs:
                 del self.remote_xmrigs[miner_name]
             else:
                 self.remote_xmrigs[miner_name] = xmrig
 
-        #print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
-        return xmrig
+            #print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
+            return xmrig
+        
+        except Exception as e:
+            self.log.critical(f"DeplMgr:add_remote_xmrig_deployment(): Exception: {e}")
+
         
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
@@ -366,7 +377,7 @@ class DeplMgr:
         elif elem_type == DElem.XMRIG_REMOTE:
             return XMRigRemote(rec)
         else:
-            raise ValueError(f"DeploymentMgr:factory(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:factory(): No handler for {elem_type}")
        
 
 
@@ -549,7 +560,6 @@ class DeplMgr:
                 tmpl_dir, DElem.XMRIG + "-" + DDef.XMRIG_VERSION, DDef.CONF_DIR,
                 DElem.XMRIG + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
 
-        print(f"DeploymentMgr:get_logrotate_template(): {tmpl_file}")
 
     def get_template(self, elem_type):
         tmpl_dir = self.get_dir(DDir.TEMPLATE)
@@ -570,7 +580,7 @@ class DeplMgr:
                 tmpl_dir, xmrig_dir, DDef.CONF_DIR, Default.XMRIG_CONFIG)
 
         else:
-            raise ValueError(f"DeploymentMgr:get_template(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:get_template(): No handler for {elem_type}")
 
         return tmpl_file
 
@@ -604,7 +614,7 @@ class DeplMgr:
         elif elem_type == DElem.XMRIG_REMOTE:
             return XMRigRemote()
         else:
-            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:get_new(): No handler for {elem_type}")
 
 
     def get_p2pools(self):
@@ -636,11 +646,12 @@ class DeplMgr:
                 obj.p2pool = self.get_deployment_by_id(obj.parent())
                 if obj.p2pool.parent() != DField.DISABLE:
                     obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
-            self.remote_xmrigs[obj.instance()] = obj
-        return self.remote_xmrigs.values()
+            self.xmrigs[obj.instance()] = obj
+        return self.xmrigs.values()
 
 
     def insert_one(self, elem):
+        print(f"DeplMgr:insert_one(): {elem.to_rec()}")
         obj_id = self.db.insert_one(self.depl_col, elem.to_rec())
         return obj_id
        
@@ -703,7 +714,7 @@ class DeplMgr:
 
 
     def update_deployment(self, elem):
-        #print(f"DeploymentMgr:update_deployment(): {rec}")
+        #print(f"DeplMgr:update_deployment(): {rec}")
         if type(elem) == Db4E:
             return self.update_db4e_deployment(elem)
         elif type(elem) == MoneroD:
@@ -728,7 +739,7 @@ class DeplMgr:
         monerod = self.get_deployment(
             DElem.MONEROD, new_monerod.instance())
         if not monerod:
-            raise ValueError(f"DeploymentMgr:update_monerod_deployment(): " \
+            raise ValueError(f"DeplMgr:update_monerod_deployment(): " \
                              f"No monerod found for {new_monerod}")
         
         if monerod.enabled() != new_monerod.enabled():
@@ -853,6 +864,7 @@ class DeplMgr:
             monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
+            monerod.version(DDef.MONEROD_VERSION))
             self.update_one(monerod)
 
             if restart:
@@ -868,11 +880,11 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        #print(f"DeplMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
         monerod = self.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
-            raise ValueError(f"DeploymentMgr:update_monerod_remote_deployment(): " \
+            raise ValueError(f"DeplMgr:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")
 
         ## Field-by-field comparison
@@ -910,10 +922,9 @@ class DeplMgr:
         return monerod
 
 
-    def update_one(self, elem):
-        #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
-        
+    def update_one(self, elem):        
         # Don't store status messages in the DB
+        print(f"DeplMgr:update_one(): {elem.to_rec()}")
         msgs = elem.pop_msgs()
         self.db.update_one(
             self.depl_col, {DMongo.OBJECT_ID: elem.id()}, elem.to_rec())
@@ -1010,6 +1021,7 @@ class DeplMgr:
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
+            p2pool.version(DDef.P2POOL_VERSION))
             self.update_one(p2pool)
         else:
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
@@ -1023,7 +1035,7 @@ class DeplMgr:
 
         p2pool = self.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
         if not p2pool:
-            raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
+            raise ValueError(f"DeplMgr:update_p2pool_remote_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
 
         ## Field-by-field comparison
@@ -1052,7 +1064,7 @@ class DeplMgr:
 
 
     def update_vendor_dir(self, new_dir: str, old_dir: str, db4e: Db4E) -> Db4E:
-        #print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
+        #print(f"DeplMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
         if old_dir == new_dir:
@@ -1095,7 +1107,6 @@ class DeplMgr:
                 f"aborting deployment directory update:\n{e}")
             update_flag = False
 
-        #print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return db4e, update_flag
 
 
@@ -1104,9 +1115,9 @@ class DeplMgr:
         update_config = False
 
         xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
-        #print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
+        #print(f"DeplMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
         if not xmrig:
-            raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
+            raise ValueError(f"DeplMgr:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
 
         if xmrig.enabled() != new_xmrig.enabled():
@@ -1161,6 +1172,7 @@ class DeplMgr:
                 xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
 
         if update:
+            xmrig.version(DDef.XMRIG_VERSION)
             self.update_one(xmrig)
             job = Job(op=DJob.RESTART, elem_type=DElem.XMRIG, instance=xmrig.instance())
             job.msg("XMRig loaded new settings")

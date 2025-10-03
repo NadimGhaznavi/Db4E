@@ -148,22 +148,17 @@ class MiningDb():
 
 
     def add_miner_hashrate(
-            self, chain, miner_name, ip_addr, hashrate, uptime, instance):
+            self, chain, miner_name, ip_addr, hashrate, uptime, timestamp, p2pool_instance):
         """
         Store the miner hashrate
         """
-
-
-
-
-
         # The miner hashrate reported by P2Pool when it is first started is extremely
         # high. If this event happens to occur just before the beginning of the hour,
         # Then this value is recorded, which throws off the overall miner hashrate.
         #
         # Don't record the miner hashrate if the upstream P2Pool has been running
         # for less than 3 minutes.
-        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=instance)
+        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=p2pool_instance)
         if minutes < 3:
             return
 
@@ -176,7 +171,7 @@ class MiningDb():
             DMongo.DOC_TYPE: DMining.MINER_HASHRATE,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
-            DMining.MINER: miner_name,
+            DMining.MINER: miner_name,  
             DMongo.IP_ADDR: ip_addr,
             DMining.HASHRATE: hashrate,
         }
