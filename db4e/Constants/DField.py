@@ -62,6 +62,7 @@ class DField(ConstGroup) :
     LABEL : str = "label"
     LEVEL : str = "level"
     LOCAL : str = "local"
+    LOCAL_TIMESTAMP : str = "local_timestamp"
     LOCAL_SOFTWARE_SYSTEM : str = "local_software_system"
     LOG_FILE : str = "log_file"
     LOG_LEVEL : str = "log_level"

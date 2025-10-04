@@ -219,6 +219,7 @@ class DeplMgr:
             if miner_name in self.xmrigs:
                 return
             
+            local_now = datetime.now().replace(microsecond=0)
             if miner_name in self.remote_xmrigs:
                 xmrig = self.remote_xmrigs[miner_name]
                 # See if anything has changed
@@ -228,6 +229,7 @@ class DeplMgr:
                 # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
                 xmrig.timestamp(timestamp)
+                xmrig.local_timestamp(local_now)
                 self.update_one(xmrig)
 
             else:
@@ -239,6 +241,7 @@ class DeplMgr:
                 # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
                 xmrig.timestamp(timestamp)
+                xmrig.local_timestamp(local_now)
                 self.insert_one(xmrig)
 
             if miner_name in self.xmrigs:

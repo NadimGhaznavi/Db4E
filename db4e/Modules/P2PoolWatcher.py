@@ -202,10 +202,12 @@ class P2PoolWatcher:
                 ip_addr = match.group('ip_addr')
                 uptime = match.group('uptime')
                 timestamp = match.group('timestamp')
+
                 self.mining_db.add_miner_hashrate(
                     chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
                     hashrate=hashrate, uptime=uptime, timestamp=timestamp, 
                     p2pool_instance=self.instance())
+                
                 self.depl_mgr.add_remote_xmrig_deployment(
                     miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate, uptime=uptime,
                     timestamp=timestamp)

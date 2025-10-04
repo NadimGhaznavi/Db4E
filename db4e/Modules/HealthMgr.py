@@ -339,17 +339,23 @@ class HealthMgr:
         return xmrig
 
     def check_xmrig_remote(self, xmrig: XMRigRemote) -> XMRigRemote:
-        # Check if the real-time timetamp is more than 2 minutes ago
-        print(f"HealthMgr:check_xmrig_remote(): xmrig:: {xmrig.to_rec()}")
-        
-        uptime_min = xmrig.uptime()
-        print(f"HealthMgr:check_xmrig_remote(): uptime_minutes: {uptime_min}")
-        if uptime_min < 3:
+        now = datetime.now().replace(microsecond=0)
+        timestamp = xmrig.local_timestamp()
+        delta = now - timestamp
+        up_since_min = delta.total_seconds() / 60
+        print(f"{xmrig}: {up_since_min}")
+        if up_since_min < 3:
             xmrig.msg(DLabel.XMRIG, DStatus.GOOD,
                       f"{DLabel.XMRIG} ({xmrig.instance()}) is mining")
-        else:
+        elif up_since_min >= 3 and up_since_min < 5:
             xmrig.msg(DLabel.XMRIG, DStatus.WARN,
-                f"{DLabel.XMRIG_REMOTE} ({xmrig.instance()}) is not mining")
+                f"{DLabel.XMRIG_REMOTE_SHORT} ({xmrig.instance()}) is not mining")
+        elif up_since_min >= 5 and up_since_min < 10:
+            xmrig.msg(DLabel.XMRIG, DStatus.ERROR,
+                f"{DLabel.XMRIG_REMOTE_SHORT} ({xmrig.instance()}) is not mining")
+        else:
+            xmrig.msg(DLabel.XMRIG_REMOTE, DStatus.UNKNOWN,
+                f"{DLabel.XMRIG_REMOTE_SHORT} ({xmrig.instance()}) is inactive")
         return xmrig
 
 

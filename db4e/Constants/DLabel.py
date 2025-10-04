@@ -55,6 +55,7 @@ class DLabel(ConstGroup):
     INSTALL_DIR : str = "Install Directory"
     INSTANCE : str = "Instance"
     IP_ADDR : str = "Hostname/IP Address"
+    LOCAL_TIMESTAMP : str = "Localtime Timestamp"
     LOCAL_SOFTWARE_SYSTEM : str = "Local Software System"
     LOG : str = "Log"
     LOG_FILE : str = "Log File"
