@@ -26,7 +26,18 @@ fi
 
 # Update the sudoers file
 DB4E_SUDOERS="/etc/sudoers.d/db4e"
-echo "# Grant the db4e user permission to start and stop db4d, P2Pool and monerod" > $DB4E_SUDOERS
+echo "# /etc/sudoers.d/db4e" > $DB4E_SUDOERS
+echo >> $DB4E_SUDOERS
+echo "#" >> $DB4E_SUDOERS
+echo "#    Database 4 Everything" >> $DB4E_SUDOERS
+echo "#    Author: Nadim-Daniel Ghaznavi" >> $DB4E_SUDOERS
+echo "#    Copyright: (c) 2024-2025 NadimGhaznavi" >> $DB4E_SUDOERS
+echo "#    GitHub: https://github.com/NadimGhaznavi/db4e" >> $DB4E_SUDOERS
+echo "#    License: GPL 3.0" >> $DB4E_SUDOERS
+echo "#" >> $DB4E_SUDOERS
+echo "#####################################################################" >> $DB4E_SUDOERS
+echo >> $DB4E_SUDOERS
+echo "# Start and stop Db4E, P2Pool, Monero and XMRig services" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl start db4e" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl stop db4e" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable db4e" >> $DB4E_SUDOERS
@@ -39,8 +50,15 @@ echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable monerod@*" >> $DB4E_S
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl start xmrig@*" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl stop xmrig@*" >> $DB4E_SUDOERS
 echo "$DB4E_USER ALL=(ALL) NOPASSWD: /bin/systemctl enable xmrig@*" >> $DB4E_SUDOERS
-chgrp sudo "$SUDOERS_DROPIN"
-chmod 440 "$SUDOERS_DROPIN"
+echo >> $DB4E_SUDOERS
+echo "# Run logrotate to manage Db4E, P2Pool and XMRig log files" >> $DB4E_SUDOERS
+echo "$DB4E_USER ALL=(ALL) NOPASSWD: /usr/sbin/logrotate $VENDOR_DIR/logrotate" >> $DB4E_SUDOERS
+echo "$DB4E_USER ALL=(ALL) NOPASSWD: /usr/bin/chown root $VENDOR_DIR/db4e/logrotate/*" >> $DB4E_SUDOERS
+
+echo >> $DB4E_SUDOERS
+
+chgrp sudo "$DB4E_SUDOERS"
+chmod 440 "$DB4E_SUDOERS"
 
 # Validae the 
 visudo -c -f $DB4E_SUDOERS > /dev/null 2>&1

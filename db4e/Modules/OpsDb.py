@@ -17,6 +17,8 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DSystemD import DSystemD
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DOps import DOps
 
@@ -26,6 +28,8 @@ class OpsDb:
     def __init__(self, db: DbMgr):
         self.db = db
         self.ops_col = DDef.OPS_COL
+        self.depl_col = DDef.DEPLOYMENT_COL
+
 
     def get_ops_events(self):
         return list(self.db.find_many(
@@ -97,11 +101,31 @@ class OpsDb:
         self.db.insert_one(self.ops_col, event)
 
 
+    def get_uptime(self, elem_type, instance):
+        LABEL_TABLE = {
+            DElem.P2POOL: DLabel.P2POOL,
+            DElem.XMRIG: DLabel.XMRIG,
+        }
+        cur_uptime_rec = self.db.find_one(self.ops_col, {
+            DMongo.DOC_TYPE: DOps.CURRENT_UPTIME,
+            DMongo.ELEMENT_TYPE: LABEL_TABLE[elem_type],
+            DMongo.INSTANCE: instance
+        })
+        if not cur_uptime_rec:
+            return None
+        return cur_uptime_rec
+
+
+
 
 class OpsETL:
 
     def __init__(self, ops_db: OpsDb):
         self.ops_db = ops_db
+
+
+    def add_remote_xmrig_deployment(self, xmrig):
+        self.ops_db.add_remote_xmrig_deployment(xmrig)
 
 
     def get_ops_summary(self):
@@ -155,3 +179,10 @@ class OpsETL:
             summary.append(summary_dict[key])
 
         return sorted(summary, key=lambda x: (x[DMongo.ELEMENT_TYPE], x[DMongo.INSTANCE]))
+
+
+    def get_uptime(self, elem_type, instance):
+        rec = self.ops_db.get_uptime(elem_type, instance)
+        if not rec:
+            return 0
+        return rec[DOps.TOTAL_UPTIME]

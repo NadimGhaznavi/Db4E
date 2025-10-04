@@ -187,3 +187,4 @@ class MiningETL:
         if rec:
             return rec[DMongo.TIMESTAMP]
         return None
+    

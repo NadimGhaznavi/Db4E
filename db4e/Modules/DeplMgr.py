@@ -9,10 +9,11 @@ db4e/Modules/DeplMgr.py
 """
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+from shutil import rmtree
 import socket
 from typing import overload
-from copy import deepcopy
+import re
 
 
 from db4e.Modules.DbCache import DbCache
@@ -20,13 +21,14 @@ from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Job import Job
 from db4e.Modules.JobQueue import JobQueue
 from db4e.Modules.Db4E import Db4E
+from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
-from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.Modules.Helper import uptime_to_minutes
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -65,6 +67,15 @@ class DeplMgr:
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.depl_col = DDef.DEPLOYMENT_COL
+        # Create a cache for remote XMRig deployments; these are scanned from the 
+        # P2Pool log and appear every minute, so cache...
+        self.remote_xmrigs = {}
+        # The local XMRigs also show up, we need to weed them out
+        self.xmrigs = {}
+        xmrigs = self.get_xmrigs()
+        for xmrig in xmrigs:
+            self.xmrigs[xmrig.instance()] = xmrig
+
 
     def add_deployment(self, elem):
         elem_class = type(elem)
@@ -96,7 +107,7 @@ class DeplMgr:
         # Catchall
         else:
             raise ValueError(
-                f"DeploymentMgr:add_deployment(): No handler for {elem_class}")
+                f"DeplMgr:add_deployment(): No handler for {elem_class}")
 
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
@@ -177,6 +188,12 @@ class DeplMgr:
         job.msg("New deployment")
         self.job_queue.post_completed_job(job)
 
+        logrotate_tmpl = self.get_logrotate_template(DElem.P2POOL)
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e_group = db4e.group()
+        p2pool.gen_logrotate_config(
+            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+
         return p2pool
 
 
@@ -185,21 +202,84 @@ class DeplMgr:
         return p2pool
 
 
+    def add_remote_xmrig_deployment(
+            self, miner_name: str, ip_addr: str, hashrate: str, uptime: str,
+            timestamp: str) -> XMRigRemote:
+
+        try:
+            xmrigs = self.get_xmrigs()
+            for xmrig in xmrigs:
+                self.xmrigs[xmrig.instance()] = xmrig
+
+            remote_xmrigs = self.get_remote_xmrigs()
+            for xmrig in remote_xmrigs:
+                self.remote_xmrigs[xmrig.instance()] = xmrig
+
+            # Make sure the XMRig deployment is remote
+            if miner_name in self.xmrigs:
+                return
+            
+            local_now = datetime.now().replace(microsecond=0)
+            if miner_name in self.remote_xmrigs:
+                xmrig = self.remote_xmrigs[miner_name]
+                # See if anything has changed
+                xmrig.ip_addr(ip_addr)
+                xmrig.hashrate(float(hashrate))
+                xmrig.uptime(int(uptime_to_minutes(uptime)))
+                # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
+                xmrig.timestamp(timestamp)
+                xmrig.local_timestamp(local_now)
+                self.update_one(xmrig)
+
+            else:
+                xmrig = XMRigRemote()
+                xmrig.instance(miner_name)
+                xmrig.ip_addr(ip_addr)
+                xmrig.hashrate(float(hashrate))
+                xmrig.uptime(int(uptime_to_minutes(uptime)))
+                # Convert a datetime string (2025-09-21 10:33:36.2717) to a datetime object
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f").replace(microsecond=0)
+                xmrig.timestamp(timestamp)
+                xmrig.local_timestamp(local_now)
+                self.insert_one(xmrig)
+
+            if miner_name in self.xmrigs:
+                del self.remote_xmrigs[miner_name]
+            else:
+                self.remote_xmrigs[miner_name] = xmrig
+
+            #print(f"DeplMgr:add_remote_xmrig_deployment(): remote xmrig map: {self.remote_xmrigs}")
+            return xmrig
+        
+        except Exception as e:
+            self.log.critical(f"DeplMgr:add_remote_xmrig_deployment(): Exception: {e}")
+
+        
+
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
 
-        update = True
-        if not xmrig.parent():
-            update = False
-        else:
-            xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
-                    
-        if update:
-            vendor_dir = self.get_dir(DDir.VENDOR)
-            tmpl_file = self.get_template(DElem.XMRIG)
-            xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            xmrig.log_file(os.path.join(
-                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
-            self.insert_one(xmrig)
+        xmrig.p2pool = self.get_deployment_by_id(xmrig.parent())
+        vendor_dir = self.get_dir(DDir.VENDOR)
+        
+        tmpl_file = self.get_template(DElem.XMRIG)
+        xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+        xmrig.log_file(os.path.join(
+            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + '.log'))
+        
+        logrotate_tmpl = self.get_logrotate_template(DElem.XMRIG)
+        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e_group = db4e.group()
+        xmrig.gen_logrotate_config(
+            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+        
+        self.insert_one(xmrig)
+        job = Job(op=DJob.NEW, instance=xmrig.instance(), elem_type=DElem.INT_P2POOL)
+        job.msg("New deployment")
+        self.job_queue.post_completed_job(job)
+
+        self.xmrigs[xmrig.instance()] = xmrig
+
         return xmrig
 
 
@@ -235,6 +315,34 @@ class DeplMgr:
 
 
     def delete_deployment(self, elem):
+        vendor_dir = self.get_dir(DDir.VENDOR)
+        if type(elem) == MoneroD:
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            depl_dir = os.path.join(vendor_dir, DDir.MONEROD, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            logrotate_config = elem.logrotate_config()
+            if os.path.exists(logrotate_config):
+                os.remove(logrotate_config)
+            depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
+        elif type(elem) == XMRig:
+            config = elem.config_file()
+            if os.path.exists(config):
+                os.remove(config)
+            logrotate_config = elem.logrotate_config()
+            if os.path.exists(logrotate_config):
+                os.remove(logrotate_config)
+            depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
+            if os.path.isdir(depl_dir):
+                rmtree(depl_dir)
         self.delete_one(elem)
 
 
@@ -242,7 +350,15 @@ class DeplMgr:
         elem_type = elem.elem_type()
         instance = elem.instance()
         self.db.delete_one(
-            self.depl_col, {DMongo.ELEM_TYPE: elem_type, DMongo.INSTANCE: instance})
+            self.depl_col, {
+                DMongo.ELEMENT_TYPE: elem_type, 
+                DField.COMPONENTS: {
+                    "$elemMatch": {
+                        DField.FIELD: DField.INSTANCE,
+                        DField.VALUE: instance}
+                    }
+                }
+            )
 
 
     def factory(self, rec=None):
@@ -264,7 +380,7 @@ class DeplMgr:
         elif elem_type == DElem.XMRIG_REMOTE:
             return XMRigRemote(rec)
         else:
-            raise ValueError(f"DeploymentMgr:factory(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:factory(): No handler for {elem_type}")
        
 
 
@@ -308,9 +424,10 @@ class DeplMgr:
                 if obj.parent() != DField.DISABLE:
                     obj.monerod = self.get_deployment_by_id(obj.parent())
             elif type(obj) == XMRig:
-                obj.p2pool = self.get_deployment_by_id(obj.parent())
-                if obj.p2pool.parent() != DField.DISABLE:
-                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+                if obj.parent() != DField.DISABLE:
+                    obj.p2pool = self.get_deployment_by_id(obj.parent())
+                    if obj.p2pool.parent() != DField.DISABLE:
+                        obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
                 obj.instance_map = self.get_deployment_ids_and_instances(DElem.P2POOL)
             return obj
         else:
@@ -318,23 +435,29 @@ class DeplMgr:
 
 
     def get_deployment_by_id(self, id):
-        rec = self.db.find_one(self.depl_col, {DMongo.OBJECT_ID: id})
-        return self.factory(rec)
+        if id == DField.DISABLE:
+            return None
+        else:
+            rec = self.db.find_one(self.depl_col, {DMongo.OBJECT_ID: id})
+            return self.factory(rec)
 
 
     def get_deployment_ids_and_instances(self, elem_type):
         instance_map = {}
         recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: elem_type})
         for rec in recs:
-            instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+            instance = self.get_component_value(rec, DField.INSTANCE)
+            instance_map[instance] = rec[DMongo.OBJECT_ID]
         if elem_type == DElem.P2POOL:
             recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.INT_P2POOL})
             for rec in recs:
-                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+                instance = self.get_component_value(rec, DField.INSTANCE)
+                instance_map[instance] = rec[DMongo.OBJECT_ID]
         elif elem_type == DElem.MONEROD:
             recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.MONEROD_REMOTE})
             for rec in recs:
-                instance_map[rec[DMongo.INSTANCE]] = rec[DMongo.OBJECT_ID]
+                instance = self.get_component_value(rec, DField.INSTANCE)
+                instance_map[instance] = rec[DMongo.OBJECT_ID]
         return instance_map
             
     
@@ -348,42 +471,46 @@ class DeplMgr:
                 if obj.parent() != DField.DISABLE:
                     obj.monerod = self.get_deployment_by_id(obj.parent())
             elif type(obj) == XMRig:
-                obj.p2pool = self.get_deployment_by_id(obj.parent())
-                if obj.p2pool.parent() != DField.DISABLE:
-                    obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
+                if obj.p2pool:
+                    if obj.p2pool.parent() != DField.DISABLE:
+                        obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
             obj_list.append(obj)
         return obj_list
 
 
-    def get_dir(self, aDir: str) -> str:
+    def get_dir(self, aDir: str, elem_type=None) -> str:
 
         if aDir == DElem.DB4E:
             return os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
         
-        elif aDir == DField.PYTHON:
-            python = os.path.abspath(
-                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
-                             DDir.BIN, Default.PYTHON))
-            return python
-        
         elif aDir == DDir.INSTALL:
             return os.path.abspath(
                 os.path.join(os.path.dirname(__file__),'..','..','..','..','..'))
-        
+
         elif aDir == DDir.TEMPLATE:
             return os.path.abspath(
                 os.path.join(os.path.dirname(
                     __file__), '..', '..', DElem.DB4E, DDef.TEMPLATES_DIR))
         
-        elif aDir == DDir.VENDOR:
-            db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
-            return db4e.vendor_dir()
+        elif aDir == DDir.LOGROTATE:
+            vendor_dir = self.get_dir(DDir.VENDOR)
+            return os.path.abspath(os.path.join(vendor_dir, DElem.DB4E, DDir.LOGROTATE))
 
         elif aDir == DElem.MONEROD:
             return DElem.MONEROD + '-' + Default.MONEROD_VERSION
         
         elif aDir == DElem.P2POOL:
             return DElem.P2POOL + '-' + Default.P2POOL_VERSION
+
+        elif aDir == DField.PYTHON:
+            python = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),'..','..','..','..','..', 
+                             DDir.BIN, Default.PYTHON))
+            return python
+        
+        elif aDir == DDir.VENDOR:
+            db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
+            return db4e.vendor_dir()
 
         elif aDir == DElem.XMRIG:
             return DElem.XMRIG + '-' + Default.XMRIG_VERSION
@@ -423,6 +550,23 @@ class DeplMgr:
         return obj_list
 
 
+    def get_logrotate_template(self, elem_type):
+        tmpl_dir = self.get_dir(DDir.TEMPLATE)
+        if elem_type == DElem.DB4E:
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.DB4E, DDef.CONF_DIR, 
+                DElem.DB4E + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
+        elif elem_type == DElem.P2POOL or elem_type == DElem.INT_P2POOL:
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.P2POOL + "-" + DDef.P2POOL_VERSION, DDef.CONF_DIR,
+                DElem.P2POOL + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
+        
+        elif elem_type == DElem.XMRIG:
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.XMRIG + "-" + DDef.XMRIG_VERSION, DDef.CONF_DIR,
+                DElem.XMRIG + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
+
+
     def get_template(self, elem_type):
         tmpl_dir = self.get_dir(DDir.TEMPLATE)
 
@@ -442,14 +586,14 @@ class DeplMgr:
                 tmpl_dir, xmrig_dir, DDef.CONF_DIR, Default.XMRIG_CONFIG)
 
         else:
-            raise ValueError(f"DeploymentMgr:get_template(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:get_template(): No handler for {elem_type}")
 
         return tmpl_file
 
 
     def get_monerods(self):
         obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.MONEROD})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.MONEROD})
         for rec in recs:
             obj_list.append(self.factory(rec))
         return obj_list
@@ -476,12 +620,12 @@ class DeplMgr:
         elif elem_type == DElem.XMRIG_REMOTE:
             return XMRigRemote()
         else:
-            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
+            raise ValueError(f"DeplMgr:get_new(): No handler for {elem_type}")
 
 
     def get_p2pools(self):
         obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.P2POOL})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.P2POOL})
         for rec in recs:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:
@@ -489,21 +633,31 @@ class DeplMgr:
             obj_list.append(obj)
         return obj_list
     
+
+    def get_remote_xmrigs(self):
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.XMRIG_REMOTE})
+        obj_list = []
+        for rec in recs:
+            obj = self.factory(rec)
+            obj_list.append(obj)
+
+        return obj_list
+
     
     def get_xmrigs(self):
-        obj_list = []
-        recs = self.db.find_many(self.depl_col, {DMongo.ELEM_TYPE: DElem.XMRIG})
+        recs = self.db.find_many(self.depl_col, {DMongo.ELEMENT_TYPE: DElem.XMRIG})
         for rec in recs:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:
                 obj.p2pool = self.get_deployment_by_id(obj.parent())
                 if obj.p2pool.parent() != DField.DISABLE:
                     obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
-            obj_list.append(obj)
-        return obj_list
+            self.xmrigs[obj.instance()] = obj
+        return self.xmrigs.values()
 
 
     def insert_one(self, elem):
+        #print(f"DeplMgr:insert_one(): {elem.to_rec()}")
         obj_id = self.db.insert_one(self.depl_col, elem.to_rec())
         return obj_id
        
@@ -566,7 +720,7 @@ class DeplMgr:
 
 
     def update_deployment(self, elem):
-        #print(f"DeploymentMgr:update_deployment(): {rec}")
+        #print(f"DeplMgr:update_deployment(): {rec}")
         if type(elem) == Db4E:
             return self.update_db4e_deployment(elem)
         elif type(elem) == MoneroD:
@@ -591,7 +745,7 @@ class DeplMgr:
         monerod = self.get_deployment(
             DElem.MONEROD, new_monerod.instance())
         if not monerod:
-            raise ValueError(f"DeploymentMgr:update_monerod_deployment(): " \
+            raise ValueError(f"DeplMgr:update_monerod_deployment(): " \
                              f"No monerod found for {new_monerod}")
         
         if monerod.enabled() != new_monerod.enabled():
@@ -716,6 +870,7 @@ class DeplMgr:
             monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
+            monerod.version(DDef.MONEROD_VERSION)
             self.update_one(monerod)
 
             if restart:
@@ -731,11 +886,11 @@ class DeplMgr:
 
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote) -> MoneroDRemote:
-        #print(f"DeploymentMgr:update_monerod_remote_deployment(): {new_monerod}")
+        #print(f"DeplMgr:update_monerod_remote_deployment(): {new_monerod}")
         update = False
         monerod = self.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
         if not monerod:
-            raise ValueError(f"DeploymentMgr:update_monerod_remote_deployment(): " \
+            raise ValueError(f"DeplMgr:update_monerod_remote_deployment(): " \
                              f"No monerod found for {new_monerod.id()}")
 
         ## Field-by-field comparison
@@ -773,10 +928,9 @@ class DeplMgr:
         return monerod
 
 
-    def update_one(self, elem):
-        #print(f"DeploymentMgr:update_one(): {elem.to_rec()}")
-        
+    def update_one(self, elem):        
         # Don't store status messages in the DB
+        #print(f"DeplMgr:update_one(): {elem.to_rec()}")
         msgs = elem.pop_msgs()
         self.db.update_one(
             self.depl_col, {DMongo.OBJECT_ID: elem.id()}, elem.to_rec())
@@ -873,6 +1027,7 @@ class DeplMgr:
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
+            p2pool.version(DDef.P2POOL_VERSION)
             self.update_one(p2pool)
         else:
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.WARN, "Nothing to update")
@@ -886,7 +1041,7 @@ class DeplMgr:
 
         p2pool = self.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
         if not p2pool:
-            raise ValueError(f"DeploymentMgg:update_p2pool_remote_deployment(): " \
+            raise ValueError(f"DeplMgr:update_p2pool_remote_deployment(): " \
                              f"Nothing found for {new_p2pool.id()}")
 
         ## Field-by-field comparison
@@ -915,7 +1070,7 @@ class DeplMgr:
 
 
     def update_vendor_dir(self, new_dir: str, old_dir: str, db4e: Db4E) -> Db4E:
-        #print(f"DeploymentMgr:update_vendor_dir(): {old_dir} > {new_dir}")
+        #print(f"DeplMgr:update_vendor_dir(): {old_dir} > {new_dir}")
         update_flag = True
 
         if old_dir == new_dir:
@@ -958,7 +1113,6 @@ class DeplMgr:
                 f"aborting deployment directory update:\n{e}")
             update_flag = False
 
-        #print(f"DeploymentMgr:update_vendor_dir(): results: {results}")
         return db4e, update_flag
 
 
@@ -967,9 +1121,9 @@ class DeplMgr:
         update_config = False
 
         xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
-        #print(f"DeploymentMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
+        #print(f"DeplMgr:update_xmrig_deployment(): old enabled: {xmrig.enabled()}")
         if not xmrig:
-            raise ValueError(f"DeploymentMgg:update_xmrig_deployment(): " \
+            raise ValueError(f"DeplMgr:update_xmrig_deployment(): " \
                              f"Nothing found for {new_xmrig.id()}")
 
         if xmrig.enabled() != new_xmrig.enabled():
@@ -995,15 +1149,24 @@ class DeplMgr:
 
             # Parent ID
             if xmrig.parent != new_xmrig.parent:
-                parent = self.get_deployment_by_id(new_xmrig.parent())
-                parent_instance = parent.instance()
-                new_parent = self.get_deployment_by_id(new_xmrig.parent())
-                new_parent_instance = new_parent.instance()
+                if new_xmrig.parent() == DField.DISABLE:
+                    new_parent_instance = "Not set"
+                    parent = self.get_deployment_by_id(xmrig.parent())
+                    parent_instance = parent.instance()
+                else:
+                    new_parent = self.get_deployment_by_id(new_xmrig.parent())
+                    new_parent_instance = new_parent.instance()
+                    if xmrig.parent() == DField.DISABLE:
+                        parent_instance = "Not set"
+                    else:
+                        parent = self.get_deployment_by_id(xmrig.parent())
+                        parent_instance = parent.instance()
+                    update_config = True
                 xmrig.parent(new_xmrig.parent())
                 msg = f"Updated parent: {parent_instance} > {new_parent_instance}"
                 xmrig.msg(DLabel.XMRIG_SHORT, DStatus.GOOD, msg)
                 update = True
-                update_config = True
+                
 
         # Regenerate config if required
         if update_config:
@@ -1015,6 +1178,7 @@ class DeplMgr:
                 xmrig.p2pool.monerod = self.get_deployment_by_id(xmrig.p2pool.parent())
 
         if update:
+            xmrig.version(DDef.XMRIG_VERSION)
             self.update_one(xmrig)
             job = Job(op=DJob.RESTART, elem_type=DElem.XMRIG, instance=xmrig.instance())
             job.msg("XMRig loaded new settings")

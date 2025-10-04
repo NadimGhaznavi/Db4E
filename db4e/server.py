@@ -18,7 +18,7 @@ import signal
 import threading
 from importlib import metadata
 from shutil import rmtree
-from copy import deepcopy
+import subprocess
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -40,7 +40,7 @@ from db4e.Modules.DbCache import DbCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
-from db4e.Modules.OpsDb import OpsDb
+from db4e.Modules.OpsDb import OpsDb, OpsETL
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
@@ -80,15 +80,8 @@ class Db4eServer:
         #  systemd wrapper
         self.systemd = Db4ESystemD(db=self.db)
 
-        # Mining DB
-        self.mining_db = MiningDb(db=self.db)
-
         # OpsDb
         self.ops_db = OpsDb(db=self.db)
-
-
-        # Database Cache
-        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Deployment Manager
         self.depl_mgr = DeplMgr(db=self.db)
@@ -96,19 +89,23 @@ class Db4eServer:
         # Job Queue
         self.job_queue = JobQueue(db=self.db)
         
-
         # Setup logging
         vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
-        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)    
+        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)
+        self.log_file = fq_log_file 
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer.__init__():")
+        # Mining DB object 
+        self.mining_db = MiningDb(
+            db=self.db, log_file=fq_log_file, ops_etl=OpsETL(ops_db=OpsDb(db=self.db)))
 
-        # Mining DB object (part of the DAL)
-        self.mining_db = MiningDb(db=self.db, log_file=fq_log_file)
+        # Database Cache
+        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
+
+        # Track when we last ran `logrotate`
+        self.last_logrotate = None
 
         # {instance_name: (thread, stop_event)}
         self.log_watchers = {}
@@ -220,39 +217,32 @@ class Db4eServer:
         elem = self.depl_mgr.get_deployment(elem_type, instance)
         job.msg("Deleted deployment")
         if type(elem) == XMRig:
+            elem.enabled(False)
             self.ensure_stopped(elem)
-            config_file = elem.config_file()
-            if os.path.exists(config_file):
-                os.remove(config_file)
-            log_file = elem.log_file()
-            if os.path.exists(log_file):
-                os.remove(log_file)
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
+            self.disable_downstream(elem)
+            elem.enabled(False)
             self.ensure_stopped(elem)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            p2pool_dir = DElem.P2POOL + '-' + elem.version()
-            rmtree(os.path.join(vendor_dir, p2pool_dir, elem.instance()))
             self.depl_mgr.delete_deployment(elem)
             self.job_queue.complete_job(job=job)
-            self.disable_downstream(elem)
+            control = self.log_watchers.pop(instance, None)
+            if control:
+                thread, stop_event, watcher = control
+                watcher.stop_sub_thread()
+                stop_event.set()
+                thread.join()
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
-            self.depl_mgr.delete_deployment(elem)
-            self.job_queue.complete_job(job=job)
             self.disable_downstream(elem)
+            elem.enabled(False)
+            self.depl_mgr.delete_deployment(elem)
         elif type(elem) == MoneroD:
+            self.disable_downstream(elem)
+            elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            monerod_dir = DElem.MONEROD + '-' + elem.version()
-            conf_file = elem.config_file()
-            if os.path.exists(conf_file):
-                os.remove(conf_file)
-            rmtree(os.path.join(vendor_dir, monerod_dir, elem.instance()))
-            self.depl_mgr.delete_deployment(elem)  
             self.job_queue.complete_job(job=job)
-            self.disable_downstream(elem)
             
 
     def disable(self, job: Job):
@@ -283,17 +273,44 @@ class Db4eServer:
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable_downstream(): {elem}")
-        elems = self.depl_mgr.get_downstream(elem)
-        for elem in elems:
-            
-            if not elem.enabled():
-                continue
 
-            elem.enabled(False)
-            self.depl_mgr.update_deployment(elem)
-            job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
-            job.msg(f"Disabled downstream instance: {elem.instance()}")
-            self.job_queue.complete_job(job)    
+        if type(elem) == MoneroD or type(elem) == MoneroDRemote:
+            p2pools = self.depl_mgr.get_p2pools()
+            for p2pool in p2pools:
+                if p2pool.parent() == elem.id():
+                    p2pool.monerod = None
+                    p2pool.enabled(False)
+                    self.ensure_stopped(p2pool)
+                    self.depl_mgr.update_deployment(p2pool)
+                    p2pool.parent(DField.DISABLE)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    self.disable_downstream(p2pool)
+
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            int_p2pools = self.depl_mgr.get_internal_p2pools()
+            for int_p2pool in int_p2pools:
+                if int_p2pool.parent() == elem.id():
+                    int_p2pool.monerod = None
+                    int_p2pool.enabled(False)
+                    self.ensure_stopped(int_p2pool)
+                    self.depl_mgr.update_deployment(int_p2pool)
+                    int_p2pool.parent(DField.DISABLE)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
+            xmrigs = self.depl_mgr.get_xmrigs()
+            for xmrig in xmrigs:
+                if xmrig.parent() == elem.id():
+                    xmrig.p2pool = None
+                    self.ensure_stopped(xmrig)
+                    xmrig.enabled(False)
+                    xmrig.parent(DField.DISABLE)
+                    self.depl_mgr.update_deployment(xmrig)
+                    job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
+                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    self.job_queue.complete_job(job)    
 
 
     def enable(self, job: Job):
@@ -417,6 +434,32 @@ class Db4eServer:
         self.job_queue.complete_job(job)
 
 
+    def rotate_logs(self):
+        # Run logrotate every two hours
+        cur_hour = datetime.now().hour
+        if self.last_logrotate is None or self.last_logrotate != cur_hour:
+            self.last_logrotate = cur_hour
+            try:
+                logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
+                cmd = [DFile.SUDO , DFile.LOGROTATE, "-v", logrotate_dir]
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    input='')
+                stdout = proc.stdout.decode()
+                stderr = proc.stderr.decode()
+                self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+                for xmrig in self.depl_mgr.get_xmrigs():
+                    sd = self.systemd
+                    sd.service_name('xmrig@' + xmrig.instance())
+                    sd.restart()
+
+            except Exception as e:
+                self.log.error(f"rotate_logs(): {e} {stderr}")
+                return
+            
+
     def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:shutdown(): {signum}")
@@ -434,22 +477,20 @@ class Db4eServer:
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
         for p2pool in self.depl_mgr.get_internal_p2pools():
-            if p2pool.parent() == monerod_id:
-                continue
-
-            self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
-            p2pool.parent(monerod_id)
-            p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
-            vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-            tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-            p2pool.log_file(
-                os.path.join(
-                    vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
-                    DDir.LOG, DFile.P2POOL_LOG))
-            p2pool.enabled(True)
-            self.depl_mgr.update_deployment(p2pool)
-            self.ensure_running(p2pool)
+            if p2pool.parent() != monerod_id:
+                self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
+                p2pool.parent(monerod_id)
+                p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
+                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.log_file(
+                    os.path.join(
+                        vendor_dir, self.depl_mgr.get_dir(DElem.P2POOL), p2pool.instance(), 
+                        DDir.LOG, DFile.P2POOL_LOG))
+                p2pool.enabled(True)
+                self.depl_mgr.update_deployment(p2pool)
+                self.ensure_running(p2pool)
 
 
     def spawn_log_watcher(self, p2pool):
@@ -470,6 +511,8 @@ class Db4eServer:
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
+                depl_mgr=self.depl_mgr,
+                db4e_log_file=self.log_file,
             )
         elif type(p2pool) == InternalP2Pool:
             watcher = P2PoolWatcher(
@@ -479,6 +522,8 @@ class Db4eServer:
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
                 instance=instance,
+                depl_mgr=self.depl_mgr,
+                db4e_log_file=self.log_file,
                 stats_mod=p2pool.stats_mod(),
             )
         else:
@@ -497,14 +542,8 @@ class Db4eServer:
                 self.log.debug(f"Watcher thread exiting: {instance}")
                 if instance not in [ DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, 
                                     DLabel.NANO_CHAIN]:
-                    timestamp = datetime.now().replace(microsecond=0)
-                    event = {
-                        DMongo.ELEM_TYPE: DElem.P2POOL_WATCHER,
-                        DMongo.INSTANCE: instance,
-                        DMongo.EVENT: DSystemD.START,
-                        DMongo.TIMESTAMP: timestamp
-                    }
-                    self.mining_db.db.insert_one(self.ops_col, event)   
+                    self.ops_db.add_start_event(
+                        elem_type=DLabel.P2POOL_WATCHER, instance=instance)
 
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
@@ -526,6 +565,7 @@ class Db4eServer:
             self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
             self.check_deployments()
             self.check_jobs()
+            self.rotate_logs()
             time.sleep(POLL_INTERVAL)
 
 

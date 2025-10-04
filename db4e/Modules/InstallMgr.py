@@ -83,6 +83,9 @@ class InstallMgr(Container):
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(db4e=db4e)
 
+        # Create a lograte file for Db4E
+        db4e = self._generate_db4e_logrotate(db4e=db4e)
+
         # Generate the Db4E service file (installed by the sudo installer)
         self._generate_db4e_service_file(db4e=db4e)
 
@@ -259,7 +262,7 @@ class InstallMgr(Container):
         os.makedirs(os.path.join(fq_db4e_dir))
         db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}")
         # Create the sub-directories
-        for sub_dir in [DDef.LOG_DIR]:
+        for sub_dir in [DDef.LOG_DIR, DDef.LOG_ROTATE ]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
             db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
         return db4e
@@ -365,6 +368,39 @@ class InstallMgr(Container):
             db4e.msg(
                 chain_label, DStatus.GOOD,
                 f"Created internal P2Pool deployment: {chain_label}")
+            
+        logrotate_tmpl = self.depl_mgr.get_logrotate_template(DElem.P2POOL)
+        db4e_group = db4e.group()
+        vendor_dir = db4e.vendor_dir()
+        p2pool.gen_logrotate_config(
+            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
+
+        return db4e
+
+
+    # Create a logrotate file for Db4E
+    def _generate_db4e_logrotate(self, db4e: Db4E):
+        logrotate_tmpl = self.depl_mgr.get_logrotate_template(DElem.DB4E)
+        vendor_dir = db4e.vendor_dir()
+        fq_config = os.path.join(
+            vendor_dir, DElem.DB4E, DDef.LOG_ROTATE, DElem.DB4E + DDef.CONF_SUFFIX)
+        
+        # Populate the config template
+        placeholders = {
+            DPlaceholder.VENDOR_DIR: vendor_dir,
+            DPlaceholder.MAX_LOG_FILES: DDef.MAX_LOG_FILES,
+            DPlaceholder.MAX_LOG_SIZE: DDef.MAX_LOG_SIZE,
+        }
+        with open(logrotate_tmpl, 'r') as f:
+            logrotate_contents = f.read()
+            final_config = logrotate_contents
+            for key, val in placeholders.items():
+                final_config = final_config.replace(f'[[{key}]]', str(val))
+        
+        # Write the config file
+        with open(fq_config, 'w') as f:
+            f.write(final_config)
+        db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created logrotate config: {fq_config}")
         return db4e
 
 

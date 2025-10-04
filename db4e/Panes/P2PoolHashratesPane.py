@@ -64,8 +64,10 @@ class P2PoolHashratesPane(Container):
 
 
     def set_data(self, p2pool: P2Pool):
-        INTRO = f"View analytics information for the " \
-            f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment."
+        INTRO = f"The chart below shows the hashrate for the " \
+            f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment. This is the " \
+            f"cumulative total of the individual miners connected to this P2Pool " \
+            f"deployment."
         
         self.intro_label.update(INTRO)
         self.instance_label.update(p2pool.instance())

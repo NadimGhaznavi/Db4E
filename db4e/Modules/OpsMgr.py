@@ -18,9 +18,7 @@ from db4e.Modules.DeplClient import DeplClient
 from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MiningETL import MiningETL
-from db4e.Modules.OpsDb import OpsDb
 from db4e.Modules.OpsDb import OpsETL
-
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.InternalP2Pool import InternalP2Pool
 from db4e.Modules.XMRig import XMRig
@@ -39,7 +37,7 @@ class OpsMgr:
 
     def __init__(
         self, depl_client: DeplClient, health_cache: HealthCache, 
-        db_cache: DbCache, mining_db: MiningDb):
+        db_cache: DbCache, mining_db: MiningDb, ops_etl: OpsETL):
 
         self.depl_client = depl_client
         self.health_cache = health_cache
@@ -48,8 +46,8 @@ class OpsMgr:
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
         self.depl_col = DDef.DEPLOYMENT_COL
-        self.ops_db = OpsDb(db=self.db)
-        self.ops_etl = OpsETL(ops_db=self.ops_db)
+        self.ops_etl = ops_etl
+        self.ops_db = ops_etl.ops_db
 
 
 
@@ -86,17 +84,28 @@ class OpsMgr:
    
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
-            if DField.INSTANCE in elem_type:
-                instance = elem_type[DField.INSTANCE]
+            instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
 
-        if type(elem) == XMRigRemote:
+        if type(elem) == Db4E:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            if elem.parent() != DField.DISABLE:
+                elem.monerod = self.db_cache.get_deployment_by_id(elem.parent())
+
+        elif type(elem) == XMRig:
+            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+            if elem.parent() != DField.DISABLE:
+                elem.p2pool = self.db_cache.get_deployment_by_id(elem.parent())
+
+        elif type(elem) == XMRigRemote:
             # The Remote XMRig pane displays analytics
             return self.hashrates(form_data={DField.ELEMENT: elem})
 
-        
         return elem
 
     ### Get deployments by type...

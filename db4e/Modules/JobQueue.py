@@ -53,10 +53,8 @@ class JobQueue:
                     DJob.ATTEMPTS: 1
                 }
             },
-)
+        )
         if job_rec:
-            #print(f"JobQueue:grab_job(): job_rec: {job_rec}")
-            #print(f"JobQueue:grab_job(): job.elem(): {job.elem()}")
             job = Job()
             job.from_rec(job_rec)
             job.status(DJob.PROCESSING)

@@ -9,7 +9,7 @@ db4e/Modules/Helper.py
 
 Helper functions that are used in multiple modules   
 """
-import os, grp, getpass
+import os, grp, getpass, re
 
 from rich import box
 from rich.table import Table
@@ -153,4 +153,31 @@ def set_component_value(rec, updates):
     return rec
 
 
+def uptime_to_minutes(uptime_str: str):
+    pattern = re.compile(r'(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?')
+    match = pattern.fullmatch(uptime_str)
+    if not match:
+        raise ValueError(f"Unrecognized uptime format: {uptime_str}")
+
+    days, hours, minutes, seconds = (int(x) if x else 0 for x in match.groups())
+
+    total_minutes = days * 24 * 60 + hours * 60 + minutes
+    # optionally: round up if seconds >= 30
+    if seconds >= 30:
+        total_minutes += 1
     
+    return total_minutes
+
+
+def minutes_to_uptime(minutes: int):
+    # Return a string like:
+    # 0h 0m 45s
+    # 1d 7h 32m
+    days, minutes = divmod(minutes, 1440)
+    hours, minutes = divmod(minutes, 60)
+    if days > 0:
+        return f"{days}d {hours}h {minutes}m"
+    elif hours > 0:
+        return f"{hours}h {minutes}m"
+    else:
+        return f"{minutes}m"

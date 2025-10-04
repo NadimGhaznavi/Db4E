@@ -15,6 +15,14 @@ Clock {
     align: center middle;
     background: black; }
 
+HashratePlot {
+    background: black;
+}
+
+PlotWidget {
+    background: black;
+}
+
 NavPane {
     height: 9fr;
     padding: 0 2;
@@ -227,6 +235,9 @@ Tree {
     padding: 0 1;
     width: 25; }
 
+.hashrate_plot {
+    background: black;
+}
 
 /* Health Box */
 
@@ -377,13 +388,16 @@ Button {
 .new #analytics_button {
     display: none; }
 
-.new #update_button {
+.new #disable_button {
     display: none; }
 
 .new #enable_button {
     display: none; }
 
-.new #disable_button {
+.new #hashrate_button {
+    display: none; }
+
+.new #update_button {
     display: none; }
 
 .update #new_button {

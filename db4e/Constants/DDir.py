@@ -11,6 +11,9 @@ db4e/Constants/DDir.py
 from db4e.Modules.ConstGroup import ConstGroup
 from db4e.Constants.DField import DField
 from db4e.Constants.DDef import DDef
+from db4e.Constants.DFile import DFile
+
+
 
 
 
@@ -26,6 +29,7 @@ class DDir(ConstGroup):
     DEV : str = "dev_dir"
     INSTALL : str = DField.INSTALL_DIR
     LOG : str = "log_dir"
+    LOGROTATE : str = DFile.LOGROTATE
     MONEROD : str = "monerod"
     P2POOL : str = "p2pool"
     RUN : str = "run_dir"

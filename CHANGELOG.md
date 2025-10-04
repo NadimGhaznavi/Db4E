@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.42.0] - 2025-10-03
+
+### Added
+- Added a `deployment_dir/db4e/logrotate` directory to house logrotate files.
+- Added logrotate templates for local `XMRig`, `P2Pool` and the `Db4E` deployment.
+- Updated the`/etc/sudoers.d/db4e` file:
+  - Allow user to run `logrotate` as root (required for XMRig logs).
+  - Allow user to run `chown` command on the logrotate files (xmrig log files are owned by root).
+- Added a `gen_logrotate_config()` methods to `P2Pool`, `XMRig` classes.
+- Added a `_gen_db4e_logrotate_config()` method to the `InstallMgr`.
+- Created a new `LogRotateConfig` `Component` class.
+- Added `max_log_files()`, `max_log_size()` and `logrotate_config()` methods and components to `XMRig` and `P2Pool`.
+- Added a banner to the `/etc/sudoers.d/db4e` file.
+- Added *logrotate* definitions to the `DFile` and `DDir` constants files.
+- Added a `DeplMgr:get_dir(DDir.LOGROTATE)` method.
+- Added a *P2Pool uptime* check before adding *Miner hashrate* records to avoid adding invalid, super-high hashrates when P2Pool first starts.
+- Implemented formal *Remote XMRig* deployment records.
+- Wrapped `P2PoolWatcher` functions in *try/except* blocks where exceptions are logged.
+- Upgraded bundled `P2Pool` to v4.11
+
+### Fixed
+- Configured the *Hashrate* button visibility so it's not visible for the *New* screens.
+- Passed `P2PoolWatcher` the *Db4E* log file instead of the P2Pool log file.
+---
+
 ## [0.41.0] - 2025-09-30
 
 ### Added

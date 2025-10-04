@@ -10,10 +10,13 @@ db4e/Modules/HashratePlot.py
 
 from typing import Any
 
-from textual.widgets import Select
 from textual_plot import PlotWidget, HiResMode
+from textual.app import ComposeResult
 
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DField import DField
+
+
 
 
 
@@ -25,13 +28,17 @@ class HashratePlot(PlotWidget):
     A widget for plotting hashrate data.
     """
 
-    def __init__(self, title, id):
+    def __init__(self, title, id, classes=None):
         super().__init__(title, id, allow_pan_and_zoom=False)
         self._hashrate_id = id
         self._all_days = None
         self._all_values = None
         self._title = title
         self.set_xlabel(DLabel.DAYS)        
+
+
+    def compose(self) -> ComposeResult:
+        yield PlotWidget(classes=DField.HASHRATE_PLOT)
 
 
     def load_data(self, days, hashrates, units):
@@ -49,7 +56,9 @@ class HashratePlot(PlotWidget):
             plot_values = self._all_values
         self.clear()
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
-        self.plot(x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE)
+        self.plot(
+            x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE,
+            line_style="magenta2")
 
 
     def reduce_data(self, times, values):

@@ -88,7 +88,9 @@ class SoftwareSystem:
         for line_item in self.msgs:
             #print(f"SoftwareSystem:status(): line_item: {line_item}")
             for key in line_item:
-                if line_item[key][DJob.STATUS] == DStatus.ERROR:
+                if line_item[key][DJob.STATUS] == DStatus.UNKNOWN:
+                    return DStatus.UNKNOWN
+                elif line_item[key][DJob.STATUS] == DStatus.ERROR:
                     return DStatus.ERROR
                 elif line_item[key][DJob.STATUS] == DStatus.WARN:
                     worst_status = DStatus.WARN

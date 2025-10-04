@@ -49,6 +49,7 @@ class DPlaceholder(ConstGroup):
     STRATUM_PORT : str = "STRATUM_PORT"
     PYTHON : str = "PYTHON"
     URL : str = "URL"
+    VENDOR_DIR : str = "VENDOR_DIR"
     WALLET : str = "WALLET"
     XMRIG_DIR : str = "XMRIG_DIR"
     ZMQ_PUB_PORT : str = "ZMQ_PUB_PORT"
