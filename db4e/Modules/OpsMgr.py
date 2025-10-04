@@ -45,7 +45,7 @@ class OpsMgr:
         self.db = db_cache.db
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
-        self.depl_col = DDef.DEPLOYMENT_COL
+        self.depl_col = DDef.DEPL_COLLECTION
         self.ops_etl = ops_etl
         self.ops_db = ops_etl.ops_db
 

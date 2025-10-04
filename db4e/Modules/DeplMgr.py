@@ -66,7 +66,7 @@ class DeplMgr:
         self.db = db
         self.job_queue = JobQueue(db=db)
         self.db4e_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        self.depl_col = DDef.DEPLOYMENT_COL
+        self.depl_col = DDef.DEPL_COLLECTION
         # Create a cache for remote XMRig deployments; these are scanned from the 
         # P2Pool log and appear every minute, so cache...
         self.remote_xmrigs = {}

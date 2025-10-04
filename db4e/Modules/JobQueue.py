@@ -21,7 +21,7 @@ from db4e.Constants.DMongo import DMongo
 
 class JobQueue:
     def __init__(self, db: DbMgr):
-        self.col_name = DDef.JOBS_COL
+        self.col_name = DDef.JOBS_COLLECTION
         self.db = db
 
 

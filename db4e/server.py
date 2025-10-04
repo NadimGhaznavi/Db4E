@@ -17,8 +17,10 @@ import time
 import signal
 import threading
 from importlib import metadata
-from shutil import rmtree
+import shutil
 import subprocess
+import gzip
+from pathlib import Path
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -57,6 +59,8 @@ from db4e.Constants.DModule import DModule
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DSystemD import DSystemD
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DMongo import DMongo
+
 
 
 DDebug.FUNCTION = False
@@ -413,7 +417,96 @@ class Db4eServer:
                     thread.join()
         else:
             self.log.critical(f'ERROR: Failed to stop {elem}, return code was {rc}')
-                
+
+
+    def mongodb_backup(self):
+        if DDebug.FUNCTION:
+            self.log.debug("Db4eServer:mongodb_backup():")
+        # Mongo collections
+        depl_col = DDef.DEPL_COLLECTION
+        jobs_col = DDef.JOBS_COLLECTION
+        mining_col = DDef.MINING_COLLECTION
+        ops_col = DDef.OPS_COLLECTION
+        all_cols = [ depl_col, jobs_col, mining_col, ops_col ]
+
+        now = datetime.now()
+        timestamp = now.strftime("%Y-%m-%d")
+        todays_backup = \
+            timestamp + "_" + DElem.DB4E + '_' + depl_col + DDef.GZIP_SUFFIX
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+        backup_dir = os.path.join(vendor_dir, DDef.BACKUP_DIR)
+        fq_todays_backup = os.path.join(backup_dir, todays_backup)
+
+        # Check if today's backup already exists
+        if os.path.exists(fq_todays_backup):
+            return
+        
+        # Create the backup directory if it doesn't exist
+        if not os.path.isdir(backup_dir):
+            os.makedirs(backup_dir)
+
+        stderr = ""
+        try:
+            for aCol in all_cols:
+                dumpfile = os.path.join(
+                    backup_dir, timestamp + "_" + DElem.DB4E + '_' + aCol)
+                dumpfile_gz = dumpfile + DDef.GZIP_SUFFIX
+
+                ## Backup Mongo; run mongodump
+                cmd = [ 
+                    DFile.MONGODUMP, 
+                    f"--archive={dumpfile}",
+                    f"--db={DElem.DB4E}",
+                    f"--collection={aCol}"
+                    ]
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                stdout = proc.stdout.decode()
+                stderr = proc.stderr.decode()
+
+                ## Compress the dump files
+                with open(dumpfile, 'rb') as f_in:
+                    with gzip.open(dumpfile_gz, 'wb') as f_out:
+                        # Write the contents of the original file to the gzipped file
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(dumpfile)
+                self.log.info(f"Backed up MongoDB collection: {dumpfile_gz}")
+
+            ## Delete old dump files
+            path = Path(backup_dir)
+
+            # List of all files
+            dump_files = list(path.glob("*" + DDef.GZIP_SUFFIX))
+
+            # We only keep MAX_LOG_FILES backups for each backup file
+            if len(dump_files) <= len(all_cols) * DDef.MAX_LOG_FILES:
+                return
+            
+            # Collect creation times
+            dumps_with_times = []
+            for aDump in dump_files:
+                create_time = os.path.getctime(aDump)
+                dumps_with_times.append((create_time, aDump))
+
+            # Sort by creation time
+            dumps_with_times.sort(key=lambda x: x[0])
+
+            max_total = len(all_cols) * DDef.MAX_LOG_FILES
+
+            # Delete oldest files until we’re within limit
+            for _, dump_path in dumps_with_times[:-max_total]:
+                os.remove(dump_path)
+                self.log.info(f"Deleted old backup file: {dump_path}")
+
+
+        except Exception as e:
+            self.log.critical(f"mongodb_backup() failed: {e} {stdout} {stderr}")
+            return
+
+        
+
 
     def restart(self, job):
         if DDebug.FUNCTION:
@@ -566,6 +659,7 @@ class Db4eServer:
             self.check_deployments()
             self.check_jobs()
             self.rotate_logs()
+            self.mongodb_backup()
             time.sleep(POLL_INTERVAL)
 
 

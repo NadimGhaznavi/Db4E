@@ -37,6 +37,7 @@ class DMongo(ConstGroup):
     IP_ADDR : str = "ip_addr"
     JOBS_COLLECTION : str = "jobs_collection"
     LOG_COLLECTION : str = "log_collection"
+    MINING_COLLECTION : str = "mining_collection"
     METRICS_COLLECTION : str = "metrics_collection"
     MINER : str = "miner"
     MINERS : str = "miners"

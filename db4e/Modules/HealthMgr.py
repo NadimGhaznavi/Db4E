@@ -343,7 +343,6 @@ class HealthMgr:
         timestamp = xmrig.local_timestamp()
         delta = now - timestamp
         up_since_min = delta.total_seconds() / 60
-        print(f"{xmrig}: {up_since_min}")
         if up_since_min < 3:
             xmrig.msg(DLabel.XMRIG, DStatus.GOOD,
                       f"{DLabel.XMRIG} ({xmrig.instance()}) is mining")

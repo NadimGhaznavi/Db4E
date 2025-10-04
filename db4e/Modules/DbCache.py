@@ -43,12 +43,11 @@ class DbCache:
     def __init__(self, db: DbMgr, mining_db=None):
         self.db = db
         self.mining_db = mining_db
-        self.depl_col = DDef.DEPLOYMENT_COL
-
-        self.db4es_map = {}
+        self.depl_col = DDef.DEPL_COLLECTION
         self.monerod_map, self.monerod_remote_map = {}, {}
         self.p2pool_map, self.p2pool_remote_map, self.int_p2pool_map = {}, {}, {}
         self.xmrig_map, self.xmrig_remote_map = {}, {}
+        self.db4es_map = {}
         self.id_map = {}
 
         self._thread = threading.Thread(target=self.bg_build_cache, daemon=True)

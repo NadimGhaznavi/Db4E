@@ -38,7 +38,7 @@ class HashratePlot(PlotWidget):
 
 
     def compose(self) -> ComposeResult:
-        yield PlotWidget(classes=DField.HASHRATE_PLOT)
+        yield PlotWidget(classes=DField.HASHRATE_PLOT, id=DField.HASHRATE_PLOT)
 
 
     def load_data(self, days, hashrates, units):

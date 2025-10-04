@@ -35,7 +35,7 @@ from db4e.Constants.DFile import DFile
 
 
 # The Mongo collection that houses the deployment records
-DEPL_COL = DDef.DEPLOYMENT_COL
+DEPL_COL = DDef.DEPL_COLLECTION
 DB4E_OLD_GROUP_ENVIRON = DDef.DB4E_OLD_GROUP_ENVIRON
 TMP_DIR = DDef.TMP_DIR
 SUDO_CMD = DDef.SUDO_CMD
@@ -46,7 +46,7 @@ class InstallMgr(Container):
         super().__init__()
         self.db_cache = db_cache
         self.depl_mgr = DeplMgr(db=db)
-        self.col_name = DDef.DEPLOYMENT_COL
+        self.col_name = DDef.DEPL_COLLECTION
         self.tmp_dir = None
 
     def initial_setup(self, form_data: dict) -> dict:

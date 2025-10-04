@@ -36,7 +36,7 @@ class Db4ESystemD:
 
     def __init__(self, db: DbMgr, service_name=None):
         # Make sure systemd doesn't clutter the output with color codes or use a pager
-        self.ops_col = DDef.OPS_COL
+        self.ops_col = DDef.OPS_COLLECTION
         self.db = db
         self.ops_db = OpsDb(db=db)
         os.environ[DField.SYSTEMD_COLORS] = '0'
