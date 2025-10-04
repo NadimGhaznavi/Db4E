@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.42.0] - 2025-10-03
 
 ### Added
 - Added a `deployment_dir/db4e/logrotate` directory to house logrotate files.
@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a *P2Pool uptime* check before adding *Miner hashrate* records to avoid adding invalid, super-high hashrates when P2Pool first starts.
 - Implemented formal *Remote XMRig* deployment records.
 - Wrapped `P2PoolWatcher` functions in *try/except* blocks where exceptions are logged.
+- Upgraded bundled `P2Pool` to v4.11
 
 ### Fixed
 - Configured the *Hashrate* button visibility so it's not visible for the *New* screens.
