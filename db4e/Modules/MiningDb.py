@@ -159,7 +159,7 @@ class MiningDb():
         # Don't record the miner hashrate if the upstream P2Pool has been running
         # for less than 3 minutes.
         minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=p2pool_instance)
-        if minutes < 3:
+        if minutes is None or minutes < 3:
             return
 
         # Convert the hashrate to a float

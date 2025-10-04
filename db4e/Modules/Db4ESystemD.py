@@ -233,6 +233,7 @@ class Db4ESystemD:
         
         if proc.returncode == 0 and arg == DSystemD.START:
                 self.log_event(event=DSystemD.START, service_name=self._service_name)
+                time.sleep(30)
         elif proc.returncode == 0 and arg == DSystemD.STOP:
                 self.log_event(event=DSystemD.STOP, service_name=self._service_name)
 
