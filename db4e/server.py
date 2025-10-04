@@ -71,7 +71,7 @@ class Db4eServer:
     """
     Db4E Server
     Server Class Relationships Diagram:
-    https://app.diagrams.net/#G1ytFOrYGglEs5p85JfAUTwwLgGR8sZYdD#%7B%22pageId%22%3A%22hYJ4WWheaxyqbM-ibf4z%22%7D
+    https://db4e.osoyalce.com/images/Server-Relationships.png
     """
 
 
@@ -125,6 +125,9 @@ class Db4eServer:
 
         # Create an Ops record to record the startup time
         self.ops_db.add_start_event(elem_type=DLabel.DB4E, instance=DElem.DB4E)
+
+        # Make sure the permissions on the logrotate files are correct
+        self.chown_logrotate_files()
 
 
     def add_deployment(self, job):
@@ -210,6 +213,26 @@ class Db4eServer:
             elif op == DJob.SET_PRIMARY:
                 self.set_primary(job=job)
             self.job_queue.complete_job(job)
+
+
+    def chown_logrotate_files(self):
+        if DDebug.FUNCTION:
+            self.log.debug("Db4eServer:chown_logrotate_files():")
+        logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
+        # Get a list of files in the logrotate_dir
+        file_list = os.listdir(logrotate_dir)
+        for aFile in file_list:
+            fq_file = os.path.join(logrotate_dir, aFile)
+            try:
+                cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_file]
+                proc = subprocess.run(
+                    cmd,
+                    stderr=subprocess.PIPE,
+                    input="")
+                stderr = proc.stderr.decode('utf-8')
+                self.log.info(f"Set permissions on logrotate file: {fq_file}")
+            except Exception as e:
+                self.log.critical(f"chown_logrotate_files() failed: {e} {stderr}")
 
 
     def delete(self, job: Job):

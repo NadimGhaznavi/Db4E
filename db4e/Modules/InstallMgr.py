@@ -34,11 +34,7 @@ from db4e.Constants.DField import DField
 from db4e.Constants.DFile import DFile
 
 
-# The Mongo collection that houses the deployment records
-DEPL_COL = DDef.DEPL_COLLECTION
-DB4E_OLD_GROUP_ENVIRON = DDef.DB4E_OLD_GROUP_ENVIRON
-TMP_DIR = DDef.TMP_DIR
-SUDO_CMD = DDef.SUDO_CMD
+
 
 class InstallMgr(Container):
     
@@ -368,13 +364,14 @@ class InstallMgr(Container):
             db4e.msg(
                 chain_label, DStatus.GOOD,
                 f"Created internal P2Pool deployment: {chain_label}")
-            
+
+        # Create a logrotate file for the P2Pool log    
         logrotate_tmpl = self.depl_mgr.get_logrotate_template(DElem.P2POOL)
         db4e_group = db4e.group()
         vendor_dir = db4e.vendor_dir()
         p2pool.gen_logrotate_config(
             tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group)
-
+        
         return db4e
 
 
@@ -543,7 +540,7 @@ class InstallMgr(Container):
         try:
             cmd_result = subprocess.run(
                 [ 
-                    SUDO_CMD, fq_initial_setup, db4e_install_dir, 
+                    DDef.SUDO_CMD, fq_initial_setup, db4e_install_dir, 
                     db4e.user(), db4e.group(), vendor_dir, tmp_dir],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
