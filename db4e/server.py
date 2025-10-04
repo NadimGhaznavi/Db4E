@@ -279,19 +279,22 @@ class Db4eServer:
             for p2pool in p2pools:
                 if p2pool.parent() == elem.id():
                     p2pool.monerod = None
+                    p2pool.enabled(False)
                     self.ensure_stopped(p2pool)
                     self.depl_mgr.update_deployment(p2pool)
-                    p2pool.enabled(False)
                     p2pool.parent(DField.DISABLE)
                     job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
                     job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    self.disable_downstream(p2pool)
+
+        elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
             int_p2pools = self.depl_mgr.get_internal_p2pools()
             for int_p2pool in int_p2pools:
                 if int_p2pool.parent() == elem.id():
                     int_p2pool.monerod = None
+                    int_p2pool.enabled(False)
                     self.ensure_stopped(int_p2pool)
                     self.depl_mgr.update_deployment(int_p2pool)
-                    int_p2pool.enabled(False)
                     int_p2pool.parent(DField.DISABLE)
                     job = Job(op=DJob.DISABLE, elem_type=elem.elem_type(), instance=elem.instance())
                     job.msg(f"Disabled downstream instance: {elem.instance()}")

@@ -11,15 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added a `deployment_dir/db4e/logrotate` directory to house logrotate files.
-- Added a logrotate template file for `XMRig` deployments.
+- Added logrotate templates for local `XMRig`, `P2Pool` and the `Db4E` deployment.
 - Updated the`/etc/sudoers.d/db4e` file:
   - Allow user to run `logrotate` as root (required for XMRig logs).
-  - Allow user to run `chown` command on the logrotate files.
-(xmrig log files are owned by root).
-- Added a `XMRig.gen_logrotate_config()` method.
+  - Allow user to run `chown` command on the logrotate files (xmrig log files are owned by root).
+- Added a `gen_logrotate_config()` methods to `P2Pool`, `XMRig` classes.
+- Added a `_gen_db4e_logrotate_config()` method to the `InstallMgr`.
 - Created a new `LogRotateConfig` `Component` class.
-- Added `max_log_files()`, `max_log_size()` and `logrotate_config()` methods and components to `XMRig`.
-- Added `XMRig:gen_logrotate.config()` function to create a logrotate file.
+- Added `max_log_files()`, `max_log_size()` and `logrotate_config()` methods and components to `XMRig` and `P2Pool`.
 - Added a banner to the `/etc/sudoers.d/db4e` file.
 - Added *logrotate* definitions to the `DFile` and `DDir` constants files.
 - Added a `DeplMgr:get_dir(DDir.LOGROTATE)` method.

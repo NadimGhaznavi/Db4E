@@ -551,14 +551,17 @@ class DeplMgr:
 
 
     def get_logrotate_template(self, elem_type):
-        if elem_type == DElem.P2POOL or elem_type == DElem.INT_P2POOL:
-            tmpl_dir = self.get_dir(DDir.TEMPLATE)
+        tmpl_dir = self.get_dir(DDir.TEMPLATE)
+        if elem_type == DElem.DB4E:
+            return os.path.abspath(os.path.join(
+                tmpl_dir, DElem.DB4E, DDef.CONF_DIR, 
+                DElem.DB4E + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
+        elif elem_type == DElem.P2POOL or elem_type == DElem.INT_P2POOL:
             return os.path.abspath(os.path.join(
                 tmpl_dir, DElem.P2POOL + "-" + DDef.P2POOL_VERSION, DDef.CONF_DIR,
                 DElem.P2POOL + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
         
         elif elem_type == DElem.XMRIG:
-            tmpl_dir = self.get_dir(DDir.TEMPLATE)
             return os.path.abspath(os.path.join(
                 tmpl_dir, DElem.XMRIG + "-" + DDef.XMRIG_VERSION, DDef.CONF_DIR,
                 DElem.XMRIG + "-" + DDef.LOG_ROTATE + DDef.CONF_SUFFIX))
