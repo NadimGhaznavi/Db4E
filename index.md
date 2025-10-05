@@ -37,6 +37,8 @@ pip install db4e
 
 Db4E uses a **MongoDB backend** to store historical mining data, logs, and configuration. The Db4E service runs continuously, monitors P2Pool logs and API responses, and writes structured records into MongoDB. [Interactive TUI](/pages/db4e-tui.py.html) that serves as a unified Monero XMR mining dashboard for deployment, operation and real-time analytics.
 
+See the [Mongo Community Edition Install HOWTO](/pages/Installing-MongoDB.html) for step-by-step instructions.
+
 ---
 
 # Technology Stack
