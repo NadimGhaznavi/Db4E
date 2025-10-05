@@ -21,6 +21,7 @@ import shutil
 import subprocess
 import gzip
 from pathlib import Path
+import re
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -528,8 +529,6 @@ class Db4eServer:
             self.log.critical(f"mongodb_backup() failed: {e} {stdout} {stderr}")
             return
 
-        
-
 
     def restart(self, job):
         if DDebug.FUNCTION:
@@ -553,6 +552,7 @@ class Db4eServer:
     def rotate_logs(self):
         # Run logrotate every two hours
         cur_hour = datetime.now().hour
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         if self.last_logrotate is None or self.last_logrotate != cur_hour:
             self.last_logrotate = cur_hour
             try:
@@ -565,11 +565,51 @@ class Db4eServer:
                     input='')
                 stdout = proc.stdout.decode()
                 stderr = proc.stderr.decode()
-                self.log.debug(f"rotate_logs(): {stdout}{stderr}")
-                for xmrig in self.depl_mgr.get_xmrigs():
-                    sd = self.systemd
-                    sd.service_name('xmrig@' + xmrig.instance())
-                    sd.restart()
+                #self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+                
+                output_lines = stderr.split("\n")
+                depls = {}
+                cur_elem_type = None
+                cur_instance = None
+                for line in output_lines:
+                    #self.log.critical(line)
+                    # Parse the elem_type and instance out of the logrotate output
+                    pattern = r".*reading config file\s(?P<config>.*.conf)"
+                    match = re.search(pattern, line)
+                    if match:
+                        config_file = match.group('config')
+                        #self.log.critical(f"Found config: {config_file}")
+                        if config_file == DElem.DB4E + DDef.CONF_SUFFIX:
+                            continue
+                        else:
+                            pattern = r"(?P<elem_type>.*)-(?P<instance>.*).conf"
+                            match = re.search(pattern, config_file)
+                            if match:
+                                elem_type = match.group('elem_type')
+                                instance = match.group('instance')
+                                #self.log.critical(f"Found {elem_type}/{instance}")
+                                depls[(elem_type, instance)] = False
+                    
+                    # Watch to see if a log was rotated
+                    pattern = rf"considering log {re.escape(vendor_dir)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
+                    match = re.search(pattern, line)
+                    if match:
+                        #self.log.critical(f"line: {line}")
+                        cur_elem_type = match.group('elem_type')
+                        cur_instance = match.group('instance') or match.group('logname')
+                        #self.log.critical(f"{cur_elem_type}/{cur_instance}")
+                    pattern = r"\s+log needs rotating.*"
+                    match = re.search(pattern, line)
+                    if match:
+                        if cur_elem_type != DElem.DB4E:
+                            depls[(cur_elem_type, cur_instance)] = True
+                            self.log.info(f"{cur_elem_type}/{cur_instance} rotating log file")
+
+                for elem_type, instance in depls:
+                    if depls[(elem_type, instance)]:
+                        sd = self.systemd
+                        sd.service_name(elem_type + '@' + instance)
+                        sd.restart()
 
             except Exception as e:
                 self.log.error(f"rotate_logs(): {e} {stderr}")
