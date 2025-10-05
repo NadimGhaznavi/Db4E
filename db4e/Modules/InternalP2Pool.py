@@ -54,6 +54,7 @@ class InternalP2Pool(P2Pool):
         if rec:
             self.from_rec(rec)
 
+
     def blocks_found(self, blocks_found=None):
         if blocks_found is not None:
             self._blocks_found = blocks_found

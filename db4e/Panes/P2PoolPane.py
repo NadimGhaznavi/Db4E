@@ -111,8 +111,8 @@ class P2PoolPane(Container):
 
                 Vertical(
                     Horizontal(
-                        self.shares_found_button,
                         self.hashrate_button,
+                        self.shares_found_button,
                         self.new_button,
                         self.update_button,
                         self.enable_button,

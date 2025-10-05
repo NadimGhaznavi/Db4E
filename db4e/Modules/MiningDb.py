@@ -148,7 +148,7 @@ class MiningDb():
 
 
     def add_miner_hashrate(
-            self, chain, miner_name, ip_addr, hashrate, uptime, timestamp, p2pool_instance):
+            self, chain, miner_name, ip_addr, hashrate, uptime, timestamp, pool):
         """
         Store the miner hashrate
         """
@@ -158,9 +158,11 @@ class MiningDb():
         #
         # Don't record the miner hashrate if the upstream P2Pool has been running
         # for less than 3 minutes.
-        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=p2pool_instance)
+        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=pool)
         if minutes is None or minutes < 3:
             return
+        
+        # TODO do the same for the miner's uptime
 
         # Convert the hashrate to a float
         hashrate = float(hashrate)
