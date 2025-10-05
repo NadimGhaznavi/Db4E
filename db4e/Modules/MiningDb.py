@@ -46,14 +46,14 @@ class MiningDb():
             self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
     
 
-    def add_block_found(self, timestamp, chain, instance):
+    def add_block_found(self, timestamp, chain, pool):
         """
         Block found record
         """
         jdoc = {
             DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT,
             DMongo.CHAIN: chain,
-            DMongo.INSTANCE: instance,
+            DMongo.POOL: pool,
             DMongo.TIMESTAMP: timestamp
         }
         self.db.insert_uniq_by_timestamp(self.mining_col, jdoc)

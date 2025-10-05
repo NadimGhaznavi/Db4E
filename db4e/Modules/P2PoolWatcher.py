@@ -42,7 +42,7 @@ class P2PoolWatcher:
 
     def __init__(
             self, mining_db: MiningDb, chain: str, log_file: str, 
-            stop_event: threading.Event, stdin_path: str, instance: str, 
+            stop_event: threading.Event, stdin_path: str, pool: str, 
             depl_mgr: DeplMgr, db4e_log_file: str, stats_mod=None):
         self.mining_db = mining_db
         self.depl_mgr = depl_mgr
@@ -50,7 +50,7 @@ class P2PoolWatcher:
         self._chain = chain
         self._stop_event = stop_event
         self._stdin_path = stdin_path
-        self._instance = instance
+        self._pool = pool
         self.thread_control = None
         self._stats_mod = stats_mod
         self._log_file = log_file
@@ -61,7 +61,7 @@ class P2PoolWatcher:
             logger_id = DModule.P2POOL_WATCHER + "-" + chain
         
         else:
-            logger_id = DModule.P2POOL_WATCHER + "-" + instance + "-" + chain
+            logger_id = DModule.P2POOL_WATCHER + "-" + pool + "-" + chain
             # Create an Ops record when a P2PoolWatcher is created for a user defined P2Pool   
 
         self.log = Db4ELogger(db4e_module=logger_id, log_file=db4e_log_file)
@@ -116,10 +116,10 @@ class P2PoolWatcher:
             self.log.critical(f"P2PoolWatcher:get_sidechain_miners(): ERROR: {e}")
             
 
-    def instance(self, instance=None):
-        if instance is not None:
-            self._instance = instance
-        return self._instance
+    def pool(self, pool=None):
+        if pool is not None:
+            self._pool = pool
+        return self._pool
 
       
     def is_block_found(self, log_line):
@@ -136,7 +136,8 @@ class P2PoolWatcher:
                 timestamp = match.group('timestamp')
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
                 # Create a new blocks_found_event in the DB
-                self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain(), instance=self.instance())
+                self.mining_db.add_block_found(
+                    timestamp=timestamp, chain=self.chain(), pool=self.instance())
         except Exception as e:
             self.log.critical(f"P2PoolWatcher:is_block_found(): ERROR: {e}")
 
@@ -206,7 +207,7 @@ class P2PoolWatcher:
                 self.mining_db.add_miner_hashrate(
                     chain=self.chain(), miner_name=miner_name, ip_addr=ip_addr, 
                     hashrate=hashrate, uptime=uptime, timestamp=timestamp, 
-                    p2pool_instance=self.instance())
+                    p2pool_pool=self.instance())
                 
                 self.depl_mgr.add_remote_xmrig_deployment(
                     miner_name=miner_name, ip_addr=ip_addr, hashrate=hashrate, uptime=uptime,
@@ -275,7 +276,7 @@ class P2PoolWatcher:
                     effort = float(match.group('effort'))
                     self.mining_db.add_share_found(
                         chain=self.chain(), timestamp=timestamp, miner=miner, 
-                        ip_addr=ip_addr, effort=effort)
+                        ip_addr=ip_addr, effort=effort, pool=self.instance())
         except Exception as e:
             self.log.critical(f"P2PoolWatcher:is_share_found(): ERROR: {e}")
 

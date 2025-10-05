@@ -178,6 +178,12 @@ class P2Pool(SoftwareSystem):
         return self._instance_map
     
 
+    def shares_found(self, shares_found=None):
+        if shares_found is not None:
+            self._shares_found = shares_found
+        return self._shares_found
+    
+
 
 
 

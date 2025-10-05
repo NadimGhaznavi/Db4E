@@ -25,16 +25,11 @@ from db4e.Constants.DSelect import DSelect
 
 
 
-# The values are for selecting the amount of data to show.
-# There is one data point per hour....
-
 
 class ChainBlocksFoundPane(Container):
 
-    selected_time = DSelect.ONE_WEEK
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
-    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
     days = reactive([])
     blocks_found = reactive([])
 
@@ -52,10 +47,6 @@ class ChainBlocksFoundPane(Container):
                     classes=DForm.FORM_1),                 
 
                 Vertical(
-                    self.select_widget,
-                    classes=DForm.SELECT_BOX),
-
-                Vertical(
                     PlotextPlot(),
                     classes=DForm.PANE_BOX)),
 
@@ -68,11 +59,6 @@ class ChainBlocksFoundPane(Container):
         plt.title("Blocks Found")
 
     
-    def on_select_changed(self, event: Select.Changed) -> None:
-        selected_time = event.value
-        #self.blocks_found_plot.update_time_range(selected_time)
-
-
     def reduce_data(self, days, blocks_found, max_bars=100):
         n = len(days)
         if n <= max_bars:
