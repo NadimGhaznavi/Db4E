@@ -54,6 +54,14 @@ db4e
 ![Monero Configuration](/images/monero-config.png)
 
 ![Cumulative Uptime Report](/images/cumulative-uptime.png)
+
+![Monero Config](/images/monerod-config.png)
+
+![P2Pool Config](/images/p2pool-config.png)
+
+![XMRig Config](/images/xmrig-config.png)
+
+
 ---
 
 )
