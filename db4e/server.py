@@ -666,7 +666,7 @@ class Db4eServer:
                 log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
-                instance=instance,
+                pool=instance,
                 depl_mgr=self.depl_mgr,
                 db4e_log_file=self.log_file,
             )
@@ -677,7 +677,7 @@ class Db4eServer:
                 log_file=p2pool.log_file(),
                 stdin_path=p2pool.stdin_path(),
                 stop_event=stop_event,
-                instance=instance,
+                pool=instance,
                 depl_mgr=self.depl_mgr,
                 db4e_log_file=self.log_file,
                 stats_mod=p2pool.stats_mod(),

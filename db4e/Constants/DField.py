@@ -15,6 +15,7 @@ class DField(ConstGroup) :
     ANY_IP : str = "any_ip"
     APP_VERSION : str = "app_version"
     BARCHART : str = "barchart"
+    BLOCKS_FOUND : str = "blocks_found"
     BLOCKCHAIN_DIR : str = "blockchain_dir"
     CHAIN : str = "chain"
     COLORTERM_ENVIRON : str = "COLORTERM"

@@ -10,6 +10,7 @@ db4e/Modules/PaneCatalogue.py
 
 from textual.containers import Container
 
+from db4e.Panes.ChainBlocksFoundPane import ChainBlocksFoundPane
 from db4e.Panes.ChainHashratesPane import ChainHashratesPane
 from db4e.Panes.Db4EPane import Db4EPane
 from db4e.Panes.DonationsPane import DonationsPane
@@ -36,7 +37,9 @@ from db4e.Constants.DPane import DPane
 
 
 REGISTRY = {
-    DPane.CHAIN_ANALYTICS: (ChainHashratesPane, DLabel.CHAIN, DLabel.HASHRATES),
+    DPane.CHAIN: (ChainPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
+    DPane.CHAIN_BLOCKS_FOUND: (ChainBlocksFoundPane, DLabel.CHAIN, DLabel.BLOCKS_FOUND),
+    DPane.CHAIN_HASHRATES: (ChainHashratesPane, DLabel.CHAIN, DLabel.HASHRATES),
     DPane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
     DPane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
     DPane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
@@ -45,7 +48,6 @@ REGISTRY = {
     DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
     DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATES),
-    DPane.CHAIN: (ChainPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.RUNTIME_LOG: (RuntimeLogPane, DLabel.LOG, DLabel.RUNTIME_LOG),

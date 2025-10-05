@@ -337,6 +337,10 @@ Button {
     color: #9a71c9ff;
     text-style: bold; }
 
+#blocks_found_button {
+    color: #9a71c9ff;
+    text-style: bold; }
+
 #delete_button {
     color: #c44242;
     text-style: bold; }

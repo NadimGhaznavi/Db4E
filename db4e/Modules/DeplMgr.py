@@ -650,7 +650,7 @@ class DeplMgr:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:
                 obj.p2pool = self.get_deployment_by_id(obj.parent())
-                if obj.p2pool.parent() != DField.DISABLE:
+                if  type(obj.p2pool) == P2Pool and obj.p2pool.parent() != DField.DISABLE:
                     obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
             self.xmrigs[obj.instance()] = obj
         return self.xmrigs.values()

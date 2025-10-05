@@ -14,7 +14,7 @@ from db4e.Constants.DField import DField
 # Methods
 class DMethod(ConstGroup):
     ADD_DEPLOYMENT : str = "add_deployment"
-    ANALYTICS : str = "analytics"
+    BLOCKS_FOUND : str = "blocks_found"
     DELETE_DEPLOYMENT : str = "del_deployment"
     ENABLE_DEPLOYMENT : str = "enable_deployment"
     DISABLE_DEPLOYMENT : str = "disable_deployment"

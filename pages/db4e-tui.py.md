@@ -12,12 +12,17 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ---
 
+# Installation
+
+```shell
+pip install db4e
+```
+
 # Launch the App
 
 After installation:
 
 ```shell
-pip install db4e
 db4e
 ```
 
@@ -43,7 +48,11 @@ db4e
 
 ![Cumulative Uptime Report](/images/cumulative-uptime.png)
 
----
+![P2Pool Config](/images/p2pool-config.png)
+
+![XMRig Config](/images/xmrig-config.png)
+
+![Blocks Found](/images/blocks-found.png)
 
 
 

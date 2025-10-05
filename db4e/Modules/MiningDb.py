@@ -46,14 +46,14 @@ class MiningDb():
             self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
     
 
-    def add_block_found(self, timestamp, chain, instance):
+    def add_block_found(self, timestamp, chain, pool):
         """
         Block found record
         """
         jdoc = {
             DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT,
             DMongo.CHAIN: chain,
-            DMongo.INSTANCE: instance,
+            DMongo.POOL: pool,
             DMongo.TIMESTAMP: timestamp
         }
         self.db.insert_uniq_by_timestamp(self.mining_col, jdoc)
@@ -148,7 +148,7 @@ class MiningDb():
 
 
     def add_miner_hashrate(
-            self, chain, miner_name, ip_addr, hashrate, uptime, timestamp, p2pool_instance):
+            self, chain, miner_name, ip_addr, hashrate, uptime, timestamp, pool):
         """
         Store the miner hashrate
         """
@@ -158,9 +158,11 @@ class MiningDb():
         #
         # Don't record the miner hashrate if the upstream P2Pool has been running
         # for less than 3 minutes.
-        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=p2pool_instance)
+        minutes = self.ops_etl.get_uptime(elem_type=DElem.P2POOL, instance=pool)
         if minutes is None or minutes < 3:
             return
+        
+        # TODO do the same for the miner's uptime
 
         # Convert the hashrate to a float
         hashrate = float(hashrate)

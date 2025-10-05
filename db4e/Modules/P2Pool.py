@@ -88,6 +88,7 @@ class P2Pool(SoftwareSystem):
         if rec:
             self.from_rec(rec)
 
+
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a XMRig configuration file
 
@@ -175,6 +176,12 @@ class P2Pool(SoftwareSystem):
         if map is not None:
             self._instance_map = map
         return self._instance_map
+    
+
+    def shares_found(self, shares_found=None):
+        if shares_found is not None:
+            self._shares_found = shares_found
+        return self._shares_found
     
 
 

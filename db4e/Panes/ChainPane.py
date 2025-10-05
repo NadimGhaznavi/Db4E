@@ -38,7 +38,7 @@ class ChainPane(Container):
     log_level_label = Label("", classes=DForm.STATIC)
     parent_label = Label("", classes=DForm.STATIC)
 
-    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
+    blocks_found_button = Button(label=DLabel.BLOCKS_FOUND, id=DButton.BLOCKS_FOUND)
     hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     restart_button = Button(label=DLabel.RESTART, id=DButton.RESTART)
@@ -90,6 +90,7 @@ class ChainPane(Container):
 
                 Vertical(
                     Horizontal(
+                        self.blocks_found_button,
                         self.hashrate_button,
                         self.view_log_button,
                         self.restart_button,
@@ -127,10 +128,19 @@ class ChainPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
+        
+        if button_id == DButton.BLOCKS_FOUND:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.BLOCKS_FOUND,
+                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
         if button_id == DButton.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.HASHRATES,
+                DField.TO_METHOD: DMethod.BLOCKS_FOUND,
                 DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                 DField.ELEMENT: self.p2pool,
             }
