@@ -8,3 +8,116 @@ considering log /home/sally/vendor/xmrig/logs/Klein.log
 switching euid from 0 to 0 and egid from 1001 to 0 (pid 1875784)
 
 
+rotating pattern: /home/sally/vendor/xmrig/logs/Klein.log  after 1 days (7 rotations)
+empty log files are rotated, only log files >= 1000000 bytes are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 1001 (pid 1987118)
+considering log /home/sally/vendor/xmrig/logs/Klein.log
+  Now: 2025-10-04 18:00
+  Last rotated at 2025-10-02 00:00
+  log needs rotating
+rotating log /home/sally/vendor/xmrig/logs/Klein.log, log->rotateCount is 7
+dateext suffix '-20251004'
+glob pattern '-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+renaming /home/sally/vendor/xmrig/logs/Klein.log.7.gz to /home/sally/vendor/xmrig/logs/Klein.log.8.gz (rotatecount 7, logstart 1, i 7), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.7.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.6.gz to /home/sally/vendor/xmrig/logs/Klein.log.7.gz (rotatecount 7, logstart 1, i 6), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.6.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.5.gz to /home/sally/vendor/xmrig/logs/Klein.log.6.gz (rotatecount 7, logstart 1, i 5), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.5.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.4.gz to /home/sally/vendor/xmrig/logs/Klein.log.5.gz (rotatecount 7, logstart 1, i 4), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.4.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.3.gz to /home/sally/vendor/xmrig/logs/Klein.log.4.gz (rotatecount 7, logstart 1, i 3), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.3.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.2.gz to /home/sally/vendor/xmrig/logs/Klein.log.3.gz (rotatecount 7, logstart 1, i 2), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.2.gz does not exist
+renaming /home/sally/vendor/xmrig/logs/Klein.log.1.gz to /home/sally/vendor/xmrig/logs/Klein.log.2.gz (rotatecount 7, logstart 1, i 1), 
+old log /home/sally/vendor/xmrig/logs/Klein.log.1.gz does not exist
+log /home/sally/vendor/xmrig/logs/Klein.log.8.gz doesn't exist -- won't try to dispose of it
+renaming /home/sally/vendor/xmrig/logs/Klein.log to /home/sally/vendor/xmrig/logs/Klein.log.1
+compressing log with: /bin/gzip
+switching uid to 0 and gid to 1001 permanently (pid 1987119)
+switching euid from 0 to 0 and egid from 1001 to 0 (pid 1987118)
+------
+reading config file p2pool-Main.conf
+reading config file p2pool-Mini.conf
+reading config file p2pool-Nano.conf
+reading config file p2pool-Sally.conf
+reading config file xmrig-Klein.conf
+acquired lock on state file /var/lib/logrotate/statusReading state from file: /var/lib/logrotate/status
+Allocating hash table for state file, size 64 entries
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+Creating new state
+
+Handling 6 logs
+
+rotating pattern: /home/sally/vendor/db4e/logs/db4e.log  100000 bytes (7 rotations)
+empty log files are rotated, only log files >= 100000 bytes are rotated, old logs are removed
+considering log /home/sally/vendor/db4e/logs/db4e.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 20:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /home/sally/vendor/p2pool/Main/logs/p2pool.log  100000 bytes (7 rotations)
+empty log files are rotated, only log files >= 100000 bytes are rotated, old logs are removed
+considering log /home/sally/vendor/p2pool/Main/logs/p2pool.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 20:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /home/sally/vendor/p2pool/Mini/logs/p2pool.log  100000 bytes (7 rotations)
+empty log files are rotated, only log files >= 100000 bytes are rotated, old logs are removed
+considering log /home/sally/vendor/p2pool/Mini/logs/p2pool.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 20:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /home/sally/vendor/p2pool/Nano/logs/p2pool.log  100000 bytes (7 rotations)
+empty log files are rotated, only log files >= 100000 bytes are rotated, old logs are removed
+considering log /home/sally/vendor/p2pool/Nano/logs/p2pool.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 20:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /home/sally/vendor/p2pool/Sally/logs/p2pool.log  100000 bytes (7 rotations)
+empty log files are rotated, only log files >= 100000 bytes are rotated, old logs are removed
+considering log /home/sally/vendor/p2pool/Sally/logs/p2pool.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 20:00
+  log does not need rotating (log size is below the 'size' threshold)
+
+rotating pattern: /home/sally/vendor/xmrig/logs/Klein.log  1000000 bytes (7 rotations)
+empty log files are rotated, only log files >= 1000000 bytes are rotated, old logs are removed
+switching euid from 0 to 0 and egid from 0 to 1001 (pid 2035315)
+considering log /home/sally/vendor/xmrig/logs/Klein.log
+  Now: 2025-10-04 20:15
+  Last rotated at 2025-10-04 18:00
+  log does not need rotating (log size is below the 'size' threshold)
+switching euid from 0 to 0 and egid from 1001 to 0 (pid 2035315)
+

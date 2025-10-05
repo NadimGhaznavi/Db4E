@@ -45,4 +45,6 @@ Mine when the miner is idle, stop if it hits a CPU threshold.
 
 ---
 
+# Add a Documentation Note RE: black terminal background
+
 
