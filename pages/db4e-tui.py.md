@@ -24,12 +24,17 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ---
 
+# Installation
+
+```shell
+pip install db4e
+```
+
 # Launch the App
 
 After installation:
 
 ```shell
-pip install db4e
 db4e
 ```
 
@@ -61,17 +66,9 @@ db4e
 
 ![XMRig Config](/images/xmrig-config.png)
 
-
----
-
-)
----
+![Blocks Found](/images/blocks-found.png)
 
 
----
-
-
----
 
 
 
