@@ -46,7 +46,7 @@ class XMRigPane(Container):
     
     health_msgs = Label()
 
-    analytics_button = Button(label=DLabel.ANALYTICS, id=DButton.ANALYTICS)
+    shares_found_button = Button(label=DLabel.ANALYTICS, id=DButton.SHARES_FOUND)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
@@ -87,7 +87,7 @@ class XMRigPane(Container):
 
                 Vertical(
                     Horizontal(
-                        self.analytics_button,
+                        self.shares_found_button,
                         self.hashrate_button,
                         self.new_button,
                         self.update_button,

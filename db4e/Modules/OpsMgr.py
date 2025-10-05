@@ -58,6 +58,13 @@ class OpsMgr:
         return elem
     
 
+    def blocks_found(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+        if type(elem == InternalP2Pool):
+            elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+        return elem
+    
+
     def hashrates(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
 
@@ -68,7 +75,6 @@ class OpsMgr:
         if type(elem) == InternalP2Pool:
             elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
             elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
-            elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
 
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))

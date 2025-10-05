@@ -12,7 +12,8 @@ from db4e.Modules.ConstGroup import ConstGroup
 
 
 class DPane(ConstGroup):
-    CHAIN_ANALYTICS : str = "ChainAnalyticsPane"
+    CHAIN: str  = "ChainPane"
+    CHAIN_BLOCKS_FOUND : str = "ChainBlocksFoundPane"
     CHAIN_HASHRATES : str = "ChainHashratesPane"
     DB4E: str = "Db4EPane"
     DONATIONS: str  = "DonationsPane"
@@ -25,7 +26,6 @@ class DPane(ConstGroup):
     P2POOL: str  = "P2PoolPane"
     P2POOL_ANALYTICS: str  = "P2PoolAnalyticsPane"
     P2POOL_HASHRATES: str  = "P2PoolHashratesPane"
-    CHAIN: str  = "ChainPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
     RESULTS: str  = "ResultsPane"
     RUNTIME_LOG: str  = "RuntimeLogPane"

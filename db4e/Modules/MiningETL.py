@@ -30,7 +30,7 @@ class MiningETL:
     def get_block_found_events(self, instance):
         recs = self.mining_db.get_block_found_events(instance)
         if not recs:
-            return {"values": [], "times": [], "units": "blocks"}
+            return {DField.DAYS: [], DField.VALUES: []}
 
         results = {}
 
@@ -60,10 +60,13 @@ class MiningETL:
         for value in values:
             new_values.append(float(value))
 
+        first_day = - len(new_times)
+        new_days = list(range(first_day, 0, 1))
+
+        print(f"days: {new_days}\n{new_values}")
         return {
-            "values": new_values,
-            "days": new_times,
-            "units": "blocks",
+            DField.DAYS: new_days,
+            DField.VALUES: new_values,
         }
 
     

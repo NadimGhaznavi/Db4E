@@ -12,7 +12,7 @@ from db4e.Modules.ConstGroup import ConstGroup
 
 class DButton(ConstGroup):
     ABORT : str = "abort_button"
-    ANALYTICS : str = "analytics_button"
+    BLOCKS_FOUND : str = "blocks_found_button"
     DELETE : str  = "delete_button"
     DISABLE : str  = "disable_button"
     ENABLE : str  = "enable_button"
@@ -20,6 +20,7 @@ class DButton(ConstGroup):
     NEW : str  = "new_button"
     PROCEED : str  = "proceed_button"
     RESTART : str  = "restart_button"
+    SHARES_FOUND : str = "shares_found"
     START : str  = "start_button"
     STOP : str  = "stop_button"
     UPDATE : str  = "update_button"

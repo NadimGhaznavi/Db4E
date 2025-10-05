@@ -9,6 +9,18 @@ from datetime import datetime, timedelta
 db = DbMgr()
 
 
+def migrate_block_found_events():
+    recs = db.find_many(col_name="tmp", filter={"doc_type": "block_found_event"})
+
+    for rec in recs:
+        new_rec = {
+            DMongo.DOC_TYPE: "block_found_event",
+            DMongo.TIMESTAMP: rec[DMongo.TIMESTAMP],
+            DMongo.INSTANCE: "Mini"
+        }
+        db.insert_one("mining", new_rec)
+
+
 
 
 def migrate_pool_hashrates():
@@ -46,6 +58,6 @@ def modify_pool_hashrates():
         db.update_one("mining", {DMongo.OBJECT_ID: rec[DMongo.OBJECT_ID]}, rec)
 
 
-modify_pool_hashrates()
+#modify_pool_hashrates()
 #migrate_pool_hashrates()
-# migrate_pool_hashrates()
+migrate_block_found_events()

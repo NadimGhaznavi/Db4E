@@ -1,5 +1,5 @@
 """
-db4e/Panes/ChainAnalyticsPane.py
+db4e/Panes/ChainHashratesPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 

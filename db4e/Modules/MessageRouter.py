@@ -107,10 +107,12 @@ class MessageRouter:
                       self.depl_client.delete_deployment, DPane.WELCOME)
 
         # P2Pool - Internal
+        self.register(DModule.OPS_MGR, DMethod.BLOCKS_FOUND, DElem.INT_P2POOL,
+                      self.ops_mgr.blocks_found, DPane.CHAIN_BLOCKS_FOUND)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.INT_P2POOL,
                       self.ops_mgr.get_deployment, DPane.CHAIN)
         self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.INT_P2POOL,
-                      self.ops_mgr.hashrates, DPane.CHAIN_ANALYTICS)
+                      self.ops_mgr.hashrates, DPane.CHAIN_HASHRATES)
 
         # XMRig
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,
