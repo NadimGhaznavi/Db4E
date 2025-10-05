@@ -24,12 +24,19 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ---
 
+# Installation
+
+```shell
+pip install db4e
+```
+
+---
+
 # Launch the App
 
 After installation:
 
 ```shell
-pip install db4e
 db4e
 ```
 
@@ -54,6 +61,10 @@ db4e
 ![Monero Configuration](/images/monero-config.png)
 
 ![Cumulative Uptime Report](/images/cumulative-uptime.png)
+
+![Remote Monero Configuration](/images/remote-monerod-config.png)
+
+
 ---
 
 )
