@@ -46,7 +46,7 @@ class P2PoolWatcher:
             depl_mgr: DeplMgr, db4e_log_file: str, stats_mod=None):
         self.mining_db = mining_db
         self.depl_mgr = depl_mgr
-        self.ops_col = DDef.OPS_COL
+        self.ops_col = DDef.OPS_COLLECTION
         self._chain = chain
         self._stop_event = stop_event
         self._stdin_path = stdin_path

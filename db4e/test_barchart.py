@@ -1,36 +1,28 @@
-
 from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer
+from textual_plotext import PlotextPlot
 
-from db4e.Widgets.BarChart import BarChart
-from db4e.Modules.MiningETL import MiningETL
-from db4e.Modules.MiningDb import MiningDb
-
-
-
-
-
-class MinimalApp(App[None]):
-
-
-    barchart = BarChart("Barchart", "barchart")
+class BarChartApp(App):
+    BINDINGS = [
+        ("d", "toggle_dark", "Toggle dark mode"),
+    ]
 
     def compose(self) -> ComposeResult:
-        self.barchart
+        yield Header()
+        yield PlotextPlot()
+        yield Footer()
 
+    def on_mount(self) -> None:
+        plt = self.query_one(PlotextPlot).plt
 
-    def on_mount(self):
-        barchart  = self.query_one("#barchart")
-        db = MiningDb()
-        mining_etl = MiningETL(db)
-        
-        data = mining_etl.get_block_found_events("Main")
-        barchart.load_data(data["times"], data["values"])
-        barchart.barchart_plot()
+        # Sample data for the bar chart
+        categories = ["A", "B", "C", "D"]
+        values = [10, 25, 15, 30]
 
+        # Plotting the bar chart
+        plt.bar(categories, values, color="blue")
+        plt.title("Bar Chart Example")
 
 if __name__ == "__main__":
-    app = MinimalApp()
+    app = BarChartApp()
     app.run()
-
-
-MinimalApp().run()

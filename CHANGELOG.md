@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.43.0] - 2025-10-05
+
+### Added
+- Daily backup of compressed DB4E Mongo collections
+  - Added rotation of Mongo backup files.
+- Screenshots the to https://db4e.osoyalce.com/ project site.
+
+### Fixed
+- Added a `Db4EServer:chown_logrotate_files()` function to set the permissions on the *logrotate* configuration files.
+- Removed `daily` from logrotate files; *Db4E* rotates log files based on size.
+
+---
+
 ## [0.42.1] - 2025-20-03
 
 ### Fixed

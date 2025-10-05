@@ -17,8 +17,11 @@ import time
 import signal
 import threading
 from importlib import metadata
-from shutil import rmtree
+import shutil
 import subprocess
+import gzip
+from pathlib import Path
+import re
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -57,6 +60,8 @@ from db4e.Constants.DModule import DModule
 from db4e.Constants.DMongo import DMongo
 from db4e.Constants.DSystemD import DSystemD
 from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DMongo import DMongo
+
 
 
 DDebug.FUNCTION = False
@@ -67,7 +72,7 @@ class Db4eServer:
     """
     Db4E Server
     Server Class Relationships Diagram:
-    https://app.diagrams.net/#G1ytFOrYGglEs5p85JfAUTwwLgGR8sZYdD#%7B%22pageId%22%3A%22hYJ4WWheaxyqbM-ibf4z%22%7D
+    https://db4e.osoyalce.com/images/Server-Relationships.png
     """
 
 
@@ -121,6 +126,9 @@ class Db4eServer:
 
         # Create an Ops record to record the startup time
         self.ops_db.add_start_event(elem_type=DLabel.DB4E, instance=DElem.DB4E)
+
+        # Make sure the permissions on the logrotate files are correct
+        self.chown_logrotate_files()
 
 
     def add_deployment(self, job):
@@ -206,6 +214,26 @@ class Db4eServer:
             elif op == DJob.SET_PRIMARY:
                 self.set_primary(job=job)
             self.job_queue.complete_job(job)
+
+
+    def chown_logrotate_files(self):
+        if DDebug.FUNCTION:
+            self.log.debug("Db4eServer:chown_logrotate_files():")
+        logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
+        # Get a list of files in the logrotate_dir
+        file_list = os.listdir(logrotate_dir)
+        for aFile in file_list:
+            fq_file = os.path.join(logrotate_dir, aFile)
+            try:
+                cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_file]
+                proc = subprocess.run(
+                    cmd,
+                    stderr=subprocess.PIPE,
+                    input="")
+                stderr = proc.stderr.decode('utf-8')
+                self.log.info(f"Set permissions on logrotate file: {fq_file}")
+            except Exception as e:
+                self.log.critical(f"chown_logrotate_files() failed: {e} {stderr}")
 
 
     def delete(self, job: Job):
@@ -413,7 +441,94 @@ class Db4eServer:
                     thread.join()
         else:
             self.log.critical(f'ERROR: Failed to stop {elem}, return code was {rc}')
-                
+
+
+    def mongodb_backup(self):
+        if DDebug.FUNCTION:
+            self.log.debug("Db4eServer:mongodb_backup():")
+        # Mongo collections
+        depl_col = DDef.DEPL_COLLECTION
+        jobs_col = DDef.JOBS_COLLECTION
+        mining_col = DDef.MINING_COLLECTION
+        ops_col = DDef.OPS_COLLECTION
+        all_cols = [ depl_col, jobs_col, mining_col, ops_col ]
+
+        now = datetime.now()
+        timestamp = now.strftime("%Y-%m-%d")
+        todays_backup = \
+            timestamp + "_" + DElem.DB4E + '_' + depl_col + DDef.GZIP_SUFFIX
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+        backup_dir = os.path.join(vendor_dir, DDef.BACKUP_DIR)
+        fq_todays_backup = os.path.join(backup_dir, todays_backup)
+
+        # Check if today's backup already exists
+        if os.path.exists(fq_todays_backup):
+            return
+        
+        # Create the backup directory if it doesn't exist
+        if not os.path.isdir(backup_dir):
+            os.makedirs(backup_dir)
+
+        stderr = ""
+        try:
+            for aCol in all_cols:
+                dumpfile = os.path.join(
+                    backup_dir, timestamp + "_" + DElem.DB4E + '_' + aCol)
+                dumpfile_gz = dumpfile + DDef.GZIP_SUFFIX
+
+                ## Backup Mongo; run mongodump
+                cmd = [ 
+                    DFile.MONGODUMP, 
+                    f"--archive={dumpfile}",
+                    f"--db={DElem.DB4E}",
+                    f"--collection={aCol}"
+                    ]
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                stdout = proc.stdout.decode()
+                stderr = proc.stderr.decode()
+
+                ## Compress the dump files
+                with open(dumpfile, 'rb') as f_in:
+                    with gzip.open(dumpfile_gz, 'wb') as f_out:
+                        # Write the contents of the original file to the gzipped file
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(dumpfile)
+                self.log.info(f"Backed up MongoDB collection: {dumpfile_gz}")
+
+            ## Delete old dump files
+            path = Path(backup_dir)
+
+            # List of all files
+            dump_files = list(path.glob("*" + DDef.GZIP_SUFFIX))
+
+            # We only keep MAX_LOG_FILES backups for each backup file
+            if len(dump_files) <= len(all_cols) * DDef.MAX_LOG_FILES:
+                return
+            
+            # Collect creation times
+            dumps_with_times = []
+            for aDump in dump_files:
+                create_time = os.path.getctime(aDump)
+                dumps_with_times.append((create_time, aDump))
+
+            # Sort by creation time
+            dumps_with_times.sort(key=lambda x: x[0])
+
+            max_total = len(all_cols) * DDef.MAX_LOG_FILES
+
+            # Delete oldest files until we’re within limit
+            for _, dump_path in dumps_with_times[:-max_total]:
+                os.remove(dump_path)
+                self.log.info(f"Deleted old backup file: {dump_path}")
+
+
+        except Exception as e:
+            self.log.critical(f"mongodb_backup() failed: {e} {stdout} {stderr}")
+            return
+
 
     def restart(self, job):
         if DDebug.FUNCTION:
@@ -437,6 +552,7 @@ class Db4eServer:
     def rotate_logs(self):
         # Run logrotate every two hours
         cur_hour = datetime.now().hour
+        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
         if self.last_logrotate is None or self.last_logrotate != cur_hour:
             self.last_logrotate = cur_hour
             try:
@@ -449,11 +565,51 @@ class Db4eServer:
                     input='')
                 stdout = proc.stdout.decode()
                 stderr = proc.stderr.decode()
-                self.log.debug(f"rotate_logs(): {stdout}{stderr}")
-                for xmrig in self.depl_mgr.get_xmrigs():
-                    sd = self.systemd
-                    sd.service_name('xmrig@' + xmrig.instance())
-                    sd.restart()
+                #self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+                
+                output_lines = stderr.split("\n")
+                depls = {}
+                cur_elem_type = None
+                cur_instance = None
+                for line in output_lines:
+                    #self.log.critical(line)
+                    # Parse the elem_type and instance out of the logrotate output
+                    pattern = r".*reading config file\s(?P<config>.*.conf)"
+                    match = re.search(pattern, line)
+                    if match:
+                        config_file = match.group('config')
+                        #self.log.critical(f"Found config: {config_file}")
+                        if config_file == DElem.DB4E + DDef.CONF_SUFFIX:
+                            continue
+                        else:
+                            pattern = r"(?P<elem_type>.*)-(?P<instance>.*).conf"
+                            match = re.search(pattern, config_file)
+                            if match:
+                                elem_type = match.group('elem_type')
+                                instance = match.group('instance')
+                                #self.log.critical(f"Found {elem_type}/{instance}")
+                                depls[(elem_type, instance)] = False
+                    
+                    # Watch to see if a log was rotated
+                    pattern = rf"considering log {re.escape(vendor_dir)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
+                    match = re.search(pattern, line)
+                    if match:
+                        #self.log.critical(f"line: {line}")
+                        cur_elem_type = match.group('elem_type')
+                        cur_instance = match.group('instance') or match.group('logname')
+                        #self.log.critical(f"{cur_elem_type}/{cur_instance}")
+                    pattern = r"\s+log needs rotating.*"
+                    match = re.search(pattern, line)
+                    if match:
+                        if cur_elem_type != DElem.DB4E:
+                            depls[(cur_elem_type, cur_instance)] = True
+                            self.log.info(f"{cur_elem_type}/{cur_instance} rotating log file")
+
+                for elem_type, instance in depls:
+                    if depls[(elem_type, instance)]:
+                        sd = self.systemd
+                        sd.service_name(elem_type + '@' + instance)
+                        sd.restart()
 
             except Exception as e:
                 self.log.error(f"rotate_logs(): {e} {stderr}")
@@ -566,6 +722,7 @@ class Db4eServer:
             self.check_deployments()
             self.check_jobs()
             self.rotate_logs()
+            self.mongodb_backup()
             time.sleep(POLL_INTERVAL)
 
 

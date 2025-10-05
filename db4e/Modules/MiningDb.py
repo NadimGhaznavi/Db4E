@@ -41,7 +41,7 @@ class MiningDb():
     def __init__(self, db: DbMgr, ops_etl: OpsETL, log_file=None):
         self.db = db
         self.ops_etl = ops_etl
-        self.mining_col = DDef.MINING_COL
+        self.mining_col = DDef.MINING_COLLECTION
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
     

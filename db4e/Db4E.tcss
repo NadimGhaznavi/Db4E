@@ -19,6 +19,14 @@ HashratePlot {
     background: black;
 }
 
+.hashrate_plot {
+    background: black;
+}
+
+#hashrate_plot {
+    background: black;
+}
+
 PlotWidget {
     background: black;
 }
@@ -234,10 +242,6 @@ Tree {
     text-style: bold;
     padding: 0 1;
     width: 25; }
-
-.hashrate_plot {
-    background: black;
-}
 
 /* Health Box */
 

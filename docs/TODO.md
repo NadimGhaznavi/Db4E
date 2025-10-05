@@ -23,12 +23,6 @@ on the command line when you start the db4e service.
 
 ---
 
-# Edge Cases
-
-- If upstream Monero or P2Pool is deleted, set downstream element's parent attribute to False.
-
----
-
 # Wallet Changes
 
 - Make sure P2Pool instances are updated and restarted
@@ -51,9 +45,6 @@ Mine when the miner is idle, stop if it hits a CPU threshold.
 
 ---
 
-# Rotate All Log files
+# Add a Documentation Note RE: black terminal background
 
----
-
-# Don't collect num_miners until p2pool is synced
 

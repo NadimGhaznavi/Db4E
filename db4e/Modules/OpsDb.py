@@ -27,8 +27,8 @@ class OpsDb:
     
     def __init__(self, db: DbMgr):
         self.db = db
-        self.ops_col = DDef.OPS_COL
-        self.depl_col = DDef.DEPLOYMENT_COL
+        self.ops_col = DDef.OPS_COLLECTION
+        self.depl_col = DDef.DEPL_COLLECTION
 
 
     def get_ops_events(self):

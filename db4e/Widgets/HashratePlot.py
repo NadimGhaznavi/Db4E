@@ -38,7 +38,7 @@ class HashratePlot(PlotWidget):
 
 
     def compose(self) -> ComposeResult:
-        yield PlotWidget(classes=DField.HASHRATE_PLOT)
+        yield PlotWidget(classes=DField.HASHRATE_PLOT, id=DField.HASHRATE_PLOT)
 
 
     def load_data(self, days, hashrates, units):
@@ -58,7 +58,7 @@ class HashratePlot(PlotWidget):
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
         self.plot(
             x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE,
-            line_style="magenta2")
+            line_style="green")
 
 
     def reduce_data(self, times, values):

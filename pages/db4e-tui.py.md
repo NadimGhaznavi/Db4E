@@ -35,9 +35,37 @@ db4e
 
 ---
 
-# After Initial Setup
+# Screenshots
+
+![Initial Setup Screen](/images/initial-setup.png)
 
 ![Screenshot of Db4E installer](/images/db4e-tui-installer.png)
+
+![P2Pool Configuration](/images/p2pool-config.png)
+
+![Miner Analytics](/images/miner-analytics.png)
+
+![Pool Hashrates](/images/pool-hashrates.png)
+
+![Runtime Log](/images/runtime-log.png)
+
+![XMRig Configuration](/images/xmrig-config.png)
+
+![Monero Configuration](/images/monero-config.png)
+
+![Cumulative Uptime Report](/images/cumulative-uptime.png)
+---
+
+)
+---
+
+
+---
+
+
+---
+
+
 
 
 
