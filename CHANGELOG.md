@@ -9,7 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added a new *Block Found* bar chart visualization for the *Main Chain*, "Mini SideChain" and "Nano SideChain"
+  - Added *Blocks Found* constants to the `DButton`, `DField`, `DLabel`, `DMethod` and `DPange` constants files.
+  - Added styling for the *Blocks Found* button to the `Db4E.tcss` file.
+  - Added a new `ChainBlocksFoundPane` to display a bar chart of the *Blocks Found* data.
+  - Added routes to the `MessageRouter`
+  - Added `MiningETL:get_blocks_found()` and `MiningDb:get_blocks_found()` methods.
+  - Added code to `ChainPane` to support the new *Blocks Found* button.
+  - Added screenshot of the *Blocks Found&* bar chart visualzation to the *Db4E website*.
 
+### Changed
+- Modified the `MiningDb` for backend schema for the *Blocks Found* data.
+
+### Fixed
+- Bug in the `Db4EServer` that checked for a `parent()` function on *Remote P2Pool intances*
 
 ---
 
