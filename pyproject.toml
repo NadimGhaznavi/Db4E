@@ -32,6 +32,7 @@ myloginpath = "^0.0.4"
 textual = {extras = ["syntax"], version = "^6.0.0"}
 textual-dev = "^1.7.0"
 textual-plot = "^0.8.0"
+textual-plotext = "^1.0.1"
 plotext = "^5.3.2"
 requests = "^2.32.3"
 zstandard = "^0.23.0"
