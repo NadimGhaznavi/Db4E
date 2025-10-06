@@ -130,17 +130,3 @@ db4e
 
 Db4E will start in terminal UI (TUI) mode. If setup was successful, you’ll see the main dashboard interface.
 
----
-
-# 🚧 What’s Next
-
-The current release sets up the core environment and provides a functional TUI interface.
-
-Coming soon:
-
-- Remote and local Monero daemon configuration
-- P2Pool and XMRig deployment management
-- Performance monitoring and system health checks
-
-Stay tuned — these features are actively in development.  
-In the meantime, you can follow updates on the [Blog](https://blog.osoyalce.com/) or join the discussion on [GitHub Discussions](https://github.com/NadimGhaznavi/db4e/discussions).
