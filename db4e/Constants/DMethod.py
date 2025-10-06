@@ -33,5 +33,6 @@ class DMethod(ConstGroup):
     SET_DONATIONS : str = "set_donations"
     SET_PANE : str = DField.SET_PANE
     SET_PRIMARY : str = "set_primary"
+    SHARES_FOUND : str = "shares_found"
     UPDATE_DEPLOYMENT : str = "update_deployment"
     RUNTIME : str = "runtime"

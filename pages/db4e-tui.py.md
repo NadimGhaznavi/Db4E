@@ -53,10 +53,3 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 ![Blocks Found](/images/blocks-found.png)
 
 
-
-
-
-
-
-
-

@@ -61,6 +61,7 @@ class DField(ConstGroup) :
     JOB : str = "job"
     JOBS : str = "jobs"
     LABEL : str = "label"
+    LABELS : str = "labels"
     LEVEL : str = "level"
     LOCAL : str = "local"
     LOCAL_TIMESTAMP : str = "local_timestamp"

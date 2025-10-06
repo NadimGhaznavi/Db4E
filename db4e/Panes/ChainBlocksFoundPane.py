@@ -53,7 +53,6 @@ class ChainBlocksFoundPane(Container):
                 classes=DForm.PANE_BOX)
 
     def on_mount(self) -> None:
-        print(f"ChainBlocksFoundPane:on_mount()")
         plt = self.query_one(PlotextPlot).plt
         plt.bar(self.days, self.blocks_found, color="blue")
         plt.title("Blocks Found")
