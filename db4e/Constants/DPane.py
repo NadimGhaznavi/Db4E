@@ -27,6 +27,7 @@ class DPane(ConstGroup):
     P2POOL_ANALYTICS: str  = "P2PoolAnalyticsPane"
     P2POOL_HASHRATES: str  = "P2PoolHashratesPane"
     P2POOL_REMOTE: str  = "P2PoolRemotePane"
+    P2POOL_SHARES_FOUND: str  = "P2PoolSharesFoundPane"
     RESULTS: str  = "ResultsPane"
     RUNTIME_LOG: str  = "RuntimeLogPane"
     TUI_LOG: str  = "TuiLogPane"

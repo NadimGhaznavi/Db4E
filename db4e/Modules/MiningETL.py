@@ -29,45 +29,7 @@ class MiningETL:
 
     def get_block_found_events(self, instance):
         recs = self.mining_db.get_block_found_events(instance)
-        if not recs:
-            return {DField.DAYS: [], DField.VALUES: []}
-
-        results = {}
-
-        cur_day = recs[0][DMongo.TIMESTAMP].replace(hour=0, minute=0, second=0, microsecond=0)
-
-        for rec in recs:
-            rec_day = rec[DMongo.TIMESTAMP].replace(hour=0, minute=0, second=0, microsecond=0)
-
-            # Fill in all missing days with 0
-            while cur_day < rec_day:
-                if cur_day not in results:
-                    results[cur_day] = 0
-                cur_day += timedelta(days=1)
-
-            # Count the block for this day
-            results[rec_day] = results.get(rec_day, 0) + 1
-            cur_day = rec_day
-
-        # Convert dict → lists (sorted by day)
-        times = [day.strftime("%Y-%m-%d %H:%M") for day in sorted(results.keys())]
-        values = [results[day] for day in sorted(results.keys())]
-
-        # Replace datetime days with integers for plotting
-        new_times = range(- len(times), 0, 1)
-
-        new_values = []
-        for value in values:
-            new_values.append(float(value))
-
-        first_day = - len(new_times)
-        new_days = list(range(first_day, 0, 1))
-
-        print(f"days: {new_days}\n{new_values}")
-        return {
-            DField.DAYS: new_days,
-            DField.VALUES: new_values,
-        }
+        return self.get_found_events(recs)
 
     
     def get_chain_hashrate(self, instance):
@@ -123,6 +85,48 @@ class MiningETL:
     def get_pool_hashrates(self, instance):
         recs = self.mining_db.get_pool_hashrates(instance=instance)
         return self.get_hashrates(recs)
+
+
+    def get_found_events(self, recs):
+        if not recs:
+            return {DField.DAYS: [], DField.VALUES: []}
+
+        results = {}
+
+        cur_day = recs[0][DMongo.TIMESTAMP].replace(hour=0, minute=0, second=0, microsecond=0)
+
+        for rec in recs:
+            rec_day = rec[DMongo.TIMESTAMP].replace(hour=0, minute=0, second=0, microsecond=0)
+
+            # Fill in all missing days with 0
+            while cur_day < rec_day:
+                if cur_day not in results:
+                    results[cur_day] = 0
+                cur_day += timedelta(days=1)
+
+            # Count the block for this day
+            results[rec_day] = results.get(rec_day, 0) + 1
+            cur_day = rec_day
+
+        # Convert dict → lists (sorted by day)
+        times = [day.strftime("%Y-%m-%d %H:%M") for day in sorted(results.keys())]
+        values = [results[day] for day in sorted(results.keys())]
+
+        # Replace datetime days with integers for plotting
+        new_times = range(- len(times), 0, 1)
+
+        new_values = []
+        for value in values:
+            new_values.append(float(value))
+
+        first_day = - len(new_times)
+        new_days = list(range(first_day, 0, 1))
+
+        print(f"days: {new_days}\n{new_values}")
+        return {
+            DField.DAYS: new_days,
+            DField.VALUES: new_values,
+        }
 
 
     def get_hashrates(self, recs):
@@ -190,9 +194,14 @@ class MiningETL:
         if rec:
             return rec[DMongo.TIMESTAMP]
         return None
-    
+
 
     def get_share_found_events(self, pool):
+        recs = self.mining_db.get_share_found_events(pool)
+        return self.get_found_events(recs)
+
+
+    def get_share_found_events_stacked(self, pool):
         recs = self.mining_db.get_share_found_events(pool)
         if not recs:
             return {DField.DAYS: [], DField.VALUES: [], DField.MINERS: []}
@@ -231,8 +240,10 @@ class MiningETL:
 
         new_days = range(- len(results), 0, 1)
 
-        return {
-            DField.DAYS: new_days,
+        final_results = {
+            DField.DAYS: list(new_days),
             DField.VALUES: list(miner_lists.values()),
             DField.MINERS: list(miner_set)
         }
+        print(final_results)
+        return final_results
