@@ -111,8 +111,8 @@ class XMRig(SoftwareSystem):
     def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group:str):
         # Logrotate configuration file
         fq_config = os.path.join(
-            vendor_dir, DElem.DB4E, DDef.LOG_ROTATE, DElem.XMRIG + "-" + \
-                self.instance() + DDef.CONF_SUFFIX)
+            vendor_dir, DDef.LOG_ROTATE, DElem.XMRIG + "-" + self.instance() + \
+                DDef.CONF_SUFFIX)
         
         # Populate the config template placeholders
         placeholders = {
