@@ -607,9 +607,10 @@ class Db4eServer:
 
                 for elem_type, instance in depls:
                     if depls[(elem_type, instance)]:
-                        sd = self.systemd
-                        sd.service_name(elem_type + '@' + instance)
-                        sd.restart()
+                        # Create a restart job
+                        job = Job(op=DJob.RESTART, elem_type=elem_type, instance=instance)
+                        self.job_queue.post_job(job)
+
 
             except Exception as e:
                 self.log.error(f"rotate_logs(): {e} {stderr}")
@@ -739,6 +740,12 @@ class Db4eServer:
                 msgs += val[DField.MESSAGE] + "\n"
         job.msg(msgs[:-1])
         self.job_queue.complete_job(job)
+
+        # Restart Monerod and P2Pool deployments if their config has been updated
+        if type(elem) == MoneroD or type(elem) == P2Pool:
+            # Create a restart job 
+            job = Job(op=DJob.RESTART, elem_type=elem.elem_type(), instance=elem.instance())
+            self.job_queue.post_job(job)
 
 
     def unset_int_p2pool_primary(self):
