@@ -326,7 +326,7 @@ Tree {
 Button {
     align: center middle;
     border: round #0c323e;
-    width: 20;
+    width: 15;
     background: black; }
 
 #abort_button {
