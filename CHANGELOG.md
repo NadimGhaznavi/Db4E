@@ -14,7 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bar chart for *Shares Found*
 - Per miner stacked bar chart for *Shares Found*
 - `Textual-Plot` based chart for *Shares Found*
-
+  - Added `MiningDb:get_shares_found()` and `MiningETL:get_shares_found()` methods.
+  - Added routes to the `MessageRouter`
+  - Added `OpsMgr:get_shares_found()` method.
+  - Added `P2PoolSharesFoundPane` to display a bar chart of the *Shares Found* data.
 
 ### Changed
 - Moved `logrotate` directory (logrotate config files) from `vendor_dir/db4e to` `vendor_dir`
