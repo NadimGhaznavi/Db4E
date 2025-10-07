@@ -36,8 +36,8 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
-        self.register(DModule.OPS_MGR, DMethod.GET_UPTIME, DElem.DB4E,
-                      self.ops_mgr.get_uptime, DPane.UPTIME)
+        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DElem.DB4E,
+                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP_PROCEED, DElem.DB4E,
                       self.install_mgr.initial_setup_proceed, DPane.INITIAL_SETUP)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP, DElem.DB4E,
@@ -152,9 +152,9 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_TUI_LOG, DField.TUI_LOG,
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
 
-        # Runtime Log
-        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DField.RUNTIME_LOG,
-                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
+        # Start/Stop Log
+        self.register(DModule.OPS_MGR, DMethod.GET_START_STOP_LOG, DField.START_STOP_LOG,
+                      self.ops_mgr.get_start_stop_log, DPane.START_STOP_LOG)
 
         # Donations
         self.register(DModule.OPS_MGR, DMethod.SET_DONATIONS, DField.DONATIONS,

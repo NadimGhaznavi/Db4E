@@ -125,7 +125,7 @@ class OpsMgr:
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
 
 
-    def get_uptime(self, form_data: dict):
+    def get_runtime_log(self, form_data: dict):
         return self.ops_etl.get_ops_summary()
 
 
@@ -138,7 +138,7 @@ class OpsMgr:
         return self.depl_client.job_queue.get_jobs()
     
 
-    def get_runtime_log(self, event_list: list):
+    def get_start_stop_log(self, event_list: list):
         return self.ops_db.get_ops_events()
     
 

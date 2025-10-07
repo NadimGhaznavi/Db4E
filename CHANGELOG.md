@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- Added *Start/Stop* to `DLabel`
+- Bar chart for *Shares Found*
+- Per miner stacked bar chart for *Shares Found*
+- `Textual-Plot` based chart for *Shares Found*
+
+
+### Changed
+- Moved `logrotate` directory (logrotate config files) from `vendor_dir/db4e to` `vendor_dir`
+- Renamed *Runtime* to *Start/Stop* log in `DPane`, `PaneCatalogue`, `MessageRouter`, `OpsMgr` and `NavPane`
+- Renamed *Uptime* to *Runtime* log in `DPane`, `Db4EPane`, `PaneCatalogue`, `MessageRouter` and `OpsMgr` 
+
+### Removed
+- Bar chart for *Shares Found*; `textual-plotext` doesn't support changing the time range
+- Per miner stacked bar chart for *Blocks Found*: 
+  - `textual-plotext` doesn't support changing the time range
+  - `textual-plotext` provides too few colors, they get reused making the plot useless
+
+
+---
+
 ## [0.44.1]
 
 ### Changed
@@ -14,7 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Broken image on the website.
-
 
 ---
 

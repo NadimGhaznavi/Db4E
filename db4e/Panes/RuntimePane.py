@@ -1,5 +1,5 @@
 """
-db4e/Panes/UptimePane.py
+db4e/Panes/RuntimePane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -22,7 +22,7 @@ from db4e.Constants.DOps import DOps
 
 
 
-class UptimePane(Static):
+class RuntimePane(Static):
 
     uptime_data = Static("Missing Data", id="events")
 
@@ -40,16 +40,34 @@ class UptimePane(Static):
     def set_data(self, events):
         table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
         table.add_column(DLabel.ELEMENT_TYPE)
-        table.add_column(DLabel.INSTANCE)
-        table.add_column(DLabel.CURRENT_UPTIME)
-        table.add_column(DLabel.TOTAL_UPTIME)
+        table.add_column(f"[yellow]{DLabel.INSTANCE}[/]")
+        table.add_column("", justify=DField.RIGHT, width=8),
+        table.add_column(DLabel.CURRENT, justify=DField.RIGHT)
+        table.add_column("", justify=DField.RIGHT, width=8),
+        table.add_column(f"[green]{DLabel.TOTAL}[/]", justify=DField.RIGHT)
 
         for event in events:
+            # Split current uptime day(s) and hours:minutes:seconds
+            if "," in event[DOps.CURRENT_UPTIME]:
+                cur_days, cur_time = event[DOps.CURRENT_UPTIME].split(",")
+            else:
+                cur_days = ""
+                cur_time = event[DOps.CURRENT_UPTIME]
+
+            # Same split for total uptime
+            if "," in event[DOps.TOTAL_UPTIME]:
+                total_days, total_time = event[DOps.TOTAL_UPTIME].split(",")
+            else:
+                total_days = ""
+                total_time = event[DOps.TOTAL_UPTIME]
+
             table.add_row(
                 f"[b]{event[DMongo.ELEMENT_TYPE]}[/]",
                 f"[yellow]{event[DMongo.INSTANCE]}[/]",
-                f"[green]{event[DOps.CURRENT_UPTIME]}[/]",
-                f"[b green]{event[DOps.TOTAL_UPTIME]}[/]"
+                f"[cyan]{cur_days}[/]",
+                f"[cyan]{cur_time}[/]",
+                f"[green]{total_days}[/]",
+                f"[green]{total_time}[/]"
             )
         self.uptime_data.update(table)
         
