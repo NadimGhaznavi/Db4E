@@ -83,9 +83,11 @@ class HashratePlot(PlotWidget):
         selected_time = int(selected_time)
         max_length = len(self._all_days)
         if selected_time > max_length:
-            selected_time = max_length
-        new_values = self._all_values[-selected_time:]
-        new_times = self._all_days[-selected_time:]
+            new_values = self._all_values
+            new_times = self._all_days
+        else:
+            new_values = self._all_values[-selected_time:]
+            new_times = self._all_days[-selected_time:]
         self.hashrate_plot(new_times, new_values)
 
 

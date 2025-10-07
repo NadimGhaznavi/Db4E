@@ -62,3 +62,8 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ![P2Pool Shares Found](/images/p2pool-shares-found.png)
 
+![XMRig Hashrate](/images/xmrig-hashrate.png)
+
+![Chain Blocks Found](/images/chain-blocks-found.png)
+
+![Chain Hashrates](/images/chain-hashrates.png)
