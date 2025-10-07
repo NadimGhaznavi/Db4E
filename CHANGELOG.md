@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.45.0] - 2025-10-07 
 
 ### Added
 - Added *Start/Stop* to `DLabel`
@@ -30,10 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `textual-plotext` doesn't support changing the time range
   - `textual-plotext` provides too few colors, they get reused making the plot useless
 
-
 ---
 
-## [0.44.1]
+## [0.44.1] - 2025-10-05
 
 ### Changed
 - Minor website edits.
