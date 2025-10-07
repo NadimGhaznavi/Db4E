@@ -22,10 +22,11 @@ from db4e.Panes.P2PoolPane import P2PoolPane
 from db4e.Panes.P2PoolHashratesPane import P2PoolHashratesPane
 from db4e.Panes.ChainPane import ChainPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
+from db4e.Panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
 from db4e.Panes.ResultsPane import ResultsPane
-from db4e.Panes.RuntimeLogPane import RuntimeLogPane
+from db4e.Panes.StartStopLogPane import StartStopLogPane
 from db4e.Panes.TUILogPane import TUILogPane
-from db4e.Panes.UptimePane import UptimePane
+from db4e.Panes.RuntimePane import RuntimePane
 from db4e.Panes.WelcomePane import WelcomePane
 from db4e.Panes.XMRigHashratesPane import XMRigHashratesPane
 from db4e.Panes.XMRigPane import XMRigPane
@@ -49,10 +50,11 @@ REGISTRY = {
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
     DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATES),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
+    DPane.P2POOL_SHARES_FOUND: (P2PoolSharesFoundPane, DLabel.P2POOL, DLabel.SHARES_FOUND),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
-    DPane.RUNTIME_LOG: (RuntimeLogPane, DLabel.LOG, DLabel.RUNTIME_LOG),
+    DPane.START_STOP_LOG: (StartStopLogPane, DLabel.LOG, DLabel.START_STOP_LOG),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
-    DPane.UPTIME: (UptimePane, DLabel.DB4E_LONG, DLabel.RUNTIME),
+    DPane.RUNTIME_LOG: (RuntimePane, DLabel.DB4E_LONG, DLabel.RUNTIME_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
     DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATES),

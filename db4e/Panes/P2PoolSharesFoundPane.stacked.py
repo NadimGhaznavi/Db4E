@@ -1,5 +1,5 @@
 """
-db4e/Panes/ChainBlocksFoundPane.py
+db4e/Panes/P2PoolSharesFoundPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -26,12 +26,11 @@ from db4e.Constants.DSelect import DSelect
 
 
 
-class ChainBlocksFoundPane(Container):
+class P2PoolSharesFoundPane(Container):
 
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     days = reactive([])
-    blocks_found = reactive([])
 
 
     def compose(self):
@@ -54,60 +53,63 @@ class ChainBlocksFoundPane(Container):
 
     def on_mount(self) -> None:
         plt = self.query_one(PlotextPlot).plt
-        plt.bar(self.days, self.blocks_found, color="blue")
+        plt.bar([], [], color="blue")
         plt.title("Blocks Found")
 
     
-    def reduce_data(self, days, blocks_found, max_bars=100):
+    def reduce_data(self, days, miner_lists, max_bars=20):
         n = len(days)
         if n <= max_bars:
-            return days, blocks_found  # nothing to do
+            return days, miner_lists  # nothing to do
 
         bin_size = math.ceil(n / max_bars)
         agg_days = []
-        agg_blocks = []
+        new_miner_lists = []
+        new_miner_lists = [[] for _ in miner_lists]
 
         for i in range(0, n, bin_size):
             bin_days = days[i:i + bin_size]
-            bin_blocks = blocks_found[i:i + bin_size]
-            # Average or sum — depending on your preference
-            agg_days.append(int(sum(bin_days) / len(bin_days)))  # midpoint of the bin
-            agg_blocks.append(sum(bin_blocks))  # total for that bin
+            for idx, miner_list in enumerate(miner_lists):
+                new_miner_lists[idx].append(sum(miner_list[i:i + bin_size]))
 
-        return agg_days, agg_blocks
+
+            # Average or sum — depending on your preference
+            agg_days.append(int(sum(bin_days) // len(bin_days)))  # midpoint of the bin
+
+        print(f"P2PoolSharesFoundPane:reduce_data(): agg_days: {agg_days}")
+        for miner_list in new_miner_lists:
+            print(f"P2PoolSharesFoundPane:reduce_data(): miner_list: {miner_list}")
+        return agg_days, new_miner_lists
 
 
     def set_data(self, p2pool: P2Pool):
-        print(f"ChainBlocksFoundPane:set_data()")
-        LONG_NAME = {
-            DLabel.MINI_CHAIN: "Mini Sidechain",
-            DLabel.MAIN_CHAIN: "Mainchain",
-            DLabel.NANO_CHAIN: "Nano Sidechain"
-        }
-        INTRO = f"View historical [i]Blocks Found[/] data for the " \
-            f"[cyan]{LONG_NAME[p2pool.instance()]}."
-        
+        print(f"P2PoolSharesFoundPane:set_data(): {p2pool.shares_found()}")
+        INTRO = f"View historical [i]Shares Found[/] data for the " \
+            f"[cyan]{p2pool.instance()} {DLabel.P2POOL_SHORT}[/] deployment."
+
         self.intro_label.update(INTRO)
         self.instance_label.update(p2pool.instance())
 
-        data = p2pool.blocks_found()
+        data = p2pool.shares_found()
         plt = self.query_one(PlotextPlot).plt
         plt.xlabel(DLabel.DAYS)
-        plt.ylabel(DLabel.BLOCKS_FOUND)
+        plt.ylabel(DLabel.SHARES_FOUND)
         plt.clear_data()
-        print(f"ChainBlocksFoundPane:set_data(): data: {data}")
+        print(f"P2PoolSharesFoundPane:set_data(): data: {data}")
         if type(data) == dict:
-            self.days = data[DField.DAYS]
-            self.blocks_found = data[DField.VALUES]
-            self.days, self.blocks_found = self.reduce_data(self.days, self.blocks_found)
-            plt.bar(self.days, self.blocks_found, color="blue")
-            plt.title("Blocks Found")
+            days = data[DField.DAYS]
+            shares_found = data[DField.VALUES]
+            miners = data[DField.MINERS]
+            days, shares_found = self.reduce_data(days, shares_found)
+            plt.stacked_bar(days, shares_found, labels=miners)
+            plt.title("Shares Found")
 
 
     def watch_days(self, old, new):
-        print(f"ChainBlocksFoundPane:watch_days(): new: {new}")
+        return
+        print(f"P2PoolSharesFoundPane:watch_days(): new: {new}")
         plt = self.query_one(PlotextPlot).plt
 
-        plt.bar(self.days, self.blocks_found, color="blue")
-        plt.title("Blocks Found")
+        plt.bar(self.days, self.shares_found, color="blue")
+        plt.title("Shares Found")
 

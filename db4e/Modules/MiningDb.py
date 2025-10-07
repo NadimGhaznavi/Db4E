@@ -347,9 +347,10 @@ class MiningDb():
 
 
     def get_block_found_events(self, instance):
+        print(f"MiningDb:get_block_found_events(): {instance}")
         return self.db.find_many(
             self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.INSTANCE: instance },
+            { DMongo.DOC_TYPE: DMining.BLOCK_FOUND_EVENT, DMongo.POOL: instance },
             { DMongo.TIMESTAMP: 1 })
 
 
@@ -394,6 +395,13 @@ class MiningDb():
         return self.db.find_many(
             self.mining_col, 
             { DMongo.DOC_TYPE: DMining.POOL_HASHRATE, DMongo.INSTANCE: instance },
+            { DMongo.TIMESTAMP: 1 })
+
+
+    def get_share_found_events(self, pool):
+        return self.db.find_many(
+            self.mining_col, 
+            { DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT, DMongo.POOL: pool },
             { DMongo.TIMESTAMP: 1 })
 
 

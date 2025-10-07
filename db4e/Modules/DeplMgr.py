@@ -494,7 +494,7 @@ class DeplMgr:
         
         elif aDir == DDir.LOGROTATE:
             vendor_dir = self.get_dir(DDir.VENDOR)
-            return os.path.abspath(os.path.join(vendor_dir, DElem.DB4E, DDir.LOGROTATE))
+            return os.path.abspath(os.path.join(vendor_dir, DDir.LOGROTATE))
 
         elif aDir == DElem.MONEROD:
             return DElem.MONEROD + '-' + Default.MONEROD_VERSION

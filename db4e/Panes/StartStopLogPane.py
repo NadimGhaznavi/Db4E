@@ -1,5 +1,5 @@
 """
-db4e/Panes/RuntimeLogPane.py
+db4e/Panes/StartStopLogPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -24,7 +24,7 @@ from db4e.Constants.DMongo import DMongo
 
 
 
-class RuntimeLogPane(Static):
+class StartStopLogPane(Static):
 
     log_widget = Static()
 

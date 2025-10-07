@@ -36,6 +36,8 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
+        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DElem.DB4E,
+                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP_PROCEED, DElem.DB4E,
                       self.install_mgr.initial_setup_proceed, DPane.INITIAL_SETUP)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP, DElem.DB4E,
@@ -44,67 +46,67 @@ class MessageRouter:
                       self.ops_mgr.get_deployment, DPane.DB4E)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.DB4E,
                       self.depl_client.update_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_UPTIME, DElem.DB4E,
-                      self.ops_mgr.get_uptime, DPane.UPTIME)
 
         # MoneroD - local
-        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
-                      self.ops_mgr.get_new, DPane.MONEROD)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.MONEROD,
-                      self.ops_mgr.get_deployment, DPane.MONEROD)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_client.disable_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.MONEROD,
+                      self.ops_mgr.get_deployment, DPane.MONEROD)
+        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD,
+                      self.ops_mgr.get_new, DPane.MONEROD)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD,
                       self.depl_client.update_deployment, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD,
-                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # MoneroD - remote
-        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD_REMOTE,
-                      self.ops_mgr.get_new, DPane.MONEROD_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.MONEROD_REMOTE,
                       self.ops_mgr.get_deployment, DPane.MONEROD_REMOTE)
-        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD_REMOTE,
-                      self.depl_client.update_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.MONEROD_REMOTE,
                       self.depl_client.delete_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.MONEROD_REMOTE,
+                      self.ops_mgr.get_new, DPane.MONEROD_REMOTE)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.MONEROD_REMOTE,
+                      self.depl_client.update_deployment, DPane.WELCOME)
         
 
         # P2Pool - Local
-        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL,
-                      self.ops_mgr.get_new, DPane.P2POOL)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.P2POOL,
-                      self.ops_mgr.hashrates, DPane.P2POOL_HASHRATES)
-        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
-                      self.ops_mgr.get_deployment, DPane.P2POOL)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_client.disable_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
+                      self.ops_mgr.get_deployment, DPane.P2POOL)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.P2POOL,
+                      self.ops_mgr.hashrates, DPane.P2POOL_HASHRATES)
+        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL,
+                      self.ops_mgr.get_new, DPane.P2POOL)
+        self.register(DModule.OPS_MGR, DMethod.SHARES_FOUND, DElem.P2POOL,
+                      self.ops_mgr.shares_found, DPane.P2POOL_SHARES_FOUND)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL,
                       self.depl_client.update_deployment, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL,
-                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # P2Pool - Remote
-        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL_REMOTE,
-                      self.ops_mgr.get_new, DPane.P2POOL_REMOTE)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL_REMOTE,
-                      self.ops_mgr.get_deployment, DPane.P2POOL_REMOTE)
-        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL_REMOTE,
-                      self.depl_client.update_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.P2POOL_REMOTE,
                       self.depl_client.delete_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL_REMOTE,
+                      self.ops_mgr.get_deployment, DPane.P2POOL_REMOTE)
+        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL_REMOTE,
+                      self.ops_mgr.get_new, DPane.P2POOL_REMOTE)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.P2POOL_REMOTE,
+                      self.depl_client.update_deployment, DPane.WELCOME)
 
         # P2Pool - Internal
         self.register(DModule.OPS_MGR, DMethod.BLOCKS_FOUND, DElem.INT_P2POOL,
@@ -115,22 +117,22 @@ class MessageRouter:
                       self.ops_mgr.hashrates, DPane.CHAIN_HASHRATES)
 
         # XMRig
-        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,
-                      self.ops_mgr.get_new, DPane.XMRIG)
         self.register(DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT, DElem.XMRIG,
                       self.ops_mgr.add_deployment, DPane.WELCOME)
-        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.XMRIG,
-                      self.ops_mgr.hashrates, DPane.XMRIG_HASHRATES)
-        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG,
-                      self.ops_mgr.get_deployment, DPane.XMRIG)
+        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
+                      self.depl_client.delete_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_client.disable_deployment, DPane.WELCOME)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_client.enable_deployment, DPane.WELCOME)
+        self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG,
+                      self.ops_mgr.get_deployment, DPane.XMRIG)
+        self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.XMRIG,
+                      self.ops_mgr.get_new, DPane.XMRIG)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.XMRIG,
+                      self.ops_mgr.hashrates, DPane.XMRIG_HASHRATES)
         self.register(DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT, DElem.XMRIG,
                       self.depl_client.update_deployment, DPane.WELCOME)
-        self.register(DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT, DElem.XMRIG,
-                      self.depl_client.delete_deployment, DPane.WELCOME)
 
         # XMRig Remote
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG_REMOTE,
@@ -150,9 +152,9 @@ class MessageRouter:
         self.register(DModule.OPS_MGR, DMethod.GET_TUI_LOG, DField.TUI_LOG,
                       self.ops_mgr.get_tui_log, DPane.TUI_LOG)
 
-        # Runtime Log
-        self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DField.RUNTIME_LOG,
-                      self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
+        # Start/Stop Log
+        self.register(DModule.OPS_MGR, DMethod.GET_START_STOP_LOG, DField.START_STOP_LOG,
+                      self.ops_mgr.get_start_stop_log, DPane.START_STOP_LOG)
 
         # Donations
         self.register(DModule.OPS_MGR, DMethod.SET_DONATIONS, DField.DONATIONS,

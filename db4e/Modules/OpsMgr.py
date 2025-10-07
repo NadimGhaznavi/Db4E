@@ -61,33 +61,14 @@ class OpsMgr:
     def blocks_found(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
         if type(elem == InternalP2Pool):
-            elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            #elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            res = self.mining_etl.get_block_found_events(instance=elem.instance())
+            elem.blocks_found(res)
+            print(f"OpsMgr:blocks_found() {res}")
+
         return elem
     
 
-    def hashrates(self, form_data: dict):
-        elem = form_data[DField.ELEMENT]
-
-        if type(elem) == P2Pool:
-            elem.hashrate(self.mining_etl.get_pool_hashrate(instance=elem.instance()))
-            elem.hashrates(self.mining_etl.get_pool_hashrates(instance=elem.instance()))
-
-        if type(elem) == InternalP2Pool:
-            elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
-            elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
-
-        elif type(elem) == XMRig:
-            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
-            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
-            elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
-
-        elif type(elem) == XMRigRemote:
-            print(self.mining_etl.get_miner_hashrates(elem.instance()))
-            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
-
-        return elem
- 
-   
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
             instance = elem_type[DField.INSTANCE]
@@ -144,7 +125,7 @@ class OpsMgr:
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
 
 
-    def get_uptime(self, form_data: dict):
+    def get_runtime_log(self, form_data: dict):
         return self.ops_etl.get_ops_summary()
 
 
@@ -157,10 +138,33 @@ class OpsMgr:
         return self.depl_client.job_queue.get_jobs()
     
 
-    def get_runtime_log(self, event_list: list):
+    def get_start_stop_log(self, event_list: list):
         return self.ops_db.get_ops_events()
     
 
+    def hashrates(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+
+        if type(elem) == P2Pool:
+            elem.hashrate(self.mining_etl.get_pool_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_pool_hashrates(instance=elem.instance()))
+
+        if type(elem) == InternalP2Pool:
+            elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
+
+        elif type(elem) == XMRig:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
+            elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            print(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+
+        return elem
+ 
+   
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]
         instance = form_data[DField.INSTANCE]
@@ -173,6 +177,12 @@ class OpsMgr:
         return plot_metadata
 
 
+    def shares_found(self, form_data: dict):
+        p2pool = form_data[DField.ELEMENT]
+        p2pool.shares_found(self.mining_etl.get_share_found_events(pool=p2pool.instance()))
+        return p2pool
+
+            
     def set_donations(self, form_data: dict):
         return DPane.DONATIONS
 

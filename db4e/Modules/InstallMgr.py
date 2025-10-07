@@ -380,7 +380,7 @@ class InstallMgr(Container):
         logrotate_tmpl = self.depl_mgr.get_logrotate_template(DElem.DB4E)
         vendor_dir = db4e.vendor_dir()
         fq_config = os.path.join(
-            vendor_dir, DElem.DB4E, DDef.LOG_ROTATE, DElem.DB4E + DDef.CONF_SUFFIX)
+            vendor_dir, DDef.LOG_ROTATE, DElem.DB4E + DDef.CONF_SUFFIX)
         
         # Populate the config template
         placeholders = {

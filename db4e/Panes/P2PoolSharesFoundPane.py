@@ -22,14 +22,14 @@ from db4e.Constants.DSelect import DSelect
 
 
 
-class P2PoolHashratesPane(Container):
+class P2PoolSharesFoundPane(Container):
 
     selected_time = DSelect.ONE_WEEK
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
-    hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
-    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
-    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
+    shares_found_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
+    shares_found_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
 
 
     def compose(self):
@@ -42,17 +42,14 @@ class P2PoolHashratesPane(Container):
                     Horizontal(
                         Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_15),
                         self.instance_label),
-                    Horizontal(
-                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_15),
-                        self.hashrate_label),
-                    classes=DForm.FORM_2),                 
+                    classes=DForm.FORM_1),                 
 
                 Vertical(
                     self.select_widget,
                     classes=DForm.SELECT_BOX),
 
                 Vertical(
-                    self.hashrate_plot,
+                    self.shares_found_plot,
                     classes=DForm.PANE_BOX)),
 
                 classes=DForm.PANE_BOX)
@@ -60,26 +57,24 @@ class P2PoolHashratesPane(Container):
     
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
-        self.hashrate_plot.update_time_range(selected_time)
+        self.shares_found_plot.update_time_range(selected_time)
 
 
     def set_data(self, p2pool: P2Pool):
-        INTRO = f"The chart below shows the hashrate for the " \
+        INTRO = f"The chart below shows the shares found for the " \
             f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment. This is the " \
             f"cumulative total of the individual miners connected to this P2Pool " \
-            f"deployment."
+            f"instance."
         
         self.intro_label.update(INTRO)
         self.instance_label.update(p2pool.instance())
-        self.hashrate_label.update(str(p2pool.hashrate()))
 
-        data = p2pool.hashrates()
+        data = p2pool.shares_found()
         if type(data) == dict:
             days = data[DField.DAYS]
-            hashrates = data[DField.VALUES]
-            units = data[DField.UNITS]
+            shares_found = data[DField.VALUES]
             
             plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-            plot.load_data(days=days, hashrates=hashrates, units=units)
+            plot.load_data(days=days, hashrates=shares_found, units=DLabel.BLOCKS)
             plot.hashrate_plot()        
 

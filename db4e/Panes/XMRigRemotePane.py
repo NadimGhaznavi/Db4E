@@ -33,7 +33,7 @@ class XMRigRemotePane(Container):
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
     hashrate_plot = HashratePlot(
         DLabel.HASHRATE, id=DField.HASHRATE_PLOT, classes=DField.HASHRATE_PLOT)
-    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
+    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
     xmrig = None
 
 

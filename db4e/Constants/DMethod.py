@@ -22,6 +22,7 @@ class DMethod(ConstGroup):
     GET_DEPL : str = "get_deployment"
     GET_TUI_LOG : str = "get_tui_log"
     GET_RUNTIME_LOG : str = "get_runtime_log"
+    GET_START_STOP_LOG : str = "get_start_stop_log"
     GET_UPTIME : str = "get_uptime"
     HASHRATES : str = "hashrates"
     INITIAL_SETUP : str = "initial_setup"
@@ -33,5 +34,6 @@ class DMethod(ConstGroup):
     SET_DONATIONS : str = "set_donations"
     SET_PANE : str = DField.SET_PANE
     SET_PRIMARY : str = "set_primary"
+    SHARES_FOUND : str = "shares_found"
     UPDATE_DEPLOYMENT : str = "update_deployment"
     RUNTIME : str = "runtime"

@@ -210,7 +210,31 @@ class P2PoolPane(Container):
         self.p2pool.stratum_port(self.query_one("#" + DForm.STRATUM_PORT_INPUT, Input).value)
         self.p2pool.log_level(self.query_one("#" + DForm.LOG_LEVEL_INPUT, Input).value)
 
-        if button_id == DButton.HASHRATE:
+        if button_id == DButton.DELETE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.DISABLE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.ENABLE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.HASHRATES,
@@ -226,6 +250,14 @@ class P2PoolPane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
+        elif button_id == DButton.SHARES_FOUND:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.SHARES_FOUND,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
         elif button_id == DButton.UPDATE:
             form_data = {
                 DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
@@ -234,29 +266,6 @@ class P2PoolPane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
-        elif button_id == DButton.ENABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.P2POOL,
-                DField.ELEMENT: self.p2pool,
-            }
-
-        elif button_id == DButton.DISABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.P2POOL,
-                DField.ELEMENT: self.p2pool,
-            }
-
-        elif button_id == DButton.DELETE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.P2POOL,
-                DField.ELEMENT: self.p2pool,
-            }
         elif button_id == DButton.VIEW_LOG:
             form_data = {
                 DField.ELEMENT_TYPE: DElem.P2POOL,

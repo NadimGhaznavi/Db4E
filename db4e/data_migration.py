@@ -69,7 +69,23 @@ def modify_pool_hashrates():
         db.update_one("mining", {DMongo.OBJECT_ID: rec[DMongo.OBJECT_ID]}, rec)
 
 
+def migrate_share_found_events():
+    recs = db.find_many(col_name="tmp", filter={"doc_type": "share_found_event"})
+    for rec in recs:
+        new_rec = {
+            DMongo.DOC_TYPE: "share_found_event",
+            DMongo.TIMESTAMP: rec[DMongo.TIMESTAMP],
+            DMongo.MINER: rec["worker"],
+            DMongo.CHAIN: "minisidechain",
+            DMongo.IP_ADDR: rec[DMongo.IP_ADDR],
+            DMining.EFFORT: rec[DMining.EFFORT],
+            DMongo.POOL: "Sally"
+        }
+        db.insert_one("mining", new_rec)
+
+
 #modify_pool_hashrates()
 #migrate_pool_hashrates()
 #migrate_block_found_events()
-modify_block_found_events_2()
+#modify_block_found_events_2()
+migrate_share_found_events()
