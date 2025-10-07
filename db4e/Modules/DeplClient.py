@@ -84,6 +84,10 @@ class DeplClient:
         # Check for duplicate instance names and missing fields
         self.check_instance_and_fields(elem)
 
+        # Check for errors
+        if elem.status() != DStatus.GOOD:
+            return elem
+
         class_map = {
             Db4E: DElem.DB4E,
             MoneroD: DElem.MONEROD,
