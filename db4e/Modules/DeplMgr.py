@@ -426,7 +426,7 @@ class DeplMgr:
             elif type(obj) == XMRig:
                 if obj.parent() != DField.DISABLE:
                     obj.p2pool = self.get_deployment_by_id(obj.parent())
-                    if obj.p2pool.parent() != DField.DISABLE:
+                    if type(obj.p2pool) == P2Pool and obj.p2pool.parent() != DField.DISABLE:
                         obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
                 obj.instance_map = self.get_deployment_ids_and_instances(DElem.P2POOL)
             return obj
