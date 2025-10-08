@@ -24,6 +24,7 @@ from db4e.Panes.P2PoolTablesPane import P2PoolTablesPane
 from db4e.Panes.ChainPane import ChainPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
+from db4e.Panes.PaymentsPane import PaymentsPane
 from db4e.Panes.ResultsPane import ResultsPane
 from db4e.Panes.StartStopLogPane import StartStopLogPane
 from db4e.Panes.TUILogPane import TUILogPane
@@ -53,6 +54,7 @@ REGISTRY = {
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.P2POOL_SHARES_FOUND: (P2PoolSharesFoundPane, DLabel.P2POOL, DLabel.SHARES_FOUND),
     DPane.P2POOL_TABLES: (P2PoolTablesPane, DLabel.P2POOL, DLabel.TABLES),
+    DPane.PAYMENTS: (PaymentsPane, DLabel.DB4E_LONG, DLabel.PAYMENTS),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.START_STOP_LOG: (StartStopLogPane, DLabel.LOG, DLabel.START_STOP_LOG),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),

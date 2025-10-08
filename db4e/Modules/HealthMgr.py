@@ -29,6 +29,7 @@ from db4e.Constants.DField import DField
 class HealthMgr:
 
     def check(self, elem):
+        #print(f"HealthMgr:check(): {elem}")
         elem.pop_msgs()
         if type(elem) == Db4E:
             return self.check_db4e(elem)

@@ -50,6 +50,31 @@ class OpsMgr:
         self.ops_db = ops_etl.ops_db
 
 
+    ### Get deployments by type...
+    
+    def get_monerods(self) -> list:
+        return self.health_cache.get_monerods()
+    
+    def get_monerods_remote(self) -> list:
+        return self.health_cache.get_monerods_remote()
+
+    def get_p2pools(self) -> list:
+        return self.health_cache.get_p2pools()
+
+    def get_p2pools_remote(self) -> list:
+        return self.health_cache.get_p2pools_remote()
+
+    def get_int_p2pools(self) -> list:
+        return self.health_cache.get_int_p2pools()
+
+    def get_xmrigs(self) -> list:
+        return self.health_cache.get_xmrigs()
+
+    def get_xmrigs_remote(self) -> list:
+        return self.health_cache.get_xmrigs_remote()
+    
+    ### End of get deployments by type...
+
 
     def add_deployment(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
@@ -95,31 +120,6 @@ class OpsMgr:
 
         return elem
 
-    ### Get deployments by type...
-    
-    def get_monerods(self) -> list:
-        return self.health_cache.get_monerods()
-    
-    def get_monerods_remote(self) -> list:
-        return self.health_cache.get_monerods_remote()
-
-    def get_p2pools(self) -> list:
-        return self.health_cache.get_p2pools()
-
-    def get_p2pools_remote(self) -> list:
-        return self.health_cache.get_p2pools_remote()
-
-    def get_int_p2pools(self) -> list:
-        return self.health_cache.get_int_p2pools()
-
-    def get_xmrigs(self) -> list:
-        return self.health_cache.get_xmrigs()
-
-    def get_xmrigs_remote(self) -> list:
-        return self.health_cache.get_xmrigs_remote()
-    
-    ### End of get deployments by type...
-
 
     def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
@@ -131,14 +131,16 @@ class OpsMgr:
 
     def get_table_data(self, form_data: dict):
         p2pool = form_data[DField.ELEMENT]
-
-        
-        return table_data
+        return {}
 
 
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
         return elem
+    
+
+    def get_payments(self, form_data: dict):
+        return self.mining_etl.get_payments()
     
 
     def get_tui_log(self, job_list: list):

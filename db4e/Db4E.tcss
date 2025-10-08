@@ -361,6 +361,10 @@ Button {
     color: #5fc442;
     text-style: bold; }
 
+#payments_button {
+    color: #9a71c9ff;
+    text-style: bold; }
+
 #proceed_button {
     color: #5fc442;
     text-style: bold; }
@@ -370,7 +374,7 @@ Button {
     text-style: bold; }
 
 #runtime_button {
-    color: #9a71c9ff;
+    color: #4292c4ff;
     text-style: bold; }
 
 #shares_found_button {

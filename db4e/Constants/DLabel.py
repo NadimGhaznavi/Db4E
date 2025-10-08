@@ -95,6 +95,7 @@ class DLabel(ConstGroup):
     P2POOL_WATCHER : str = "P2Pool Watcher"
     PARENT : str = "Parent"
     PARENT_ID : str = "Parent ID"
+    PAYMENTS : str = "Payments"
     PLOT : str = "Plot"
     PRIMARY_SERVER : str = "Primary Server"
     PRIORITY_NODE_1 : str = "Priority Node 1"

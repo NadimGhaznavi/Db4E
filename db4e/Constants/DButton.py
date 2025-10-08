@@ -18,6 +18,7 @@ class DButton(ConstGroup):
     ENABLE : str  = "enable_button"
     HASHRATE : str  = "hashrate_button"
     NEW : str  = "new_button"
+    PAYMENTS : str  = "payments_button"
     PROCEED : str  = "proceed_button"
     RESTART : str  = "restart_button"
     SHARES_FOUND : str = "shares_found_button"

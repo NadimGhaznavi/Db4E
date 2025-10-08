@@ -85,6 +85,7 @@ class Db4EPane(Container):
                 Horizontal(
                     Button(label=DLabel.UPDATE, id=DButton.UPDATE),
                     Button(label=DLabel.RUNTIME, id=DButton.RUNTIME),
+                    Button(label=DLabel.PAYMENTS, id=DButton.PAYMENTS),
                     classes=DForm.BUTTON_ROW
                 ),
             classes=DForm.PANE_BOX))
@@ -125,10 +126,10 @@ class Db4EPane(Container):
         primary_instance = radio_set.pressed_button.label
         self.db4e.primary_server(self.instance_map[primary_instance])
         
-        if button_id == DButton.UPDATE:
+        if button_id == DButton.PAYMENTS:
             form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.GET_PAYMENTS,
                 DField.ELEMENT_TYPE: DElem.DB4E,
                 DField.ELEMENT: self.db4e,
             }
@@ -139,6 +140,14 @@ class Db4EPane(Container):
                 DField.TO_METHOD: DMethod.GET_RUNTIME_LOG,
                 DField.ELEMENT_TYPE: DElem.DB4E,
                 DField.ELEMENT: self.db4e,
+            }
+
+        elif button_id == DButton.UPDATE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.DB4E,
+                DField.ELEMENT: self.db
             }
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))

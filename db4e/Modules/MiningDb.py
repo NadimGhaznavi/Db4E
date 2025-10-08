@@ -340,12 +340,13 @@ class MiningDb():
         self.log.info(f"Added {amount} to wallet balance. New balance: {new_balance}")
 
 
-    def add_xmr_payment(self, chain, timestamp, payment):
+    def add_xmr_payment(self, chain, timestamp, payment, pool):
         jdoc = {
             DMongo.DOC_TYPE: DMining.XMR_PAYMENT,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
-            DMining.XMR_PAYMENT: payment
+            DMining.XMR_PAYMENT: payment,
+            DMongo.POOL: pool
         }
         if self.db.insert_uniq_by_timestamp(self.mining_col, jdoc):
             self.add_to_wallet(payment)
@@ -390,6 +391,11 @@ class MiningDb():
         return self.db.find_one(
             self.mining_col,
             { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
+    
+
+    def get_payments(self):
+        return self.db.find_many(
+            self.mining_col, { DMongo.DOC_TYPE: DMining.XMR_PAYMENT })
 
 
     def get_pool_hashrate(self, instance):

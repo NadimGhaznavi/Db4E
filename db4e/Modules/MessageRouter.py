@@ -36,6 +36,8 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
+        self.register(DModule.OPS_MGR, DMethod.GET_PAYMENTS, DElem.DB4E,
+                      self.ops_mgr.get_payments, DPane.PAYMENTS)
         self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DElem.DB4E,
                       self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP_PROCEED, DElem.DB4E,

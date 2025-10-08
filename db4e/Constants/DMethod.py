@@ -20,6 +20,7 @@ class DMethod(ConstGroup):
     DISABLE_DEPLOYMENT : str = "disable_deployment"
     GET_NEW : str = "get_new"
     GET_DEPL : str = "get_deployment"
+    GET_PAYMENTS : str = "get_payments"
     GET_TUI_LOG : str = "get_tui_log"
     GET_RUNTIME_LOG : str = "get_runtime_log"
     GET_START_STOP_LOG : str = "get_start_stop_log"

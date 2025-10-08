@@ -29,6 +29,7 @@ class DPane(ConstGroup):
     P2POOL_REMOTE : str  = "P2PoolRemotePane"
     P2POOL_SHARES_FOUND : str  = "P2PoolSharesFoundPane"
     P2POOL_TABLES : str = "P2PoolTablesPane"
+    PAYMENTS : str = "PaymentsPane"
     RESULTS : str  = "ResultsPane"
     RUNTIME_LOG : str  = "RuntimeLogPane"
     TUI_LOG : str  = "TuiLogPane"
