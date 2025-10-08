@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added 
 - Additional website screenshots
+- Added a XMR payment plot
+  - Added *Payments* button.
+  - Added values to `DButton`, `DLabel` and `DField` constants files.
+
+### Changed
+- Renamed `HashratePlot` widget to `Db4EWidget` since it's used to plot hashrates, shares found and XMR Payment data.
+  - Updated `ChainHashratesPane`, `P2PoolSharesFoundPane`, `XMRigHashratesPane` and `XMRigRemotePane`
 
 ### Fixed
 - In `DeplMgr:get_deployment()`, check that a *P2Pool* instance is local before trying to reference it's parent.
@@ -19,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove references to *logging collection* in `DbMgr`
 - Created `Helper:sudo_del_file()` function to delete *logrotate* configuration files when a *P2Pool* or *XMRig* deployment is deleted.
 - Ensure that the *P2Pool* socket is created when a *P2Pool* instance is started.
+- Corrected duplicate `OpsMgr` in `images/App-Releationships.png`
 
 ---
 
