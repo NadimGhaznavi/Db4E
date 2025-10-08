@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In `DeplClient:add_deployument()`, do not add a new deployment if there are missing fields.
 - Create *backup* and *logrotate* directories correctly in `InstallMgr`
 - Remove references to *logging collection* in `DbMgr`
+- Created `Helper:sudo_del_file()` function to delete *logrotate* configuration files when a *P2Pool* or *XMRig* deployment is deleted.
+- Ensure that the *P2Pool* socket is created when a *P2Pool* instance is started.
 
 ---
 
