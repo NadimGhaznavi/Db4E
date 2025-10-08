@@ -7,6 +7,7 @@ db4e/Modules/Db4EPlot.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
+import math
 
 from textual_plot import PlotWidget, HiResMode
 from textual.app import ComposeResult
@@ -14,10 +15,7 @@ from textual.app import ComposeResult
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 
-
-
-# Hashrate data is collected once per hour
-ONE_WEEK = 7 * 24
+MAX_DATA_POINTS = 100
 
 class Db4EPlot(PlotWidget):
     """
@@ -60,9 +58,9 @@ class Db4EPlot(PlotWidget):
             line_style="green")
 
 
-    def reduce_data(self, times, values):
+    def reduce_data2(self, times, values):
         # Reduce the total number of data points, otherwise the plot gets "blurry"
-        step = max(1, len(times) // ONE_WEEK)
+        step = max(1, len(times) // MAX_DATA_POINTS)
 
         # Reduce times with step
         reduced_times = times[::step]
@@ -72,8 +70,44 @@ class Db4EPlot(PlotWidget):
             sum(values[i:i+step]) / len(values[i:i+step])
             for i in range(0, len(values), step)
         ]
-        return reduced_times[:len(reduced_values)], reduced_values
-    
+        results = reduced_times[:len(reduced_values)], reduced_values
+        print(f"Db4EPlot:reduce_data(): results: {results}")
+        return results
+
+
+    def reduce_data(self, times, values):
+        """Reduce times and values into <= MAX_DATA_POINTS bins.
+        Each bin's value is the average of the values in the bin.
+        Each bin's time is chosen as the last time in the bin (so last bin -> times[-1]).
+        """
+        if not times or not values:
+            return [], []
+
+        assert len(times) == len(values), "times and values must be same length"
+
+        step = max(1, math.ceil(len(times) / MAX_DATA_POINTS))
+
+        reduced_times = []
+        reduced_values = []
+        for i in range(0, len(times), step):
+            chunk_times = times[i:i+step]
+            chunk_vals = values[i:i+step]
+
+            # average values (works for floats or Decimal)
+            avg_val = sum(chunk_vals) / len(chunk_vals)
+
+            # representative time: choose last item in the chunk so final rep is times[-1]
+            rep_time = chunk_times[-1]
+
+            reduced_times.append(rep_time)
+            reduced_values.append(avg_val)
+
+        # Guarantee the final time equals the exact last time (safety)
+        if reduced_times:
+            reduced_times[-1] = times[-1]
+
+        return reduced_times, reduced_values
+
 
     def update_time_range(self, selected_time):
         if selected_time == -1:
@@ -87,6 +121,8 @@ class Db4EPlot(PlotWidget):
         else:
             new_values = self._all_values[-selected_time:]
             new_times = self._all_days[-selected_time:]
+        print(f"Db4EPlot:update_time_range(): new_times: {new_times}")
+        print(f"Db4EPlot:update_time_range(): new_values: {new_values}")
         self.db4e_plot(new_times, new_values)
 
 

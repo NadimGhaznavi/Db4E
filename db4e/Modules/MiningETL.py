@@ -47,7 +47,7 @@ class MiningETL:
 
     def get_chain_hashrates(self, instance):
         recs = self.mining_db.get_chain_hashrates(instance)
-        return self.get_hashrates(recs) or {}
+        return self.etl_recs(recs) or {}
     
 
     def get_found_events(self, recs):
@@ -92,7 +92,7 @@ class MiningETL:
         }
 
 
-    def get_hashrates(self, recs):
+    def etl_recs(self, recs):
         if not recs:
             return {DField.VALUES: [], DField.DAYS: [], DField.UNITS: ""}
 
@@ -108,7 +108,7 @@ class MiningETL:
             units = "H/s"
 
         # Number of data points
-        cur_day = - float(len(recs) / 24)
+        cur_day = 0
 
         # Append first record
         time_list.append(prev_time.strftime("%Y-%m-%d %H:%M"))
@@ -118,7 +118,7 @@ class MiningETL:
         for rec in recs[1:]:
             cur_time = rec[DMongo.TIMESTAMP]
             cur_hashrate = float(rec[DMining.HASHRATE])
-            cur_day += float(1 / 24)
+            cur_day -= float(1 / 24)
 
             # Fill gaps
             gap_time = prev_time + timedelta(hours=1)
@@ -127,7 +127,7 @@ class MiningETL:
                 value_list.append(cur_hashrate)
                 gap_time += timedelta(hours=1)
                 day_list.append(cur_day)
-                cur_day += float(1 / 24)
+                cur_day -= float(1 / 24)
 
             # Append current record
             time_list.append(cur_time.strftime("%Y-%m-%d %H:%M"))
@@ -141,6 +141,7 @@ class MiningETL:
         else:
             units = "H/s"
 
+        print(f"MiningETL:etl_recs(): days: {day_list}")
         return {
             DField.VALUES: value_list,
             DField.DAYS: day_list,
@@ -159,7 +160,7 @@ class MiningETL:
 
     def get_miner_hashrates(self, miner):
         recs = self.mining_db.get_miner_hashrates(miner)
-        return self.get_hashrates(recs) or {}
+        return self.etl_recs(recs) or {}
 
 
     def get_miner_uptime(self, miner):
@@ -234,7 +235,7 @@ class MiningETL:
 
     def get_pool_hashrates(self, instance):
         recs = self.mining_db.get_pool_hashrates(instance=instance)
-        return self.get_hashrates(recs)
+        return self.etl_recs(recs)
 
 
     def get_remote_xmrig_timestamp(self, instance):

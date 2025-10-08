@@ -88,7 +88,6 @@ class XMRigRemotePane(Container):
             days = data[DField.DAYS]
             hashrates = data[DField.VALUES]
             units = data[DField.UNITS]
-
             plot = self.query_one("#" + DField.HASHRATE_PLOT, Db4EPlot)
             plot.load_data(days=days, values=hashrates, units=units)
             plot.db4e_plot()
