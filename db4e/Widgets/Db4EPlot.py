@@ -1,5 +1,5 @@
 """
-db4e/Modules/HashratePlot.py
+db4e/Modules/Db4EPlot.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
@@ -7,8 +7,6 @@ db4e/Modules/HashratePlot.py
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-
-from typing import Any
 
 from textual_plot import PlotWidget, HiResMode
 from textual.app import ComposeResult
@@ -18,19 +16,17 @@ from db4e.Constants.DField import DField
 
 
 
-
-
 # Hashrate data is collected once per hour
 ONE_WEEK = 7 * 24
 
-class HashratePlot(PlotWidget):
+class Db4EPlot(PlotWidget):
     """
-    A widget for plotting hashrate data.
+    A widget for plotting data based on TextualPlot's PlotWidget.
     """
 
     def __init__(self, title, id, classes=None):
         super().__init__(title, id, allow_pan_and_zoom=False)
-        self._hashrate_id = id
+        self._plot_id = id
         self._all_days = None
         self._all_values = None
         self._title = title
@@ -38,16 +34,19 @@ class HashratePlot(PlotWidget):
 
 
     def compose(self) -> ComposeResult:
-        yield PlotWidget(classes=DField.HASHRATE_PLOT, id=DField.HASHRATE_PLOT)
+        yield PlotWidget(classes=DField.DB4E_PLOT, id=DField.DB4E_PLOT)
 
 
-    def load_data(self, days, hashrates, units):
+    def load_data(self, days, values, units):
         self._all_days = days
-        self._all_values = hashrates
-        self.set_ylabel(self._title + " (" + units + ")")
+        self._all_values = values
+        if units:
+            self.set_ylabel(self._title + " (" + units + ")")
+        else:
+            self.set_ylabel(self._title)
 
 
-    def hashrate_plot(self, days=None, values=None) -> None:
+    def db4e_plot(self, days=None, values=None) -> None:
         if days is not None and values is not None:
             plot_days = days
             plot_values = values
@@ -88,7 +87,7 @@ class HashratePlot(PlotWidget):
         else:
             new_values = self._all_values[-selected_time:]
             new_times = self._all_days[-selected_time:]
-        self.hashrate_plot(new_times, new_values)
+        self.db4e_plot(new_times, new_values)
 
 
 

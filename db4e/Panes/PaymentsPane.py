@@ -11,7 +11,7 @@ db4e/Panes/PaymentsPane.py
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
 
-from db4e.Widgets.HashratePlot import HashratePlot
+from db4e.Widgets.Db4EPlot import Db4EPlot
 
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DField import DField
@@ -23,7 +23,7 @@ from db4e.Constants.DSelect import DSelect
 class PaymentsPane(Container):
 
     selected_time = DSelect.ONE_WEEK
-    payment_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+    payment_plot = Db4EPlot(DLabel.PAYMENTS, id=DField.DB4E_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
 
 
@@ -57,6 +57,6 @@ class PaymentsPane(Container):
             payments = payment_data[DField.VALUES]
             units = "XMR"
             
-            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-            plot.load_data(days=days, hashrates=payments, units=units)
-            plot.hashrate_plot()  
+            plot = self.query_one("#" + DField.DB4E_PLOT, Db4EPlot)
+            plot.load_data(days=days, values=payments, units=units)
+            plot.db4e_plot()  

@@ -15,7 +15,7 @@ from textual.reactive import reactive
 
 from db4e.Modules.P2Pool import P2Pool
 
-from db4e.Widgets.HashratePlot import HashratePlot
+from db4e.Widgets.Db4EPlot import Db4EPlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
@@ -34,7 +34,7 @@ class ChainHashratesPane(Container):
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
-    hashrate_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+    hashrate_plot = Db4EPlot(DLabel.HASHRATE, id=DField.DB4E_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
 
 
@@ -83,9 +83,9 @@ class ChainHashratesPane(Container):
             hashrates = data[DField.VALUES]
             units = data[DField.UNITS]
             
-            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-            plot.load_data(days=days, hashrates=hashrates, units=units)
-            plot.hashrate_plot()     
+            plot = self.query_one("#" + DField.DB4E_PLOT, Db4EPlot)
+            plot.load_data(days=days, values=hashrates, units=units)
+            plot.db4e_plot()     
 
 
 

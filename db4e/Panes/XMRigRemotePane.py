@@ -13,7 +13,7 @@ from textual.containers import Container, Horizontal, Vertical, ScrollableContai
 from textual.widgets import Label, Select
 
 from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Widgets.HashratePlot import HashratePlot
+from db4e.Widgets.Db4EPlot import Db4EPlot
 
 from db4e.Modules.Helper import minutes_to_uptime
 
@@ -31,7 +31,7 @@ class XMRigRemotePane(Container):
     ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    hashrate_plot = HashratePlot(
+    hashrate_plot = Db4EPlot(
         DLabel.HASHRATE, id=DField.HASHRATE_PLOT, classes=DField.HASHRATE_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
     xmrig = None
@@ -89,8 +89,8 @@ class XMRigRemotePane(Container):
             hashrates = data[DField.VALUES]
             units = data[DField.UNITS]
 
-            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-            plot.load_data(days=days, hashrates=hashrates, units=units)
-            plot.hashrate_plot()
+            plot = self.query_one("#" + DField.HASHRATE_PLOT, Db4EPlot)
+            plot.load_data(days=days, values=hashrates, units=units)
+            plot.db4e_plot()
 
 

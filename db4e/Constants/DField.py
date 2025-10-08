@@ -28,6 +28,7 @@ class DField(ConstGroup) :
     DB4E_DIR : str = "db4e_dir"
     DB4E_LOG_FILE : str = "db4e_log_file"
     DB4E_MAP : str = "db4es_map"
+    DB4E_PLOT : str = "db4e_plot"
     DEBUG : str = "debug"
     DEPLOYMENT : str = "deployment"
     DEPLOYMENT_TYPE : str = "depl_type"
