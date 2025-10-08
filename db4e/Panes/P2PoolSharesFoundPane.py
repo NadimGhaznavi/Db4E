@@ -13,7 +13,7 @@ from textual.widgets import Label, Select
 
 
 from db4e.Modules.P2Pool import P2Pool
-from db4e.Widgets.HashratePlot import HashratePlot
+from db4e.Widgets.Db4EPlot import Db4EPlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
@@ -28,7 +28,7 @@ class P2PoolSharesFoundPane(Container):
     intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     shares_found_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
-    shares_found_plot = HashratePlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT)
+    shares_found_plot = Db4EPlot(DLabel.SHARES_FOUND, id=DField.DB4E_PLOT)
     select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
 
 
@@ -74,7 +74,7 @@ class P2PoolSharesFoundPane(Container):
             days = data[DField.DAYS]
             shares_found = data[DField.VALUES]
             
-            plot = self.query_one("#" + DField.HASHRATE_PLOT, HashratePlot)
-            plot.load_data(days=days, hashrates=shares_found, units=DLabel.BLOCKS)
-            plot.hashrate_plot()        
+            plot = self.query_one("#" + DField.DB4E_PLOT, Db4EPlot)
+            plot.load_data(days=days, values=shares_found, units="")
+            plot.db4e_plot()        
 

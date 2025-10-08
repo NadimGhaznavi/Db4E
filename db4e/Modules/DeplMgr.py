@@ -13,7 +13,7 @@ from datetime import datetime
 from shutil import rmtree
 import socket
 from typing import overload
-import re
+import subprocess
 
 
 from db4e.Modules.DbCache import DbCache
@@ -28,7 +28,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Modules.Helper import uptime_to_minutes
+from db4e.Modules.Helper import uptime_to_minutes, sudo_del_file
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -328,8 +328,7 @@ class DeplMgr:
             if os.path.exists(config):
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
-            if os.path.exists(logrotate_config):
-                os.remove(logrotate_config)
+            sudo_del_file(logrotate_config)
             depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
@@ -338,8 +337,7 @@ class DeplMgr:
             if os.path.exists(config):
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
-            if os.path.exists(logrotate_config):
-                os.remove(logrotate_config)
+            sudo_del_file(logrotate_config)
             depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
@@ -426,7 +424,7 @@ class DeplMgr:
             elif type(obj) == XMRig:
                 if obj.parent() != DField.DISABLE:
                     obj.p2pool = self.get_deployment_by_id(obj.parent())
-                    if obj.p2pool.parent() != DField.DISABLE:
+                    if type(obj.p2pool) == P2Pool and obj.p2pool.parent() != DField.DISABLE:
                         obj.p2pool.monerod = self.get_deployment_by_id(obj.p2pool.parent())
                 obj.instance_map = self.get_deployment_ids_and_instances(DElem.P2POOL)
             return obj
@@ -977,7 +975,7 @@ class DeplMgr:
         if p2pool.p2p_port != new_p2pool.p2p_port:
             msg = f"Updated P2P bind port: {p2pool.p2p_port()} > " \
                 f"{new_p2pool.p2p_port()}"
-            p2pool.p2p_bind_port(new_p2pool.p2p_port())
+            p2pool.p2p_port(new_p2pool.p2p_port())
             p2pool.msg(DLabel.P2POOL_SHORT, DStatus.GOOD, msg)
             update_config = True
             update = True

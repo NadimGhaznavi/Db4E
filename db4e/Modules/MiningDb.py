@@ -175,6 +175,7 @@ class MiningDb():
             DMongo.TIMESTAMP: timestamp,
             DMining.MINER: miner_name,  
             DMongo.IP_ADDR: ip_addr,
+            DMongo.POOL: pool,
             DMining.HASHRATE: hashrate,
         }
 
@@ -188,11 +189,13 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID]},
-                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr})
-            self.log.debug(f"Updated existing ({chain}) historical miner ({miner_name}) hashrate ({hashrate}) record")
+                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, DMongo.POOL: pool})
+            self.log.debug(f"Updated existing ({chain}) historical miner " \
+                           f"({miner_name}) hashrate ({hashrate}) record")
         else:
             self.db.insert_one(self.mining_col, jdoc)
-            self.log.info(f"Created new ({chain}) historical miner ({miner_name}) hashrate ({hashrate}) record")
+            self.log.info(f"Created new ({chain}) historical miner ({miner_name}) " \
+                          f"hashrate ({hashrate}) record")
         
         # Real-time, miner hashrate
         rt_timestamp = datetime.now(timezone.utc)
@@ -202,6 +205,7 @@ class MiningDb():
             DMongo.TIMESTAMP: rt_timestamp,
             DMongo.IP_ADDR: ip_addr,
             DMining.MINER: miner_name,
+            DMongo.POOL: pool,
             DMining.HASHRATE: hashrate,
             DMongo.UPTIME: uptime,
         }
@@ -215,7 +219,9 @@ class MiningDb():
         if existing:
             self.db.update_one(
                 self.mining_col, {DMongo.OBJECT_ID: existing[DMongo.OBJECT_ID] },
-                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, DMongo.TIMESTAMP: rt_timestamp, DMongo.UPTIME: uptime})
+                {DMining.HASHRATE: hashrate, DMongo.IP_ADDR: ip_addr, 
+                 DMongo.TIMESTAMP: rt_timestamp, DMongo.POOL: pool,
+                 DMongo.UPTIME: uptime})
             self.log.debug(f"Updated existing ({chain}) real-time miner ({miner_name}) hashrate ({hashrate}) record")
         else:
             self.db.insert_one(self.mining_col, jdoc)
@@ -334,12 +340,13 @@ class MiningDb():
         self.log.info(f"Added {amount} to wallet balance. New balance: {new_balance}")
 
 
-    def add_xmr_payment(self, chain, timestamp, payment):
+    def add_xmr_payment(self, chain, timestamp, payment, pool):
         jdoc = {
             DMongo.DOC_TYPE: DMining.XMR_PAYMENT,
             DMongo.CHAIN: chain,
             DMongo.TIMESTAMP: timestamp,
-            DMining.XMR_PAYMENT: payment
+            DMining.XMR_PAYMENT: payment,
+            DMongo.POOL: pool
         }
         if self.db.insert_uniq_by_timestamp(self.mining_col, jdoc):
             self.add_to_wallet(payment)
@@ -384,6 +391,11 @@ class MiningDb():
         return self.db.find_one(
             self.mining_col,
             { DMongo.DOC_TYPE: DMining.RT_MINER_HASHRATE, DMining.MINER: miner})
+    
+
+    def get_payments(self):
+        return self.db.find_many(
+            self.mining_col, { DMongo.DOC_TYPE: DMining.XMR_PAYMENT })
 
 
     def get_pool_hashrate(self, instance):

@@ -72,6 +72,11 @@ class InstallMgr(Container):
             self.db_cache.update_one(db4e)
             return db4e
         
+        # Create base vendor directories
+        vendor_dir = db4e.vendor_dir()
+        for aDir in [ DDef.BACKUP_DIR, DDef.LOG_ROTATE ]:
+            os.makedirs(os.path.join(vendor_dir, aDir))
+            db4e.msg(DLabel.VENDOR_DIR, DStatus.GOOD, f"Created directory: {aDir}")
 
         # We have everything we need to finish the install. Update the record.
         self.db_cache.update_one(db4e)
@@ -258,9 +263,10 @@ class InstallMgr(Container):
         os.makedirs(os.path.join(fq_db4e_dir))
         db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}")
         # Create the sub-directories
-        for sub_dir in [DDef.LOG_DIR, DDef.LOG_ROTATE, DDef.BACKUP_DIR ]:
+        for sub_dir in [DDef.LOG_DIR ]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
             db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}")
+        db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{DDef.LOG_ROTATE}")
         return db4e
 
     def _create_monerod_dirs(self, db4e: Db4E) -> Db4E:

@@ -58,12 +58,13 @@ class P2PoolPane(Container):
 
     health_msgs = Label()
 
-    shares_found_button = Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND)
     delete_button = Button(label=DLabel.DELETE, id=DButton.DELETE)
     disable_button = Button(label=DLabel.STOP, id=DButton.DISABLE)
     enable_button = Button(label=DLabel.START, id=DButton.ENABLE)
     hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
     new_button = Button(label=DLabel.NEW, id=DButton.NEW)
+    shares_found_button = Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND)
+    tables_button = Button(label=DLabel.TABLES, id=DButton.TABLES)
     update_button = Button(label=DLabel.UPDATE, id=DButton.UPDATE)
     view_log_button = Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG)
     p2pool = None
@@ -114,6 +115,7 @@ class P2PoolPane(Container):
                         self.hashrate_button,
                         self.shares_found_button,
                         self.new_button,
+                        self.tables_button,
                         self.update_button,
                         self.enable_button,
                         self.view_log_button,
@@ -254,6 +256,14 @@ class P2PoolPane(Container):
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.SHARES_FOUND,
+                DField.ELEMENT_TYPE: DElem.P2POOL,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButton.TABLES:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.GET_TABLE_DATA,
                 DField.ELEMENT_TYPE: DElem.P2POOL,
                 DField.ELEMENT: self.p2pool,
             }

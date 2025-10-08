@@ -83,9 +83,29 @@ def migrate_share_found_events():
         }
         db.insert_one("mining", new_rec)
 
+def modify_miner_hashrates():
+    recs = db.find_many(col_name="mining", filter={"doc_type": "miner_hashrate"})
+    for rec in recs:
+        new_field = {
+            DMongo.POOL: "Sally"
+        }
+        db.update_one("mining", {DMongo.OBJECT_ID: rec[DMongo.OBJECT_ID]}, new_field)
+
+
+def modify_xmr_payment():
+    recs = db.find_many(col_name="mining", filter={"doc_type": "xmr_payment"})
+    for rec in recs:
+        new_field = {
+            DMongo.POOL: "Sally"
+        }
+        db.update_one("mining", {DMongo.OBJECT_ID: rec[DMongo.OBJECT_ID]}, new_field)
+
+
+
 
 #modify_pool_hashrates()
 #migrate_pool_hashrates()
 #migrate_block_found_events()
 #modify_block_found_events_2()
-migrate_share_found_events()
+#migrate_share_found_events()
+#modify_miner_hashrates()

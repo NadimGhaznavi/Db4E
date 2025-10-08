@@ -140,7 +140,7 @@ class ChainPane(Container):
         if button_id == DButton.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.BLOCKS_FOUND,
+                DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.INT_P2POOL,
                 DField.ELEMENT: self.p2pool,
             }

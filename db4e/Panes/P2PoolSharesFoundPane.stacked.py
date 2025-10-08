@@ -16,7 +16,7 @@ from textual.reactive import reactive
 
 from db4e.Modules.P2Pool import P2Pool
 
-from db4e.Widgets.HashratePlot import HashratePlot
+from db4e.Widgets.Db4EPlot import HashratePlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField

@@ -29,6 +29,7 @@ from db4e.Constants.DField import DField
 class HealthMgr:
 
     def check(self, elem):
+        #print(f"HealthMgr:check(): {elem}")
         elem.pop_msgs()
         if type(elem) == Db4E:
             return self.check_db4e(elem)
@@ -335,6 +336,17 @@ class HealthMgr:
         if xmrig.parent() == DField.DISABLE:
             xmrig.msg(DLabel.P2POOL, DStatus.WARN,
                       f"Missing upstream P2pool deployment")
+        
+        # Check the health of the upstream P2Pool
+        self.check(xmrig.p2pool)
+        if xmrig.p2pool.status() == DStatus.GOOD:
+            xmrig.msg(DLabel.P2POOL, DStatus.GOOD,
+                      f"Upstream P2Pool ({xmrig.p2pool.instance()}) is healthy")
+        else:
+            xmrig.msg(DLabel.P2POOL, DStatus.WARN,
+                      f"Upstream P2Pool ({xmrig.p2pool.instance()}) has issues:")
+            xmrig.push_msgs(xmrig.p2pool.pop_msgs())
+
 
         return xmrig
 

@@ -36,6 +36,8 @@ class MessageRouter:
 
     def load_routes(self):
         # Db4e core
+        self.register(DModule.OPS_MGR, DMethod.GET_PAYMENTS, DElem.DB4E,
+                      self.ops_mgr.get_payments, DPane.PAYMENTS)
         self.register(DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG, DElem.DB4E,
                       self.ops_mgr.get_runtime_log, DPane.RUNTIME_LOG)
         self.register(DModule.INSTALL_MGR, DMethod.INITIAL_SETUP_PROCEED, DElem.DB4E,
@@ -87,6 +89,8 @@ class MessageRouter:
                       self.depl_client.enable_deployment, DPane.WELCOME)
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.P2POOL,
                       self.ops_mgr.get_deployment, DPane.P2POOL)
+        self.register(DModule.OPS_MGR, DMethod.GET_TABLE_DATA, DElem.P2POOL,
+                      self.ops_mgr.get_table_data, DPane.P2POOL_TABLES)
         self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.P2POOL,
                       self.ops_mgr.hashrates, DPane.P2POOL_HASHRATES)
         self.register(DModule.OPS_MGR, DMethod.GET_NEW, DElem.P2POOL,

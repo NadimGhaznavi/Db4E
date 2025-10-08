@@ -320,7 +320,7 @@ class P2PoolWatcher:
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
                 payment = Decimal128(match.group('payment'))
                 self.mining_db.add_xmr_payment(
-                    chain=self.chain(), timestamp=timestamp, payment=payment)
+                    chain=self.chain(), timestamp=timestamp, payment=payment, pool=self.pool())
         except Exception as e:
             self.log.critical(f"P2PoolWatcher:is_xmr_payment(): ERROR: {e}")
 

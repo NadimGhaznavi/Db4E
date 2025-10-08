@@ -18,7 +18,23 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ![Screenshot of Db4E installer](/images/db4e-tui-installer.png)
 
-![P2Pool Configuration](/images/local-p2pool-config.png)
+![Monero Configuration](/images/monerod-config.png)
+
+![Monero Remote Configuration](/images/monerod-remote-config.png)
+
+![P2Pool Config](/images/local-p2pool-config.png)
+
+![P2Pool Remote Configuration](/images/p2pool-remote-config.png)
+
+![XMRig Configuration](/images/xmrig-config.png)
+
+![Monero Daemon Logs](/images/monerod-logs.png)
+
+![P2Pool Logs](/images/p2pool-logs.png)
+
+![XMRig Logs](/images/xmrig-logs.png)
+
+![Console Log](/images/console-log.png)
 
 ![Miner Analytics](/images/miner-analytics.png)
 
@@ -26,26 +42,16 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ![Runtime Log](/images/runtime-log.png)
 
-![XMRig Configuration](/images/xmrig-config.png)
+![Start / Stop Log](/images/start-stop-log.png)
 
-![Monero Configuration](/images/monerod-config.png)
+![Runtime Log](/images/runtime-log.png)
 
-![Cumulative Uptime Report](/images/cumulative-uptime.png)
+![P2Pool Hashrate](/images/p2pool-hashrate.png)
 
-![Monero Config](/images/monerod-config.png)
+![P2Pool Shares Found](/images/p2pool-shares-found.png)
 
-![P2Pool Config](/images/local-p2pool-config.png)
+![XMRig Hashrate](/images/xmrig-hashrate.png)
 
-![XMRig Config](/images/xmrig-config.png)
+![Chain Blocks Found](/images/chain-blocks-found.png)
 
-![Blocks Found](/images/blocks-found.png)
-
-
-<<<<<<< HEAD
-
-
-
-
-
-=======
->>>>>>> release/v0.45.0
+![Chain Hashrates](/images/chain-hashrates.png)
