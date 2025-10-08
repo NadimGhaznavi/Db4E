@@ -394,6 +394,7 @@ class Db4eServer:
         rc = sd.start()
         if rc == 0:
             self.log.info(f'Started: {elem}')
+            time.sleep(30)
         else:
             self.log.critical(f'ERROR: Failed to start {elem}, return code was {rc}')
             self.stopping.discard(instance)
@@ -431,6 +432,7 @@ class Db4eServer:
         rc = sd.stop()
         if rc == 0:
             self.log.info(f'Stopped: {elem}')
+            time.sleep(30)
             if isinstance(elem, P2Pool):
                 control = self.log_watchers.pop(instance, None)
                 if control:
