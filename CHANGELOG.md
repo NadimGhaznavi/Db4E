@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - In `DeplMgr:get_deployment()`, check that a *P2Pool* instance is local before trying to reference it's parent.
 - In `DeplClient:add_deployument()`, do not add a new deployment if there are missing fields.
+- Create *backup* and *logrotate* directories correctly in `InstallMgr`
+- Remove references to *logging collection* in `DbMgr`
 
 ---
 

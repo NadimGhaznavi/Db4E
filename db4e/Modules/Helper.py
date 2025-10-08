@@ -9,34 +9,18 @@ db4e/Modules/Helper.py
 
 Helper functions that are used in multiple modules   
 """
-import os, grp, getpass, re
+import os, grp, getpass, re, subprocess
 
 from rich import box
 from rich.table import Table
 
 from db4e.Constants.DStatus import DStatus
 from db4e.Constants.DField import DField
-from db4e.Constants.DLabel import DLabel
+from db4e.Constants.DFile import DFile
    
 
 
 error_color = "#935fcf"
-
-
-def del_config(config_file: str):
-    results = []
-    try:
-        os.remove(config_file)
-        results.append(result_row(
-            DLabel.XMRIG, DStatus.GOOD,
-            f"Removed old configration file: {config_file}"
-        ))
-    except OSError as e:
-        result_row.append(result_row(
-            DLabel.XMRIG, DStatus.WARN,
-            f"Unable to remove {config_file} {e} "
-        ))
-    return results
 
 
 def get_component_value(data, field_name):
@@ -151,6 +135,32 @@ def set_component_value(rec, updates):
         if field in updates:
             component[DField.VALUE] = updates[field]
     return rec
+
+
+def sudo_del_file(aFile: str):
+    if not os.path.exists(aFile):
+        # Nothing to do
+        return
+    
+    cmd = [ DFile.SUDO, DFile.RM, "-f", aFile ]
+    try:
+        proc = subprocess.run(
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            input=''
+            )
+        return {
+            DField.STDOUT: proc.stdout.decode('utf-8'),
+            DField.STDERR: proc.stderr.decode('utf-8'),
+            DField.RC: proc.returncode
+        }
+    except Exception as e:
+        return {
+            DField.STDOUT: proc.stdout.decode('utf-8'),
+            DField.STDERR: proc.stderr.decode('utf-8'),
+            DField.RC: proc.returncode
+        } 
 
 
 def uptime_to_minutes(uptime_str: str):

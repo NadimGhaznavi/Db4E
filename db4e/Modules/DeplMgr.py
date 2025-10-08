@@ -13,7 +13,7 @@ from datetime import datetime
 from shutil import rmtree
 import socket
 from typing import overload
-import re
+import subprocess
 
 
 from db4e.Modules.DbCache import DbCache
@@ -28,7 +28,7 @@ from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.XMRig import XMRig
 from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Modules.Helper import uptime_to_minutes
+from db4e.Modules.Helper import uptime_to_minutes, sudo_del_file
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -328,8 +328,7 @@ class DeplMgr:
             if os.path.exists(config):
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
-            if os.path.exists(logrotate_config):
-                os.remove(logrotate_config)
+            sudo_del_file(logrotate_config)
             depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
@@ -338,8 +337,7 @@ class DeplMgr:
             if os.path.exists(config):
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
-            if os.path.exists(logrotate_config):
-                os.remove(logrotate_config)
+            sudo_del_file(logrotate_config)
             depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
