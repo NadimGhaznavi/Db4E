@@ -20,6 +20,7 @@ from db4e.Panes.MoneroDPane import MoneroDPane
 from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
 from db4e.Panes.P2PoolPane import P2PoolPane
 from db4e.Panes.P2PoolHashratesPane import P2PoolHashratesPane
+from db4e.Panes.P2PoolTablesPane import P2PoolTablesPane
 from db4e.Panes.ChainPane import ChainPane
 from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.Panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
@@ -51,6 +52,7 @@ REGISTRY = {
     DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATES),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.P2POOL_SHARES_FOUND: (P2PoolSharesFoundPane, DLabel.P2POOL, DLabel.SHARES_FOUND),
+    DPane.P2POOL_TABLES: (P2PoolTablesPane, DLabel.P2POOL, DLabel.TABLES),
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.START_STOP_LOG: (StartStopLogPane, DLabel.LOG, DLabel.START_STOP_LOG),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),

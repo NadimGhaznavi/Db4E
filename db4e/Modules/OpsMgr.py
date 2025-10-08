@@ -129,6 +129,13 @@ class OpsMgr:
         return self.ops_etl.get_ops_summary()
 
 
+    def get_table_data(self, form_data: dict):
+        p2pool = form_data[DField.ELEMENT]
+
+        
+        return table_data
+
+
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
         return elem

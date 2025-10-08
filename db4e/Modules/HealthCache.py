@@ -97,7 +97,7 @@ class HealthCache:
                 return deepcopy(self.db4es_map[DField.INSTANCE][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): Db4E key error: {elem}")
-                return None
+                return elem
         
         # Monero
         elif type(elem) == MoneroD:
@@ -105,7 +105,7 @@ class HealthCache:
                 return deepcopy(self.monerods_map[elem.instance()][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): Monero key error: {elem}")
-                return None
+                return elem
 
         # Remote Monero
         elif type(elem) == MoneroDRemote:
@@ -120,7 +120,7 @@ class HealthCache:
                 return deepcopy(self.p2pools_map[elem.instance()][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): P2Pool key error: {elem}")
-                return None
+                return elem
 
         # Remote P2Pool
         elif type(elem) == P2PoolRemote:
@@ -128,7 +128,7 @@ class HealthCache:
                 return deepcopy(self.p2pools_remote_map[elem.instance()][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): Remote P2Pool key error: {elem}")
-                return None
+                return elem
 
         # Internal P2Pool
         elif type(elem) == InternalP2Pool:
@@ -136,7 +136,7 @@ class HealthCache:
                 return deepcopy(self.int_p2pools_map[elem.instance()][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): InternalP2Pool key error: {elem}")
-                return None
+                return elem
 
         # XMRig
         elif type(elem) == XMRig:
@@ -144,7 +144,7 @@ class HealthCache:
                 return deepcopy(self.xmrigs_map[elem.instance()][DField.INSTANCE])
             except KeyError:
                 print(f"HealthCache:check(): XMRig key error: {elem}")
-                return None
+                return elem
         
         # Remote XMRig
         elif type(elem) == XMRigRemote:
@@ -152,7 +152,7 @@ class HealthCache:
                 return deepcopy(self.xmrigs_remote_map[elem.instance()])
             except KeyError:
                 print(f"HealthCache:check(): XMRigRemote key error: {elem}")
-                return None
+                return elem
             
         else:
             raise ValueError(f"Unsupported element type: {type(elem)}")

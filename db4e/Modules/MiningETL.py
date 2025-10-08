@@ -48,45 +48,6 @@ class MiningETL:
         return self.get_hashrates(recs) or {}
     
 
-    def get_miner_hashrate(self, miner):
-        rec = self.mining_db.get_miner_hashrate(miner)
-        if rec:
-            hashrate = str(rec[DMining.HASHRATE])
-        else:
-            hashrate = "Unknown"
-        return hashrate + " " + DLabel.H_PER_S
-
-
-    def get_miner_hashrates(self, miner):
-        recs = self.mining_db.get_miner_hashrates(miner)
-        return self.get_hashrates(recs) or {}
-
-
-    def get_miner_uptime(self, miner):
-        rec = self.mining_db.get_miner_uptime(miner)
-        if rec:
-            uptime = str(rec[DMongo.UPTIME])
-        else:
-            uptime = "Unknown"
-        return uptime
-
-
-    def get_pool_hashrate(self, instance):
-        hashrate_rec = self.mining_db.get_pool_hashrate(instance)
-        if hashrate_rec:
-            hashrate = str(hashrate_rec[DMining.HASHRATE])
-            units = hashrate_rec[DMining.UNIT]
-        else:
-            hashrate = "Unknown"
-            units = ""
-        return hashrate + " " + units
-
-
-    def get_pool_hashrates(self, instance):
-        recs = self.mining_db.get_pool_hashrates(instance=instance)
-        return self.get_hashrates(recs)
-
-
     def get_found_events(self, recs):
         if not recs:
             return {DField.DAYS: [], DField.VALUES: []}
@@ -189,6 +150,45 @@ class MiningETL:
         }
     
 
+    def get_miner_hashrate(self, miner):
+        rec = self.mining_db.get_miner_hashrate(miner)
+        if rec:
+            hashrate = str(rec[DMining.HASHRATE])
+        else:
+            hashrate = "Unknown"
+        return hashrate + " " + DLabel.H_PER_S
+
+
+    def get_miner_hashrates(self, miner):
+        recs = self.mining_db.get_miner_hashrates(miner)
+        return self.get_hashrates(recs) or {}
+
+
+    def get_miner_uptime(self, miner):
+        rec = self.mining_db.get_miner_uptime(miner)
+        if rec:
+            uptime = str(rec[DMongo.UPTIME])
+        else:
+            uptime = "Unknown"
+        return uptime
+
+
+    def get_pool_hashrate(self, instance):
+        hashrate_rec = self.mining_db.get_pool_hashrate(instance)
+        if hashrate_rec:
+            hashrate = str(hashrate_rec[DMining.HASHRATE])
+            units = hashrate_rec[DMining.UNIT]
+        else:
+            hashrate = "Unknown"
+            units = ""
+        return hashrate + " " + units
+
+
+    def get_pool_hashrates(self, instance):
+        recs = self.mining_db.get_pool_hashrates(instance=instance)
+        return self.get_hashrates(recs)
+
+
     def get_remote_xmrig_timestamp(self, instance):
         rec = self.mining_db.get_rt_miner_rec(instance)
         if rec:
@@ -247,3 +247,7 @@ class MiningETL:
         }
         print(final_results)
         return final_results
+    
+
+    def get_table_data(self, p2pool):
+        pass

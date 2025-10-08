@@ -119,6 +119,7 @@ class DLabel(ConstGroup):
     STDIN_PATH : str = "Standard Input FIFO"
     STOP : str = "Stop"
     STRATUM_PORT : str = "Stratum Port"
+    TABLES : str = "Tables"
     TIMESTAMP : str = "Timestamp"
     TOTAL : str = "Total"
     TUI_LOG : str = "Console Log"

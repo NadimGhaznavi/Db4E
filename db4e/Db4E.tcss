@@ -373,6 +373,10 @@ Button {
     color: #9a71c9ff;
     text-style: bold; }
 
+#shares_found_button {
+    color: #4292c4ff;
+    text-style: bold; }
+
 #start_button {
     color: #5fc442;
     text-style: bold; }
@@ -380,6 +384,10 @@ Button {
 #stop_button {
     color: #c44242;
     text-style: bold; }
+
+#tables_button {
+    color: #42c4a4ff;
+    text-style: bold; }    
 
 #update_button {
     color: #5fc442;
@@ -403,6 +411,12 @@ Button {
     display: none; }
 
 .new #hashrate_button {
+    display: none; }
+
+.new #shares_found_button {
+    display: none; }
+
+.new #tables_button {
     display: none; }
 
 .new #update_button {

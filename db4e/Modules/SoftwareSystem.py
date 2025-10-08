@@ -68,6 +68,10 @@ class SoftwareSystem:
     def msg(self, label: str, status: str, msg: str):
         self.msgs.append({label: {DJob.STATUS: status, DJob.MESSAGE: msg }})
 
+    
+    def get_msgs(self):
+        return self.msgs
+
 
     def pop_msgs(self):
         msgs = self.msgs

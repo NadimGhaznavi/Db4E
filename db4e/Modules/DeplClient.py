@@ -85,7 +85,10 @@ class DeplClient:
         self.check_instance_and_fields(elem)
 
         # Check for errors
-        if elem.status() != DStatus.GOOD:
+        if elem.status() != DStatus.GOOD and elem.status() != DStatus.UNKNOWN:
+            print(f"DeplClient:add_deployment(): Add failed: {elem.status()}")
+            for msg in elem.get_msgs():
+                print(f"DeplClient:add_deployment(): {msg}")
             return elem
 
         class_map = {
@@ -99,6 +102,8 @@ class DeplClient:
 
         # Create an add job
         elem_type = class_map[type(elem)]
+
+        print(f"DeplClient:add_deployment(): Posting {DJob.NEW} job for {elem}")
         
         job = Job(op=DJob.NEW, instance=elem.instance(), elem_type=elem_type, elem=elem)
         self.job_queue.post_job(job)
