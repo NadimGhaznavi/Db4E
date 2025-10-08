@@ -141,7 +141,6 @@ class MiningETL:
         else:
             units = "H/s"
 
-        print(f"MiningETL:etl_recs(): days: {day_list}")
         return {
             DField.VALUES: value_list,
             DField.DAYS: day_list,

@@ -27,7 +27,6 @@ from db4e.Constants.DSelect import DSelect
 class ChainBlocksFoundPane(Container):
 
     intro_label = Label("", classes=DForm.INTRO)
-    instance_label = Label("", id=DForm.INSTANCE_LABEL,classes=DForm.STATIC)
     days = reactive([])
     blocks_found = reactive([])
 
@@ -37,12 +36,6 @@ class ChainBlocksFoundPane(Container):
         yield Vertical(
             ScrollableContainer(
                 self.intro_label,
-
-                Vertical(
-                    Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_15),
-                        self.instance_label),
-                    classes=DForm.FORM_1),                 
 
                 Vertical(
                     PlotextPlot(),
@@ -86,7 +79,6 @@ class ChainBlocksFoundPane(Container):
             f"[cyan]{LONG_NAME[p2pool.instance()]}."
         
         self.intro_label.update(INTRO)
-        self.instance_label.update(p2pool.instance())
 
         data = p2pool.blocks_found()
         plt = self.query_one(PlotextPlot).plt
