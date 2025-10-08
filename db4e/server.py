@@ -263,7 +263,6 @@ class Db4eServer:
                 thread.join()
         elif type(elem) == P2PoolRemote or type(elem) == MoneroDRemote:
             self.disable_downstream(elem)
-            elem.enabled(False)
             self.depl_mgr.delete_deployment(elem)
         elif type(elem) == MoneroD:
             self.disable_downstream(elem)

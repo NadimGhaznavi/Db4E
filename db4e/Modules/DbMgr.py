@@ -48,7 +48,6 @@ class DbMgr:
         self.mining_col    = DDef.MINING_COLLECTION
         self.depl_col      = DDef.DEPL_COLLECTION
         self.jobs_col      = DDef.JOBS_COLLECTION
-        self.log_col       = DDef.LOG_COLLECTION
         self.log_retention = DDef.LOG_RETENTION_DAYS
         self.ops_col       = DDef.OPS_COLLECTION
 
@@ -82,9 +81,7 @@ class DbMgr:
 
 
     def ensure_indexes(self):
-        log_col = self.get_collection(self.log_col)
-        if "timestamp_1" not in log_col.index_information():
-            log_col.create_index("timestamp")
+        pass
 
 
     @as_worker
@@ -135,9 +132,6 @@ class DbMgr:
             if aCol not in db_col_names:
                 try:
                     self.db4e.create_collection(aCol)
-                    if aCol == log_col:
-                        log_col = self.get_collection(log_col)
-                        log_col.create_index('timestamp')
                 except CollectionInvalid:
                     # TODO self.log.warning(f"Attempted to create existing collection: {aCol}")
                     pass
