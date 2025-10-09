@@ -165,6 +165,12 @@ class XMRig(SoftwareSystem):
         return self._instance_map
     
 
+    def shares_found(self, shares_found_data=None):
+        if shares_found_data is not None:
+            self._shares_found = shares_found_data
+        return self._shares_found
+        
+        
     def uptime(self, uptime=None):
         if uptime is not None:
             self._uptime = uptime

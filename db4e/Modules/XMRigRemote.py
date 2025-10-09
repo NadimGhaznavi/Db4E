@@ -52,3 +52,9 @@ class XMRigRemote(SoftwareSystem):
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
+    
+
+    def shares_found(self, shares_found_data=None):
+        if shares_found_data is not None:
+            self._shares_found = shares_found_data
+        return self._shares_found
