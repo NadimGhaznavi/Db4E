@@ -90,4 +90,3 @@ Refer to the [Getting Started](pages/Getting-Started.html) for detailed step on 
 If you find Db4E useful, please consider [donating](/pages/Donations.html) to help support its ongoing development. Every contribution helps!
 
 
-
