@@ -168,7 +168,10 @@ class OpsMgr:
             elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
 
         elif type(elem) == XMRigRemote:
-            print(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
 
         return elem

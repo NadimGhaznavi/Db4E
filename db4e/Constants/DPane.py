@@ -38,3 +38,4 @@ class DPane(ConstGroup):
     XMRIG : str  = "XMRigPane"
     XMRIG_HASHRATES : str  = "XMRigHashratesPane"
     XMRIG_REMOTE : str  = "XMRigRemotePane"
+    XMRIG_REMOTE_HASHRATES : str  = "XMRigRemoteHashratePane"

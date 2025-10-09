@@ -42,7 +42,7 @@ from db4e.Constants.DPane import DPane
 REGISTRY = {
     DPane.CHAIN: (ChainPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
     DPane.CHAIN_BLOCKS_FOUND: (ChainBlocksFoundPane, DLabel.CHAIN, DLabel.BLOCKS_FOUND),
-    DPane.CHAIN_HASHRATES: (ChainHashratesPane, DLabel.CHAIN, DLabel.HASHRATES),
+    DPane.CHAIN_HASHRATES: (ChainHashratesPane, DLabel.CHAIN, DLabel.HASHRATE),
     DPane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
     DPane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
     DPane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
@@ -50,7 +50,7 @@ REGISTRY = {
     DPane.MONEROD: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
     DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
     DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
-    DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATES),
+    DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATE),
     DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
     DPane.P2POOL_SHARES_FOUND: (P2PoolSharesFoundPane, DLabel.P2POOL, DLabel.SHARES_FOUND),
     DPane.P2POOL_TABLES: (P2PoolTablesPane, DLabel.P2POOL, DLabel.TABLES),
@@ -61,8 +61,8 @@ REGISTRY = {
     DPane.RUNTIME_LOG: (RuntimePane, DLabel.DB4E_LONG, DLabel.RUNTIME_LOG),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
-    DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATES),
-    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.HASHRATES),
+    DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATE),
+    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.CONFIG),
 }
 
 class PaneCatalogue:

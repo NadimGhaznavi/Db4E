@@ -15,6 +15,9 @@ from db4e.Modules.XMRig import XMRig
 
 from db4e.Widgets.Db4EPlot import Db4EPlot
 
+from db4e.Modules.Helper import minutes_to_uptime
+
+
 from db4e.Constants.DForm import DForm
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -25,6 +28,7 @@ from db4e.Constants.DSelect import DSelect
 class XMRigHashratesPane(Container):
 
     selected_time = DSelect.ONE_WEEK
+    intro_label = Label("", classes=DForm.INTRO)
     instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
@@ -34,11 +38,9 @@ class XMRigHashratesPane(Container):
 
     def compose(self):
 
-        INTRO = f"View analytics information about the [cyan]{DLabel.XMRIG}[/] deployment."
-
         yield Vertical(
             ScrollableContainer(
-                Label(INTRO, classes=DForm.INTRO),
+                self.intro_label,
 
                 Vertical(
                     Horizontal(
@@ -69,9 +71,12 @@ class XMRigHashratesPane(Container):
 
 
     def set_data(self, xmrig: XMRig):
+        INTRO = f"View historical hashrate data for the [cyan]{xmrig.instance()} " \
+            f"{DLabel.XMRIG}[/] deployment."
+        self.intro_label.update(INTRO)
         self.instance_label.update(xmrig.instance())
         self.hashrate_label.update(str(xmrig.hashrate()))
-        self.uptime_label.update(xmrig.uptime())
+        self.uptime_label.update(minutes_to_uptime(xmrig.uptime()))
 
         data = xmrig.hashrates()
         if type(data) == dict:

@@ -212,7 +212,7 @@ class MiningETL:
         # function since Python converts to float behind the scenes.
         new_values = []
         for value in values:
-            new_values.append(float(round(value.to_decimal(), 4)))
+            new_values.append(float(round(value.to_decimal(), 6)))
 
         print(f"results: {new_days}\n{new_values}")
         return {

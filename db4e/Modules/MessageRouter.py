@@ -141,6 +141,9 @@ class MessageRouter:
         # XMRig Remote
         self.register(DModule.OPS_MGR, DMethod.GET_DEPL, DElem.XMRIG_REMOTE,
                       self.ops_mgr.get_deployment, DPane.XMRIG_REMOTE)
+        self.register(DModule.OPS_MGR, DMethod.HASHRATES, DElem.XMRIG_REMOTE,
+                      self.ops_mgr.hashrates, DPane.XMRIG_HASHRATES)
+        
 
         # Log Viewer
         self.register(DModule.OPS_MGR, DMethod.LOG_VIEWER, DElem.MONEROD,

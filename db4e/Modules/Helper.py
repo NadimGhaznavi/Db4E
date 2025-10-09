@@ -183,7 +183,7 @@ def minutes_to_uptime(minutes: int):
     # Return a string like:
     # 0h 0m 45s
     # 1d 7h 32m
-    days, minutes = divmod(minutes, 1440)
+    days, minutes = divmod(int(minutes), 1440)
     hours, minutes = divmod(minutes, 60)
     if days > 0:
         return f"{days}d {hours}h {minutes}m"
