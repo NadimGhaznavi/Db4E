@@ -9,7 +9,7 @@ db4e/Panes/ChainHashratesPane.py
 """
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
-from textual.widgets import Label, Select
+from textual.widgets import Label, Select, Static
 from textual.reactive import reactive
 
 
@@ -62,7 +62,6 @@ class ChainHashratesPane(Container):
                     classes=DForm.PANE_BOX)),
 
                 classes=DForm.PANE_BOX)
-        
     
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
@@ -83,9 +82,8 @@ class ChainHashratesPane(Container):
             hashrates = data[DField.VALUES]
             units = data[DField.UNITS]
             
-            plot = self.query_one("#" + DField.DB4E_PLOT, Db4EPlot)
-            plot.load_data(days=days, values=hashrates, units=units)
-            plot.db4e_plot()     
-
+            self.hashrate_plot.load_data(days=days, values=hashrates, units=units)
+            self.hashrate_plot.db4e_plot()
+            
 
 

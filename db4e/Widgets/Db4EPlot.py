@@ -52,6 +52,8 @@ class Db4EPlot(PlotWidget):
             plot_days = self._all_days
             plot_values = self._all_values
         self.clear()
+        if len(plot_days) == 0:
+            return
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
         self.plot(
             x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE,
