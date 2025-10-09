@@ -1,5 +1,5 @@
 """
-db4e/Panes/P2PoolAnalyticsPane.py
+db4e/Panes/P2PoolSharesFoundPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi 
