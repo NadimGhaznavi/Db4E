@@ -5,9 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ---
 
-## [Unreleased] - 2025-10-07
+## [Unreleased] 
+
+### Added
+- Created a new `XMRigRemoteHashratePane`
+  - Took the *hashrate* plot out of the `XMRigRemotePane`
+  - Added the new pant to the `DPane` constants file.
+  - Added a new route to the `MessageRouter`
+  - Added a new pane to the `PaneCatalogue`
+- Created a new `XMRigSharesFoundPane`
+  - Added `shares_found()` get/set methods to the `XMRig` and `XMRigRemote` classes.
+
+
+
+### Fixed
+- Fixed the path in the comments banner for the `P2PoolHashratePane`
+
+---
+
+## [0.46.0] - 2025-10-07
 
 ### Added 
 - Additional website screenshots

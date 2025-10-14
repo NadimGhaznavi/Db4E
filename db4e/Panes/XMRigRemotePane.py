@@ -35,6 +35,7 @@ class XMRigRemotePane(Container):
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
     hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
+    shares_found_button = Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND)
     xmrig = None
 
 
@@ -64,6 +65,7 @@ class XMRigRemotePane(Container):
                 Vertical(
                     Horizontal(
                         self.hashrate_button,
+                        self.shares_found_button,
                         classes=DForm.BUTTON_ROW))),
 
                 classes=DForm.PANE_BOX)
@@ -88,4 +90,12 @@ class XMRigRemotePane(Container):
                 DField.ELEMENT: self.xmrig,
             }
         
+        elif button_id == DButton.SHARES_FOUND:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.SHARES_FOUND,
+                DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                DField.ELEMENT: self.xmrig,
+            }
+
         self.app.post_message(Db4eMsg(self, form_data=form_data))

@@ -410,12 +410,17 @@ class MiningDb():
             { DMongo.TIMESTAMP: 1 })
 
 
-    def get_share_found_events(self, pool):
-        return self.db.find_many(
-            self.mining_col, 
-            { DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT, DMongo.POOL: pool },
-            { DMongo.TIMESTAMP: 1 })
-
+    def get_share_found_events(self, pool=None, miner=None):
+        if pool is not None:
+            return self.db.find_many(
+                self.mining_col, 
+                { DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT, DMongo.POOL: pool },
+                { DMongo.TIMESTAMP: 1 })
+        elif miner is not None:
+            return self.db.find_many(
+                self.mining_col, 
+                { DMongo.DOC_TYPE: DMining.SHARE_FOUND_EVENT, DMining.MINER: miner },
+                { DMongo.TIMESTAMP: 1 })
 
     def get_xmrigs_remote(self):
         recs = self.db.find_many(self.mining_col, {

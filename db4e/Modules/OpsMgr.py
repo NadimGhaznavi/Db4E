@@ -190,9 +190,15 @@ class OpsMgr:
 
 
     def shares_found(self, form_data: dict):
-        p2pool = form_data[DField.ELEMENT]
-        p2pool.shares_found(self.mining_etl.get_share_found_events(pool=p2pool.instance()))
-        return p2pool
+        elem = form_data[DField.ELEMENT]
+
+        if type(elem) == P2Pool:
+            elem.shares_found(self.mining_etl.get_share_found_events(pool=elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            elem.shares_found(self.mining_etl.get_share_found_events(miner=elem.instance()))
+
+        return elem
 
             
     def set_donations(self, form_data: dict):
