@@ -23,11 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added a new pane to the `PaneCatalogue`
   - Created a `SharesFoundPlot` widget
 
-
-
 ### Fixed
 - Fixed the path in the comments banner for the `P2PoolHashratePane`
 
+### Changed
+- Refactor of *P2Pool Shares Found*:
+  - Refactored `P2PoolSharesFound` pane code.
+  - Replaced the `Db4ePlot` widget with the new `SharesFoundPlot` widget.
+  
 ---
 
 ## [0.46.0] - 2025-10-07

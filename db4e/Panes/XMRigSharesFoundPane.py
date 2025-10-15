@@ -56,8 +56,7 @@ class XMRigSharesFoundPane(Container):
             f"[i]Shares Found[/] for the [cyan]{DLabel.XMRIG}[/] "
             f"([cyan]{xmrig.instance()})[/] deployment."
         )
-        intro = self.query_one(f"#{DForm.INTRO}", Label)
-        intro.update(INTRO)
+        self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
 
         data = xmrig.shares_found()
         if type(data) == dict:
