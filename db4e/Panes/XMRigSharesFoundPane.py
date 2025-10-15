@@ -28,7 +28,12 @@ class XMRigSharesFoundPane(Container):
             ScrollableContainer(
                 Label("", classes=DForm.INTRO, id=DForm.INTRO),
                 Vertical(
-                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
+                    Select(
+                        compact=True,
+                        id=DForm.TIMES,
+                        allow_blank=False,
+                        options=DSelect.SELECT_LIST,
+                    ),
                     classes=DForm.SELECT_BOX,
                 ),
                 Vertical(

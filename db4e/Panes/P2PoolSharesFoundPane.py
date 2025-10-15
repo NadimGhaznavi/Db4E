@@ -39,7 +39,12 @@ class P2PoolSharesFoundPane(Container):
                     classes=DForm.FORM_1,
                 ),
                 Vertical(
-                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
+                    Select(
+                        compact=True,
+                        id=DForm.TIMES,
+                        allow_blank=False,
+                        options=DSelect.SELECT_LIST,
+                    ),
                     classes=DForm.SELECT_BOX,
                 ),
                 Vertical(
