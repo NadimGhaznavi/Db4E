@@ -2,7 +2,7 @@
 db4e/Modules/XMRigRemote.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -12,15 +12,20 @@ Everything XMRig Remote
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
-    Instance, Remote, IpAddr, Hashrate, LocalTimestamp, Timestamp, Uptime)
+    Instance,
+    Remote,
+    IpAddr,
+    Hashrate,
+    LocalTimestamp,
+    Timestamp,
+    Uptime,
+)
 from db4e.Constants.DElem import DElem
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
 
 
-
 class XMRigRemote(SoftwareSystem):
-
 
     def __init__(self, rec=None):
         super().__init__()
@@ -45,14 +50,12 @@ class XMRigRemote(SoftwareSystem):
 
         if rec:
             self.from_rec(rec)
-            #print(f"XMRigRemote: rec: {rec}, uptime: {self.uptime()}")
-
+            # print(f"XMRigRemote: rec: {rec}, uptime: {self.uptime()}")
 
     def hashrates(self, hashrate_data=None):
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
-    
 
     def shares_found(self, shares_found_data=None):
         if shares_found_data is not None:

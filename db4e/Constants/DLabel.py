@@ -17,7 +17,6 @@ class DLabel(ConstGroup):
     ALL_TIME: str = "All Available"
     APPLY: str = "Apply"
     ANY_IP: str = "Listen on IP"
-    ANALYTICS: str = "Analytics"
     API: str = "API"
     BLOCKCHAIN: str = "Blockchain"
     BLOCKCHAIN_DIR: str = "Blockchain Directory"

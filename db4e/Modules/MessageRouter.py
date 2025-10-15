@@ -353,6 +353,13 @@ class MessageRouter:
             DPane.XMRIG_HASHRATES,
         )
         self.register(
+            DModule.OPS_MGR,
+            DMethod.SHARES_FOUND,
+            DElem.XMRIG,
+            self.ops_mgr.shares_found,
+            DPane.XMRIG_SHARES_FOUND,
+        )
+        self.register(
             DModule.DEPLOYMENT_CLIENT,
             DMethod.UPDATE_DEPLOYMENT,
             DElem.XMRIG,
@@ -380,7 +387,7 @@ class MessageRouter:
             DMethod.SHARES_FOUND,
             DElem.XMRIG_REMOTE,
             self.ops_mgr.shares_found,
-            DPane.XMRIG_REMOTE_HASHRATES,
+            DPane.XMRIG_SHARES_FOUND,
         )
 
         # Log Viewer

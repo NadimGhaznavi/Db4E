@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added a new pane to the `PaneCatalogue`
 - Created a new `XMRigSharesFoundPane`
   - Added `shares_found()` get/set methods to the `XMRig` and `XMRigRemote` classes.
+  - Added new constants to the `DForm` and `DLabel` constants file.
+  - Added a new route to the `MessageRouter`
+  - Added a new pane to the `PaneCatalogue`
+  - Created a `SharesFoundPlot` widget
 
 
 

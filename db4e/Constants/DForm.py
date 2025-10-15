@@ -29,6 +29,7 @@ class DForm(ConstGroup):
     FORM_BOX: str = "form_box"
     FORM_FIELD: str = "form_field"
     HASHRATE_LABEL: str = "hashrate_label"
+    HEALTH_LABEL: str = "health_label"
     INFO_MSG: str = "info_msg"
     INTRO: str = "form_intro"
     INPUT_7: str = "form_input_7"

@@ -36,10 +36,19 @@ class SharesFoundPlot(Widget):
         plot.set_ylabel(DLabel.SHARES_FOUND)
 
     def found_shares_plot(self, selected_time: str):
+        # No data
+        if not self.days or not self.values:
+            return
+
         # There isn't enough data for the selected time range
-        if len(self.days) < selected_time:
+        elif len(self.days) < selected_time:
             self.plot(self.days, self.values)
 
+        # A value of -1 is a flag to indicate all available data
+        elif selected_time == -1:
+            self.plot(self.days, self.values)
+
+        # Slice a segment of the available data for plotting
         else:
             new_days = self.days[-selected_time:]
             new_values = self.values[-selected_time:]

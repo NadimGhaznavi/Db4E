@@ -28,7 +28,6 @@ class XMRigPane(Container):
 
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
-    health_msgs = Label()
     xmrig = None
 
     def compose(self):
@@ -71,12 +70,14 @@ class XMRigPane(Container):
                 ),
                 RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET),
                 Vertical(
-                    self.health_msgs, classes=DForm.HEALTH_BOX, id=DForm.HEALTH_BOX
+                    Label(id=DForm.HEALTH_LABEL),
+                    classes=DForm.HEALTH_BOX,
+                    id=DForm.HEALTH_BOX,
                 ),
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.ANALYTICS, id=DButton.SHARES_FOUND),
                         Button(label=DLabel.HASHRATE, id=DButton.HASHRATE),
+                        Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND),
                         Button(label=DLabel.NEW, id=DButton.NEW),
                         Button(label=DLabel.UPDATE, id=DButton.UPDATE),
                         Button(label=DLabel.START, id=DButton.ENABLE),
@@ -145,7 +146,9 @@ class XMRigPane(Container):
             self.add_class(DField.NEW)
 
         self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
-        self.health_msgs.update(gen_results_table(xmrig.pop_msgs()))
+        self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
+            gen_results_table(xmrig.pop_msgs())
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
@@ -160,7 +163,31 @@ class XMRigPane(Container):
             self.query_one(f"#{DForm.NUM_THREADS_INPUT}", Input).value
         )
 
-        if button_id == DButton.HASHRATE:
+        if button_id == DButton.DELETE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        elif button_id == DButton.DISABLE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        elif button_id == DButton.ENABLE:
+            form_data = {
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        elif button_id == DButton.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.HASHRATES,
@@ -176,6 +203,14 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig,
             }
 
+        elif button_id == DButton.SHARES_FOUND:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.SHARES_FOUND,
+                DField.ELEMENT_TYPE: DElem.XMRIG,
+                DField.ELEMENT: self.xmrig,
+            }
+
         elif button_id == DButton.UPDATE:
             form_data = {
                 DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
@@ -184,29 +219,6 @@ class XMRigPane(Container):
                 DField.ELEMENT: self.xmrig,
             }
 
-        elif button_id == DButton.ENABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.DISABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.DELETE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
         elif button_id == DButton.VIEW_LOG:
             form_data = {
                 DField.ELEMENT_TYPE: DElem.XMRIG,

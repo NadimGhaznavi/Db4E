@@ -34,7 +34,6 @@ from db4e.Panes.XMRigHashratesPane import XMRigHashratesPane
 from db4e.Panes.XMRigPane import XMRigPane
 from db4e.Panes.XMRigRemotePane import XMRigRemotePane
 from db4e.Panes.XMRigSharesFoundPane import XMRigSharesFoundPane
-from db4e.Panes.XMRigRemoteSharesFoundPane import XMRigRemoteSharesFoundPane
 
 
 from db4e.Constants.DLabel import DLabel
@@ -69,11 +68,7 @@ REGISTRY = {
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
     DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATE),
     DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.CONFIG),
-    DPane.XMRIG_REMOTE_HASHRATES: (
-        XMRigRemoteSharesFoundPane,
-        DLabel.XMRIG,
-        DLabel.SHARES_FOUND,
-    ),
+    DPane.XMRIG_SHARES_FOUND: (XMRigSharesFoundPane, DLabel.XMRIG, DLabel.SHARES_FOUND),
 }
 
 

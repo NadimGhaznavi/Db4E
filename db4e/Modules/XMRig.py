@@ -2,7 +2,7 @@
 db4e/Modules/XMRig.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -18,8 +18,18 @@ from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Db4ELogger import Db4ELogger
 
 from db4e.Modules.Components import (
-    ConfigFile, Enabled, Instance, Local, LogFile, NumThreads, Parent, Version,
-    MaxLogFiles, MaxLogSize, LogRotateConfig)
+    ConfigFile,
+    Enabled,
+    Instance,
+    Local,
+    LogFile,
+    NumThreads,
+    Parent,
+    Version,
+    MaxLogFiles,
+    MaxLogSize,
+    LogRotateConfig,
+)
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
@@ -30,11 +40,8 @@ from db4e.Constants.DFile import DFile
 from db4e.Constants.DModule import DModule
 
 
-
-
-
 class XMRig(SoftwareSystem):
-    
+
     def __init__(self, rec=None, log_file=None):
         super().__init__()
         self._elem_type = DElem.XMRIG
@@ -67,6 +74,7 @@ class XMRig(SoftwareSystem):
         self._instance_map = {}
         self._hashrates = {}
         self._hashrate = None
+        self._shares_found = None
         self._uptime = None
         self.p2pool = None
 
@@ -75,45 +83,47 @@ class XMRig(SoftwareSystem):
 
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.XMRIG, log_file=log_file)
-  
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # XMRig configuration file
         fq_config = os.path.join(
-            vendor_dir, DElem.XMRIG, DDef.CONF_DIR, self.instance() + DDef.JSON_SUFFIX)
-        
+            vendor_dir, DElem.XMRIG, DDef.CONF_DIR, self.instance() + DDef.JSON_SUFFIX
+        )
+
         # XMRig log file
         fq_log = os.path.join(
-            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, self.instance() + DDef.LOG_SUFFIX)
+            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, self.instance() + DDef.LOG_SUFFIX
+        )
 
         # Generate a URL:Port field for the config
-        url_entry = self.p2pool.ip_addr()  + ':' + self.p2pool.stratum_port()
+        url_entry = self.p2pool.ip_addr() + ":" + self.p2pool.stratum_port()
 
         # Populate the config templace placeholders
         placeholders = {
             DPlaceholder.MINER_NAME: self.instance(),
-            DPlaceholder.NUM_THREADS: ','.join(['-1'] * int(self.num_threads())),
+            DPlaceholder.NUM_THREADS: ",".join(["-1"] * int(self.num_threads())),
             DPlaceholder.URL: url_entry,
             DPlaceholder.LOG_FILE: fq_log,
         }
-        with open(tmpl_file, 'r') as f:
+        with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f"[[{key}]]", str(val))
 
         # Write the config to file
-        with open(fq_config, 'w') as f:
+        with open(fq_config, "w") as f:
             f.write(final_config)
         self.config_file(fq_config)
 
-
-    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group:str):
+    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
         # Logrotate configuration file
         fq_config = os.path.join(
-            vendor_dir, DDef.LOG_ROTATE, DElem.XMRIG + "-" + self.instance() + \
-                DDef.CONF_SUFFIX)
-        
+            vendor_dir,
+            DDef.LOG_ROTATE,
+            DElem.XMRIG + "-" + self.instance() + DDef.CONF_SUFFIX,
+        )
+
         # Populate the config template placeholders
         placeholders = {
             DPlaceholder.VENDOR_DIR: vendor_dir,
@@ -122,55 +132,47 @@ class XMRig(SoftwareSystem):
             DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
             DPlaceholder.DB4E_GROUP: db4e_group,
         }
-        with open(tmpl_file, 'r') as f:
+        with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f"[[{key}]]", str(val))
 
         # Write the config to file
-        with open(fq_config, 'w') as f:
+        with open(fq_config, "w") as f:
             f.write(final_config)
         self.logrotate_config(fq_config)
 
-        # XMRig is run as root, so the log files are owned by root, chown the 
+        # XMRig is run as root, so the log files are owned by root, chown the
         # logrotate file to match the permisions (else logrotate will fail).
         try:
             cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_config]
-            proc = subprocess.run(
-                cmd, 
-                stderr=subprocess.PIPE, 
-                input='')
-            stderr = proc.stderr.decode('utf-8')
-            
+            proc = subprocess.run(cmd, stderr=subprocess.PIPE, input="")
+            stderr = proc.stderr.decode("utf-8")
+
         except Exception as e:
             self.log.critical(f"gen_logrotate_config(): {e} {stderr}")
-
 
     def hashrate(self, hashrate=None):
         if hashrate is not None:
             self._hashrate = hashrate
         return self._hashrate
-    
 
     def hashrates(self, hashrate_data=None):
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
-    
 
     def instance_map(self, map=None):
         if map:
             self._instance_map = map
         return self._instance_map
-    
 
     def shares_found(self, shares_found_data=None):
         if shares_found_data is not None:
             self._shares_found = shares_found_data
         return self._shares_found
-        
-        
+
     def uptime(self, uptime=None):
         if uptime is not None:
             self._uptime = uptime

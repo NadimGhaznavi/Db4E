@@ -1,5 +1,5 @@
 """
-db4e/Panes/P2PoolAnalyticsPane.py
+db4e/Panes/XMRigRemoteSharesFoundPane.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi
@@ -8,12 +8,11 @@ db4e/Panes/P2PoolAnalyticsPane.py
     License: GPL 3.0
 """
 
-from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
+from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Select
 
-
-from db4e.Modules.P2Pool import P2Pool
-from db4e.Widgets.Db4EPlot import Db4EPlot
+from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.Widgets.SharesFoundPlot import SharesFoundPlot
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
@@ -23,51 +22,47 @@ from db4e.Constants.DSelect import DSelect
 
 class XMRigSharesFoundPane(Container):
 
-    selected_time = DSelect.ONE_WEEK
-    intro_label = Label("", classes=DForm.INTRO)
-    instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
-    shares_found_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
-    shares_found_plot = Db4EPlot(DLabel.SHARES_FOUND, id=DField.DB4E_PLOT)
-    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST)
-
     def compose(self):
-
+        # Remote P2Pool daemon deployment form
         yield Vertical(
             ScrollableContainer(
-                self.intro_label,
+                Label("", classes=DForm.INTRO, id=DForm.INTRO),
                 Vertical(
-                    Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_15),
-                        self.instance_label,
-                    ),
-                    classes=DForm.FORM_1,
+                    Select(compact=True, id=DForm.TIMES, options=DSelect.SELECT_LIST),
+                    classes=DForm.SELECT_BOX,
                 ),
-                Vertical(self.select_widget, classes=DForm.SELECT_BOX),
-                Vertical(self.shares_found_plot, classes=DForm.PANE_BOX),
+                Vertical(
+                    SharesFoundPlot(
+                        id=DForm.SHARES_FOUND_PLOT,
+                        classes=DField.HASHRATE_PLOT,
+                    ),
+                    classes=DForm.PANE_BOX,
+                ),
             ),
             classes=DForm.PANE_BOX,
         )
 
+    def on_mount(self):
+        self.query_one(Select).value = DSelect.ONE_WEEK
+        self.query_one(SharesFoundPlot).found_shares_plot(DSelect.ONE_WEEK)
+
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
-        self.shares_found_plot.update_time_range(selected_time)
+        self.query_one(SharesFoundPlot).found_shares_plot(selected_time)
 
-    def set_data(self, p2pool: P2Pool):
+    def set_data(self, xmrig: XMRigRemote):
+        self.xmrig = xmrig
         INTRO = (
-            f"The chart below shows the shares found for the "
-            f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment. This is the "
-            f"cumulative total of the individual miners connected to this P2Pool "
-            f"instance."
+            f"[i]Shares Found[/] for the [cyan]{DLabel.XMRIG}[/] "
+            f"([cyan]{xmrig.instance()})[/] deployment."
         )
+        intro = self.query_one(f"#{DForm.INTRO}", Label)
+        intro.update(INTRO)
 
-        self.intro_label.update(INTRO)
-        self.instance_label.update(p2pool.instance())
-
-        data = p2pool.shares_found()
+        data = xmrig.shares_found()
         if type(data) == dict:
             days = data[DField.DAYS]
             shares_found = data[DField.VALUES]
-
-            plot = self.query_one("#" + DField.DB4E_PLOT, Db4EPlot)
-            plot.load_data(days=days, values=shares_found, units="")
-            plot.db4e_plot()
+            plot = self.query_one(SharesFoundPlot)
+            plot.load_data(days=days, values=shares_found)
+            plot.found_shares_plot(DSelect.ONE_WEEK)
