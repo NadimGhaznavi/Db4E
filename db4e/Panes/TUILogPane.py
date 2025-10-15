@@ -2,7 +2,7 @@
 db4e/Panes/TUILogPane.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -22,7 +22,6 @@ from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
 
 
-
 TYPE_TABLE = {
     DElem.DB4E: DLabel.DB4E,
     DElem.INT_P2POOL: DLabel.P2POOL_INTERNAL_SHORT,
@@ -33,29 +32,25 @@ TYPE_TABLE = {
     DElem.XMRIG: DLabel.XMRIG_SHORT,
 }
 
+
 class TUILogPane(Static):
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
-    #log_widget = Log(highlight=True, auto_scroll=True, classes=PANE_BOX_FIELD)
-    #log_widget = RichLog(highlight=True, auto_scroll=True, classes=PANE_BOX_FIELD)
-    log_widget = Static()
-
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.results = Static()
 
     def compose(self):
         yield Vertical(
-            ScrollableContainer(
-                self.log_widget
-            ),
-            classes=DForm.PANE_BOX)
+            ScrollableContainer(Static(id=DForm.LOG_WIDGET)), classes=DForm.PANE_BOX
+        )
 
     def set_data(self, jobs_list: list):
-        #self.log_widget.clear()
-        table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
+        # self.log_widget.clear()
+        table = Table(
+            show_header=True,
+            header_style="bold #31b8e6",
+            style="#0c323e",
+            box=box.SIMPLE,
+        )
         table.add_column(DLabel.TIMESTAMP)
         table.add_column(DLabel.STATUS)
         table.add_column(DLabel.OPERATION)
@@ -90,11 +85,13 @@ class TUILogPane(Static):
                     )
                 else:
                     table.add_row(
-                        "", "", "", "", "",  # empty metadata for continuation lines
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",  # empty metadata for continuation lines
                         msg,
                         f"[b]{details}[/]" if details else "",
                     )
 
-        self.log_widget.update(table)
-        
-
+        self.query_one(f"#{DForm.LOG_WIDGET}", Static).update(table)

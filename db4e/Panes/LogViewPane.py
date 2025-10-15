@@ -2,11 +2,12 @@
 db4e/Panes/LogViewPane.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
+
 import os
 import asyncio
 from textual.reactive import reactive
@@ -22,18 +23,16 @@ class LogViewPane(Container):
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
-    header = Label("", classes=DForm.FORM_1)
-    log_widget = Log(highlight=True, auto_scroll=True, classes=DForm.PANE_BOX)
 
-
-    def compose(self):    
+    def compose(self):
 
         yield Vertical(
-            self.header,
+            Label("", id=f"{DForm.HEADER}", classes=DForm.FORM_1),
             ScrollableContainer(
-                self.log_widget),
-            classes=DForm.PANE_BOX)
-        
+                Log(highlight=True, auto_scroll=True, classes=DForm.PANE_BOX)
+            ),
+            classes=DForm.PANE_BOX,
+        )
 
     def preload(self, path):
         """Return the last num_lines from file at path."""
@@ -49,45 +48,46 @@ class LogViewPane(Container):
                     f.seek(pointer)
                     buffer[:0] = f.read(block_size)
                     lines_found = buffer.count(b"\n")
-                return buffer.decode(errors="ignore").splitlines()[-DDef.MAX_LOG_LINES:]
+                return buffer.decode(errors="ignore").splitlines()[
+                    -DDef.MAX_LOG_LINES :
+                ]
         else:
             return ["No log file found"]
 
-
     def set_data(self, elem):
         old_lines = self.preload(elem.log_file())
-        self.log_widget.clear()
-        self.log_widget.write_lines(old_lines)
+        log_widget = self.query_one(Log)
+        log_widget.clear()
+        log_widget.write_lines(old_lines)
 
-        self.header.update(f"[b]Log File:[/] {elem.log_file()}")
+        self.query_one(f"#{DForm.HEADER}", Label).update(
+            f"[b]Log File:[/] {elem.log_file()}"
+        )
         if os.path.exists(elem.log_file()):
             initial_size = os.path.getsize(elem.log_file())
         else:
             initial_size = 0
-        self.run_worker(self.watch_log(elem.log_file(), last_size=initial_size), exclusive=True)
-
+        self.run_worker(
+            self.watch_log(elem.log_file(), last_size=initial_size), exclusive=True
+        )
 
     async def watch_log(self, path, last_size: int = 0):
         try:
             while True:
                 if os.path.exists(path):
+                    log_widget = self.query_one(Log)
                     current_size = os.path.getsize(path)
                     if current_size < last_size:
                         # Log was rotated/truncated
                         last_size = 0
-                        self.log_widget.clear()
+                        log_widget.clear()
                     if current_size > last_size:
                         with open(path, "r") as f:
                             f.seek(last_size)
                             lines = [line.rstrip("\n") for line in f]
                             if lines:
-                                self.log_widget.write_lines(lines)
+                                log_widget.write_lines(lines)
                         last_size = current_size
                 await asyncio.sleep(0.5)
         except asyncio.CancelledError:
             return
-
-
-
-
-

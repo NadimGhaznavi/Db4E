@@ -2,11 +2,12 @@
 db4e/Modules/Db4EPlot.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
+
 import math
 
 from textual_plot import PlotWidget, HiResMode
@@ -17,6 +18,7 @@ from db4e.Constants.DField import DField
 
 MAX_DATA_POINTS = 100
 
+
 class Db4EPlot(PlotWidget):
     """
     A widget for plotting data based on TextualPlot's PlotWidget.
@@ -25,15 +27,13 @@ class Db4EPlot(PlotWidget):
     def __init__(self, title, id, classes=None):
         super().__init__(title, id, allow_pan_and_zoom=False)
         self._plot_id = id
-        self._all_days = None
-        self._all_values = None
+        self._all_days = []
+        self._all_values = []
         self._title = title
-        self.set_xlabel(DLabel.DAYS)        
-
+        self.set_xlabel(DLabel.DAYS)
 
     def compose(self) -> ComposeResult:
         yield PlotWidget(classes=DField.DB4E_PLOT, id=DField.DB4E_PLOT)
-
 
     def load_data(self, days, values, units):
         self._all_days = days
@@ -43,8 +43,10 @@ class Db4EPlot(PlotWidget):
         else:
             self.set_ylabel(self._title)
 
-
     def db4e_plot(self, days=None, values=None) -> None:
+        if len(self._all_days) == 0:
+            return
+
         if days is not None and values is not None:
             plot_days = days
             plot_values = values
@@ -56,9 +58,11 @@ class Db4EPlot(PlotWidget):
             return
         reduced_days, reduced_values = self.reduce_data(plot_days, plot_values)
         self.plot(
-            x=reduced_days, y=reduced_values, hires_mode=HiResMode.BRAILLE,
-            line_style="green")
-
+            x=reduced_days,
+            y=reduced_values,
+            hires_mode=HiResMode.BRAILLE,
+            line_style="green",
+        )
 
     def reduce_data2(self, times, values):
         # Reduce the total number of data points, otherwise the plot gets "blurry"
@@ -69,13 +73,12 @@ class Db4EPlot(PlotWidget):
 
         # Bin values by step (average)
         reduced_values = [
-            sum(values[i:i+step]) / len(values[i:i+step])
+            sum(values[i : i + step]) / len(values[i : i + step])
             for i in range(0, len(values), step)
         ]
-        results = reduced_times[:len(reduced_values)], reduced_values
+        results = reduced_times[: len(reduced_values)], reduced_values
         print(f"Db4EPlot:reduce_data(): results: {results}")
         return results
-
 
     def reduce_data(self, times, values):
         """Reduce times and values into <= MAX_DATA_POINTS bins.
@@ -92,8 +95,8 @@ class Db4EPlot(PlotWidget):
         reduced_times = []
         reduced_values = []
         for i in range(0, len(times), step):
-            chunk_times = times[i:i+step]
-            chunk_vals = values[i:i+step]
+            chunk_times = times[i : i + step]
+            chunk_vals = values[i : i + step]
 
             # average values (works for floats or Decimal)
             avg_val = sum(chunk_vals) / len(chunk_vals)
@@ -110,7 +113,6 @@ class Db4EPlot(PlotWidget):
 
         return reduced_times, reduced_values
 
-
     def update_time_range(self, selected_time):
         if selected_time == -1:
             return
@@ -126,6 +128,3 @@ class Db4EPlot(PlotWidget):
         print(f"Db4EPlot:update_time_range(): new_times: {new_times}")
         print(f"Db4EPlot:update_time_range(): new_values: {new_values}")
         self.db4e_plot(new_times, new_values)
-
-
-

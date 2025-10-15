@@ -2,7 +2,7 @@
 db4e/Panes/StartStopLogPane.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -23,25 +23,21 @@ from db4e.Constants.DField import DField
 from db4e.Constants.DMongo import DMongo
 
 
-
 class StartStopLogPane(Static):
-
-    log_widget = Static()
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.results = Static()
 
     def compose(self):
         yield Vertical(
-            ScrollableContainer(
-                self.log_widget
-            ),
-            classes=DForm.PANE_BOX)
+            ScrollableContainer(Static(id=DForm.LOG_WIDGET)), classes=DForm.PANE_BOX
+        )
 
     def set_data(self, event_list: list):
-        #self.log_widget.clear()
-        table = Table(show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE)
+        # self.log_widget.clear()
+        table = Table(
+            show_header=True,
+            header_style="bold #31b8e6",
+            style="#0c323e",
+            box=box.SIMPLE,
+        )
         table.add_column(DLabel.TIMESTAMP)
         table.add_column(DLabel.ELEMENT_TYPE)
         table.add_column(DLabel.INSTANCE)
@@ -52,8 +48,6 @@ class StartStopLogPane(Static):
                 f"[b]{date}[/] [b green]{time}[/]",
                 event[DMongo.ELEMENT_TYPE],
                 f"[yellow]{event[DMongo.INSTANCE]}[/]",
-                event[DMongo.EVENT].upper()
+                event[DMongo.EVENT].upper(),
             )
-        self.log_widget.update(table)
-        
-
+        self.query_one(f"#{DForm.LOG_WIDGET}", Static).update(table)

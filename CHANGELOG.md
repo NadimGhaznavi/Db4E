@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Refactor
-- Minor code cleanup to `ChainBlocksFoundPane`.
+### Added
+- Additional constants to `DForm` to support code cleanup.
 
+### Refactor
+- Code cleanup to `ChainBlocksFoundPane`, `ChainHashratesPane`, `ChainPane`, `Db4EPane`, `InitialSetupPane`, `LogViewPane`, `MoneroDPane`, `MoneroDRemotePane`, `P2PoolHashratesPane`, `P2PoolPane`, `P2PoolRemotePane`, `PaymentsPane`, `RuntimePane`, `StartStopLogPane`, `TUILogPane`, `XMRigHashratesPane`, `XMRigPane`, `XMRigRemotePane` and `Db4EPlot` widget module files.
+
+### Changed
+- Set `allow_blank=False` on the `P2PoolSharesFoundPane`, `XMRigSharesFoundPane`, `ChainHashratesPane`, `InitialSetupPane` panes.
+
+### Fixed
+- Case where there is no data in the `Db4ePlot` widget.
+- Fixed incorrect time value in *hashrate plot* time range selection; added a `ONE_WEEK_HOURS` constant to the `DSelect` file.
 
 ---
 
