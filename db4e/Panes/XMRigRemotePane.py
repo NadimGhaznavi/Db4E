@@ -10,30 +10,32 @@ db4e/Panes/XMRigRemotePane.py
 
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
-from textual.widgets import Label, Select
+from textual.widgets import Label, Button
 
 from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Widgets.Db4EPlot import Db4EPlot
+from db4e.Messages.Db4eMsg import Db4eMsg
 
 from db4e.Modules.Helper import minutes_to_uptime
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DField import DField
 from db4e.Constants.DForm import DForm
-from db4e.Constants.DSelect import DSelect
+from db4e.Constants.DButton import DButton
+from db4e.Constants.DElem import DElem
+from db4e.Constants.DModule import DModule
+from db4e.Constants.DMethod import DMethod
+
 
 
 
 class XMRigRemotePane(Container):
 
-    selected_time = DSelect.ONE_WEEK
     instance_label = Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC)
     ip_addr_label = Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC)
     hashrate_label = Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC)
     uptime_label = Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC)
-    hashrate_plot = Db4EPlot(
-        DLabel.HASHRATE, id=DField.HASHRATE_PLOT, classes=DField.HASHRATE_PLOT)
-    select_widget = Select(compact=True, id=DForm.TIMES, options=DSelect.HOURS_SELECT_LIST)
+    hashrate_button = Button(label=DLabel.HASHRATE, id=DButton.HASHRATE)
+    shares_found_button = Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND)
     xmrig = None
 
 
@@ -61,19 +63,12 @@ class XMRigRemotePane(Container):
                     classes=DForm.FORM_4, id=DForm.FORM_FIELD),
 
                 Vertical(
-                    self.select_widget,
-                    classes=DForm.SELECT_BOX),
-
-                Vertical(
-                    self.hashrate_plot,
-                    classes=DForm.PANE_BOX)),
+                    Horizontal(
+                        self.hashrate_button,
+                        self.shares_found_button,
+                        classes=DForm.BUTTON_ROW))),
 
                 classes=DForm.PANE_BOX)
-
-
-    def on_select_changed(self, event: Select.Changed) -> None:
-        selected_time = event.value
-        self.hashrate_plot.update_time_range(selected_time)
 
 
     def set_data(self, xmrig: XMRigRemote):
@@ -83,13 +78,24 @@ class XMRigRemotePane(Container):
         self.hashrate_label.update(str(xmrig.hashrate()) + " " + DLabel.H_PER_S)
         self.uptime_label.update(minutes_to_uptime(xmrig.uptime()))
 
-        data = xmrig.hashrates()
-        if type(data) == dict:
-            days = data[DField.DAYS]
-            hashrates = data[DField.VALUES]
-            units = data[DField.UNITS]
-            plot = self.query_one("#" + DField.HASHRATE_PLOT, Db4EPlot)
-            plot.load_data(days=days, values=hashrates, units=units)
-            plot.db4e_plot()
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        button_id = event.button.id
 
+        if button_id == DButton.HASHRATE:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.HASHRATES,
+                DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                DField.ELEMENT: self.xmrig,
+            }
+        
+        elif button_id == DButton.SHARES_FOUND:
+            form_data = {
+                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_METHOD: DMethod.SHARES_FOUND,
+                DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                DField.ELEMENT: self.xmrig,
+            }
+
+        self.app.post_message(Db4eMsg(self, form_data=form_data))

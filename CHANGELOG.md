@@ -5,9 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ---
 
-## [0.46.0] - 2025-10-08
+## [0.47.0] - 2025-10-15 
+
+### Added
+- Created a new `XMRigRemoteHashratePane`
+  - Took the *hashrate* plot out of the `XMRigRemotePane`
+  - Added the new pant to the `DPane` constants file.
+  - Added a new route to the `MessageRouter`
+  - Added a new pane to the `PaneCatalogue`
+- Created a new `XMRigSharesFoundPane`
+  - Added `shares_found()` get/set methods to the `XMRig` and `XMRigRemote` classes.
+  - Added new constants to the `DForm` and `DLabel` constants file.
+  - Added a new route to the `MessageRouter`
+  - Added a new pane to the `PaneCatalogue`
+  - Created a `SharesFoundPlot` widget
+- Support for *SQLite3* in the `pyproject.toml` file:
+  - Planned migration from *Mongo* to *SQLite3*
+  - Stubbed out a `SQLiteMgr` module.
+
+### Fixed
+- Fixed the path in the comments banner for the `P2PoolHashratePane`
+
+### Changed
+- Refactor of *P2Pool Shares Found*:
+  - Refactored `P2PoolSharesFound` pane code.
+  - Replaced the `Db4ePlot` widget with the new `SharesFoundPlot` widget.
+  
+---
+
+## [0.46.0] - 2025-10-07
 
 ### Added 
 - Additional website screenshots

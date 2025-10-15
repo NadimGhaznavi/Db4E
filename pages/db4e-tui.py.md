@@ -36,15 +36,9 @@ The UI is tightly integrated with the underlying service and MongoDB backend to 
 
 ![Console Log](/images/console-log.png)
 
-![Miner Analytics](/images/miner-analytics.png)
-
-![Pool Hashrates](/images/pool-hashrate.png)
-
 ![Runtime Log](/images/runtime-log.png)
 
 ![Start / Stop Log](/images/start-stop-log.png)
-
-![Runtime Log](/images/runtime-log.png)
 
 ![P2Pool Hashrate](/images/p2pool-hashrate.png)
 

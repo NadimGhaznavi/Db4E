@@ -2,7 +2,7 @@
 db4e/Modules/OpsMgr.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -31,13 +31,16 @@ from db4e.Constants.DPane import DPane
 from db4e.Constants.DMongo import DMongo
 
 
-
 class OpsMgr:
 
-
     def __init__(
-        self, depl_client: DeplClient, health_cache: HealthCache, 
-        db_cache: DbCache, mining_db: MiningDb, ops_etl: OpsETL):
+        self,
+        depl_client: DeplClient,
+        health_cache: HealthCache,
+        db_cache: DbCache,
+        mining_db: MiningDb,
+        ops_etl: OpsETL,
+    ):
 
         self.depl_client = depl_client
         self.health_cache = health_cache
@@ -49,12 +52,11 @@ class OpsMgr:
         self.ops_etl = ops_etl
         self.ops_db = ops_etl.ops_db
 
-
     ### Get deployments by type...
-    
+
     def get_monerods(self) -> list:
         return self.health_cache.get_monerods()
-    
+
     def get_monerods_remote(self) -> list:
         return self.health_cache.get_monerods_remote()
 
@@ -72,27 +74,24 @@ class OpsMgr:
 
     def get_xmrigs_remote(self) -> list:
         return self.health_cache.get_xmrigs_remote()
-    
-    ### End of get deployments by type...
 
+    ### End of get deployments by type...
 
     def add_deployment(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
         elem = self.depl_client.add_deployment(elem)
         self.health_cache.check(elem)
         return elem
-    
 
     def blocks_found(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
         if type(elem == InternalP2Pool):
-            #elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            # elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
             res = self.mining_etl.get_block_found_events(instance=elem.instance())
             elem.blocks_found(res)
             print(f"OpsMgr:blocks_found() {res}")
 
         return elem
-    
 
     def get_deployment(self, elem_type, instance=None):
         if type(elem_type) == dict:
@@ -102,15 +101,21 @@ class OpsMgr:
         elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
 
         if type(elem) == Db4E:
-            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+            )
 
         elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
-            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+            )
             if elem.parent() != DField.DISABLE:
                 elem.monerod = self.db_cache.get_deployment_by_id(elem.parent())
 
         elif type(elem) == XMRig:
-            elem.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL)
+            )
             if elem.parent() != DField.DISABLE:
                 elem.p2pool = self.db_cache.get_deployment_by_id(elem.parent())
 
@@ -120,36 +125,28 @@ class OpsMgr:
 
         return elem
 
-
     def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
         return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
 
-
     def get_runtime_log(self, form_data: dict):
         return self.ops_etl.get_ops_summary()
-
 
     def get_table_data(self, form_data: dict):
         p2pool = form_data[DField.ELEMENT]
         return {}
 
-
     def get_new(self, form_data: dict):
         elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
         return elem
-    
 
     def get_payments(self, form_data: dict):
         return self.mining_etl.get_payments()
-    
 
     def get_tui_log(self, job_list: list):
         return self.depl_client.job_queue.get_jobs()
-    
 
     def get_start_stop_log(self, event_list: list):
         return self.ops_db.get_ops_events()
-    
 
     def hashrates(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
@@ -160,7 +157,9 @@ class OpsMgr:
 
         if type(elem) == InternalP2Pool:
             elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
-            elem.hashrates(self.mining_etl.get_chain_hashrates(instance=elem.instance()))
+            elem.hashrates(
+                self.mining_etl.get_chain_hashrates(instance=elem.instance())
+            )
 
         elif type(elem) == XMRig:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
@@ -168,33 +167,45 @@ class OpsMgr:
             elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
 
         elif type(elem) == XMRigRemote:
-            print(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
             elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
 
         return elem
- 
-   
+
     def log_viewer(self, form_data: dict):
         elem_type = form_data[DField.ELEMENT_TYPE]
         instance = form_data[DField.INSTANCE]
-        elem = self.depl_client.get_deployment(
-            elem_type=elem_type, instance=instance)
+        elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
         return elem
-
 
     def plot(self, plot_metadata: dict):
         return plot_metadata
 
-
     def shares_found(self, form_data: dict):
-        p2pool = form_data[DField.ELEMENT]
-        p2pool.shares_found(self.mining_etl.get_share_found_events(pool=p2pool.instance()))
-        return p2pool
+        elem = form_data[DField.ELEMENT]
 
-            
+        if type(elem) == P2Pool:
+            elem.shares_found(
+                self.mining_etl.get_share_found_events(pool=elem.instance())
+            )
+
+        elif type(elem) == XMRigRemote or type(elem) == XMRig:
+            elem.shares_found(
+                self.mining_etl.get_share_found_events(miner=elem.instance())
+            )
+
+        else:
+            raise ValueError(
+                f"OpsMgr:shares_found(): Unsupported element type {type(elem)}"
+            )
+
+        return elem
+
     def set_donations(self, form_data: dict):
         return DPane.DONATIONS
-
 
     def update_deployment(self, data: dict):
         print(f"OpsMgr:update_deployment(): {data}")
@@ -203,6 +214,3 @@ class OpsMgr:
         self.depl_client.update_deployment(elem)
         self.health_cache.check(elem)
         return elem
-    
-
-        
