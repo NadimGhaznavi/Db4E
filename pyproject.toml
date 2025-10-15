@@ -38,6 +38,7 @@ requests = "^2.32.3"
 zstandard = "^0.23.0"
 orjson = "^3.10.15"
 psutil = "^7.0.0"
+sqlite-utils = "^3.35"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

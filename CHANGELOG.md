@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added a new route to the `MessageRouter`
   - Added a new pane to the `PaneCatalogue`
   - Created a `SharesFoundPlot` widget
+- Support for *SQLite3* in the `pyproject.toml` file:
+  - Planned migration from *Mongo* to *SQLite3*
+  - Stubbed out a `SQLiteMgr` module.
 
 ### Fixed
 - Fixed the path in the comments banner for the `P2PoolHashratePane`
