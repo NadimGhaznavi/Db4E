@@ -11,6 +11,7 @@ db4e/Constants/DSelect.py
 from db4e.Constants.DLabel import DLabel
 
 
+# Weeks in Days
 WEEKS_1 = 7
 WEEKS_2 = 14
 MONTHS_1 = 30
@@ -35,5 +36,5 @@ class DSelect:
         (DLabel.MONTHS_6, MONTHS_6),
         (DLabel.ALL_TIME, -1),
     ]
-    ONE_WEEK = WEEKS_1
-    ONE_WEEK_HOURS = WEEKS_1 * 24
+    ONE_WEEK = WEEKS_1  # In days
+    ONE_WEEK_HOURS = WEEKS_1 * 24  # In hours

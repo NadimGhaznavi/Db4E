@@ -22,7 +22,7 @@ from db4e.Constants.DSelect import DSelect
 
 class P2PoolHashratesPane(Container):
 
-    selected_time = DSelect.ONE_WEEK
+    selected_time = DSelect.ONE_WEEK_HOURS
 
     def compose(self):
         yield Vertical(

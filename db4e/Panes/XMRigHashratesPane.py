@@ -12,7 +12,7 @@ from textual.containers import Container, Vertical, ScrollableContainer, Horizon
 from textual.widgets import Label, Select
 
 from db4e.Modules.XMRig import XMRig
-from db4e.Widgets.Db4EPlot import Db4EPlot
+from db4e.Widgets.HashratePlot import HashratePlot
 from db4e.Modules.Helper import minutes_to_uptime
 
 from db4e.Constants.DForm import DForm
@@ -55,7 +55,7 @@ class XMRigHashratesPane(Container):
                     classes=DForm.SELECT_BOX,
                 ),
                 Vertical(
-                    Db4EPlot(DLabel.HASHRATE, id=DField.HASHRATE_PLOT),
+                    HashratePlot(id=DField.HASHRATE_PLOT, classes=DField.HASHRATE_PLOT),
                     classes=DForm.PANE_BOX,
                 ),
                 classes=DForm.PANE_BOX,
@@ -64,13 +64,13 @@ class XMRigHashratesPane(Container):
 
     def on_mount(self):
         self.query_one(Select).value = DSelect.ONE_WEEK_HOURS
-        self.query_one(f"#{DField.HASHRATE_PLOT}", Db4EPlot).update_time_range(
+        self.query_one(f"#{DField.HASHRATE_PLOT}", HashratePlot).hashrate_plot(
             DSelect.ONE_WEEK
         )
 
     def on_select_changed(self, event: Select.Changed) -> None:
         selected_time = event.value
-        self.query_one(f"#{DField.HASHRATE_PLOT}", Db4EPlot).update_time_range(
+        self.query_one(f"#{DField.HASHRATE_PLOT}", HashratePlot).hashrate_plot(
             selected_time
         )
 
@@ -88,10 +88,6 @@ class XMRigHashratesPane(Container):
         # Load and plot hashrate data
         data = xmrig.hashrates()
         if isinstance(data, dict):
-            plot = self.query_one(f"#{DField.HASHRATE_PLOT}", Db4EPlot)
-            plot.load_data(
-                days=data[DField.DAYS],
-                values=data[DField.VALUES],
-                units=data[DField.UNITS],
-            )
-            plot.db4e_plot()
+            plot = self.query_one(f"#{DField.HASHRATE_PLOT}", HashratePlot)
+            plot.load_data(days=data[DField.DAYS], values=data[DField.VALUES])
+            plot.hashrate_plot(DSelect.ONE_WEEK_HOURS)

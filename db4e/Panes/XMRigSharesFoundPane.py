@@ -65,8 +65,6 @@ class XMRigSharesFoundPane(Container):
 
         data = xmrig.shares_found()
         if type(data) == dict:
-            days = data[DField.DAYS]
-            shares_found = data[DField.VALUES]
             plot = self.query_one(SharesFoundPlot)
-            plot.load_data(days=days, values=shares_found)
+            plot.load_data(days=data[DField.DAYS], values=data[DField.VALUES])
             plot.found_shares_plot(DSelect.ONE_WEEK)
