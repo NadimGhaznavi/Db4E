@@ -23,6 +23,7 @@ class DDef(ConstGroup):
     CONF_DIR: str = "conf"
     CONF_SUFFIX: str = ".conf"
     CSS_PATH: str = "Db4E.tcss"
+    DB_DIR: str = "db"
     DB_NAME: str = "db4e"
     DB_PORT: int = 27017
     DB_RETRY_TIMEOUT: int = 3000
