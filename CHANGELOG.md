@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.48.1] - 2025-10-17
 
 ### Added
 - `SQLMgr:insert_one()` method.
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.48.0] - 2025-11-17
+## [0.48.0] - 2025-10-17
 
 ### Added
 - Additional constants to `DForm` to support code cleanup.
