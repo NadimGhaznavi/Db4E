@@ -39,6 +39,11 @@ zstandard = "^0.23.0"
 orjson = "^3.10.15"
 psutil = "^7.0.0"
 sqlite-utils = "^3.35"
+fastapi = "^0.119.0"
+uvicorn = "^0.37.0"
+pydantic = "^2.12.2"
+httpx = "^0.28.1"
+pytest-asyncio = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
