@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- `SQLMgr:insert_one()` method.
+  - Added `__dict__` methods to `Db4E`, `MoneroD`, `MoneroDRemote`, `P2Pool`, `P2PoolRemote` and `XMRig` classes to support the new `insert_one()` method.
+- `SQLMgr:update_one()` method.
+- `BootstrapMgr` module.
+  - Added `tomli_w` module to support writing the `$HOME/.db4e` bootstrap file.
+  - Updated the `pyproject.toml` and `poetry.lock` file.
+- `InstallMgr` changes to support the `SQLMgr`.
+
+
+### Fixed
+- Field definitions in the `pages/Schema` page.
+  - Added `ip_addr` to the `monerod` table.
+  - Removed `enabled` from the `remote_p2pool` table. 
+  - Added `instance` to the `remote_xmrig` table.
+
+---
+
 ## [0.48.0] - 2025-11-17
 
 ### Added

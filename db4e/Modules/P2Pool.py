@@ -2,7 +2,7 @@
 db4e/Modules/P2Pool.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -14,10 +14,28 @@ import os
 import subprocess
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
-from db4e.Modules.Components import(
-    AnyIP, Chain, ConfigFile, InPeers, Instance, Local, LogLevel, OutPeers, Enabled,
-    P2PPort, StratumPort, UserWallet, Version, IpAddr, Parent, LogFile, StdinPath,
-    LogRotateConfig, MaxLogFiles, MaxLogSize)
+from db4e.Modules.Components import (
+    AnyIP,
+    Chain,
+    ConfigFile,
+    InPeers,
+    Instance,
+    Local,
+    LogLevel,
+    OutPeers,
+    Enabled,
+    P2PPort,
+    StratumPort,
+    UserWallet,
+    Version,
+    IpAddr,
+    Parent,
+    LogFile,
+    StdinPath,
+    LogRotateConfig,
+    MaxLogFiles,
+    MaxLogSize,
+)
 
 from db4e.Constants.DLabel import DLabel
 from db4e.Constants.DElem import DElem
@@ -27,10 +45,8 @@ from db4e.Constants.DFile import DFile
 from db4e.Constants.DPlaceholder import DPlaceholder
 
 
-
 class P2Pool(SoftwareSystem):
-    
-    
+
     def __init__(self, rec=None):
         super().__init__()
         self._elem_type = DElem.P2POOL
@@ -84,10 +100,33 @@ class P2Pool(SoftwareSystem):
         self.parent(DField.DISABLE)
         self._hashrates = None
         self._hashrate = None
-        
+
         if rec:
             self.from_rec(rec)
 
+    def __dict__(self):
+        p2pool_dict = {
+            DField.ANY_IP: self.any_ip(),
+            DField.CHAIN: self.chain(),
+            DField.CONFIG_FILE: self.config_file(),
+            DField.ENABLED: self.enabled(),
+            DField.IN_PEERS: self.in_peers(),
+            DField.INSTANCE: self.instance(),
+            DField.IP_ADDR: self.ip_addr(),
+            DField.LOG_FILE: self.log_file(),
+            DField.LOG_ROTATE_CONFIG: self.logrotate_config(),
+            DField.MAX_LOG_FILES: self.max_log_files(),
+            DField.MAX_LOG_SIZE: self.max_log_size(),
+            DField.LOG_LEVEL: self.log_level(),
+            DField.OUT_PEERS: self.out_peers(),
+            DField.P2P_PORT: self.p2p_port(),
+            DField.PARENT: self.parent(),
+            DField.STDIN_PATH: self.stdin_path(),
+            DField.STRATUM_PORT: self.stratum_port(),
+            DField.USER_WALLET: self.user_wallet(),
+            DField.VERSION: self.version(),
+        }
+        return p2pool_dict
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a XMRig configuration file
@@ -98,7 +137,8 @@ class P2Pool(SoftwareSystem):
         log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
 
         fq_config = os.path.join(
-            p2pool_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX)
+            p2pool_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX
+        )
 
         # Monero settings
         monerod_ip = self.monerod.ip_addr()
@@ -107,40 +147,41 @@ class P2Pool(SoftwareSystem):
 
         # Populate the config templace placeholders
         placeholders = {
-            DPlaceholder.WALLET : self.user_wallet(),
-            DPlaceholder.P2P_DIR : p2pool_dir,
-            DPlaceholder.MONEROD_IP : monerod_ip,
-            DPlaceholder.ZMQ_PUB_PORT : monerod_zmq_port,
-            DPlaceholder.RPC_BIND_PORT : monerod_rpc_port,
-            DPlaceholder.LOG_LEVEL : self.log_level(),
-            DPlaceholder.P2P_PORT : self.p2p_port(),
-            DPlaceholder.STRATUM_PORT : self.stratum_port(),
-            DPlaceholder.IN_PEERS : self.in_peers(),
-            DPlaceholder.OUT_PEERS : self.out_peers(),
-            DPlaceholder.CHAIN : self.chain(),
-            DPlaceholder.ANY_IP : self.any_ip(),
-            DPlaceholder.API_DIR : api_dir,
-            DPlaceholder.RUN_DIR : run_dir,
-            DPlaceholder.LOG_DIR : log_dir,
+            DPlaceholder.WALLET: self.user_wallet(),
+            DPlaceholder.P2P_DIR: p2pool_dir,
+            DPlaceholder.MONEROD_IP: monerod_ip,
+            DPlaceholder.ZMQ_PUB_PORT: monerod_zmq_port,
+            DPlaceholder.RPC_BIND_PORT: monerod_rpc_port,
+            DPlaceholder.LOG_LEVEL: self.log_level(),
+            DPlaceholder.P2P_PORT: self.p2p_port(),
+            DPlaceholder.STRATUM_PORT: self.stratum_port(),
+            DPlaceholder.IN_PEERS: self.in_peers(),
+            DPlaceholder.OUT_PEERS: self.out_peers(),
+            DPlaceholder.CHAIN: self.chain(),
+            DPlaceholder.ANY_IP: self.any_ip(),
+            DPlaceholder.API_DIR: api_dir,
+            DPlaceholder.RUN_DIR: run_dir,
+            DPlaceholder.LOG_DIR: log_dir,
         }
-        with open(tmpl_file, 'r') as f:
+        with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f"[[{key}]]", str(val))
 
         # Write the config to file
-        with open(fq_config, 'w') as f:
+        with open(fq_config, "w") as f:
             f.write(final_config)
         self.config_file(fq_config)
 
-
-    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group:str):
+    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
         # Logrotate configuration file
         fq_config = os.path.join(
-            vendor_dir, DDef.LOG_ROTATE, DElem.P2POOL + "-" + self.instance() + \
-                DDef.CONF_SUFFIX)
-        
+            vendor_dir,
+            DDef.LOG_ROTATE,
+            DElem.P2POOL + "-" + self.instance() + DDef.CONF_SUFFIX,
+        )
+
         # Populate the config template
         placeholders = {
             DPlaceholder.VENDOR_DIR: vendor_dir,
@@ -148,42 +189,33 @@ class P2Pool(SoftwareSystem):
             DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
             DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
         }
-        with open(tmpl_file, 'r') as f:
+        with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f"[[{key}]]", str(val))
 
         # Write the config to file
-        with open(fq_config, 'w') as f:
+        with open(fq_config, "w") as f:
             f.write(final_config)
         self.logrotate_config(fq_config)
-
 
     def hashrate(self, hashrate=None):
         if hashrate is not None:
             self._hashrate = hashrate
         return self._hashrate
-    
 
     def hashrates(self, hashrate_data=None):
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
-    
-        
+
     def instance_map(self, map=None):
         if map is not None:
             self._instance_map = map
         return self._instance_map
-    
 
     def shares_found(self, shares_found=None):
         if shares_found is not None:
             self._shares_found = shares_found
         return self._shares_found
-    
-
-
-
-

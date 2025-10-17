@@ -94,6 +94,7 @@ config_file     | TEXT      | The path to the *Monero* configuration file.
 enabled         | INTEGER   | 0 or 1, representing whether the *Monero* deployment is enabled.
 in_peers        | INTEGER   | The number of incoming peer connections.
 instance        | TEXT      | The deployment name.
+ip_addr         | TEXT      | The *IP address* or *hostname* that hosts the *Monero* node.
 log_file        | TEXT      | The path to the *Monero* log file.
 log_level       | INTEGER   | The log level of the *Monero daemon*.
 max_log_files   | INTEGER   | The maximum number of log files. These are rotated.
@@ -105,7 +106,7 @@ priority_node_2 | TEXT      | The second priority node.
 priority_port_1 | INTEGER   | The first priority node's port number.
 priority_port_2 | INTEGER   | The second priority node's port number.
 rpc_bind_port   | INTEGER   | The *Monero RPC Bind Port* number.
-show_time_stats | INTEGER   | 0 or 1, representing whether to show time statistics option is used.
+show_time_stats | INTEGER   | 0 or 1 boolean; show time statistics option.
 stdin_path      | TEXT      | The path to the *Monero* STDIN file.
 version         | TEXT      | The version of the *Monero* software.
 zmq_pub_port    | INTEGER   | The *Monero ZMQ Pub Port* number.
@@ -192,7 +193,6 @@ This table represents a reference to a *P2Pool* deployment on a remote node. *Db
 Column          | Data Type | Description
 ----------------|-----------|-------------------------
 id              | INTEGER   | The *primary key* for the table.
-enabled         | INTEGER   | 0 or 1, representing whether the *P2Pool* deployment is enabled.
 instance        | TEXT      | The deployment name.
 ip_addr         | TEXT      | The hostname or IP address of the remote *P2Pool* node.
 stratum_port    | INTEGER   | The *P2Pool Stratum Port* number.
@@ -244,6 +244,7 @@ This table represents a reference to a *XMRig* deployment on a remote node. *Db4
 Column            | Data Type | Description
 ------------------|-----------|-------------------------
 id                | INTEGER   | The *primary key* for the table.
+instance          | TEXT      | The miner name.
 ip_addr           | TEXT      | The hostname or IP address of the remote *XMRig* node.
 hashrate          | REAL      | The latest captured hashrate of the remote *XMRig* node in *H/s*.
 updated_y         | INTEGER   | Local year.
@@ -266,7 +267,7 @@ utc_s             | INTEGER   | The second the record was updated
 
 # The Operations Tables
 
-This section details the *operations tables.
+This section details the *operations* tables. These tables are used to record start and stop times and current uptime of different components. 
 
 ---
 

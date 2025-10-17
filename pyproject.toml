@@ -44,6 +44,7 @@ uvicorn = "^0.37.0"
 pydantic = "^2.12.2"
 httpx = "^0.28.1"
 pytest-asyncio = "^1.2.0"
+tomli_w = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

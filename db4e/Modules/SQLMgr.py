@@ -9,30 +9,117 @@ db4e/Modules/SQLMgr.py
 """
 
 import os, sqlite3
+from datetime import datetime
 
+from db4e.Modules.Db4E import Db4E
 from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.DbMgr import DbMgr
+from db4e.Modules.MoneroD import MoneroD
+from db4e.Modules.MoneroDRemote import MoneroDRemote
+from db4e.Modules.P2Pool import P2Pool
+from db4e.Modules.P2PoolRemote import P2PoolRemote
+from db4e.Modules.XMRig import XMRig
+from db4e.Modules.XMRigRemote import XMRigRemote
 
 from db4e.Constants.DDir import DDir
 from db4e.Constants.DFile import DFile
+from db4e.Constants.DField import DField
+from db4e.Constants.DElem import DElem
 
 
 class SQLMgr:
 
-    def __init__(self):
+    def __init__(self, db_type: str):
         """Constructor"""
         depl_mgr = DeplMgr(db=DbMgr())
 
-        db_dir = depl_mgr.get_dir(DDir.DB)
-        if not os.path.exists(db_dir):
-            os.makedirs(db_dir)
-        self._db_file = os.path.join(db_dir, DFile.SERVER_DB)
+        self._db_type = db_type
+        self._db_dir = None
+        self._conn = None
+        self._cursor = None
+        self._initialized = False
 
-        # Connect to SQLite, get a cursor and initialize the DB
-        self._conn = sqlite3.connect(self._db_file)
-        self._conn.execute("PRAGMA foreign_keys = ON;")
-        self._cursor = self._conn.cursor()
-        self._init_db()
+    def db_dir(self, db_dir=None):
+        if db_dir:
+            self._db_dir = db_dir
+            if not os.path.exists(db_dir):
+                os.makedirs(db_dir)
+
+            if self._db_type == DField.SERVER:
+                self._db_file = os.path.join(db_dir, DFile.SERVER_DB)
+            elif self._db_type == DField.CLIENT:
+                self._db_file = os.path.join(db_dir, DFile.CLIENT_DB)
+            else:
+                raise ValueError(f"Unrecognized db_type: {self._db_type}")
+
+            # Connect to SQLite, get a cursor and initialize the DB
+            self._conn = sqlite3.connect(self._db_file)
+            self._conn.execute("PRAGMA foreign_keys = ON;")
+            self._cursor = self._conn.cursor()
+            self._init_db()
+        return self._db_dir
+
+    def insert_one(self, table_name: str, elem):
+        """Generic insert method for any model with a __dict__() returning field:value mapping."""
+        data = elem.__dict__()  # Your custom dict with DField constants as keys
+        now = datetime.now()
+
+        # Add timestamp fields dynamically (if applicable to that table)
+        if table_name != DElem.XMRIG_REMOTE:
+            data.update(
+                {
+                    "updated_y": now.year,
+                    "updated_mo": now.month,
+                    "updated_d": now.day,
+                    "updated_h": now.hour,
+                    "updated_mi": now.minute,
+                    "updated_s": now.second,
+                }
+            )
+
+        # Stable key order (deterministic SQL generation)
+        columns = sorted(data.keys())
+        placeholders = ", ".join(["?"] * len(columns))
+        sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
+        values = tuple(data[col] for col in columns)
+
+        # Execute insert
+        self._cursor.execute(sql, values)
+        self._conn.commit()
+        return self._cursor.lastrowid
+
+    def update_one(self, table_name: str, elem, record_id: int):
+        """Generic update method for any model with a __dict__() returning field:value mapping."""
+        data = elem.__dict__()  # Your model’s dict with DField constants as keys
+        now = datetime.now()
+
+        if table_name != DElem.XMRIG_REMOTE:
+            # Refresh timestamps
+            data.update(
+                {
+                    "updated_y": now.year,
+                    "updated_mo": now.month,
+                    "updated_d": now.day,
+                    "updated_h": now.hour,
+                    "updated_mi": now.minute,
+                    "updated_s": now.second,
+                }
+            )
+
+        # Stable ordering for deterministic SQL generation
+        columns = sorted(data.keys())
+
+        # Build the SQL SET clause: column1=?, column2=?, ...
+        set_clause = ", ".join([f"{col}=?" for col in columns])
+
+        sql = f"UPDATE {table_name} SET {set_clause} WHERE id=?"
+        values = tuple(data[col] for col in columns) + (record_id,)
+
+        # Execute update
+        self._cursor.execute(sql, values)
+        self._conn.commit()
+
+        return self._cursor.rowcount
 
     def _init_db(self):
         """Initialize the DB"""
@@ -63,6 +150,7 @@ class SQLMgr:
                 enabled INTEGER,
                 in_peers INTEGER,
                 instance TEXT,
+                ip_addr TEXT,
                 log_file TEXT,
                 log_level INTEGER,
                 max_log_files INTEGER,
@@ -132,7 +220,6 @@ class SQLMgr:
 
             CREATE TABLE IF NOT EXISTS p2pool_remote (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                enabled INTEGER,
                 instance TEXT,
                 ip_addr TEXT,
                 stratum_port INTEGER,
@@ -166,6 +253,7 @@ class SQLMgr:
 
             CREATE TABLE IF NOT EXISTS xmrig_remote (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                instance TEXT,
                 ip_addr TEXT,
                 hashrate REAL,
                 updated_y INTEGER,

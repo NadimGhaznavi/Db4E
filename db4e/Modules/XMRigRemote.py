@@ -52,6 +52,26 @@ class XMRigRemote(SoftwareSystem):
             self.from_rec(rec)
             # print(f"XMRigRemote: rec: {rec}, uptime: {self.uptime()}")
 
+    def __dict__(self):
+        xmrig_remote_dict = {
+            DField.INSTANCE: self.instance(),
+            DField.IP_ADDR: self.ip_addr(),
+            DField.HASHRATE: self.hashrate(),
+            DField.UPDATED_Y: self.local_timestamp().year,
+            DField.UPDATED_MO: self.local_timestamp().month,
+            DField.UPDATED_D: self.local_timestamp().day,
+            DField.UPDATED_H: self.local_timestamp().hour,
+            DField.UPDATED_MI: self.local_timestamp().minute,
+            DField.UPDATED_S: self.local_timestamp().second,
+            DField.UTC_Y: self.timestamp().year,
+            DField.UTC_MO: self.timestamp().month,
+            DField.UTC_D: self.timestamp().day,
+            DField.UTC_H: self.timestamp().hour,
+            DField.UTC_MI: self.timestamp().minute,
+            DField.UTC_S: self.timestamp().second,
+        }
+        return xmrig_remote_dict
+
     def hashrates(self, hashrate_data=None):
         if hashrate_data is not None:
             self._hashrates = hashrate_data

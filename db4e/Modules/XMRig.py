@@ -84,6 +84,21 @@ class XMRig(SoftwareSystem):
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.XMRIG, log_file=log_file)
 
+    def __dict__(self):
+        xmrig_dict = {
+            DField.CONFIG_FILE: self.config_file(),
+            DField.ENABLED: self.enabled(),
+            DField.INSTANCE: self.instance(),
+            DField.LOG_FILE: self.log_file(),
+            DField.LOG_ROTATE_CONFIG: self.logrotate_config(),
+            DField.MAX_LOG_FILES: self.max_log_files(),
+            DField.MAX_LOG_SIZE: self.max_log_size(),
+            DField.NUM_THREADS: self.num_threads(),
+            DField.PARENT: self.parent(),
+            DField.VERSION: self.version(),
+        }
+        return xmrig_dict
+
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # XMRig configuration file
         fq_config = os.path.join(

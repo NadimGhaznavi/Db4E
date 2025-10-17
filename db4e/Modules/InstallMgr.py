@@ -20,9 +20,9 @@ from db4e.Modules.Db4E import Db4E
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DeplMgr import DeplMgr
-from db4e.Modules.HealthCache import HealthCache
 from db4e.Modules.Helper import result_row
 from db4e.Modules.InternalP2Pool import InternalP2Pool
+from db4e.Modules.SQLMgr import SQLMgr
 
 from db4e.Constants.DDir import DDir
 from db4e.Constants.DStatus import DStatus
@@ -36,10 +36,11 @@ from db4e.Constants.DFile import DFile
 
 class InstallMgr(Container):
 
-    def __init__(self, db: DbMgr, db_cache: DbCache):
+    def __init__(self, db: DbMgr, db_cache: DbCache, sqldb: SQLMgr):
         super().__init__()
+        self.sqldb = sqldb
         self.db_cache = db_cache
-        self.depl_mgr = DeplMgr(db=db)
+        self.depl_mgr = DeplMgr(db=db, sqldb=sqldb)
         self.col_name = DDef.DEPL_COLLECTION
         self.tmp_dir = None
 
@@ -68,6 +69,7 @@ class InstallMgr(Container):
             db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
             db4e.vendor_dir("")  # Reset the vendor dir to null
             self.db_cache.update_one(db4e)
+            self.sqldb.update_one(table_name=DElem.DB4E, elem=db4e, record_id=db4e.id())
             return db4e
 
         # Create base vendor directories
@@ -78,6 +80,7 @@ class InstallMgr(Container):
 
         # We have everything we need to finish the install. Update the record.
         self.db_cache.update_one(db4e)
+        self.sqldb.update_one(table_name=DElem.DB4E, elem=db4e, record_id=db4e.id())
 
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(db4e=db4e)
@@ -127,6 +130,7 @@ class InstallMgr(Container):
     def initial_setup_proceed(self, form_data: dict):
         db4e = Db4E()
         object_id = self.db_cache.insert_one(db4e)
+        object_id = self.sqldb.insert_one(DElem.DB4E, db4e)
         db4e.id(object_id)
         return db4e
 
@@ -140,6 +144,8 @@ class InstallMgr(Container):
             return db4e, abort_install
 
         self.db_cache.update_one(db4e)
+        self.sqldb.update_one(table_name=DElem.DB4E, elem=db4e, record_id=db4e.id())
+
         db4e.msg(
             DLabel.USER_WALLET,
             DStatus.GOOD,

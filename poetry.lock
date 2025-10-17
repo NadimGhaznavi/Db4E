@@ -2279,6 +2279,18 @@ files = [
 ]
 
 [[package]]
+name = "tomli-w"
+version = "1.2.0"
+description = "A lil' TOML writer"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "tomli_w-1.2.0-py3-none-any.whl", hash = "sha256:188306098d013b691fcadc011abd66727d3c414c571bb01b1a174ba8c983cf90"},
+    {file = "tomli_w-1.2.0.tar.gz", hash = "sha256:2dd14fac5a47c27be9cd4c976af5a12d87fb1f0b4512f81d69cce3b35ae25021"},
+]
+
+[[package]]
 name = "tree-sitter"
 version = "0.25.2"
 description = "Python bindings to the Tree-sitter parsing library"
@@ -2980,4 +2992,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "b8deb0450ed9555cb7f62a6b83362939125310c10e7075f8739abd84d047232d"
+content-hash = "0525439f6e39d29cc43a9f946609e80deea305bb771fe8f0584309b867e14e3d"

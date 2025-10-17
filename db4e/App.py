@@ -44,6 +44,7 @@ from db4e.Modules.OpsDb import OpsDb, OpsETL
 from db4e.Modules.OpsMgr import OpsMgr
 from db4e.Modules.PaneMgr import PaneMgr
 from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Modules.SQLMgr import SQLMgr
 
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
@@ -81,6 +82,7 @@ class Db4EApp(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         db = DbMgr()
+        sqldb = SQLMgr(db_type=DField.CLIENT)
         ops_db = OpsDb(db=db)
         ops_etl = OpsETL(ops_db=ops_db)
         mining_db = MiningDb(db=db, ops_etl=ops_etl)
@@ -94,7 +96,7 @@ class Db4EApp(App):
             mining_db=mining_db,
             ops_etl=ops_etl,
         )
-        install_mgr = InstallMgr(db=db, db_cache=db_cache)
+        install_mgr = InstallMgr(db=db, db_cache=db_cache, sqldb=sqldb)
 
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)

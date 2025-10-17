@@ -2,7 +2,7 @@
 db4e/Modules/MoneroD.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -14,10 +14,31 @@ import os
 
 from db4e.Modules.SoftwareSystem import SoftwareSystem
 from db4e.Modules.Components import (
-    BlockchainDir, ConfigFile, InPeers, Instance, Local, LogLevel, LogFile, 
-    MaxLogFiles, MaxLogSize, OutPeers, P2PBindPort, AnyIP, ZmqPubPort,
-    ZmqRpcPort, RpcBindPort, ShowTimeStats, PriorityNode1, PriorityNode2,
-    PriorityPort1, PriorityPort2, IpAddr, Version, StdinPath, Enabled)
+    BlockchainDir,
+    ConfigFile,
+    InPeers,
+    Instance,
+    Local,
+    LogLevel,
+    LogFile,
+    MaxLogFiles,
+    MaxLogSize,
+    OutPeers,
+    P2PBindPort,
+    AnyIP,
+    ZmqPubPort,
+    ZmqRpcPort,
+    RpcBindPort,
+    ShowTimeStats,
+    PriorityNode1,
+    PriorityNode2,
+    PriorityPort1,
+    PriorityPort2,
+    IpAddr,
+    Version,
+    StdinPath,
+    Enabled,
+)
 
 from db4e.Constants.DField import DField
 from db4e.Constants.DLabel import DLabel
@@ -27,7 +48,6 @@ from db4e.Constants.DPlaceholder import DPlaceholder
 
 
 class MoneroD(SoftwareSystem):
-
 
     def __init__(self, rec=None):
         super().__init__()
@@ -58,7 +78,7 @@ class MoneroD(SoftwareSystem):
         self.add_component(DField.VERSION, Version())
         self.add_component(DField.ZMQ_PUB_PORT, ZmqPubPort())
         self.add_component(DField.ZMQ_RPC_PORT, ZmqRpcPort())
-        
+
         self.any_ip = self.components[DField.ANY_IP]
         self.blockchain_dir = self.components[DField.BLOCKCHAIN_DIR]
         self.config_file = self.components[DField.CONFIG_FILE]
@@ -75,7 +95,7 @@ class MoneroD(SoftwareSystem):
         self.priority_node_1 = self.components[DField.PRIORITY_NODE_1]
         self.priority_port_1 = self.components[DField.PRIORITY_PORT_1]
         self.priority_node_2 = self.components[DField.PRIORITY_NODE_2]
-        self.priority_port_2 = self.components[DField.PRIORITY_PORT_2]   
+        self.priority_port_2 = self.components[DField.PRIORITY_PORT_2]
         self.remote = self.components[DField.REMOTE]
         self.rpc_bind_port = self.components[DField.RPC_BIND_PORT]
         self.show_time_stats = self.components[DField.SHOW_TIME_STATS]
@@ -83,52 +103,86 @@ class MoneroD(SoftwareSystem):
         self.zmq_pub_port = self.components[DField.ZMQ_PUB_PORT]
         self.zmq_rpc_port = self.components[DField.ZMQ_RPC_PORT]
         self.version = self.components[DField.VERSION]
+
         self.version(DDef.MONEROD_VERSION)
-        
+
         if rec:
             self.from_rec(rec)
+
+    def __dict__(self):
+        monerod_dict = {
+            DField.ANY_IP: self.any_ip(),
+            DField.BLOCKCHAIN_DIR: self.blockchain_dir(),
+            DField.CONFIG_FILE: self.config_file(),
+            DField.ENABLED: self.enabled(),
+            DField.IN_PEERS: self.in_peers(),
+            DField.INSTANCE: self.instance(),
+            DField.IP_ADDR: self.ip_addr(),
+            DField.LOG_FILE: self.log_file(),
+            DField.LOG_LEVEL: self.log_level(),
+            DField.MAX_LOG_FILES: self.max_log_files(),
+            DField.MAX_LOG_SIZE: self.max_log_size(),
+            DField.OUT_PEERS: self.out_peers(),
+            DField.P2P_BIND_PORT: self.p2p_bind_port(),
+            DField.PRIORITY_NODE_1: self.priority_node_1(),
+            DField.PRIORITY_NODE_2: self.priority_node_2(),
+            DField.PRIORITY_PORT_1: self.priority_port_1(),
+            DField.PRIORITY_PORT_2: self.priority_port_2(),
+            DField.RPC_BIND_PORT: self.rpc_bind_port(),
+            DField.SHOW_TIME_STATS: self.show_time_stats(),
+            DField.STDIN_PATH: self.stdin_path(),
+            DField.VERSION: self.version(),
+            DField.ZMQ_PUB_PORT: self.zmq_pub_port(),
+            DField.ZMQ_RPC_PORT: self.zmq_rpc_port(),
+        }
+        return monerod_dict
 
     def gen_config(self, tmpl_file: str, vendor_dir: str):
         # Generate a Monero Daemon configuration file
         monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
         fq_config = os.path.join(
-            monerod_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX)
-        
+            monerod_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX
+        )
+
         # Monerod log file
         fq_log = os.path.join(
-            vendor_dir, DElem.MONEROD, self.instance(), DDef.LOG_DIR, 
-            DDef.MONEROD_LOG_FILE)
+            vendor_dir,
+            DElem.MONEROD,
+            self.instance(),
+            DDef.LOG_DIR,
+            DDef.MONEROD_LOG_FILE,
+        )
 
         # Populate the config templace
         placeholders = {
-            DPlaceholder.ANY_IP : self.any_ip(),
-            DPlaceholder.BLOCKCHAIN_DIR : self.blockchain_dir(),
-            DPlaceholder.INSTANCE : self.instance(),
-            DPlaceholder.IN_PEERS : self.in_peers(),
-            DPlaceholder.LOG_FILE : fq_log,
-            DPlaceholder.LOG_LEVEL : self.log_level(),
-            DPlaceholder.MAX_LOG_FILES : self.max_log_files(),
-            DPlaceholder.MAX_LOG_SIZE : self.max_log_size(),
-            DPlaceholder.MONEROD_DIR : monerod_dir,
-            DPlaceholder.OUT_PEERS : self.out_peers(),
-            DPlaceholder.P2P_BIND_PORT : self.p2p_bind_port(),
-            DPlaceholder.PRIORITY_NODE_1 : self.priority_node_1(),
-            DPlaceholder.PRIORITY_PORT_1 : self.priority_port_1(),
-            DPlaceholder.PRIORITY_NODE_2 : self.priority_node_2(),
-            DPlaceholder.PRIORITY_PORT_2 : self.priority_port_2(),
-            DPlaceholder.RPC_BIND_PORT : self.rpc_bind_port(),
-            DPlaceholder.SHOW_TIME_STATS : self.show_time_stats(),
-            DPlaceholder.STDIN_PATH : self.stdin_path(),
-            DPlaceholder.ZMQ_PUB_PORT : self.zmq_pub_port(),
-            DPlaceholder.ZMQ_RPC_PORT : self.zmq_rpc_port(),
+            DPlaceholder.ANY_IP: self.any_ip(),
+            DPlaceholder.BLOCKCHAIN_DIR: self.blockchain_dir(),
+            DPlaceholder.INSTANCE: self.instance(),
+            DPlaceholder.IN_PEERS: self.in_peers(),
+            DPlaceholder.LOG_FILE: fq_log,
+            DPlaceholder.LOG_LEVEL: self.log_level(),
+            DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
+            DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
+            DPlaceholder.MONEROD_DIR: monerod_dir,
+            DPlaceholder.OUT_PEERS: self.out_peers(),
+            DPlaceholder.P2P_BIND_PORT: self.p2p_bind_port(),
+            DPlaceholder.PRIORITY_NODE_1: self.priority_node_1(),
+            DPlaceholder.PRIORITY_PORT_1: self.priority_port_1(),
+            DPlaceholder.PRIORITY_NODE_2: self.priority_node_2(),
+            DPlaceholder.PRIORITY_PORT_2: self.priority_port_2(),
+            DPlaceholder.RPC_BIND_PORT: self.rpc_bind_port(),
+            DPlaceholder.SHOW_TIME_STATS: self.show_time_stats(),
+            DPlaceholder.STDIN_PATH: self.stdin_path(),
+            DPlaceholder.ZMQ_PUB_PORT: self.zmq_pub_port(),
+            DPlaceholder.ZMQ_RPC_PORT: self.zmq_rpc_port(),
         }
-        with open(tmpl_file, 'r') as f:
+        with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f'[[{key}]]', str(val))
+                final_config = final_config.replace(f"[[{key}]]", str(val))
 
         # Write the config to file
-        with open(fq_config, 'w') as f:
+        with open(fq_config, "w") as f:
             f.write(final_config)
         self.config_file(fq_config)
