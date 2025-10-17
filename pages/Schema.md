@@ -43,9 +43,6 @@ The rest of this document is dedicated to a detailed description of the specific
   - [Share Position Table](#shares_position_table)
   - [XMR Payments Table](#xmr_payments_table)
 
-## Foreign Keys
-
-the `PRAGMA foreign_keys = ON` is used when opening connections to enforce foreign key constraints.
 
 ---
 
@@ -66,14 +63,14 @@ This table represents the *Db4E* software deployment on the *Db4E* server. This 
 Column          | Data Type | Description
 ----------------|-----------|-------------------------
 id              | INTEGER   | The *primary key* for the table.
-group           | TEXT      | The Linux group that the Db4E application runs as.
+donation_wallet | TEXT      | The *Monero* donation wallet.
+db4e_group      | TEXT      | The Linux group that the Db4E application runs as.
+db4e_user       | TEXT      | The Linux group that the Db4E application runs as.
 install_dir     | TEXT      | The base *venv* directory holding the PIP *Db4E* package.
 instance        | TEXT      | The deployment name; `db4e`.
 primary_server  | INTEGER   | A *foreign key* that points at the `monero` table's `id` column.
-user            | TEXT      | The Linux group that the Db4E application runs as.
-vendor_dir      | TEXT      | The directory where *Db4E's* runtime filesystem artifacts are deployed.
-donation_wallet | TEXT      | The *Monero* donation wallet.
 user_wallet     | TEXT      | The user's *Monero* wallet, where mining profits are directed.
+vendor_dir      | TEXT      | The directory where *Db4E's* runtime filesystem artifacts are deployed.
 updated_y       | INTEGER   | The year the record was updated
 updated_mo      | INTEGER   | The month the record was updated
 updated_d       | INTEGER   | The day the record was updated
@@ -249,19 +246,19 @@ Column            | Data Type | Description
 id                | INTEGER   | The *primary key* for the table.
 ip_addr           | TEXT      | The hostname or IP address of the remote *XMRig* node.
 hashrate          | REAL      | The latest captured hashrate of the remote *XMRig* node in *H/s*.
-local_y           | INTEGER   | Local year.
-local_mo          | INTEGER   | Local month.
-local_d           | INTEGER   | Local day.
-local_h           | INTEGER   | Local hour.
-local_mi          | INTEGER   | Local minute.
-local_s           | INTEGER   | Local second.
+updated_y         | INTEGER   | Local year.
+updated_mo        | INTEGER   | Local month.
+updated_d         | INTEGER   | Local day.
+updated_h         | INTEGER   | Local hour.
+updated_mi        | INTEGER   | Local minute.
+updated_s         | INTEGER   | Local second.
 uptime            | TEXT      | The uptime of the remote *XMRig* node from the local *P2Pool* log.
-updated_y         | INTEGER   | The year the record was updated
-updated_mo        | INTEGER   | The month the record was updated
-updated_d         | INTEGER   | The day the record was updated
-updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
+utc_y             | INTEGER   | The year the record was updated
+utc_mo            | INTEGER   | The month the record was updated
+utc_d             | INTEGER   | The day the record was updated
+utc_h             | INTEGER   | The hour the record was updated
+utc_mi            | INTEGER   | The minute the record was updated
+utc_s             | INTEGER   | The second the record was updated
 
 - The *local* times are from the *Db4E* server whereas the *updated* time is from the *P2Pool* log. The latter are in the UTC timezone.
 
@@ -291,8 +288,6 @@ updated_d         | INTEGER   | The day the record was updated
 updated_h         | INTEGER   | The hour the record was updated
 updated_mi        | INTEGER   | The minute the record was updated
 updated_s         | INTEGER   | The second the record was updated
-
-- Timestamps are in the form `YYYY-MM-DD HH:MM:SS`.
 
 ---
 
@@ -493,4 +488,23 @@ updated_d         | INTEGER   | The day the record was updated
 updated_h         | INTEGER   | The hour the record was updated
 updated_mi        | INTEGER   | The minute the record was updated
 updated_s         | INTEGER   | The second the record was updated
+
+---
+
+# Indexes and Constraints
+
+## Overview
+
+Indexes improve performance for frequent queries — especially those that filter or sort by date or identifier. Constraints maintain data integrity by preventing duplicates or invalid references.
+
+The following indexes and constraints are designed to optimize typical Db4E workflows:
+
+- Efficient retrieval of hashrate and share-found data by date (for plotting and analytics)
+- Fast lookup of current uptime records
+- Reliable foreign-key integrity between tables
+- Enforced uniqueness of certain runtime states (e.g., one “current” uptime per deployment)
+
+## Foreign Keys
+
+the `PRAGMA foreign_keys = ON` is used when opening connections to enforce foreign key constraints.
 

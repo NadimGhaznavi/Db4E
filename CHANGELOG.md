@@ -11,12 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Additional constants to `DForm` to support code cleanup.
+- New `HashratePlot` widget:
+  - Modified `DSelect` constants file
+- New `SQLMgr` to interface with *SQLite3* database.
+  - Created detailed schema specification `/pages/Schema.md`
+  - Created *constructor*, `init_db()`.
+- Additional modules (`fastapi`, `uvicorn`, `pydantic`, `httpx` and `pytet-asyncio`) to support the new client/server architecture.
 
 ### Refactor
 - Code cleanup to `ChainBlocksFoundPane`, `ChainHashratesPane`, `ChainPane`, `Db4EPane`, `InitialSetupPane`, `LogViewPane`, `MoneroDPane`, `MoneroDRemotePane`, `P2PoolHashratesPane`, `P2PoolPane`, `P2PoolRemotePane`, `PaymentsPane`, `RuntimePane`, `StartStopLogPane`, `TUILogPane`, `XMRigHashratesPane`, `XMRigPane`, `XMRigRemotePane` and `Db4EPlot` widget module files.
 
 ### Changed
 - Set `allow_blank=False` on the `P2PoolSharesFoundPane`, `XMRigSharesFoundPane`, `ChainHashratesPane`, `InitialSetupPane` panes.
+- Replaced `Db4ePlot` with new `HashratePlot`:
+  - Updated `P2PoolHashratesPane`, `XMRigHashratesPane` and `ChainHashratesPane` panes.
+- Replaced `Db4ePlot` with `SharesFound` plot in `XMRigSharesFoundPane`.
+- Updated [website](https://db4e.osoyalce.com) and `README`.
 
 ### Fixed
 - Case where there is no data in the `Db4ePlot` widget.

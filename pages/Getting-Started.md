@@ -44,13 +44,6 @@ sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
 
 ---
 
-# 🗃️ Install MongoDB
-
-MongoDB is not included in Debian’s default repositories.
-See the [Installing MongoDB](/pages/Installing-MongoDB.html) page for full instructions on setting up the official MongoDB Community Edition repository and installing the database.
-
----
-
 # 🔧 Set Up a Python Virtual Environment
 
 Db4E is distributed as a [PyPI package](https://pypi.org/project/db4e/). It's recommended to install it inside a virtual environment:
@@ -117,6 +110,8 @@ You must temporarily change it to:
 ```
 
 ⚠️ **Important**: After completing the Initial Install, you can safely revert this change.
+
+🚧 **Coming Soon** 🚧: Security architecture that will not require this (re)configuration of the sudo subsystem.
 
 ---
 
