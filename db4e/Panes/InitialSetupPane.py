@@ -37,7 +37,7 @@ class InitialSetupPane(Container):
     def compose(self):
         yield Vertical(
             ScrollableContainer(
-                Label("", classes=DForm.INTRO),
+                Label("", id=DForm.INTRO, classes=DForm.INTRO),
                 Vertical(
                     Horizontal(
                         Label(DLabel.USER, classes=DForm.FORM_LABEL),
