@@ -90,7 +90,7 @@ class XMRig(SoftwareSystem):
             DField.ENABLED: self.enabled(),
             DField.INSTANCE: self.instance(),
             DField.LOG_FILE: self.log_file(),
-            DField.LOG_ROTATE_CONFIG: self.logrotate_config(),
+            DField.LOGROTATE_CONFIG: self.logrotate_config(),
             DField.MAX_LOG_FILES: self.max_log_files(),
             DField.MAX_LOG_SIZE: self.max_log_size(),
             DField.NUM_THREADS: self.num_threads(),
@@ -135,7 +135,7 @@ class XMRig(SoftwareSystem):
         # Logrotate configuration file
         fq_config = os.path.join(
             vendor_dir,
-            DDef.LOG_ROTATE,
+            DDef.LOGROTATE,
             DElem.XMRIG + "-" + self.instance() + DDef.CONF_SUFFIX,
         )
 

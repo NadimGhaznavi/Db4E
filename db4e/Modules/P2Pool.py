@@ -114,7 +114,7 @@ class P2Pool(SoftwareSystem):
             DField.INSTANCE: self.instance(),
             DField.IP_ADDR: self.ip_addr(),
             DField.LOG_FILE: self.log_file(),
-            DField.LOG_ROTATE_CONFIG: self.logrotate_config(),
+            DField.LOGROTATE_CONFIG: self.logrotate_config(),
             DField.MAX_LOG_FILES: self.max_log_files(),
             DField.MAX_LOG_SIZE: self.max_log_size(),
             DField.LOG_LEVEL: self.log_level(),
@@ -178,7 +178,7 @@ class P2Pool(SoftwareSystem):
         # Logrotate configuration file
         fq_config = os.path.join(
             vendor_dir,
-            DDef.LOG_ROTATE,
+            DDef.LOGROTATE,
             DElem.P2POOL + "-" + self.instance() + DDef.CONF_SUFFIX,
         )
 
