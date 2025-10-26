@@ -1,0 +1,183 @@
+"""
+db4e/constants/DSQL.py
+
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
+    License: GPL 3.0
+"""
+
+# Monero classes
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.XMRig import XMRig
+from db4e.recs.monero.XMRigRemote import XMRigRemote
+
+# Mining classes
+from db4e.recs.mining.BlockFoundEvent import BlockFoundEvent
+from db4e.recs.mining.ChainHashrate import ChainHashrate
+from db4e.recs.mining.ChainMiners import ChainMiners
+from db4e.recs.mining.MinerHashrate import MinerHashrate
+from db4e.recs.mining.PoolHashrate import PoolHashrate
+from db4e.recs.mining.ShareFoundEvent import ShareFoundEvent
+from db4e.recs.mining.SharePosition import SharePosition
+from db4e.recs.mining.XMRPayment import XMRPayment
+
+# Ops record classes
+from db4e.recs.ops.CurrentUptime import CurrentUptime
+from db4e.recs.ops.TotalUptime import TotalUptime
+from db4e.recs.ops.TUILogLine import TUILogLine
+
+
+# Utility class
+from db4e.Modules.ConstGroup import ConstGroup
+
+
+class DTable(ConstGroup):
+
+    # Deployment record tables
+    DB4E: str = "db4e"
+    MONEROD: str = "monerod"
+    MONEROD_REMOTE: str = "monerod_remote"
+    P2POOL: str = "p2pool"
+    P2POOL_REMOTE: str = "p2pool_remote"
+    P2POOL_INTERNAL: str = "p2pool_internal"
+    XMRIG: str = "xmrig"
+    XMRIG_REMOTE: str = "xmrig_remote"
+
+    # Operations record tables
+    CURRENT_UPTIME: str = "current_uptime"
+    TOTAL_UPTIME: str = "total_uptime"
+    TUI_LOG: str = "tui_log"
+
+    # Mining record tables
+    BLOCK_FOUND_EVENT: str = "block_found_event"
+    CHAIN_HASHRATE: str = "chain_hashrate"
+    CHAIN_MINERS: str = "chain_miners"
+    MINER_HASHRATE: str = "miner_hashrate"
+    POOL_HASHRATE: str = "pool_hashrate"
+    SHARE_FOUND_EVENT: str = "share_found_event"
+    SHARE_POSITION: str = "share_position"
+    XMR_PAYMENT: str = "xmr_payment"
+
+
+class DCol(ConstGroup):
+    ANY_IP: str = "any_ip"
+    BLOCKCHAIN_DIR: str = "blockchain_dir"
+    CHAIN: str = "chain"
+    CONFIG_FILE: str = "config_file"
+    DETAILS: str = "details"
+    DONATION_WALLET: str = "donation_wallet"
+    DB4E_GROUP: str = "db4e_group"
+    DB4E_USER: str = "db4e_user"
+    EFFORT: str = "effort"
+    ELEMENT: str = "element"
+    ELEMENT_TYPE: str = "element_type"
+    ENABLED: str = "enabled"
+    EVENT: str = "event"
+    HASHRATE: str = "hashrate"
+    ID: str = "id"
+    IN_PEERS: str = "in_peers"
+    INSTALL_DIR: str = "install_dir"
+    INSTANCE: str = "instance"
+    IP_ADDR: str = "ip_addr"
+    LOG_LEVEL: str = "log_level"
+    LOG_FILE: str = "log_file"
+    LOGROTATE_CONFIG: str = "logrotate_config"
+    MAX_LOG_FILES: str = "max_log_files"
+    MAX_LOG_SIZE: str = "max_log_size"
+    MESSAGE: str = "message"
+    MINER: str = "miner"
+    MINERS: str = "miners"
+    OPERATION: str = "operation"
+    OUT_PEERS: str = "out_peers"
+    P2P_BIND_PORT: str = "p2p_bind_port"
+    PARENT: str = "parent"
+    PICONERO: str = "piconero"
+    POOL: str = "pool"
+    PRIMARY_SERVER: str = "primary_server"
+    PRIORITY_NODE_1: str = "priority_node_1"
+    PRIORITY_PORT_1: str = "priority_port_1"
+    PRIORITY_NODE_2: str = "priority_node_2"
+    PRIORITY_PORT_2: str = "priority_port_2"
+    RPC_BIND_PORT: str = "rpc_bind_port"
+    SHARE_POSITION: str = "share_position"
+    SHOW_TIME_STATS: str = "show_time_stats"
+    START_TIME: str = "start_time"
+    STATUS: str = "status"
+    STDIN_PATH: str = "stdin_path"
+    STOP_TIME: str = "stop_time"
+    STRATUM_PORT: str = "stratum_port"
+    TRACKED_INSTANCE: str = "tracked_instance"
+    TRACKED_TYPE: str = "tracked_type"
+    UPDATED_YEAR: str = "updated_y"
+    UPDATED_MONTH: str = "updated_mo"
+    UPDATED_DAY: str = "updated_d"
+    UPDATED_HOUR: str = "updated_h"
+    UPDATED_MINUTE: str = "updated_mi"
+    UPDATED_SECOND: str = "updated_s"
+    UPTIME_SECS: str = "uptime_secs"
+    USER_WALLET: str = "user_wallet"
+    VENDOR_DIR: str = "vendor_dir"
+    VERSION: str = "version"
+    ZMQ_PUB_PORT: str = "zmq_pub_port"
+    ZMQ_RPC_PORT: str = "zmq_rpc_port"
+
+
+ELEM_TABLE_LIST = [
+    DTable.DB4E,
+    DTable.MONEROD,
+    DTable.MONEROD_REMOTE,
+    DTable.P2POOL,
+    DTable.P2POOL_REMOTE,
+    DTable.P2POOL_INTERNAL,
+    DTable.XMRIG,
+    DTable.XMRIG_REMOTE,
+]
+
+MINING_TABLE_LIST = [
+    DTable.BLOCK_FOUND_EVENT,
+    DTable.CHAIN_HASHRATE,
+    DTable.CHAIN_MINERS,
+    DTable.MINER_HASHRATE,
+    DTable.POOL_HASHRATE,
+    DTable.SHARE_FOUND_EVENT,
+    DTable.SHARE_POSITION,
+    DTable.XMR_PAYMENT,
+]
+
+OPS_TABLE_LIST = [
+    DTable.CURRENT_UPTIME,
+    DTable.TOTAL_UPTIME,
+    DTable.TUI_LOG,
+]
+
+TYPE_TO_TABLE_MAP = {
+    # Deployment records
+    Db4E: DTable.DB4E,
+    MoneroD: DTable.MONEROD,
+    MoneroDRemote: DTable.MONEROD_REMOTE,
+    P2Pool: DTable.P2POOL,
+    P2PoolRemote: DTable.P2POOL_REMOTE,
+    P2PoolInternal: DTable.P2POOL_INTERNAL,
+    XMRig: DTable.XMRIG,
+    XMRigRemote: DTable.XMRIG_REMOTE,
+    # Mining records
+    BlockFoundEvent: DTable.BLOCK_FOUND_EVENT,
+    ChainHashrate: DTable.CHAIN_HASHRATE,
+    ChainMiners: DTable.CHAIN_MINERS,
+    MinerHashrate: DTable.MINER_HASHRATE,
+    PoolHashrate: DTable.POOL_HASHRATE,
+    ShareFoundEvent: DTable.SHARE_FOUND_EVENT,
+    SharePosition: DTable.SHARE_POSITION,
+    XMRPayment: DTable.XMR_PAYMENT,
+    # Ops records
+    CurrentUptime: DTable.CURRENT_UPTIME,
+    TotalUptime: DTable.TOTAL_UPTIME,
+    TUILogLine: DTable.TUI_LOG,
+}

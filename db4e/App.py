@@ -25,26 +25,26 @@ except Exception:
     __version__ = "N/A"
 
 
-from db4e.Widgets.TopBar import TopBar
-from db4e.Widgets.NavPane import NavPane
-from db4e.Widgets.Clock import Clock
+from db4e.widgets.TopBar import TopBar
+from db4e.widgets.NavPane import NavPane
+from db4e.widgets.Clock import Clock
 
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Messages.UpdateTopBar import UpdateTopBar
+from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.RefreshNavPane import RefreshNavPane
+from db4e.messages.UpdateTopBar import UpdateTopBar
 
-from db4e.Modules.DbCache import DbCache
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.DeplClient import DeplClient
-from db4e.Modules.HealthCache import HealthCache
-from db4e.Modules.InstallMgr import InstallMgr
-from db4e.Modules.MessageRouter import MessageRouter
-from db4e.Modules.MiningDb import MiningDb
-from db4e.Modules.OpsDb import OpsDb, OpsETL
-from db4e.Modules.OpsMgr import OpsMgr
-from db4e.Modules.PaneMgr import PaneMgr
-from db4e.Modules.PaneCatalogue import PaneCatalogue
-from db4e.Modules.SQLMgr import SQLMgr
+from db4e.misc.DeplClient import DeplClient
+from db4e.misc.InstallMgr import InstallMgr
+from db4e.misc.MessageRouter import MessageRouter
+from db4e.misc.OpsMgr import OpsMgr
+from db4e.misc.PaneMgr import PaneMgr
+
+from db4e.db.SQLDb import SQLDb
+from db4e.db.MiningDb import MiningDb
+from db4e.db.OpsDb import OpsDb, OpsETL
+
+from db4e.util.BootstrapMgr import BootstrapMgr
+from db4e.util.PaneCatalogue import PaneCatalogue
 
 from db4e.Constants.DDef import DDef
 from db4e.Constants.DField import DField
@@ -81,12 +81,11 @@ class Db4EApp(App):
         # App Class Relationships diagram:
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
-        db = DbMgr()
-        sqldb = SQLMgr(db_type=DField.CLIENT)
+        bs_mgr = BootstrapMgr()
+        sql_db = SQLDb(db_type=DField.CLIENT)
         ops_db = OpsDb(db=db)
         ops_etl = OpsETL(ops_db=ops_db)
-        mining_db = MiningDb(db=db, ops_etl=ops_etl)
-        db_cache = DbCache(db=db, mining_db=mining_db)
+        mining_db = MiningDb(sql_db=sql_db, ops_etl=ops_etl)
         depl_client = DeplClient(db=db, db_cache=db_cache)
         health_cache = HealthCache(depl_client=depl_client)
         ops_mgr = OpsMgr(
@@ -96,7 +95,7 @@ class Db4EApp(App):
             mining_db=mining_db,
             ops_etl=ops_etl,
         )
-        install_mgr = InstallMgr(db=db, db_cache=db_cache, sqldb=sqldb)
+        install_mgr = InstallMgr(bs_mgr=bs_mgr)
 
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(health_cache=health_cache, ops_mgr=ops_mgr)

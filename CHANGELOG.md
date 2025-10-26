@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## Issues
+- Fix internal links on the Schema page.
+
+## [Unreleased]
+
+### Added
+- Added a `tui_log` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
+- Added a `TUILogMsg` class to encapsulate a TUI log record.
+- Added an `internal_p2pool` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
+
+### Changed
+- Replaced `DbCache` and `DeplMgr` with `SQLMgr` and `BootstrapMgr` in the `InstallMgr` module.
+- Replaced the `DeplMgr:get_dir()` with `BootstrapMgr` module's `get_dir()` and `get_file()` functions.
+- Changed the `LOG_ROTATE_CONFIG` constant to `LOGROTATE_CONFIG` in the `DDef` and `DField` constants files.
+  - Changed backend `p2pool` and `xmrig` table's `log_rotate_config` to `logrotate_config`
+  - Updated the `__dict__` and `__init__` methods in the `P2Pool` and `XMRig` classes.
+  - Updated the `Components:LogRotateConfig` class.
+- Completed conversion of the `InstallMgr` to use the new `SQLMgr` and `BootstrapMgr` modules. This completes the migration from Mongo to SQLite for the initial install. 
+- Complete rewrite of the `DeplMgr` module as part of the shift from **Mongo** to **SQLite3**.
+- In `Db4ESystemD`, replaced the Mongo *ops* collection, with inserts of `StartStopRec` into SQLite `start_stop` table.
+- Modified `SQLMgr:init_db()` to add `UNIQUE` constraints to the *hourly* records.
+- Modified `SQLMgr:insert_one()` to handle the *hourly* record tables using the new constraint.
+- Complete re-write of `MiningDb`: Migrated from Mongo `MiningDb` to SQLite `SQLMgr`.
+- Update of `P2PoolWatcher` to match changes in `MiningDb`.
+
+### Fixed
+- Integration of `BootstrapMgr`, `SQLMgr` and `InstallMgr` modules.
+- Set the `id` for the *Introduction* label on the `InitialSetupPane`.
+- `pages/Schema.md`:
+  - Corrected *Internal P2Pool* section header name.
+
+### Removed
+- `DeplMgr` module. It has been replaced by the `BootstrapMgr` and `SQLMgr` modules.
+- `Job` module. It has been replaced by the `TUILogMsg` class.
+
+---
+
 ## [0.48.1] - 2025-10-17
 
 ### Added

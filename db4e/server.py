@@ -23,6 +23,7 @@ import subprocess
 import gzip
 from pathlib import Path
 import re
+import fastapi
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -31,20 +32,18 @@ except Exception:
     __package_name__ = "Db4E"
     __version__ = "N/A"
 
+from db4e.Modules.BootstrapMgr import BootstrapMgr
 from db4e.Modules.Db4E import Db4E
 from db4e.Modules.Db4ESystemD import Db4ESystemD
-from db4e.Modules.DbCache import DbCache
 from db4e.Modules.DbMgr import DbMgr
 from db4e.Modules.Db4ELogger import Db4ELogger
 from db4e.Modules.DeplMgr import DeplMgr
 from db4e.Modules.InternalP2Pool import InternalP2Pool
-from db4e.Modules.Job import Job
-from db4e.Modules.JobQueue import JobQueue
-from db4e.Modules.DbCache import DbCache
 from db4e.Modules.MiningDb import MiningDb
 from db4e.Modules.MoneroD import MoneroD
 from db4e.Modules.MoneroDRemote import MoneroDRemote
 from db4e.Modules.OpsDb import OpsDb, OpsETL
+from db4e.Modules.OpsRec import StartStopRec, TUILogRec
 from db4e.Modules.P2Pool import P2Pool
 from db4e.Modules.P2PoolRemote import P2PoolRemote
 from db4e.Modules.P2PoolWatcher import P2PoolWatcher
@@ -79,26 +78,24 @@ class Db4eServer:
 
     def __init__(self):
 
-        # Mongo DB Manager
-        self.db = DbMgr()
+        # Bootstrap Manager
+        self.bs_mgr = BootstrapMgr()
+
+        if not self.bs_mgr.is_initialized():
+            raise ValueError("ERROR: Db4E initial install not completed!")
 
         # SQLite DB Manager
-        self.sqldb = SQLMgr(db_type=DField.SERVER)
-
-        #  systemd wrapper
-        self.systemd = Db4ESystemD(db=self.db)
-
-        # OpsDb
-        self.ops_db = OpsDb(db=self.db)
+        self.sql_mgr = SQLMgr(db_type=DField.SERVER)
+        self.sql_mgr.initialize(self.bs_mgr.get_dir(DDir.DB))
 
         # Deployment Manager
-        self.depl_mgr = DeplMgr(db=self.db)
+        self.depl_mgr = DeplMgr(bs_mgr=self.bs_mgr, sql_mgr=self.sql_mgr)
 
-        # Job Queue
-        self.job_queue = JobQueue(db=self.db)
+        #  systemd wrapper
+        self.systemd = Db4ESystemD(sql_mgr=self.sql_mgr)
 
         # Setup logging
-        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
+        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
         fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)
@@ -107,11 +104,10 @@ class Db4eServer:
 
         # Mining DB object
         self.mining_db = MiningDb(
-            db=self.db, log_file=fq_log_file, ops_etl=OpsETL(ops_db=OpsDb(db=self.db))
+            sql_mgr=self.sql_mgr,
+            log_file=fq_log_file,
+            ops_etl=OpsETL(ops_db=OpsDb(db=self.db)),
         )
-
-        # Database Cache
-        self.db_cache = DbCache(db=self.db, mining_db=self.mining_db)
 
         # Track when we last ran `logrotate`
         self.last_logrotate = None
@@ -129,21 +125,20 @@ class Db4eServer:
         self.running.set()
 
         # Create an Ops record to record the startup time
-        self.ops_db.add_start_event(elem_type=DLabel.DB4E, instance=DElem.DB4E)
+        start_rec = StartStopRec(
+            elem_type=DElem.DB4E_SERVER,
+            instance=DElem.DB4E_SERVER,
+            rec_type=DField.START,
+        )
+        self.sql_mgr.insert_one(start_rec)
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()
 
-    def add_deployment(self, job):
+    def add_deployment(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:add_deployment(): {job}")
-        elem = job.elem()
-        self.log.debug(f"Db4eServer:add_deployment(): {elem}")
+            self.log.debug(f"Db4eServer:add_deployment(): {elem}")
         self.depl_mgr.add_deployment(elem)
-        job.msg(f"Added deployment")
-        job.elem_type(elem.elem_type())
-        job.instance(elem.instance())
-        self.job_queue.complete_job(job)
 
     def check_deployments(self):
         depls = self.depl_mgr.get_deployments()
@@ -188,41 +183,10 @@ class Db4eServer:
             if not found_primary:
                 self.unset_int_p2pool_primary()
 
-    def check_jobs(self):
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer:check_jobs():")
-        jobs = []
-        found_job = True
-        while found_job:
-            job = self.job_queue.grab_job()
-            if job:
-                jobs.append(job)
-            else:
-                found_job = False
-
-        for job in jobs:
-            # self.log.debug(f"Db4eServer:check_jobs(): job.elem(): {job.elem()}")
-            op = job.op()
-            if op == DJob.NEW:
-                self.add_deployment(job=job)
-            elif op == DJob.ENABLE:
-                self.enable(job=job)
-            elif op == DJob.DISABLE:
-                self.disable(job=job)
-            elif op == DJob.DELETE:
-                self.delete(job=job)
-            elif op == DJob.RESTART:
-                self.restart(job=job)
-            elif op == DJob.UPDATE:
-                self.update(job=job)
-            elif op == DJob.SET_PRIMARY:
-                self.set_primary(job=job)
-            self.job_queue.complete_job(job)
-
     def chown_logrotate_files(self):
         if DDebug.FUNCTION:
             self.log.debug("Db4eServer:chown_logrotate_files():")
-        logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
+        logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
         # Get a list of files in the logrotate_dir
         file_list = os.listdir(logrotate_dir)
         for aFile in file_list:
@@ -235,26 +199,20 @@ class Db4eServer:
             except Exception as e:
                 self.log.critical(f"chown_logrotate_files() failed: {e} {stderr}")
 
-    def delete(self, job: Job):
+    def delete(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:delete(): {job}")
-        elem_type = job.elem_type()
-        instance = job.instance()
-        self.log.info(f"Job: Deleting {elem_type}/{instance}")
-        elem = self.depl_mgr.get_deployment(elem_type, instance)
-        job.msg("Deleted deployment")
+            self.log.debug(f"Db4eServer:delete(): {elem}")
+        self.log.info(f"Job: Deleting {elem}")
         if type(elem) == XMRig:
             elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
-            self.job_queue.complete_job(job=job)
         elif type(elem) == P2Pool:
             self.disable_downstream(elem)
             elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
-            self.job_queue.complete_job(job=job)
-            control = self.log_watchers.pop(instance, None)
+            control = self.log_watchers.pop(elem.instance(), None)
             if control:
                 thread, stop_event, watcher = control
                 watcher.stop_sub_thread()
@@ -268,22 +226,15 @@ class Db4eServer:
             elem.enabled(False)
             self.ensure_stopped(elem)
             self.depl_mgr.delete_deployment(elem)
-            self.job_queue.complete_job(job=job)
 
-    def disable(self, job: Job):
+    def disable(self, elem):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable(): {job}")
-        elem_type = job.elem_type()
-        instance = job.instance()
-        elem = self.depl_mgr.get_deployment(elem_type, instance)
-
         # print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
         if not elem.enabled():
             return
-        job.msg(f"Disabled deployment")
         elem.enabled(False)
         self.depl_mgr.update_deployment(elem)
-        self.job_queue.complete_job(job)
         if (
             type(elem) == P2Pool
             or type(elem) == MoneroD
@@ -293,14 +244,20 @@ class Db4eServer:
             self.disable_downstream(elem)
         self.log.info(f"Disable: {elem}")
         # Create an Ops record when remote elements are disabled
-        if elem_type == DElem.MONEROD_REMOTE:
-            self.ops_db.add_stop_event(
-                elem_type=DLabel.MONEROD_REMOTE_SHORT, instance=instance
+        if type(elem) == MoneroDRemote:
+            stop_rec = StartStopRec(
+                elem_type=DElem.MONEROD_REMOTE,
+                instance=elem.instance(),
+                rec_type=DField.STOP,
             )
-        elif elem_type == DElem.P2POOL_REMOTE:
-            self.ops_db.add_stop_event(
-                elem_type=DLabel.P2POOL_REMOTE_SHORT, instance=instance
+            self.sql_mgr.insert_one(stop_rec)
+        elif type(elem) == P2PoolRemote:
+            stop_rec = StartStopRec(
+                elem_type=DElem.P2POOL_REMOTE,
+                instance=elem.instance(),
+                rec_type=DField.STOP,
             )
+            self.sql_mgr.insert_one(stop_rec)
 
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
@@ -315,12 +272,7 @@ class Db4eServer:
                     self.ensure_stopped(p2pool)
                     self.depl_mgr.update_deployment(p2pool)
                     p2pool.parent(DField.DISABLE)
-                    job = Job(
-                        op=DJob.DISABLE,
-                        elem_type=elem.elem_type(),
-                        instance=elem.instance(),
-                    )
-                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    # TODO add TuiLogRec
                     self.disable_downstream(p2pool)
 
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
@@ -332,12 +284,7 @@ class Db4eServer:
                     self.ensure_stopped(int_p2pool)
                     self.depl_mgr.update_deployment(int_p2pool)
                     int_p2pool.parent(DField.DISABLE)
-                    job = Job(
-                        op=DJob.DISABLE,
-                        elem_type=elem.elem_type(),
-                        instance=elem.instance(),
-                    )
-                    job.msg(f"Disabled downstream instance: {elem.instance()}")
+                    # TODO add TuiLogRec
 
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
             xmrigs = self.depl_mgr.get_xmrigs()
@@ -348,38 +295,33 @@ class Db4eServer:
                     xmrig.enabled(False)
                     xmrig.parent(DField.DISABLE)
                     self.depl_mgr.update_deployment(xmrig)
-                    job = Job(
-                        op=DJob.DISABLE,
-                        elem_type=elem.elem_type(),
-                        instance=elem.instance(),
-                    )
-                    job.msg(f"Disabled downstream instance: {elem.instance()}")
-                    self.job_queue.complete_job(job)
+                    # TODO add TuiLogRec
 
-    def enable(self, job: Job):
+    def enable(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:enable(): {job}")
-        elem_type = job.elem_type()
-        instance = job.instance()
-        elem = self.depl_mgr.get_deployment(elem_type, instance)
+            self.log.debug(f"Db4eServer:enable(): {elem}")
         # print(f"Db4eServer:enable(): {elem}: current: {elem.enabled()}")
         if elem.enabled():
             return
         self.log.info(f"Enable: {elem}")
 
-        job.msg(f"Enabled deployment")
         elem.enabled(True)
         self.depl_mgr.update_deployment(elem)
-        self.job_queue.complete_job(job)
         # Create an Ops record when remote elements are enabled
-        if elem_type == DElem.MONEROD_REMOTE:
-            self.ops_db.add_start_event(
-                elem_type=DLabel.MONEROD_REMOTE_SHORT, instance=instance
+        if type(elem) == MoneroDRemote:
+            start_rec = StartStopRec(
+                elem_type=DElem.MONEROD_REMOTE,
+                instance=elem.instance(),
+                rec_type=DField.START,
             )
-        elif elem_type == DElem.P2POOL_REMOTE:
-            self.ops_db.add_start_event(
-                elem_type=DLabel.P2POOL_REMOTE_SHORT, instance=instance
+            self.sql_mgr.insert_one(start_rec)
+        elif type(elem) == P2PoolRemote:
+            start_rec = StartStopRec(
+                elem_type=DElem.P2POOL_REMOTE,
+                instance=elem.instance(),
+                rec_type=DField.START,
             )
+            self.sql_mgr.insert_one(start_rec)
 
     def ensure_running(self, elem):
         if DDebug.FUNCTION:
@@ -460,107 +402,20 @@ class Db4eServer:
         else:
             self.log.critical(f"ERROR: Failed to stop {elem}, return code was {rc}")
 
-    def mongodb_backup(self):
+    def restart(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug("Db4eServer:mongodb_backup():")
-        # Mongo collections
-        depl_col = DDef.DEPL_COLLECTION
-        jobs_col = DDef.JOBS_COLLECTION
-        mining_col = DDef.MINING_COLLECTION
-        ops_col = DDef.OPS_COLLECTION
-        all_cols = [depl_col, jobs_col, mining_col, ops_col]
-
-        now = datetime.now()
-        timestamp = now.strftime("%Y-%m-%d")
-        todays_backup = timestamp + "_" + DElem.DB4E + "_" + depl_col + DDef.GZIP_SUFFIX
-        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-        backup_dir = os.path.join(vendor_dir, DDef.BACKUP_DIR)
-        fq_todays_backup = os.path.join(backup_dir, todays_backup)
-
-        # Check if today's backup already exists
-        if os.path.exists(fq_todays_backup):
-            return
-
-        # Create the backup directory if it doesn't exist
-        if not os.path.isdir(backup_dir):
-            os.makedirs(backup_dir)
-
-        stderr = ""
-        try:
-            for aCol in all_cols:
-                dumpfile = os.path.join(
-                    backup_dir, timestamp + "_" + DElem.DB4E + "_" + aCol
-                )
-                dumpfile_gz = dumpfile + DDef.GZIP_SUFFIX
-
-                ## Backup Mongo; run mongodump
-                cmd = [
-                    DFile.MONGODUMP,
-                    f"--archive={dumpfile}",
-                    f"--db={DElem.DB4E}",
-                    f"--collection={aCol}",
-                ]
-                proc = subprocess.run(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-                stdout = proc.stdout.decode()
-                stderr = proc.stderr.decode()
-
-                ## Compress the dump files
-                with open(dumpfile, "rb") as f_in:
-                    with gzip.open(dumpfile_gz, "wb") as f_out:
-                        # Write the contents of the original file to the gzipped file
-                        shutil.copyfileobj(f_in, f_out)
-                os.remove(dumpfile)
-                self.log.info(f"Backed up MongoDB collection: {dumpfile_gz}")
-
-            ## Delete old dump files
-            path = Path(backup_dir)
-
-            # List of all files
-            dump_files = list(path.glob("*" + DDef.GZIP_SUFFIX))
-
-            # We only keep MAX_LOG_FILES backups for each backup file
-            if len(dump_files) <= len(all_cols) * DDef.MAX_LOG_FILES:
-                return
-
-            # Collect creation times
-            dumps_with_times = []
-            for aDump in dump_files:
-                create_time = os.path.getctime(aDump)
-                dumps_with_times.append((create_time, aDump))
-
-            # Sort by creation time
-            dumps_with_times.sort(key=lambda x: x[0])
-
-            max_total = len(all_cols) * DDef.MAX_LOG_FILES
-
-            # Delete oldest files until we’re within limit
-            for _, dump_path in dumps_with_times[:-max_total]:
-                os.remove(dump_path)
-                self.log.info(f"Deleted old backup file: {dump_path}")
-
-        except Exception as e:
-            self.log.critical(f"mongodb_backup() failed: {e} {stdout} {stderr}")
-            return
-
-    def restart(self, job):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:restart(): {job}")
+            self.log.debug(f"Db4eServer:restart(): {elem}")
         # Note that XMRig does not need to be restarted, it's smart enough to notice that
         # the JSON config has been updated and reload the settings
-        elem_type = job.elem_type()
-        instance = job.instance()
         sd = self.systemd
-        if elem_type == DElem.MONEROD:
+        instance = elem.instance()
+        if type(elem) == MoneroD:
             sd.service_name("monerod@" + instance)
-        elif elem_type == DElem.P2POOL:
+        elif type(elem) == P2Pool:
             sd.service_name("p2pool@" + instance)
         else:
             raise ValueError(f"Unknown deployment type: {elem_type}")
         sd.restart()
-        job.msg(f"Restarted instance")
-        self.job_queue.complete_job(job)
 
     def rotate_logs(self):
         # Run logrotate every two hours
@@ -636,12 +491,18 @@ class Db4eServer:
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
         for instance in self.log_watchers.keys():
-            self.ops_db.add_stop_event(
-                elem_type=DLabel.P2POOL_WATCHER, instance=instance
+            stop_rec = StartStopRec(
+                elem_type=DElem.P2POOL_WATCHER, instance=instance, rec_type=DField.STOP
             )
+            self.sql_mgr.insert_one(stop_rec)
 
         # Create a stop event in the ops collection
-        self.ops_db.add_stop_event(elem_type=DLabel.DB4E, instance=DElem.DB4E)
+        stop_rec = StartStopRec(
+            elem_type=DElem.DB4E_SERVER,
+            instance=DElem.DB4E_SERVER,
+            rec_type=DField.STOP,
+        )
+        self.sql_mgr.insert_one(stop_rec)
         sys.exit(0)
 
     def set_int_p2pool_primary(self, monerod_id):
@@ -652,13 +513,13 @@ class Db4eServer:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
                 p2pool.parent(monerod_id)
                 p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
-                vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-                tmpl_file = self.depl_mgr.get_template(DElem.P2POOL)
+                vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
+                tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
                 p2pool.log_file(
                     os.path.join(
                         vendor_dir,
-                        self.depl_mgr.get_dir(DElem.P2POOL),
+                        self.bs_mgr.get_dir(DElem.P2POOL),
                         p2pool.instance(),
                         DDir.LOG,
                         DFile.P2POOL_LOG,
@@ -721,15 +582,21 @@ class Db4eServer:
                     DLabel.MINI_CHAIN,
                     DLabel.NANO_CHAIN,
                 ]:
-                    self.ops_db.add_start_event(
-                        elem_type=DLabel.P2POOL_WATCHER, instance=instance
+                    stop_rec = StartStopRec(
+                        elem_type=DLabel.P2POOL_WATCHER,
+                        instance=instance,
+                        rec_type=DField.STOP,
                     )
+                    self.sql_mgr.insert_one(stop_rec)
 
         t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
         self.log_watchers[instance] = (t, stop_event, watcher)
         t.start()
         self.log.info(f"Started P2Pool watcher: {instance}")
-        self.ops_db.add_start_event(elem_type=DLabel.P2POOL_WATCHER, instance=instance)
+        start_rec = StartStopRec(
+            elem_type=DLabel.P2POOL_WATCHER, instance=instance, rec_type=DField.START
+        )
+        self.sql_mgr.insert_one(start_rec)
 
     def start(self):
         if DDebug.FUNCTION:
@@ -742,32 +609,21 @@ class Db4eServer:
             count += 1
             self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
             self.check_deployments()
-            self.check_jobs()
             self.rotate_logs()
-            self.mongodb_backup()
             time.sleep(POLL_INTERVAL)
 
-    def update(self, job):
+    def update(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:update(): {job}")
-        elem = job.elem()
-        elem = self.depl_mgr.update_deployment(elem)
+            self.log.debug(f"Db4eServer:update(): {elem}")
         self.log.info(f"Updated: {elem}")
 
-        msgs = ""
-        for msg in elem.pop_msgs():
-            for key, val in msg.items():
-                msgs += val[DField.MESSAGE] + "\n"
-        job.msg(msgs[:-1])
-        self.job_queue.complete_job(job)
-
+        # TODO check return value, restart if needed
+        self.depl_mgr.update_deployment(elem)
         # Restart Monerod and P2Pool deployments if their config has been updated
         if type(elem) == MoneroD or type(elem) == P2Pool:
             # Create a restart job
-            job = Job(
-                op=DJob.RESTART, elem_type=elem.elem_type(), instance=elem.instance()
-            )
-            self.job_queue.post_job(job)
+            pass
+            # TODO implement restart
 
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:
