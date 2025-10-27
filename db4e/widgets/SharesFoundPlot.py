@@ -13,8 +13,8 @@ import math
 from textual_plot import PlotWidget, HiResMode
 from textual.app import ComposeResult, Widget
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DForm import DForm
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DForm import DForm
 
 
 class SharesFoundPlot(Widget):

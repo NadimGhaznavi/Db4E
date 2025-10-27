@@ -11,19 +11,19 @@ db4e/Panes/P2PoolInternalPane.py
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Button
 
-from db4e.Modules.Helper import gen_results_table
-from db4e.Modules.InternalP2Pool import InternalP2Pool
+from db4e.util.Helper import gen_results_table
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
-from db4e.Messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4eMsg import Db4eMsg
 
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DJob import DJob
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DForm import DForm
+from db4e.constants.DButton import DButton
+from db4e.constants.DJob import DJob
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DMethod import DMethod
+from db4e.constants.DModule import DModule
+from db4e.constants.DElem import DElem
+from db4e.constants.DForm import DForm
 
 
 class ChainPane(Container):
@@ -95,7 +95,7 @@ class ChainPane(Container):
         self.query_one("#" + DForm.FORM_BOX, Vertical).border_subtitle = DLabel.CONFIG
         self.query_one("#" + DForm.HEALTH_BOX, Vertical).border_subtitle = DLabel.STATUS
 
-    def set_data(self, p2pool: InternalP2Pool):
+    def set_data(self, p2pool: P2PoolInternal):
         self.p2pool = p2pool
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(p2pool.instance())
         self.query_one(f"#{DForm.CONFIG_FILE_LABEL}", Label).update(

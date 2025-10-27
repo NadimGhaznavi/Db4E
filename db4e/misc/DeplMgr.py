@@ -15,31 +15,31 @@ import socket
 from typing import overload
 import subprocess
 
-from db4e.recs.ops.TUILogLine import TUILogRec
+from db4e.recs.ops.TUILogLine import TUILogLine
 from db4e.db.DeplDb import DeplDb
 
-from db4e.elem.Db4E import Db4E
-from db4e.elem.P2PoolInternal import P2PoolInternal
-from db4e.elem.MoneroD import MoneroD
-from db4e.elem.MoneroDRemote import MoneroDRemote
-from db4e.elem.P2Pool import P2Pool
-from db4e.elem.P2PoolRemote import P2PoolRemote
-from db4e.elem.XMRig import XMRig
-from db4e.elem.XMRigRemote import XMRigRemote
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.XMRig import XMRig
+from db4e.recs.monero.XMRigRemote import XMRigRemote
 from db4e.util.Helper import sudo_del_file
 from db4e.util.BootstrapMgr import BootstrapMgr
 
-from db4e.Constants.DField import DField
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DDir import DDir
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DFile import DFile
-from db4e.Constants.DField import DField
-from db4e.Constants.DStatus import DStatus
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DMongo import DMongo
+from db4e.constants.DField import DField
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DDef import DDef
+from db4e.constants.DDir import DDir
+from db4e.constants.DElem import DElem
+from db4e.constants.DFile import DFile
+from db4e.constants.DField import DField
+from db4e.constants.DStatus import DStatus
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
+from db4e.constants.DMongo import DMongo
 
 
 class Default:
@@ -149,27 +149,27 @@ class DeplMgr:
         monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         # Add the record to the DB
-        self.sql_mgr.insert_one(monerod)
+        self.depl_db.insert_one(monerod)
 
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.MONEROD,
             instance=monerod.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
-        self.sql_mgr.insert_one(monerod)
-        log_rec = TUILogRec(
+        self.depl_db.insert_one(monerod)
+        log_rec = TUILogLine(
             elem_type=DElem.MONEROD,
             instance=monerod.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
 
     def add_p2pool_deployment(self, p2pool: P2Pool):
         # Generate the configuration
@@ -208,7 +208,7 @@ class DeplMgr:
                 DFile.P2POOL_STDIN,
             )
         )
-        self.sql_mgr.insert_one(p2pool)
+        self.depl_db.insert_one(p2pool)
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
         db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
@@ -217,26 +217,26 @@ class DeplMgr:
             tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
         )
         # Create a console log message
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.P2POOL,
             instance=p2pool.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
-        self.sql_mgr.insert_one(p2pool)
+        self.depl_db.insert_one(p2pool)
         # Create a console log message
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.P2POOL_REMOTE,
             instance=p2pool.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
         return p2pool
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
@@ -263,16 +263,16 @@ class DeplMgr:
             tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
         )
         # Add the new record
-        self.sql_mgr.insert_one(xmrig)
+        self.depl_db.insert_one(xmrig)
         # Create a console log message
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.XMRIG,
             instance=xmrig.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
 
     def add_remote_xmrig_deployment(self, xmrig: XMRigRemote) -> XMRigRemote:
         """
@@ -298,15 +298,15 @@ class DeplMgr:
             if remote_xmrig.instance() == xmrig.instance():
                 return
 
-        self.sql_mgr.insert_one(xmrig)
-        log_rec = TUILogRec(
+        self.depl_db.insert_one(xmrig)
+        log_rec = TUILogLine(
             elem_type=DElem.XMRIG_REMOTE,
             instance=xmrig.instance(),
             op=DField.NEW,
             status=DStatus.COMPLETE,
             msg="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
+        self.depl_db.insert_one(log_rec)
         return xmrig
 
     def create_vendor_dir(self, new_dir: str, db4e: Db4E):
@@ -375,7 +375,7 @@ class DeplMgr:
             depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
-        self.sql_mgr.delete_one(elem)
+        self.depl_db.delete_one(elem)
 
     def get_component_value(self, data, field_name):
         """
@@ -400,7 +400,7 @@ class DeplMgr:
         return None
 
     def get_deployment(self, elem_type, instance):
-        rec = self.sql_mgr.find_one(elem_type, instance)
+        rec = self.depl_db.find_one(elem_type, instance)
         if rec:
             obj = self.factory(rec)
             if type(obj) == P2Pool or type(obj) == P2PoolInternal:
@@ -444,19 +444,19 @@ class DeplMgr:
         if id == DField.DISABLE:
             return None
         else:
-            rec = self.sql_mgr.find_one_by_id(elem_type=elem_type, id=id)
+            rec = self.depl_db.find_one_by_id(elem_type=elem_type, id=id)
             return self.factory(rec)
 
     def get_deployment_ids_and_instances(self, elem_type):
         instance_map = {}
-        recs = self.sql_mgr.find_many(elem_type=elem_type)
+        recs = self.depl_db.find_many(elem_type=elem_type)
         for rec in recs:
             instance = self.get_component_value(rec, DField.INSTANCE)
             instance_map[instance] = rec[DMongo.OBJECT_ID]
         return instance_map
 
     def get_deployments(self):
-        recs = self.sql_mgr.find_many(elem_type=DField.ALL_DEPLOYMENTS)
+        recs = self.depl_db.find_many(elem_type=DField.ALL_DEPLOYMENTS)
         obj_list = []
         for rec in recs:
             obj = self.factory(rec)
@@ -513,7 +513,7 @@ class DeplMgr:
         return obj_list
 
     def get_internal_p2pools(self):
-        recs = self.sql_mgr.find_many(elem_type=DElem.INT_P2POOL)
+        recs = self.depl_db.find_many(elem_type=DElem.INT_P2POOL)
         obj_list = []
         for rec in recs:
             obj = self.factory(rec)
@@ -526,7 +526,7 @@ class DeplMgr:
 
     def get_monerods(self):
         obj_list = []
-        recs = self.sql_mgr.find_many(elem_type=DElem.MONEROD)
+        recs = self.depl_db.find_many(elem_type=DElem.MONEROD)
         for rec in recs:
             obj_list.append(self.factory(rec))
         return obj_list
@@ -556,7 +556,7 @@ class DeplMgr:
 
     def get_p2pools(self):
         obj_list = []
-        recs = self.sql_mgr.find_many(elem_type=DElem.P2POOL)
+        recs = self.depl_db.find_many(elem_type=DElem.P2POOL)
         for rec in recs:
             obj = self.factory(rec)
             if obj.parent() != DField.DISABLE:
@@ -567,7 +567,7 @@ class DeplMgr:
         return obj_list
 
     def get_remote_xmrigs(self):
-        recs = self.sql_mgr.find_many(elem_type=DElem.XMRIG_REMOTE)
+        recs = self.depl_db.find_many(elem_type=DElem.XMRIG_REMOTE)
         obj_list = []
         for rec in recs:
             obj = self.factory(rec)
@@ -575,7 +575,7 @@ class DeplMgr:
         return obj_list
 
     def get_xmrigs(self):
-        recs = self.sql_mgr.find_many(elem_type=DElem.XMRIG)
+        recs = self.depl_db.find_many(elem_type=DElem.XMRIG)
         obj_list = []
         for rec in recs:
             obj = self.factory(rec)
@@ -606,7 +606,7 @@ class DeplMgr:
         # The current record, we'll update this and write it back in
         db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
         # TUI log entry
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.DB4E,
             instance=DElem.DB4E,
             op=DField.UPDATE,
@@ -615,12 +615,12 @@ class DeplMgr:
         # Updating user wallet
         if db4e.user_wallet != new_db4e.user_wallet:
             db4e.user_wallet(new_db4e.user_wallet())
-            self.sql_mgr.update_one(db4e)
+            self.depl_db.update_one(db4e)
             log_rec.message("Updated user wallet")
             log_rec.details(
                 f"{db4e.user_wallet()[:6]}... > {new_db4e.user_wallet()[:6]}..."
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             update_flag = True
         # Updating vendor dir
         if db4e.vendor_dir != new_db4e.vendor_dir:
@@ -634,7 +634,7 @@ class DeplMgr:
                 )
             log_rec.message("Updated deployment dir")
             log_rec.details(f"{db4e.vendor_dir()} > {new_db4e.vendor_dir()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             db4e.vendor_dir(new_db4e.vendor_dir())
             update_flag = True
         # Updating the primary server
@@ -654,11 +654,11 @@ class DeplMgr:
             db4e.primary_server(new_db4e.primary_server())
             log_rec.message("Updated primary server")
             log_rec.details(f"{old_instance} > {new_instance}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             update_flag = True
         # Update the database
         if update_flag:
-            self.sql_mgr.update_one(db4e)
+            self.depl_db.update_one(db4e)
 
     def update_deployment(self, elem):
         # print(f"DeplMgr:update_deployment(): {rec}")
@@ -690,7 +690,7 @@ class DeplMgr:
                 f"No monerod found for {new_monerod}"
             )
         # TUI log entry
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.MONEROD,
             instance=monerod.instance(),
             op=DField.UPDATE,
@@ -704,20 +704,20 @@ class DeplMgr:
                 monerod.enabled(True)
             log_rec.message("Updated enabled status")
             log_rec.details(f"{monerod.enabled()} > {new_monerod.enabled()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             update, update_config = True, True
         # In Peers
         if monerod.in_peers != new_monerod.in_peers:
             log_rec.message("Updated incoming max peers")
             log_rec.details(f"{monerod.in_peers()} > {new_monerod.in_peers()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.in_peers(new_monerod.in_peers())
             update, update_config = True, True
         # Out Peers
         if monerod.out_peers != new_monerod.out_peers:
             log_rec.message("Updated outbound max peers")
             log_rec.details(f"{monerod.out_peers()} > {new_monerod.out_peers()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.out_peers(new_monerod.out_peers())
             update, update_config = True, True
         # P2P Bind Port
@@ -726,7 +726,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.p2p_bind_port()} > {new_monerod.p2p_bind_port()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.p2p_bind_port(new_monerod.p2p_bind_port())
             update, update_config = True, True
         # RPC Bind Port
@@ -735,7 +735,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.rpc_bind_port()} > {new_monerod.rpc_bind_port()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
             update, update_config = True, True
 
@@ -743,21 +743,21 @@ class DeplMgr:
         if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
             log_rec.message("Updated ZMQ pub port")
             log_rec.details(f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
             update, update_config = True, True
         # ZMQ RPC Port
         if monerod.zmq_rpc_port != new_monerod.zmq_rpc_port:
             log_rec.message("Updated ZMQ RPC port")
             log_rec.details(f"{monerod.zmq_rpc_port()} > {new_monerod.zmq_rpc_port()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
             update, update_config = True, True
         # Log Level
         if monerod.log_level != new_monerod.log_level:
             log_rec.message("Updated log level")
             log_rec.details(f"{monerod.log_level()} > {new_monerod.log_level()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.log_level(new_monerod.log_level())
             update, update_config = True, True
         # Max Log Files
@@ -766,14 +766,14 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.max_log_files()} > {new_monerod.max_log_files()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.max_log_files(new_monerod.max_log_files())
             update, update_config = True, True
         # Max Log Size
         if monerod.max_log_size != new_monerod.max_log_size:
             log_rec.message("Updated max log size")
             log_rec.details(f"{monerod.max_log_size()} > {new_monerod.max_log_size()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.max_log_size(new_monerod.max_log_size())
             update, update_config = True, True
         # Priority Node 1 hostname
@@ -782,7 +782,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.priority_node_1()} > {new_monerod.priority_node_1()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.priority_node_1(new_monerod.priority_node_1())
             update, update_config = True, True
         # Priority Port 1
@@ -791,7 +791,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.priority_port_1()} > {new_monerod.priority_port_1()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.priority_port_1(new_monerod.priority_port_1())
             update, update_config = True, True
         # Priority Node 2 hostname
@@ -800,7 +800,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.priority_node_2()} > {new_monerod.priority_node_2()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.priority_node_2(new_monerod.priority_node_2())
             update, update_config = True, True
         # Priority Port 2
@@ -809,7 +809,7 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.priority_port_2()} > {new_monerod.priority_port_2()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.priority_port_2(new_monerod.priority_port_2())
             update, update_config = True, True
         # Update the configuration
@@ -820,7 +820,7 @@ class DeplMgr:
         # Update the database
         if update:
             monerod.version(DDef.MONEROD_VERSION)
-            self.sql_mgr.update_one(monerod)
+            self.depl_db.update_one(monerod)
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote):
         update = False
@@ -831,7 +831,7 @@ class DeplMgr:
                 f"No monerod found for {new_monerod.id()}"
             )
         # TUI log entry
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.MONEROD_REMOTE,
             instance=monerod.instance(),
             op=DField.UPDATE,
@@ -842,7 +842,7 @@ class DeplMgr:
         if monerod.ip_addr != new_monerod.ip_addr:
             log_rec.message("Updated IP/hostname")
             log_rec.details(f"{monerod.ip_addr()} > {new_monerod.ip_addr()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.ip_addr(new_monerod.ip_addr())
             update = True
         # RPC Bind Port
@@ -851,19 +851,19 @@ class DeplMgr:
             log_rec.details(
                 f"{monerod.rpc_bind_port()} > {new_monerod.rpc_bind_port()}"
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
             update = True
         # ZMQ Pub Port
         if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
             log_rec.message("Updated ZMQ pub port")
             log_rec.details(f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
             update = True
         # Update the database
         if update:
-            monerod = self.sql_mgr.update_one(monerod)
+            monerod = self.depl_db.update_one(monerod)
 
     def update_p2pool_deployment(self, new_p2pool):
         # Flags indicating what needs to be done at the end of the function
@@ -880,7 +880,7 @@ class DeplMgr:
                 f"No p2pool found for {new_p2pool.id()}"
             )
         # Base TUI log entry
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=new_p2pool.elem_type(),
             instance=p2pool.instance(),
             op=DField.UPDATE,
@@ -894,42 +894,42 @@ class DeplMgr:
             else:
                 log_rec.message("Disabled P2Pool")
             log_rec.details(f"{p2pool.enabled()} > {new_p2pool.enabled()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.enabled(new_p2pool.enabled())
             update = True
         # In Peers
         if p2pool.in_peers != new_p2pool.in_peers:
             log_rec.message("Updated max incoming peers")
             log_rec.details(f"{p2pool.in_peers()} > {new_p2pool.in_peers()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.in_peers(new_p2pool.in_peers())
             update_config, update, restart = True, True, True
         # Out Peers
         if p2pool.out_peers != new_p2pool.out_peers:
             log_rec.message("Updated max outbound peers")
             log_rec.details(f"{p2pool.out_peers()} > {new_p2pool.out_peers()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.out_peers(new_p2pool.out_peers())
             update_config, update, restart = True, True, True
         # P2P Bind Port
         if p2pool.p2p_port != new_p2pool.p2p_port:
             log_rec.message("Updated P2P port")
             log_rec.details(f"{p2pool.p2p_port()} > {new_p2pool.p2p_port()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.p2p_port(new_p2pool.p2p_port())
             update_config, update, restart = True, True, True
         # Stratum port
         if p2pool.stratum_port != new_p2pool.stratum_port:
             log_rec.message("Updated stratum port")
             log_rec.details(f"{p2pool.stratum_port()} > {new_p2pool.stratum_port()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.stratum_port(new_p2pool.stratum_port())
             update_config, update, restart = True, True, True
         # Log level
         if p2pool.log_level != new_p2pool.log_level:
             log_rec.message("Updated log level")
             log_rec.details(f"{p2pool.log_level()} > {new_p2pool.log_level()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             p2pool.log_level(new_p2pool.log_level())
             update_config, update, restart = True, True, True
         # Upstream Monerod
@@ -945,7 +945,7 @@ class DeplMgr:
                     )
                 old_instance = old_monerod.instance()
                 log_rec.details(f"{old_instance} > DISABLE")
-                self.sql_mgr.insert_one(log_rec)
+                self.depl_db.insert_one(log_rec)
                 p2pool.parent(DField.DISABLE)
                 update = True
             elif p2pool.parent() == DField.DISABLE:
@@ -959,7 +959,7 @@ class DeplMgr:
                     )
                 new_instance = new_monerod.instance()
                 log_rec.details(f"DISABLE > {new_instance}")
-                self.sql_mgr.insert_one(log_rec)
+                self.depl_db.insert_one(log_rec)
                 p2pool.parent(new_p2pool.parent())
                 update, update_config = True, True
             else:
@@ -981,7 +981,7 @@ class DeplMgr:
                     )
                 new_instance = new_monerod.instance()
                 log_rec.details(f"{old_instance} > {new_instance}")
-                self.sql_mgr.insert_one(log_rec)
+                self.depl_db.insert_one(log_rec)
                 p2pool.parent(new_p2pool.parent())
                 p2pool.monerod = new_monerod
                 update, update_config = True, True
@@ -993,7 +993,7 @@ class DeplMgr:
         # Update the database
         if update:
             p2pool.version(DDef.P2POOL_VERSION)
-            self.sql_mgr.update_one(p2pool)
+            self.depl_db.update_one(p2pool)
 
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
@@ -1022,7 +1022,7 @@ class DeplMgr:
             update = True
         # Update the database
         if update:
-            self.sql_mgr.update_one(p2pool)
+            self.depl_db.update_one(p2pool)
 
     def update_vendor_dir(self, new_dir: str, old_dir: str, db4e: Db4E) -> Db4E:
         # print(f"DeplMgr:update_vendor_dir(): {old_dir} > {new_dir}")
@@ -1037,7 +1037,7 @@ class DeplMgr:
         if os.path.exists(new_dir):
             timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
             backup_vendor_dir = new_dir + "." + timestamp
-            log_rec = TUILogRec(
+            log_rec = TUILogLine(
                 elem_type=DLabel.VENDOR_DIR,
                 instance=DElem.DB4E,
                 op=DField.UPDATE,
@@ -1047,18 +1047,18 @@ class DeplMgr:
                 os.rename(new_dir, backup_vendor_dir)
                 log_rec.message(f"Found existing directory {new_dir}")
                 log_rec.details(f"Backed up as {backup_vendor_dir}")
-                self.sql_mgr.insert_one(log_rec)
+                self.depl_db.insert_one(log_rec)
             except (PermissionError, OSError) as e:
                 update_flag = False
                 log_rec.message(
                     f"Unable to backup ({new_dir}) as ({backup_vendor_dir})"
                 )
                 log_rec.details(f"{e}")
-                self.sql_mgr.insert_one(log_rec)
+                self.depl_db.insert_one(log_rec)
 
         # No need to move if old_dir is empty (first-time initialization)
         if not old_dir:
-            log_rec = TUILogRec(
+            log_rec = TUILogLine(
                 elem_type=DLabel.VENDOR_DIR,
                 instance=DElem.DB4E,
                 op=DField.UPDATE,
@@ -1066,13 +1066,13 @@ class DeplMgr:
                 message=f"New deployment directory",
                 details=f"{new_dir}",
             )
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             db4e.vendor_dir(new_dir)
             ## Do we need to actually create the directory here?
             return db4e, update_flag
 
         # Move the vendor_dir to the new location
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DLabel.VENDOR_DIR,
             instance=DElem.DB4E,
             op=DField.UPDATE,
@@ -1093,7 +1093,7 @@ class DeplMgr:
         update_config = False
 
         xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
-        log_rec = TUILogRec(
+        log_rec = TUILogLine(
             elem_type=DElem.XMRIG,
             instance=new_xmrig.instance(),
             op=DField.UPDATE,
@@ -1123,7 +1123,7 @@ class DeplMgr:
         if xmrig.num_threads != new_xmrig.num_threads:
             log_rec.message(f"Updated number of threads")
             log_rec.details(f"{xmrig.num_threads()} > {new_xmrig.num_threads()}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             xmrig.num_threads(new_xmrig.num_threads())
             update, update_config = True, True
         # Parent ID
@@ -1157,7 +1157,7 @@ class DeplMgr:
 
             log_rec.message(f"Updated upstream P2Pool")
             log_rec.details(f"{parent_instance} > {new_parent_instance}")
-            self.sql_mgr.insert_one(log_rec)
+            self.depl_db.insert_one(log_rec)
             update = True
 
         # Regenerate config if required
@@ -1168,4 +1168,4 @@ class DeplMgr:
 
         if update:
             xmrig.version(DDef.XMRIG_VERSION)
-            self.sql_mgr.update_one(xmrig)
+            self.depl_db.update_one(xmrig)

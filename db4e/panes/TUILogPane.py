@@ -15,11 +15,12 @@ from textual.reactive import reactive
 from textual.widgets import Static
 from textual.containers import ScrollableContainer, Vertical
 
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DField import DField
+from db4e.constants.DElem import DElem
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DForm import DForm
+from db4e.constants.DDef import DDef
+from db4e.constants.DSQL import DCol
+from db4e.constants.DStatus import DStatus
 
 
 TYPE_TABLE = {
@@ -43,7 +44,7 @@ class TUILogPane(Static):
             ScrollableContainer(Static(id=DForm.LOG_WIDGET)), classes=DForm.PANE_BOX
         )
 
-    def set_data(self, jobs_list: list):
+    def set_data(self, log_lines: list):
         # self.log_widget.clear()
         table = Table(
             show_header=True,
@@ -58,40 +59,37 @@ class TUILogPane(Static):
         table.add_column(DLabel.INSTANCE)
         table.add_column(DLabel.MESSAGE)
         table.add_column(DLabel.DETAILS)
-        for job in jobs_list:
-            date, time = job.updated_at().strftime("%Y-%m-%d %H:%M:%S").split()
-            msg_text = job.msg()
+        for log_line in log_lines:
+            year = log_line.updated_year()
+            month = log_line.updated_month()
+            day = log_line.updated_day()
+            hour = log_line.updated_hour()
+            minute = log_line.updated_minute()
+            second = log_line.updated_second()
 
-            # Break into separate lines
-            lines = [line.strip() for line in msg_text.splitlines() if line.strip()]
+            date = f"{year}-{month:02d}-{day:02d}"
+            time = f"{hour:02d}:{minute:02d}:{second:02d}"
+            status = log_line.status().upper()
+            if status == DStatus.GOOD.upper():
+                status = f"[b green]{status}[/]"
+            elif status == DStatus.WARN.upper():
+                status = f"[b yellow]{status}[/]"
+            elif status == DStatus.ERROR.upper():
+                status = f"[b red]{status}[/]"
+            operation = log_line.operation().capitalize()
+            elem = TYPE_TABLE[log_line.tracked_type()]
+            instance = log_line.tracked_instance()
+            message = log_line.message()
+            details = log_line.details() or ""
 
-            for i, line in enumerate(lines):
-                if ":" in line:
-                    msg, details = line.split(":", 1)
-                    msg, details = msg.strip(), details.strip()
-                else:
-                    msg, details = line.strip(), ""
-
-                # First line gets all job metadata, following lines leave them blank
-                if i == 0:
-                    table.add_row(
-                        f"[b]{date}[/] [b green]{time}[/]",
-                        job.status().upper(),
-                        f"[b]{job.op().capitalize()}[/]",
-                        TYPE_TABLE.get(job.elem_type()),
-                        f"[yellow]{job.instance()}[/]",
-                        msg,
-                        f"[b]{details}[/]" if details else "",
-                    )
-                else:
-                    table.add_row(
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",  # empty metadata for continuation lines
-                        msg,
-                        f"[b]{details}[/]" if details else "",
-                    )
+            table.add_row(
+                f"[b]{date}[/] [b green]{time}[/]",
+                status,
+                f"[b]{operation}[/]",
+                elem,
+                f"[yellow]{instance}[/]",
+                message,
+                f"[b]{details}[/]",
+            )
 
         self.query_one(f"#{DForm.LOG_WIDGET}", Static).update(table)

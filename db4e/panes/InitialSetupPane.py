@@ -11,18 +11,18 @@ db4e/Panes/InitialSetupPane.py
 from textual.widgets import Label, Input, Button
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
-from db4e.Modules.Db4E import Db4E
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Messages.Quit import Quit
+from db4e.recs.monero.Db4E import Db4E
+from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.RefreshNavPane import RefreshNavPane
+from db4e.messages.Quit import Quit
 
-from db4e.Constants.DField import DField
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DForm import DForm
+from db4e.constants.DField import DField
+from db4e.constants.DModule import DModule
+from db4e.constants.DElem import DElem
+from db4e.constants.DMethod import DMethod
+from db4e.constants.DButton import DButton
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DForm import DForm
 
 
 MAX_GROUP_LENGTH = 20
@@ -93,11 +93,15 @@ class InitialSetupPane(Container):
             f"[{hi}]{DLabel.VENDOR_DIR}[/]."
         )
         self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
-        self.query_one(f"#{DForm.USER_NAME_LABEL}", Label).update(db4e.user())
-        self.query_one(f"#{DForm.GROUP_NAME_LABEL}", Label).update(db4e.group())
+        self.query_one(f"#{DForm.USER_NAME_LABEL}", Label).update(db4e.db4e_user())
+        self.query_one(f"#{DForm.GROUP_NAME_LABEL}", Label).update(db4e.db4e_group())
         self.query_one(f"#{DForm.INSTALL_DIR_LABEL}", Label).update(db4e.install_dir())
-        self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = db4e.user_wallet()
-        self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value = db4e.vendor_dir()
+        self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = (
+            db4e.user_wallet() or ""
+        )
+        self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value = (
+            db4e.vendor_dir() or ""
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

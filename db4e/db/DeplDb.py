@@ -33,52 +33,38 @@ from db4e.db.SQLDb import SQLDb
 from db4e.util.Db4ELogger import Db4ELogger
 
 # Constants
-from db4e.constants.DSQL import DCol, ELEM_TABLE_LIST, ELEM_TABLE_MAP
-from db4e.constants.DElem import DElem
+from db4e.constants.DSQL import ELEM_TABLE_LIST
+from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP
 from db4e.constants.DModule import DModule
 
 
 class DeplDb(BaseDb):
 
     def __init__(self, sql_db: SQLDb, log_file=None):
-        self.sql_db = sql_db
-        if log_file:
-            self.log = Db4ELogger(db4e_module=DModule.DEPLOYMENT_DB, log_file=log_file)
-        self._init_db()
+        super().__init__(sql_db=sql_db, log_file=log_file)
 
-    def factory(self, elem_type, rec):
-        if elem_type == DElem.DB4E:
-            return Db4E(rec=rec)
-        elif elem_type == DElem.MONEROD:
-            return MoneroD(rec=rec)
-        elif elem_type == DElem.MONEROD_REMOTE:
-            return MoneroDRemote(rec=rec)
-        elif elem_type == DElem.P2POOL:
-            return P2Pool(rec=rec)
-        elif elem_type == DElem.P2POOL_REMOTE:
-            return P2PoolRemote(rec=rec)
-        elif elem_type == DElem.INT_P2POOL:
-            return P2PoolInternal(rec=rec)
-        elif elem_type == DElem.XMRIG:
-            return XMRig(rec=rec)
-        elif elem_type == DElem.XMRIG_REMOTE:
-            return XMRigRemote(rec=rec)
-        else:
-            raise ValueError(f"DeplMgr:factory(): No handler for {elem_type}")
+    def clear_all(self):
+        self.check_initialized()
+        for table in ELEM_TABLE_LIST:
+            self.sql_db.executescript(f"DELETE FROM {table}")
 
     def get_deployments(self):
+        self.check_initialized()
         object_list = []
         for table in ELEM_TABLE_LIST:
             for rec in self.sql_db.find_many(table=table):
-                object_list.append(self.factory(rec))
+                new_obj = TABLE_TO_TYPE_MAP[table](rec)
+                object_list.append(new_obj)
         return object_list
 
     def get_deployment_by_id(self, elem_type: str, instance: str):
-        table = ELEM_TABLE_MAP[elem_type]
+        self.check_initialized()
+        table = TYPE_TO_TABLE_MAP[elem_type]
         rec = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (instance,)
         )[0]
-        return self.factory(rec)
+        object = TABLE_TO_TYPE_MAP[elem_type](rec)
+        return object
 
     def _init_db(self):
         self.sql_db.executescript(
@@ -99,7 +85,8 @@ class DeplDb(BaseDb):
                 updated_d INTEGER,
                 updated_h INTEGER,
                 updated_mi INTEGER,
-                updated_s INTEGER );
+                updated_s INTEGER 
+            );
 
             CREATE TABLE IF NOT EXISTS monerod (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -248,7 +235,7 @@ class DeplDb(BaseDb):
                 updated_d INTEGER,
                 updated_h INTEGER,
                 updated_mi INTEGER,
-                updated_s INTEGER,
+                updated_s INTEGER
             );
             """
         )

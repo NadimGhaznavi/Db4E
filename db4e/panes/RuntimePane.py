@@ -14,11 +14,11 @@ from rich.table import Table
 from textual.widgets import Static
 from textual.containers import ScrollableContainer, Vertical
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DField import DField
-from db4e.Constants.DMongo import DMongo
-from db4e.Constants.DOps import DOps
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DForm import DForm
+from db4e.constants.DField import DField
+from db4e.constants.DMongo import DMongo
+from db4e.constants.DOps import DOps
 
 
 class RuntimePane(Static):

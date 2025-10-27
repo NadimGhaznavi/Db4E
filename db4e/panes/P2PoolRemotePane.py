@@ -11,16 +11,16 @@ db4e/Panes/P2PoolRemotePane.py
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button, Input
 
-from db4e.Modules.P2PoolRemote import P2PoolRemote
-from db4e.Modules.Helper import gen_results_table
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DForm import DForm
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.util.Helper import gen_results_table
+from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DElem import DElem
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
+from db4e.constants.DButton import DButton
+from db4e.constants.DForm import DForm
 
 
 class P2PoolRemotePane(Container):

@@ -8,10 +8,10 @@ db4e/Constants/DDir.py
     License: GPL 3.0
 """
 
-from db4e.Modules.ConstGroup import ConstGroup
-from db4e.Constants.DField import DField
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DFile import DFile
+from db4e.util.ConstGroup import ConstGroup
+from db4e.constants.DField import DField
+from db4e.constants.DDef import DDef
+from db4e.constants.DFile import DFile
 
 
 # Directories

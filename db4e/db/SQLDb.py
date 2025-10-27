@@ -26,7 +26,6 @@ class SQLDb:
         self._conn = None
         self._cursor = None
         self._initialized = False
-        self.initialize()
 
     def close(self):
         """Close the connection to the database"""
@@ -35,13 +34,6 @@ class SQLDb:
             self._conn = None
             self._cursor = None
             self._initialized = False
-
-    def execute_insert_one(self, sql, values):
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
-        self._cursor.execute(sql, values)
-        self._conn.commit()
-        return self._cursor.lastrowid
 
     def execute_query(self, sql, params=None):
         if not self._initialized:
@@ -75,55 +67,20 @@ class SQLDb:
         self._cursor = self._conn.cursor()
         self._initialized = True
 
+    def insert_one(self, sql, values):
+        if not self._initialized:
+            raise RuntimeError("SQLDb not initialized")
+        self._cursor.execute(sql, values)
+        self._conn.commit()
+        return self._cursor.lastrowid
+
     def is_initialized(self):
         return self._initialized
 
-    def update_one(self, elem):
+    def update_one(self, sql, values):
         """Generic update method for any model with a __dict__() returning field:value mapping."""
-        data = elem.__dict__()  # Your model’s dict with DField constants as keys
-        now = datetime.now()
-
-        table_name = ELEM_TABLE_MAP[type(elem)]
-
-        # The timestamps for these records are from the P2Pool log file. We want to make sure
-        # the record's timestamp matches the string in the log file to "replay" a log
-        if table_name not in [DTable.BLOCK_FOUND_EVENT]:
-            data.update(
-                {
-                    "updated_y": now.year,
-                    "updated_mo": now.month,
-                    "updated_d": now.day,
-                    "updated_h": now.hour,
-                    "updated_mi": now.minute,
-                    "updated_s": now.second,
-                }
-            )
-
-        # These records are "hourly" records. Only one record should exist "per hour".
-        elif table_name in [DTable.CHAIN_HASHRATE]:
-            data.update(
-                {
-                    "updated_y": now.year,
-                    "updated_mo": now.month,
-                    "updated_d": now.day,
-                    "updated_h": now.hour,
-                }
-            )
-
-        # Stable ordering for deterministic SQL generation
-        columns = sorted(data.keys())
-
-        # Build the SQL SET clause: column1=?, column2=?, ...
-        set_clause = ", ".join([f"{col}=?" for col in columns])
-
-        # Get the record_id from the object
-        record_id = elem.id()
-
-        sql = f"UPDATE {table_name} SET {set_clause} WHERE id=?"
-        values = tuple(data[col] for col in columns) + (record_id,)
-
         # Execute update
+        print(f"sql: {sql}\nvalues: {values}")
         self._cursor.execute(sql, values)
         self._conn.commit()
-
         return self._cursor.rowcount

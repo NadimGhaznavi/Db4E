@@ -13,14 +13,14 @@ from textual.widgets import Label, Select, Static
 from textual.reactive import reactive
 
 
-from db4e.Modules.P2Pool import P2Pool
+from db4e.recs.monero.P2Pool import P2Pool
 
-from db4e.Widgets.Db4EPlot import Db4EPlot
+from db4e.widgets.Db4EPlot import Db4EPlot
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DSelect import DSelect
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DForm import DForm
+from db4e.constants.DSelect import DSelect
 
 
 # The values are for selecting the amount of data to show.

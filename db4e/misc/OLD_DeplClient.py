@@ -2,7 +2,7 @@
 db4e/Modules/DeplClient.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -10,24 +10,19 @@ db4e/Modules/DeplClient.py
 
 from typing import overload
 
-from db4e.Modules.Db4E import Db4E
-from db4e.Modules.DbCache import DbCache
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Job import Job
-from db4e.Modules.JobQueue import JobQueue
-from db4e.Modules.MoneroD import MoneroD
-from db4e.Modules.MoneroDRemote import MoneroDRemote
-from db4e.Modules.P2Pool import P2Pool
-from db4e.Modules.P2PoolRemote import P2PoolRemote
-from db4e.Modules.XMRig import XMRig
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.XMRig import XMRig
 
 
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DField import DField
-from db4e.Constants.DJob import DJob
-from db4e.Constants.DStatus import DStatus
-from db4e.Constants.DLabel import DLabel
-
+from db4e.constants.DElem import DElem
+from db4e.constants.DField import DField
+from db4e.constants.DJob import DJob
+from db4e.constants.DStatus import DStatus
+from db4e.constants.DLabel import DLabel
 
 
 class DeplClient:
@@ -45,7 +40,7 @@ class DeplClient:
     def add_deployment(self, elem: P2PoolRemote) -> P2PoolRemote: ...
     @overload
     def add_deployment(self, elem: XMRig) -> XMRig: ...
-    
+
     # update_deployment() is overloaded ...
     @overload
     def update_deployment(self, elem: Db4E) -> Db4E: ...
@@ -74,11 +69,9 @@ class DeplClient:
     @overload
     def check_instance_and_fields(self, elem: XMRig) -> XMRig: ...
 
-
     def __init__(self, db: DbMgr, db_cache: DbCache):
         self.db_cache = db_cache
         self.job_queue = JobQueue(db=db)
-
 
     def add_deployment(self, elem):
         # Check for duplicate instance names and missing fields
@@ -104,11 +97,10 @@ class DeplClient:
         elem_type = class_map[type(elem)]
 
         print(f"DeplClient:add_deployment(): Posting {DJob.NEW} job for {elem}")
-        
+
         job = Job(op=DJob.NEW, instance=elem.instance(), elem_type=elem_type, elem=elem)
         self.job_queue.post_job(job)
         return elem
-    
 
     def check_db4e_fields(self, db4e: Db4E) -> bool:
         required = [
@@ -116,7 +108,6 @@ class DeplClient:
             db4e.vendor_dir(),
         ]
         return not all(required)
-
 
     def check_instance_and_fields(self, elem):
         elem_class = type(elem)
@@ -131,10 +122,12 @@ class DeplClient:
             instance_exists = self.instance_exists(elem, self.get_xmrigs())
 
         if instance_exists:
-                msg = f"A deployment with the same name ({elem.instance()}) " \
-                    f"already exists"
-                elem.msg(DLabel.MONEROD, DStatus.WARN, msg)
-                return elem
+            msg = (
+                f"A deployment with the same name ({elem.instance()}) "
+                f"already exists"
+            )
+            elem.msg(DLabel.MONEROD, DStatus.WARN, msg)
+            return elem
 
         # Make sure we have all the required fields
         missing_fields = False
@@ -150,10 +143,9 @@ class DeplClient:
             missing_fields = self.check_p2pool_remote_fields(elem)
         elif elem_class == XMRig:
             missing_fields = self.check_xmrig_fields(elem)
-    
+
         if missing_fields:
             return elem
-
 
     def check_monerod_fields(self, monerod: MoneroD) -> bool:
         required = [
@@ -173,17 +165,15 @@ class DeplClient:
             monerod.priority_port_2(),
         ]
         return not all(required)
-    
-    
-    def check_monerod_remote_fields(self, monerod: MoneroDRemote) -> bool:
-        required = [ 
-            monerod.instance(), 
-            monerod.ip_addr(), 
-            monerod.rpc_bind_port(), 
-            monerod.zmq_pub_port() 
-            ]
-        return not all(required)
 
+    def check_monerod_remote_fields(self, monerod: MoneroDRemote) -> bool:
+        required = [
+            monerod.instance(),
+            monerod.ip_addr(),
+            monerod.rpc_bind_port(),
+            monerod.zmq_pub_port(),
+        ]
+        return not all(required)
 
     def check_p2pool_fields(self, p2pool: P2Pool) -> bool:
         required = [
@@ -196,7 +186,6 @@ class DeplClient:
         ]
         return not all(required)
 
-
     def check_p2pool_remote_fields(self, p2pool: P2PoolRemote) -> bool:
         required = [
             p2pool.instance(),
@@ -204,7 +193,6 @@ class DeplClient:
             p2pool.stratum_port(),
         ]
         return not all(required)
-
 
     def check_xmrig_fields(self, xmrig: XMRig) -> bool:
         required = [
@@ -214,71 +202,71 @@ class DeplClient:
         ]
         return not all(required)
 
-
     def delete_deployment(self, form_data):
         # Create a delete job
         elem = form_data[DField.ELEMENT]
-        job = Job(op=DJob.DELETE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(
+            op=DJob.DELETE,
+            instance=elem.instance(),
+            elem_type=elem.elem_type(),
+            elem=elem,
+        )
         self.job_queue.post_job(job)
-
 
     def disable_deployment(self, form_data):
         # Create a disable job
         elem = form_data[DField.ELEMENT]
-        job = Job(op=DJob.DISABLE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(
+            op=DJob.DISABLE,
+            instance=elem.instance(),
+            elem_type=elem.elem_type(),
+            elem=elem,
+        )
         self.job_queue.post_job(job)
-
 
     def enable_deployment(self, form_data):
         # Create a delete job
         elem = form_data[DField.ELEMENT]
-        job = Job(op=DJob.ENABLE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(
+            op=DJob.ENABLE,
+            instance=elem.instance(),
+            elem_type=elem.elem_type(),
+            elem=elem,
+        )
         self.job_queue.post_job(job)
-
 
     def get_deployment(self, elem_type: str, instance=None):
         return self.db_cache.get_deployment(elem_type, instance)
 
-
     def get_deployment_by_id(self, id):
         return self.db_cache.get_deployment_by_id(id)
-
 
     def get_deployments(self):
         return self.db_cache.get_deployments()
 
-
     def get_db4es(self) -> list[Db4E]:
         return self.db_cache.get_db4es()
-
 
     def get_monerods(self) -> list[MoneroD]:
         return self.db_cache.get_monerods()
 
-
     def get_monerods_remote(self):
         return self.db_cache.get_monerods_remote()
-
 
     def get_p2pools(self) -> list[P2Pool]:
         return self.db_cache.get_p2pools()
 
-
     def get_p2pools_remote(self) -> list[P2PoolRemote]:
         return self.db_cache.get_p2pools_remote()
-
 
     def get_int_p2pools(self):
         return self.db_cache.get_int_p2pools()
 
-
     def get_xmrigs(self) -> list[XMRig]:
         return self.db_cache.get_xmrigs()
 
-
     def get_xmrigs_remote(self) -> dict:
         return self.db_cache.get_xmrigs_remote()
-
 
     def get_new(self, elem_type):
 
@@ -290,20 +278,23 @@ class DeplClient:
             p2pool = P2Pool()
             db4e = self.db_cache.get_deployment(DElem.DB4E, DElem.DB4E)
             p2pool.user_wallet(db4e.user_wallet())
-            p2pool.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD))
+            p2pool.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+            )
             return p2pool
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
         elif elem_type == DElem.XMRIG:
             xmrig = XMRig()
-            xmrig.instance_map(self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL))
+            xmrig.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL)
+            )
             return xmrig
         else:
-            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")            
+            raise ValueError(f"DeploymentMgr:get_new(): No handler for {elem_type}")
 
     def instance_exists(self, elem, collection) -> bool:
         return any(e.instance() == elem.instance() for e in collection)
-
 
     def is_initialized(self):
         db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
@@ -315,14 +306,17 @@ class DeplClient:
         else:
             return False
 
-
     def restart(self, form_data):
         # Create a restart job
         elem = form_data[DField.ELEMENT]
-        job = Job(op=DJob.RESTART, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(
+            op=DJob.RESTART,
+            instance=elem.instance(),
+            elem_type=elem.elem_type(),
+            elem=elem,
+        )
         self.job_queue.post_job(job)
         return elem
-
 
     def update_deployment(self, form_data):
         # Chceck for duplicate intance names and missing fields
@@ -330,7 +324,11 @@ class DeplClient:
         self.check_instance_and_fields(elem)
 
         # Create an update job
-        job = Job(op=DJob.UPDATE, instance=elem.instance(), elem_type=elem.elem_type(), elem=elem)
+        job = Job(
+            op=DJob.UPDATE,
+            instance=elem.instance(),
+            elem_type=elem.elem_type(),
+            elem=elem,
+        )
         self.job_queue.post_job(job)
         return elem
-    

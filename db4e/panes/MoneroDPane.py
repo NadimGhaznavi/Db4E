@@ -11,17 +11,17 @@ db4e/Panes/MoneroDPane.py
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, Checkbox
 
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Modules.MoneroD import MoneroD
-from db4e.Modules.Helper import gen_results_table
-from db4e.Constants.DField import DField
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMethod import DMethod
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DJob import DJob
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DForm import DForm
+from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.util.Helper import gen_results_table
+from db4e.constants.DField import DField
+from db4e.constants.DElem import DElem
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DJob import DJob
+from db4e.constants.DButton import DButton
+from db4e.constants.DForm import DForm
 
 
 color = "#9cae41"

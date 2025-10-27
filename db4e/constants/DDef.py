@@ -8,7 +8,7 @@ db4e/Constants/DDef.py
     License: GPL 3.0
 """
 
-from db4e.Modules.ConstGroup import ConstGroup
+from db4e.util.ConstGroup import ConstGroup
 
 
 class DDef(ConstGroup):
@@ -100,8 +100,7 @@ class DDef(ConstGroup):
     STRATUM_PORT: int = 3333
     SUDO_CMD: str = "sudo"
     SYSTEMD_DIR: str = "systemd"
-    TEMPLATES_DIR: str = "Templates"
-    TEMPLATES_COLLECTION: str = "templates"
+    TEMPLATES_DIR: str = "templates"
     TERM: str = "xterm-256color"
     TMP_DIR: str = "/tmp"
     VENDOR_DIR: str = "vendor"

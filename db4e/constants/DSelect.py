@@ -8,7 +8,7 @@ db4e/Constants/DSelect.py
     License: GPL 3.0
 """
 
-from db4e.Constants.DLabel import DLabel
+from db4e.constants.DLabel import DLabel
 
 
 # Weeks in Days

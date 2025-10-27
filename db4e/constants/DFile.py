@@ -8,8 +8,8 @@ db4e/Constants/DFile.py
     License: GPL 3.0
 """
 
-from db4e.Modules.ConstGroup import ConstGroup
-from db4e.Constants.DField import DField
+from db4e.util.ConstGroup import ConstGroup
+from db4e.constants.DField import DField
 
 
 # Files

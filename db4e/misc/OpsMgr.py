@@ -12,75 +12,64 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 
-from db4e.Modules.Db4E import Db4E
-from db4e.Modules.DbCache import DbCache
-from db4e.Modules.DeplClient import DeplClient
-from db4e.Modules.HealthCache import HealthCache
-from db4e.Modules.MiningDb import MiningDb
-from db4e.Modules.MiningETL import MiningETL
-from db4e.Modules.OpsDb import OpsETL
-from db4e.Modules.P2Pool import P2Pool
-from db4e.Modules.InternalP2Pool import InternalP2Pool
-from db4e.Modules.XMRig import XMRig
-from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.db.MiningDb import MiningDb
+from db4e.db.MiningETL import MiningETL
+from db4e.db.DeplDb import DeplDb
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.XMRig import XMRig
+from db4e.recs.monero.XMRigRemote import XMRigRemote
 
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DField import DField
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DPane import DPane
-from db4e.Constants.DMongo import DMongo
+from db4e.constants.DElem import DElem
+from db4e.constants.DField import DField
+from db4e.constants.DDef import DDef
+from db4e.constants.DPane import DPane
 
 
 class OpsMgr:
 
     def __init__(
         self,
-        depl_client: DeplClient,
-        health_cache: HealthCache,
-        db_cache: DbCache,
+        depl_db: DeplDb,
         mining_db: MiningDb,
         ops_etl: OpsETL,
     ):
 
-        self.depl_client = depl_client
-        self.health_cache = health_cache
-        self.db_cache = db_cache
-        self.db = db_cache.db
         self.mining_db = mining_db
         self.mining_etl = MiningETL(self.mining_db)
-        self.depl_col = DDef.DEPL_COLLECTION
         self.ops_etl = ops_etl
-        self.ops_db = ops_etl.ops_db
+        self.ops_db = ops_db
 
     ### Get deployments by type...
 
     def get_monerods(self) -> list:
-        return self.health_cache.get_monerods()
+        return self.depl_db.get_monerods()
 
     def get_monerods_remote(self) -> list:
-        return self.health_cache.get_monerods_remote()
+        return self.depl_db.get_monerods_remote()
 
     def get_p2pools(self) -> list:
-        return self.health_cache.get_p2pools()
+        return self.depl_db.get_p2pools()
 
     def get_p2pools_remote(self) -> list:
-        return self.health_cache.get_p2pools_remote()
+        return self.depl_db.get_p2pools_remote()
 
     def get_int_p2pools(self) -> list:
-        return self.health_cache.get_int_p2pools()
+        return self.depl_db.get_int_p2pools()
 
     def get_xmrigs(self) -> list:
-        return self.health_cache.get_xmrigs()
+        return self.depl_db.get_xmrigs()
 
     def get_xmrigs_remote(self) -> list:
-        return self.health_cache.get_xmrigs_remote()
+        return self.depl_db.get_xmrigs_remote()
 
     ### End of get deployments by type...
 
     def add_deployment(self, form_data: dict):
         elem = form_data[DField.ELEMENT]
         elem = self.depl_client.add_deployment(elem)
-        self.health_cache.check(elem)
+        self.depl_db.check(elem)
         return elem
 
     def blocks_found(self, form_data: dict):
@@ -98,7 +87,7 @@ class OpsMgr:
             instance = elem_type[DField.INSTANCE]
             elem_type = elem_type[DField.ELEMENT_TYPE]
 
-        elem = self.health_cache.get_deployment(elem_type=elem_type, instance=instance)
+        elem = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
 
         if type(elem) == Db4E:
             elem.instance_map(
@@ -212,5 +201,5 @@ class OpsMgr:
 
         elem = data[DField.ELEMENT]
         self.depl_client.update_deployment(elem)
-        self.health_cache.check(elem)
+        self.depl_db.check(elem)
         return elem

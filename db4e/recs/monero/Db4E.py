@@ -31,6 +31,15 @@ class Db4E(LocalMonero):
         self._instance_map = {}
         # There is only one Db4E deployment
         self.instance(DModule.DB4E)
+        # Set the effective user and group IDs
+        self.set_effective_identity()
+        # Set the install directory
+        self.install_dir(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        )
+        print(self.install_dir())
+        # Enable by default
+        self.enabled(True)
         if rec:
             self.from_rec(rec)
 
@@ -111,5 +120,5 @@ class Db4E(LocalMonero):
         effective_gid = os.getegid()
         group_entry = grp.getgrgid(effective_gid)
         group = group_entry.gr_name
-        self.user(user)
-        self.group(group)
+        self.db4e_user(user)
+        self.db4e_group(group)

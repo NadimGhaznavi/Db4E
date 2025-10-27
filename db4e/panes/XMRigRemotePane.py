@@ -11,17 +11,17 @@ License: GPL 3.0
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button
 
-from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Messages.Db4eMsg import Db4eMsg
-from db4e.Modules.Helper import minutes_to_uptime
+from db4e.recs.monero.XMRigRemote import XMRigRemote
+from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.util.Helper import minutes_to_uptime
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DButton import DButton
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMethod import DMethod
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DForm import DForm
+from db4e.constants.DButton import DButton
+from db4e.constants.DElem import DElem
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
 
 
 class XMRigRemotePane(Container):

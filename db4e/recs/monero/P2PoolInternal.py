@@ -41,6 +41,10 @@ class P2PoolInternal(BaseP2Pool):
         self.out_peers(2)
         # There's no mining on this pool, but we need to set a wallet anyway.
         self.user_wallet(DDef.DONATION_WALLET)
+        # Start with the default P2P_PORT number (this is changed in set_type())
+        self.p2p_port(DDef.P2P_PORT)
+        # Start with the default STRATUM_PORT number (this is changed in set_type())
+        self.stratum_port(DDef.STRATUM_PORT)
 
         # Historical chain hashrate data
         self._hashrates = None

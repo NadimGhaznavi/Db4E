@@ -71,10 +71,10 @@ class BaseP2Pool(LocalMonero):
         self._max_log_size = rec[DCol.MAX_LOG_SIZE]
         self._log_level = rec[DCol.LOG_LEVEL]
         self._out_peers = rec[DCol.OUT_PEERS]
-        self._p2p_port = rec[DCol.P2P_BIND_PORT]
+        self._p2p_port = rec[DCol.P2P_PORT]
         self._parent = rec[DCol.PARENT]
-        self._stratum_port = rec[DCol.RPC_BIND_PORT]
         self._stdin_path = rec[DCol.STDIN_PATH]
+        self._stratum_port = rec[DCol.STRATUM_PORT]
         self._user_wallet = rec[DCol.USER_WALLET]
         self._version = rec[DCol.VERSION]
 
@@ -93,9 +93,8 @@ class BaseP2Pool(LocalMonero):
                 DCol.MAX_LOG_SIZE: self._max_log_size,
                 DCol.LOG_LEVEL: self._log_level,
                 DCol.OUT_PEERS: self._out_peers,
-                DCol.P2P_BIND_PORT: self._p2p_port,
+                DCol.P2P_PORT: self._p2p_port,
                 DCol.PARENT: self._parent,
-                DCol.RPC_BIND_PORT: self._stratum_port,
                 DCol.STDIN_PATH: self._stdin_path,
                 DCol.STRATUM_PORT: self._stratum_port,
                 DCol.USER_WALLET: self._user_wallet,

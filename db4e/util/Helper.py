@@ -11,13 +11,14 @@ Helper functions that are used in multiple modules
 """
 
 import os, grp, getpass, re, subprocess
+from decimal import Decimal
 
 from rich import box
 from rich.table import Table
 
-from db4e.Constants.DStatus import DStatus
-from db4e.Constants.DField import DField
-from db4e.Constants.DFile import DFile
+from db4e.constants.DStatus import DStatus
+from db4e.constants.DField import DField
+from db4e.constants.DFile import DFile
 
 
 error_color = "#935fcf"

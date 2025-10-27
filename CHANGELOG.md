@@ -13,9 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added a `tui_log` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
+- Added a `tui_log` table to the `SQLdb:init_db` method and to the `pages/Schema` page.
 - Added a `TUILogMsg` class to encapsulate a TUI log record.
 - Added an `internal_p2pool` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
+- Added `BaseMonero` and `BaseP2Pool` classes.
 
 ### Changed
 - Replaced `DbCache` and `DeplMgr` with `SQLMgr` and `BootstrapMgr` in the `InstallMgr` module.
@@ -24,16 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed backend `p2pool` and `xmrig` table's `log_rotate_config` to `logrotate_config`
   - Updated the `__dict__` and `__init__` methods in the `P2Pool` and `XMRig` classes.
   - Updated the `Components:LogRotateConfig` class.
-- Completed conversion of the `InstallMgr` to use the new `SQLMgr` and `BootstrapMgr` modules. This completes the migration from Mongo to SQLite for the initial install. 
+- Completed conversion of the `InstallMgr` to use the new `SQLDb` and `BootstrapMgr` modules.
+- Modifed `MessageRouter` and `InstallMgr` to use the *Console Log* pane to show install results.
 - Complete rewrite of the `DeplMgr` module as part of the shift from **Mongo** to **SQLite3**.
 - In `Db4ESystemD`, replaced the Mongo *ops* collection, with inserts of `StartStopRec` into SQLite `start_stop` table.
 - Modified `SQLMgr:init_db()` to add `UNIQUE` constraints to the *hourly* records.
 - Modified `SQLMgr:insert_one()` to handle the *hourly* record tables using the new constraint.
 - Complete re-write of `MiningDb`: Migrated from Mongo `MiningDb` to SQLite `SQLMgr`.
 - Update of `P2PoolWatcher` to match changes in `MiningDb`.
+- Replaced all of the `InitialInstall` messages that were sent to a transient `Results` pane to the *Console Log* pane.
+- Complete rewrite of the `TuiLogPane` parsing logic to reflect the new backend.
+- Refactored `Db4e`, `MoneroD`, `MoneroDRemote`, `P2Pool`, `P2PoolRemote` and `XMRig` classes.
 
 ### Fixed
-- Integration of `BootstrapMgr`, `SQLMgr` and `InstallMgr` modules.
+- Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.
 - Set the `id` for the *Introduction* label on the `InitialSetupPane`.
 - `pages/Schema.md`:
   - Corrected *Internal P2Pool* section header name.

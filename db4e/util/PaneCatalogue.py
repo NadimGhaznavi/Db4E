@@ -10,34 +10,34 @@ db4e/Modules/PaneCatalogue.py
 
 from textual.containers import Container
 
-from db4e.Panes.ChainBlocksFoundPane import ChainBlocksFoundPane
-from db4e.Panes.ChainHashratesPane import ChainHashratesPane
-from db4e.Panes.Db4EPane import Db4EPane
-from db4e.Panes.DonationsPane import DonationsPane
-from db4e.Panes.InitialSetupPane import InitialSetupPane
-from db4e.Panes.LogViewPane import LogViewPane
-from db4e.Panes.MoneroDPane import MoneroDPane
-from db4e.Panes.MoneroDRemotePane import MoneroDRemotePane
-from db4e.Panes.P2PoolPane import P2PoolPane
-from db4e.Panes.P2PoolHashratesPane import P2PoolHashratesPane
-from db4e.Panes.P2PoolTablesPane import P2PoolTablesPane
-from db4e.Panes.ChainPane import ChainPane
-from db4e.Panes.P2PoolRemotePane import P2PoolRemotePane
-from db4e.Panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
-from db4e.Panes.PaymentsPane import PaymentsPane
-from db4e.Panes.ResultsPane import ResultsPane
-from db4e.Panes.StartStopLogPane import StartStopLogPane
-from db4e.Panes.TUILogPane import TUILogPane
-from db4e.Panes.RuntimePane import RuntimePane
-from db4e.Panes.WelcomePane import WelcomePane
-from db4e.Panes.XMRigHashratesPane import XMRigHashratesPane
-from db4e.Panes.XMRigPane import XMRigPane
-from db4e.Panes.XMRigRemotePane import XMRigRemotePane
-from db4e.Panes.XMRigSharesFoundPane import XMRigSharesFoundPane
+from db4e.panes.ChainBlocksFoundPane import ChainBlocksFoundPane
+from db4e.panes.ChainHashratesPane import ChainHashratesPane
+from db4e.panes.Db4EPane import Db4EPane
+from db4e.panes.DonationsPane import DonationsPane
+from db4e.panes.InitialSetupPane import InitialSetupPane
+from db4e.panes.LogViewPane import LogViewPane
+from db4e.panes.MoneroDPane import MoneroDPane
+from db4e.panes.MoneroDRemotePane import MoneroDRemotePane
+from db4e.panes.P2PoolPane import P2PoolPane
+from db4e.panes.P2PoolHashratesPane import P2PoolHashratesPane
+from db4e.panes.P2PoolTablesPane import P2PoolTablesPane
+from db4e.panes.ChainPane import ChainPane
+from db4e.panes.P2PoolRemotePane import P2PoolRemotePane
+from db4e.panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
+from db4e.panes.PaymentsPane import PaymentsPane
+from db4e.panes.ResultsPane import ResultsPane
+from db4e.panes.StartStopLogPane import StartStopLogPane
+from db4e.panes.TUILogPane import TUILogPane
+from db4e.panes.RuntimePane import RuntimePane
+from db4e.panes.WelcomePane import WelcomePane
+from db4e.panes.XMRigHashratesPane import XMRigHashratesPane
+from db4e.panes.XMRigPane import XMRigPane
+from db4e.panes.XMRigRemotePane import XMRigRemotePane
+from db4e.panes.XMRigSharesFoundPane import XMRigSharesFoundPane
 
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DPane import DPane
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DPane import DPane
 
 
 REGISTRY = {

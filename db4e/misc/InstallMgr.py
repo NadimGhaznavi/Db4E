@@ -16,32 +16,34 @@ import stat
 
 from textual.containers import Container
 
-from db4e.Modules.BootstrapMgr import BootstrapMgr
-from db4e.Modules.Db4E import Db4E
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.DbCache import DbCache
-from db4e.Modules.DeplMgr import DeplMgr
-from db4e.Modules.Helper import result_row
-from db4e.Modules.InternalP2Pool import InternalP2Pool
-from db4e.Modules.SQLMgr import SQLMgr
-from db4e.Modules.OpsRec import TUILogRec
+from db4e.util.BootstrapMgr import BootstrapMgr
+from db4e.util.Helper import result_row
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.ops.TUILogLine import TUILogLine
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.db.SQLDb import SQLDb
+from db4e.db.OpsDb import OpsDb
+from db4e.db.DeplDb import DeplDb
 
-from db4e.Constants.DDir import DDir
-from db4e.Constants.DStatus import DStatus
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DPlaceholder import DPlaceholder
-from db4e.Constants.DField import DField
-from db4e.Constants.DFile import DFile
+from db4e.constants.DSQL import DCol
+from db4e.constants.DDir import DDir
+from db4e.constants.DStatus import DStatus
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DDef import DDef
+from db4e.constants.DElem import DElem
+from db4e.constants.DPlaceholder import DPlaceholder
+from db4e.constants.DField import DField
+from db4e.constants.DFile import DFile
 
 
 class InstallMgr(Container):
 
     def __init__(self, bs_mgr: BootstrapMgr):
         super().__init__()
-        self.sql_mgr = SQLMgr(db_type=DField.SERVER)
         self.bs_mgr = bs_mgr
+        self.sql_db = SQLDb(db_type=DField.SERVER)
+        self.ops_db = OpsDb(sql_db=self.sql_db)
+        self.depl_db = DeplDb(sql_db=self.sql_db)
         self.col_name = DDef.DEPL_COLLECTION
         self.tmp_dir = None
 
@@ -49,57 +51,98 @@ class InstallMgr(Container):
         # Track the progress of the initial install
         abort_install = False
 
+        # Clear the console log if the DB has been initialized
+        if self.sql_db.is_initialized():
+            self.depl_db.clear_all()
+            self.ops_db.clear_tui_log()
+
         # This is the data from the form on the InitialSetup pane
         db4e = form_data[DField.ELEMENT]
 
+        log_line_data = []
+
         # Check that the user entered their wallet
-        db4e, abort_install = self._check_wallet(db4e=db4e)
+        log_line_data, abort_install = self._check_wallet(
+            log_line_data=log_line_data, db4e=db4e
+        )
         if abort_install:
-            db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
-            return db4e
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.USER_WALLET,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Fatal error, aborting install",
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+            return log_line_data
 
         # Check that the user entered a vendor directory
-        db4e, abort_install = self._check_vendor_dir(db4e=db4e)
+        log_line_data, abort_install = self._check_vendor_dir(
+            db4e=db4e, log_line_data=log_line_data
+        )
         if abort_install:
-            db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error, aborting install")
-            return db4e
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Fatal error, aborting install",
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+            return log_line_data
 
         # Create the vendor directory on the filesystem
-        db4e, abort_install = self._create_vendor_dir(db4e=db4e)
+        log_line_data, abort_install = self._create_vendor_dir(
+            db4e=db4e, log_line_data=log_line_data
+        )
         if abort_install:
-            return db4e
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Fatal error, aborting install",
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+            return log_line_data
 
         ## We have a valid vendor_dir
-        # Initialize the BootstrapMgr
+        # Initialize the BootstrapMgr and the DB backends
         self.bs_mgr.initialize(vendor_dir=db4e.vendor_dir())
-        # Initialize the SQLMgr
-        self.sql_mgr.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
+        self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
+
+        # Add the log_line_data to the newly initialized ops DB.
+        self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)
 
         # Insert the db4e object into the database
-        object_id = self.sql_mgr.insert_one(db4e)
-        db4e.id(object_id)
+        db4e = self.depl_db.insert_one(db4e)
         # Create a TUI log message
-        log_rec = TUILogRec(
-            elem_type=DElem.DB4E,
-            instance=DElem.DB4E,
-            op=DField.NEW,
+        self.ops_db.add_tui_log_line(
+            tracked_instance=DLabel.DB4E,
+            tracked_type=DElem.DB4E,
+            operation=DField.NEW,
             status=DStatus.COMPLETE,
-            msg="New deployment",
+            message="New deployment",
         )
-        self.sql_mgr.insert_one(log_rec)
 
         # Create base vendor directories
         vendor_dir = db4e.vendor_dir()
         for aDir in [DDef.BACKUP_DIR, DDef.LOGROTATE]:
             os.makedirs(os.path.join(vendor_dir, aDir))
-            db4e.msg(
-                DLabel.VENDOR_DIR,
-                DStatus.GOOD,
-                f"Created directory: {vendor_dir}/{aDir}",
+            self.ops_db.add_tui_log_line(
+                tracked_instance=DLabel.VENDOR_DIR,
+                tracked_type=DElem.DB4E,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="Created directory",
+                details=f"{vendor_dir}/{aDir}",
             )
 
         # We have everything we need to finish the install. Update the record.
-        self.sql_mgr.update_one(elem=db4e)
+        self.depl_db.update_one(db4e)
 
         # Create the Db4E vendor directories
         db4e = self._create_db4e_dirs(db4e=db4e)
@@ -140,44 +183,81 @@ class InstallMgr(Container):
         # Deploy internal P2Pool instances to gather metrics
         db4e = self._deploy_internal_p2pools(db4e=db4e)
 
-        # Close the connection to the vendor_dir/db/server.db file, so the Db4E server can
-        # open it cleanly.
-        self.sql_mgr.close()
-
         # Run the installer (with sudo)
         db4e = self._run_sudo_installer(db4e=db4e)
 
         # Return the updated Db4E deployment object with embded results
-        return db4e
+        log_lines = self._return_tui_log()
+
+        # Close the connection to the vendor_dir/db/server.db file, so the Db4E server can
+        # open it cleanly.
+        self.sql_db.close()
+
+        return log_lines
 
     def initial_setup_proceed(self, form_data: dict):
         db4e = Db4E()
         return db4e
 
-    def _check_wallet(self, db4e: Db4E):
+    def _add_timestamp(self, log_line: dict):
+        now = datetime.now()
+        log_line.update(
+            {
+                DCol.UPDATED_YEAR: now.year,
+                DCol.UPDATED_MONTH: now.month,
+                DCol.UPDATED_DAY: now.day,
+                DCol.UPDATED_HOUR: now.hour,
+                DCol.UPDATED_MINUTE: now.minute,
+                DCol.UPDATED_SECOND: now.second,
+            }
+        )
+        return log_line
+
+    def _check_wallet(self, log_line_data: list, db4e: Db4E):
         # print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
         abort_install = False
         # User did not provide any wallet
         if not db4e.user_wallet():
             abort_install = True
-            db4e.msg(DLabel.USER_WALLET, DStatus.ERROR, f"{DLabel.USER_WALLET} missing")
-            return db4e, abort_install
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.USER_WALLET,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Missing user wallet",
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+            return log_line_data, abort_install
 
-        db4e.msg(
-            DLabel.USER_WALLET,
-            DStatus.GOOD,
-            f"Set the user wallet: {db4e.user_wallet()[:7]}...",
-        )
+        log_line = {
+            DCol.TRACKED_INSTANCE: DLabel.USER_WALLET,
+            DCol.TRACKED_TYPE: DElem.DB4E,
+            DCol.OPERATION: DField.NEW,
+            DCol.STATUS: DStatus.COMPLETE,
+            DCol.MESSAGE: "Set the user wallet",
+            DCol.DETAILS: f"{db4e.user_wallet()[:7]}...",
+        }
+        log_line = self._add_timestamp(log_line)
+        log_line_data.append(log_line)
 
-        return db4e, abort_install
+        return log_line_data, abort_install
 
-    def _check_vendor_dir(self, db4e: Db4E):
+    def _check_vendor_dir(self, db4e: Db4E, log_line_data: list):
         # print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
         abort_install = False
         if not db4e.vendor_dir():
             abort_install = True
-            db4e.msg(DLabel.VENDOR_DIR, DStatus.ERROR, f"{DLabel.VENDOR_DIR} missing")
-        return db4e, abort_install
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Missing vendor directory",
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+        return log_line_data, abort_install
 
     # Copy Db4E files
     def _copy_db4e_files(self, vendor_dir):
@@ -208,8 +288,13 @@ class InstallMgr(Container):
             current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         )
         os.chmod(fq_dest_script, new_permissions)
-        results.append(
-            result_row(DLabel.DB4E, DStatus.GOOD, f"Installed: {fq_dest_script}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.DB4E,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed script",
+            details=fq_dest_script,
         )
         return results
 
@@ -230,26 +315,32 @@ class InstallMgr(Container):
         )
 
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
-        db4e.msg(
-            DLabel.MONEROD,
-            DStatus.GOOD,
-            f"Installed: {fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}",
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.MONEROD,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed program",
+            details=f"{fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}",
         )
-
         fq_src_monerod_start_script = os.path.join(
             tmpl_dir, versioned_monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT
         )
         shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
-        db4e.msg(
-            DLabel.MONEROD, DStatus.GOOD, f"Installed: {fq_dst_monerod_dest_script}"
-        )
-
         # Make it executable
         current_permissions = os.stat(fq_dst_monerod_dest_script).st_mode
         new_permissions = (
             current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         )
         os.chmod(fq_dst_monerod_dest_script, new_permissions)
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.MONEROD,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed script",
+            details=f"{fq_dst_monerod_dest_script}",
+        )
         return db4e
 
     def _copy_p2pool_files(self, db4e: Db4E) -> Db4E:
@@ -270,10 +361,13 @@ class InstallMgr(Container):
             vendor_dir, DElem.P2POOL, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT
         )
         shutil.copy(fq_src_p2pool, fq_dst_bin_dir)
-        db4e.msg(
-            DLabel.P2POOL,
-            DStatus.GOOD,
-            f"Installed: {fq_dst_bin_dir}/{DDef.P2POOL_PROCESS}",
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.P2POOL,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed program",
+            details=f"{fq_dst_bin_dir}/{DDef.P2POOL_PROCESS}",
         )
         shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_start_script)
         # Make it executable
@@ -282,8 +376,13 @@ class InstallMgr(Container):
             current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         )
         os.chmod(fq_dst_p2pool_start_script, new_permissions)
-        db4e.msg(
-            DLabel.P2POOL, DStatus.GOOD, f"Installed: {fq_dst_p2pool_start_script}"
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.P2POOL,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed script",
+            details=f"{fq_dst_p2pool_start_script}",
         )
         return db4e
 
@@ -299,10 +398,13 @@ class InstallMgr(Container):
             tmpl_dir, versioned_xmrig_dir, DDef.BIN_DIR, xmrig_binary
         )
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
-        db4e.msg(
-            DLabel.XMRIG,
-            DStatus.GOOD,
-            f"Installed: {fq_dst_xmrig_bin_dir}/{xmrig_binary}",
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.XMRIG,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Installed program",
+            details=f"{fq_dst_xmrig_bin_dir}/{xmrig_binary}",
         )
         return db4e
 
@@ -311,12 +413,24 @@ class InstallMgr(Container):
         fq_db4e_dir = os.path.join(vendor_dir, DElem.DB4E)
         # Create the base Db4E directory
         os.makedirs(os.path.join(fq_db4e_dir))
-        db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.DB4E,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Created directory",
+            details=fq_db4e_dir,
+        )
         # Create the sub-directories
         for sub_dir in [DDef.LOG_DIR, DDef.DB_DIR]:
             os.mkdir(os.path.join(fq_db4e_dir, sub_dir))
-            db4e.msg(
-                DLabel.DB4E, DStatus.GOOD, f"Created directory: {fq_db4e_dir}/{sub_dir}"
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.DB4E,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="Created directory",
+                details=f"{fq_db4e_dir}/{sub_dir}",
             )
         return db4e
 
@@ -326,14 +440,27 @@ class InstallMgr(Container):
 
         # Create the base Monero directory
         os.mkdir(fq_monerod_dir)
-        db4e.msg(DLabel.MONEROD, DStatus.GOOD, f"Created directory: {fq_monerod_dir}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.MONEROD,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Created directory",
+            details=fq_monerod_dir,
+        )
 
         # Create the sub-directories
         for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR]:
             fq_sub_dir = os.path.join(fq_monerod_dir, sub_dir)
             os.mkdir(fq_sub_dir)
-            db4e.msg(DLabel.MONEROD, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
-
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.MONEROD,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="Created directory",
+                details=fq_sub_dir,
+            )
         return db4e
 
     def _create_p2pool_dirs(self, db4e: Db4E) -> Db4E:
@@ -342,79 +469,132 @@ class InstallMgr(Container):
 
         # Create the base P2Pool directory
         os.mkdir(os.path.join(fq_p2pool_dir))
-        db4e.msg(DLabel.P2POOL, DStatus.GOOD, f"Created directory {fq_p2pool_dir}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.P2POOL,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Created directory",
+            details=fq_p2pool_dir,
+        )
 
         # Create the sub directories
         for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR]:
             fq_sub_dir = os.path.join(fq_p2pool_dir, sub_dir)
             os.mkdir(fq_sub_dir)
-            db4e.msg(DLabel.P2POOL, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
-
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.P2POOL,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="Created directory",
+                details=fq_sub_dir,
+            )
         return db4e
 
-    def _create_vendor_dir(self, db4e: Db4E):
+    def _create_vendor_dir(self, db4e: Db4E, log_line_data):
         # print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
         abort_install = False
         vendor_dir = db4e.vendor_dir()
         if os.path.exists(vendor_dir):
-            db4e.msg(
-                DLabel.VENDOR_DIR,
-                DStatus.WARN,
-                f"Found existing deployment directory: {vendor_dir}",
-            )
-
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.WARN,
+                DCol.MESSAGE: "Found existing vendor directory",
+                DCol.DETAILS: vendor_dir,
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_vendor_dir = vendor_dir + "." + timestamp
 
             try:
                 os.rename(vendor_dir, backup_vendor_dir)
-                db4e.msg(
-                    DLabel.VENDOR_DIR,
-                    DStatus.WARN,
-                    f"Backed up old deployment directory: {backup_vendor_dir}",
-                )
+                log_line = {
+                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.OPERATION: DField.NEW,
+                    DCol.STATUS: DStatus.WARN,
+                    DCol.MESSAGE: "Renamed existing vendor directory",
+                    DCol.DETAILS: f"{vendor_dir} > {backup_vendor_dir}",
+                }
+                log_line = self._add_timestamp(log_line)
+                log_line_data.append(log_line)
 
             except (PermissionError, OSError, FileNotFoundError) as e:
-                db4e.msg(
-                    DLabel.VENDOR_DIR,
-                    DStatus.WARN,
-                    f"Failed to backup old deployment directory: {backup_vendor_dir}\n{e}",
-                )
+                log_line = {
+                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.OPERATION: DField.NEW,
+                    DCol.STATUS: DStatus.ERROR,
+                    DCol.MESSAGE: "Failed to rename existing vendor directory",
+                    DCol.DETAILS: e,
+                }
+                log_line = self._add_timestamp(log_line)
+                log_line_data.append(log_line)
                 abort_install = True
-                return db4e, abort_install  # Abort the install
+                return log_line_data, abort_install  # Abort the install
 
         try:
             os.makedirs(vendor_dir)
-            db4e.msg(
-                DLabel.VENDOR_DIR, DStatus.GOOD, f"Created directory: {vendor_dir}"
-            )
-        except (PermissionError, FileNotFoundError, FileExistsError) as e:
-            db4e.msg(
-                DLabel.VENDOR_DIR,
-                DStatus.WARN,
-                f"Failed to create directory: {vendor_dir}\n{e}",
-            )
-            abort_install = True
-            return db4e, abort_install
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.COMPLETE,
+                DCol.MESSAGE: "Created vendor directory",
+                DCol.DETAILS: vendor_dir,
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
 
-        return db4e, abort_install
+        except (PermissionError, FileNotFoundError, FileExistsError) as e:
+            log_line = {
+                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.OPERATION: DField.NEW,
+                DCol.STATUS: DStatus.ERROR,
+                DCol.MESSAGE: "Failed to create vendor directory",
+                DCol.DETAILS: e,
+            }
+            log_line = self._add_timestamp(log_line)
+            log_line_data.append(log_line)
+            return log_line_data, abort_install
+
+        return log_line_data, abort_install
 
     def _create_xmrig_dirs(self, db4e: Db4E) -> Db4E:
         vendor_dir = db4e.vendor_dir()
         fq_xmrig_dir = os.path.join(vendor_dir, DElem.XMRIG)
         os.mkdir(os.path.join(fq_xmrig_dir))
-        db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Created directory: {fq_xmrig_dir}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.XMRIG,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Created directory",
+            details=fq_xmrig_dir,
+        )
         for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.LOG_DIR]:
             fq_sub_dir = os.path.join(fq_xmrig_dir, sub_dir)
             os.mkdir(fq_sub_dir)
-            db4e.msg(DLabel.XMRIG, DStatus.GOOD, f"Created directory: {fq_sub_dir}")
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.XMRIG,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="Created directory",
+                details=fq_sub_dir,
+            )
         return db4e
 
     # Deploy metrics gathering P2Pool instances
     def _deploy_internal_p2pools(self, db4e: Db4E):
         vendor_dir = db4e.vendor_dir()
         for chain_label in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
-            p2pool = InternalP2Pool()
+            p2pool = P2PoolInternal()
             log_file = os.path.join(
                 vendor_dir, DElem.P2POOL, chain_label, DDef.LOG_DIR, DFile.P2POOL_LOG
             )
@@ -428,6 +608,7 @@ class InstallMgr(Container):
                 vendor_dir, DElem.P2POOL, DDef.CONF_DIR, chain_label + DField.INI_SUFFIX
             )
 
+            # Set the internal P2Pool instance parameters
             p2pool.set_type(
                 chain_label=chain_label,
                 log_file=log_file,
@@ -435,29 +616,26 @@ class InstallMgr(Container):
                 stdin_path=stdin_path,
                 config_file=config_file,
             )
-            self.sql_mgr.insert_one(elem=p2pool)
-            db4e.msg(
-                chain_label,
-                DStatus.GOOD,
-                f"Created internal P2Pool deployment: {chain_label}",
-            )
-            # Create a TUI log message
-            log_rec = TUILogRec(
-                elem_type=DElem.P2POOL,
-                instance=chain_label,
-                op=DField.NEW,
-                status=DStatus.COMPLETE,
-                msg="New deployment",
-            )
-            self.sql_mgr.insert_one(log_rec)
 
-        # Create a logrotate file for the P2Pool log
-        logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-        db4e_group = db4e.group()
-        vendor_dir = db4e.vendor_dir()
-        p2pool.gen_logrotate_config(
-            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
-        )
+            # Add the new deployment record
+            self.depl_db.insert_one(p2pool)
+
+            # Create a TUI log message
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=chain_label,
+                operation=DField.NEW,
+                status=DStatus.COMPLETE,
+                message="New deployment",
+            )
+
+            # Create a logrotate config file for the P2Pool log
+            logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
+            db4e_group = db4e.db4e_group()
+            vendor_dir = db4e.vendor_dir()
+            p2pool.gen_logrotate_config(
+                tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
+            )
 
         return db4e
 
@@ -484,7 +662,14 @@ class InstallMgr(Container):
         # Write the config file
         with open(fq_config, "w") as f:
             f.write(final_config)
-        db4e.msg(DLabel.DB4E, DStatus.GOOD, f"Created logrotate config: {fq_config}")
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=DLabel.DB4E,
+            operation=DField.NEW,
+            status=DStatus.COMPLETE,
+            message="Created logrotate config",
+            details=fq_config,
+        )
         return db4e
 
     # Update the db4e service template with deployment values
@@ -494,8 +679,8 @@ class InstallMgr(Container):
         db4e_dir = self.bs_mgr.get_dir(DDir.INSTALL)
         fq_db4e_dir = os.path.join(db4e_dir)
         placeholders = {
-            DPlaceholder.DB4E_USER: db4e.user(),
-            DPlaceholder.DB4E_GROUP: db4e.group(),
+            DPlaceholder.DB4E_USER: db4e.db4e_user(),
+            DPlaceholder.DB4E_GROUP: db4e.db4e_group(),
             DPlaceholder.DB4E_DIR: fq_db4e_dir,
         }
         fq_db4e_service_file = os.path.join(
@@ -519,8 +704,8 @@ class InstallMgr(Container):
         # Substitution placeholders in the service template files
         placeholders = {
             DPlaceholder.MONEROD_DIR: os.path.join(vendor_dir, DElem.MONEROD),
-            DPlaceholder.DB4E_USER: db4e.user(),
-            DPlaceholder.DB4E_GROUP: db4e.group(),
+            DPlaceholder.DB4E_USER: db4e.db4e_user(),
+            DPlaceholder.DB4E_GROUP: db4e.db4e_group(),
         }
 
         # Generate a temporary monerod.systemd for the sudo script to install
@@ -562,8 +747,8 @@ class InstallMgr(Container):
         # Substitution placeholders in the service template files        #
         placeholders = {
             DPlaceholder.P2POOL_DIR: fq_p2pool_dir,
-            DPlaceholder.DB4E_USER: db4e.user(),
-            DPlaceholder.DB4E_GROUP: db4e.group(),
+            DPlaceholder.DB4E_USER: db4e.db4e_user(),
+            DPlaceholder.DB4E_GROUP: db4e.db4e_group(),
         }
 
         # Generate a temporary p2pool.service for the sudo script to install
@@ -602,8 +787,8 @@ class InstallMgr(Container):
         fq_xmrig_dir = os.path.join(vendor_dir, DElem.XMRIG)
         placeholders = {
             DPlaceholder.XMRIG_DIR: fq_xmrig_dir,
-            DPlaceholder.DB4E_USER: db4e.user(),
-            DPlaceholder.DB4E_GROUP: db4e.group(),
+            DPlaceholder.DB4E_USER: db4e.db4e_user(),
+            DPlaceholder.DB4E_GROUP: db4e.db4e_group(),
         }
         fq_xmrig_service_file = os.path.join(
             tmpl_dir, xmrig_with_version, DDef.SYSTEMD_DIR, DDef.XMRIG_SERVICE_FILE
@@ -614,13 +799,6 @@ class InstallMgr(Container):
         tmp_service_file = os.path.join(tmp_dir, DDef.XMRIG_SERVICE_FILE)
         with open(tmp_service_file, "w") as f:
             f.write(service_contents)
-
-    def _get_templates_dir(self):
-        # Helper function
-        templates_dir = DDef.TEMPLATES_DIR
-        return os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", templates_dir)
-        )
 
     def _get_tmp_dir(self):
         # Helper function
@@ -639,6 +817,11 @@ class InstallMgr(Container):
             content = content.replace(f"[[{key}]]", str(val))
         return content
 
+    def _return_tui_log(self):
+        log_data = self.ops_db.get_tui_log()
+        log_data.append(DField.INSTALL_SUCCESSFUL)
+        return log_data
+
     def _run_sudo_installer(self, db4e: Db4E) -> Db4E:
         vendor_dir = db4e.vendor_dir()
         # Temporary directory
@@ -656,8 +839,8 @@ class InstallMgr(Container):
                     DDef.SUDO_CMD,
                     fq_initial_setup,
                     db4e_install_dir,
-                    db4e.user(),
-                    db4e.group(),
+                    db4e.db4e_user(),
+                    db4e.db4e_group(),
                     vendor_dir,
                     tmp_dir,
                 ],
@@ -679,10 +862,24 @@ class InstallMgr(Container):
 
             installer_output = f"{stdout}"
             for line in installer_output.split("\n"):
-                db4e.msg(DLabel.DB4E, DStatus.GOOD, line)
+                message, details = line.split("----")
+                self.ops_db.add_tui_log_line(
+                    tracked_type=DElem.DB4E,
+                    tracked_instance=DLabel.DB4E,
+                    operation=DField.NEW,
+                    status=DStatus.COMPLETE,
+                    message=message,
+                    details=details,
+                )
             shutil.rmtree(tmp_dir)
 
         except Exception as e:
-            db4e.msg(DLabel.DB4E, DStatus.ERROR, f"Fatal error: {e}")
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.DB4E,
+                operation=DField.NEW,
+                status=DStatus.ERROR,
+                message=f"Fatal error: {e}",
+            )
 
         return db4e

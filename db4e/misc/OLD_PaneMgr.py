@@ -2,12 +2,11 @@
 db4e/Modules/PaneMgr.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
+    Author: Nadim-Daniel Ghaznavi 
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
 """
-
 import inspect
 from dataclasses import dataclass, field
 from copy import deepcopy
@@ -16,17 +15,17 @@ from textual.widget import Widget
 from textual.widgets import ContentSwitcher
 from textual.reactive import reactive
 
-from db4e.util.PaneCatalogue import PaneCatalogue
-from db4e.messages.UpdateTopBar import UpdateTopBar
-from db4e.constants.DPane import DPane
-from db4e.constants.DField import DField
+from db4e.Modules.PaneCatalogue import PaneCatalogue
+from db4e.Messages.UpdateTopBar import UpdateTopBar
+from db4e.Constants.DPane import DPane
+from db4e.Constants.DField import DField
+
 
 
 @dataclass
 class PaneState:
     name: str = ""
     data: dict = field(default_factory=dict)
-
 
 class PaneMgr(Widget):
     pane_state = reactive(PaneState(), always_update=True)
@@ -42,7 +41,7 @@ class PaneMgr(Widget):
                 # Instantiate each pane once, store a reference
                 pane = self.catalogue.get_pane(pane_name)
                 self.panes[pane_name] = pane
-                # print(f"PaneMgr:compose(): {pane_name}")
+                #print(f"PaneMgr:compose(): {pane_name}")
                 yield pane
 
     def on_mount(self) -> None:
@@ -74,3 +73,4 @@ class PaneMgr(Widget):
         title, sub_title = self.catalogue.get_metadata(new.name)
         # Create a message to update the TopBar's title and sub_title
         self.post_message(UpdateTopBar(self, title=title, sub_title=sub_title))
+

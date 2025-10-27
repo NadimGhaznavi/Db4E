@@ -5,12 +5,12 @@ from pathlib import Path
 import tomllib
 import tomli_w
 
-from db4e.Constants.DDir import DDir
-from db4e.Constants.DFile import DFile
-from db4e.Constants.DField import DField
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DElem import DElem
+from db4e.constants.DDir import DDir
+from db4e.constants.DFile import DFile
+from db4e.constants.DField import DField
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DDef import DDef
+from db4e.constants.DElem import DElem
 
 
 class BootstrapMgr:
@@ -48,10 +48,9 @@ class BootstrapMgr:
         self._save()
 
     def get_dir(self, aDir: str) -> str | None:
-        if not self.is_initialized():
-            return None
-
         if aDir == DDir.DB:
+            if not self.is_initialized():
+                raise RuntimeError("BootstrapMgr not initialized")
             return os.path.join(self._config.get(DField.VENDOR_DIR), DDef.DB_DIR)
 
         elif aDir == DElem.DB4E:
@@ -74,6 +73,8 @@ class BootstrapMgr:
             )
 
         elif aDir == DDir.LOGROTATE:
+            if not self.is_initialized():
+                raise RuntimeError("BootstrapMgr not initialized")
             return os.path.join(self._config.get(DField.VENDOR_DIR), DDef.LOGROTATE)
 
         elif aDir == DElem.MONEROD:
@@ -83,6 +84,8 @@ class BootstrapMgr:
             return DElem.P2POOL + "-" + DDef.P2POOL_VERSION
 
         elif aDir == DDir.VENDOR:
+            if not self.is_initialized():
+                raise RuntimeError("BootstrapMgr not initialized")
             return self._config.get(DField.VENDOR_DIR)
 
     def get_file(self, aFile: str) -> str | None:
@@ -99,7 +102,7 @@ class BootstrapMgr:
                     "..",
                     "..",
                     DDir.BIN,
-                    Default.PYTHON,
+                    DDef.PYTHON,
                 )
             )
             return python

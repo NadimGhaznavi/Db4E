@@ -10,25 +10,18 @@ db4e/Modules/Db4ESystemd.py
 
 # Import supporting modules
 import os
-from datetime import datetime
 import subprocess
 import re
 import time
 
-from db4e.Modules.SQLMgr import SQLMgr
+from db4e.db.OpsDb import OpsDb
 
-from db4e.Modules.OpsRec import StartStopRec
+from db4e.constants.DField import DField
+from db4e.constants.DSystemD import DSystemD
+from db4e.constants.DFile import DFile
+from db4e.constants.DElem import DElem
+from db4e.constants.DLabel import DLabel
 
-from db4e.Constants.DField import DField
-from db4e.Constants.DSystemD import DSystemD
-from db4e.Constants.DFile import DFile
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DMongo import DMongo
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DLabel import DLabel
-
-
-from db4e.Modules.DbMgr import DbMgr
 
 # How long to wait until timing out
 TIMEOUT = 30
@@ -36,9 +29,9 @@ TIMEOUT = 30
 
 class Db4ESystemD:
 
-    def __init__(self, sql_mgr: SQLMgr, service_name=None):
+    def __init__(self, ops_db: OpsDb, service_name=None):
         # Make sure systemd doesn't clutter the output with color codes or use a pager
-        self.sql_mgr = sql_mgr
+        self.ops_db = ops_db
         os.environ[DField.SYSTEMD_COLORS] = "0"
         os.environ[DField.SYSTEMD_PAGER] = ""
         self.result = {
@@ -96,15 +89,9 @@ class Db4ESystemD:
             DElem.XMRIG: DLabel.XMRIG,
         }
         if event == DSystemD.START:
-            start_event = StartStopRec(
-                elem_type=elem_type, instance=instance, rec_type=DField.START
-            )
-            self.sql_mgr.insert_one(start_event)
+            self.ops_db.add_start_event(elem_type=elem_type, instance=instance)
         elif event == DSystemD.STOP:
-            stop_event = StartStopRec(
-                elem_type=elem_type, instance=instance, rec_type=DField.STOP
-            )
-            self.sql_mgr.insert_one(stop_event)
+            self.ops_db.add_stop_event(elem_type=elem_type, instance=instance)
 
     def pid(self):
         """

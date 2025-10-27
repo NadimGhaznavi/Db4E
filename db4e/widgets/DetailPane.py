@@ -2,7 +2,7 @@
 db4e/Widgets/DetailPane.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -13,13 +13,14 @@ from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.containers import Container
 
-from db4e.Modules.PaneMgr import PaneMgr
+from db4e.misc.PaneMgr import PaneMgr
 
-INITIAL_SETUP = 'InitialSetup'
+INITIAL_SETUP = "InitialSetup"
+
 
 class DetailPane(Container):
 
-    pane_id = reactive('Welcome')
+    pane_id = reactive("Welcome")
 
     def __init__(self, initialized: bool, **kwargs):
         self.initialized = initialized
@@ -36,4 +37,4 @@ class DetailPane(Container):
         self.pane_id = pane_id
 
     def watch_pane_id(self):
-        self.compose()    
+        self.compose()

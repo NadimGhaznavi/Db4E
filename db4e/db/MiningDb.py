@@ -24,7 +24,7 @@ from db4e.recs.mining.XMRPayment import XMRPayment
 
 # The module that interfaces with SQLite3
 from db4e.db.SQLDb import SQLDb
-from db4e.db.BaseDb import BaseDb
+from db4e.db.BaseDb import BaseDb, TYPE_TO_TABLE_MAP
 
 
 # Db4E logging module
@@ -32,16 +32,13 @@ from db4e.util.Db4ELogger import Db4ELogger
 
 # Constants
 from db4e.constants.DModule import DModule
-from db4e.constants.DSQL import DCol, TYPE_TO_TABLE_MAP
+from db4e.constants.DSQL import DCol
 
 
 class MiningDb(BaseDb):
 
     def __init__(self, sql_db: SQLDb, log_file=None):
-        self.sql_db = sql_db
-        if log_file:
-            self.log = Db4ELogger(db4e_module=DModule.MINING_DB, log_file=log_file)
-        self._init_db()
+        super().__init__(sql_db=sql_db, log_file=log_file)
 
     def add_hourly_data(self, data):
         """Add timestamp data for hourly records"""
@@ -57,6 +54,7 @@ class MiningDb(BaseDb):
         return data
 
     def insert_constrained_one(self, mining_object):
+        self.check_initialized()
         data = mining_object.to_dict()
         data = self.add_hourly_data(data)
         table_name = TYPE_TO_TABLE_MAP[type(mining_object)]
@@ -81,6 +79,7 @@ class MiningDb(BaseDb):
         """
         Block found record
         """
+        self.check_initialized()
         block_found_event = BlockFoundEvent(chain=chain)
         self.insert_one(block_found_event)
 
@@ -88,6 +87,7 @@ class MiningDb(BaseDb):
         """
         Historical hourly chain hashrate record
         """
+        self.check_initialized()
         chain_hashrate = ChainHashrate(chain=chain, hashrate=hashrate, units=units)
         self.insert_constrained_one(chain_hashrate)
 
@@ -95,6 +95,7 @@ class MiningDb(BaseDb):
         """
         Historical hourly "number of unique wallets" on the sidechain
         """
+        self.check_initialized()
         chain_miners = ChainMiners(chain=chain, num_miners=num_miners)
         self.insert_constrained_one(chain_miners)
 
@@ -116,6 +117,7 @@ class MiningDb(BaseDb):
         # running for less than 3 minutes.
 
         # Historical, hourly miner hashrate
+        self.check_initialized()
         miner_hashrate = MinerHashrate(
             miner=miner_name,
             chain=chain,
@@ -129,6 +131,7 @@ class MiningDb(BaseDb):
         """
         Store the pool hashrate
         """
+        self.check_initialized()
         pool_hashrate = PoolHashrate(
             chain=chain, pool=pool, hashrate=hashrate, units=unit
         )
@@ -138,6 +141,7 @@ class MiningDb(BaseDb):
         """
         Create a JSON document and pass it to the Db4eDb to be added to the backend database
         """
+        self.check_initialized()
         share_found_event = ShareFoundEvent(
             miner=miner, effort=effort, chain=chain, pool=pool
         )
@@ -147,68 +151,70 @@ class MiningDb(BaseDb):
         """
         Store the share position
         """
+        self.check_initialized()
         share_position = SharePosition(chain=chain, pool=pool, position=position)
         self.insert_constrained_one(share_position)
 
     def add_to_wallet(self, amount):
         # CAREFUL with datatypes here!!!
-        pass
+        self.check_initialized()
         # TODO
 
     def add_xmr_payment(self, chain, payment, pool):
         """
         Store the XMR payment
         """
+        self.check_initialized()
         xmr_payment = XMRPayment(chain=chain, payment=payment, pool=pool)
         self.insert_one(xmr_payment)
 
     def get_block_found_events(self, chain=None):
-        pass
+        self.check_initialized()
 
     def get_chain_hashrate(self, instance):
-        pass
+        self.check_initialized()
 
     def get_chain_hashrates(self, instance):
-        pass
+        self.check_initialized()
 
     def get_miner_hashrate(self, miner):
-        pass
+        self.check_initialized()
 
     def get_miner_hashrates(self, miner):
-        pass
+        self.check_initialized()
 
     def get_miner_uptime(self, miner):
-        pass
+        self.check_initialized()
 
     def get_payments(self):
-        pass
+        self.check_initialized()
 
     def get_pool_hashrate(self, instance):
-        pass
+        self.check_initialized()
 
     def get_pool_hashrates(self, instance):
-        pass
+        self.check_initialized()
 
     def get_share_found_events(self, pool=None, miner=None):
-        pass
+        self.check_initialized()
 
     def get_xmrigs_remote(self):
-        pass
+        self.check_initialized()
 
     def get_share_position(self):
-        pass
+        self.check_initialized()
 
     def get_shares(self):
-        pass
+        self.check_initialized()
 
     def get_wallet_balance(self):
-        pass
+        self.check_initialized()
 
     def get_miners(self):
-        pass
+        self.check_initialized()
 
     def get_xmr_payments(self):
-        pass
+        self.check_initialized()
 
     def _init_db(self):
         self.sql_db.executescript(

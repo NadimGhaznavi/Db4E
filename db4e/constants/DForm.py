@@ -8,7 +8,7 @@ db4e/Constants/DForm.py
     License: GPL 3.0
 """
 
-from db4e.Modules.ConstGroup import ConstGroup
+from db4e.util.ConstGroup import ConstGroup
 
 
 class DForm(ConstGroup):

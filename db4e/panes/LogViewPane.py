@@ -14,9 +14,9 @@ from textual.reactive import reactive
 from textual.widgets import Static, Label, Log
 from textual.containers import Container, ScrollableContainer, Vertical, Horizontal
 
-from db4e.Messages.RefreshNavPane import RefreshNavPane
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DDef import DDef
+from db4e.messages.RefreshNavPane import RefreshNavPane
+from db4e.constants.DForm import DForm
+from db4e.constants.DDef import DDef
 
 
 class LogViewPane(Container):

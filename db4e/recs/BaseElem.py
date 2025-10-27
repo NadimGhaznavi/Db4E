@@ -23,9 +23,7 @@ class BaseElem:
         self._id = rec[DCol.ID]
 
     def to_dict(self):
-        return {
-            DCol.ID: self._id,
-        }
+        return {}
 
     def elem_type(self, elem_type=None):
         return type(self).__name__

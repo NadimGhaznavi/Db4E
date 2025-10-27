@@ -35,6 +35,7 @@ from db4e.messages.UpdateTopBar import UpdateTopBar
 
 from db4e.misc.InstallMgr import InstallMgr
 from db4e.misc.MessageRouter import MessageRouter
+from db4e.misc.OpsMgr import OpsMgr
 from db4e.misc.PaneMgr import PaneMgr
 
 from db4e.db.SQLDb import SQLDb
@@ -46,10 +47,8 @@ from db4e.db.OpsETL import OpsETL
 from db4e.util.BootstrapMgr import BootstrapMgr
 from db4e.util.PaneCatalogue import PaneCatalogue
 
-from db4e.constants.DDef import DDef
-from db4e.constants.DField import DField
-from db4e.constants.DPane import DPane
-from db4e.constants.DDir import DDir
+from db4e.Constants.DDef import DDef
+from db4e.Constants.DField import DField
 
 from textual.theme import Theme
 
@@ -83,20 +82,26 @@ class Db4EApp(App):
         # App Class Relationships diagram:
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
-        self.bs_mgr = BootstrapMgr()
-        self.sql_db = SQLDb(db_type=DField.CLIENT)
-        self.ops_db = OpsDb(sql_db=self.sql_db)
-        self.ops_etl = OpsETL(ops_db=self.ops_db)
-        self.depl_db = DeplDb(sql_db=self.sql_db)
-        self.mining_db = MiningDb(sql_db=self.sql_db)
-        install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
+        bs_mgr = BootstrapMgr()
+        sql_db = SQLDb(db_type=DField.CLIENT)
+        ops_db = OpsDb(sql_db=sql_db)
+        ops_etl = OpsETL(ops_db=ops_db)
+        depl_db = DeplDb(sql_db=sql_db)
+        mining_db = MiningDb(sql_db=sql_db)
+        ops_mgr = OpsMgr(
+            depl_client=depl_client,
+            mining_db=mining_db,
+            ops_etl=ops_etl,
+        )
+        install_mgr = InstallMgr(bs_mgr=bs_mgr)
 
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(depl_db=self.depl_db)
+        self.nav_pane = NavPane(depl_db=depl_db)
         self.msg_router = MessageRouter(
-            depl_db=self.depl_db,
+            depl_client=depl_client,
             install_mgr=install_mgr,
             pane_mgr=self.pane_mgr,
+            ops_mgr=ops_mgr,
         )
 
     def compose(self):
@@ -127,16 +132,8 @@ class Db4EApp(App):
             message.form_data[DField.TO_METHOD],
             message.form_data,
         )
-        # The Db4E database is within the deployment directory that's only defined
-        # after a successful install. The results of the "InitialInstall" are put
-        # into the tui_log_line table and the TUI Log Pane is displayed. We
-        # intercept that call and initialize the client database when the
-        # "InitialIntall" is successful.
-        if pane == DPane.TUI_LOG and data[-1] == DField.INSTALL_SUCCESSFUL:
-            self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
-            self.pane_mgr.set_pane(name=pane, data=data[:-1])
-        else:
-            self.pane_mgr.set_pane(name=pane, data=data)
+        # print(f"Db4EApp:on_db4e_msg(): pane: {pane}, data: {data}")
+        self.pane_mgr.set_pane(name=pane, data=data)
 
     # Handle requests to refresh the NavPane
     @work(exclusive=True)

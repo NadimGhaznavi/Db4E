@@ -13,8 +13,8 @@ import math
 from textual_plot import PlotWidget, HiResMode
 from textual.app import ComposeResult
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
 
 MAX_DATA_POINTS = 100
 
@@ -125,6 +125,4 @@ class Db4EPlot(PlotWidget):
         else:
             new_values = self._all_values[-selected_time:]
             new_times = self._all_days[-selected_time:]
-        print(f"Db4EPlot:update_time_range(): new_times: {new_times}")
-        print(f"Db4EPlot:update_time_range(): new_values: {new_values}")
         self.db4e_plot(new_times, new_values)

@@ -58,3 +58,33 @@ class BaseOps(BaseElem):
         if tracked_type is not None:
             self._tracked_type = tracked_type
         return self._tracked_type
+
+    def updated_year(self, updated_year=None):
+        if updated_year is not None:
+            self._updated_y = updated_year
+        return self._updated_y
+
+    def updated_month(self, updated_month=None):
+        if updated_month is not None:
+            self._updated_mo = updated_month
+        return self._updated_mo
+
+    def updated_day(self, updated_day=None):
+        if updated_day is not None:
+            self._updated_d = updated_day
+        return self._updated_d
+
+    def updated_hour(self, updated_hour=None):
+        if updated_hour is not None:
+            self._updated_h = updated_hour
+        return self._updated_h
+
+    def updated_minute(self, updated_minute=None):
+        if updated_minute is not None:
+            self._updated_mi = updated_minute
+        return self._updated_mi
+
+    def updated_second(self, updated_second=None):
+        if updated_second is not None:
+            self._updated_s = updated_second
+        return self._updated_s

@@ -8,7 +8,7 @@ db4e/Constants/DFields.py
     License : GPL 3.0
 """
 
-from db4e.Modules.ConstGroup import ConstGroup
+from db4e.util.ConstGroup import ConstGroup
 
 
 class DField(ConstGroup):
@@ -61,6 +61,7 @@ class DField(ConstGroup):
     INFO_MSG: str = "info_msg"
     INI_SUFFIX: str = ".ini"
     INSTALL_DIR: str = "install_dir"
+    INSTALL_SUCCESSFUL: str = "install_successful"
     INSTANCE: str = "instance"
     INT_P2POOLS: str = "int_p2pools"
     INT_P2POOLS_MAP: str = "int_p2pools_map"

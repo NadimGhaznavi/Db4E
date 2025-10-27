@@ -15,12 +15,12 @@ from textual.widgets import Label, Select
 from textual_plotext import PlotextPlot
 from textual.reactive import reactive
 
-from db4e.Modules.P2Pool import P2Pool
+from db4e.recs.monero.P2Pool import P2Pool
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DSelect import DSelect
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DForm import DForm
+from db4e.constants.DSelect import DSelect
 
 
 class ChainBlocksFoundPane(Container):
@@ -91,7 +91,6 @@ class ChainBlocksFoundPane(Container):
             plt.title("Blocks Found")
 
     def watch_days(self, old, new):
-        print(f"ChainBlocksFoundPane:watch_days(): new: {new}")
         plt = self.query_one(PlotextPlot).plt
 
         plt.bar(self.days, self.blocks_found, color="blue")

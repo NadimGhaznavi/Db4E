@@ -11,13 +11,13 @@ db4e/Panes/XMRigRemoteSharesFoundPane.py
 from textual.containers import Container, Vertical, ScrollableContainer
 from textual.widgets import Label, Select
 
-from db4e.Modules.XMRigRemote import XMRigRemote
-from db4e.Widgets.SharesFoundPlot import SharesFoundPlot
+from db4e.recs.monero.XMRigRemote import XMRigRemote
+from db4e.widgets.SharesFoundPlot import SharesFoundPlot
 
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DField import DField
-from db4e.Constants.DForm import DForm
-from db4e.Constants.DSelect import DSelect
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DForm import DForm
+from db4e.constants.DSelect import DSelect
 
 
 class XMRigSharesFoundPane(Container):
