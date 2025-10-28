@@ -32,36 +32,38 @@ except Exception:
     __package_name__ = "Db4E"
     __version__ = "N/A"
 
-from db4e.Modules.BootstrapMgr import BootstrapMgr
-from db4e.Modules.Db4E import Db4E
-from db4e.Modules.Db4ESystemD import Db4ESystemD
-from db4e.Modules.DbMgr import DbMgr
-from db4e.Modules.Db4ELogger import Db4ELogger
-from db4e.Modules.DeplMgr import DeplMgr
-from db4e.Modules.InternalP2Pool import InternalP2Pool
-from db4e.Modules.MiningDb import MiningDb
-from db4e.Modules.MoneroD import MoneroD
-from db4e.Modules.MoneroDRemote import MoneroDRemote
-from db4e.Modules.OpsDb import OpsDb, OpsETL
-from db4e.Modules.OpsRec import StartStopRec, TUILogRec
-from db4e.Modules.P2Pool import P2Pool
-from db4e.Modules.P2PoolRemote import P2PoolRemote
-from db4e.Modules.P2PoolWatcher import P2PoolWatcher
-from db4e.Modules.SQLMgr import SQLMgr
-from db4e.Modules.XMRig import XMRig
+from db4e.util.BootstrapMgr import BootstrapMgr
+from db4e.util.Db4ESystemD import Db4ESystemD
+from db4e.util.Db4ELogger import Db4ELogger
+from db4e.util.P2PoolWatcher import P2PoolWatcher
+from db4e.misc.DeplMgr import DeplMgr
 
-from db4e.Constants.DDebug import DDebug
-from db4e.Constants.DDef import DDef
-from db4e.Constants.DField import DField
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DDir import DDir
-from db4e.Constants.DJob import DJob
-from db4e.Constants.DFile import DFile
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMongo import DMongo
-from db4e.Constants.DSystemD import DSystemD
-from db4e.Constants.DLabel import DLabel
-from db4e.Constants.DMongo import DMongo
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.XMRig import XMRig
+
+from db4e.db.SQLDb import SQLDb
+from db4e.db.DeplDb import DeplDb
+from db4e.db.MiningDb import MiningDb
+from db4e.db.OpsDb import OpsDb
+
+
+from db4e.constants.DDebug import DDebug
+from db4e.constants.DDef import DDef
+from db4e.constants.DField import DField
+from db4e.constants.DElem import DElem
+from db4e.constants.DDir import DDir
+from db4e.constants.DJob import DJob
+from db4e.constants.DFile import DFile
+from db4e.constants.DModule import DModule
+from db4e.constants.OLD_DMongo import DMongo
+from db4e.constants.DSystemD import DSystemD
+from db4e.constants.DLabel import DLabel
+from db4e.constants.OLD_DMongo import DMongo
 
 
 DDebug.FUNCTION = False
@@ -80,19 +82,8 @@ class Db4eServer:
 
         # Bootstrap Manager
         self.bs_mgr = BootstrapMgr()
-
         if not self.bs_mgr.is_initialized():
             raise ValueError("ERROR: Db4E initial install not completed!")
-
-        # SQLite DB Manager
-        self.sql_mgr = SQLMgr(db_type=DField.SERVER)
-        self.sql_mgr.initialize(self.bs_mgr.get_dir(DDir.DB))
-
-        # Deployment Manager
-        self.depl_mgr = DeplMgr(bs_mgr=self.bs_mgr, sql_mgr=self.sql_mgr)
-
-        #  systemd wrapper
-        self.systemd = Db4ESystemD(sql_mgr=self.sql_mgr)
 
         # Setup logging
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -102,11 +93,27 @@ class Db4eServer:
         self.log_file = fq_log_file
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
+        # SQLite DB module
+        self.sql_db = SQLDb(db_type=DField.SERVER, log_file=fq_log_file)
+        self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
+
+        # Operations DB module
+        self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
+
+        # Deployment DB module
+        self.depl_db = DeplDb(sql_db=self.sql_db, log_file=fq_log_file)
+        # Deployment Manager
+        self.depl_mgr = DeplMgr(
+            bs_mgr=self.bs_mgr, depl_db=self.depl_db, ops_db=self.ops_db
+        )
+
+        #  systemd wrapper
+        self.systemd = Db4ESystemD(ops_db=self.ops_db)
+
         # Mining DB object
         self.mining_db = MiningDb(
-            sql_mgr=self.sql_mgr,
+            sql_db=self.sql_db,
             log_file=fq_log_file,
-            ops_etl=OpsETL(ops_db=OpsDb(db=self.db)),
         )
 
         # Track when we last ran `logrotate`
@@ -125,12 +132,7 @@ class Db4eServer:
         self.running.set()
 
         # Create an Ops record to record the startup time
-        start_rec = StartStopRec(
-            elem_type=DElem.DB4E_SERVER,
-            instance=DElem.DB4E_SERVER,
-            rec_type=DField.START,
-        )
-        self.sql_mgr.insert_one(start_rec)
+        self.ops_db.add_start_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()

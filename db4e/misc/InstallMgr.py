@@ -268,7 +268,7 @@ class InstallMgr(Container):
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         # Substitute placeholder in the db4e-service.sh script
         install_dir = self.bs_mgr.get_dir(DDir.INSTALL)
-        python = self.bs_mgr.get_dir(DDef.PYTHON)
+        python = self.bs_mgr.get_dir(DFile.PYTHON)
         placeholders = {
             DPlaceholder.PYTHON: python,
             DPlaceholder.INSTALL_DIR: install_dir,

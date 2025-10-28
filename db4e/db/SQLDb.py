@@ -11,21 +11,27 @@ db4e/db/SQLDb.py
 import os, sqlite3
 from datetime import datetime
 
+from db4e.util.Db4ELogger import Db4ELogger
+
 from db4e.constants.DFile import DFile
 from db4e.constants.DField import DField
 from db4e.constants.DSQL import DTable
+from db4e.constants.DModule import DModule
 
 
 class SQLDb:
 
-    def __init__(self, db_type: str):
+    def __init__(self, db_type: str, log_file=None):
         """Constructor"""
-
         self._db_type = db_type
         self._db_dir = None
         self._conn = None
         self._cursor = None
         self._initialized = False
+        if log_file:
+            self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
+        else:
+            self.log = None
 
     def close(self):
         """Close the connection to the database"""

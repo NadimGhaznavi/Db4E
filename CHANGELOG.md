@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `BaseMonero` and `BaseP2Pool` classes.
 
 ### Changed
-- Replaced `DbCache` and `DeplMgr` with `SQLMgr` and `BootstrapMgr` in the `InstallMgr` module.
 - Replaced the `DeplMgr:get_dir()` with `BootstrapMgr` module's `get_dir()` and `get_file()` functions.
 - Changed the `LOG_ROTATE_CONFIG` constant to `LOGROTATE_CONFIG` in the `DDef` and `DField` constants files.
   - Changed backend `p2pool` and `xmrig` table's `log_rotate_config` to `logrotate_config`
@@ -36,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced all of the `InitialInstall` messages that were sent to a transient `Results` pane to the *Console Log* pane.
 - Complete rewrite of the `TuiLogPane` parsing logic to reflect the new backend.
 - Refactored `Db4e`, `MoneroD`, `MoneroDRemote`, `P2Pool`, `P2PoolRemote` and `XMRig` classes.
+- Complete rewrite of the `DeplMgr` module to use the new backend.
 
 ### Fixed
 - Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.
@@ -44,8 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Corrected *Internal P2Pool* section header name.
 
 ### Removed
-- `DeplMgr` module. It has been replaced by the `BootstrapMgr` and `SQLMgr` modules.
+- `DbCache` module.
 - `Job` module. It has been replaced by the `TUILogMsg` class.
+- `TUILogMsg` module. It has replaced by `OpsDb:add_tui_log_line()`.
 
 ---
 

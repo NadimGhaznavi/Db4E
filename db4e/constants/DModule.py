@@ -28,4 +28,5 @@ class DModule(ConstGroup):
     OPS_MGR: str = "OpsManager"
     P2POOL_WATCHER: str = "P2PoolWatcher"
     PANE_MGR: str = "PaneMgr"
+    SQL_DB: str = "SQLDb"
     XMRIG: str = "XMRig"

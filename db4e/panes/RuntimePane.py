@@ -17,7 +17,7 @@ from textual.containers import ScrollableContainer, Vertical
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DForm import DForm
 from db4e.constants.DField import DField
-from db4e.constants.DMongo import DMongo
+from db4e.constants.OLD_DMongo import DMongo
 from db4e.constants.DOps import DOps
 
 

@@ -26,7 +26,7 @@ from db4e.panes.P2PoolRemotePane import P2PoolRemotePane
 from db4e.panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
 from db4e.panes.PaymentsPane import PaymentsPane
 from db4e.panes.ResultsPane import ResultsPane
-from db4e.panes.StartStopLogPane import StartStopLogPane
+from db4e.panes.OLD_StartStopLogPane import StartStopLogPane
 from db4e.panes.TUILogPane import TUILogPane
 from db4e.panes.RuntimePane import RuntimePane
 from db4e.panes.WelcomePane import WelcomePane

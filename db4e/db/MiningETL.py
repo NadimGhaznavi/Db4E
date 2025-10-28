@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from bson.decimal128 import Decimal128
 from decimal import Decimal, ROUND_HALF_UP
 
-from db4e.constants.DMongo import DMongo
+from db4e.constants.OLD_DMongo import DMongo
 from db4e.constants.DMining import DMining
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField

@@ -29,13 +29,15 @@ from db4e.recs.monero.XMRigRemote import XMRigRemote
 # The module that interfaces with SQLite3
 from db4e.db.SQLDb import SQLDb
 
+# Base domain DB module
+from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP
+
 # Db4E logging module
 from db4e.util.Db4ELogger import Db4ELogger
 
 # Constants
-from db4e.constants.DSQL import ELEM_TABLE_LIST
-from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP
-from db4e.constants.DModule import DModule
+from db4e.constants.DSQL import DCol, ELEM_TABLE_LIST
+from db4e.constants.DElem import DElem
 
 
 class DeplDb(BaseDb):
@@ -47,6 +49,23 @@ class DeplDb(BaseDb):
         self.check_initialized()
         for table in ELEM_TABLE_LIST:
             self.sql_db.executescript(f"DELETE FROM {table}")
+
+    def delete_deployment(self, elem):
+        self.check_initialized()
+        table = TYPE_TO_TABLE_MAP[elem.elem_type()]
+        self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
+
+    def get_deployment(self, elem_type: str, instance: str):
+        self.check_initialized()
+        table = TYPE_TO_TABLE_MAP[elem_type]
+        rec = self.sql_db.execute_query(
+            f"SELECT * FROM {table} WHERE instance=?", (instance,)
+        ).fetchone()
+        if rec:
+            object = TABLE_TO_TYPE_MAP[elem_type](rec)
+            return object
+        else:
+            return None
 
     def get_deployments(self):
         self.check_initialized()
@@ -65,6 +84,55 @@ class DeplDb(BaseDb):
         )[0]
         object = TABLE_TO_TYPE_MAP[elem_type](rec)
         return object
+
+    def get_deployment_ids_and_instances(self, elem_type):
+        instance_map = {}
+        recs = self.depl_db.find_many(elem_type=elem_type)
+        for rec in recs:
+            instance = self.get_component_value(rec, DCol.INSTANCE)
+            instance_map[instance] = rec[DCol.ID]
+        return instance_map
+
+    def get_downstream(self, elem):
+        elem_type = elem.elem_type()
+        obj_id = elem.id()
+        obj_list = []
+        # P2Pool is downstream from MoneroD and MoneroDRemote
+        if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
+            p2pools = self.get_p2pools()
+            for p2pool in p2pools:
+                if p2pool.parent() == obj_id:
+                    obj_list.append(p2pool)
+        # XMRig is downstream from P2Pool and P2PoolRemote
+        elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
+            xmrigs = self.get_xmrigs()
+            for xmrig in xmrigs:
+                if xmrig.parent() == obj_id:
+                    obj_list.append(xmrig)
+        return obj_list
+
+    def get_new(self, elem_type):
+
+        if elem_type == DElem.MONEROD:
+            return MoneroD()
+        elif elem_type == DElem.MONEROD_REMOTE:
+            return MoneroDRemote()
+        elif elem_type == DElem.P2POOL:
+            p2pool = P2Pool()
+            db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
+            p2pool.user_wallet(db4e.user_wallet())
+            return p2pool
+        elif elem_type == DElem.P2POOL_REMOTE:
+            return P2PoolRemote()
+        elif elem_type == DElem.INT_P2POOL:
+            p2pool = P2PoolInternal()
+            p2pool.user_wallet(DDef.DONATION_WALLET)
+        elif elem_type == DElem.XMRIG:
+            return XMRig()
+        elif elem_type == DElem.XMRIG_REMOTE:
+            return XMRigRemote()
+        else:
+            raise ValueError(f"DeplMgr:get_new(): No handler for {elem_type}")
 
     def _init_db(self):
         self.sql_db.executescript(

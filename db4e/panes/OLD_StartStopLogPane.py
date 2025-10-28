@@ -20,7 +20,7 @@ from db4e.constants.DLabel import DLabel
 from db4e.constants.DForm import DForm
 from db4e.constants.DDef import DDef
 from db4e.constants.DField import DField
-from db4e.constants.DMongo import DMongo
+from db4e.constants.OLD_DMongo import DMongo
 
 
 class StartStopLogPane(Static):
