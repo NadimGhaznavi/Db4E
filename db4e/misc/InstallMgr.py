@@ -41,7 +41,7 @@ class InstallMgr(Container):
     def __init__(self, bs_mgr: BootstrapMgr):
         super().__init__()
         self.bs_mgr = bs_mgr
-        self.sql_db = SQLDb(db_type=DField.SERVER)
+        self.sql_db = SQLDb(db_type=DField.SERVER, bs_mgr=bs_mgr)
         self.ops_db = OpsDb(sql_db=self.sql_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)
         self.col_name = DDef.DEPL_COLLECTION

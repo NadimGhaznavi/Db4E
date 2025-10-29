@@ -91,7 +91,9 @@ class Db4eServer:
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
         # SQLite DB module
-        self.sql_db = SQLDb(db_type=DField.SERVER, log_file=fq_log_file)
+        self.sql_db = SQLDb(
+            db_type=DField.SERVER, bs_mgr=self.bs_mgr, log_file=fq_log_file
+        )
         self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
 
         # Operations DB module
@@ -522,7 +524,9 @@ class Db4eServer:
             if p2pool.parent() != monerod_id:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
                 p2pool.parent(monerod_id)
-                p2pool.monerod = self.depl_db.get_deployment_by_id(monerod_id)
+                p2pool.monerod = self.depl_db.get_deployment_by_id(
+                    DElem.MONEROD, monerod_id
+                )
                 vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
                 tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)

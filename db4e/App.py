@@ -84,7 +84,7 @@ class Db4EApp(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         self.bs_mgr = BootstrapMgr()
-        self.sql_db = SQLDb(db_type=DField.CLIENT)
+        self.sql_db = SQLDb(db_type=DField.CLIENT, bs_mgr=self.bs_mgr)
         self.ops_db = OpsDb(sql_db=self.sql_db)
         self.ops_etl = OpsETL(ops_db=self.ops_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)

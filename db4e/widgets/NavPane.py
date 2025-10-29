@@ -81,6 +81,16 @@ class NavPane(Container):
 
         self.refresh_nav_pane()
 
+    def check_initialized(self):
+        if self.is_initialized():
+            return
+        else:
+            self.depl_db.check_initialized()
+            if self.depl_db.is_initialized():
+                self._initialized = True
+            else:
+                self._initialized = False
+
     def compose(self) -> ComposeResult:
         yield Vertical(
             ScrollableContainer(
@@ -357,8 +367,7 @@ class NavPane(Container):
                     self.post_message(Db4eMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:
-        self.set_initialized()
-
+        self.check_initialized()
         if not self.is_initialized():
             if not self.initial_branches_added:
                 self.initial_branches_added = True
@@ -426,7 +435,7 @@ class NavPane(Container):
 
         self.monerod_remote_tree.remove_children()
         self.monerod_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
-        for monerod in self.depl_db.get_monerods_remote():
+        for monerod in self.depl_db.get_monerod_remotes():
             state = monerod.status()
             self.monerod_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
@@ -442,14 +451,14 @@ class NavPane(Container):
 
         self.p2pool_remote_tree.remove_children()
         self.p2pool_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
-        for p2pool in self.depl_db.get_p2pools_remote():
+        for p2pool in self.depl_db.get_p2pool_remotes():
             state = p2pool.status()
             self.p2pool_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance()
             )
 
         self.chain.remove_children()
-        for int_p2pool in self.depl_db.get_int_p2pools():
+        for int_p2pool in self.depl_db.get_p2pool_internals():
             state = int_p2pool.status()
             instance = int_p2pool.instance()
             self.chain.add_leaf(f"{STATE_ICON[state]} {instance}", data=instance)
@@ -463,7 +472,7 @@ class NavPane(Container):
             )
 
         self.xmrig_remote_tree.remove_children()
-        for remote_xmrig in self.depl_db.get_xmrigs_remote():
+        for remote_xmrig in self.depl_db.get_xmrig_remotes():
             remote_xmrig.timestamp(
                 self.depl_db.get_remote_xmrig_timestamp(remote_xmrig)
             )
@@ -490,8 +499,3 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
             )
-
-    def set_initialized(self):
-        if not self._initialized:
-            self._initialized = False
-        return self._initialized

@@ -111,12 +111,15 @@ class BaseDb:
         return data
 
     def check_initialized(self):
-        if not self.sql_db.is_initialized():
-            raise RuntimeError(f"{__name__}: SQLDb not initialized")
-
-        if not self._initialzed:
-            self._init_db()
+        self.sql_db.check_initialized()
+        if self.sql_db.is_initialized():
             self._initialzed = True
+            self._init_db()
+        else:
+            self._initialized = False
+
+    def _init_db(self):
+        raise NotImplemented
 
     def insert_one(self, db4e_obj):
         self.check_initialized()
@@ -131,6 +134,9 @@ class BaseDb:
         object_id = self.sql_db.insert_one(sql=sql, values=values)
         db4e_obj.id(object_id)
         return db4e_obj
+
+    def is_initialized(self):
+        return self._initialzed
 
     def update_one(self, db4e_obj):
         self.check_initialized()
