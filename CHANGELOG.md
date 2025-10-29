@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `aiofiles` to `pyproject.toml` to support the migration of `P2PoolWatcher` from a *threaded* to an *asyncio* model.
   - Updated `poetry.lock` file.
 - Added *sphinx* documentation generator:
-  - Installed pip meta package to generate documentation and the *groundwork* theme.
+  - Installed pip meta package to generate documentation.
   - Updated the core `conf.py` to parse code for inline documentation.
   - Added a *GitHub Pages* workflow to automatically generate documenation when when a new release is cuts.
 - Added timestamp data to the `CurrentUptime` class to enable client/server data syncs.

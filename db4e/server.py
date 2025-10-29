@@ -84,14 +84,7 @@ class Db4eServer:
             raise ValueError("ERROR: Db4E initial install not completed!")
 
         # API manager
-        self.api_mgr = APIMgr()
-        config = uvicorn.Config(
-            self.api_mgr.app,
-            host=DDef.ANY_IP,
-            port=DDef.API_PORT,
-            log_level=DField.INFO,
-        )
-        self.uvicorn_server = uvicorn.Server(config)
+        self.api_mgr = APIMgr(bs_mgr=self.bs_mgr)
 
         # Setup logging
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -503,7 +496,7 @@ class Db4eServer:
                 continue
 
     async def run_api_server(self):
-        await self.uvicorn_server.serve()
+        await self.api_mgr.serve()
 
     async def run_all(self):
         """Run all server components concurrently."""
@@ -527,7 +520,6 @@ class Db4eServer:
             asyncio.create_task(self.check_deployments(), name="check_deployments"),
             asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
         ]
-
         # main loop: just wait until stop_event is set
         await self.stop_event.wait()
 

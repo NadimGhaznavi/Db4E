@@ -5,6 +5,7 @@ db4e/Constants/DFile.py
     Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
+    Website: https://db4e.osoyalce.com/
     License: GPL 3.0
 """
 
@@ -30,3 +31,4 @@ class DFile(ConstGroup):
     STATS_MOD: str = "stats_mod"
     SUDO: str = "sudo"
     SYSTEMCTL: str = "systemctl"
+    UVICORN_LOG: str = "uvicorn.log"
