@@ -24,7 +24,7 @@ import json
 
 from db4e.db.MiningDb import MiningDb
 from db4e.util.Db4ELogger import Db4ELogger
-from db4e.misc.DeplMgr import DeplMgr
+from db4e.mgr.DeplMgr import DeplMgr
 from db4e.recs.monero.XMRigRemote import XMRigRemote
 
 from db4e.constants.DField import DField
@@ -370,7 +370,9 @@ class P2PoolWatcher:
                         if not line:
                             # Handle log rotation/truncation
                             try:
-                                if os.stat(log_file).st_size < (await log_handle.tell()):
+                                if os.stat(log_file).st_size < (
+                                    await log_handle.tell()
+                                ):
                                     break  # reopen the file
                             except FileNotFoundError:
                                 break  # file got rotated away

@@ -9,8 +9,8 @@ db4e/Modules/MessageRouter.py
 """
 
 from db4e.db.DeplDb import DeplDb
-from db4e.misc.InstallMgr import InstallMgr
-from db4e.misc.PaneMgr import PaneMgr
+from db4e.mgr.InstallMgr import InstallMgr
+from db4e.mgr.PaneMgr import PaneMgr
 
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DField import DField
@@ -19,7 +19,7 @@ from db4e.constants.DPane import DPane
 from db4e.constants.DModule import DModule
 
 
-class MessageRouter:
+class RouteMgr:
     def __init__(
         self,
         depl_db: DeplDb,

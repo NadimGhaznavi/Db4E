@@ -16,7 +16,7 @@ import stat
 
 from textual.containers import Container
 
-from db4e.util.BootstrapMgr import BootstrapMgr
+from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.util.Helper import result_row
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.ops.TUILogLine import TUILogLine

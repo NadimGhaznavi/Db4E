@@ -33,9 +33,10 @@ from db4e.messages.Db4eMsg import Db4eMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.UpdateTopBar import UpdateTopBar
 
-from db4e.misc.InstallMgr import InstallMgr
-from db4e.misc.MessageRouter import MessageRouter
-from db4e.misc.PaneMgr import PaneMgr
+from db4e.mgr.InstallMgr import InstallMgr
+from db4e.mgr.RouteMgr import RouteMgr
+from db4e.mgr.PaneMgr import PaneMgr
+from db4e.mgr.BootstrapMgr import BootstrapMgr
 
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
@@ -43,7 +44,6 @@ from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.OpsETL import OpsETL
 
-from db4e.util.BootstrapMgr import BootstrapMgr
 from db4e.util.PaneCatalogue import PaneCatalogue
 
 from db4e.constants.DDef import DDef
@@ -93,7 +93,7 @@ class Db4EApp(App):
 
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_db=self.depl_db)
-        self.msg_router = MessageRouter(
+        self.msg_router = RouteMgr(
             depl_db=self.depl_db,
             install_mgr=install_mgr,
             pane_mgr=self.pane_mgr,

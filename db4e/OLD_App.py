@@ -33,10 +33,10 @@ from db4e.messages.Db4eMsg import Db4eMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.UpdateTopBar import UpdateTopBar
 
-from db4e.misc.InstallMgr import InstallMgr
-from db4e.misc.MessageRouter import MessageRouter
-from db4e.misc.OpsMgr import OpsMgr
-from db4e.misc.PaneMgr import PaneMgr
+from db4e.mgr.InstallMgr import InstallMgr
+from db4e.mgr.RouteMgr import MessageRouter
+from db4e.mgr.OpsMgr import OpsMgr
+from db4e.mgr.PaneMgr import PaneMgr
 
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb

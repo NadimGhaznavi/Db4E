@@ -29,11 +29,12 @@ except Exception:
     __package_name__ = "Db4E"
     __version__ = "N/A"
 
-from db4e.util.BootstrapMgr import BootstrapMgr
+from db4e.mgr.BootstrapMgr import BootstrapMgr
+from db4e.mgr.DeplMgr import DeplMgr
+
 from db4e.util.Db4ESystemD import Db4ESystemD
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.P2PoolWatcher import P2PoolWatcher
-from db4e.misc.DeplMgr import DeplMgr
 
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD

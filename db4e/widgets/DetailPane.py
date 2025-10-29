@@ -13,7 +13,7 @@ from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.containers import Container
 
-from db4e.misc.PaneMgr import PaneMgr
+from db4e.mgr.PaneMgr import PaneMgr
 
 INITIAL_SETUP = "InitialSetup"
 

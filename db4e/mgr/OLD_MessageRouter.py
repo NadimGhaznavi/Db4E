@@ -9,9 +9,9 @@ db4e/Modules/MessageRouter.py
 """
 
 from db4e.db.DeplDb import DeplDb
-from db4e.misc.InstallMgr import InstallMgr
-from db4e.misc.OpsMgr import OpsMgr
-from db4e.misc.PaneMgr import PaneMgr
+from db4e.mgr.InstallMgr import InstallMgr
+from db4e.mgr.OpsMgr import OpsMgr
+from db4e.mgr.PaneMgr import PaneMgr
 
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DField import DField
