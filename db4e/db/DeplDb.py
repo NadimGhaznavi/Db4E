@@ -57,10 +57,10 @@ class DeplDb(BaseDb):
 
     def get_deployment(self, elem_type: str, instance: str):
         self.check_initialized()
-        table = TYPE_TO_TABLE_MAP[elem_type]
+        table = TYPE_STR_TO_TABLE_MAP[elem_type]
         rec = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (instance,)
-        ).fetchone()
+        )[0]
         if rec:
             object = TABLE_TO_TYPE_MAP[elem_type](rec)
             return object

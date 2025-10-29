@@ -15,6 +15,8 @@ import socket
 from typing import overload
 import subprocess
 
+from db4e.mgr.BootstrapMgr import BootstrapMgr
+
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
 
@@ -27,7 +29,6 @@ from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
 from db4e.recs.monero.XMRigRemote import XMRigRemote
 from db4e.util.Helper import sudo_del_file
-from db4e.util.BootstrapMgr import BootstrapMgr
 
 from db4e.constants.DField import DField
 from db4e.constants.DLabel import DLabel
@@ -766,11 +767,13 @@ class DeplMgr:
         update, update_config = False, False
         # Resolve which P2Pool type we're updating
         if new_p2pool.elem_type() == DElem.P2POOL:
-            p2pool = self.get_deployment(DElem.P2POOL, new_p2pool.instance())
+            p2pool = self.depl_db.get_deployment(DElem.P2POOL, new_p2pool.instance())
             p2pool_type = DElem.P2POOL
         else:
-            p2pool = self.get_deployment(DElem.INT_P2POOL, new_p2pool.instance())
-            p2pool_type = DElem.INT_P2POOL
+            p2pool = self.depl_db.get_deployment(
+                DElem.P2POOL_INTERNAL, new_p2pool.instance()
+            )
+            p2pool_type = DElem.P2POOL_INTERNAL
 
         ## Field-by-field comparison
         # Enable/disable
@@ -862,6 +865,7 @@ class DeplMgr:
                     message="Updated upstream MoneroD",
                     details=f"{p2pool.parent()} > DISABLE",
                 )
+                update, update_config = True, False
             elif p2pool.parent() == DField.DISABLE:
                 new_monerod = self.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=new_p2pool.parent()
@@ -875,6 +879,7 @@ class DeplMgr:
                     message="Updated upstream MoneroD",
                     details=f"DISABLE > {new_instance}",
                 )
+                update, update_config = True, True
             else:
                 new_monerod = self.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=new_p2pool.parent()

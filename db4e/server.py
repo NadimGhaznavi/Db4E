@@ -14,7 +14,6 @@ import os, sys
 # Turn off buffering
 sys.stdout.reconfigure(line_buffering=True)
 from datetime import datetime
-import time
 import signal
 import asyncio
 from importlib import metadata
@@ -208,8 +207,8 @@ class Db4eServer:
                 if not found_primary:
                     self.unset_int_p2pool_primary()
 
-                # Sleep for POLL_INTERVAL before restarting the loop
-                await asyncio.sleep(POLL_INTERVAL)
+            # Sleep for POLL_INTERVAL before restarting the loop
+            await asyncio.sleep(POLL_INTERVAL)
 
     def chown_logrotate_files(self):
         if DDebug.FUNCTION:
@@ -353,7 +352,6 @@ class Db4eServer:
         rc = sd.start()
         if rc == 0:
             self.log.info(f"Started: {elem}")
-            time.sleep(30)
         else:
             self.log.critical(f"ERROR: Failed to start {elem}, return code was {rc}")
             self.stopping.discard(instance)
@@ -366,7 +364,7 @@ class Db4eServer:
         if type(elem) == MoneroD:
             instance = elem.instance()
             sd.service_name("monerod@" + instance)
-        elif isinstance(elem, P2Pool):
+        elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
             instance = elem.instance()
             sd.service_name("p2pool@" + instance)
         elif type(elem) == XMRig:
@@ -390,7 +388,6 @@ class Db4eServer:
         rc = sd.stop()
         if rc == 0:
             self.log.info(f"Stopped: {elem}")
-            time.sleep(30)
             if isinstance(elem, P2Pool):
                 control = self.log_watchers.pop(instance, None)
                 if control:
@@ -602,7 +599,10 @@ class Db4eServer:
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:
             self.log.debug("Db4eServer:unset_int_p2pool_primary():")
-        for p2pool in self.depl_mgr.get_internal_p2pools():
+        for p2pool in self.depl_db.get_p2pool_internals():
+            if p2pool.parent() == DField.DISABLE:
+                continue
+            p2pool.monerod = None
             p2pool.parent(DField.DISABLE)
             p2pool.enabled(False)
             self.depl_mgr.update_deployment(p2pool)
