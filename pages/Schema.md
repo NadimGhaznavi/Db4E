@@ -341,6 +341,12 @@ start_time        | INTEGER   | A *foreign key* that points at a `start_stop` ta
 stop_time         | INTEGER   | A *foreign key* that points at a `start_stop` table's `id`
 current_secs      | INTEGER   | The current uptime in seconds.
 current           | INTEGER   | 0 or 1, indicating whether the record is the current uptime.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
 
 - The can be only one record for each deployment instance where the `current` column is set to `1`.
 - The *total uptime* for a deployed instance can be calculated from this table.

@@ -63,7 +63,7 @@ class RouteMgr:
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:
             raise ValueError(
-                f"MessageRouter:dispatch():No handler for: module: {some_module}, "
+                f"RouteMgr:dispatch():No handler for: module: {some_module}, "
                 f"method: {some_method}, elem_type: {elem_type}"
             )
 

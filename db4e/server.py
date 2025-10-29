@@ -14,12 +14,12 @@ import os, sys
 # Turn off buffering
 sys.stdout.reconfigure(line_buffering=True)
 from datetime import datetime
-import signal
+import uvicorn
 import asyncio
 from importlib import metadata
 import subprocess
+import signal
 import re
-import fastapi
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -30,6 +30,7 @@ except Exception:
 
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
+from db4e.mgr.APIMgr import APIMgr
 
 from db4e.util.Db4ESystemD import Db4ESystemD
 from db4e.util.Db4ELogger import Db4ELogger
@@ -77,10 +78,20 @@ class Db4eServer:
 
     def __init__(self):
 
-        # Bootstrap Manager
+        # Bootstrap manager
         self.bs_mgr = BootstrapMgr()
         if not self.bs_mgr.is_initialized():
             raise ValueError("ERROR: Db4E initial install not completed!")
+
+        # API manager
+        self.api_mgr = APIMgr()
+        config = uvicorn.Config(
+            self.api_mgr.app,
+            host=DDef.ANY_IP,
+            port=DDef.API_PORT,
+            log_level=DField.INFO,
+        )
+        self.uvicorn_server = uvicorn.Server(config)
 
         # Setup logging
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -493,11 +504,51 @@ class Db4eServer:
                 # Timeout expired, restart the loop
                 continue
 
+    async def run_all(self):
+        """Run all server components concurrently."""
+
+        # Create stop events
+        self.check_deployments_stop_event = asyncio.Event()
+        self.rotate_logs_stop_event = asyncio.Event()
+
+        # Create async tasks
+        tasks = [
+            asyncio.create_task(self.check_deployments(), name="check_deployments"),
+            asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
+            asyncio.create_task(self.run_api_server(), name="api_server"),
+        ]
+
+        # Graceful shutdown handling
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(
+                sig,
+                lambda s=sig: asyncio.create_task(self.shutdown_signal(s)),
+            )
+
+        self.log.info("Db4E Server started and all tasks running.")
+
+        # Wait for any task to finish (or all to complete if desired)
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+
+        # Handle completion
+        for task in done:
+            try:
+                task.result()
+            except asyncio.CancelledError:
+                pass
+            except Exception as e:
+                self.log.error(f"Task {task.get_name()} failed: {e}")
+
+        for task in pending:
+            task.cancel()
+
     async def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:shutdown(): {signum}")
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
+        await self.uvicorn_server.shutdown()
         for elem_type, instance in self.log_watchers:
             task = self.log_watchers[elem_type, instance][DField.TASK]
             stop_event = self.log_watchers[elem_type, instance][DField.EVENT]
@@ -513,6 +564,15 @@ class Db4eServer:
 
         # Create a stop event in the ops collection
         self.ops_db.add_stop_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
+        sys.exit(0)
+
+    async def shutdown_signal(self, sig):
+        """Handle system signals."""
+        self.log.info(f"Received shutdown signal {sig.name}, stopping server...")
+        self.check_deployments_stop_event.set()
+        self.rotate_logs_stop_event.set()
+        await self.uvicorn_server.shutdown()
+        self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
     def set_int_p2pool_primary(self, monerod_id):
@@ -542,11 +602,14 @@ class Db4eServer:
                 self.ensure_running(p2pool)
 
     def start(self):
-        # Launch the check_deployments and rotate logs tasks
-        self.check_deployments_stop_event = asyncio.Event()
-        self.rotate_logs_stop_event = asyncio.Event()
-        asyncio.run(self.check_deployments())
-        asyncio.run(self.rotate_logs())
+        """Entry point for starting the async event loop."""
+        try:
+            asyncio.run(self.run_all())
+        except KeyboardInterrupt:
+            self.log.info("KeyboardInterrupt received, exiting...")
+
+    async def run_api_server(self):
+        await self.uvicorn_server.serve()
 
     def start_log_watcher(self, p2pool, stop_event):
         instance = p2pool.instance()

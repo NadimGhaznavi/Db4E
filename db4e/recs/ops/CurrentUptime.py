@@ -10,6 +10,7 @@ db4e/recs/ops/CurrentUptime.py
 """
 
 from db4e.recs.ops.BaseUptime import BaseUptime
+from db4e.constants.DSQL import DCol
 
 
 class CurrentUptime(BaseUptime):
@@ -17,5 +18,6 @@ class CurrentUptime(BaseUptime):
 
     def __init__(self, tracked_type=None, tracked_instance=None, rec=None):
         super().__init__(tracked_type=tracked_type, tracked_instance=tracked_instance)
+
         if rec:
             self.from_rec(rec)

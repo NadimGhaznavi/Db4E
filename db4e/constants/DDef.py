@@ -14,6 +14,7 @@ from db4e.util.ConstGroup import ConstGroup
 class DDef(ConstGroup):
     ANY_IP: str = "0.0.0.0"
     API_DIR: str = "api"
+    API_PORT: int = 8888
     APP_TITLE: str = "Db4E"
     BACKUP_DIR: str = "backups"
     BACKUP_SCRIPT: str = "db4e-backup.sh"

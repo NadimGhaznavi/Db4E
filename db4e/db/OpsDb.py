@@ -44,6 +44,7 @@ class OpsDb(BaseDb):
         # Create a new current_uptime record
         cur_uptime = CurrentUptime(tracked_type=elem_type, tracked_instance=instance)
         cur_uptime.start_time(int(round(time.time())))
+
         self.insert_one(cur_uptime)
 
     def add_stop_event(self, elem_type, instance):

@@ -22,11 +22,11 @@ from db4e.constants.DDef import DDef
 
 
 LOG_LEVELS = {
-    "info": logging.INFO,
-    "debug": logging.DEBUG,
-    "warning": logging.WARNING,
-    "error": logging.ERROR,
-    "critical": logging.CRITICAL,
+    DField.INFO: logging.INFO,
+    DField.DEBUG: logging.DEBUG,
+    DField.WARNING: logging.WARNING,
+    DField.ERROR: logging.ERROR,
+    DField.CRITICAL: logging.CRITICAL,
 }
 
 

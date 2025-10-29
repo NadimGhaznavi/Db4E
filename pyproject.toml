@@ -46,6 +46,13 @@ httpx = "^0.28.1"
 pytest-asyncio = "^1.2.0"
 tomli_w = "^1.2.0"
 aiofiles = "^25.1.0"
+sphinxcontrib-applehelp = "^2.0.0"
+sphinxcontrib-devhelp = "^2.0.0"
+sphinxcontrib-htmlhelp = "^2.0.0"
+sphinxcontrib-jsmath = "^1.0.1"
+sphinxcontrib-qthelp = "^2.0.0"
+sphinxcontrib-serializinghtml = "^2.0.0"
+groundwork-sphinx-theme = "^1.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

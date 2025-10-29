@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `BaseMonero` and `BaseP2Pool` classes.
 - Added `aiofiles` to `pyproject.toml` to support the migration of `P2PoolWatcher` from a *threaded* to an *asyncio* model.
   - Updated `poetry.lock` file.
+- Added *sphinx* documentation generator:
+  - Installed pip meta package to generate documentation and the *groundwork* theme.
+  - Updated the core `conf.py` to parse code for inline documentation.
+  - Added a *GitHub Pages* workflow to automatically generate documenation when when a new release is cuts.
+- Added timestamp data to the `CurrentUptime` class to enable client/server data syncs.
+- New `APIMgr` class that uses `fastapi` and `uvicorn` to enable client/server communication:
+  - Data syncs between the `client.db` and `server.db`.
 
 
 ### Changed
@@ -42,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted the `P2PoolWatcher` module from a threaded model to an asyncio model.
   - Also replaced `time.sleep()` with `asyncio.sleep()` and `open()` with `aiofiles.open()`.
 - Upgraded `Textual` from 6.0.0 to 6.4.0.
+- Moved *Mgr* classes into a `mgr` folder. Renamed `MessageRouter` to `RouteMgr`.
 
 ### Fixed
 - Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.
