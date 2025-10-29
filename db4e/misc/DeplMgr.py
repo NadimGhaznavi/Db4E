@@ -297,6 +297,7 @@ class DeplMgr:
         # Don't create a remote XMRig deployment record if one already exists.
         for remote_xmrig in self.depl_db.get_remote_xmrigs():
             if remote_xmrig.instance() == xmrig.instance():
+                # TODO route to update() so the timestamp is updated.
                 return
 
         xmrig = self.depl_db.insert_one(xmrig)

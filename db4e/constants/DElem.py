@@ -15,11 +15,11 @@ from db4e.util.ConstGroup import ConstGroup
 class DElem(ConstGroup):
     DB4E: str = "db4e"
     DB4E_SERVER: str = "db4e_server"
-    INT_P2POOL: str = "internal_p2pool"
     MONEROD: str = "monerod"
     MONEROD_REMOTE: str = "monerod_remote"
     P2POOL: str = "p2pool"
-    P2POOL_WATCHER: str = "p2pool_watcher"
+    P2POOL_INTERNAL: str = "p2pool_internal"
     P2POOL_REMOTE: str = "p2pool_remote"
+    P2POOL_WATCHER: str = "p2pool_watcher"
     XMRIG: str = "xmrig"
     XMRIG_REMOTE: str = "xmrig_remote"

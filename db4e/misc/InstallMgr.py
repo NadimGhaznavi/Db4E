@@ -622,8 +622,8 @@ class InstallMgr(Container):
 
             # Create a TUI log message
             self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=chain_label,
+                tracked_type=DElem.P2POOL_INTERNAL,
+                tracked_instance=f"{chain_label} Sidechain",
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
                 message="New deployment",

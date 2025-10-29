@@ -30,7 +30,7 @@ from db4e.recs.monero.XMRigRemote import XMRigRemote
 from db4e.db.SQLDb import SQLDb
 
 # Base domain DB module
-from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP
+from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP, TYPE_STR_TO_TABLE_MAP
 
 # Db4E logging module
 from db4e.util.Db4ELogger import Db4ELogger
@@ -76,14 +76,23 @@ class DeplDb(BaseDb):
                 object_list.append(new_obj)
         return object_list
 
-    def get_deployment_by_id(self, elem_type: str, instance: str):
+    def get_deployment_by_id(self, elem_type: str, id: str):
         self.check_initialized()
         table = TYPE_TO_TABLE_MAP[elem_type]
         rec = self.sql_db.execute_query(
-            f"SELECT * FROM {table} WHERE instance=?", (instance,)
+            f"SELECT * FROM {table} WHERE instance=?", (id,)
         )[0]
         object = TABLE_TO_TYPE_MAP[elem_type](rec)
         return object
+
+    def get_deployments_by_type_str(self, elem_type: str):
+        self.check_initialized()
+        object_list = []
+        table = TYPE_STR_TO_TABLE_MAP[elem_type]
+        for rec in self.sql_db.find_many(table=table):
+            new_obj = TABLE_TO_TYPE_MAP[elem_type](rec)
+            object_list.append(new_obj)
+        return object_list
 
     def get_deployment_ids_and_instances(self, elem_type):
         instance_map = {}
@@ -92,6 +101,28 @@ class DeplDb(BaseDb):
             instance = self.get_component_value(rec, DCol.INSTANCE)
             instance_map[instance] = rec[DCol.ID]
         return instance_map
+
+    ## Get deployment types
+    def get_monerods(self):
+        return self.get_deployments_by_type_str(DElem.MONEROD)
+
+    def get_monerod_remotes(self):
+        return self.get_deployments_by_type_str(DElem.MONEROD_REMOTE)
+
+    def get_p2pools(self):
+        return self.get_deployments_by_type_str(DElem.P2POOL)
+
+    def get_p2pool_remotes(self):
+        return self.get_deployments_by_type_str(DElem.P2POOL_REMOTE)
+
+    def get_p2pool_internals(self):
+        return self.get_deployments_by_type_str(DElem.P2POOL_INTERNAL)
+
+    def get_xmrigs(self):
+        return self.get_deployments_by_type_str(DElem.XMRIG)
+
+    def get_xmrig_remotes(self):
+        return self.get_deployments_by_type_str(DElem.XMRIG_REMOTE)
 
     def get_downstream(self, elem):
         elem_type = elem.elem_type()

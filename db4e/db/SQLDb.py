@@ -54,6 +54,12 @@ class SQLDb:
         self._cursor.executescript(sql)
         self._conn.commit()
 
+    def find_many(self, table: str):
+        if not self._initialized:
+            raise RuntimeError("SQLDb not initialized")
+        self._cursor.execute(f"SELECT * FROM {table}")
+        return self._cursor.fetchall()
+
     def initialize(self, db_dir: str):
         self._db_dir = db_dir
         if not os.path.exists(db_dir):

@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a `TUILogMsg` class to encapsulate a TUI log record.
 - Added an `internal_p2pool` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
 - Added `BaseMonero` and `BaseP2Pool` classes.
+- Added `aiofiles` to `pyproject.toml` to support the migration of `P2PoolWatcher` from a *threaded* to an *asyncio* model.
+  - Updated `poetry.lock` file.
+
 
 ### Changed
 - Replaced the `DeplMgr:get_dir()` with `BootstrapMgr` module's `get_dir()` and `get_file()` functions.
@@ -36,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete rewrite of the `TuiLogPane` parsing logic to reflect the new backend.
 - Refactored `Db4e`, `MoneroD`, `MoneroDRemote`, `P2Pool`, `P2PoolRemote` and `XMRig` classes.
 - Complete rewrite of the `DeplMgr` module to use the new backend.
+- Converted the `P2PoolWatcher` module from a threaded model to an asyncio model.
+  - Also replaced `time.sleep()` with `asyncio.sleep()` and `open()` with `aiofiles.open()`.
+- Upgraded `Textual` from 6.0.0 to 6.4.0.
 
 ### Fixed
 - Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.

@@ -163,6 +163,7 @@ class DField(ConstGroup):
     STATUS: str = "status"
     SYSTEMD_COLORS: str = "SYSTEMD_COLORS"
     SYSTEMD_PAGER: str = "SYSTEMD_PAGER"
+    TASK: str = "task"
     TEMPLATE: str = "template"
     TEMPLATES: str = "templates"
     TO_MODULE: str = "to_module"

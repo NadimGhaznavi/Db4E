@@ -15,6 +15,7 @@ import os, grp, getpass
 from db4e.recs.monero.LocalMonero import LocalMonero
 from db4e.constants.DSQL import DCol
 from db4e.constants.DModule import DModule
+from db4e.constants.DField import DField
 
 
 class Db4E(LocalMonero):
@@ -37,7 +38,8 @@ class Db4E(LocalMonero):
         self.install_dir(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         )
-        print(self.install_dir())
+        # Set the primary server to DISABLE by default
+        self.primary_server(DField.DISABLE)
         # Enable by default
         self.enabled(True)
         if rec:

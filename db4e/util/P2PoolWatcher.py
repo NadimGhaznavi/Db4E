@@ -1,10 +1,11 @@
 """
-db4e/Modules/P2PoolWatcher.py
+db4e/util/P2PoolWatcher.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
+    Website: https://db4e.osoyalce.com/
     License: GPL 3.0
 
 Everything P2Pool
@@ -13,29 +14,22 @@ Everything P2Pool
 from datetime import datetime, timezone
 from decimal import Decimal
 from bson.decimal128 import Decimal128
-import threading
-import time
+import asyncio
+import aiofiles
 import os
 import re
 import errno
 import json
 
 
-from db4e.Modules.MiningDb import MiningDb
-from db4e.Modules.Db4ELogger import Db4ELogger
-from db4e.Modules.DeplMgr import DeplMgr
-from db4e.Modules.XMRigRemote import XMRigRemote
+from db4e.db.MiningDb import MiningDb
+from db4e.util.Db4ELogger import Db4ELogger
+from db4e.misc.DeplMgr import DeplMgr
+from db4e.recs.monero.XMRigRemote import XMRigRemote
 
-from db4e.Constants.DField import DField
-from db4e.Constants.DDebug import DDebug
-from db4e.Constants.DModule import DModule
-from db4e.Constants.DMongo import DMongo
-from db4e.Constants.DElem import DElem
-from db4e.Constants.DSystemD import DSystemD
-from db4e.Constants.DDef import DDef
-
-
-DDebug.FUNCTION = True
+from db4e.constants.DField import DField
+from db4e.constants.DModule import DModule
+from db4e.constants.DDef import DDef
 
 
 class P2PoolWatcher:
@@ -45,8 +39,8 @@ class P2PoolWatcher:
         mining_db: MiningDb,
         chain: str,
         log_file: str,
-        stop_event: threading.Event,
         stdin_path: str,
+        stop_event: asyncio.Event,
         pool: str,
         depl_mgr: DeplMgr,
         db4e_log_file: str,
@@ -59,9 +53,9 @@ class P2PoolWatcher:
         self._stop_event = stop_event
         self._stdin_path = stdin_path
         self._pool = pool
-        self.thread_control = None
         self._stats_mod = stats_mod
         self._log_file = log_file
+        self._p2pool_cmd_service_stop_event = asyncio.Event()
 
         # If stats_mod was passed in, then this watcher is watching an InternalP2Pool
         if stats_mod:
@@ -141,7 +135,7 @@ class P2PoolWatcher:
                 timestamp = match.group("timestamp")
                 timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
                 # Create a new blocks_found_event in the DB
-                self.mining_db.add_block_found(timestamp=timestamp, chain=self.chain())
+                self.mining_db.add_block_found(chain=self.chain())
         except Exception as e:
             self.log.critical(f"P2PoolWatcher:is_block_found(): ERROR: {e}")
 
@@ -213,9 +207,13 @@ class P2PoolWatcher:
                     units=units,
                 )
 
-                self.depl_mgr.add_remote_xmrig_deployment(
-                    miner_name=miner_name, ip_addr=ip_addr
-                )
+                # The list of active miners includes the only source of "XMRigRemote"
+                # deployments. The DeplMgr:add_remote_xmrig_deployment() determines
+                # which are actually local and which have already been added.
+                xmrig_remote = XMRigRemote()
+                xmrig_remote.instance(miner_name)
+                xmrig_remote.ip_addr(ip_addr)
+                self.depl_mgr.add_remote_xmrig_deployment(xmrig_remote)
 
                 # TODO Tentatively add a "start" event if "uptime" is below a certain
                 # threshold, then check if one already exists etc. etc.
@@ -346,28 +344,37 @@ class P2PoolWatcher:
     def log_file(self):
         return self._log_file
 
-    def monitor_log(self):
+    async def monitor_log(self):
 
-        self.spawn_p2pool_cmds()
+        # Start the P2Pool command service, used to send "workers" and "status"
+        # commands to the running P2Pool process.
+        self.p2pool_cmd_service_task = asyncio.create_task(self.p2pool_cmd_service())
         log_file = self.log_file()
-
         self.log.info(f"Monitoring log file: {log_file}")
+
         while not self._stop_event.is_set():
             try:
-                with open(log_file, "r") as log_handle:
-                    log_handle.seek(0, os.SEEK_END)
+                # Wait for the file to appear if it doesn't exit yet
+                while not os.path.exists(log_file):
+                    await asyncio.sleep(1)
+                    if self._stop_event.is_set():
+                        break
+
+                # Open and monitor the log
+                async with aiofiles.open(log_file, "r") as log_handle:
+                    await log_handle.seek(0, os.SEEK_END)
 
                     while not self._stop_event.is_set():
-                        line = log_handle.readline()
+                        line = await log_handle.readline()
 
                         if not line:
                             # Handle log rotation/truncation
                             try:
-                                if os.stat(log_file).st_size < log_handle.tell():
+                                if os.stat(log_file).st_size < (await log_handle.tell()):
                                     break  # reopen the file
                             except FileNotFoundError:
                                 break  # file got rotated away
-                            time.sleep(0.2)
+                            await asyncio.sleep(0.2)
                             continue
 
                         log_line = line.strip()
@@ -377,10 +384,23 @@ class P2PoolWatcher:
 
             except FileNotFoundError:
                 # File not created yet, retry later
-                time.sleep(1)
+                await asyncio.sleep(1)
             except Exception as e:
-                print(f"{self.__class__.__name__}:monitor_log(): ERROR: {e}")
-                time.sleep(1)
+                self.log.critical(
+                    f"{self.__class__.__name__}:monitor_log(): ERROR: {e}"
+                )
+                await asyncio.sleep(1)
+
+        # The self._stop_event has been set, signaling that the P2PoolWatcher should
+        # exit. Signal the P2Pool command service to stop.
+        self._p2pool_cmd_service_stop_event.set()
+        if self.p2pool_cmd_service_task:
+            self.p2pool_cmd_service_task.cancel()
+            try:
+                await self.p2pool_cmd_service_task
+            except asyncio.CancelledError:
+                pass
+        self.p2pool_cmd_service_task = None
 
     def send_cmd(self, cmd: str):
         if not cmd.endswith("\n"):
@@ -408,11 +428,11 @@ class P2PoolWatcher:
         finally:
             os.close(fd)
 
-    def send_status(self):
+    def send_status_cmd(self):
         self.log.debug("Sending status command")
         self.send_cmd(DField.STATUS)
 
-    def send_workers(self):
+    def send_workers_cmd(self):
         self.log.debug("Sending workers command")
         self.send_cmd(DField.WORKERS)
 
@@ -426,36 +446,25 @@ class P2PoolWatcher:
             self._stdin_path = stdin_path
         return self._stdin_path
 
-    def spawn_p2pool_cmds(self):
-        self.log.debug("Starting spawn commands sub-thread")
+    async def p2pool_cmd_service(self):
+        self.log.info("Starting P2Pool command service")
 
-        stop_event = threading.Event()
+        try:
+            while not self._p2pool_cmd_service_stop_event.is_set():
+                now = datetime.now(timezone.utc)
+                cur_minute = now.minute
+                if cur_minute == 0 or cur_minute % 5 == 0:
+                    self.send_status_cmd()
+                self.send_workers_cmd()
+                for _ in range(60):
+                    # Check if the master stop event has been set signaling that
+                    # the P2PoolWatcher (and this service) should be stopped.
+                    if self._stop_event.is_set():
+                        return
+                    await asyncio.sleep(1)
 
-        def _runner():
-            while not stop_event.is_set():
-                try:
-                    now = datetime.now(timezone.utc)
-                    cur_minute = now.minute
-                    if cur_minute == 0 or cur_minute % 5 == 0:
-                        self.send_status()
-                    self.send_workers()
-                    for _ in range(60):
-                        if stop_event.is_set():
-                            return
-                        time.sleep(1)
-                finally:
-                    pass
-
-        t = threading.Thread(
-            target=_runner, name=f"Logwatcher-{self.chain()}", daemon=True
-        )
-        self.thread_control = (t, stop_event)
-        t.start()
-
-    def stop_sub_thread(self):
-        if not self.thread_control:
-            return
-        t, stop_event = self.thread_control
-        stop_event.set()  # signal the thread to exit
-        t.join(timeout=2)
-        self.thread_control = None
+        except asyncio.CancelledError:
+            self.log.info("P2Pool command service cancelled")
+            raise
+        except Exception as e:
+            self.log.critical(f"P2PoolWatcher:p2pool_cmd_service(): ERROR: {e}")

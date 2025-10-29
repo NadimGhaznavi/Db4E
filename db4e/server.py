@@ -16,12 +16,9 @@ sys.stdout.reconfigure(line_buffering=True)
 from datetime import datetime
 import time
 import signal
-import threading
+import asyncio
 from importlib import metadata
-import shutil
 import subprocess
-import gzip
-from pathlib import Path
 import re
 import fastapi
 
@@ -119,7 +116,7 @@ class Db4eServer:
         # Track when we last ran `logrotate`
         self.last_logrotate = None
 
-        # {instance_name: (thread, stop_event)}
+        # Keep track of P2PoolWatcher tasks here
         self.log_watchers = {}
 
         # Track which services are in the process of being stopped/started to avoid
@@ -127,63 +124,89 @@ class Db4eServer:
         self.starting = set()
         self.stopping = set()
 
-        # Flag this process as "running"
-        self.running = threading.Event()
-        self.running.set()
-
         # Create an Ops record to record the startup time
         self.ops_db.add_start_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()
 
-    def add_deployment(self, elem):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:add_deployment(): {elem}")
-        self.depl_mgr.add_deployment(elem)
+        # Placeholders for the asyncio events.
+        self.check_deployments_stop_event = None
+        self.rotate_logs_stop_event = None
 
-    def check_deployments(self):
-        depls = self.depl_mgr.get_deployments()
-        if DDebug.FUNCTION:
+    async def check_deployments(self):
+
+        while not self.check_deployments_stop_event.is_set():
+
+            depls = self.depl_db.get_deployments()
             self.log.debug(f"Db4eServer:check_deployments(): {depls}")
-        found_primary = False
-        for elem in depls:
-            time.sleep(0.25)
-            elem_type = type(elem)
+            found_primary = False
+            for elem in depls:
+                # Get the deployment type
+                elem_type = type(elem)
 
-            # Nothing to do for these classes
-            if elem_type == P2PoolRemote:
-                continue
+                # Nothing to do for these classes
+                if elem_type == P2PoolRemote:
+                    continue
 
-            # Look for primary Monero deployments
-            if elem_type == Db4E:
-                primary_server = elem.primary_server()
-                # print(f"Db4eServer:check_deployments(): primary_server: {primary_server}")
-                if primary_server == DField.DISABLE:
+                # Look for primary Monero deployments
+                if elem_type == Db4E:
+                    if elem.primary_server() == DField.DISABLE:
+                        self.unset_int_p2pool_primary()
+                    else:
+                        self.set_int_p2pool_primary(elem.primary_server())
+                        found_primary = True
+                    continue
+
+                # Make sure anything that's enabled is running
+                if (
+                    elem_type in [MoneroD, P2Pool, P2PoolInternal, XMRig]
+                    and elem.enabled()
+                ):
+                    self.ensure_running(elem)
+                    if elem_type in [P2Pool, P2PoolInternal]:
+                        # Make sure there's a log watcher running
+                        if not (elem_type, elem.instance()) in self.log_watchers:
+                            stop_event = asyncio.Event()
+                            task = asyncio.create_task(
+                                self.start_log_watcher(
+                                    p2pool=elem, stop_event=stop_event
+                                )
+                            )
+                            self.log_watchers[elem_type, elem.instance()] = {
+                                DField.TASK: task,
+                                DField.EVENT: stop_event,
+                            }
+
+                # Makre sure anything that's disabled is stopped
+                if (
+                    elem_type in [MoneroD, P2Pool, P2PoolInternal, XMRig]
+                    and not elem.enabled()
+                ):
+                    self.ensure_stopped(elem)
+                    # Stop the log watcher
+                    if (elem_type, elem.instance()) in self.log_watchers:
+                        task = self.log_watchers[elem_type, elem.instance()][
+                            DField.TASK
+                        ]
+                        stop_event = self.log_watchers[elem_type, elem.instance()][
+                            DField.EVENT
+                        ]
+                        stop_event.set()
+                        if task:
+                            task.cancel()
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            pass
+                        self.log_watchers.pop((elem_type, elem.instance()), None)
+
+                # There are no primary Monery deployments
+                if not found_primary:
                     self.unset_int_p2pool_primary()
-                else:
-                    self.set_int_p2pool_primary(elem.primary_server())
-                    found_primary = True
-                continue
 
-            # Make sure anything that's enabled is running
-            if elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig] and elem.enabled():
-                self.ensure_running(elem)
-                if elem_type in [P2Pool, InternalP2Pool]:
-                    # Make sure there's a log watcher running
-                    self.spawn_log_watcher(elem)
-
-            # Makre sure anything that's disabled is stopped
-            # self.log.debug(f"Db4eServer:check_deployments(): enabled: {elem}: {elem.enabled()}")
-            if (
-                elem_type in [MoneroD, P2Pool, InternalP2Pool, XMRig]
-                and not elem.enabled()
-            ):
-                self.ensure_stopped(elem)
-
-            # There are no primary Monery deployments
-            if not found_primary:
-                self.unset_int_p2pool_primary()
+                # Sleep for POLL_INTERVAL before restarting the loop
+                await asyncio.sleep(POLL_INTERVAL)
 
     def chown_logrotate_files(self):
         if DDebug.FUNCTION:
@@ -231,7 +254,7 @@ class Db4eServer:
 
     def disable(self, elem):
         if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:disable(): {job}")
+            self.log.debug(f"Db4eServer:disable(): {elem}")
         # print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
         if not elem.enabled():
             return
@@ -245,28 +268,13 @@ class Db4eServer:
         ):
             self.disable_downstream(elem)
         self.log.info(f"Disable: {elem}")
-        # Create an Ops record when remote elements are disabled
-        if type(elem) == MoneroDRemote:
-            stop_rec = StartStopRec(
-                elem_type=DElem.MONEROD_REMOTE,
-                instance=elem.instance(),
-                rec_type=DField.STOP,
-            )
-            self.sql_mgr.insert_one(stop_rec)
-        elif type(elem) == P2PoolRemote:
-            stop_rec = StartStopRec(
-                elem_type=DElem.P2POOL_REMOTE,
-                instance=elem.instance(),
-                rec_type=DField.STOP,
-            )
-            self.sql_mgr.insert_one(stop_rec)
 
     def disable_downstream(self, elem):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable_downstream(): {elem}")
 
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
-            p2pools = self.depl_mgr.get_p2pools()
+            p2pools = self.depl_db.get_p2pools()
             for p2pool in p2pools:
                 if p2pool.parent() == elem.id():
                     p2pool.monerod = None
@@ -278,7 +286,7 @@ class Db4eServer:
                     self.disable_downstream(p2pool)
 
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
-            int_p2pools = self.depl_mgr.get_internal_p2pools()
+            int_p2pools = self.depl_db.get_internal_p2pools()
             for int_p2pool in int_p2pools:
                 if int_p2pool.parent() == elem.id():
                     int_p2pool.monerod = None
@@ -289,7 +297,7 @@ class Db4eServer:
                     # TODO add TuiLogRec
 
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
-            xmrigs = self.depl_mgr.get_xmrigs()
+            xmrigs = self.depl_db.get_xmrigs()
             for xmrig in xmrigs:
                 if xmrig.parent() == elem.id():
                     xmrig.p2pool = None
@@ -309,21 +317,6 @@ class Db4eServer:
 
         elem.enabled(True)
         self.depl_mgr.update_deployment(elem)
-        # Create an Ops record when remote elements are enabled
-        if type(elem) == MoneroDRemote:
-            start_rec = StartStopRec(
-                elem_type=DElem.MONEROD_REMOTE,
-                instance=elem.instance(),
-                rec_type=DField.START,
-            )
-            self.sql_mgr.insert_one(start_rec)
-        elif type(elem) == P2PoolRemote:
-            start_rec = StartStopRec(
-                elem_type=DElem.P2POOL_REMOTE,
-                instance=elem.instance(),
-                rec_type=DField.START,
-            )
-            self.sql_mgr.insert_one(start_rec)
 
     def ensure_running(self, elem):
         if DDebug.FUNCTION:
@@ -333,7 +326,7 @@ class Db4eServer:
         if type(elem) == MoneroD:
             instance = elem.instance()
             sd.service_name("monerod@" + instance)
-        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+        elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
             instance = elem.instance()
             sd.service_name("p2pool@" + instance)
         elif type(elem) == XMRig:
@@ -351,6 +344,7 @@ class Db4eServer:
         if instance in self.starting:
             # It's already in the process of starting, do nothing
             return
+
         # Not active and not starting, start it up
         self.starting.add(instance)
         rc = sd.start()
@@ -416,105 +410,119 @@ class Db4eServer:
         elif type(elem) == P2Pool:
             sd.service_name("p2pool@" + instance)
         else:
-            raise ValueError(f"Unknown deployment type: {elem_type}")
+            raise ValueError(f"Unknown deployment type: {elem}")
         sd.restart()
 
-    def rotate_logs(self):
-        # Run logrotate every two hours
-        cur_hour = datetime.now().hour
-        vendor_dir = self.depl_mgr.get_dir(DDir.VENDOR)
-        if self.last_logrotate is None or self.last_logrotate != cur_hour:
-            self.last_logrotate = cur_hour
-            try:
-                logrotate_dir = self.depl_mgr.get_dir(DDir.LOGROTATE)
-                cmd = [DFile.SUDO, DFile.LOGROTATE, "-v", logrotate_dir]
-                proc = subprocess.run(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=""
-                )
-                stdout = proc.stdout.decode()
-                stderr = proc.stderr.decode()
-                # self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+    async def rotate_logs(self):
 
-                output_lines = stderr.split("\n")
-                depls = {}
-                cur_elem_type = None
-                cur_instance = None
-                for line in output_lines:
-                    # self.log.critical(line)
-                    # Parse the elem_type and instance out of the logrotate output
-                    pattern = r".*reading config file\s(?P<config>.*.conf)"
-                    match = re.search(pattern, line)
-                    if match:
-                        config_file = match.group("config")
-                        # self.log.critical(f"Found config: {config_file}")
-                        if config_file == DElem.DB4E + DDef.CONF_SUFFIX:
-                            continue
-                        else:
-                            pattern = r"(?P<elem_type>.*)-(?P<instance>.*).conf"
-                            match = re.search(pattern, config_file)
-                            if match:
-                                elem_type = match.group("elem_type")
-                                instance = match.group("instance")
-                                # self.log.critical(f"Found {elem_type}/{instance}")
-                                depls[(elem_type, instance)] = False
+        while not self.rotate_logs_stop_event.is_set():
 
-                    # Watch to see if a log was rotated
-                    pattern = rf"considering log {re.escape(vendor_dir)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
-                    match = re.search(pattern, line)
-                    if match:
-                        # self.log.critical(f"line: {line}")
-                        cur_elem_type = match.group("elem_type")
-                        cur_instance = match.group("instance") or match.group("logname")
-                        # self.log.critical(f"{cur_elem_type}/{cur_instance}")
-                    pattern = r"\s+log needs rotating.*"
-                    match = re.search(pattern, line)
-                    if match:
-                        if cur_elem_type != DElem.DB4E:
-                            depls[(cur_elem_type, cur_instance)] = True
-                            self.log.info(
-                                f"{cur_elem_type}/{cur_instance} rotating log file"
+            # Run logrotate every two hours
+            cur_hour = datetime.now().hour
+            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
+            if self.last_logrotate is None or self.last_logrotate != cur_hour:
+                self.last_logrotate = cur_hour
+                try:
+                    logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
+                    cmd = [DFile.SUDO, DFile.LOGROTATE, "-v", logrotate_dir]
+                    proc = subprocess.run(
+                        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=""
+                    )
+                    stdout = proc.stdout.decode()
+                    stderr = proc.stderr.decode()
+                    # self.log.debug(f"rotate_logs(): {stdout}{stderr}")
+
+                    output_lines = stderr.split("\n")
+                    depls = {}
+                    cur_elem_type = None
+                    cur_instance = None
+                    for line in output_lines:
+                        # self.log.critical(line)
+                        # Parse the elem_type and instance out of the logrotate output
+                        pattern = r".*reading config file\s(?P<config>.*.conf)"
+                        match = re.search(pattern, line)
+                        if match:
+                            config_file = match.group("config")
+                            # self.log.critical(f"Found config: {config_file}")
+                            if config_file == DElem.DB4E + DDef.CONF_SUFFIX:
+                                continue
+                            else:
+                                pattern = r"(?P<elem_type>.*)-(?P<instance>.*).conf"
+                                match = re.search(pattern, config_file)
+                                if match:
+                                    elem_type = match.group("elem_type")
+                                    instance = match.group("instance")
+                                    # self.log.critical(f"Found {elem_type}/{instance}")
+                                    depls[(elem_type, instance)] = False
+
+                        # Watch to see if a log was rotated
+                        pattern = rf"considering log {re.escape(vendor_dir)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
+                        match = re.search(pattern, line)
+                        if match:
+                            # self.log.critical(f"line: {line}")
+                            cur_elem_type = match.group("elem_type")
+                            cur_instance = match.group("instance") or match.group(
+                                "logname"
                             )
+                            # self.log.critical(f"{cur_elem_type}/{cur_instance}")
+                        pattern = r"\s+log needs rotating.*"
+                        match = re.search(pattern, line)
+                        if match:
+                            if cur_elem_type != DElem.DB4E:
+                                depls[(cur_elem_type, cur_instance)] = True
+                                self.log.info(
+                                    f"{cur_elem_type}/{cur_instance} rotating log file"
+                                )
 
-                for elem_type, instance in depls:
-                    if depls[(elem_type, instance)]:
-                        # Create a restart job
-                        job = Job(
-                            op=DJob.RESTART, elem_type=elem_type, instance=instance
-                        )
-                        self.job_queue.post_job(job)
+                    for elem_type, instance in depls:
+                        if depls[(elem_type, instance)]:
+                            elem = self.depl_db.get_deployment(elem_type, instance)
+                            self.restart(elem)
 
-            except Exception as e:
-                self.log.error(f"rotate_logs(): {e} {stderr}")
-                return
+                except Exception as e:
+                    self.log.error(f"rotate_logs(): {e} {stderr}")
+                    return
 
-    def shutdown(self, signum, frame):
+            # Sleep, but watch for the stop event
+            try:
+                await asyncio.wait_for(
+                    self.rotate_logs_stop_event.wait(),
+                    timeout=asyncio.sleep(60 * 60 * 2),
+                )
+            except asyncio.TimeoutError:
+                # Timeout expired, restart the loop
+                continue
+
+    async def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:shutdown(): {signum}")
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
-        for instance in self.log_watchers.keys():
-            stop_rec = StartStopRec(
-                elem_type=DElem.P2POOL_WATCHER, instance=instance, rec_type=DField.STOP
-            )
-            self.sql_mgr.insert_one(stop_rec)
+        for elem_type, instance in self.log_watchers:
+            task = self.log_watchers[elem_type, instance][DField.TASK]
+            stop_event = self.log_watchers[elem_type, instance][DField.EVENT]
+            stop_event.set()
+            if task:
+                task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            self.log_watchers.pop((elem_type, instance), None)
+            self.ops_db.add_stop_event(DElem.P2POOL_WATCHER, instance)
 
         # Create a stop event in the ops collection
-        stop_rec = StartStopRec(
-            elem_type=DElem.DB4E_SERVER,
-            instance=DElem.DB4E_SERVER,
-            rec_type=DField.STOP,
-        )
-        self.sql_mgr.insert_one(stop_rec)
+        self.ops_db.add_stop_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
         sys.exit(0)
 
     def set_int_p2pool_primary(self, monerod_id):
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
-        for p2pool in self.depl_mgr.get_internal_p2pools():
+        for p2pool in self.depl_db.get_p2pool_internals():
             if p2pool.parent() != monerod_id:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
                 p2pool.parent(monerod_id)
-                p2pool.monerod = self.depl_mgr.get_deployment_by_id(monerod_id)
+                p2pool.monerod = self.depl_db.get_deployment_by_id(monerod_id)
                 vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
                 tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
@@ -531,15 +539,15 @@ class Db4eServer:
                 self.depl_mgr.update_deployment(p2pool)
                 self.ensure_running(p2pool)
 
-    def spawn_log_watcher(self, p2pool):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:spawn_log_watcher(): {p2pool}")
-        instance = p2pool.instance()
-        if instance in self.log_watchers:
-            # Already watching
-            return
+    def start(self):
+        # Launch the check_deployments and rotate logs tasks
+        self.check_deployments_stop_event = asyncio.Event()
+        self.rotate_logs_stop_event = asyncio.Event()
+        asyncio.run(self.check_deployments())
+        asyncio.run(self.rotate_logs())
 
-        stop_event = threading.Event()
+    def start_log_watcher(self, p2pool, stop_event):
+        instance = p2pool.instance()
         # User defined, local P2Pool instance
         if type(p2pool) == P2Pool:
             watcher = P2PoolWatcher(
@@ -552,7 +560,7 @@ class Db4eServer:
                 depl_mgr=self.depl_mgr,
                 db4e_log_file=self.log_file,
             )
-        elif type(p2pool) == InternalP2Pool:
+        elif type(p2pool) == P2PoolInternal:
             watcher = P2PoolWatcher(
                 mining_db=self.mining_db,
                 chain=p2pool.chain(),
@@ -569,50 +577,9 @@ class Db4eServer:
                 f"spawn_log_watcher(): Unknown deployment type: {type(p2pool)}"
             )
 
-        def _runner():
-            try:
-                watcher.monitor_log()
-            except Exception as e:
-                self.log.error(f"Watcher for {instance} crashed: {e}", exc_info=True)
-            finally:
-                # Cleanup on exit
-                watcher.stop_sub_thread()
-                self.log_watchers.pop(instance, None)
-                self.log.debug(f"Watcher thread exiting: {instance}")
-                if instance not in [
-                    DLabel.MAIN_CHAIN,
-                    DLabel.MINI_CHAIN,
-                    DLabel.NANO_CHAIN,
-                ]:
-                    stop_rec = StartStopRec(
-                        elem_type=DLabel.P2POOL_WATCHER,
-                        instance=instance,
-                        rec_type=DField.STOP,
-                    )
-                    self.sql_mgr.insert_one(stop_rec)
-
-        t = threading.Thread(target=_runner, name=f"LogWatcher-{instance}", daemon=True)
-        self.log_watchers[instance] = (t, stop_event, watcher)
-        t.start()
-        self.log.info(f"Started P2Pool watcher: {instance}")
-        start_rec = StartStopRec(
-            elem_type=DLabel.P2POOL_WATCHER, instance=instance, rec_type=DField.START
-        )
-        self.sql_mgr.insert_one(start_rec)
-
-    def start(self):
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer:start():")
-        self.log.info("Starting Db4E Server")
-        signal.signal(signal.SIGINT, self.shutdown)
-        signal.signal(signal.SIGTERM, self.shutdown)
-        count = 0
-        while self.running.is_set():
-            count += 1
-            self.log.debug(f"Ticking . . .. ... ..... ........ ............. {count}")
-            self.check_deployments()
-            self.rotate_logs()
-            time.sleep(POLL_INTERVAL)
+        watcher.monitor_log()
+        self.log.info(f"Started {p2pool} watcher")
+        self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
 
     def update(self, elem):
         if DDebug.FUNCTION:

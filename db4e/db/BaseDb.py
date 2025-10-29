@@ -46,6 +46,10 @@ from db4e.recs.ops.CurrentUptime import CurrentUptime
 from db4e.recs.ops.TotalUptime import TotalUptime
 from db4e.recs.ops.TUILogLine import TUILogLine
 
+# Constants
+from db4e.constants.DElem import DElem
+
+
 TYPE_TO_TABLE_MAP = {
     # Deployment records
     Db4E: DTable.DB4E,
@@ -69,6 +73,16 @@ TYPE_TO_TABLE_MAP = {
     CurrentUptime: DTable.CURRENT_UPTIME,
     TotalUptime: DTable.TOTAL_UPTIME,
     TUILogLine: DTable.TUI_LOG_LINE,
+}
+
+TYPE_STR_TO_TABLE_MAP = {
+    DElem.MONEROD: DTable.MONEROD,
+    DElem.MONEROD_REMOTE: DTable.MONEROD_REMOTE,
+    DElem.P2POOL: DTable.P2POOL,
+    DElem.P2POOL_REMOTE: DTable.P2POOL_REMOTE,
+    DElem.P2POOL_INTERNAL: DTable.P2POOL_INTERNAL,
+    DElem.XMRIG: DTable.XMRIG,
+    DElem.XMRIG_REMOTE: DTable.XMRIG_REMOTE,
 }
 
 TABLE_TO_TYPE_MAP = {v: k for k, v in TYPE_TO_TABLE_MAP.items()}
