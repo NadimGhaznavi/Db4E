@@ -149,7 +149,7 @@ class Db4eServer:
 
     async def check_deployments(self):
 
-        while not self.check_deployments_stop_event.is_set():
+        while True:
 
             depls = self.depl_db.get_deployments()
             self.log.debug(f"Db4eServer:check_deployments(): {depls}")
@@ -425,9 +425,7 @@ class Db4eServer:
         sd.restart()
 
     async def rotate_logs(self):
-
-        while not self.rotate_logs_stop_event.is_set():
-
+        while True:
             # Run logrotate every two hours
             cur_hour = datetime.now().hour
             vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -504,44 +502,38 @@ class Db4eServer:
                 # Timeout expired, restart the loop
                 continue
 
+    async def run_api_server(self):
+        await self.uvicorn_server.serve()
+
     async def run_all(self):
         """Run all server components concurrently."""
+        # graceful shutdown support
+        self.stop_event = asyncio.Event()
 
-        # Create stop events
-        self.check_deployments_stop_event = asyncio.Event()
-        self.rotate_logs_stop_event = asyncio.Event()
+        async def handle_shutdown():
+            self.stop_event.set()
+            await self.uvicorn_server.shutdown()
+            print("Shutdown complete.")
 
-        # Create async tasks
-        tasks = [
-            asyncio.create_task(self.check_deployments(), name="check_deployments"),
-            asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
-            asyncio.create_task(self.run_api_server(), name="api_server"),
-        ]
-
-        # Graceful shutdown handling
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
             loop.add_signal_handler(
-                sig,
-                lambda s=sig: asyncio.create_task(self.shutdown_signal(s)),
+                sig, lambda s=sig: asyncio.create_task(handle_shutdown())
             )
 
-        self.log.info("Db4E Server started and all tasks running.")
+        # run all 3 forever
+        tasks = [
+            asyncio.create_task(self.run_api_server(), name="api_server"),
+            asyncio.create_task(self.check_deployments(), name="check_deployments"),
+            asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
+        ]
 
-        # Wait for any task to finish (or all to complete if desired)
-        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+        # main loop: just wait until stop_event is set
+        await self.stop_event.wait()
 
-        # Handle completion
-        for task in done:
-            try:
-                task.result()
-            except asyncio.CancelledError:
-                pass
-            except Exception as e:
-                self.log.error(f"Task {task.get_name()} failed: {e}")
-
-        for task in pending:
-            task.cancel()
+        for t in tasks:
+            t.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     async def shutdown(self, signum, frame):
         if DDebug.FUNCTION:
@@ -603,13 +595,7 @@ class Db4eServer:
 
     def start(self):
         """Entry point for starting the async event loop."""
-        try:
-            asyncio.run(self.run_all())
-        except KeyboardInterrupt:
-            self.log.info("KeyboardInterrupt received, exiting...")
-
-    async def run_api_server(self):
-        await self.uvicorn_server.serve()
+        asyncio.run(self.run_all())
 
     def start_log_watcher(self, p2pool, stop_event):
         instance = p2pool.instance()
