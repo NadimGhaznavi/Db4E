@@ -71,6 +71,9 @@ class APIMgr:
     async def serve(self):
         await self.server.serve()
 
+    async def shutdown(self):
+        await self.server.shutdown()
+
     def _register_routes(self):
 
         @self.app.get("/")

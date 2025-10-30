@@ -163,6 +163,16 @@ class OpsDb(BaseDb):
             log_lines.append(TUILogLine(rec=rec))
         return log_lines
 
+    def update_current(self):
+        time.time()
+        self.check_initialized()
+        sql = """UPDATE current_uptime
+            SET cur_time = ?
+            WHERE stop_time IS NULL
+            """
+        values = (int(round(time.time())),)
+        self.sql_db.execute_query(sql, values)
+
     def _init_db(self):
         self.sql_db.executescript(
             """
@@ -171,6 +181,7 @@ class OpsDb(BaseDb):
                 tracked_instance TEXT,
                 tracked_type TEXT,
                 start_time INTEGER,
+                cur_time INTEGER,
                 stop_time INTEGER,
                 uptime_secs INTEGER,
                 updated_y INTEGER,

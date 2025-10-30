@@ -45,6 +45,7 @@ class DCol(ConstGroup):
     BLOCKCHAIN_DIR: str = "blockchain_dir"
     CHAIN: str = "chain"
     CONFIG_FILE: str = "config_file"
+    CUR_TIME: str = "cur_time"
     DETAILS: str = "details"
     DONATION_WALLET: str = "donation_wallet"
     DB4E_GROUP: str = "db4e_group"

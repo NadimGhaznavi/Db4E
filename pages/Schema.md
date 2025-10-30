@@ -31,8 +31,8 @@ The rest of this document is dedicated to a detailed description of the specific
   - [Remote XMRig Table](#remote_xmrig_table)
 
 - [Operations Tables](#operations_tables)
-  - [Start/Stop Table](#start_stop_table)
   - [Current Uptime Table](#current_uptime_table)
+  - [Total Uptime Table](#total_uptime_table)
   - [TUI Log Table](#tui_log_table)
 
 - [Mining Tables](#mining_tables)
@@ -304,30 +304,15 @@ This section details the *operations* tables. These tables are used to record st
 
 ---
 
-## Start Stop Table
-
-This table contains the start and stop times of the deployed components.
-
-- Table name: `start_stop`
-
-Column            | Data Type | Description
-------------------|-----------|-------------------------
-id                | INTEGER   | The *primary key* for the table.
-element           | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
-instance          | TEXT      | The deployment name.
-event             | TEXT      | The type of event i.e. `start` or `stop`
-updated_y         | INTEGER   | The year the record was updated
-updated_mo        | INTEGER   | The month the record was updated
-updated_d         | INTEGER   | The day the record was updated
-updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
-
----
-
 ## Current Uptime Table
 
-This table contains the current uptime of a deployed component. The contents of this table are constructed as *start/stop* events are created in the `start_stop` table. This table is updated when a new record is inserted into the `start_stop` table. 
+This table contains the current uptime of a deployed component. The contents of this table are created when a component is started.
+
+The table is also updated once a minute when the `cur_time` is updated. This allows the
+timekeeping to be accurate in the event of an unexpected shutdown.
+
+On startup the server seaches for any open (records with no `stop_time`) and closes them
+using the `cur_time` value for the `stop_time`.
 
 
 - Table name: `current_uptime`
@@ -335,12 +320,12 @@ This table contains the current uptime of a deployed component. The contents of 
 Column            | Data Type | Description
 ------------------|-----------|-------------------------
 id                | INTEGER   | The *primary key* for the table.
-element           | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
-instance          | TEXT      | The deployment name.
-start_time        | INTEGER   | A *foreign key* that points at a `start_stop` table's `id`
-stop_time         | INTEGER   | A *foreign key* that points at a `start_stop` table's `id`
+tracked_type      | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
+tracked_instance  | TEXT      | The deployment name.
+start_time        | INTEGER   | Seconds since the epoch.
+stop_time         | INTEGER   | Seconds since the epoch.
+cur_time          | INTEGER   | Seconds since the epoch.
 current_secs      | INTEGER   | The current uptime in seconds.
-current           | INTEGER   | 0 or 1, indicating whether the record is the current uptime.
 updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
@@ -349,7 +334,32 @@ updated_mi        | INTEGER   | The minute the record was updated
 updated_s         | INTEGER   | The second the record was updated
 
 - The can be only one record for each deployment instance where the `current` column is set to `1`.
-- The *total uptime* for a deployed instance can be calculated from this table.
+
+
+---
+## Total Uptime Table
+
+This table contains the total uptime of a deployed component. Each unique `type`/`instance` pair has a corresponding entry in this table. The table is updated when record in the `current_uptime` table is *closed* i.e.the `stop_time` is set.
+
+- Table name: `total_uptime`
+
+Column            | Data Type | Description
+------------------|-----------|-------------------------
+id                | INTEGER   | The *primary key* for the table.
+tracked_type      | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
+tracked_instance  | TEXT      | The deployment name.
+start_time        | INTEGER   | Seconds since the epoch.
+stop_time         | INTEGER   | Seconds since the epoch.
+cur_time          | INTEGER   | Seconds since the epoch.
+current_secs      | INTEGER   | The current uptime in seconds.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
+
+- The can be only one record for each deployment instance where the `current` column is set to `1`.
 
 ---
 
@@ -357,7 +367,7 @@ updated_s         | INTEGER   | The second the record was updated
 
 This table contains records of operations performed by the *Db4E Client* such as adding a new deployment, starting or stopping a deployment, or changing a deployment's configuration.
 
-- Table name: `tui_log`
+- Table name: `tui_log_line`
 
 Column            | Data Type | Description
 ------------------|-----------|-------------------------

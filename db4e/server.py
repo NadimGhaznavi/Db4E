@@ -14,7 +14,6 @@ import os, sys
 # Turn off buffering
 sys.stdout.reconfigure(line_buffering=True)
 from datetime import datetime
-import uvicorn
 import asyncio
 from importlib import metadata
 import subprocess
@@ -135,10 +134,6 @@ class Db4eServer:
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()
-
-        # Placeholders for the asyncio events.
-        self.check_deployments_stop_event = None
-        self.rotate_logs_stop_event = None
 
     async def check_deployments(self):
 
@@ -505,7 +500,7 @@ class Db4eServer:
 
         async def handle_shutdown():
             self.stop_event.set()
-            await self.uvicorn_server.shutdown()
+            await self.api_mgr.shutdown()
             print("Shutdown complete.")
 
         loop = asyncio.get_running_loop()
@@ -519,6 +514,7 @@ class Db4eServer:
             asyncio.create_task(self.run_api_server(), name="api_server"),
             asyncio.create_task(self.check_deployments(), name="check_deployments"),
             asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
+            asyncio.create_task(self.update_current(), name="update_current"),
         ]
         # main loop: just wait until stop_event is set
         await self.stop_event.wait()
@@ -532,7 +528,7 @@ class Db4eServer:
             self.log.debug(f"Db4eServer:shutdown(): {signum}")
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
-        await self.uvicorn_server.shutdown()
+        await self.api_mgr.shutdown()
         for elem_type, instance in self.log_watchers:
             task = self.log_watchers[elem_type, instance][DField.TASK]
             stop_event = self.log_watchers[elem_type, instance][DField.EVENT]
@@ -553,9 +549,7 @@ class Db4eServer:
     async def shutdown_signal(self, sig):
         """Handle system signals."""
         self.log.info(f"Received shutdown signal {sig.name}, stopping server...")
-        self.check_deployments_stop_event.set()
-        self.rotate_logs_stop_event.set()
-        await self.uvicorn_server.shutdown()
+        await self.api_mgr.shutdown()
         self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
@@ -625,8 +619,6 @@ class Db4eServer:
         self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
 
     def update(self, elem):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:update(): {elem}")
         self.log.info(f"Updated: {elem}")
 
         # TODO check return value, restart if needed
@@ -636,6 +628,11 @@ class Db4eServer:
             # Create a restart job
             pass
             # TODO implement restart
+
+    async def update_current(self):
+        while True:
+            self.ops_db.update_current()
+            await asyncio.sleep(60)
 
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:
