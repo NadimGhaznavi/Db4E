@@ -101,6 +101,8 @@ class Db4eServer:
 
         # Operations DB module
         self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
+        # Clean up current_uptime records (where the stop_time is NULL)
+        self.ops_db.check_current_recs()
 
         # Deployment DB module
         self.depl_db = DeplDb(sql_db=self.sql_db, log_file=fq_log_file)
@@ -524,8 +526,6 @@ class Db4eServer:
         await asyncio.gather(*tasks, return_exceptions=True)
 
     async def shutdown(self, signum, frame):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:shutdown(): {signum}")
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
         await self.api_mgr.shutdown()
@@ -549,13 +549,11 @@ class Db4eServer:
     async def shutdown_signal(self, sig):
         """Handle system signals."""
         self.log.info(f"Received shutdown signal {sig.name}, stopping server...")
-        await self.api_mgr.shutdown()
+        await self.shutdown()
         self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
     def set_int_p2pool_primary(self, monerod_id):
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:set_int_p2pool_primary(): {monerod_id}")
         for p2pool in self.depl_db.get_p2pool_internals():
             if p2pool.parent() != monerod_id:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
@@ -632,7 +630,7 @@ class Db4eServer:
     async def update_current(self):
         while True:
             self.ops_db.update_current()
-            await asyncio.sleep(60)
+            await asyncio.sleep(5)
 
     def unset_int_p2pool_primary(self):
         if DDebug.FUNCTION:

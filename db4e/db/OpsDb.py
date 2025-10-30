@@ -141,6 +141,36 @@ class OpsDb(BaseDb):
                 details=details,
             )
 
+    def check_current_recs(self):
+        self.check_initialized()
+        sql = f"SELECT * FROM current_uptime WHERE stop_time IS NULL"
+        recs = self.sql_db.execute_query(sql)
+        for rec in recs:
+            # Close off any still open current_uptime records (shutdown wasn't clean)
+            cur_uptime = CurrentUptime(rec=rec)
+            cur_uptime.stop_time(cur_uptime.cur_time())
+            cur_uptime.uptime_secs(cur_uptime.stop_time() - cur_uptime.start_time())
+            self.update_one(cur_uptime)
+
+            # Update corresponding total_uptime record if it exists, or create a new
+            # one if it doesn't.
+            sql = f"SELECT * FROM total_uptime WHERE tracked_type=? AND tracked_instance=?"
+            values = (cur_uptime.tracked_type(), cur_uptime.tracked_instance())
+            total_uptime_recs = self.sql_db.execute_query(sql, values)
+            if total_uptime_recs:
+                total_uptime = TotalUptime(rec=total_uptime_recs[0])
+                total_uptime.uptime_secs(
+                    total_uptime.uptime_secs() + cur_uptime.uptime_secs()
+                )
+                self.update_one(total_uptime)
+            else:
+                total_uptime = TotalUptime(
+                    tracked_type=cur_uptime.tracked_type(),
+                    tracked_instance=cur_uptime.tracked_instance(),
+                )
+                total_uptime.uptime_secs(cur_uptime.uptime_secs())
+                self.insert_one(total_uptime)
+
     def clear_tui_log(self):
         self.check_initialized()
         self.sql_db.execute_query(f"DELETE FROM {DTable.TUI_LOG_LINE}")
@@ -196,8 +226,6 @@ class OpsDb(BaseDb):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tracked_instance TEXT,
                 tracked_type TEXT,
-                start_time INTEGER,
-                stop_time INTEGER,
                 uptime_secs INTEGER,
                 updated_y INTEGER,
                 updated_mo INTEGER,
