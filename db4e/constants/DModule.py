@@ -24,6 +24,7 @@ class DModule(ConstGroup):
     INSTALL_MGR: str = "InstallMgr"
     LOCAL_ELEM: str = "LocalElem"
     MINING_DB: str = "MiningDb"
+    NAV_HANDLER: str = "NavHandler"
     OPS_DB: str = "OpsDb"
     OPS_MGR: str = "OpsManager"
     P2POOL_WATCHER: str = "P2PoolWatcher"

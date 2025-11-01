@@ -95,9 +95,14 @@ class SyncClient:
                 last_sync = last_sync_times[table]
                 if start_time - last_sync >= interval:
                     print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
-                    since_ts = self.sql_db.get_last_sync(table)
-                    await self.sync_table(table, since_ts=since_ts)
-                    self.sql_db.update_last_sync(table, int(time.time()))
+                    try:
+                        since_ts = self.sql_db.get_last_sync(table)
+                        await self.sync_table(table, since_ts=since_ts)
+                        self.sql_db.update_last_sync(table, int(time.time()))
+                    except RuntimeError:
+                        # We get this when the app is run for the first time. The initial
+                        # install hasn't been completed and the DB is not initialized
+                        pass
                     last_sync_times[table] = start_time
 
             # Sleep a bit before checking again

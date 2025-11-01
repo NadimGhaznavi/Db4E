@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added timestamp data to the `CurrentUptime` class to enable client/server data syncs.
 - New `APIMgr` class that uses `fastapi` and `uvicorn` to enable client/server communication:
   - Data syncs between the `client.db` and `server.db`.
+- Implemented a client/server database sync process.
+  - *Db4E* client owns a `client.db`, *Db4E* service owns a `server.db`.
+  - Implemented a sync using `uvicorn` and `fastapi`.
+  
 
 
 ### Changed
