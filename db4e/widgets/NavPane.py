@@ -140,7 +140,7 @@ class NavPane(Container):
             elif leaf_data == DLabel.TUI_LOG:
                 form_data = {
                     DField.ELEMENT_TYPE: DField.TUI_LOG,
-                    DField.TO_MODULE: DModule.OPS_MGR,
+                    DField.TO_MODULE: DModule.OPS_DB,
                     DField.TO_METHOD: DMethod.GET_TUI_LOG,
                 }
                 self.post_message(Db4eMsg(self, form_data=form_data))
@@ -488,11 +488,6 @@ class NavPane(Container):
             # Add Console Log item
             self.depls.root.add_leaf(
                 f"{ICON[LOG]} {DLabel.TUI_LOG}", data=DLabel.TUI_LOG
-            )
-
-            # Add Console Log item
-            self.depls.root.add_leaf(
-                f"{ICON[LOG]} {DLabel.START_STOP_LOG}", data=DLabel.START_STOP_LOG
             )
 
             # Add Donations item

@@ -110,6 +110,33 @@ class BaseDb:
         )
         return data
 
+    def add_updated_ts_column(self, table_name):
+        # Avoid raising an exception because the index already exists
+        try:
+            self.sql_db.executescript(
+                f"""
+                ALTER TABLE {table_name}
+                ADD COLUMN updated_ts INTEGER
+                    GENERATED ALWAYS AS (
+                        (strftime('%s', 
+                            printf('%04d-%02d-%02d %02d:%02d:%02d',
+                                updated_y, updated_mo, updated_d, updated_h, updated_mi, updated_s
+                            )
+                        ))
+                    ) VIRTUAL;
+                """
+            )
+        except:
+            pass
+
+        index = f"idx_{table_name}_updated_ts"
+        self.sql_db.executescript(
+            f"""
+                CREATE INDEX IF NOT EXISTS {index}
+                ON {table_name}(updated_ts);    
+            """
+        )
+
     def check_initialized(self):
         self.sql_db.check_initialized()
         if self.sql_db.is_initialized():
@@ -120,6 +147,18 @@ class BaseDb:
 
     def _init_db(self):
         raise NotImplemented
+
+    def get_records_since(self, table_name: str, since_ts: int, hourly=False):
+        """Fetch records updated since a given timestamp."""
+        self.check_initialized()
+        ts_col = "updated_hourly_ts" if hourly else "updated_ts"
+
+        sql = f"""
+            SELECT * FROM {table_name}
+            WHERE {ts_col} > ?
+            ORDER BY {ts_col} ASC
+        """
+        return self.sql_db.execute_query(sql, (since_ts,))
 
     def insert_one(self, db4e_obj):
         self.check_initialized()
@@ -151,3 +190,24 @@ class BaseDb:
         )
         self.sql_db.update_one(sql=sql, values=values)
         return db4e_obj
+
+    def upsert_records(self, table_name: str, rows):
+        """Insert or replace records from a list of sqlite.Row dicts."""
+        if not rows:
+            return
+        self.check_initialized()
+
+        # Extract column names from the first row
+        columns = rows[0].keys()
+        placeholders = ", ".join(["?"] * len(columns))
+        col_list = ", ".join(columns)
+
+        sql = f"""
+            INSERT INTO {table_name} ({col_list})
+            VALUES ({placeholders})
+            ON CONFLICT(id) DO UPDATE SET
+            {", ".join([f"{col}=excluded.{col}" for col in columns if col != "id"])}
+        """
+        for row in rows:
+            values = tuple(row[c] for c in columns)
+            self.sql_db.execute_query(sql, values)

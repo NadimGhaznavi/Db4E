@@ -61,6 +61,7 @@ class DCol(ConstGroup):
     INSTALL_DIR: str = "install_dir"
     INSTANCE: str = "instance"
     IP_ADDR: str = "ip_addr"
+    LAST_SYNC_TS: str = "last_sync_ts"
     LOG_LEVEL: str = "log_level"
     LOG_FILE: str = "log_file"
     LOGROTATE_CONFIG: str = "logrotate_config"
@@ -97,6 +98,7 @@ class DCol(ConstGroup):
     UPDATED_HOUR: str = "updated_h"
     UPDATED_MINUTE: str = "updated_mi"
     UPDATED_SECOND: str = "updated_s"
+    UPDATED_TS: str = "updated_ts"
     UPTIME_SECS: str = "uptime_secs"
     USER_WALLET: str = "user_wallet"
     VENDOR_DIR: str = "vendor_dir"
@@ -125,6 +127,14 @@ MINING_TABLE_LIST = [
     DTable.SHARE_FOUND_EVENT,
     DTable.SHARE_POSITION,
     DTable.XMR_PAYMENT,
+]
+
+HOURLY_MINING_TABLE_LIST = [
+    DTable.BLOCK_FOUND_EVENT,
+    DTable.CHAIN_HASHRATE,
+    DTable.CHAIN_MINERS,
+    DTable.MINER_HASHRATE,
+    DTable.POOL_HASHRATE,
 ]
 
 OPS_TABLE_LIST = [

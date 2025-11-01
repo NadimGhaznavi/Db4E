@@ -32,7 +32,7 @@ from db4e.util.Db4ELogger import Db4ELogger
 
 # Constants
 from db4e.constants.DModule import DModule
-from db4e.constants.DSQL import DCol
+from db4e.constants.DSQL import DCol, MINING_TABLE_LIST, HOURLY_MINING_TABLE_LIST
 
 
 class MiningDb(BaseDb):
@@ -52,6 +52,33 @@ class MiningDb(BaseDb):
             }
         )
         return data
+
+    def add_updated_hourly_ts_column(self, table_name):
+        # Avoid raising an exception because the column already exists
+        try:
+            self.sql_db.executescript(
+                f"""
+                ALTER TABLE {table_name}
+                ADD COLUMN updated_hourly_ts INTEGER
+                    GENERATED ALWAYS AS (
+                        (strftime('%s', 
+                            printf('%04d-%02d-%02d %02d:00:00',
+                                updated_y, updated_mo, updated_d, updated_h
+                            )
+                        ))
+                    ) VIRTUAL;
+                """
+            )
+        except:
+            pass
+
+        index = f"idx_{table_name}_updated_ts"
+        self.sql_db.executescript(
+            f"""
+                CREATE INDEX IF NOT EXISTS {index}
+                ON {table_name}(updated_ts);    
+            """
+        )
 
     def insert_constrained_one(self, mining_object):
         self.check_initialized()
@@ -319,3 +346,12 @@ class MiningDb(BaseDb):
             );
             """
         )
+
+        # Add an hourly updated_ts column to the hourly mining tables
+        for table in HOURLY_MINING_TABLE_LIST:
+            self.add_updated_hourly_ts_column(table)
+
+        # Add an updated_ts column to the remaining mining tables
+        for table in MINING_TABLE_LIST:
+            if table not in HOURLY_MINING_TABLE_LIST:
+                self.add_updated_ts_column(table)

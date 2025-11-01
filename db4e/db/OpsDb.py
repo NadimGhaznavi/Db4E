@@ -28,7 +28,7 @@ from db4e.util.Db4ELogger import Db4ELogger
 
 # Constants
 from db4e.constants.DModule import DModule
-from db4e.constants.DSQL import DCol
+from db4e.constants.DSQL import DCol, OPS_TABLE_LIST
 
 
 class OpsDb(BaseDb):
@@ -185,13 +185,28 @@ class OpsDb(BaseDb):
         sql = f"SELECT * FROM total_uptime WHERE tracked_type=? AND tracked_instance=?"
         return self.sql_db.execute_query(sql, (elem_type, instance))[0]
 
-    def get_tui_log(self):
+    def get_tui_log(self, elem_type=None):
         self.check_initialized()
         recs = self.sql_db.execute_query(f"SELECT * FROM {DTable.TUI_LOG_LINE}")
         log_lines = []
         for rec in recs:
             log_lines.append(TUILogLine(rec=rec))
         return log_lines
+
+    def get_tui_log_lines_since(self, since_ts: int) -> list[dict]:
+        sql = """
+            SELECT *,
+                strftime('%s',
+                    printf('%04d-%02d-%02d %02d:%02d:%02d',
+                        updated_y, updated_mo, updated_d, updated_h, updated_mi, updated_s
+                    )
+                ) AS updated_ts
+            FROM tui_log_line
+            WHERE updated_ts > ?
+            ORDER BY updated_ts ASC
+        """
+        cur = self.cursor.execute(sql, (since_ts,))
+        return [dict(row) for row in cur.fetchall()]
 
     def update_current(self):
         time.time()
@@ -252,3 +267,7 @@ class OpsDb(BaseDb):
             );
             """
         )
+
+        # Add "updated_ts" column to the Ops tables.
+        for table in OPS_TABLE_LIST:
+            self.add_updated_ts_column(table)

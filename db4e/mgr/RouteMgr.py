@@ -8,9 +8,11 @@ db4e/Modules/MessageRouter.py
     License: GPL 3.0
 """
 
-from db4e.db.DeplDb import DeplDb
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.PaneMgr import PaneMgr
+
+from db4e.db.DeplDb import DeplDb
+from db4e.db.OpsDb import OpsDb
 
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DField import DField
@@ -23,6 +25,7 @@ class RouteMgr:
     def __init__(
         self,
         depl_db: DeplDb,
+        ops_db: OpsDb,
         install_mgr: InstallMgr,
         pane_mgr: PaneMgr,
     ):
@@ -30,6 +33,7 @@ class RouteMgr:
         self._panes = {}
         self.install_mgr = install_mgr
         self.depl_db = depl_db
+        self.ops_db = ops_db
         self.pane_mgr = pane_mgr
         self._route_handlers = []
         self.load_routes()
@@ -48,6 +52,13 @@ class RouteMgr:
             DMethod.INITIAL_SETUP,
             DElem.DB4E,
             self.install_mgr.initial_setup,
+            DPane.TUI_LOG,
+        )
+        self.register(
+            DModule.OPS_DB,
+            DMethod.GET_TUI_LOG,
+            DField.TUI_LOG,
+            self.ops_db.get_tui_log,
             DPane.TUI_LOG,
         )
 

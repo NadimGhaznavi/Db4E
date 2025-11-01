@@ -58,8 +58,8 @@ pytest = "^8.4.1"
 pytest-mock = "^3.14.1"
 
 [tool.poetry.scripts]
-db4e = "db4e.App:main"
-db4e-server = "db4e.server:main"
+db4e = "db4e.Db4EClient:main"
+db4e-server = "db4e.Db4EServer:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

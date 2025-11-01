@@ -31,6 +31,8 @@ from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
 from db4e.mgr.APIMgr import APIMgr
 
+from db4e.sync.SyncServer import init_sync_server
+
 from db4e.util.Db4ESystemD import Db4ESystemD
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.P2PoolWatcher import P2PoolWatcher
@@ -81,9 +83,6 @@ class Db4eServer:
         self.bs_mgr = BootstrapMgr()
         if not self.bs_mgr.is_initialized():
             raise ValueError("ERROR: Db4E initial install not completed!")
-
-        # API manager
-        self.api_mgr = APIMgr(bs_mgr=self.bs_mgr)
 
         # Setup logging
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -136,6 +135,11 @@ class Db4eServer:
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()
+
+        # API manager
+        self.api_mgr = APIMgr(bs_mgr=self.bs_mgr, sql_db=self.sql_db)
+        # Include the SyncServer routes.
+        self.api_mgr.app.include_router(init_sync_server(self.sql_db))
 
     async def check_deployments(self):
 

@@ -9,12 +9,15 @@ db4e/mgr/APIMgr.py
     License: GPL 3.0
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 import uvicorn
 import os
 import asyncio
 
 from db4e.mgr.BootstrapMgr import BootstrapMgr
+from db4e.sync.SyncServer import SyncServer
+from db4e.db.SQLDb import SQLDb
+
 
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DFile import DFile
@@ -27,8 +30,9 @@ from db4e.constants.DUvicorn import DUvicorn
 
 class APIMgr:
 
-    def __init__(self, bs_mgr: BootstrapMgr):
+    def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb):
         self.bs_mgr = bs_mgr
+
         self.app = FastAPI(title=DLabel.DB4E_LONG)
         self._register_routes()
 
@@ -69,7 +73,10 @@ class APIMgr:
         }
 
     async def serve(self):
-        await self.server.serve()
+        try:
+            await self.server.serve()
+        except asyncio.CancelledError:
+            pass
 
     async def shutdown(self):
         await self.server.shutdown()
@@ -79,7 +86,3 @@ class APIMgr:
         @self.app.get("/")
         async def read_root():
             return {"message": "Welcome to Db4E API"}
-
-        @self.app.get("/ping")
-        async def ping():
-            return {"message": "pong"}

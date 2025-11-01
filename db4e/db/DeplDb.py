@@ -338,3 +338,7 @@ class DeplDb(BaseDb):
             );
             """
         )
+
+        # Add a updated_ts column to the depl tables
+        for table in ELEM_TABLE_LIST:
+            self.add_updated_ts_column(table)

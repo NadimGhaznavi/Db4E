@@ -1,5 +1,5 @@
 """
-db4e/App.py
+db4e/Db4EClient.py
 
     Database 4 Everything
     Author: Nadim-Daniel Ghaznavi
@@ -38,6 +38,8 @@ from db4e.mgr.RouteMgr import RouteMgr
 from db4e.mgr.PaneMgr import PaneMgr
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 
+from db4e.sync.SyncClient import SyncClient
+
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.MiningDb import MiningDb
@@ -74,7 +76,7 @@ db4e_theme = Theme(
 )
 
 
-class Db4EApp(App):
+class Db4EClient(App):
     TITLE = DDef.APP_TITLE
     CSS_PATH = DDef.CSS_PATH
     REFRESH_TIME = 2
@@ -95,8 +97,14 @@ class Db4EApp(App):
         self.nav_pane = NavPane(depl_db=self.depl_db)
         self.msg_router = RouteMgr(
             depl_db=self.depl_db,
+            ops_db=self.ops_db,
             install_mgr=install_mgr,
             pane_mgr=self.pane_mgr,
+        )
+
+        self.sync_client = SyncClient(
+            sql_db=self.sql_db,
+            server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
         )
 
     def compose(self):
@@ -105,17 +113,21 @@ class Db4EApp(App):
         yield Vertical(self.nav_pane, Clock())
         yield self.pane_mgr
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         # Register the theme
         self.register_theme(db4e_theme)
 
         # Set the app's theme
         self.theme = "db4e"
 
+        # Start background sync
+        await self.sync_client.start()
+
     ### Message handling happens here...#31b8e6;
 
     # Exit the app
-    def on_quit(self) -> None:
+    async def on_quit(self) -> None:
+        await self.sync_client.stop()
         self.exit()
 
     # Every form sends the form data here
@@ -132,7 +144,12 @@ class Db4EApp(App):
         # into the tui_log_line table and the TUI Log Pane is displayed. We
         # intercept that call and initialize the client database when the
         # "InitialIntall" is successful.
-        if pane == DPane.TUI_LOG and data[-1] == DField.INSTALL_SUCCESSFUL:
+        if (
+            pane == DPane.TUI_LOG
+            and type(data) == list
+            and len(data) > 0
+            and data[-1] == DField.INSTALL_SUCCESSFUL
+        ):
             self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
         else:
@@ -158,7 +175,7 @@ def main():
     os.environ[DField.TERM_ENVIRON] = DDef.TERM
     os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
 
-    app = Db4EApp()
+    app = Db4EClient()
     app.run()
 
 
