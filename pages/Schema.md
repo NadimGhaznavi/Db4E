@@ -48,8 +48,6 @@ The rest of this document is dedicated to a detailed description of the specific
 
 ---
 
----
-
 # Deployment Tables
 
 This section details the *deployment tables*.
@@ -578,3 +576,22 @@ The following indexes and constraints are designed to optimize typical Db4E work
 
 the `PRAGMA foreign_keys = ON` is used when opening connections to enforce foreign key constraints.
 
+---
+
+# Generated Columns
+
+In order to facilitate the synchronization process between the **Db4E service** and the **Textual TUI Client**, every table has a *virtual* `updated_ts` column:
+
+```
+ALTER TABLE {table_name}
+ADD COLUMN updated_ts INTEGER
+    GENERATED ALWAYS AS (
+        (strftime('%s', 
+            printf('%04d-%02d-%02d %02d:%02d:%02d',
+                updated_y, updated_mo, updated_d, updated_h, updated_mi, updated_s
+            )
+        ))
+    ) VIRTUAL;
+```
+
+For the *hourly mining metrics* tables (e.g. `miner_hashrate`, `pool_hashrate` and `chain_hashrate`), the `updated_mi` and `updated_s` values are set to zero.

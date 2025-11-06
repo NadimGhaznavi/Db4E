@@ -140,10 +140,13 @@ class BaseDb:
     def check_initialized(self):
         self.sql_db.check_initialized()
         if self.sql_db.is_initialized():
-            self._initialzed = True
-            self._init_db()
+            self.initialize()
         else:
             self._initialized = False
+
+    def initialize(self):
+        self._init_db()
+        self._initialzed = True
 
     def _init_db(self):
         raise NotImplemented

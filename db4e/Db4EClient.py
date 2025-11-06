@@ -151,6 +151,9 @@ class Db4EClient(App):
             and data[-1] == DField.INSTALL_SUCCESSFUL
         ):
             self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
+            self.ops_db.initialize()
+            self.depl_db.initialize()
+            self.mining_db.initialize()
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
         else:
             self.pane_mgr.set_pane(name=pane, data=data)

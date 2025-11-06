@@ -59,7 +59,7 @@ class MiningDb(BaseDb):
             self.sql_db.executescript(
                 f"""
                 ALTER TABLE {table_name}
-                ADD COLUMN updated_hourly_ts INTEGER
+                ADD COLUMN updated_ts INTEGER
                     GENERATED ALWAYS AS (
                         (strftime('%s', 
                             printf('%04d-%02d-%02d %02d:00:00',

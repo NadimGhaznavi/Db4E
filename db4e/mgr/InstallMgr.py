@@ -24,6 +24,7 @@ from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 from db4e.db.SQLDb import SQLDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.DeplDb import DeplDb
+from db4e.db.MiningDb import MiningDb
 
 from db4e.constants.DSQL import DCol
 from db4e.constants.DDir import DDir
@@ -113,6 +114,11 @@ class InstallMgr(Container):
         # Initialize the BootstrapMgr and the DB backends
         self.bs_mgr.initialize(vendor_dir=db4e.vendor_dir())
         self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
+        # The deployment and ops databases get initialized as part
+        # of the initial install. Force an initializing of the mining
+        # DB.
+        mining_db = MiningDb(sql_db=self.sql_db)
+        mining_db.check_initialized()  # Initializes the DB
 
         # Add the log_line_data to the newly initialized ops DB.
         self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)

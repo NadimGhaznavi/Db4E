@@ -65,9 +65,9 @@ class SyncClient:
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             print(f"[SyncClient] Failed to sync {table_name}: {e}")
             return {}
-
         rows = payload.get("rows", [])
         for row in rows:
+            print(f"Syncing {table_name} row: {row}")
             self._merge_row(table_name, row)
         return payload
 
@@ -84,6 +84,7 @@ class SyncClient:
             ON CONFLICT(id) DO UPDATE SET {updates};
         """
         self.sql_db.execute_query(sql, tuple(row.values()))
+        self.sql_db.update_last_sync(table_name, int(time.time()))
 
     async def _sync_loop(self):
         """Main sync scheduler loop."""
@@ -94,11 +95,10 @@ class SyncClient:
             for table, interval in SYNC_SCHEDULE.items():
                 last_sync = last_sync_times[table]
                 if start_time - last_sync >= interval:
-                    print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
+                    # print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
                     try:
                         since_ts = self.sql_db.get_last_sync(table)
                         await self.sync_table(table, since_ts=since_ts)
-                        self.sql_db.update_last_sync(table, int(time.time()))
                     except RuntimeError:
                         # We get this when the app is run for the first time. The initial
                         # install hasn't been completed and the DB is not initialized
