@@ -30,14 +30,14 @@ class XMRig(LocalMonero):
     def __init__(self, rec=None, log_file=None):
         super().__init__()
         # XMRig Attributes
-        self._config_file = None
-        self._log_file = None
-        self._logrotate_config = None
-        self._max_log_files = None
-        self._max_log_size = None
-        self._num_threads = None
-        self._parent = None
-        self._version = None
+        self._config_file = ""
+        self._log_file = ""
+        self._logrotate_config = ""
+        self._max_log_files = DDef.MAX_LOG_FILES
+        self._max_log_size = DDef.MAX_LOG_SIZE
+        self._num_threads = 1
+        self._parent = DField.DISABLE
+        self._version = DDef.XMRIG_VERSION
         # Set the version
         self.version(DDef.XMRIG_VERSION)
         # Initialize the parent to being disabled

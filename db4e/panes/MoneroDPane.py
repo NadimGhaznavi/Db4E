@@ -204,11 +204,12 @@ class MoneroDPane(Container):
         self.monerod = monerod
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
+
         self.query_one(f"#{DForm.CONFIG_FILE_LABEL}", Label).update(
-            monerod.config_file()
+            monerod.config_file() or ""
         )
         self.query_one(f"#{DForm.BLOCKCHAIN_DIR_LABEL}", Label).update(
-            monerod.blockchain_dir()
+            monerod.blockchain_dir() or ""
         )
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(monerod.pop_msgs())

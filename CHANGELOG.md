@@ -29,8 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented a client/server database sync process.
   - *Db4E* client owns a `client.db`, *Db4E* service owns a `server.db`.
   - Implemented a sync using `uvicorn` and `fastapi`.
-  
-
+- Added `initialize()` functions to call `_init_db()` for `OpsDb`, `DeplDb` and `MiningDb`.
+- Added a `status()` function to `BaseP2Pool` class.
 
 ### Changed
 - Replaced the `DeplMgr:get_dir()` with `BootstrapMgr` module's `get_dir()` and `get_file()` functions.

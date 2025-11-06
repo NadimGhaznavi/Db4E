@@ -13,15 +13,16 @@ Everything remote Monero Daemon
 from db4e.recs.monero.BaseMonero import BaseMonero
 
 from db4e.constants.DSQL import DCol
+from db4e.constants.DDef import DDef
 
 
 class MoneroDRemote(BaseMonero):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._ip_addr = None
-        self._rpc_bind_port = None
-        self._zmq_pub_port = None
+        self._ip_addr = ""
+        self._rpc_bind_port = DDef.RPC_BIND_PORT
+        self._zmq_pub_port = DDef.ZMQ_PUB_PORT
 
         if rec:
             self.from_rec(rec)

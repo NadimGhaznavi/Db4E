@@ -17,13 +17,14 @@ class BaseMonero(BaseElem):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._instance = None
+        self._instance = ""
         self._updated_y = None
         self._updated_mo = None
         self._updated_d = None
         self._updated_h = None
         self._updated_mi = None
         self._updated_s = None
+        self._msgs = []
         if rec:
             self.from_rec(rec)
 
@@ -46,3 +47,6 @@ class BaseMonero(BaseElem):
         if instance is not None:
             self._instance = instance
         return self._instance
+
+    def pop_msgs(self):
+        return self._msgs

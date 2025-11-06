@@ -13,14 +13,15 @@ Everything P2Pool Remote
 
 from db4e.recs.monero.BaseMonero import BaseMonero
 from db4e.constants.DSQL import DCol
+from db4e.constants.DDef import DDef
 
 
 class P2PoolRemote(BaseMonero):
 
     def __init__(self, rec=None):
         super().__init__()
-        self.ip_addr = None
-        self.stratum_port = None
+        self.ip_addr = ""
+        self.stratum_port = DDef.STRATUM_PORT
         if rec:
             self.from_rec(rec)
 

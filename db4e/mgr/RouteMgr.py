@@ -10,6 +10,7 @@ db4e/Modules/MessageRouter.py
 
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.PaneMgr import PaneMgr
+from db4e.util.NavHandler import NavHandler
 
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
@@ -35,6 +36,7 @@ class RouteMgr:
         self.depl_db = depl_db
         self.ops_db = ops_db
         self.pane_mgr = pane_mgr
+        self.nav_handler = NavHandler(depl_db=self.depl_db)
         self._route_handlers = []
         self.load_routes()
 
@@ -47,6 +49,7 @@ class RouteMgr:
             self.install_mgr.initial_setup_proceed,
             DPane.INITIAL_SETUP,
         )
+        # Initial install
         self.register(
             DModule.INSTALL_MGR,
             DMethod.INITIAL_SETUP,
@@ -54,12 +57,61 @@ class RouteMgr:
             self.install_mgr.initial_setup,
             DPane.TUI_LOG,
         )
+        # Console log
         self.register(
             DModule.OPS_DB,
             DMethod.GET_TUI_LOG,
             DField.TUI_LOG,
             self.ops_db.get_tui_log,
             DPane.TUI_LOG,
+        )
+        # MoneroD deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.MONEROD,
+            self.nav_handler.get_new,
+            DPane.MONEROD,
+        )
+        # Remote MoneroD deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.MONEROD_REMOTE,
+            self.nav_handler.get_new,
+            DPane.MONEROD_REMOTE,
+        )
+        # P2Pool deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.P2POOL,
+            self.nav_handler.get_new,
+            DPane.P2POOL,
+        )
+        # Remote P2Pool deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.P2POOL_REMOTE,
+            self.nav_handler.get_new,
+            DPane.P2POOL_REMOTE,
+        )
+        # Internal P2Pool deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_DEPL,
+            DElem.P2POOL_INTERNAL,
+            self.nav_handler.get_deployment,
+            DPane.CHAIN,
+        )
+        # XMRig deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.XMRIG,
+            self.nav_handler.get_new,
+            DPane.XMRIG,
         )
 
     def get_handler(self, module: str, method: str, component: str = ""):

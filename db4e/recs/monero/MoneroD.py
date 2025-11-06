@@ -23,27 +23,27 @@ class MoneroD(LocalMonero):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._any_ip = None
-        self._blockchain_dir = None
-        self._config_file = None
-        self._in_peers = None
-        self._ip_addr = None
-        self._log_file = None
-        self._log_level = None
-        self._max_log_files = None
-        self._max_log_size = None
-        self._out_peers = None
-        self._p2p_bind_port = None
-        self._priority_node_1 = None
-        self._priority_node_2 = None
-        self._priority_port_1 = None
-        self._priority_port_2 = None
-        self._rpc_bind_port = None
-        self._show_time_stats = None
-        self._stdin_path = None
-        self._version = None
-        self._zmq_pub_port = None
-        self._zmq_rpc_port = None
+        self._any_ip = DDef.ANY_IP
+        self._blockchain_dir = ""
+        self._config_file = ""
+        self._in_peers = DDef.IN_PEERS
+        self._ip_addr = ""
+        self._log_file = ""
+        self._log_level = DDef.LOG_LEVEL
+        self._max_log_files = DDef.MAX_LOG_FILES
+        self._max_log_size = DDef.MAX_LOG_SIZE
+        self._out_peers = DDef.OUT_PEERS
+        self._p2p_bind_port = DDef.P2P_BIND_PORT
+        self._priority_node_1 = DDef.PRIORITY_NODE_1
+        self._priority_node_2 = DDef.PRIORITY_NODE_2
+        self._priority_port_1 = DDef.P2P_BIND_PORT
+        self._priority_port_2 = DDef.P2P_BIND_PORT
+        self._rpc_bind_port = DDef.RPC_BIND_PORT
+        self._show_time_stats = DDef.SHOW_TIME_STATS
+        self._stdin_path = ""
+        self._version = DDef.MONEROD_VERSION
+        self._zmq_pub_port = DDef.ZMQ_PUB_PORT
+        self._zmq_rpc_port = DDef.ZMQ_RPC_PORT
         if rec:
             self.from_rec(rec)
 

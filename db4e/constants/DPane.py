@@ -33,7 +33,6 @@ class DPane(ConstGroup):
     RESULTS: str = "ResultsPane"
     RUNTIME_LOG: str = "RuntimeLogPane"
     TUI_LOG: str = "TuiLogPane"
-    START_STOP_LOG: str = "StartStopLogPane"
     WELCOME: str = "WelcomePane"
     XMRIG: str = "XMRigPane"
     XMRIG_HASHRATES: str = "XMRigHashratesPane"

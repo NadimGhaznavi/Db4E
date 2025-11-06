@@ -26,23 +26,23 @@ class BaseP2Pool(LocalMonero):
     def __init__(self, rec=None):
         super().__init__()
         # P2Pool attributes
-        self._any_ip = None
-        self._chain = None
-        self._config_file = None
-        self._in_peers = None
-        self._ip_addr = None
-        self._log_file = None
-        self._logrotate_config = None
-        self._max_log_files = None
-        self._max_log_size = None
-        self._log_level = None
-        self._out_peers = None
-        self._p2p_port = None
-        self._parent = None
-        self._stdin_path = None
-        self._stratum_port = None
-        self._user_wallet = None
-        self._version = None
+        self._any_ip = ""
+        self._chain = ""
+        self._config_file = ""
+        self._in_peers = DDef.IN_PEERS
+        self._ip_addr = ""
+        self._log_file = ""
+        self._logrotate_config = ""
+        self._max_log_files = DDef.MAX_LOG_FILES
+        self._max_log_size = DDef.MAX_LOG_SIZE
+        self._log_level = DDef.LOG_LEVEL
+        self._out_peers = DDef.OUT_PEERS
+        self._p2p_port = DDef.P2P_PORT
+        self._parent = DField.DISABLE
+        self._stdin_path = ""
+        self._stratum_port = DDef.STRATUM_PORT
+        self._user_wallet = ""
+        self._version = DDef.P2POOL_VERSION
         # Set the version
         self.version(DDef.P2POOL_VERSION)
         # Used to construct the Monero radioset
