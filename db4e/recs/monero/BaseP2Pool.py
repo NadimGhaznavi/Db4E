@@ -18,7 +18,6 @@ from db4e.constants.DDef import DDef
 from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField
 from db4e.constants.DPlaceholder import DPlaceholder
-from db4e.constants.DStatus import DStatus
 
 
 class BaseP2Pool(LocalMonero):
@@ -55,8 +54,6 @@ class BaseP2Pool(LocalMonero):
         self._hashrates = None
         # Current pool hashrate
         self._hashrate = None
-        # The health of the deployed instance
-        self._status = DStatus.UNKNOWN
 
         if rec:
             self.from_rec(rec)
@@ -290,8 +287,3 @@ class BaseP2Pool(LocalMonero):
             self._shares_found = shares_found
         return self._shares_found
 
-    # The health of the deployed instance
-    def status(self, status=None):
-        if status is not None:
-            self._status = status
-        return self._status

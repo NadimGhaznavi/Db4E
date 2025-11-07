@@ -126,7 +126,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.INSTALL_MGR,
                     DField.TO_METHOD: DMethod.INITIAL_SETUP_PROCEED,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # View/Update Db4E Core
             elif leaf_data == DLabel.DB4E:
@@ -136,7 +135,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_DEPL,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # TUI Log
             elif leaf_data == DLabel.TUI_LOG:
@@ -145,16 +143,14 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.OPS_DB,
                     DField.TO_METHOD: DMethod.GET_TUI_LOG,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Donations
             elif leaf_data == DLabel.DONATIONS:
                 form_data = {
                     DField.ELEMENT_TYPE: DField.DONATIONS,
                     DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.SET_DONATIONS,
+                    DField.TO_METHOD: DMethod.SET_PANE,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New Monero deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_SHORT:
@@ -163,7 +159,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_NEW,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New remote Monero deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_REMOTE_SHORT:
@@ -172,7 +167,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_NEW,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New P2Pool deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_SHORT:
@@ -181,7 +175,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_NEW,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New remote P2Pool deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_REMOTE_SHORT:
@@ -190,7 +183,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_NEW,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # New XMRig deployment
             elif leaf_data == DLabel.NEW and parent_data == DLabel.XMRIG_SHORT:
@@ -199,7 +191,6 @@ class NavPane(Container):
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_NEW,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Existing Monero deployment
             elif parent_data == DLabel.MONEROD_SHORT:
@@ -209,7 +200,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Existing remote Monero deployment
             elif parent_data == DLabel.MONEROD_REMOTE_SHORT:
@@ -219,7 +209,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Existing P2Pool deployment
             elif parent_data == DLabel.P2POOL_SHORT:
@@ -229,7 +218,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Existing remote P2Pool deployment
             elif parent_data == DLabel.P2POOL_REMOTE_SHORT:
@@ -239,7 +227,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Existing XMRig deployment
             elif parent_data == DLabel.XMRIG_SHORT:
@@ -249,7 +236,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Remote XMRig deployments
             elif parent_data == DLabel.XMRIG_REMOTE_SHORT:
@@ -259,7 +245,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             # Main, Mini and Nano Chain Stats
             elif parent_data == DLabel.CHAIN_STATS:
@@ -269,7 +254,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.GET_DEPL,
                     DField.INSTANCE: leaf_data,
                 }
-                self.post_message(Db4eMsg(self, form_data=form_data))
 
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
@@ -296,7 +280,6 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: monerod,
                         }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # Existing remote Monero deployment
                 elif grandparent_data == DLabel.MONEROD_REMOTE_SHORT:
@@ -310,7 +293,6 @@ class NavPane(Container):
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: monerod,
                     }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # Exiting P2Pool deployment
                 elif grandparent_data == DLabel.P2POOL_SHORT:
@@ -333,7 +315,6 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: p2pool,
                         }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # Exiting remote P2Pool deployment
                 elif grandparent_data == DLabel.P2POOL_REMOTE_SHORT:
@@ -347,7 +328,6 @@ class NavPane(Container):
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: p2pool,
                     }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # Existing XMRig deployment
                 elif grandparent_data == DLabel.XMRIG_SHORT:
@@ -367,7 +347,6 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.GET_DEPL,
                             DField.INSTANCE: leaf_data,
                         }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
 
                 # Existing remote XMRig deployment
                 elif grandparent_data == DLabel.XMRIG_SHORT:
@@ -378,7 +357,7 @@ class NavPane(Container):
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: leaf_data,
                     }
-                    self.post_message(Db4eMsg(self, form_data=form_data))
+            self.post_message(Db4eMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:
         self.check_initialized()

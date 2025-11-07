@@ -30,4 +30,5 @@ class DModule(ConstGroup):
     P2POOL_WATCHER: str = "P2PoolWatcher"
     PANE_MGR: str = "PaneMgr"
     SQL_DB: str = "SQLDb"
+    SYNC_CLIENT: str = "SyncClient"
     XMRIG: str = "XMRig"

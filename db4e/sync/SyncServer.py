@@ -51,7 +51,7 @@ async def get_table_data(
 ):
     if not sync_server:
         raise RuntimeError("SyncServer not initialized")
-    print(f"Table: {table_name}, since: {since_ts}, limit: {limit}")
+    # print(f"Table: {table_name}, since: {since_ts}, limit: {limit}")
     rows = sync_server.get_rows_since(table_name, since_ts, limit)
     latest = max((r["updated_ts"] for r in rows), default=since_ts)
     return {

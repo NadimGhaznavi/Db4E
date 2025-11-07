@@ -92,19 +92,20 @@ class Db4EClient(App):
         self.depl_db = DeplDb(sql_db=self.sql_db)
         self.mining_db = MiningDb(sql_db=self.sql_db)
         install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
-
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_db=self.depl_db)
+        self.sync_client = SyncClient(
+            sql_db=self.sql_db,
+            ops_db=self.ops_db,
+            depl_db=self.depl_db,
+            server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
+        )
         self.msg_router = RouteMgr(
             depl_db=self.depl_db,
             ops_db=self.ops_db,
             install_mgr=install_mgr,
             pane_mgr=self.pane_mgr,
-        )
-
-        self.sync_client = SyncClient(
-            sql_db=self.sql_db,
-            server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
+            sync_client=self.sync_client,
         )
 
     def compose(self):
@@ -134,7 +135,7 @@ class Db4EClient(App):
     @work(exclusive=True)
     async def on_db4e_msg(self, message: Db4eMsg) -> None:
         # print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
-        data, pane = self.msg_router.dispatch(
+        data, pane = await self.msg_router.dispatch(
             message.form_data[DField.TO_MODULE],
             message.form_data[DField.TO_METHOD],
             message.form_data,

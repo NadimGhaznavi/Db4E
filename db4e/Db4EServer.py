@@ -137,7 +137,9 @@ class Db4eServer:
         self.chown_logrotate_files()
 
         # API manager
-        self.api_mgr = APIMgr(bs_mgr=self.bs_mgr, sql_db=self.sql_db)
+        self.api_mgr = APIMgr(
+            bs_mgr=self.bs_mgr, sql_db=self.sql_db, depl_mgr=self.depl_mgr
+        )
         # Include the SyncServer routes.
         self.api_mgr.app.include_router(init_sync_server(self.sql_db))
 

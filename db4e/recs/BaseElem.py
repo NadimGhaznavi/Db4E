@@ -20,12 +20,13 @@ class BaseElem:
         return self.elem_type()
 
     def from_rec(self, rec):
-        self._id = rec[DCol.ID]
+        if DCol.ID in rec:
+            self._id = rec[DCol.ID]
 
     def to_dict(self):
         return {}
 
-    def elem_type(self, elem_type=None):
+    def elem_type(self):
         return type(self).__name__
 
     def id(self, id=None):

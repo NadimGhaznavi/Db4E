@@ -187,7 +187,9 @@ class OpsDb(BaseDb):
 
     def get_tui_log(self, elem_type=None):
         self.check_initialized()
-        recs = self.sql_db.execute_query(f"SELECT * FROM {DTable.TUI_LOG_LINE}")
+        recs = self.sql_db.execute_query(
+            f"SELECT * FROM {DTable.TUI_LOG_LINE} ORDER BY id DESC"
+        )
         log_lines = []
         for rec in recs:
             log_lines.append(TUILogLine(rec=rec))

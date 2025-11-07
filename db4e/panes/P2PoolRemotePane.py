@@ -85,6 +85,8 @@ class P2PoolRemotePane(Container):
     def set_data(self, p2pool: P2PoolRemote):
         self.p2pool = p2pool
 
+        print(f"P2PoolRemotePane:set_data(): type: {type(p2pool)}")
+
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = p2pool.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(p2pool.instance())
         self.query_one(f"#{DForm.IP_ADDR_INPUT}", Input).value = p2pool.ip_addr()

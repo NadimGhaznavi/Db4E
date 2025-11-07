@@ -116,6 +116,7 @@ class MoneroDRemotePane(Container):
             )
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
+
         else:
             INTRO = (
                 f"Configure the deployment settings for a new "
@@ -143,7 +144,7 @@ class MoneroDRemotePane(Container):
 
         if button_id == DButton.NEW:
             form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
+                DField.TO_MODULE: DModule.SYNC_CLIENT,
                 DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
                 DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                 DField.ELEMENT: self.monerod,

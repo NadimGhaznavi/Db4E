@@ -13,11 +13,15 @@ Everything P2Pool
 
 from db4e.recs.monero.BaseP2Pool import BaseP2Pool
 
+from db4e.constants.DField import DField
+
 
 class P2Pool(BaseP2Pool):
 
     def __init__(self, rec=None):
         super().__init__()
+        # Default to minisidechain
+        self._chain = DField.MINI_CHAIN
         # Current pool hashrate
         self._hashrate = None
         # Historical pool hashrate data

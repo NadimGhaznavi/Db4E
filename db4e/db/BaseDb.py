@@ -50,7 +50,7 @@ from db4e.recs.ops.TUILogLine import TUILogLine
 from db4e.constants.DElem import DElem
 
 
-TYPE_TO_TABLE_MAP = {
+CLASS_TO_TABLE_MAP = {
     # Deployment records
     Db4E: DTable.DB4E,
     MoneroD: DTable.MONEROD,
@@ -76,6 +76,7 @@ TYPE_TO_TABLE_MAP = {
 }
 
 TYPE_STR_TO_TABLE_MAP = {
+    DElem.DB4E: DTable.DB4E,
     DElem.MONEROD: DTable.MONEROD,
     DElem.MONEROD_REMOTE: DTable.MONEROD_REMOTE,
     DElem.P2POOL: DTable.P2POOL,
@@ -85,7 +86,20 @@ TYPE_STR_TO_TABLE_MAP = {
     DElem.XMRIG_REMOTE: DTable.XMRIG_REMOTE,
 }
 
-TABLE_TO_TYPE_MAP = {v: k for k, v in TYPE_TO_TABLE_MAP.items()}
+TYPE_STR_TO_CLASS_MAP = {
+    DElem.DB4E: Db4E,
+    DElem.MONEROD: MoneroD,
+    DElem.MONEROD_REMOTE: MoneroDRemote,
+    DElem.P2POOL: P2Pool,
+    DElem.P2POOL_REMOTE: P2PoolRemote,
+    DElem.P2POOL_INTERNAL: P2PoolInternal,
+    DElem.XMRIG: XMRig,
+    DElem.XMRIG_REMOTE: XMRigRemote,
+}
+
+TABLE_TO_TYPE_STR_MAP = {v: k for k, v in TYPE_STR_TO_TABLE_MAP.items()}
+
+TABLE_TO_CLASS_MAP = {v: k for k, v in CLASS_TO_TABLE_MAP.items()}
 
 
 class BaseDb:
@@ -168,7 +182,7 @@ class BaseDb:
         data = db4e_obj.to_dict()
         data = self.add_timestamp_data(data)
         # Stable key order (deterministic SQL generation)
-        table_name = TYPE_TO_TABLE_MAP[type(db4e_obj)]
+        table_name = CLASS_TO_TABLE_MAP[type(db4e_obj)]
         columns = sorted(data.keys())
         placeholders = ", ".join(["?"] * len(columns))
         sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
@@ -184,7 +198,7 @@ class BaseDb:
         self.check_initialized()
         data = db4e_obj.to_dict()
         data = self.add_timestamp_data(data)
-        table_name = TYPE_TO_TABLE_MAP[type(db4e_obj)]
+        table_name = CLASS_TO_TABLE_MAP[type(db4e_obj)]
         columns = sorted(data.keys())
         set_clause = ", ".join([f"{col}=?" for col in columns if col != DCol.ID])
         sql = f"UPDATE {table_name} SET {set_clause} WHERE id=?"

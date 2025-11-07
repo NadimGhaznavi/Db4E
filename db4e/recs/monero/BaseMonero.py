@@ -11,6 +11,7 @@ db4e/recs/monero/BaseMonero.py
 
 from db4e.recs.BaseElem import BaseElem
 from db4e.constants.DSQL import DCol
+from db4e.constants.DStatus import DStatus
 
 
 class BaseMonero(BaseElem):
@@ -24,6 +25,9 @@ class BaseMonero(BaseElem):
         self._updated_h = None
         self._updated_mi = None
         self._updated_s = None
+        # The health of the deployed instance
+        self._status = DStatus.UNKNOWN
+        # Health messages stored here
         self._msgs = []
         if rec:
             self.from_rec(rec)
@@ -31,12 +35,14 @@ class BaseMonero(BaseElem):
     def from_rec(self, rec):
         super().from_rec(rec)
         self._instance = rec[DCol.INSTANCE]
-        self._updated_y = rec[DCol.UPDATED_YEAR]
-        self._updated_mo = rec[DCol.UPDATED_MONTH]
-        self._updated_d = rec[DCol.UPDATED_DAY]
-        self._updated_h = rec[DCol.UPDATED_HOUR]
-        self._updated_mi = rec[DCol.UPDATED_MINUTE]
-        self._updated_s = rec[DCol.UPDATED_SECOND]
+        # The "rec" is from the database (otherwise it's from a TUI form i.e. "new")
+        if DCol.UPDATED_YEAR in rec:
+            self._updated_y = rec[DCol.UPDATED_YEAR]
+            self._updated_mo = rec[DCol.UPDATED_MONTH]
+            self._updated_d = rec[DCol.UPDATED_DAY]
+            self._updated_h = rec[DCol.UPDATED_HOUR]
+            self._updated_mi = rec[DCol.UPDATED_MINUTE]
+            self._updated_s = rec[DCol.UPDATED_SECOND]
 
     def to_dict(self):
         data = super().to_dict()
@@ -50,3 +56,9 @@ class BaseMonero(BaseElem):
 
     def pop_msgs(self):
         return self._msgs
+
+    # The health of the deployed instance
+    def status(self, status=None):
+        if status is not None:
+            self._status = status
+        return self._status

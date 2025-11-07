@@ -48,3 +48,7 @@ class NavHandler:
             return XMRig()
         else:
             raise ValueError(f"NavHandler:get_new():Unknown element type: {elem_type}")
+
+    def set_pane(self, request):
+        pane_name = request.get(DField.ELEMENT_TYPE)
+        return pane_name

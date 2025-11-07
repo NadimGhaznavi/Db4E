@@ -30,7 +30,12 @@ from db4e.recs.monero.XMRigRemote import XMRigRemote
 from db4e.db.SQLDb import SQLDb
 
 # Base domain DB module
-from db4e.db.BaseDb import TABLE_TO_TYPE_MAP, TYPE_TO_TABLE_MAP, TYPE_STR_TO_TABLE_MAP
+from db4e.db.BaseDb import (
+    TABLE_TO_CLASS_MAP,
+    TYPE_STR_TO_TABLE_MAP,
+    TYPE_STR_TO_CLASS_MAP,
+    TYPE_STR_TO_TABLE_MAP,
+)
 
 # Db4E logging module
 from db4e.util.Db4ELogger import Db4ELogger
@@ -52,37 +57,56 @@ class DeplDb(BaseDb):
 
     def delete_deployment(self, elem):
         self.check_initialized()
-        table = TYPE_TO_TABLE_MAP[elem.elem_type()]
+        table = TYPE_STR_TO_TABLE_MAP[elem.elem_type()]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
     def get_deployment(self, elem_type: str, instance: str):
         self.check_initialized()
         table = TYPE_STR_TO_TABLE_MAP[elem_type]
-        rec = self.sql_db.execute_query(
+        rows = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (instance,)
-        )[0]
+        )
+        rec = rows[0] if rows else None
+        object = None
         if rec:
-            object = TABLE_TO_TYPE_MAP[elem_type](rec)
-            return object
-        else:
-            return None
+            if elem_type == DElem.DB4E:
+                object = Db4E(rec)
+            elif elem_type == DElem.MONEROD:
+                object = MoneroD(rec)
+            elif elem_type == DElem.MONEROD_REMOTE:
+                object = MoneroDRemote(rec)
+            elif elem_type == DElem.P2POOL:
+                object = P2Pool(rec)
+            elif elem_type == DElem.P2POOL_REMOTE:
+                object = P2PoolRemote(rec)
+            elif elem_type == DElem.P2POOL_INTERNAL:
+                object = P2PoolInternal(rec)
+            elif elem_type == DElem.XMRIG:
+                object = XMRig(rec)
+            elif elem_type == DElem.XMRIG_REMOTE:
+                object = XMRigRemote(rec)
+            else:
+                raise ValueError(
+                    f"DeplMgr:get_deployment(): No handler for {elem_type}"
+                )
+        return object
 
     def get_deployments(self):
         self.check_initialized()
         object_list = []
         for table in ELEM_TABLE_LIST:
             for rec in self.sql_db.find_many(table=table):
-                new_obj = TABLE_TO_TYPE_MAP[table](rec)
+                new_obj = TABLE_TO_CLASS_MAP[table](rec)
                 object_list.append(new_obj)
         return object_list
 
     def get_deployment_by_id(self, elem_type: str, id: str):
         self.check_initialized()
-        table = TYPE_TO_TABLE_MAP[elem_type]
+        table = TYPE_STR_TO_TABLE_MAP[elem_type]
         rec = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (id,)
         )[0]
-        object = TABLE_TO_TYPE_MAP[elem_type](rec)
+        object = TYPE_STR_TO_CLASS_MAP[elem_type](rec)
         return object
 
     def get_deployments_by_type_str(self, elem_type: str):
@@ -90,7 +114,7 @@ class DeplDb(BaseDb):
         object_list = []
         table = TYPE_STR_TO_TABLE_MAP[elem_type]
         for rec in self.sql_db.find_many(table=table):
-            new_obj = TABLE_TO_TYPE_MAP[elem_type](rec)
+            new_obj = TYPE_STR_TO_CLASS_MAP[elem_type](rec)
             object_list.append(new_obj)
         return object_list
 

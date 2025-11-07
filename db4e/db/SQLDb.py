@@ -38,15 +38,18 @@ class SQLDb:
         self._conn = None
         self._cursor = None
         self._sync_meta_initialized = False
+
         if bs_mgr.is_initialized():
             self.initialize(db_dir=bs_mgr.get_dir(DDir.DB))
             self._initialized = True
         else:
             self._initialized = False
+
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
         else:
             self.log = None
+
         if self.is_initialized():
             self._sync_meta_initialized = True
             self._init_db()

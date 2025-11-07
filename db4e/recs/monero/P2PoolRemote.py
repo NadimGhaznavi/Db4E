@@ -20,8 +20,8 @@ class P2PoolRemote(BaseMonero):
 
     def __init__(self, rec=None):
         super().__init__()
-        self.ip_addr = ""
-        self.stratum_port = DDef.STRATUM_PORT
+        self._ip_addr = ""
+        self._stratum_port = DDef.STRATUM_PORT
         if rec:
             self.from_rec(rec)
 

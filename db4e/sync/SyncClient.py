@@ -13,9 +13,19 @@ import httpx
 import time
 import asyncio
 
-from db4e.util.Db4ELogger import Db4ELogger
 from db4e.db.SQLDb import SQLDb
+from db4e.db.DeplDb import DeplDb
+from db4e.db.OpsDb import OpsDb
+from db4e.db.BaseDb import CLASS_TO_TABLE_MAP, TYPE_STR_TO_TABLE_MAP
+
+from db4e.util.Db4ELogger import Db4ELogger
+from db4e.util.FormChecker import FormChecker
+
 from db4e.constants.DSQL import DTable, DCol
+from db4e.constants.DSync import DSync
+from db4e.constants.DField import DField
+from db4e.constants.DStatus import DStatus
+
 
 SYNC_SCHEDULE = {
     # Deployment tables
@@ -46,14 +56,60 @@ SYNC_SCHEDULE = {
 class SyncClient:
     """Standalone SyncClient integrated with the TUI."""
 
-    def __init__(self, sql_db: SQLDb, server_url: str, log_file=None):
+    def __init__(
+        self,
+        sql_db: SQLDb,
+        server_url: str,
+        ops_db: OpsDb,
+        depl_db: DeplDb,
+        log_file=None,
+    ):
         """Constructor"""
         if log_file:
             self.log = Db4ELogger(db4e_module=__name__, log_file=log_file)
+        self.ops_db = ops_db
         self.sql_db = sql_db
+        self.fc = FormChecker(ops_db=ops_db, depl_db=depl_db)
         self.server_url = server_url.rstrip("/")
         self._running = False
         self._task = None
+
+    async def add_deployment(self, depl_request):
+        """Send a "create new deployment" request to the sync server."""
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = TYPE_STR_TO_TABLE_MAP[type_str]
+
+        # Check that the form data is complete and there's no instance using that
+        # name already.
+        if not self.fc.valid(depl_obj):
+            return self.ops_db.get_tui_log()
+
+        payload = {
+            DSync.TABLE_NAME: CLASS_TO_TABLE_MAP[type(depl_obj)],
+            DSync.ELEMENT: depl_obj.to_dict(),
+        }
+        url = f"{self.server_url}/add/{depl_table}"
+
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                result = resp.json()
+                # Force a sync of the deployment table and the Console log table
+                await self.sync_table(depl_table, since_ts=0)
+                await self.sync_table(DTable.TUI_LOG_LINE, since_ts=0)
+                return self.ops_db.get_tui_log()
+
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            self.ops_db.add_tui_log_line(
+                tracked_instance=depl_obj.instance(),
+                tracked_type=depl_obj.elem_type().lower(),
+                status=DStatus.ERROR,
+                operation=DField.NEW,
+                message=str(e),
+            )
+            return self.ops_db.get_tui_log()
 
     async def sync_table(self, table_name: str, since_ts: int = 0, limit: int = 1000):
         url = f"{self.server_url}/sync/{table_name}?since={since_ts}&limit={limit}"

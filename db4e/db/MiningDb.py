@@ -24,7 +24,7 @@ from db4e.recs.mining.XMRPayment import XMRPayment
 
 # The module that interfaces with SQLite3
 from db4e.db.SQLDb import SQLDb
-from db4e.db.BaseDb import BaseDb, TYPE_TO_TABLE_MAP
+from db4e.db.BaseDb import BaseDb, CLASS_TO_TABLE_MAP
 
 
 # Db4E logging module
@@ -84,7 +84,7 @@ class MiningDb(BaseDb):
         self.check_initialized()
         data = mining_object.to_dict()
         data = self.add_hourly_data(data)
-        table_name = TYPE_TO_TABLE_MAP[type(mining_object)]
+        table_name = CLASS_TO_TABLE_MAP[type(mining_object)]
         constraint_cols = mining_object.constraints()
         columns = sorted(data.keys())
         placeholders = ", ".join(["?"] * len(columns))

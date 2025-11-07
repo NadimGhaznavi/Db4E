@@ -14,15 +14,16 @@ A class representing the deployment of Db4E
 import os, grp, getpass
 from db4e.recs.monero.LocalMonero import LocalMonero
 from db4e.constants.DSQL import DCol
-from db4e.constants.DModule import DModule
+from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField
+from db4e.constants.DDef import DDef
 
 
 class Db4E(LocalMonero):
 
     def __init__(self, rec=None):
         super().__init__()
-        self._donation_wallet = None
+        self._donation_wallet = DDef.DONATION_WALLET
         self._db4e_group = None
         self._db4e_user = None
         self._install_dir = None
@@ -31,7 +32,7 @@ class Db4E(LocalMonero):
         self._vendor_dir = None
         self._instance_map = {}
         # There is only one Db4E deployment
-        self.instance(DModule.DB4E)
+        self.instance(DElem.DB4E)
         # Set the effective user and group IDs
         self.set_effective_identity()
         # Set the install directory
