@@ -47,7 +47,7 @@ class RouteMgr:
         self.load_routes()
 
     def load_routes(self):
-        # Db4e core
+        # Db4e core - Proceed/abort initial install
         self.register(
             DModule.INSTALL_MGR,
             DMethod.INITIAL_SETUP_PROCEED,
@@ -55,7 +55,7 @@ class RouteMgr:
             self.install_mgr.initial_setup_proceed,
             DPane.INITIAL_SETUP,
         )
-        # Initial install
+        # Db4E core - Initial install
         self.register(
             DModule.INSTALL_MGR,
             DMethod.INITIAL_SETUP,
@@ -63,21 +63,13 @@ class RouteMgr:
             self.install_mgr.initial_setup,
             DPane.TUI_LOG,
         )
-        # Console log
-        self.register(
-            DModule.OPS_DB,
-            DMethod.GET_TUI_LOG,
-            DField.TUI_LOG,
-            self.ops_db.get_tui_log,
-            DPane.TUI_LOG,
-        )
-        # Donations
+        # Db4E core - View/edit
         self.register(
             DModule.NAV_HANDLER,
-            DMethod.SET_PANE,
-            DField.DONATIONS,
-            self.nav_handler.set_pane,
-            DPane.DONATIONS,
+            DMethod.GET_DEPL,
+            DElem.DB4E,
+            self.nav_handler.get_deployment,
+            DPane.DB4E,
         )
         # MoneroD deployment - New form
         self.register(
@@ -214,6 +206,22 @@ class RouteMgr:
             DElem.XMRIG_REMOTE,
             self.nav_handler.get_deployment,
             DPane.XMRIG_REMOTE,
+        )
+        # Console log
+        self.register(
+            DModule.OPS_DB,
+            DMethod.GET_TUI_LOG,
+            DField.TUI_LOG,
+            self.ops_db.get_tui_log,
+            DPane.TUI_LOG,
+        )
+        # Donations
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.SET_PANE,
+            DField.DONATIONS,
+            self.nav_handler.set_pane,
+            DPane.DONATIONS,
         )
 
     def get_handler(self, module: str, method: str, component: str = ""):

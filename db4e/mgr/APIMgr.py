@@ -99,8 +99,8 @@ class APIMgr:
             return {"message": "Welcome to Db4E API"}
 
         # New deployment request
-        @self.app.post("/add/{elem_type}")
-        async def add_deployment(elem_type: str, request: Request):
+        @self.app.post("/add/{table_name}")
+        async def add_deployment(table_name: str, request: Request):
             """
             Process a new deployment request.
             """
@@ -108,7 +108,9 @@ class APIMgr:
             table_name = payload.get(DSync.TABLE_NAME)
             elem_rec = payload.get(DSync.ELEMENT)
 
-            self.log.info(f"Received new deployment request: {elem_type} -- {elem_rec}")
+            self.log.info(
+                f"Received new deployment request: {table_name} -- {elem_rec}"
+            )
 
             if table_name not in ELEM_TABLE_LIST:
                 raise HTTPException(status_code=400, detail="Invalid deployment type")

@@ -205,7 +205,7 @@ class P2PoolPane(Container):
         monerod_id = None
         if radio_set.pressed_button:
             monerod_instance = str(radio_set.pressed_button.label)
-            monerod_id = self.instance_map[monerod_instance]
+            monerod_id, remote_flag = self.instance_map[monerod_instance]
 
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
         chain = (
@@ -216,6 +216,7 @@ class P2PoolPane(Container):
 
         # Update p2pool object
         self.p2pool.parent(monerod_id)
+        self.p2pool.parent_remote(remote_flag)
         self.p2pool.chain(str(chain))
         self.p2pool.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
         self.p2pool.in_peers(self.query_one(f"#{DForm.IN_PEERS_INPUT}", Input).value)
@@ -232,7 +233,7 @@ class P2PoolPane(Container):
             DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
             DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
             DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
-            DButton.NEW: (DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT),
+            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
             DButton.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
             DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),

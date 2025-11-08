@@ -29,23 +29,53 @@ class NavHandler:
     def get_deployment(self, request):
         elem_type = request.get(DField.ELEMENT_TYPE)
         instance = request.get(DField.INSTANCE)
-        return self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
+        depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
+
+        if elem_type == DElem.DB4E:
+            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            depl_obj.instance_map({**local, **remote})
+
+        elif elem_type == DElem.P2POOL:
+            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            depl_obj.instance_map({**local, **remote})
+
+        elif elem_type == DElem.XMRIG:
+            local = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL)
+            remote = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL_REMOTE)
+            depl_obj.instance_map({**local, **remote})
+
+        return depl_obj
 
     def get_new(self, request):
         elem_type = request.get(DField.ELEMENT_TYPE)
+
         if elem_type == DElem.MONEROD:
             return MoneroD()
+
         elif elem_type == DElem.MONEROD_REMOTE:
             return MoneroDRemote()
+
         elif elem_type == DElem.P2POOL:
             p2pool = P2Pool()
             db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
             p2pool.user_wallet(db4e.user_wallet())
+            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            p2pool.instance_map({**local, **remote})
             return p2pool
+
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
+
         elif elem_type == DElem.XMRIG:
-            return XMRig()
+            xmrig = XMRig()
+            local = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL)
+            remote = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL_REMOTE)
+            xmrig.instance_map({**local, **remote})
+            return xmrig
+
         else:
             raise ValueError(f"NavHandler:get_new():Unknown element type: {elem_type}")
 

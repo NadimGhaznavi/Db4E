@@ -16,7 +16,7 @@ import asyncio
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
-from db4e.db.BaseDb import CLASS_TO_TABLE_MAP, TYPE_STR_TO_TABLE_MAP
+from db4e.db.BaseDb import CLASS_STR_TO_TABLE_MAP
 
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.FormChecker import FormChecker
@@ -29,18 +29,18 @@ from db4e.constants.DStatus import DStatus
 
 SYNC_SCHEDULE = {
     # Deployment tables
-    DTable.DB4E: 5,
-    DTable.MONEROD: 5,
-    DTable.MONEROD_REMOTE: 5,
-    DTable.P2POOL: 5,
-    DTable.P2POOL_INTERNAL: 5,
-    DTable.P2POOL_REMOTE: 5,
-    DTable.XMRIG: 5,
-    DTable.XMRIG_REMOTE: 5,
+    DTable.DB4E: 1,
+    DTable.MONEROD: 1,
+    DTable.MONEROD_REMOTE: 1,
+    DTable.P2POOL: 1,
+    DTable.P2POOL_INTERNAL: 1,
+    DTable.P2POOL_REMOTE: 1,
+    DTable.XMRIG: 1,
+    DTable.XMRIG_REMOTE: 1,
     # Operations tables
     DTable.CURRENT_UPTIME: 30,
     DTable.TOTAL_UPTIME: 30,
-    DTable.TUI_LOG_LINE: 5,
+    DTable.TUI_LOG_LINE: 1,
     # Mining tables
     DTable.BLOCK_FOUND_EVENT: 60,
     DTable.CHAIN_HASHRATE: 60,
@@ -78,7 +78,7 @@ class SyncClient:
         """Send a "create new deployment" request to the sync server."""
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
-        depl_table = TYPE_STR_TO_TABLE_MAP[type_str]
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
 
         # Check that the form data is complete and there's no instance using that
         # name already.
@@ -86,7 +86,7 @@ class SyncClient:
             return self.ops_db.get_tui_log()
 
         payload = {
-            DSync.TABLE_NAME: CLASS_TO_TABLE_MAP[type(depl_obj)],
+            DSync.TABLE_NAME: depl_table,
             DSync.ELEMENT: depl_obj.to_dict(),
         }
         url = f"{self.server_url}/add/{depl_table}"
@@ -95,7 +95,6 @@ class SyncClient:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(url, json=payload)
                 resp.raise_for_status()
-                result = resp.json()
                 # Force a sync of the deployment table and the Console log table
                 await self.sync_table(depl_table, since_ts=0)
                 await self.sync_table(DTable.TUI_LOG_LINE, since_ts=0)

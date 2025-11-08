@@ -69,6 +69,7 @@ db4e_user       | TEXT      | The Linux group that the Db4E application runs as.
 install_dir     | TEXT      | The base *venv* directory holding the PIP *Db4E* package.
 instance        | TEXT      | The deployment name; `db4e`.
 primary_server  | INTEGER   | A *foreign key* that points at the `monero` table's `id` column.
+primary_remote  | INTEGER   | A boolean indicating if the *primary server* is remote
 user_wallet     | TEXT      | The user's *Monero* wallet, where mining profits are directed.
 vendor_dir      | TEXT      | The directory where *Db4E's* runtime filesystem artifacts are deployed.
 updated_y       | INTEGER   | The year the record was updated
@@ -168,6 +169,7 @@ log_level         | INTEGER   | The log level of the *P2Pool daemon*.
 out_peers         | INTEGER   | The number of outgoing peer connections.
 p2p_port          | INTEGER   | The *P2Pool P2P Port* number.
 parent            | INTEGER   | A *foreign key* that points at a `monerod` or `monerod_remote` table's `id` column.
+parent_remote     | INTEGER   | A boolean indicating if the *parent* is remote
 stdin_path        | TEXT      | The path to the *P2Pool* STDIN file.
 stratum_port      | INTEGER   | The *P2Pool Stratum Port* number.
 user_wallet       | TEXT      | The user's *Monero* wallet, where mining payouts are directed.
@@ -231,6 +233,7 @@ log_level         | INTEGER   | The log level of the *P2Pool daemon*.
 out_peers         | INTEGER   | The number of outgoing peer connections.
 p2p_port          | INTEGER   | The *P2Pool P2P Port* number.
 parent            | INTEGER   | A *foreign key* that points at a `monerod` or `monerod_remote` table's `id` column.
+parent_remote     | INTEGER   | A boolean indicating if the *parent* is remote
 stdin_path        | TEXT      | The path to the *P2Pool* STDIN file.
 stratum_port      | INTEGER   | The *P2Pool Stratum Port* number.
 user_wallet       | TEXT      | The user's *Monero* wallet, where mining payouts are directed.

@@ -181,7 +181,24 @@ class DeplMgr:
         if p2pool.parent() != DField.DISABLE:
             vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            # Upstream monero daemon is remote
+            if p2pool.parent_remote():
+                p2pool.monerod = self.depl_db.get_deployment_by_id(
+                    DElem.MONEROD_REMOTE, p2pool.parent()
+                )
+            # Upstream monero daemon is local
+            else:
+                p2pool.monerod = self.depl_db.get_deployment_by_id(
+                    DElem.MONEROD, p2pool.parent()
+                )
+            # Uptream monero daemon deployment has been deleted
+            if not p2pool.monerod:
+                p2pool.parent(DField.DISABLE)
+
+            # We need to know the upstream Monero to build a config
+            if p2pool.parent() != DField.DISABLE:
+                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+
             p2pool.log_file(
                 os.path.join(
                     vendor_dir,
@@ -215,8 +232,8 @@ class DeplMgr:
         )
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-        db4e = self.get_deployment(DElem.DB4E, DElem.DB4E)
-        db4e_group = db4e.group()
+        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e_group = db4e.db4e_group()
         p2pool.gen_logrotate_config(
             tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
         )
@@ -251,13 +268,25 @@ class DeplMgr:
             # Generate the configuration
             vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.XMRIG)
-            xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
-        # Generate the log file name
-        xmrig.log_file(
-            os.path.join(
-                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + ".log"
+
+            # Upstream P2Pool is remote
+            if xmrig.parent_remote():
+                xmrig.p2pool = self.depl_db.get_deployment_by_id(
+                    DElem.P2POOL_REMOTE, xmrig.parent()
+                )
+            # Upstream P2Pool is local
+            xmrig.p2pool = self.depl_db.get_deployment_by_id(
+                DElem.P2POOL, xmrig.parent()
             )
-        )
+
+            # Upstream P2Pool deployment has been deleted
+            if not xmrig.p2pool:
+                xmrig.parent(DField.DISABLE)
+
+            # We need an upstream P2Pool intance to generate the config
+            if xmrig.parent() != DField.DISABLE:
+                xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
         db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)

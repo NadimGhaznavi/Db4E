@@ -88,6 +88,12 @@ class BootstrapMgr:
                 raise RuntimeError("BootstrapMgr not initialized")
             return self._config.get(DField.VENDOR_DIR)
 
+        elif aDir == DElem.XMRIG:
+            return DElem.XMRIG + "-" + DDef.XMRIG_VERSION
+
+        else:
+            raise ValueError(f"BootstrapMgr:get_dir(): No handler for {aDir}")
+
     def get_file(self, aFile: str) -> str | None:
         if not self.is_initialized():
             return None
@@ -123,7 +129,7 @@ class BootstrapMgr:
                 )
             )
 
-        elif elem_type == DElem.P2POOL or elem_type == DElem.INT_P2POOL:
+        elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_INTERNAL:
             return os.path.abspath(
                 os.path.join(
                     tmpl_dir,
@@ -145,18 +151,21 @@ class BootstrapMgr:
 
     def get_template(self, elem_type):
         tmpl_dir = self.get_dir(DDir.TEMPLATE)
+
         # Get a monerod startup template
         if elem_type == DElem.MONEROD:
             monerod_dir = self.get_dir(DElem.MONEROD)
             tmpl_file = os.path.join(
                 tmpl_dir, monerod_dir, DDef.CONF_DIR, DDef.MONEROD_CONFIG
             )
+
         # Get a P2Pool startup template
         elif elem_type == DElem.P2POOL:
             p2pool_dir = self.get_dir(DElem.P2POOL)
             tmpl_file = os.path.join(
                 tmpl_dir, p2pool_dir, DDef.CONF_DIR, DDef.P2POOL_CONFIG
             )
+
         # Get a XMRig startup template
         elif elem_type == DElem.XMRIG:
             xmrig_dir = self.get_dir(DElem.XMRIG)

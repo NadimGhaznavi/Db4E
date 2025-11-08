@@ -28,6 +28,7 @@ class Db4E(LocalMonero):
         self._db4e_user = None
         self._install_dir = None
         self._primary_server = None
+        self._primary_remote = None
         self._user_wallet = None
         self._vendor_dir = None
         self._instance_map = {}
@@ -53,6 +54,7 @@ class Db4E(LocalMonero):
         self._db4e_user = rec[DCol.DB4E_USER]
         self._install_dir = rec[DCol.INSTALL_DIR]
         self._primary_server = rec[DCol.PRIMARY_SERVER]
+        self._primary_remote = rec[DCol.PRIMARY_REMOTE]
         self._user_wallet = rec[DCol.USER_WALLET]
         self._vendor_dir = rec[DCol.VENDOR_DIR]
 
@@ -65,6 +67,7 @@ class Db4E(LocalMonero):
                 DCol.DB4E_USER: self._db4e_user,
                 DCol.INSTALL_DIR: self._install_dir,
                 DCol.PRIMARY_SERVER: self._primary_server,
+                DCol.PRIMARY_REMOTE: self._primary_remote,
                 DCol.USER_WALLET: self._user_wallet,
                 DCol.VENDOR_DIR: self._vendor_dir,
             }
@@ -97,6 +100,11 @@ class Db4E(LocalMonero):
         if primary_server is not None:
             self._primary_server = primary_server
         return self._primary_server
+
+    def primary_remote(self, primary_remote=None):
+        if primary_remote is not None:
+            self._primary_remote = primary_remote
+        return self._primary_remote
 
     def user_wallet(self, user_wallet=None):
         if user_wallet is not None:

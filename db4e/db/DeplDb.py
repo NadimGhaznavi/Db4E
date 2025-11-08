@@ -12,9 +12,8 @@ db4e/db/DeplDb.py
 # Supporting modules
 from datetime import datetime
 
-# Base deomain database module
+# Base domain database module
 from db4e.db.BaseDb import BaseDb
-
 
 # Deployment elements
 from db4e.recs.monero.Db4E import Db4E
@@ -29,12 +28,15 @@ from db4e.recs.monero.XMRigRemote import XMRigRemote
 # The module that interfaces with SQLite3
 from db4e.db.SQLDb import SQLDb
 
+# Constants
+from db4e.constants.DDef import DDef
+
 # Base domain DB module
 from db4e.db.BaseDb import (
     TABLE_TO_CLASS_MAP,
-    TYPE_STR_TO_TABLE_MAP,
-    TYPE_STR_TO_CLASS_MAP,
-    TYPE_STR_TO_TABLE_MAP,
+    CLASS_STR_TO_TABLE_MAP,
+    CLASS_STR_TO_CLASS_MAP,
+    DTable,
 )
 
 # Db4E logging module
@@ -57,12 +59,12 @@ class DeplDb(BaseDb):
 
     def delete_deployment(self, elem):
         self.check_initialized()
-        table = TYPE_STR_TO_TABLE_MAP[elem.elem_type()]
+        table = CLASS_STR_TO_TABLE_MAP[elem.elem_type()]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
     def get_deployment(self, elem_type: str, instance: str):
         self.check_initialized()
-        table = TYPE_STR_TO_TABLE_MAP[elem_type]
+        table = CLASS_STR_TO_TABLE_MAP[elem_type]
         rows = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (instance,)
         )
@@ -102,28 +104,43 @@ class DeplDb(BaseDb):
 
     def get_deployment_by_id(self, elem_type: str, id: str):
         self.check_initialized()
-        table = TYPE_STR_TO_TABLE_MAP[elem_type]
-        rec = self.sql_db.execute_query(
+        table = CLASS_STR_TO_TABLE_MAP[elem_type]
+        rec_list = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (id,)
-        )[0]
-        object = TYPE_STR_TO_CLASS_MAP[elem_type](rec)
-        return object
+        )
+        rec = rec_list[0] if rec_list else None
+        object = None
+        if rec:
+            object = CLASS_STR_TO_CLASS_MAP[elem_type](rec)
+            return object
+        else:
+            return None
 
     def get_deployments_by_type_str(self, elem_type: str):
         self.check_initialized()
         object_list = []
-        table = TYPE_STR_TO_TABLE_MAP[elem_type]
+        table = CLASS_STR_TO_TABLE_MAP[elem_type]
+
         for rec in self.sql_db.find_many(table=table):
-            new_obj = TYPE_STR_TO_CLASS_MAP[elem_type](rec)
+            new_obj = CLASS_STR_TO_CLASS_MAP[elem_type](rec)
             object_list.append(new_obj)
+
         return object_list
 
     def get_deployment_ids_and_instances(self, elem_type):
         instance_map = {}
-        recs = self.depl_db.find_many(elem_type=elem_type)
+        table = CLASS_STR_TO_TABLE_MAP[elem_type]
+        recs = self.sql_db.find_many(table=table)
+
+        # Flag if the upstream element is local or remote
+        if table == DTable.MONEROD or table == DTable.P2POOL:
+            remote_flag = 0
+        elif table == DTable.MONEROD_REMOTE or table == DTable.P2POOL_REMOTE:
+            remote_flag = 1
+
         for rec in recs:
-            instance = self.get_component_value(rec, DCol.INSTANCE)
-            instance_map[instance] = rec[DCol.ID]
+            instance = rec[DCol.INSTANCE]
+            instance_map[instance] = (rec[DCol.ID], remote_flag)
         return instance_map
 
     ## Get deployment types
@@ -179,7 +196,7 @@ class DeplDb(BaseDb):
             return p2pool
         elif elem_type == DElem.P2POOL_REMOTE:
             return P2PoolRemote()
-        elif elem_type == DElem.INT_P2POOL:
+        elif elem_type == DElem.P2POOL_INTERNAL:
             p2pool = P2PoolInternal()
             p2pool.user_wallet(DDef.DONATION_WALLET)
         elif elem_type == DElem.XMRIG:
@@ -201,6 +218,7 @@ class DeplDb(BaseDb):
                 install_dir TEXT,
                 instance TEXT,
                 primary_server INTEGER,
+                primary_remote INTEGER,
                 user_wallet TEXT,
                 vendor_dir TEXT,
                 updated_y INTEGER,
@@ -275,6 +293,7 @@ class DeplDb(BaseDb):
                 out_peers INTEGER,
                 p2p_port INTEGER,
                 parent INTEGER,
+                parent_remote INTEGER,
                 stdin_path TEXT,
                 stratum_port INTEGER,
                 user_wallet TEXT,
@@ -304,6 +323,7 @@ class DeplDb(BaseDb):
                 out_peers INTEGER,
                 p2p_port INTEGER,
                 parent INTEGER,
+                parent_remote INTEGER,
                 stdin_path TEXT,
                 stratum_port INTEGER,
                 user_wallet TEXT,
@@ -340,6 +360,7 @@ class DeplDb(BaseDb):
                 max_log_size INTEGER,
                 num_threads INTEGER,
                 parent INTEGER,
+                parent_remote INTEGER,
                 version TEXT,
                 updated_y INTEGER,
                 updated_mo INTEGER,

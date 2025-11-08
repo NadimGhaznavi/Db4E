@@ -80,16 +80,20 @@ class XMRigRemotePane(Container):
             return
 
         button_id = event.button.id
-        method_map = {
-            DButton.HASHRATE: DMethod.HASHRATES,
-            DButton.SHARES_FOUND: DMethod.SHARES_FOUND,
+        button_map = {
+            DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
         }
 
-        if button_id in method_map:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: method_map[button_id],
-                DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
-                DField.ELEMENT: self.xmrig,
-            }
-            self.app.post_message(Db4eMsg(self, form_data=form_data))
+        if button_id not in button_map:
+            raise ValueError(f"No handler for button {button_id}")
+
+        module, method = button_map[button_id]
+
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+            DField.ELEMENT: self.xmrig,
+        }
+        self.app.post_message(Db4eMsg(self, form_data=form_data))

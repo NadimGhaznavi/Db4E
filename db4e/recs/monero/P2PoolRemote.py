@@ -26,6 +26,7 @@ class P2PoolRemote(BaseMonero):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        super().from_rec(rec)
         self.ip_addr(rec[DCol.IP_ADDR])
         self.stratum_port(rec[DCol.STRATUM_PORT])
 

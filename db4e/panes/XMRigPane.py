@@ -115,6 +115,7 @@ class XMRigPane(Container):
         )
 
         self.instance_map = xmrig.instance_map()
+        print(f"XMRigPane:set_data(): instance_map: {self.instance_map}")
         instance_list = []
         for instance in self.instance_map.keys():
             instance_list.append(instance)
@@ -156,76 +157,37 @@ class XMRigPane(Container):
         if radio_set.pressed_button:
             p2pool_instance = str(radio_set.pressed_button.label)
             if p2pool_instance:
-                p2pool = self.instance_map[p2pool_instance]
-                self.xmrig.parent(p2pool)
+                p2pool_id, remote_flag = self.instance_map[p2pool_instance]
+                self.xmrig.parent(p2pool_id)
+                self.xmrig.parent_remote(remote_flag)
         self.xmrig.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
         self.xmrig.num_threads(
             self.query_one(f"#{DForm.NUM_THREADS_INPUT}", Input).value
         )
 
-        if button_id == DButton.DELETE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
+        # Map button to action
+        button_map = {
+            DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
+            DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+        }
 
-        elif button_id == DButton.DISABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
+        if button_id not in button_map:
+            raise ValueError(f"No handler for button {button_id}")
 
-        elif button_id == DButton.ENABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
+        module, method = button_map[button_id]
 
-        elif button_id == DButton.HASHRATE:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.HASHRATES,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.NEW:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.SHARES_FOUND:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.SHARES_FOUND,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.UPDATE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.ELEMENT: self.xmrig,
-            }
-
-        elif button_id == DButton.VIEW_LOG:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.XMRIG,
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.LOG_VIEWER,
-                DField.INSTANCE: self.xmrig.instance(),
-            }
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.XMRIG,
+            DField.ELEMENT: self.xmrig,
+        }
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
         # self.app.post_message(RefreshNavPane(self))

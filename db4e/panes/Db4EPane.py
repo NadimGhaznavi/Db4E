@@ -111,8 +111,8 @@ class Db4EPane(Container):
         )
 
         self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
-        self.query_one(f"#{DForm.USER_NAME_LABEL}", Label).update(db4e.user())
-        self.query_one(f"#{DForm.GROUP_NAME_LABEL}", Label).update(db4e.group())
+        self.query_one(f"#{DForm.USER_NAME_LABEL}", Label).update(db4e.db4e_user())
+        self.query_one(f"#{DForm.GROUP_NAME_LABEL}", Label).update(db4e.db4e_group())
         self.query_one(f"#{DForm.INSTALL_DIR_LABEL}", Label).update(db4e.install_dir())
         self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value = db4e.vendor_dir()
         self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = db4e.user_wallet()
@@ -137,31 +137,27 @@ class Db4EPane(Container):
         primary_instance = self.query_one(
             f"#{DForm.RADIO_SET}", RadioSet
         ).pressed_button.label
-        self.db4e.primary_server(self.instance_map[primary_instance])
+        if primary_instance == DLabel.DISABLE:
+            self.db4e.primary_server(DField.DISABLE)
+        else:
+            primary_id, remote_flag = self.instance_map[primary_instance]
+            self.db4e.primary_server(primary_id)
+            self.db4e.primary_remote(remote_flag)
 
-        if button_id == DButton.PAYMENTS:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.GET_PAYMENTS,
-                DField.ELEMENT_TYPE: DElem.DB4E,
-                DField.ELEMENT: self.db4e,
-            }
+        button_map = {
+            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.RUNTIME: (DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG),
+            DButton.PAYMENTS: (DModule.OPS_MGR, DMethod.GET_PAYMENTS),
+        }
 
-        elif button_id == DButton.RUNTIME:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.GET_RUNTIME_LOG,
-                DField.ELEMENT_TYPE: DElem.DB4E,
-                DField.ELEMENT: self.db4e,
-            }
+        module, method = button_map[button_id]
 
-        elif button_id == DButton.UPDATE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.DB4E,
-                DField.ELEMENT: self.db4e,
-            }
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.DB4E,
+            DField.ELEMENT: self.db4e,
+        }
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 

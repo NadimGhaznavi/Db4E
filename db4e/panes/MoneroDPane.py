@@ -324,51 +324,26 @@ class MoneroDPane(Container):
             self.query_one(f"#{DForm.ZMQ_RPC_PORT_INPUT}", Input).value
         )
 
-        if button_id == DButton.NEW:
-            form_data = {
-                DField.TO_MODULE: DModule.SYNC_CLIENT,
-                DField.TO_METHOD: DMethod.ADD_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.ELEMENT: self.monerod,
-            }
+        # Map button to action
+        button_map = {
+            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+        }
 
-        elif button_id == DButton.UPDATE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.UPDATE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.ELEMENT: self.monerod,
-            }
+        if button_id not in button_map:
+            raise ValueError(f"No handler for button {button_id}")
 
-        elif button_id == DButton.ENABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.ENABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.ELEMENT: self.monerod,
-            }
+        module, method = button_map[button_id]
 
-        elif button_id == DButton.DISABLE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DISABLE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.ELEMENT: self.monerod,
-            }
-
-        elif button_id == DButton.DELETE:
-            form_data = {
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.DELETE_DEPLOYMENT,
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.ELEMENT: self.monerod,
-            }
-        elif button_id == DButton.VIEW_LOG:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.MONEROD,
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.LOG_VIEWER,
-                DField.INSTANCE: self.monerod.instance(),
-            }
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.MONEROD,
+            DField.ELEMENT: self.monerod,
+        }
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))

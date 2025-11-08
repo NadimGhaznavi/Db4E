@@ -38,6 +38,7 @@ class BaseP2Pool(LocalMonero):
         self._out_peers = DDef.OUT_PEERS
         self._p2p_port = DDef.P2P_PORT
         self._parent = DField.DISABLE
+        self._parent_remote = ""
         self._stdin_path = ""
         self._stratum_port = DDef.STRATUM_PORT
         self._user_wallet = ""
@@ -73,6 +74,7 @@ class BaseP2Pool(LocalMonero):
         self._out_peers = rec[DCol.OUT_PEERS]
         self._p2p_port = rec[DCol.P2P_PORT]
         self._parent = rec[DCol.PARENT]
+        self._parent_remote = rec[DCol.PARENT_REMOTE]
         self._stdin_path = rec[DCol.STDIN_PATH]
         self._stratum_port = rec[DCol.STRATUM_PORT]
         self._user_wallet = rec[DCol.USER_WALLET]
@@ -95,6 +97,7 @@ class BaseP2Pool(LocalMonero):
                 DCol.OUT_PEERS: self._out_peers,
                 DCol.P2P_PORT: self._p2p_port,
                 DCol.PARENT: self._parent,
+                DCol.PARENT_REMOTE: self._parent_remote,
                 DCol.STDIN_PATH: self._stdin_path,
                 DCol.STRATUM_PORT: self._stratum_port,
                 DCol.USER_WALLET: self._user_wallet,
@@ -169,6 +172,11 @@ class BaseP2Pool(LocalMonero):
         if parent is not None:
             self._parent = parent
         return self._parent
+
+    def parent_remote(self, parent_remote=None):
+        if parent_remote is not None:
+            self._parent_remote = parent_remote
+        return self._parent_remote
 
     def stdin_path(self, stdin_path=None):
         if stdin_path is not None:
@@ -286,4 +294,3 @@ class BaseP2Pool(LocalMonero):
         if shares_found is not None:
             self._shares_found = shares_found
         return self._shares_found
-

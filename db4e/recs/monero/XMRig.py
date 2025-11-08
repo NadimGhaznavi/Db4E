@@ -23,6 +23,7 @@ from db4e.constants.DPlaceholder import DPlaceholder
 from db4e.constants.DFile import DFile
 from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
+from db4e.constants.DSQL import DCol
 
 
 class XMRig(LocalMonero):
@@ -37,6 +38,7 @@ class XMRig(LocalMonero):
         self._max_log_size = DDef.MAX_LOG_SIZE
         self._num_threads = 1
         self._parent = DField.DISABLE
+        self._parent_remote = ""
         self._version = DDef.XMRIG_VERSION
         # Set the version
         self.version(DDef.XMRIG_VERSION)
@@ -61,27 +63,29 @@ class XMRig(LocalMonero):
 
     def from_rec(self, rec):
         super().from_rec(rec)
-        self._config_file = rec[DField.CONFIG_FILE]
-        self._log_file = rec[DField.LOG_FILE]
-        self._logrotate_config = rec[DField.LOGROTATE_CONFIG]
-        self._max_log_files = rec[DField.MAX_LOG_FILES]
-        self._max_log_size = rec[DField.MAX_LOG_SIZE]
-        self._num_threads = rec[DField.NUM_THREADS]
-        self._parent = rec[DField.PARENT]
-        self._version = rec[DField.VERSION]
+        self._config_file = rec[DCol.CONFIG_FILE]
+        self._log_file = rec[DCol.LOG_FILE]
+        self._logrotate_config = rec[DCol.LOGROTATE_CONFIG]
+        self._max_log_files = rec[DCol.MAX_LOG_FILES]
+        self._max_log_size = rec[DCol.MAX_LOG_SIZE]
+        self._num_threads = rec[DCol.NUM_THREADS]
+        self._parent = rec[DCol.PARENT]
+        self._parent_remote = rec[DCol.PARENT_REMOTE]
+        self._version = rec[DCol.VERSION]
 
     def to_dict(self):
         data = super().to_dict()
         data.update(
             {
-                DField.CONFIG_FILE: self._config_file,
-                DField.LOG_FILE: self._log_file,
-                DField.LOGROTATE_CONFIG: self._logrotate_config,
-                DField.MAX_LOG_FILES: self._max_log_files,
-                DField.MAX_LOG_SIZE: self._max_log_size,
-                DField.NUM_THREADS: self._num_threads,
-                DField.PARENT: self._parent,
-                DField.VERSION: self._version,
+                DCol.CONFIG_FILE: self._config_file,
+                DCol.LOG_FILE: self._log_file,
+                DCol.LOGROTATE_CONFIG: self._logrotate_config,
+                DCol.MAX_LOG_FILES: self._max_log_files,
+                DCol.MAX_LOG_SIZE: self._max_log_size,
+                DCol.NUM_THREADS: self._num_threads,
+                DCol.PARENT: self._parent,
+                DCol.PARENT_REMOTE: self._parent_remote,
+                DCol.VERSION: self._version,
             }
         )
         return data
@@ -122,6 +126,11 @@ class XMRig(LocalMonero):
         if parent is not None:
             self._parent = parent
         return self._parent
+
+    def parent_remote(self, parent_remote=None):
+        if parent_remote is not None:
+            self._parent_remote = parent_remote
+        return self._parent_remote
 
     def version(self, version=None):
         if version is not None:

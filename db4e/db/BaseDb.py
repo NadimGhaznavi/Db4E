@@ -75,7 +75,7 @@ CLASS_TO_TABLE_MAP = {
     TUILogLine: DTable.TUI_LOG_LINE,
 }
 
-TYPE_STR_TO_TABLE_MAP = {
+CLASS_STR_TO_TABLE_MAP = {
     DElem.DB4E: DTable.DB4E,
     DElem.MONEROD: DTable.MONEROD,
     DElem.MONEROD_REMOTE: DTable.MONEROD_REMOTE,
@@ -86,7 +86,7 @@ TYPE_STR_TO_TABLE_MAP = {
     DElem.XMRIG_REMOTE: DTable.XMRIG_REMOTE,
 }
 
-TYPE_STR_TO_CLASS_MAP = {
+CLASS_STR_TO_CLASS_MAP = {
     DElem.DB4E: Db4E,
     DElem.MONEROD: MoneroD,
     DElem.MONEROD_REMOTE: MoneroDRemote,
@@ -97,7 +97,7 @@ TYPE_STR_TO_CLASS_MAP = {
     DElem.XMRIG_REMOTE: XMRigRemote,
 }
 
-TABLE_TO_TYPE_STR_MAP = {v: k for k, v in TYPE_STR_TO_TABLE_MAP.items()}
+TABLE_TO_CLASS_STR_MAP = {v: k for k, v in CLASS_STR_TO_TABLE_MAP.items()}
 
 TABLE_TO_CLASS_MAP = {v: k for k, v in CLASS_TO_TABLE_MAP.items()}
 

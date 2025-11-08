@@ -131,7 +131,7 @@ class ChainPane(Container):
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.BLOCKS_FOUND,
-                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.ELEMENT: self.p2pool,
             }
 
@@ -139,13 +139,13 @@ class ChainPane(Container):
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.HASHRATES,
-                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButton.RESTART:
             form_data = {
-                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
                 DField.TO_METHOD: DMethod.RESTART,
                 DField.INSTANCE: self.p2pool.instance(),
@@ -153,7 +153,7 @@ class ChainPane(Container):
 
         elif button_id == DButton.VIEW_LOG:
             form_data = {
-                DField.ELEMENT_TYPE: DElem.INT_P2POOL,
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.LOG_VIEWER,
                 DField.INSTANCE: self.p2pool.instance(),

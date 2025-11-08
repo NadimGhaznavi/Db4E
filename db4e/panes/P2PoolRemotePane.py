@@ -128,7 +128,7 @@ class P2PoolRemotePane(Container):
 
         # Map button to action
         button_map = {
-            DButton.NEW: (DModule.OPS_MGR, DMethod.ADD_DEPLOYMENT),
+            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
             DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
         }
