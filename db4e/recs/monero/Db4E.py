@@ -27,9 +27,9 @@ class Db4E(LocalMonero):
         self._db4e_group = None
         self._db4e_user = None
         self._install_dir = None
-        self._primary_server = None
-        self._primary_remote = None
-        self._user_wallet = None
+        self._primary_server = DField.DISABLE
+        self._primary_remote = DField.DISABLE
+        self._user_wallet = ""
         self._vendor_dir = None
         self._instance_map = {}
         # There is only one Db4E deployment

@@ -41,7 +41,8 @@ class DField(ConstGroup):
     DEPLOYMENTS: str = "deployments"
     DESC: str = "desc"
     DETAILS: str = "details"
-    DISABLE: str = "disable"
+    DISABLE: int = -1
+    DISABLED: str = "disabled"
     DONATIONS: str = "donations"
     DONATION_WALLET: str = "donation_wallet"
     ELEMENT: str = "element"

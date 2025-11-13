@@ -266,11 +266,11 @@ class MoneroDPane(Container):
             self.add_class(DField.UPDATE)
 
             if monerod.enabled():
-                self.remove_class(DField.DISABLE)
-                self.add_class(DField.ENABLE)
+                self.remove_class(DField.DISABLED)
+                self.add_class(DField.ENABLED)
             else:
-                self.remove_class(DField.ENABLE)
-                self.add_class(DField.DISABLE)
+                self.remove_class(DField.ENABLED)
+                self.add_class(DField.DISABLED)
 
         else:
             # This is a new operation
@@ -327,10 +327,10 @@ class MoneroDPane(Container):
         # Map button to action
         button_map = {
             DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
-            DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.ENABLE: (DModule.SYNC_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButton.DISABLE: (DModule.SYNC_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
             DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
 

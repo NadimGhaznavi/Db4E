@@ -71,7 +71,16 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.DB4E,
         )
-        # MoneroD deployment - New form
+        # Db4E core - Update
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.DB4E,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        ## MoneroD deployment
+        # Display the new form
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_NEW,
@@ -79,7 +88,7 @@ class RouteMgr:
             self.nav_handler.get_new,
             DPane.MONEROD,
         )
-        # MoneroD deployment - Create new
+        # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
@@ -87,7 +96,7 @@ class RouteMgr:
             self.sync_client.add_deployment,
             DPane.TUI_LOG,
         )
-        # MoneroD deployment - View/edit
+        # View/edit deployment
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -95,7 +104,25 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.MONEROD,
         )
-        # Remote MoneroD deployment - New form
+        # Update deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.MONEROD,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        # Delete deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DELETE_DEPLOYMENT,
+            DElem.MONEROD,
+            self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+
+        ## Remote MoneroD deployment
+        # Display the new form
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_NEW,
@@ -103,7 +130,7 @@ class RouteMgr:
             self.nav_handler.get_new,
             DPane.MONEROD_REMOTE,
         )
-        # Remote MoneroD deployment - Create new
+        # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
@@ -111,7 +138,7 @@ class RouteMgr:
             self.sync_client.add_deployment,
             DPane.TUI_LOG,
         )
-        # Remote MoneroD deployment - View/edit
+        # View/edit a deployment
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -119,7 +146,25 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.MONEROD_REMOTE,
         )
-        # P2Pool deployment - New form
+        # Update a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.MONEROD_REMOTE,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        # Delete a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DELETE_DEPLOYMENT,
+            DElem.MONEROD_REMOTE,
+            self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+
+        ## P2Pool deployment
+        # Display the new form
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_NEW,
@@ -127,7 +172,7 @@ class RouteMgr:
             self.nav_handler.get_new,
             DPane.P2POOL,
         )
-        # P2Pool deployment - Create new
+        # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
@@ -135,7 +180,7 @@ class RouteMgr:
             self.sync_client.add_deployment,
             DPane.TUI_LOG,
         )
-        # P2Pool deployment - View/edit
+        # View/edit a deployment
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -143,7 +188,25 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.P2POOL,
         )
-        # Remote P2Pool deployment - New form
+        # Update a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.P2POOL,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        # Delete a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DELETE_DEPLOYMENT,
+            DElem.P2POOL,
+            self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+
+        ## Remote P2Pool deployment
+        # Display the new form
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_NEW,
@@ -151,7 +214,7 @@ class RouteMgr:
             self.nav_handler.get_new,
             DPane.P2POOL_REMOTE,
         )
-        # Remote P2Pool deployment - Create new
+        # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
@@ -159,7 +222,7 @@ class RouteMgr:
             self.sync_client.add_deployment,
             DPane.TUI_LOG,
         )
-        # Remote P2Pool deployment - View/edit
+        # View/edit a deployment
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -167,7 +230,25 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.P2POOL_REMOTE,
         )
-        # Internal P2Pool deployment
+        # Update a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.P2POOL_REMOTE,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        # Delete a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DELETE_DEPLOYMENT,
+            DElem.P2POOL_REMOTE,
+            self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+
+        ## Internal P2Pool deployment
+        # View "Chain Pane"
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -175,7 +256,9 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.CHAIN,
         )
-        # XMRig deployment - New form
+
+        ## XMRig deployment
+        # Display the new deployment form
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_NEW,
@@ -183,7 +266,7 @@ class RouteMgr:
             self.nav_handler.get_new,
             DPane.XMRIG,
         )
-        # XMRig deployment - Create new
+        # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
@@ -191,7 +274,7 @@ class RouteMgr:
             self.sync_client.add_deployment,
             DPane.TUI_LOG,
         )
-        # XMRig deployment - View/edit
+        # View/edit a deployment
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -199,7 +282,25 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.XMRIG,
         )
-        # Remote XMRig deployment - View/edit
+        # Update a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.XMRIG,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+        # Delete a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DELETE_DEPLOYMENT,
+            DElem.XMRIG,
+            self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+
+        ## Remote XMRig Deployment
+        # View the "Remote XMRig Pane"
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -207,6 +308,7 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.XMRIG_REMOTE,
         )
+
         # Console log
         self.register(
             DModule.OPS_DB,
@@ -215,6 +317,7 @@ class RouteMgr:
             self.ops_db.get_tui_log,
             DPane.TUI_LOG,
         )
+
         # Donations
         self.register(
             DModule.NAV_HANDLER,
@@ -244,6 +347,8 @@ class RouteMgr:
 
         callback, pane = handler
         if callback == self.sync_client.add_deployment:
+            result = await callback(payload)
+        elif callback == self.sync_client.update_deployment:
             result = await callback(payload)
         else:
             result = callback(payload)

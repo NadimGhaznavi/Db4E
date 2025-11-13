@@ -36,6 +36,7 @@ class Db4EPane(Container):
 
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
+    db4e = None
 
     def compose(self):
         yield Vertical(
@@ -164,8 +165,19 @@ class Db4EPane(Container):
     def watch_radio_button_list(self, old, new):
         for child in list(self.query_one(f"#{DForm.RADIO_SET}", RadioSet).children):
             child.remove()
+
+        ## Get the current Db4E values
+        primary_id = None
+        remote_flag = None
+        if self.db4e:
+            # id value from the monerod or monerod_remote table
+            primary_id = self.db4e.primary_server()
+            # if it's 1, then it's the monerod_remote table, 0 it's the monerod
+            remote_flag = self.db4e.primary_remote()
+
         for instance in self.radio_button_list:
             radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
-            if self.db4e.primary_server() == self.instance_map[instance]:
+            cur_primary_id, cur_remote_flag = self.instance_map[instance]
+            if primary_id == cur_primary_id and remote_flag == cur_remote_flag:
                 radio_button.value = True
             self.query_one(f"#{DForm.RADIO_SET}", RadioSet).mount(radio_button)

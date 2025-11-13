@@ -205,6 +205,7 @@ class BaseDb:
         values = tuple(data[col] for col in columns if col != DCol.ID) + (
             db4e_obj.id(),
         )
+        print(f"BaseDb:update_one(): SQL: {sql}\nVALUES: {values}")
         self.sql_db.update_one(sql=sql, values=values)
         return db4e_obj
 

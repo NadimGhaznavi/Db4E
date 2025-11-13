@@ -14,9 +14,11 @@ from db4e.constants.DSQL import DCol
 
 
 class LocalMonero(BaseMonero):
-    def __init__(self):
+    def __init__(self, rec=None):
         super().__init__()
         self._enabled = False
+        if rec is not None:
+            self.from_rec(rec)
 
     def __repr__(self):
         return f"{self.elem_type()}({self.instance()})"

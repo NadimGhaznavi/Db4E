@@ -112,6 +112,16 @@ class SQLDb:
         except Exception as e:
             print("Error fetching last sync timestamp:", e)
 
+    def get_max_updated_ts(self, table_name: str) -> int:
+        try:
+            row = self.find_one(f"SELECT MAX({DCol.UPDATED_TS}) FROM {table_name}")
+            if row:
+                return row[0]
+            else:
+                return 0
+        except Exception as e:
+            print("Error fetching max updated_ts:", e)
+
     def _init_db(self):
         self.executescript(
             """

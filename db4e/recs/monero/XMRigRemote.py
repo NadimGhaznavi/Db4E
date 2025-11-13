@@ -45,7 +45,7 @@ class XMRigRemote(BaseMonero):
 
     def hashrate(self, hashrate=None):
         if hashrate is not None:
-            self._hashrate = hashrate
+            self._hashrate = int(hashrate)
         return self._hashrate
 
     def hashrates(self, hashrate_data=None):

@@ -10,14 +10,16 @@ db4e/util/NavHandler.py
 """
 
 from db4e.db.DeplDb import DeplDb
-from db4e.constants.DField import DField
-from db4e.constants.DElem import DElem
 
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
+
+from db4e.constants.DField import DField
+from db4e.constants.DElem import DElem
+from db4e.constants.DSQL import DTable
 
 
 class NavHandler:
@@ -32,18 +34,22 @@ class NavHandler:
         depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
 
         if elem_type == DElem.DB4E:
-            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
-            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(
+                DTable.MONEROD_REMOTE
+            )
             depl_obj.instance_map({**local, **remote})
 
         elif elem_type == DElem.P2POOL:
-            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
-            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(
+                DTable.MONEROD_REMOTE
+            )
             depl_obj.instance_map({**local, **remote})
 
         elif elem_type == DElem.XMRIG:
-            local = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL)
-            remote = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL_REMOTE)
+            local = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL)
+            remote = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL_REMOTE)
             depl_obj.instance_map({**local, **remote})
 
         return depl_obj
@@ -61,8 +67,10 @@ class NavHandler:
             p2pool = P2Pool()
             db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
             p2pool.user_wallet(db4e.user_wallet())
-            local = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD)
-            remote = self.depl_db.get_deployment_ids_and_instances(DElem.MONEROD_REMOTE)
+            local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
+            remote = self.depl_db.get_deployment_ids_and_instances(
+                DTable.MONEROD_REMOTE
+            )
             p2pool.instance_map({**local, **remote})
             return p2pool
 
@@ -71,8 +79,8 @@ class NavHandler:
 
         elif elem_type == DElem.XMRIG:
             xmrig = XMRig()
-            local = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL)
-            remote = self.depl_db.get_deployment_ids_and_instances(DElem.P2POOL_REMOTE)
+            local = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL)
+            remote = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL_REMOTE)
             xmrig.instance_map({**local, **remote})
             return xmrig
 

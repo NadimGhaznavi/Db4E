@@ -132,11 +132,11 @@ class XMRigPane(Container):
             self.add_class(DField.UPDATE)
 
             if xmrig.enabled():
-                self.remove_class(DField.DISABLE)
-                self.add_class(DField.ENABLE)
+                self.remove_class(DField.DISABLED)
+                self.add_class(DField.ENABLED)
             else:
-                self.remove_class(DField.ENABLE)
-                self.add_class(DField.DISABLE)
+                self.remove_class(DField.ENABLED)
+                self.add_class(DField.DISABLED)
         else:
             # This is a new operation
             INTRO = (
@@ -167,13 +167,13 @@ class XMRigPane(Container):
 
         # Map button to action
         button_map = {
-            DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
             DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
             DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
             DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
             DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
-            DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
             DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
 
@@ -196,9 +196,19 @@ class XMRigPane(Container):
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         for child in list(radio_set.children):
             child.remove()
-        # print(f"XMRigPane:watch_radio_button_list(): instance_map: {self.instance_map}")
+
+        ## Get the current XMRig values
+        parent_id = None
+        remote_flag = None
+        if self.xmrig:
+            # id value from the p2pool or p2pool_remote table (or -1 if currently disabled)
+            parent_id = self.xmrig.parent()
+            # if it's 1, then it's the p2pool_remote table, 0 it's the p2pool table, -1 disabled
+            remote_flag = self.xmrig.parent_remote()
+
         for instance in self.radio_button_list:
             radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
-            if self.xmrig.parent() == self.instance_map[instance]:
+            cur_parent_id, cur_remote_flag = self.instance_map[instance]
+            if parent_id == cur_parent_id and remote_flag == cur_remote_flag:
                 radio_button.value = True
             radio_set.mount(radio_button)

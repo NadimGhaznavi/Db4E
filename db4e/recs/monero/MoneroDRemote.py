@@ -53,10 +53,10 @@ class MoneroDRemote(BaseMonero):
 
     def rpc_bind_port(self, rpc_bind_port=None):
         if rpc_bind_port is not None:
-            self._rpc_bind_port = rpc_bind_port
+            self._rpc_bind_port = int(rpc_bind_port)
         return self._rpc_bind_port
 
     def zmq_pub_port(self, zmq_pub_port=None):
         if zmq_pub_port is not None:
-            self._zmq_pub_port = zmq_pub_port
+            self._zmq_pub_port = int(zmq_pub_port)
         return self._zmq_pub_port

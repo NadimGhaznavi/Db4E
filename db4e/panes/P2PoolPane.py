@@ -173,11 +173,11 @@ class P2PoolPane(Container):
             self.add_class(DField.UPDATE)
 
             if p2pool.enabled():
-                self.remove_class(DField.DISABLE)
-                self.add_class(DField.ENABLE)
+                self.remove_class(DField.DISABLED)
+                self.add_class(DField.ENABLED)
             else:
-                self.remove_class(DField.ENABLE)
-                self.add_class(DField.DISABLE)
+                self.remove_class(DField.ENABLED)
+                self.add_class(DField.DISABLED)
         else:
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)
@@ -187,25 +187,20 @@ class P2PoolPane(Container):
             gen_results_table(p2pool.pop_msgs())
         )
 
-    def watch_radio_button_list(self, old, new):
-        radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
-        for child in list(radio_set.children):
-            child.remove()
-        for instance in self.radio_button_list:
-            rb = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
-            if self.p2pool.parent() == self.instance_map[instance]:
-                rb.value = True
-            radio_set.mount(rb)
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         monerod_instance = None
         monerod_id = None
-        if radio_set.pressed_button:
-            monerod_instance = str(radio_set.pressed_button.label)
-            monerod_id, remote_flag = self.instance_map[monerod_instance]
+        # if radio_set.pressed_button:
+        monerod_instance = str(radio_set.pressed_button.label)
+        monerod_id, remote_flag = self.instance_map[monerod_instance]
+        print(
+            f"P2PoolPane:on_button_pressed(): monerod_id: {monerod_id}, remote_flag: {remote_flag}"
+        )
+        self.p2pool.parent(monerod_id)
+        self.p2pool.parent_remote(remote_flag)
 
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
         chain = (
@@ -215,8 +210,6 @@ class P2PoolPane(Container):
         )
 
         # Update p2pool object
-        self.p2pool.parent(monerod_id)
-        self.p2pool.parent_remote(remote_flag)
         self.p2pool.chain(str(chain))
         self.p2pool.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
         self.p2pool.in_peers(self.query_one(f"#{DForm.IN_PEERS_INPUT}", Input).value)
@@ -229,14 +222,14 @@ class P2PoolPane(Container):
 
         # Map button to action
         button_map = {
-            DButton.DELETE: (DModule.DEPLOYMENT_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
             DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
             DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
             DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
             DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
             DButton.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
-            DButton.UPDATE: (DModule.DEPLOYMENT_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
             DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
 
@@ -255,3 +248,24 @@ class P2PoolPane(Container):
             form_data[DField.INSTANCE] = self.p2pool.instance()
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))
+
+    def watch_radio_button_list(self, old, new):
+        radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
+        for child in list(radio_set.children):
+            child.remove()
+
+        ## Get the current P2Pool values
+        parent_id = None
+        remote_flag = None
+        if self.p2pool:
+            # id value from the monerod or monerod_remote table (or -1 if currently disabled)
+            parent_id = self.p2pool.parent()
+            # if it's 1, then it's the monerod_remote table, 0 it's the monerod table, -1 disabled
+            remote_flag = self.p2pool.parent_remote()
+
+        for instance in self.radio_button_list:
+            rb = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
+            cur_parent_id, cur_remote_flag = self.instance_map[instance]
+            if parent_id == cur_parent_id and remote_flag == cur_remote_flag:
+                rb.value = True
+            radio_set.mount(rb)

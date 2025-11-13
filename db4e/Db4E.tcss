@@ -435,10 +435,10 @@ Button {
 .new #view_log_button {
     display: none; }
 
-.disable #disable_button {
+.disabled #disable_button {
     display: none; }
 
-.enable #enable_button {
+.enabled #enable_button {
     display: none; }
 
 .stopped #start_button {

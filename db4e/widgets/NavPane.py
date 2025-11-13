@@ -127,15 +127,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.INITIAL_SETUP_PROCEED,
                 }
 
-            # View/Update Db4E Core
-            elif leaf_data == DLabel.DB4E:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.DB4E,
-                    DField.INSTANCE: DElem.DB4E,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                }
-
             # TUI Log
             elif leaf_data == DLabel.TUI_LOG:
                 form_data = {
@@ -152,100 +143,6 @@ class NavPane(Container):
                     DField.TO_METHOD: DMethod.SET_PANE,
                 }
 
-            # New Monero deployment
-            elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.MONEROD,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_NEW,
-                }
-
-            # New remote Monero deployment
-            elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_REMOTE_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_NEW,
-                }
-
-            # New P2Pool deployment
-            elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.P2POOL,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_NEW,
-                }
-
-            # New remote P2Pool deployment
-            elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_REMOTE_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_NEW,
-                }
-
-            # New XMRig deployment
-            elif leaf_data == DLabel.NEW and parent_data == DLabel.XMRIG_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.XMRIG,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_NEW,
-                }
-
-            # Existing Monero deployment
-            elif parent_data == DLabel.MONEROD_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.MONEROD,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
-            # Existing remote Monero deployment
-            elif parent_data == DLabel.MONEROD_REMOTE_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
-            # Existing P2Pool deployment
-            elif parent_data == DLabel.P2POOL_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.P2POOL,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
-            # Existing remote P2Pool deployment
-            elif parent_data == DLabel.P2POOL_REMOTE_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
-            # Existing XMRig deployment
-            elif parent_data == DLabel.XMRIG_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.XMRIG,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
-            # Remote XMRig deployments
-            elif parent_data == DLabel.XMRIG_REMOTE_SHORT:
-                form_data = {
-                    DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
-                    DField.TO_MODULE: DModule.NAV_HANDLER,
-                    DField.TO_METHOD: DMethod.GET_DEPL,
-                    DField.INSTANCE: leaf_data,
-                }
-
             # Main, Mini and Nano Chain Stats
             elif parent_data == DLabel.CHAIN_STATS:
                 form_data = {
@@ -255,20 +152,123 @@ class NavPane(Container):
                     DField.INSTANCE: leaf_data,
                 }
 
+            ## Deployed Elements
+
+            ## Core
+            # View/Update Db4E Core
+            elif leaf_data == DLabel.DB4E:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.DB4E,
+                    DField.INSTANCE: DElem.DB4E,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                }
+
+            ## New Deployments
+            # Monero
+            elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.MONEROD,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_NEW,
+                }
+            # Remote Monero
+            elif leaf_data == DLabel.NEW and parent_data == DLabel.MONEROD_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_NEW,
+                }
+            # P2Pool
+            elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.P2POOL,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_NEW,
+                }
+            # P2Pool Remote
+            elif leaf_data == DLabel.NEW and parent_data == DLabel.P2POOL_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_NEW,
+                }
+            # XMRig
+            elif leaf_data == DLabel.NEW and parent_data == DLabel.XMRIG_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.XMRIG,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_NEW,
+                }
+
+            ## View/Edit
+            # Monero
+            elif parent_data == DLabel.MONEROD_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.MONEROD,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+            # Remote Monero
+            elif parent_data == DLabel.MONEROD_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+            # P2Pool
+            elif parent_data == DLabel.P2POOL_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.P2POOL,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+            # Remote P2Pool
+            elif parent_data == DLabel.P2POOL_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.P2POOL_REMOTE,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+            # XMRig
+            elif parent_data == DLabel.XMRIG_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.XMRIG,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+            # Remote XMRig
+            elif parent_data == DLabel.XMRIG_REMOTE_SHORT:
+                form_data = {
+                    DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                    DField.TO_MODULE: DModule.NAV_HANDLER,
+                    DField.TO_METHOD: DMethod.GET_DEPL,
+                    DField.INSTANCE: leaf_data,
+                }
+
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
-                # print(f"NavPane:on_tree_node_selected(): {grandparent_data}/{parent_data}/{leaf_data}")
 
-                # Existing Monero deployment
+                print(
+                    f"NavPane:on_tree_node_selected(): %s/%s/%s"
+                    % (grandparent_data, parent_data, leaf_data)
+                )
+
+                ## Local deployment logfiles
+                # Monero
                 if grandparent_data == DLabel.MONEROD_SHORT:
                     monerod = self.depl_db.get_deployment(
                         elem_type=DElem.MONEROD, instance=parent_data
                     )
-                    # View log file
-                    if leaf_data == DLabel.LOG_FILE:
+                    if leaf_data == DLabel.LOG_FILE:  # Log file nav item
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
-                            DField.TO_MODULE: DModule.OPS_MGR,
+                            DField.TO_MODULE: DModule.NAV_HANDLER,
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: monerod,
                         }

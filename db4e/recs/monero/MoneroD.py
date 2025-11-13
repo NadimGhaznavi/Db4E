@@ -118,7 +118,7 @@ class MoneroD(LocalMonero):
 
     def in_peers(self, in_peers=None):
         if in_peers is not None:
-            self._in_peers = in_peers
+            self._in_peers = int(in_peers)
         return self._in_peers
 
     def ip_addr(self, ip_addr=None):
@@ -128,7 +128,7 @@ class MoneroD(LocalMonero):
 
     def log_level(self, log_level=None):
         if log_level is not None:
-            self._log_level = log_level
+            self._log_level = int(log_level)
         return self._log_level
 
     def log_file(self, log_file=None):
@@ -138,22 +138,22 @@ class MoneroD(LocalMonero):
 
     def max_log_files(self, max_log_files=None):
         if max_log_files is not None:
-            self._max_log_files = max_log_files
+            self._max_log_files = int(max_log_files)
         return self._max_log_files
 
     def max_log_size(self, max_log_size=None):
         if max_log_size is not None:
-            self._max_log_size = max_log_size
+            self._max_log_size = int(max_log_size)
         return self._max_log_size
 
     def out_peers(self, out_peers=None):
         if out_peers is not None:
-            self._out_peers = out_peers
+            self._out_peers = int(out_peers)
         return self._out_peers
 
     def p2p_bind_port(self, p2p_bind_port=None):
         if p2p_bind_port is not None:
-            self._p2p_bind_port = p2p_bind_port
+            self._p2p_bind_port = int(p2p_bind_port)
         return self._p2p_bind_port
 
     def priority_node_1(self, priority_node_1=None):
@@ -163,7 +163,7 @@ class MoneroD(LocalMonero):
 
     def priority_port_1(self, priority_port_1=None):
         if priority_port_1 is not None:
-            self._priority_port_1 = priority_port_1
+            self._priority_port_1 = int(priority_port_1)
         return self._priority_port_1
 
     def priority_node_2(self, priority_node_2=None):
@@ -173,17 +173,17 @@ class MoneroD(LocalMonero):
 
     def priority_port_2(self, priority_port_2=None):
         if priority_port_2 is not None:
-            self._priority_port_2 = priority_port_2
+            self._priority_port_2 = int(priority_port_2)
         return self._priority_port_2
 
     def rpc_bind_port(self, rpc_bind_port=None):
         if rpc_bind_port is not None:
-            self._rpc_bind_port = rpc_bind_port
+            self._rpc_bind_port = int(rpc_bind_port)
         return self._rpc_bind_port
 
     def show_time_stats(self, show_time_stats=None):
         if show_time_stats is not None:
-            self._show_time_stats = show_time_stats
+            self._show_time_stats = int(show_time_stats)
         return self._show_time_stats
 
     def stdin_path(self, stdin_path=None):
@@ -193,17 +193,17 @@ class MoneroD(LocalMonero):
 
     def version(self, version=None):
         if version is not None:
-            self._version = version
+            self._version = str(version)
         return self._version
 
     def zmq_pub_port(self, zmq_pub_port=None):
         if zmq_pub_port is not None:
-            self._zmq_pub_port = zmq_pub_port
+            self._zmq_pub_port = int(zmq_pub_port)
         return self._zmq_pub_port
 
     def zmq_rpc_port(self, zmq_rpc_port=None):
         if zmq_rpc_port is not None:
-            self._zmq_rpc_port = zmq_rpc_port
+            self._zmq_rpc_port = int(zmq_rpc_port)
         return self._zmq_rpc_port
 
     # Generate the startup config file

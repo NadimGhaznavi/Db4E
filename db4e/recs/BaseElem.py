@@ -15,16 +15,17 @@ from db4e.constants.DSQL import DCol
 class BaseElem:
     def __init__(self, rec=None):
         self._id = None
+        if rec is not None:
+            self.from_rec(rec)
 
     def __repr__(self):
         return self.elem_type()
 
     def from_rec(self, rec):
-        if DCol.ID in rec:
-            self._id = rec[DCol.ID]
+        self._id = rec[DCol.ID]
 
     def to_dict(self):
-        return {}
+        return {DCol.ID: self._id}
 
     def elem_type(self):
         return type(self).__name__

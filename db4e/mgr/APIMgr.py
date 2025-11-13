@@ -56,6 +56,20 @@ class APIMgr:
         logging.config.dictConfig(self.log_config())
         self.log = logging.getLogger("uvicorn.error")
 
+    def factory(self, table_name, elem_rec):
+        depl_obj = None
+        if table_name == DTable.MONEROD:
+            depl_obj = MoneroD(elem_rec)
+        elif table_name == DTable.MONEROD_REMOTE:
+            depl_obj = MoneroDRemote(elem_rec)
+        elif table_name == DTable.P2POOL:
+            depl_obj = P2Pool(elem_rec)
+        elif table_name == DTable.P2POOL_REMOTE:
+            depl_obj = P2PoolRemote(elem_rec)
+        elif table_name == DTable.XMRIG:
+            depl_obj = XMRig(elem_rec)
+        return depl_obj
+
     def log_config(self):
         # Configure the log file
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -107,26 +121,41 @@ class APIMgr:
             payload = await request.json()
             table_name = payload.get(DSync.TABLE_NAME)
             elem_rec = payload.get(DSync.ELEMENT)
-
-            self.log.info(
-                f"Received new deployment request: {table_name} -- {elem_rec}"
-            )
-
             if table_name not in ELEM_TABLE_LIST:
                 raise HTTPException(status_code=400, detail="Invalid deployment type")
-
-            depl_obj = None
-            if table_name == DTable.MONEROD:
-                depl_obj = MoneroD(elem_rec)
-            elif table_name == DTable.MONEROD_REMOTE:
-                depl_obj = MoneroDRemote(elem_rec)
-            elif table_name == DTable.P2POOL:
-                depl_obj = P2Pool(elem_rec)
-            elif table_name == DTable.P2POOL_REMOTE:
-                depl_obj = P2PoolRemote(elem_rec)
-            elif table_name == DTable.XMRIG:
-                depl_obj = XMRig(elem_rec)
-
+            depl_obj = self.factory(table_name=table_name, elem_rec=elem_rec)
+            self.log.info(
+                f"Received new deployment request: {table_name}/{depl_obj.instance()}"
+            )
             self.depl_mgr.add_deployment(depl_obj)
 
-            return {"message": "New deployment request accepted"}
+        # Delete deployment request
+        @self.app.delete("/delete/{table_name}")
+        async def delete_deployment(table_name: str, request: Request):
+            """
+            Process a delete deployment request.
+            """
+            payload = await request.json()
+            table_name = payload.get(DSync.TABLE_NAME)
+            elem = payload.get(DSync.ELEMENT)
+            if table_name not in ELEM_TABLE_LIST:
+                raise HTTPException(status_code=400, detail="Invalid deployment type")
+            self.log.info(f"Received delete deployment request: {elem}")
+            self.depl_mgr.delete_deployment(elem)
+
+        # Update deployment request
+        @self.app.post("/update/{table_name}")
+        async def update_deployment(table_name: str, request: Request):
+            """
+            Process an update deployment request.
+            """
+            payload = await request.json()
+            table_name = payload.get(DSync.TABLE_NAME)
+            elem_rec = payload.get(DSync.ELEMENT)
+            if table_name not in ELEM_TABLE_LIST:
+                raise HTTPException(status_code=400, detail="Invalid deployment type")
+            depl_obj = self.factory(table_name=table_name, elem_rec=elem_rec)
+            self.log.info(
+                f"Received update deployment request: {table_name}/{elem_rec}"
+            )
+            self.depl_mgr.update_deployment(depl_obj)

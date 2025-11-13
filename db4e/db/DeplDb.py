@@ -30,6 +30,8 @@ from db4e.db.SQLDb import SQLDb
 
 # Constants
 from db4e.constants.DDef import DDef
+from db4e.constants.DField import DField
+
 
 # Base domain DB module
 from db4e.db.BaseDb import (
@@ -98,16 +100,16 @@ class DeplDb(BaseDb):
         object_list = []
         for table in ELEM_TABLE_LIST:
             for rec in self.sql_db.find_many(table=table):
-                new_obj = TABLE_TO_CLASS_MAP[table](rec)
+                new_obj = TABLE_TO_CLASS_MAP[table](rec=rec)
                 object_list.append(new_obj)
         return object_list
 
     def get_deployment_by_id(self, elem_type: str, id: str):
         self.check_initialized()
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
-        rec_list = self.sql_db.execute_query(
-            f"SELECT * FROM {table} WHERE instance=?", (id,)
-        )
+        rec_list = self.sql_db.execute_query(f"SELECT * FROM {table} WHERE id=?", (id,))
+        print(f"DeplDb:get_deployment_by_id()")
+        print(f"SELECT * FROM {table} WHERE id=?", (id,))
         rec = rec_list[0] if rec_list else None
         object = None
         if rec:
@@ -127,9 +129,7 @@ class DeplDb(BaseDb):
 
         return object_list
 
-    def get_deployment_ids_and_instances(self, elem_type):
-        instance_map = {}
-        table = CLASS_STR_TO_TABLE_MAP[elem_type]
+    def get_deployment_ids_and_instances(self, table):
         recs = self.sql_db.find_many(table=table)
 
         # Flag if the upstream element is local or remote
@@ -138,6 +138,7 @@ class DeplDb(BaseDb):
         elif table == DTable.MONEROD_REMOTE or table == DTable.P2POOL_REMOTE:
             remote_flag = 1
 
+        instance_map = {}
         for rec in recs:
             instance = rec[DCol.INSTANCE]
             instance_map[instance] = (rec[DCol.ID], remote_flag)

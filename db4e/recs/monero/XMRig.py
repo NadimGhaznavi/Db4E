@@ -109,32 +109,32 @@ class XMRig(LocalMonero):
 
     def max_log_files(self, max_log_files=None):
         if max_log_files is not None:
-            self._max_log_files = max_log_files
+            self._max_log_files = int(max_log_files)
         return self._max_log_files
 
     def max_log_size(self, max_log_size=None):
         if max_log_size is not None:
-            self._max_log_size = max_log_size
+            self._max_log_size = int(max_log_size)
         return self._max_log_size
 
     def num_threads(self, num_threads=None):
         if num_threads is not None:
-            self._num_threads = num_threads
+            self._num_threads = int(num_threads)
         return self._num_threads
 
     def parent(self, parent=None):
         if parent is not None:
-            self._parent = parent
+            self._parent = int(parent)
         return self._parent
 
     def parent_remote(self, parent_remote=None):
         if parent_remote is not None:
-            self._parent_remote = parent_remote
+            self._parent_remote = int(parent_remote)
         return self._parent_remote
 
     def version(self, version=None):
         if version is not None:
-            self._version = version
+            self._version = str(version)
         return self._version
 
     # Generate the XMRig startup config file

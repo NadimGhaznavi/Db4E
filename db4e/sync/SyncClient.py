@@ -80,8 +80,11 @@ class SyncClient:
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
         depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
 
-        # Check that the form data is complete and there's no instance using that
-        # name already.
+        # Check if an instance with the same name already exists
+        if self.fc.instance_exists(depl_obj):
+            return self.ops_db.get_tui_log()
+
+        # Check that the form data is complete
         if not self.fc.valid(depl_obj):
             return self.ops_db.get_tui_log()
 
@@ -91,6 +94,73 @@ class SyncClient:
         }
         url = f"{self.server_url}/add/{depl_table}"
 
+        return await self._send_request(
+            depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
+        )
+
+    async def delete_deployment(self, depl_request):
+        """Send a "create new deployment" request to the sync server."""
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
+
+        payload = {
+            DSync.TABLE_NAME: depl_table,
+            DSync.ELEMENT: depl_obj.to_dict(),
+        }
+        url = f"{self.server_url}/delete/{depl_table}"
+
+        return await self._send_request(
+            depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
+        )
+
+    async def start(self):
+        if not self._task:
+            self._task = asyncio.create_task(self._sync_loop())
+
+    async def stop(self):
+        self._running = False
+        if self._task:
+            await self._task
+            self._task = None
+
+    async def sync_table(self, table_name: str, since_ts: int = 0, limit: int = 1000):
+        url = f"{self.server_url}/sync/{table_name}?since={since_ts}&limit={limit}"
+        # url = f"{self.server_url}/sync/{table_name}?since=0"
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                payload = resp.json()
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            print(f"[SyncClient] Failed to sync {table_name}: {e}")
+            return {}
+        rows = payload.get("rows", [])
+        for row in rows:
+            self._merge_row(table_name, row)
+        return payload
+
+    async def update_deployment(self, depl_request):
+        """Send a "update deployment" request to the sync server."""
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
+
+        # Check that the form data is complete
+        if not self.fc.valid(depl_obj):
+            return self.ops_db.get_tui_log()
+
+        payload = {
+            DSync.TABLE_NAME: depl_table,
+            DSync.ELEMENT: depl_obj.to_dict(),
+        }
+        url = f"{self.server_url}/update/{depl_table}"
+
+        return await self._send_request(
+            depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
+        )
+
+    async def _send_request(self, depl_table, depl_obj, url, payload):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(url, json=payload)
@@ -110,22 +180,6 @@ class SyncClient:
             )
             return self.ops_db.get_tui_log()
 
-    async def sync_table(self, table_name: str, since_ts: int = 0, limit: int = 1000):
-        url = f"{self.server_url}/sync/{table_name}?since={since_ts}&limit={limit}"
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                resp = await client.get(url)
-                resp.raise_for_status()
-                payload = resp.json()
-        except (httpx.RequestError, httpx.HTTPStatusError) as e:
-            print(f"[SyncClient] Failed to sync {table_name}: {e}")
-            return {}
-        rows = payload.get("rows", [])
-        for row in rows:
-            print(f"Syncing {table_name} row: {row}")
-            self._merge_row(table_name, row)
-        return payload
-
     def _merge_row(self, table_name, row):
         """Insert or update a single row in the local DB."""
         # Don't include the generated updated_ts column
@@ -139,7 +193,8 @@ class SyncClient:
             ON CONFLICT(id) DO UPDATE SET {updates};
         """
         self.sql_db.execute_query(sql, tuple(row.values()))
-        self.sql_db.update_last_sync(table_name, int(time.time()))
+        max_updated_ts = self.sql_db.get_max_updated_ts(table_name)
+        self.sql_db.update_last_sync(table_name, max_updated_ts)
 
     async def _sync_loop(self):
         """Main sync scheduler loop."""
@@ -162,13 +217,3 @@ class SyncClient:
 
             # Sleep a bit before checking again
             await asyncio.sleep(1)
-
-    async def start(self):
-        if not self._task:
-            self._task = asyncio.create_task(self._sync_loop())
-
-    async def stop(self):
-        self._running = False
-        if self._task:
-            await self._task
-            self._task = None

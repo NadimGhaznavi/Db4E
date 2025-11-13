@@ -59,5 +59,5 @@ class P2PoolRemote(BaseMonero):
 
     def stratum_port(self, stratum_port=None):
         if stratum_port is not None:
-            self._stratum_port = stratum_port
+            self._stratum_port = int(stratum_port)
         return self._stratum_port

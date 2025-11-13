@@ -42,6 +42,7 @@ from db4e.constants.DStatus import DStatus
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DField import DField
+from db4e.constants.DSQL import DTable
 
 
 class Default:
@@ -397,12 +398,15 @@ class DeplMgr:
     def delete_deployment(self, elem):
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
+            # Delete filesystem artifacts
             config = elem.config_file()
             if os.path.exists(config):
                 os.remove(config)
             depl_dir = os.path.join(vendor_dir, DDir.MONEROD, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
+            # TODO update downstream; update their parent to -1
+
         elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
             config = elem.config_file()
             if os.path.exists(config):
@@ -421,6 +425,7 @@ class DeplMgr:
             depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
+
         self.depl_db.delete_deployment(elem)
         # Create a console log message
         self.ops_db.add_tui_log_line(
@@ -434,24 +439,24 @@ class DeplMgr:
     def update_db4e_deployment(self, new_db4e: Db4E):
         update_flag = False
         # The current record, we'll update this and write it back in
-        db4e = self.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
 
         # Updating user wallet
-        if db4e.user_wallet != new_db4e.user_wallet:
+        if db4e.user_wallet() != new_db4e.user_wallet():
             # Create a console log message
             self.ops_db.add_tui_log_line(
                 tracked_type=DElem.DB4E,
                 tracked_instance=DLabel.USER_WALLET,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated user wallet",
+                message=DLabel.USER_WALLET,
                 details=f"{db4e.user_wallet()[:6]}... > {new_db4e.user_wallet()[:6]}...",
             )
             db4e.user_wallet(new_db4e.user_wallet())
             update_flag = True
 
         # Updating vendor dir
-        if db4e.vendor_dir != new_db4e.vendor_dir:
+        if db4e.vendor_dir() != new_db4e.vendor_dir():
             if not db4e.vendor_dir():
                 update_flag = self.create_vendor_dir(
                     new_dir=new_db4e.vendor_dir(), db4e=db4e
@@ -467,14 +472,14 @@ class DeplMgr:
                 tracked_instance=DLabel.VENDOR_DIR,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated vendor dir",
+                message=DLabel.VENDOR_DIR,
                 details=f"{db4e.vendor_dir()} > {new_db4e.vendor_dir()}",
             )
             if update_flag:
                 db4e.vendor_dir(new_db4e.vendor_dir())
 
         # Updating the primary server
-        if db4e.primary_server != new_db4e.primary_server:
+        if db4e.primary_server() != new_db4e.primary_server():
             if db4e.primary_server() != DField.DISABLE:
                 old_instance = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=db4e.primary_server()
@@ -493,10 +498,27 @@ class DeplMgr:
                 tracked_instance=DLabel.PRIMARY_SERVER,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated primary server",
+                message=DLabel.PRIMARY_SERVER,
                 details=f"{old_instance} > {new_instance}",
             )
             update_flag = True
+
+        if db4e.primary_remote() != new_db4e.primary_remote():
+            if db4e.primary_remote():
+                old_instance = "remote"
+                new_instance = "local"
+            else:
+                old_instance = "local"
+                new_instance = "remote"
+            self.ops_db.add_tui_log(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.PRIMARY_REMOTE,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.PRIMARY_SERVER,
+                details=f"{old_instance} > {new_instance}",
+            )
+            db4e.primary_remote(new_db4e.primary_remote())
         # Update the database
         if update_flag:
             self.depl_db.update_one(db4e)
@@ -524,7 +546,7 @@ class DeplMgr:
     def update_monerod_deployment(self, new_monerod: MoneroD):
         # Flags to indicate if we're updaing the DB and/or the startup config
         update, update_config = False, False
-
+        # print(f"DeplMgr:update_monerod_deployment(): {new_monerod}")
         # Retrive the current/old deployment
         monerod = self.depl_db.get_deployment(DElem.MONEROD, new_monerod.instance())
         if not monerod:
@@ -545,184 +567,185 @@ class DeplMgr:
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated enabled flag",
+                message=DLabel.ENABLED_FLAG,
                 details=f"{monerod.enabled()} > {new_monerod.enabled()}",
             )
-            update, update_config = True, False
+            update = True
 
         # In Peers
-        if monerod.in_peers != new_monerod.in_peers:
+        print(f"{monerod.in_peers()} > {new_monerod.in_peers()}")
+        if monerod.in_peers() != new_monerod.in_peers():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated inbound max peers",
+                message=DLabel.IN_PEERS,
                 details=f"{monerod.in_peers()} > {new_monerod.in_peers()}",
             )
             monerod.in_peers(new_monerod.in_peers())
             update, update_config = True, True
 
         # Out Peers
-        if monerod.out_peers != new_monerod.out_peers:
+        if monerod.out_peers() != new_monerod.out_peers():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated outbound max peers",
+                message=DLabel.OUT_PEERS,
                 details=f"{monerod.out_peers()} > {new_monerod.out_peers()}",
             )
             monerod.out_peers(new_monerod.out_peers())
             update, update_config = True, True
 
         # P2P Bind Port
-        if monerod.p2p_bind_port != new_monerod.p2p_bind_port:
+        if monerod.p2p_bind_port() != new_monerod.p2p_bind_port():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated P2P bind port",
+                message=DLabel.P2P_BIND_PORT,
                 details=f"{monerod.p2p_bind_port()} > {new_monerod.p2p_bind_port()}",
             )
             monerod.p2p_bind_port(new_monerod.p2p_bind_port())
             update, update_config = True, True
 
         # RPC Bind Port
-        if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+        if monerod.rpc_bind_port() != new_monerod.rpc_bind_port():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated RPC bind port",
+                message=DLabel.RPC_BIND_PORT,
                 details=f"{monerod.rpc_bind_port()} > {new_monerod.rpc_bind_port()}",
             )
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
             update, update_config = True, True
 
         # ZMQ Pub Port
-        if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+        if monerod.zmq_pub_port() != new_monerod.zmq_pub_port():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated ZMQ pub port",
+                message=DLabel.ZMQ_PUB_PORT,
                 details=f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}",
             )
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
             update, update_config = True, True
 
         # ZMQ RPC Port
-        if monerod.zmq_rpc_port != new_monerod.zmq_rpc_port:
+        if monerod.zmq_rpc_port() != new_monerod.zmq_rpc_port():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated ZMQ RPC port",
+                message=DLabel.ZMQ_RPC_PORT,
                 details=f"{monerod.zmq_rpc_port()} > {new_monerod.zmq_rpc_port()}",
             )
             monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
             update, update_config = True, True
 
         # Log Level
-        if monerod.log_level != new_monerod.log_level:
+        if monerod.log_level() != new_monerod.log_level():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated log level",
+                message=DLabel.LOG_LEVEL,
                 details=f"{monerod.log_level()} > {new_monerod.log_level()}",
             )
             monerod.log_level(new_monerod.log_level())
             update, update_config = True, True
 
         # Max Log Files
-        if monerod.max_log_files != new_monerod.max_log_files:
+        if monerod.max_log_files() != new_monerod.max_log_files():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated max log files",
+                message=DLabel.MAX_LOG_FILES,
                 details=f"{monerod.max_log_files()} > {new_monerod.max_log_files()}",
             )
             monerod.max_log_files(new_monerod.max_log_files())
             update, update_config = True, True
 
         # Max Log Size
-        if monerod.max_log_size != new_monerod.max_log_size:
+        if monerod.max_log_size() != new_monerod.max_log_size():
             # Create console log line
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated max log size",
+                message=DLabel.MAX_LOG_SIZE,
                 details=f"{monerod.max_log_size()} > {new_monerod.max_log_size()}",
             )
             monerod.max_log_size(new_monerod.max_log_size())
             update, update_config = True, True
 
         # Priority Node 1 hostname
-        if monerod.priority_node_1 != new_monerod.priority_node_1:
+        if monerod.priority_node_1() != new_monerod.priority_node_1():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated priority node 1",
+                message=DLabel.PRIORITY_NODE_1,
                 details=f"{monerod.priority_node_1()} > {new_monerod.priority_node_1()}",
             )
             monerod.priority_node_1(new_monerod.priority_node_1())
             update, update_config = True, True
 
         # Priority Port 1
-        if monerod.priority_port_1 != new_monerod.priority_port_1:
+        if monerod.priority_port_1() != new_monerod.priority_port_1():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated priority port 1",
+                message=DLabel.PRIORITY_PORT_1,
                 details=f"{monerod.priority_port_1()} > {new_monerod.priority_port_1()}",
             )
             monerod.priority_port_1(new_monerod.priority_port_1())
             update, update_config = True, True
 
         # Priority Node 2 hostname
-        if monerod.priority_node_2 != new_monerod.priority_node_2:
+        if monerod.priority_node_2() != new_monerod.priority_node_2():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated priority node 2",
+                message=DLabel.PRIORITY_NODE_2,
                 details=f"{monerod.priority_node_2()} > {new_monerod.priority_node_2()}",
             )
             monerod.priority_node_2(new_monerod.priority_node_2())
             update, update_config = True, True
 
         # Priority Port 2
-        if monerod.priority_port_2 != new_monerod.priority_port_2:
+        if monerod.priority_port_2() != new_monerod.priority_port_2():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated priority port 2",
+                message=DLabel.PRIORITY_PORT_2,
                 details=f"{monerod.priority_port_2()} > {new_monerod.priority_port_2()}",
             )
             monerod.priority_port_2(new_monerod.priority_port_2())
@@ -741,7 +764,9 @@ class DeplMgr:
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote):
         update = False
-        monerod = self.get_deployment(DElem.MONEROD_REMOTE, new_monerod.instance())
+        monerod = self.depl_db.get_deployment(
+            DElem.MONEROD_REMOTE, new_monerod.instance()
+        )
         if not monerod:
             raise ValueError(
                 f"DeplMgr:update_monerod_remote_deployment(): "
@@ -750,39 +775,39 @@ class DeplMgr:
 
         ## Field-by-field comparison
         # IP Address
-        if monerod.ip_addr != new_monerod.ip_addr:
+        if monerod.ip_addr() != new_monerod.ip_addr():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD_REMOTE,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated IP address",
+                message=DLabel.IP_ADDR,
                 details=f"{monerod.ip_addr()} > {new_monerod.ip_addr()}",
             )
             monerod.ip_addr(new_monerod.ip_addr())
             update = True
 
         # RPC Bind Port
-        if monerod.rpc_bind_port != new_monerod.rpc_bind_port:
+        if monerod.rpc_bind_port() != new_monerod.rpc_bind_port():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD_REMOTE,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated RPC bind port",
+                message=DLabel.RPC_BIND_PORT,
                 details=f"{monerod.rpc_bind_port()} > {new_monerod.rpc_bind_port()}",
             )
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
             update = True
 
         # ZMQ Pub Port
-        if monerod.zmq_pub_port != new_monerod.zmq_pub_port:
+        if monerod.zmq_pub_port() != new_monerod.zmq_pub_port():
             self.ops_db.add_tui_log_line(
                 tracked_instance=monerod.instance(),
                 tracked_type=DElem.MONEROD_REMOTE,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated ZMQ pub port",
+                message=DLabel.ZMQ_PUB_PORT,
                 details=f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}",
             )
             monerod.zmq_pub_port(new_monerod.zmq_pub_port())
@@ -796,10 +821,10 @@ class DeplMgr:
         # Flags indicating what needs to be done at the end of the function
         update, update_config = False, False
         # Resolve which P2Pool type we're updating
-        if new_p2pool.elem_type() == DElem.P2POOL:
+        if type(new_p2pool) == P2Pool:
             p2pool = self.depl_db.get_deployment(DElem.P2POOL, new_p2pool.instance())
             p2pool_type = DElem.P2POOL
-        else:
+        elif type(new_p2pool) == P2PoolInternal:
             p2pool = self.depl_db.get_deployment(
                 DElem.P2POOL_INTERNAL, new_p2pool.instance()
             )
@@ -813,91 +838,98 @@ class DeplMgr:
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated enabled flag",
+                message=DLabel.ENABLED_FLAG,
                 details=f"{p2pool.enabled()} > {new_p2pool.enabled()}",
             )
             p2pool.enabled(new_p2pool.enabled())
             update = True
 
         # In Peers
-        if p2pool.in_peers != new_p2pool.in_peers:
+        if p2pool.in_peers() != new_p2pool.in_peers():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated max incoming peers",
+                message=DLabel.IN_PEERS,
                 details=f"{p2pool.in_peers()} > {new_p2pool.in_peers()}",
             )
             p2pool.in_peers(new_p2pool.in_peers())
             update_config, update = True, True
 
         # Out Peers
-        if p2pool.out_peers != new_p2pool.out_peers:
+        if p2pool.out_peers() != new_p2pool.out_peers():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated max outbound peers",
+                message=DLabel.OUT_PEERS,
                 details=f"{p2pool.out_peers()} > {new_p2pool.out_peers()}",
             )
             p2pool.out_peers(new_p2pool.out_peers())
             update_config, update = True, True
 
         # P2P Bind Port
-        if p2pool.p2p_port != new_p2pool.p2p_port:
+        if p2pool.p2p_port() != new_p2pool.p2p_port():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated P2P port",
+                message=DLabel.P2P_PORT,
                 details=f"{p2pool.p2p_port()} > {new_p2pool.p2p_port()}",
             )
             p2pool.p2p_port(new_p2pool.p2p_port())
             update_config, update = True, True
 
         # Stratum port
-        if p2pool.stratum_port != new_p2pool.stratum_port:
+        if p2pool.stratum_port() != new_p2pool.stratum_port():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated stratum port",
+                message=DLabel.STRATUM_PORT,
                 details=f"{p2pool.stratum_port()} > {new_p2pool.stratum_port()}",
             )
             p2pool.stratum_port(new_p2pool.stratum_port())
             update_config, update = True, True
 
         # Log level
-        if p2pool.log_level != new_p2pool.log_level:
+        if p2pool.log_level() != new_p2pool.log_level():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated log level",
+                message=DLabel.LOG_LEVEL,
                 details=f"{p2pool.log_level()} > {new_p2pool.log_level()}",
             )
             p2pool.log_level(new_p2pool.log_level())
             update_config, update = True, True
 
         # Upstream Monerod
-        if p2pool.parent != new_p2pool.parent:
+        print(f"Parent: {p2pool.parent()} > {new_p2pool.parent()}")
+        print(f"Remote: {p2pool.parent_remote()} > {new_p2pool.parent_remote()}")
+        if p2pool.parent() != new_p2pool.parent():
             if new_p2pool.parent() == DField.DISABLE:
+                old_monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD, id=p2pool.parent()
+                )
+                old_instance = old_monerod.instance()
                 self.ops_db.add_tui_log_line(
                     tracked_instance=p2pool.instance(),
                     tracked_type=p2pool_type,
                     status=DStatus.COMPLETE,
                     operation=DField.UPDATE,
-                    message="Updated upstream MoneroD",
-                    details=f"{p2pool.parent()} > DISABLE",
+                    message=f"Upstream {DLabel.MONEROD_SHORT}",
+                    details=f"{old_instance} > DISABLE",
                 )
+                p2pool.parent(DField.DISABLE)
                 update, update_config = True, False
             elif p2pool.parent() == DField.DISABLE:
-                new_monerod = self.get_deployment_by_id(
+                new_monerod = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=new_p2pool.parent()
                 )
                 new_instance = new_monerod.instance()
@@ -906,32 +938,64 @@ class DeplMgr:
                     tracked_type=p2pool_type,
                     status=DStatus.COMPLETE,
                     operation=DField.UPDATE,
-                    message="Updated upstream MoneroD",
+                    message=f"Upstream {DLabel.MONEROD_SHORT}",
                     details=f"DISABLE > {new_instance}",
                 )
+                p2pool.parent(new_p2pool.parent())
                 update, update_config = True, True
             else:
-                new_monerod = self.get_deployment_by_id(
+                new_monerod = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=new_p2pool.parent()
                 )
                 new_instance = new_monerod.instance()
-                monerod = self.get_deployment(DElem.MONEROD, p2pool.parent())
+                monerod = self.depl_db.get_deployment(DElem.MONEROD, p2pool.parent())
                 old_instance = monerod.instance()
                 self.ops_db.add_tui_log_line(
                     tracked_instance=p2pool.instance(),
                     tracked_type=p2pool_type,
                     status=DStatus.COMPLETE,
                     operation=DField.UPDATE,
-                    message="Updated upstream MoneroD",
+                    message=f"Upstream {DLabel.MONEROD_SHORT}",
                     details=f"{old_instance} > {new_instance}",
                 )
                 p2pool.parent(new_p2pool.parent())
                 update, update_config = True, True
 
+        # Upstream monerod has changed: local/remote...
+        if p2pool.parent_remote() != new_p2pool.parent_remote():
+            p2pool.parent_remote(new_p2pool.parent_remote())
+            old_monerod = self.depl_db.get_deployment_by_id(
+                elem_type=DElem.MONEROD, id=p2pool.parent()
+            )
+            old_instance = old_monerod.instance()
+            new_monerod = self.depl_db.get_deployment_by_id(
+                elem_type=DElem.MONEROD_REMOTE, id=p2pool.parent()
+            )
+            new_instance = new_monerod.instance()
+            self.ops_db.add_tui_log_line(
+                tracked_instance=p2pool.instance(),
+                tracked_type=p2pool_type,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=f"Upstream {DLabel.MONEROD_SHORT}",
+                details=f"{old_instance} > {new_instance}",
+            )
+            p2pool.parent_remote(new_p2pool.parent_remote())
+            update, update_config = True, True
+
         # Update the configuration file
         if update_config:
             vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
+            ## Get the upstream monero deployment
+            # Check if it's local or remote:
+            if p2pool.parent_remote():
+                elem_type = DElem.MONEROD_REMOTE
+            else:
+                elem_type = DElem.MONEROD
+            p2pool.monerod = self.depl_db.get_deployment_by_id(
+                elem_type=elem_type, id=p2pool.parent()
+            )
             p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         # Update the database
@@ -941,29 +1005,29 @@ class DeplMgr:
 
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
         update = False
-        p2pool = self.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
+        p2pool = self.depl_db.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
 
         # IP Address
-        if p2pool.ip_addr != new_p2pool.ip_addr:
+        if p2pool.ip_addr() != new_p2pool.ip_addr():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=DElem.P2POOL_REMOTE,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated IP/hostname",
+                message=DLabel.IP_ADDR,
                 details=f"{p2pool.ip_addr()} > {new_p2pool.ip_addr()}",
             )
             p2pool.ip_addr(new_p2pool.ip_addr())
             update = True
 
         # Stratum Port
-        if p2pool.stratum_port != new_p2pool.stratum_port:
+        if p2pool.stratum_port() != new_p2pool.stratum_port():
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=DElem.P2POOL_REMOTE,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated stratum port",
+                message=DLabel.STRATUM_PORT,
                 details=f"{p2pool.stratum_port()} > {new_p2pool.stratum_port()}",
             )
             p2pool.stratum_port(new_p2pool.stratum_port())
@@ -993,7 +1057,7 @@ class DeplMgr:
                     tracked_instance=DLabel.VENDOR_DIR,
                     status=DStatus.WARN,
                     operation=DField.UPDATE,
-                    message="Backed up vendor dir",
+                    message=f"Backed up {DLabel.VENDOR_DIR}",
                     details=f"{new_dir} > {backup_vendor_dir}",
                 )
             except (PermissionError, OSError) as e:
@@ -1017,7 +1081,7 @@ class DeplMgr:
                     tracked_instance=DLabel.VENDOR_DIR,
                     status=DStatus.COMPLETE,
                     operation=DField.UPDATE,
-                    message="Created vendor dir",
+                    message=f"Created {DLabel.VENDOR_DIR}",
                     details=f"{new_dir}",
                 )
             return update_flag
@@ -1030,7 +1094,7 @@ class DeplMgr:
                 tracked_instance=DLabel.VENDOR_DIR,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Moved vendor dir",
+                message=f"Moved {DLabel.VENDOR_DIR}",
                 details=f"{old_dir} > {new_dir}",
             )
 
@@ -1050,7 +1114,7 @@ class DeplMgr:
         update = False
         update_config = False
 
-        xmrig = self.get_deployment(DElem.XMRIG, new_xmrig.instance())
+        xmrig = self.depl_db.get_deployment(DElem.XMRIG, new_xmrig.instance())
 
         # Enabled/disable flag
         if xmrig.enabled() != new_xmrig.enabled():
@@ -1060,27 +1124,27 @@ class DeplMgr:
                 tracked_type=DElem.XMRIG,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated enabled flag",
+                message=DLabel.ENABLED_FLAG,
                 details=f"{xmrig.enabled()} > {new_xmrig.enabled()}",
             )
             xmrig.enabled(new_xmrig.enabled())
             update = True
 
         # Num Threads
-        if xmrig.num_threads != new_xmrig.num_threads:
+        if xmrig.num_threads() != new_xmrig.num_threads():
             self.ops_db.add_tui_log_line(
                 tracked_instance=xmrig.instance(),
                 tracked_type=DElem.XMRIG,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message="Updated number of threads",
+                message=DLabel.NUM_THREADS,
                 details=f"{xmrig.num_threads()} > {new_xmrig.num_threads()}",
             )
             xmrig.num_threads(new_xmrig.num_threads())
             update, update_config = True, True
 
         # Parent ID
-        if xmrig.parent != new_xmrig.parent:
+        if xmrig.parent() != new_xmrig.parent():
 
             # New XMRig's upstream P2Pool is unset
             if new_xmrig.parent() == DField.DISABLE:
@@ -1089,7 +1153,7 @@ class DeplMgr:
                     tracked_type=DElem.XMRIG,
                     status=DStatus.COMPLETE,
                     operation=DField.UPDATE,
-                    message="Updated upstream P2Pool",
+                    message=f"Upstream {DLabel.P2POOL_SHORT}",
                     details=f"{xmrig.parent()} > DISABLE",
                 )
                 xmrig.parent(DField.DISABLE)
@@ -1097,35 +1161,54 @@ class DeplMgr:
 
             # New XMRig has a valid upstream P2Pool instance
             elif xmrig.parent() == DField.DISABLE:
-                new_parent_instance = self.get_deployment_by_id(
+                new_parent_instance = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.P2POOL, id=new_xmrig.parent()
                 ).instance()
                 self.ops_db.add_tui_log_line(
                     tracked_instance=xmrig.instance(),
                     tracked_type=DElem.XMRIG,
                     status=DStatus.COMPLETE,
-                    message="Updated upstream P2Pool",
+                    message=f"Upstream {DLabel.P2POOL_SHORT}",
                     details=f"DISABLE > {new_parent_instance}",
                 )
                 xmrig.parent(new_xmrig.parent())
                 update, update_config = True, True
 
             else:
-                new_parent_instance = self.get_deployment_by_id(
+                new_parent_instance = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.P2POOL, id=new_xmrig.parent()
                 ).instance()
-                parent_instance = self.get_deployment_by_id(
+                parent_instance = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.P2POOL, id=xmrig.parent()
                 ).instance()
                 self.ops_db.add_tui_log_line(
                     tracked_instance=xmrig.instance(),
                     tracked_type=DElem.XMRIG,
                     status=DStatus.COMPLETE,
-                    message="Updated upstream P2Pool",
+                    message=f"Upstream {DLabel.P2POOL_SHORT}",
                     details=f"{parent_instance} > {new_parent_instance}",
                 )
                 xmrig.parent(new_xmrig.parent())
                 update, update_config = True, True
+
+        # Remote parent
+        if xmrig.parent_remote() != new_xmrig.parent_remote():
+            if xmrig.parent_remote():
+                old_instance = "remote"
+                new_instance = "local"
+            else:
+                old_instance = "local"
+                new_instance = "remote"
+            self.ops_db.add_tui_log_line(
+                tracked_instance=xmrig.instance(),
+                tracked_type=DElem.XMRIG,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=f"Upstream {DLabel.P2POOL_SHORT}",
+                details=f"{old_instance} > {new_instance}",
+            )
+            xmrig.parent_remote(new_xmrig.parent_remote())
+            update, update_config = True, True
 
         # Regenerate config if required
         if update_config:

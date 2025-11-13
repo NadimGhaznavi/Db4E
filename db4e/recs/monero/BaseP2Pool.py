@@ -38,7 +38,7 @@ class BaseP2Pool(LocalMonero):
         self._out_peers = DDef.OUT_PEERS
         self._p2p_port = DDef.P2P_PORT
         self._parent = DField.DISABLE
-        self._parent_remote = ""
+        self._parent_remote = DField.DISABLE
         self._stdin_path = ""
         self._stratum_port = DDef.STRATUM_PORT
         self._user_wallet = ""
@@ -125,7 +125,7 @@ class BaseP2Pool(LocalMonero):
 
     def in_peers(self, in_peers=None):
         if in_peers is not None:
-            self._in_peers = in_peers
+            self._in_peers = int(in_peers)
         return self._in_peers
 
     def ip_addr(self, ip_addr=None):
@@ -145,37 +145,37 @@ class BaseP2Pool(LocalMonero):
 
     def max_log_files(self, max_log_files=None):
         if max_log_files is not None:
-            self._max_log_files = max_log_files
+            self._max_log_files = int(max_log_files)
         return self._max_log_files
 
     def max_log_size(self, max_log_size=None):
         if max_log_size is not None:
-            self._max_log_size = max_log_size
+            self._max_log_size = int(max_log_size)
         return self._max_log_size
 
     def log_level(self, log_level=None):
         if log_level is not None:
-            self._log_level = log_level
+            self._log_level = int(log_level)
         return self._log_level
 
     def out_peers(self, out_peers=None):
         if out_peers is not None:
-            self._out_peers = out_peers
+            self._out_peers = int(out_peers)
         return self._out_peers
 
     def p2p_port(self, p2p_port=None):
         if p2p_port is not None:
-            self._p2p_port = p2p_port
+            self._p2p_port = int(p2p_port)
         return self._p2p_port
 
     def parent(self, parent=None):
         if parent is not None:
-            self._parent = parent
+            self._parent = int(parent)
         return self._parent
 
     def parent_remote(self, parent_remote=None):
         if parent_remote is not None:
-            self._parent_remote = parent_remote
+            self._parent_remote = int(parent_remote)
         return self._parent_remote
 
     def stdin_path(self, stdin_path=None):
@@ -185,7 +185,7 @@ class BaseP2Pool(LocalMonero):
 
     def stratum_port(self, stratum_port=None):
         if stratum_port is not None:
-            self._stratum_port = stratum_port
+            self._stratum_port = int(stratum_port)
         return self._stratum_port
 
     def user_wallet(self, user_wallet=None):
@@ -195,7 +195,7 @@ class BaseP2Pool(LocalMonero):
 
     def version(self, version=None):
         if version is not None:
-            self._version = version
+            self._version = str(version)
         return self._version
 
     # Generate the P2Pool startup config file

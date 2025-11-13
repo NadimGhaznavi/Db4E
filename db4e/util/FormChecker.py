@@ -30,37 +30,7 @@ class FormChecker:
         self.depl_db = depl_db
 
     def valid(self, depl_obj):
-        depl_instance = depl_obj.instance()
         depl_class = type(depl_obj)
-
-        # Check if an instance of the same basic type already exists
-        instance_exists = False
-        if depl_class == MoneroD or depl_class == MoneroDRemote:
-            if self.depl_db.get_deployment(DElem.MONEROD, depl_instance):
-                instance_exists = True
-            elif self.depl_db.get_deployment(DElem.MONEROD_REMOTE, depl_instance):
-                instance_exists = True
-        elif depl_class == P2Pool or depl_class == P2PoolRemote:
-            if self.depl_db.get_deployment(DElem.P2POOL, depl_instance):
-                instance_exists = True
-            elif self.depl_db.get_deployment(DElem.P2POOL_REMOTE, depl_instance):
-                instance_exists = True
-        elif depl_class == XMRig:
-            if self.depl_db.get_deployment(DElem.XMRIG, depl_instance):
-                instance_exists = True
-            elif self.depl_db.get_deployment(DElem.XMRIG_REMOTE, depl_instance):
-                instance_exists = True
-
-        # If an instance of the same class exists, write to the console log.
-        if instance_exists:
-            self.ops_db.add_tui_log_line(
-                tracked_instance=depl_obj.instance(),
-                tracked_type=depl_obj.elem_type().lower(),
-                status=DStatus.ERROR,
-                operation=DField.NEW,
-                message="A deployment with the same name exists",
-            )
-            return False
 
         # Make sure we have all the required fields
         if depl_class == Db4E:
@@ -140,7 +110,7 @@ class FormChecker:
         valid_flag = True
         for label, method in required_fields:
             value = method()
-            if not value:
+            if value is None:
                 self.ops_db.add_tui_log_line(
                     tracked_instance=obj.instance(),
                     tracked_type=obj.elem_type().lower(),
@@ -151,3 +121,36 @@ class FormChecker:
                 )
                 valid_flag = False
         return valid_flag
+
+    def instance_exists(self, depl_obj) -> bool:
+        depl_instance = depl_obj.instance()
+        depl_class = type(depl_obj)
+
+        # Check if an instance of the same basic type already exists
+        instance_exists = False
+        if depl_class == MoneroD or depl_class == MoneroDRemote:
+            if self.depl_db.get_deployment(DElem.MONEROD, depl_instance):
+                instance_exists = True
+            elif self.depl_db.get_deployment(DElem.MONEROD_REMOTE, depl_instance):
+                instance_exists = True
+        elif depl_class == P2Pool or depl_class == P2PoolRemote:
+            if self.depl_db.get_deployment(DElem.P2POOL, depl_instance):
+                instance_exists = True
+            elif self.depl_db.get_deployment(DElem.P2POOL_REMOTE, depl_instance):
+                instance_exists = True
+        elif depl_class == XMRig:
+            if self.depl_db.get_deployment(DElem.XMRIG, depl_instance):
+                instance_exists = True
+            elif self.depl_db.get_deployment(DElem.XMRIG_REMOTE, depl_instance):
+                instance_exists = True
+
+        # If an instance of the same class exists, write to the console log.
+        if instance_exists:
+            self.ops_db.add_tui_log_line(
+                tracked_instance=depl_obj.instance(),
+                tracked_type=depl_obj.elem_type().lower(),
+                status=DStatus.ERROR,
+                operation=DField.NEW,
+                message="A deployment with the same name exists",
+            )
+            return False
