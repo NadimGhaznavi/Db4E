@@ -485,13 +485,13 @@ class DeplMgr:
                     elem_type=DElem.MONEROD, id=db4e.primary_server()
                 ).instance()
             else:
-                old_instance = "None"
+                old_instance = "DISABLE"
             if new_db4e.primary_server() != DField.DISABLE:
                 new_instance = self.depl_db.get_deployment_by_id(
                     elem_type=DElem.MONEROD, id=new_db4e.primary_server()
                 ).instance()
             else:
-                new_instance = "None"
+                new_instance = "DISABLE"
             db4e.primary_server(new_db4e.primary_server())
             self.ops_db.add_tui_log_line(
                 tracked_type=DElem.DB4E,
@@ -505,12 +505,26 @@ class DeplMgr:
 
         if db4e.primary_remote() != new_db4e.primary_remote():
             if db4e.primary_remote():
-                old_instance = "remote"
-                new_instance = "local"
+                old_monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD_REMOTE, id=db4e.primary_server()
+                )
             else:
-                old_instance = "local"
-                new_instance = "remote"
-            self.ops_db.add_tui_log(
+                old_monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD, id=db4e.primary_server()
+                )
+            old_instance = old_monerod.instance()
+
+            if new_db4e.primary_remote():
+                new_monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD_REMOTE, id=new_db4e.primary_server()
+                )
+            else:
+                new_monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD, id=new_db4e.primary_server()
+                )
+            new_instance = new_monerod.instance()
+            # Create a console log line
+            self.ops_db.add_tui_log_line(
                 tracked_type=DElem.DB4E,
                 tracked_instance=DLabel.PRIMARY_REMOTE,
                 status=DStatus.COMPLETE,
@@ -519,6 +533,8 @@ class DeplMgr:
                 details=f"{old_instance} > {new_instance}",
             )
             db4e.primary_remote(new_db4e.primary_remote())
+            update_flag = True
+
         # Update the database
         if update_flag:
             self.depl_db.update_one(db4e)

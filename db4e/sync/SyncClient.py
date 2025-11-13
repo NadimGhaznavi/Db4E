@@ -16,7 +16,7 @@ import asyncio
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
-from db4e.db.BaseDb import CLASS_STR_TO_TABLE_MAP
+from db4e.db.BaseDb import CLASS_TO_TABLE_MAP, CLASS_STR_TO_TABLE_MAP
 
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.FormChecker import FormChecker
@@ -143,8 +143,7 @@ class SyncClient:
     async def update_deployment(self, depl_request):
         """Send a "update deployment" request to the sync server."""
         depl_obj = depl_request.get(DField.ELEMENT)
-        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
-        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
+        depl_table = CLASS_TO_TABLE_MAP[type(depl_obj)]
 
         # Check that the form data is complete
         if not self.fc.valid(depl_obj):

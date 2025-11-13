@@ -18,6 +18,7 @@ import logging
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
 
+from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
@@ -58,6 +59,8 @@ class APIMgr:
 
     def factory(self, table_name, elem_rec):
         depl_obj = None
+        if table_name == DTable.DB4E:
+            depl_obj = Db4E(elem_rec)
         if table_name == DTable.MONEROD:
             depl_obj = MoneroD(elem_rec)
         elif table_name == DTable.MONEROD_REMOTE:
