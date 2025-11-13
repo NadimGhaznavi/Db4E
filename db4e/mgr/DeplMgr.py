@@ -1191,20 +1191,32 @@ class DeplMgr:
                 xmrig.parent(new_xmrig.parent())
                 update, update_config = True, True
 
-        # Remote parent
+        # Upstream P2pool has changed from local to local or vice-versa
         if xmrig.parent_remote() != new_xmrig.parent_remote():
-            if xmrig.parent_remote():
-                old_instance = "remote"
-                new_instance = "local"
+            if new_xmrig.parent_remote():
+                new_p2pool_type = DElem.P2POOL_REMOTE
             else:
-                old_instance = "local"
-                new_instance = "remote"
+                new_p2pool_type = DElem.P2POOL
+            new_p2pool = self.depl_db.get_deployment_by_id(
+                elem_type=new_p2pool_type, id=new_xmrig.parent()
+            )
+            new_instance = new_p2pool.instance()
+
+            if xmrig.parent_remote():
+                old_p2pool_type = DElem.P2POOL_REMOTE
+            else:
+                old_p2pool_type = DElem.P2POOL
+            old_p2pool = self.depl_db.get_deployment_by_id(
+                elem_type=old_p2pool_type, id=xmrig.parent()
+            )
+            old_instance = old_p2pool.instance()
+
             self.ops_db.add_tui_log_line(
                 tracked_instance=xmrig.instance(),
-                tracked_type=DElem.XMRIG,
+                tracked_type=DElem.P2POOL,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message=f"Upstream {DLabel.P2POOL_SHORT}",
+                message=f"Upstream {DLabel.MONEROD_SHORT}",
                 details=f"{old_instance} > {new_instance}",
             )
             xmrig.parent_remote(new_xmrig.parent_remote())

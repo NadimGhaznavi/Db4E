@@ -150,7 +150,7 @@ class XMRig(LocalMonero):
         )
 
         # Generate a URL:Port field for the config
-        url_entry = self.p2pool.ip_addr() + ":" + self.p2pool.stratum_port()
+        url_entry = self.p2pool.ip_addr() + ":" + str(self.p2pool.stratum_port())
 
         # Populate the config templace placeholders
         placeholders = {
