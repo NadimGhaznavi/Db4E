@@ -111,9 +111,11 @@ class DeplDb(BaseDb):
         print(f"DeplDb:get_deployment_by_id()")
         print(f"SELECT * FROM {table} WHERE id=?", (id,))
         rec = rec_list[0] if rec_list else None
+        print(f"rec: {rec}")
         object = None
         if rec:
             object = CLASS_STR_TO_CLASS_MAP[elem_type](rec)
+            print(f"object: {object}")
             return object
         else:
             return None

@@ -1216,7 +1216,7 @@ class DeplMgr:
                 tracked_type=DElem.P2POOL,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
-                message=f"Upstream {DLabel.MONEROD_SHORT}",
+                message=f"Upstream {DLabel.P2POOL_SHORT}",
                 details=f"{old_instance} > {new_instance}",
             )
             xmrig.parent_remote(new_xmrig.parent_remote())
@@ -1226,6 +1226,15 @@ class DeplMgr:
         if update_config:
             vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.XMRIG)
+            if xmrig.parent() != DField.DISABLE:
+                if xmrig.parent_remote():
+                    xmrig.p2pool = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL_REMOTE, id=xmrig.parent()
+                    )
+                else:
+                    xmrig.p2pool = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL, id=xmrig.parent()
+                    )
             xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
         if update:
