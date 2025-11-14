@@ -587,7 +587,7 @@ class Db4eServer:
         """Entry point for starting the async event loop."""
         asyncio.run(self.run_all())
 
-    def start_log_watcher(self, p2pool, stop_event):
+    async def start_log_watcher(self, p2pool, stop_event):
         instance = p2pool.instance()
         # User defined, local P2Pool instance
         if type(p2pool) == P2Pool:
@@ -618,7 +618,7 @@ class Db4eServer:
                 f"spawn_log_watcher(): Unknown deployment type: {type(p2pool)}"
             )
 
-        watcher.monitor_log()
+        await watcher.monitor_log()
         self.log.info(f"Started {p2pool} watcher")
         self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
 

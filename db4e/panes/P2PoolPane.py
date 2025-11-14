@@ -156,11 +156,17 @@ class P2PoolPane(Container):
         self.radio_button_list = list(self.instance_map.keys())
 
         # Chain radio buttons
+        chains = {
+            DField.MAIN_CHAIN: DLabel.MAIN_CHAIN_LONG,
+            DField.MINI_CHAIN: DLabel.MINI_CHAIN_LONG,
+            DField.NANO_CHAIN: DLabel.NANO_CHAIN_LONG,
+        }
+
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
         for child in list(chain_radio_set.children):
             child.remove()
-        for chain in [DField.MAIN_CHAIN, DField.MINI_CHAIN, DField.NANO_CHAIN]:
-            rb = RadioButton(chain, classes=DForm.RADIO_BUTTON_TYPE)
+        for chain in chains.keys():
+            rb = RadioButton(chains[chain], classes=DForm.RADIO_BUTTON_TYPE)
             if p2pool.chain() == chain:
                 rb.value = True
             chain_radio_set.mount(rb)

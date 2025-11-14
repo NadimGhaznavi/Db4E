@@ -122,12 +122,21 @@ class Db4EPane(Container):
         )
 
         # Create the Monerod radio buttons
-        self.instance_map = db4e.instance_map()
-        self.instance_map[DLabel.DISABLE] = (DField.DISABLE, DField.DISABLE)
-        instance_list = []
+        primary_server_radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
+        for child in list(primary_server_radio_set.children):
+            child.remove()
         for instance in db4e.instance_map().keys():
-            instance_list.append(instance)
-        self.radio_button_list = instance_list
+            rb = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
+            primary_server, primary_remote = db4e.instance_map()[instance]
+            if (
+                db4e.primary_server() == primary_server
+                and db4e.primary_remote() == primary_remote
+            ):
+                rb.value = True
+            primary_server_radio_set.mount(rb)
+        primary_server_radio_set.mount(
+            RadioButton(DLabel.DISABLE, classes=DForm.RADIO_BUTTON_TYPE)
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
@@ -141,7 +150,7 @@ class Db4EPane(Container):
         if primary_instance == DLabel.DISABLE:
             self.db4e.primary_server(DField.DISABLE)
         else:
-            primary_id, remote_flag = self.instance_map[primary_instance]
+            primary_id, remote_flag = self.instance_map[str(primary_instance)]
             self.db4e.primary_server(primary_id)
             self.db4e.primary_remote(remote_flag)
 
