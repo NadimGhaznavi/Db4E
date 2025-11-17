@@ -125,32 +125,43 @@ class Db4EPane(Container):
         primary_server_radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         for child in list(primary_server_radio_set.children):
             child.remove()
-        for instance in db4e.instance_map().keys():
+        instance_map = db4e.instance_map()
+        instance_map[DLabel.DISABLE] = (
+            DField.DISABLE,
+            DField.DISABLE,
+        )
+        for instance in instance_map.keys():
             rb = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
             primary_server, primary_remote = db4e.instance_map()[instance]
+            print(f"instance_map: {db4e.instance_map()}")
+            print(f"db4e.primary_server(): {db4e.primary_server()} == {primary_server}")
+            print(f"db4e.primary_remote(): {db4e.primary_remote()} == {primary_remote}")
             if (
                 db4e.primary_server() == primary_server
                 and db4e.primary_remote() == primary_remote
             ):
                 rb.value = True
             primary_server_radio_set.mount(rb)
-        primary_server_radio_set.mount(
-            RadioButton(DLabel.DISABLE, classes=DForm.RADIO_BUTTON_TYPE)
-        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
+
         self.db4e.user_wallet(
             self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value
         )
+
         self.db4e.vendor_dir(self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value)
+
         primary_instance = self.query_one(
             f"#{DForm.RADIO_SET}", RadioSet
         ).pressed_button.label
+        print(f"instance_map: {self.db4e.instance_map}")
         if primary_instance == DLabel.DISABLE:
             self.db4e.primary_server(DField.DISABLE)
+            self.db4e.primary_remote(DField.DISABLE)
         else:
-            primary_id, remote_flag = self.instance_map[str(primary_instance)]
+            map = self.db4e.instance_map()
+            primary_id, remote_flag = map[str(primary_instance)]
             self.db4e.primary_server(primary_id)
             self.db4e.primary_remote(remote_flag)
 
