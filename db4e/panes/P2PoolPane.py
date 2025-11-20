@@ -30,6 +30,13 @@ class P2PoolPane(Container):
     instance_map = {}
     p2pool = None
 
+    # Chain radio buttons support
+    chains = {
+        DField.MAIN_CHAIN: DLabel.MAIN_CHAIN_LONG,
+        DField.MINI_CHAIN: DLabel.MINI_CHAIN_LONG,
+        DField.NANO_CHAIN: DLabel.NANO_CHAIN_LONG,
+    }
+
     def compose(self):
         yield Vertical(
             ScrollableContainer(
@@ -155,18 +162,11 @@ class P2PoolPane(Container):
         self.instance_map = p2pool.instance_map()
         self.radio_button_list = list(self.instance_map.keys())
 
-        # Chain radio buttons
-        chains = {
-            DField.MAIN_CHAIN: DLabel.MAIN_CHAIN_LONG,
-            DField.MINI_CHAIN: DLabel.MINI_CHAIN_LONG,
-            DField.NANO_CHAIN: DLabel.NANO_CHAIN_LONG,
-        }
-
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
         for child in list(chain_radio_set.children):
             child.remove()
-        for chain in chains.keys():
-            rb = RadioButton(chains[chain], classes=DForm.RADIO_BUTTON_TYPE)
+        for chain in self.chains.keys():
+            rb = RadioButton(self.chains[chain], classes=DForm.RADIO_BUTTON_TYPE)
             if p2pool.chain() == chain:
                 rb.value = True
             chain_radio_set.mount(rb)
@@ -209,14 +209,19 @@ class P2PoolPane(Container):
         self.p2pool.parent_remote(remote_flag)
 
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
-        chain = (
+        chain_label = (
             chain_radio_set.pressed_button.label
             if chain_radio_set.pressed_button
             else None
         )
 
+        selected_chain = ""
+        for aChain in self.chains.keys():
+            if self.chains[aChain] == chain_label:
+                selected_chain = aChain
+
         # Update p2pool object
-        self.p2pool.chain(str(chain))
+        self.p2pool.chain(selected_chain)
         self.p2pool.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
         self.p2pool.in_peers(self.query_one(f"#{DForm.IN_PEERS_INPUT}", Input).value)
         self.p2pool.out_peers(self.query_one(f"#{DForm.OUT_PEERS_INPUT}", Input).value)
