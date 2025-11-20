@@ -13,6 +13,7 @@ from textual.widgets import Label, Input, Button, RadioButton, RadioSet
 from textual.reactive import reactive
 
 from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.util.Helper import gen_results_table
 from db4e.constants.DElem import DElem
@@ -29,13 +30,6 @@ class P2PoolPane(Container):
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
     p2pool = None
-
-    # Chain radio buttons support
-    chains = {
-        DField.MAIN_CHAIN: DLabel.MAIN_CHAIN_LONG,
-        DField.MINI_CHAIN: DLabel.MINI_CHAIN_LONG,
-        DField.NANO_CHAIN: DLabel.NANO_CHAIN_LONG,
-    }
 
     def compose(self):
         yield Vertical(
@@ -165,8 +159,11 @@ class P2PoolPane(Container):
         chain_radio_set = self.query_one(f"#{DForm.CHAIN_RADIO_SET}", RadioSet)
         for child in list(chain_radio_set.children):
             child.remove()
-        for chain in self.chains.keys():
-            rb = RadioButton(self.chains[chain], classes=DForm.RADIO_BUTTON_TYPE)
+
+        for chain in CHAIN_TO_CHAIN_LABEL_MAP.keys():
+            rb = RadioButton(
+                CHAIN_TO_CHAIN_LABEL_MAP[chain], classes=DForm.RADIO_BUTTON_TYPE
+            )
             if p2pool.chain() == chain:
                 rb.value = True
             chain_radio_set.mount(rb)
@@ -216,8 +213,8 @@ class P2PoolPane(Container):
         )
 
         selected_chain = ""
-        for aChain in self.chains.keys():
-            if self.chains[aChain] == chain_label:
+        for aChain in CHAIN_TO_CHAIN_LABEL_MAP.keys():
+            if CHAIN_TO_CHAIN_LABEL_MAP[aChain] == chain_label:
                 selected_chain = aChain
 
         # Update p2pool object

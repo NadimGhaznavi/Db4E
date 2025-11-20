@@ -27,6 +27,7 @@ from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.XMRig import XMRig
 from db4e.recs.monero.XMRigRemote import XMRigRemote
 from db4e.util.Helper import sudo_del_file
@@ -1051,6 +1052,21 @@ class DeplMgr:
                 details=f"{old_instance} > {new_instance}",
             )
             p2pool.parent_remote(new_p2pool.parent_remote())
+            update, update_config = True, True
+
+        # Switching chains
+        if p2pool.chain() != new_p2pool.chain():
+            old_label = CHAIN_TO_CHAIN_LABEL_MAP[p2pool.chain()]
+            new_label = CHAIN_TO_CHAIN_LABEL_MAP[new_p2pool.chain()]
+            self.ops_db.add_tui_log_line(
+                tracked_instance=p2pool.instance(),
+                tracked_type=p2pool_type,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.CHAIN,
+                details=f"{old_label} > {new_label}",
+            )
+            p2pool.chain(new_p2pool.chain())
             update, update_config = True, True
 
         # Update the configuration file

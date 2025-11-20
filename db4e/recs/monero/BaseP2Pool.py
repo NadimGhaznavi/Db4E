@@ -18,6 +18,14 @@ from db4e.constants.DDef import DDef
 from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField
 from db4e.constants.DPlaceholder import DPlaceholder
+from db4e.constants.DLabel import DLabel
+
+
+CHAIN_TO_CHAIN_LABEL_MAP = {
+    DField.MAIN_CHAIN: DLabel.MAIN_CHAIN_LONG,
+    DField.MINI_CHAIN: DLabel.MINI_CHAIN_LONG,
+    DField.NANO_CHAIN: DLabel.NANO_CHAIN_LONG,
+}
 
 
 class BaseP2Pool(LocalMonero):
