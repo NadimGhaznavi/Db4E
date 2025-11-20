@@ -1282,6 +1282,7 @@ class DeplMgr:
                     tracked_instance=xmrig.instance(),
                     tracked_type=DElem.XMRIG,
                     status=DStatus.COMPLETE,
+                    operation=DField.UPDATE,
                     message=f"Upstream {DLabel.P2POOL_SHORT}",
                     details=f"{parent_instance} > {new_parent_instance}",
                 )
