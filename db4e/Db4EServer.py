@@ -107,7 +107,10 @@ class Db4eServer:
         self.depl_db = DeplDb(sql_db=self.sql_db, log_file=fq_log_file)
         # Deployment Manager
         self.depl_mgr = DeplMgr(
-            bs_mgr=self.bs_mgr, depl_db=self.depl_db, ops_db=self.ops_db
+            bs_mgr=self.bs_mgr,
+            depl_db=self.depl_db,
+            ops_db=self.ops_db,
+            sql_db=self.sql_db,
         )
 
         #  systemd wrapper

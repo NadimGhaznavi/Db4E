@@ -57,12 +57,13 @@ class Db4EPane(Container):
                     ),
                     Horizontal(
                         Label(DLabel.VENDOR_DIR, classes=DForm.FORM_LABEL),
-                        Input(
-                            id=DForm.VENDOR_DIR_INPUT,
-                            restrict=r"/[a-zA-Z0-9/_.\- ]*",
-                            compact=True,
-                            classes=DForm.INPUT_30,
-                        ),
+                        # Input(
+                        #    id=DForm.VENDOR_DIR_INPUT,
+                        #    restrict=r"/[a-zA-Z0-9/_.\- ]*",
+                        #    compact=True,
+                        #    classes=DForm.INPUT_30,
+                        # ),
+                        Label("", id=DForm.VENDOR_DIR_LABEL, classes=DForm.STATIC),
                     ),
                     Horizontal(
                         Label(DLabel.USER_WALLET, classes=DForm.FORM_LABEL),
@@ -115,7 +116,7 @@ class Db4EPane(Container):
         self.query_one(f"#{DForm.USER_NAME_LABEL}", Label).update(db4e.db4e_user())
         self.query_one(f"#{DForm.GROUP_NAME_LABEL}", Label).update(db4e.db4e_group())
         self.query_one(f"#{DForm.INSTALL_DIR_LABEL}", Label).update(db4e.install_dir())
-        self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value = db4e.vendor_dir()
+        self.query_one(f"#{DForm.VENDOR_DIR_LABEL}", Label).update(db4e.vendor_dir())
         self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = db4e.user_wallet()
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(db4e.pop_msgs())
@@ -150,12 +151,10 @@ class Db4EPane(Container):
             self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value
         )
 
-        self.db4e.vendor_dir(self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value)
-
         primary_instance = self.query_one(
             f"#{DForm.RADIO_SET}", RadioSet
         ).pressed_button.label
-        print(f"instance_map: {self.db4e.instance_map}")
+        # print(f"instance_map: {self.db4e.instance_map}")
         if primary_instance == DLabel.DISABLE:
             self.db4e.primary_server(DField.DISABLE)
             self.db4e.primary_remote(DField.DISABLE)

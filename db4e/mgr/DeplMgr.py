@@ -63,10 +63,13 @@ class DeplMgr:
     @overload
     def update_p2pool_deployment(self, p2pool: P2PoolInternal) -> P2PoolInternal: ...
 
-    def __init__(self, bs_mgr: BootstrapMgr, depl_db: DeplDb, ops_db: OpsDb):
+    def __init__(
+        self, bs_mgr: BootstrapMgr, depl_db: DeplDb, ops_db: OpsDb, sql_db=None
+    ):
         self.bs_mgr = bs_mgr
         self.depl_db = depl_db
         self.ops_db = ops_db
+        self.sql_db = sql_db
 
     def add_deployment(self, elem):
         elem_class = type(elem)
@@ -468,6 +471,12 @@ class DeplMgr:
                 update_flag = self.update_vendor_dir(
                     new_dir=new_db4e.vendor_dir(), old_dir=db4e.vendor_dir(), db4e=db4e
                 )
+                # if update_flag:
+                #    # We need to update the vendor_dir value that BootstrapMgr stores.
+                #    self.bs_mgr.update_vendor_dir(new_dir=new_db4e.vendor_dir())
+                #    # Next we need to re-open the database
+                #    self.sql_db.close()
+                #    self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.VENDOR))
 
             # Create a console log line
             self.ops_db.add_tui_log_line(
@@ -1136,15 +1145,26 @@ class DeplMgr:
         if not old_dir:
             db4e.vendor_dir(new_dir)
             if not os.path.exists(new_dir):
-                os.makedirs(new_dir)
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.DB4E,
-                    tracked_instance=DLabel.VENDOR_DIR,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Created {DLabel.VENDOR_DIR}",
-                    details=f"{new_dir}",
-                )
+                try:
+                    os.makedirs(new_dir)
+                    self.ops_db.add_tui_log_line(
+                        tracked_type=DElem.DB4E,
+                        tracked_instance=DLabel.VENDOR_DIR,
+                        status=DStatus.COMPLETE,
+                        operation=DField.UPDATE,
+                        message=f"Created {DLabel.VENDOR_DIR}",
+                        details=f"{new_dir}",
+                    )
+                except (PermissionError, OSError) as e:
+                    self.ops_db.add_tui_log_line(
+                        tracked_type=DElem.DB4E,
+                        tracked_instance=DLabel.VENDOR_DIR,
+                        status=DStatus.ERROR,
+                        operation=DField.UPDATE,
+                        message=f"Create error",
+                        details=f"{e}",
+                    )
+                    update_flag = False
             return update_flag
 
         # Move the vendor_dir to the new location

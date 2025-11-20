@@ -98,6 +98,7 @@ class Db4EClient(App):
             sql_db=self.sql_db,
             ops_db=self.ops_db,
             depl_db=self.depl_db,
+            bs_mgr=self.bs_mgr,
             server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
         )
         self.msg_router = RouteMgr(

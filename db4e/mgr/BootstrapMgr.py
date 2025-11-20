@@ -183,3 +183,15 @@ class BootstrapMgr:
 
     def __repr__(self):
         return f"BootstrapMgr(vendor_dir={self.get_vendor_dir()})"
+
+    def update_vendor_dir(self, new_dir: str):
+        """
+        Update the vendor_dir stored in the bootstrap config.
+
+        This is used when the DB value changes, so the bootstrap
+        file must be kept in sync.
+        """
+        new_path = Path(new_dir).expanduser().resolve()
+
+        self._config[DField.VENDOR_DIR] = str(new_path)
+        self._save()

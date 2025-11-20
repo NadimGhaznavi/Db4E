@@ -18,6 +18,10 @@ from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.BaseDb import CLASS_TO_TABLE_MAP, CLASS_STR_TO_TABLE_MAP
 
+from db4e.recs.monero.Db4E import Db4E
+
+from db4e.mgr.BootstrapMgr import BootstrapMgr
+
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.FormChecker import FormChecker
 
@@ -25,6 +29,7 @@ from db4e.constants.DSQL import DTable, DCol
 from db4e.constants.DSync import DSync
 from db4e.constants.DField import DField
 from db4e.constants.DStatus import DStatus
+from db4e.constants.DDir import DDir
 
 
 SYNC_SCHEDULE = {
@@ -62,6 +67,7 @@ class SyncClient:
         server_url: str,
         ops_db: OpsDb,
         depl_db: DeplDb,
+        bs_mgr: BootstrapMgr,
         log_file=None,
     ):
         """Constructor"""
@@ -69,6 +75,7 @@ class SyncClient:
             self.log = Db4ELogger(db4e_module=__name__, log_file=log_file)
         self.ops_db = ops_db
         self.sql_db = sql_db
+        self.bs_mgr = bs_mgr
         self.fc = FormChecker(ops_db=ops_db, depl_db=depl_db)
         self.server_url = server_url.rstrip("/")
         self._running = False
@@ -155,9 +162,23 @@ class SyncClient:
         }
         url = f"{self.server_url}/update/{depl_table}"
 
-        return await self._send_request(
+        # We need to handle the case where the user updated the vendor director
+        # that houses the SQLite DB.
+        # db_closed = False
+        # if type(depl_obj) == Db4E and depl_obj.vendor_dir() != self.bs_mgr.get_dir(
+        #    DDir.VENDOR
+        # ):
+        #    self.sql_db.close()
+        #    db_closed = True
+
+        await self._send_request(
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
+
+        # if db_closed:
+        #    self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.VENDOR))
+
+        return self.ops_db.get_tui_log()
 
     async def _send_request(self, depl_table, depl_obj, url, payload):
         try:

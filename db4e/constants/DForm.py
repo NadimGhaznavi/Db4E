@@ -84,5 +84,6 @@ class DForm(ConstGroup):
     USER_NAME_LABEL: str = "user_name_label"
     USER_WALLET_INPUT: str = "user_wallet_input"
     VENDOR_DIR_INPUT: str = "vendor_dir_input"
+    VENDOR_DIR_LABEL: str = "vendor_dir_label"
     ZMQ_PUB_PORT_INPUT: str = "zmq_pub_port_input"
     ZMQ_RPC_PORT_INPUT: str = "zmq_rpc_port_input"
