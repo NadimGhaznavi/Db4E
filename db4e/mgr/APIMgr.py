@@ -161,4 +161,7 @@ class APIMgr:
             self.log.info(
                 f"Received update deployment request: {table_name}/{elem_rec}"
             )
-            self.depl_mgr.update_deployment(depl_obj)
+            try:
+                self.depl_mgr.update_deployment(depl_obj)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"{depl_obj.to_dict()}")

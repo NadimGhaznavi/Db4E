@@ -53,16 +53,11 @@ from db4e.db.OpsDb import OpsDb
 
 from db4e.constants.DDebug import DDebug
 from db4e.constants.DDef import DDef
-from db4e.constants.DField import DField
-from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
-from db4e.constants.DJob import DJob
+from db4e.constants.DElem import DElem
+from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DModule import DModule
-from db4e.constants.OLD_DMongo import DMongo
-from db4e.constants.DSystemD import DSystemD
-from db4e.constants.DLabel import DLabel
-from db4e.constants.OLD_DMongo import DMongo
 
 
 DDebug.FUNCTION = False
@@ -625,7 +620,7 @@ class Db4eServer:
         self.log.info(f"Started {p2pool} watcher")
         self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
 
-    def update(self, elem):
+    def UNUSED_update(self, elem):
         self.log.info(f"Updated: {elem}")
 
         # TODO check return value, restart if needed

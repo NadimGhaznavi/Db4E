@@ -145,7 +145,7 @@ class Db4EClient(App):
         # after a successful install. The results of the "InitialInstall" are put
         # into the tui_log_line table and the TUI Log Pane is displayed. We
         # intercept that call and initialize the client database when the
-        # "InitialIntall" is successful.
+        # "InitialInstall" is successful.
         if (
             pane == DPane.TUI_LOG
             and type(data) == list

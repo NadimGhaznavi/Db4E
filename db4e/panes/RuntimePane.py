@@ -17,7 +17,6 @@ from textual.containers import ScrollableContainer, Vertical
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DForm import DForm
 from db4e.constants.DField import DField
-from db4e.constants.OLD_DMongo import DMongo
 from db4e.constants.DOps import DOps
 
 
@@ -66,10 +65,9 @@ class RuntimePane(Static):
             else:
                 total_days = ""
                 total_time = event[DOps.TOTAL_UPTIME]
-
             table.add_row(
-                f"[b]{event[DMongo.ELEMENT_TYPE]}[/]",
-                f"[yellow]{event[DMongo.INSTANCE]}[/]",
+                f"[b]{event[DField.ELEMENT_TYPE]}[/]",
+                f"[yellow]{event[DField.INSTANCE]}[/]",
                 f"[cyan]{cur_days}[/]",
                 f"[cyan]{cur_time}[/]",
                 f"[green]{total_days}[/]",

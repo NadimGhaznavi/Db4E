@@ -442,12 +442,10 @@ class DeplMgr:
 
     def update_db4e_deployment(self, new_db4e: Db4E):
         update_flag = False
-        update_internal_flag = False
         update_p2pool_flag = False
         # The current record, we'll update this and write it back in
         db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
 
-        print(f"update_db4e_deployment(): {db4e.to_dict()}: rec: {new_db4e.to_dict()}")
         # Updating user wallet
         if db4e.user_wallet() != new_db4e.user_wallet():
             # Create a console log message
@@ -462,23 +460,6 @@ class DeplMgr:
             db4e.user_wallet(new_db4e.user_wallet())
             update_flag, update_p2pool_flag = True, True
 
-        # Updating vendor dir
-        if db4e.vendor_dir() != new_db4e.vendor_dir():
-            if not db4e.vendor_dir():
-                update_flag = self.create_vendor_dir(
-                    new_dir=new_db4e.vendor_dir(), db4e=db4e
-                )
-            else:
-                update_flag = self.update_vendor_dir(
-                    new_dir=new_db4e.vendor_dir(), old_dir=db4e.vendor_dir(), db4e=db4e
-                )
-                # if update_flag:
-                #    # We need to update the vendor_dir value that BootstrapMgr stores.
-                #    self.bs_mgr.update_vendor_dir(new_dir=new_db4e.vendor_dir())
-                #    # Next we need to re-open the database
-                #    self.sql_db.close()
-                #    self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.VENDOR))
-
             # Create a console log line
             self.ops_db.add_tui_log_line(
                 tracked_type=DElem.DB4E,
@@ -491,8 +472,19 @@ class DeplMgr:
             if update_flag:
                 db4e.vendor_dir(new_db4e.vendor_dir())
 
-        # Updating the primary server
-        if db4e.primary_server() != new_db4e.primary_server():
+        ## Updating the primary server
+        # Keep the original primary_server for the primary_remote update
+        # below.
+        if db4e.primary_server() != new_db4e.primary_server() or db4e.primary_remote != new_db4e.primary_remote():
+            # The primary server is configured with two attributes:
+            # 1. primary_server: The ID of the row in SQLite for the Monero or Remote Monero
+            # instance or -1 if the primary server is disabled.
+            # 2. primary_remote: 
+            #    Value of 1  : Primary server is remote (monerod_remote table)
+            #    Value of 0  : Primary server is local (monerod table)
+            #    Value of -1 : Primary server is disabled
+            #
+
             if db4e.primary_server() == DField.DISABLE:
                 old_instance = "DISABLE"
             else:
@@ -507,6 +499,7 @@ class DeplMgr:
 
             if new_db4e.primary_server() == DField.DISABLE:
                 new_instance = "DISABLE"
+                new_db4e.primary_remote(DField.DISABLE)
             else:
                 if new_db4e.primary_remote():
                     new_instance = self.depl_db.get_deployment_by_id(
@@ -518,71 +511,30 @@ class DeplMgr:
                     ).instance()
 
             db4e.primary_server(new_db4e.primary_server())
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.DB4E,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.PRIMARY_SERVER,
-                details=f"{old_instance} > {new_instance}",
-            )
-            update_flag, update_internal_flag = True, True
-
-        if db4e.primary_remote() != new_db4e.primary_remote():
-            if db4e.primary_server() == DField.DISABLE:
-                old_instance = "DISABLE"
-            else:
-                if db4e.primary_remote():
-                    old_monerod = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD_REMOTE, id=db4e.primary_server()
-                    )
-                    old_instance = old_monerod.instance()
-                else:
-                    old_monerod = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD, id=db4e.primary_server()
-                    )
-                    old_instance = old_monerod.instance()
-
-            if new_db4e.primary_server() == DField.DISABLE:
-                new_instance = "DISABLE"
-            else:
-                if new_db4e.primary_remote():
-                    new_monerod = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD_REMOTE, id=new_db4e.primary_server()
-                    )
-                    new_instance = new_monerod.instance()
-                else:
-                    new_monerod = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD, id=new_db4e.primary_server()
-                    )
-                    new_instance = new_monerod.instance()
-
-            # Create a console log line
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.DB4E,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.PRIMARY_SERVER,
-                details=f"{old_instance} > {new_instance}",
-            )
-
             db4e.primary_remote(new_db4e.primary_remote())
-            update_flag, update_internal_flag = True, True
+
+            self.ops_db.add_tui_log_line(
+                tracked_type=DElem.DB4E,
+                tracked_instance=DLabel.DB4E,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.PRIMARY_SERVER,
+                details=f"{old_instance} > {new_instance}",
+            )
+            update_flag, update_p2pool_flag = True, True
 
         # Update the database
         if update_flag:
             self.depl_db.update_one(db4e)
 
-        # Update the Internal P2Pool instances
-        if update_internal_flag:
+        # Update the P2Pool instances
+        if update_p2pool_flag:
+            # Internal P2Pool instances
             for p2pool in self.depl_db.get_p2pool_internals():
                 p2pool.parent(db4e.primary_server())
                 p2pool.parent_remote(db4e.primary_remote())
                 self.update_deployment(p2pool)
-
-        # Update local P2Pool instances
-        if update_p2pool_flag:
+            # Local P2Pool instances
             for p2pool in self.depl_db.get_p2pools():
                 p2pool.user_wallet(db4e.user_wallet())
                 self.update_deployment(p2pool)
@@ -982,7 +934,11 @@ class DeplMgr:
             p2pool.log_level(new_p2pool.log_level())
             update_config, update = True, True
 
-        # Upstream Monerod
+        ## Upstream Monerod
+        # We'll want to save the original (`p2pool.parent()`) before we (maybe)
+        # change it. The `if p2pool.parent_remote() !=...` block below needs
+        # the original value.
+        original_parent_id = p2pool.parent()
         if p2pool.parent() != new_p2pool.parent():
             if new_p2pool.parent() == DField.DISABLE:
                 old_monerod = self.depl_db.get_deployment_by_id(
@@ -1030,17 +986,30 @@ class DeplMgr:
                     details=f"{old_instance} > {new_instance}",
                 )
                 p2pool.parent(new_p2pool.parent())
-                update, update_config = True, True
+                update = True
 
-        # Upstream monerod has changed: local/remote...
+        # Upstream monerod has changed: The upstream has changed from
+        # local to remote or vice-versa.
         if p2pool.parent_remote() != new_p2pool.parent_remote():
-            p2pool.parent_remote(new_p2pool.parent_remote())
+            if p2pool.parent_remote() == 1:
+                upstream_type = DElem.MONEROD_REMOTE
+            elif p2pool.parent_remote() == 0:
+                upstream_type = DElem.MONEROD
+            elif p2pool.parent_remote() == DField.DISABLE:
+                upstream_type = DField.DISABLE
+            else:
+                raise ValueError(
+                    f"DeplMgr:update_p2pool_deployment(): Unsupported "
+                    f"parent_remote value: {p2pool.parent_remote()}"
+                )
+
             old_monerod = self.depl_db.get_deployment_by_id(
-                elem_type=DElem.MONEROD, id=p2pool.parent()
+                elem_type=upstream_type, id=original_parent_id
             )
             old_instance = old_monerod.instance()
+
             new_monerod = self.depl_db.get_deployment_by_id(
-                elem_type=DElem.MONEROD_REMOTE, id=p2pool.parent()
+                elem_type=DElem.MONEROD_REMOTE, id=original_parent_id
             )
             new_instance = new_monerod.instance()
             self.ops_db.add_tui_log_line(

@@ -36,6 +36,7 @@ class DField(ConstGroup):
     DB4E_PLOT: str = "db4e_plot"
     DB4E_USER: str = "db4e_user"
     DEBUG: str = "debug"
+    DELETE: str = "delete"
     DEPLOYMENT: str = "deployment"
     DEPLOYMENT_TYPE: str = "depl_type"
     DEPLOYMENTS: str = "deployments"

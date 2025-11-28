@@ -106,7 +106,7 @@ class SyncClient:
         )
 
     async def delete_deployment(self, depl_request):
-        """Send a "create new deployment" request to the sync server."""
+        """Send a "delete deployment" request to the sync server."""
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
         depl_table = CLASS_STR_TO_TABLE_MAP[type_str]

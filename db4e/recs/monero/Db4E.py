@@ -1,15 +1,13 @@
-"""
-db4e/elem/Db4E.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-
-A class representing the deployment of Db4E
-"""
+# db4e/elem/Db4E.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
+#
+# A class representing the deployment of Db4E
 
 import os, grp, getpass
 from db4e.recs.monero.LocalMonero import LocalMonero
