@@ -41,12 +41,6 @@ class BootstrapMgr:
             except Exception:
                 pass
 
-    def initialize(self, vendor_dir: str):
-        vendor_dir_path = Path(vendor_dir).expanduser().resolve()
-        vendor_dir_path.mkdir(parents=True, exist_ok=True)
-        self._config[DField.VENDOR_DIR] = str(vendor_dir_path)
-        self._save()
-
     def get_dir(self, aDir: str) -> str | None:
         if aDir == DDir.DB:
             if not self.is_initialized():
@@ -177,6 +171,12 @@ class BootstrapMgr:
             raise ValueError(f"DeplMgr:get_template(): No handler for {elem_type}")
 
         return tmpl_file
+
+    def initialize(self, vendor_dir: str):
+        vendor_dir_path = Path(vendor_dir).expanduser().resolve()
+        vendor_dir_path.mkdir(parents=True, exist_ok=True)
+        self._config[DField.VENDOR_DIR] = str(vendor_dir_path)
+        self._save()
 
     def is_initialized(self) -> bool:
         return self._config_path.exists() and DField.VENDOR_DIR in self._config

@@ -475,7 +475,8 @@ class DeplMgr:
         ## Updating the primary server
         # Keep the original primary_server for the primary_remote update
         # below.
-        if db4e.primary_server() != new_db4e.primary_server() or db4e.primary_remote != new_db4e.primary_remote():
+        if db4e.primary_server() != new_db4e.primary_server() or \
+            db4e.primary_remote != new_db4e.primary_remote():
             # The primary server is configured with two attributes:
             # 1. primary_server: The ID of the row in SQLite for the Monero or Remote Monero
             # instance or -1 if the primary server is disabled.
@@ -935,83 +936,34 @@ class DeplMgr:
             update_config, update = True, True
 
         ## Upstream Monerod
-        # We'll want to save the original (`p2pool.parent()`) before we (maybe)
-        # change it. The `if p2pool.parent_remote() !=...` block below needs
-        # the original value.
-        original_parent_id = p2pool.parent()
-        if p2pool.parent() != new_p2pool.parent():
+        if p2pool.parent() != new_p2pool.parent() or \
+            p2pool.parent_remote() != new_p2pool.parent_remote():
+
             if new_p2pool.parent() == DField.DISABLE:
-                old_monerod = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.MONEROD, id=p2pool.parent()
-                )
-                old_instance = old_monerod.instance()
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=p2pool.instance(),
-                    tracked_type=p2pool_type,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Upstream {DLabel.MONEROD_SHORT}",
-                    details=f"{old_instance} > DISABLE",
-                )
-                p2pool.parent(DField.DISABLE)
-                update, update_config = True, False
-            elif p2pool.parent() == DField.DISABLE:
-                new_monerod = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.MONEROD, id=new_p2pool.parent()
-                )
-                new_instance = new_monerod.instance()
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=p2pool.instance(),
-                    tracked_type=p2pool_type,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Upstream {DLabel.MONEROD_SHORT}",
-                    details=f"DISABLE > {new_instance}",
-                )
-                p2pool.parent(new_p2pool.parent())
-                update, update_config = True, True
+                new_instance = "DISABLE"
             else:
-                new_monerod = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.MONEROD, id=new_p2pool.parent()
-                )
-                new_instance = new_monerod.instance()
-                monerod = self.depl_db.get_deployment(DElem.MONEROD, p2pool.parent())
-                old_instance = monerod.instance()
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=p2pool.instance(),
-                    tracked_type=p2pool_type,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Upstream {DLabel.MONEROD_SHORT}",
-                    details=f"{old_instance} > {new_instance}",
-                )
-                p2pool.parent(new_p2pool.parent())
-                update = True
+                if new_p2pool.parent_remote():
+                    new_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.MONEROD_REMOTE, id=p2pool.parent()
+                    ).instance()
+                else:
+                    new_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.MONEROD, id=p2pool.parent()
+                    ).instance()
+                update_config = True
 
-        # Upstream monerod has changed: The upstream has changed from
-        # local to remote or vice-versa.
-        if p2pool.parent_remote() != new_p2pool.parent_remote():
-            if p2pool.parent_remote() == 1:
-                upstream_type = DElem.MONEROD_REMOTE
-            elif p2pool.parent_remote() == 0:
-                upstream_type = DElem.MONEROD
-            elif p2pool.parent_remote() == DField.DISABLE:
-                upstream_type = DField.DISABLE
+            if p2pool.parent() == DField.DISABLE:
+                old_instance = "DISABLE"
             else:
-                raise ValueError(
-                    f"DeplMgr:update_p2pool_deployment(): Unsupported "
-                    f"parent_remote value: {p2pool.parent_remote()}"
-                )
+                if p2pool.parent_remote():
+                    old_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.MONEROD_REMOTE, id=p2pool.parent()
+                    ).instance()
+                else:
+                    old_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.MONEROD, id=p2pool.parent()
+                    ).instance()
 
-            old_monerod = self.depl_db.get_deployment_by_id(
-                elem_type=upstream_type, id=original_parent_id
-            )
-            old_instance = old_monerod.instance()
-
-            new_monerod = self.depl_db.get_deployment_by_id(
-                elem_type=DElem.MONEROD_REMOTE, id=original_parent_id
-            )
-            new_instance = new_monerod.instance()
             self.ops_db.add_tui_log_line(
                 tracked_instance=p2pool.instance(),
                 tracked_type=p2pool_type,
@@ -1020,8 +972,9 @@ class DeplMgr:
                 message=f"Upstream {DLabel.MONEROD_SHORT}",
                 details=f"{old_instance} > {new_instance}",
             )
+            p2pool.parent(new_p2pool.parent())
             p2pool.parent_remote(new_p2pool.parent_remote())
-            update, update_config = True, True
+            update = True
 
         # Switching chains
         if p2pool.chain() != new_p2pool.chain():
@@ -1092,93 +1045,8 @@ class DeplMgr:
         if update:
             self.depl_db.update_one(p2pool)
 
-    def update_vendor_dir(self, new_dir: str, old_dir: str, db4e: Db4E) -> Db4E:
-        # print(f"DeplMgr:update_vendor_dir(): {old_dir} > {new_dir}")
-        update_flag = True
-        if old_dir == new_dir:
-            return
-
-        if not new_dir:
-            raise ValueError(f"update_vendor_dir(): Missing new directory")
-
-        # The target vendor dir exists, make a backup
-        if os.path.exists(new_dir):
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
-            backup_vendor_dir = new_dir + "." + timestamp
-            try:
-                os.rename(new_dir, backup_vendor_dir)
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.DB4E,
-                    tracked_instance=DLabel.VENDOR_DIR,
-                    status=DStatus.WARN,
-                    operation=DField.UPDATE,
-                    message=f"Backed up {DLabel.VENDOR_DIR}",
-                    details=f"{new_dir} > {backup_vendor_dir}",
-                )
-            except (PermissionError, OSError) as e:
-                update_flag = False
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.DB4E,
-                    tracked_instance=DLabel.VENDOR_DIR,
-                    status=DStatus.ERROR,
-                    operation=DField.UPDATE,
-                    message=f"Backup error",
-                    details=f"{e}",
-                )
-
-        # No need to move if old_dir is empty (first-time initialization)
-        if not old_dir:
-            db4e.vendor_dir(new_dir)
-            if not os.path.exists(new_dir):
-                try:
-                    os.makedirs(new_dir)
-                    self.ops_db.add_tui_log_line(
-                        tracked_type=DElem.DB4E,
-                        tracked_instance=DLabel.VENDOR_DIR,
-                        status=DStatus.COMPLETE,
-                        operation=DField.UPDATE,
-                        message=f"Created {DLabel.VENDOR_DIR}",
-                        details=f"{new_dir}",
-                    )
-                except (PermissionError, OSError) as e:
-                    self.ops_db.add_tui_log_line(
-                        tracked_type=DElem.DB4E,
-                        tracked_instance=DLabel.VENDOR_DIR,
-                        status=DStatus.ERROR,
-                        operation=DField.UPDATE,
-                        message=f"Create error",
-                        details=f"{e}",
-                    )
-                    update_flag = False
-            return update_flag
-
-        # Move the vendor_dir to the new location
-        try:
-            os.rename(old_dir, new_dir)
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.VENDOR_DIR,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=f"Moved {DLabel.VENDOR_DIR}",
-                details=f"{old_dir} > {new_dir}",
-            )
-
-        except (PermissionError, OSError) as e:
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.VENDOR_DIR,
-                status=DStatus.ERROR,
-                operation=DField.UPDATE,
-                message="Move error",
-                details=f"{e}",
-            )
-            update_flag = False
-        return update_flag
-
     def update_xmrig_deployment(self, new_xmrig: XMRig) -> XMRig:
-        update = False
-        update_config = False
+        update, update_config = False, False
 
         xmrig = self.depl_db.get_deployment(DElem.XMRIG, new_xmrig.instance())
 
@@ -1210,84 +1078,51 @@ class DeplMgr:
             update, update_config = True, True
 
         # Parent ID
-        if xmrig.parent() != new_xmrig.parent():
+        if xmrig.parent() != new_xmrig.parent() or \
+            xmrig.parent_remote() != new_xmrig.parent_remote():
 
             # New XMRig's upstream P2Pool is unset
             if new_xmrig.parent() == DField.DISABLE:
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=xmrig.instance(),
-                    tracked_type=DElem.XMRIG,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Upstream {DLabel.P2POOL_SHORT}",
-                    details=f"{xmrig.parent()} > DISABLE",
-                )
-                xmrig.parent(DField.DISABLE)
-                update, update_config = True, False
-
-            # New XMRig has a valid upstream P2Pool instance
-            elif xmrig.parent() == DField.DISABLE:
-                new_parent_instance = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.P2POOL, id=new_xmrig.parent()
-                ).instance()
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=xmrig.instance(),
-                    tracked_type=DElem.XMRIG,
-                    status=DStatus.COMPLETE,
-                    message=f"Upstream {DLabel.P2POOL_SHORT}",
-                    details=f"DISABLE > {new_parent_instance}",
-                )
-                xmrig.parent(new_xmrig.parent())
-                update, update_config = True, True
-
+                new_instance = "DISABLE"
             else:
-                new_parent_instance = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.P2POOL, id=new_xmrig.parent()
-                ).instance()
-                parent_instance = self.depl_db.get_deployment_by_id(
-                    elem_type=DElem.P2POOL, id=xmrig.parent()
-                ).instance()
-                self.ops_db.add_tui_log_line(
-                    tracked_instance=xmrig.instance(),
-                    tracked_type=DElem.XMRIG,
-                    status=DStatus.COMPLETE,
-                    operation=DField.UPDATE,
-                    message=f"Upstream {DLabel.P2POOL_SHORT}",
-                    details=f"{parent_instance} > {new_parent_instance}",
-                )
-                xmrig.parent(new_xmrig.parent())
-                update, update_config = True, True
+                # New upstream P2Pool is remote
+                if new_xmrig.parent_remote():
+                    new_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL_REMOTE, id=new_xmrig.parent()
+                    ).instance()
+                # New upstream P2Pool is local
+                else:
+                    new_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL, id=new_xmrig.parent()
+                    ).instance()
+                update_config = True
 
-        # Upstream P2pool has changed from local to local or vice-versa
-        if xmrig.parent_remote() != new_xmrig.parent_remote():
-            if new_xmrig.parent_remote():
-                new_p2pool_type = DElem.P2POOL_REMOTE
+            # Old XMRig's upstream P2Pool is unset
+            if xmrig.parent() == DField.DISABLE:
+                old_instance = "DISABLE"
             else:
-                new_p2pool_type = DElem.P2POOL
-            new_p2pool = self.depl_db.get_deployment_by_id(
-                elem_type=new_p2pool_type, id=new_xmrig.parent()
-            )
-            new_instance = new_p2pool.instance()
-
-            if xmrig.parent_remote():
-                old_p2pool_type = DElem.P2POOL_REMOTE
-            else:
-                old_p2pool_type = DElem.P2POOL
-            old_p2pool = self.depl_db.get_deployment_by_id(
-                elem_type=old_p2pool_type, id=xmrig.parent()
-            )
-            old_instance = old_p2pool.instance()
+                # Old upstream P2Pool is remote
+                if xmrig.parent_remote():
+                    old_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL_REMOTE, id=xmrig.parent()
+                    ).instance()
+                # Old upstream P2Pool is local
+                else:
+                    old_instance = self.depl_db.get_deployment_by_id(
+                        elem_type=DElem.P2POOL, id=xmrig.parent()
+                    ).instance()
 
             self.ops_db.add_tui_log_line(
                 tracked_instance=xmrig.instance(),
-                tracked_type=DElem.P2POOL,
+                tracked_type=DElem.XMRIG,
                 status=DStatus.COMPLETE,
                 operation=DField.UPDATE,
                 message=f"Upstream {DLabel.P2POOL_SHORT}",
                 details=f"{old_instance} > {new_instance}",
             )
+            xmrig.parent(new_xmrig.parent())
             xmrig.parent_remote(new_xmrig.parent_remote())
-            update, update_config = True, True
+            update = True
 
         # Regenerate config if required
         if update_config:

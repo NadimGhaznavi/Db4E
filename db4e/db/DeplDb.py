@@ -10,8 +10,13 @@
 # Supporting modules
 from datetime import datetime
 
-# Base domain database module
-from db4e.db.BaseDb import BaseDb
+# Base domain DB module
+from db4e.db.BaseDb import (
+    TABLE_TO_CLASS_MAP,
+    CLASS_STR_TO_TABLE_MAP,
+    CLASS_STR_TO_CLASS_MAP,
+    DTable, BaseDb
+)
 
 # Deployment elements
 from db4e.recs.monero.Db4E import Db4E
@@ -29,15 +34,6 @@ from db4e.db.SQLDb import SQLDb
 # Constants
 from db4e.constants.DDef import DDef
 from db4e.constants.DField import DField
-
-
-# Base domain DB module
-from db4e.db.BaseDb import (
-    TABLE_TO_CLASS_MAP,
-    CLASS_STR_TO_TABLE_MAP,
-    CLASS_STR_TO_CLASS_MAP,
-    DTable,
-)
 
 # Db4E logging module
 from db4e.util.Db4ELogger import Db4ELogger
@@ -71,26 +67,7 @@ class DeplDb(BaseDb):
         rec = rows[0] if rows else None
         object = None
         if rec:
-            if elem_type == DElem.DB4E:
-                object = Db4E(rec)
-            elif elem_type == DElem.MONEROD:
-                object = MoneroD(rec)
-            elif elem_type == DElem.MONEROD_REMOTE:
-                object = MoneroDRemote(rec)
-            elif elem_type == DElem.P2POOL:
-                object = P2Pool(rec)
-            elif elem_type == DElem.P2POOL_REMOTE:
-                object = P2PoolRemote(rec)
-            elif elem_type == DElem.P2POOL_INTERNAL:
-                object = P2PoolInternal(rec)
-            elif elem_type == DElem.XMRIG:
-                object = XMRig(rec)
-            elif elem_type == DElem.XMRIG_REMOTE:
-                object = XMRigRemote(rec)
-            else:
-                raise ValueError(
-                    f"DeplMgr:get_deployment(): No handler for {elem_type}"
-                )
+            object = CLASS_STR_TO_CLASS_MAP[elem_type](rec)
         return object
 
     def get_deployments(self):
