@@ -225,3 +225,53 @@ def test_sql_db_init_db(tmp_dir):
     ):
         row = sql_db.find_one(f"SELECT * FROM sync_meta WHERE table_name=?", (elem,))
         assert row[1] == 0
+
+
+def test_sql_db_initialize(tmp_dir):
+    sql_db = SQLDb(db_type=DField.CLIENT, bs_mgr=FakeUnitializedBootstrapMgr())
+
+    assert sql_db.is_initialized() is False
+    assert sql_db._conn is None
+    assert sql_db._cursor is None
+    assert sql_db._initialized is False
+
+    sql_db.initialize(tmp_dir)
+
+    assert sql_db.is_initialized() is True
+    assert sql_db._conn is not None
+    assert sql_db._cursor is not None
+    assert sql_db._initialized is True
+
+    sql_db.close()
+
+
+def test_sql_db_insert_one(tmp_dir):
+    sql_db = SQLDb(db_type=DField.CLIENT, bs_mgr=FakeInitializedBootstrapMgr(tmp_dir))
+    sql_db.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO test (name) VALUES ('Alice');
+        INSERT INTO test (name) VALUES ('Bob');
+        """
+    )
+    id = sql_db.insert_one("INSERT INTO test (name) VALUES (?)", ("Charlie",))
+    assert id == 3
+    row = sql_db.find_one("SELECT * FROM test WHERE id=?", (id,))
+    assert row[1] == "Charlie"
+    sql_db.close()
+
+
+def test_sql_db_update_one(tmp_dir):
+    sql_db = SQLDb(db_type=DField.CLIENT, bs_mgr=FakeInitializedBootstrapMgr(tmp_dir))
+    sql_db.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT, age INTEGER, updated_ts INTEGER);
+        INSERT INTO test (name, age, updated_ts) VALUES ('Alice', 10, 0);
+        INSERT INTO test (name, age, updated_ts) VALUES ('Bob', 12, 2);
+        INSERT INTO test (name, age, updated_ts) VALUES ('Charlie', 12, 1);
+        """
+    )
+    sql_db.update_one("UPDATE test SET age=? WHERE id=?", (14, 1))
+    row = sql_db.find_one("SELECT * FROM test WHERE id=?", (1,))
+    assert row[2] == 14
+    sql_db.close()
