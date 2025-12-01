@@ -9,6 +9,7 @@
 
 import os, sys, json
 import pytest
+
 from unittest.mock import patch, Mock
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.constants.DDir import DDir
@@ -18,16 +19,17 @@ from db4e.constants.DFile import DFile
 from db4e.constants.DField import DField
 
 
-def test_unitialized_is_initialized(uninitialized_bootstrap_mgr):
-    assert uninitialized_bootstrap_mgr.is_initialized() is False
+def test_unitialized_is_initialized(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    bs_mgr = BootstrapMgr()
+    assert bs_mgr.is_initialized() is False
 
 
-def test_uninitialized_get_dir_db(uninitialized_bootstrap_mgr):
-    try:
-        uninitialized_bootstrap_mgr.get_dir(DDir.DB)
-        assert False
-    except RuntimeError:
-        assert True
+def test_uninitialized_get_dir_db(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    mgr = BootstrapMgr()
+    with pytest.raises(RuntimeError):
+        mgr.get_dir(DDir.DB)    
 
 
 def test_get_dir_db4e():
