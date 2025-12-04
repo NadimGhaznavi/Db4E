@@ -39,24 +39,28 @@ class OpsDb(BaseDb):
     def get_ops_events(self):
         pass
 
-    def add_start_event(self, elem_type, instance):
+    def add_start_event(self, elem_type, instance_name):
         self.check_initialized()
         # Create a new current_uptime record
-        cur_uptime = CurrentUptime(tracked_type=elem_type, tracked_instance=instance)
+        cur_uptime = CurrentUptime(
+            tracked_type=elem_type, tracked_instance=instance_name
+        )
         cur_uptime.start_time(int(round(time.time())))
-
+        cur_uptime.cur_time(int(round(time.time())))
         self.insert_one(cur_uptime)
 
-    def add_stop_event(self, elem_type, instance):
+    def add_stop_event(self, elem_type, instance_name):
         self.check_initialized()
         # Get the current uptime record where the stop event is not set
-        rec = self.get_open_cur_uptime_rec(elem_type, instance)
+        rec = self.get_open_cur_uptime_rec(elem_type, instance_name)
         current_uptime = CurrentUptime(
-            tracked_type=elem_type, tracked_instance=instance, rec=rec
+            tracked_type=elem_type, tracked_instance=instance_name, rec=rec
         )
 
         if not current_uptime:
-            self.log.error(f"No current uptime record found for {elem_type}/{instance}")
+            self.log.error(
+                f"No current uptime record found for {elem_type}/{instance_name}"
+            )
             return
 
         current_uptime.stop_time(int(round(time.time())))
@@ -66,11 +70,16 @@ class OpsDb(BaseDb):
         self.update_one(current_uptime)
 
         # Update existing or create new total uptime record
-        total_uptime = self.get_total_uptime_rec(elem_type, instance)
+        total_uptime_rec = self.get_total_uptime_rec(elem_type, instance_name)
         update = True
-        if not total_uptime:
+        if not total_uptime_rec:
             update = False
-            total_uptime = TotalUptime(elem_type=elem_type, instance=instance)
+            total_uptime = TotalUptime(
+                tracked_type=elem_type, tracked_instance=instance_name
+            )
+        else:
+            total_uptime = TotalUptime(rec=total_uptime_rec)
+
         total_uptime.uptime_secs(
             total_uptime.uptime_secs() + current_uptime.uptime_secs()
         )
@@ -148,7 +157,8 @@ class OpsDb(BaseDb):
         for rec in recs:
             # Close off any still open current_uptime records (shutdown wasn't clean)
             cur_uptime = CurrentUptime(rec=rec)
-            cur_uptime.stop_time(cur_uptime.cur_time())
+            if not cur_uptime.stop_time():
+                cur_uptime.stop_time(cur_uptime.cur_time())
             cur_uptime.uptime_secs(cur_uptime.stop_time() - cur_uptime.start_time())
             self.update_one(cur_uptime)
 
@@ -178,12 +188,12 @@ class OpsDb(BaseDb):
     def get_open_cur_uptime_rec(self, elem_type, instance) -> CurrentUptime:
         self.check_initialized()
         sql = f"SELECT * FROM current_uptime WHERE tracked_type=? AND tracked_instance=? AND stop_time IS NULL"
-        return self.sql_db.execute_query(sql, (elem_type, instance))[0]
+        return self.sql_db.find_one(sql, (elem_type, instance))
 
     def get_total_uptime_rec(self, elem_type, instance) -> TotalUptime:
         self.check_initialized()
         sql = f"SELECT * FROM total_uptime WHERE tracked_type=? AND tracked_instance=?"
-        return self.sql_db.execute_query(sql, (elem_type, instance))[0]
+        return self.sql_db.find_one(sql, (elem_type, instance))
 
     def get_tui_log(self, elem_type=None):
         self.check_initialized()
@@ -207,8 +217,8 @@ class OpsDb(BaseDb):
             WHERE updated_ts > ?
             ORDER BY updated_ts ASC
         """
-        cur = self.cursor.execute(sql, (since_ts,))
-        return [dict(row) for row in cur.fetchall()]
+        results = self.sql_db.execute_query(sql, (since_ts,))
+        return [dict(row) for row in results]
 
     def update_current(self):
         time.time()

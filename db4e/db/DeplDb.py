@@ -13,9 +13,11 @@ from datetime import datetime
 # Base domain DB module
 from db4e.db.BaseDb import (
     TABLE_TO_CLASS_MAP,
+    CLASS_TO_TABLE_MAP,
     CLASS_STR_TO_TABLE_MAP,
     CLASS_STR_TO_CLASS_MAP,
-    DTable, BaseDb
+    DTable,
+    BaseDb,
 )
 
 # Deployment elements
@@ -55,7 +57,7 @@ class DeplDb(BaseDb):
 
     def delete_deployment(self, elem):
         self.check_initialized()
-        table = CLASS_STR_TO_TABLE_MAP[elem.elem_type()]
+        table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
     def get_deployment(self, elem_type: str, instance: str):
@@ -144,21 +146,33 @@ class DeplDb(BaseDb):
         return self.get_deployments_by_type_str(DElem.XMRIG_REMOTE)
 
     def get_downstream(self, elem):
-        elem_type = elem.elem_type()
-        obj_id = elem.id()
+        elem_class = type(elem)
+        parent_id = elem.id()
         obj_list = []
         # P2Pool is downstream from MoneroD and MoneroDRemote
-        if elem_type == DElem.MONEROD or elem_type == DElem.MONEROD_REMOTE:
+        if elem_class == MoneroD:
             p2pools = self.get_p2pools()
             for p2pool in p2pools:
-                if p2pool.parent() == obj_id:
+                if p2pool.parent() == parent_id and p2pool.parent_remote() == 0:
+                    obj_list.append(p2pool)
+        elif elem_class == MoneroDRemote:
+            p2pools = self.get_p2pool_remotes()
+            for p2pool in p2pools:
+                if p2pool.parent() == parent_id and p2pool.parent_remote() == 1:
                     obj_list.append(p2pool)
         # XMRig is downstream from P2Pool and P2PoolRemote
-        elif elem_type == DElem.P2POOL or elem_type == DElem.P2POOL_REMOTE:
+        elif elem_class == P2Pool:
             xmrigs = self.get_xmrigs()
             for xmrig in xmrigs:
-                if xmrig.parent() == obj_id:
+                if xmrig.parent() == parent_id and xmrig.parent_remote() == 0:
                     obj_list.append(xmrig)
+        elif elem_class == P2PoolRemote:
+            xmrigs = self.get_xmrig_remotes()
+            for xmrig in xmrigs:
+                if xmrig.parent() == parent_id and xmrig.parent_remote() == 1:
+                    obj_list.append(xmrig)
+        else:
+            raise ValueError(f"DeplMgr:get_downstream(): No handler for {elem_class}")
         return obj_list
 
     def get_new(self, elem_type):
@@ -177,6 +191,7 @@ class DeplDb(BaseDb):
         elif elem_type == DElem.P2POOL_INTERNAL:
             p2pool = P2PoolInternal()
             p2pool.user_wallet(DDef.DONATION_WALLET)
+            return p2pool
         elif elem_type == DElem.XMRIG:
             return XMRig()
         elif elem_type == DElem.XMRIG_REMOTE:

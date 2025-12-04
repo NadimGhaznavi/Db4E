@@ -128,6 +128,9 @@ class BaseDb:
         self.sql_db = sql_db
         self.log = Db4ELogger(db4e_module=__name__, log_file=log_file)
         self._initialized = False
+        if sql_db.is_initialized():
+            self.initialize()
+
 
     def add_timestamp_data(self, data):
         """
@@ -230,7 +233,7 @@ class BaseDb:
 
         :raises NotImplementedError: Always.
         """        
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_records_since(self, table_name: str, since_ts: int, hourly=False):
         """

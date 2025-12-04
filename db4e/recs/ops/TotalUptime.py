@@ -20,7 +20,7 @@ class TotalUptime(BaseOps):
         self, tracked_type=None, tracked_instance=None, uptime_secs=None, rec=None
     ):
         super().__init__(tracked_type=tracked_type, tracked_instance=tracked_instance)
-        self._uptime_secs = uptime_secs
+        self._uptime_secs = uptime_secs or 0
 
         if rec:
             self.from_rec(rec)
