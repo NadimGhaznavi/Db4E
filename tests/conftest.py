@@ -48,7 +48,11 @@ class FakeInitializedBootstrapMgr(BootstrapMgr):
         elif aDir == DDir.TEMPLATE:
             return self._base_dir + "/" + TEMPLATES_DIR
         elif aDir == DElem.MONEROD:
-            return DElem.MONEROD  # + "-" + DDef.MONEROD_VERSION
+            return DElem.MONEROD
+        elif aDir == DElem.P2POOL:
+            return DElem.P2POOL
+        elif aDir == DElem.XMRIG:
+            return DElem.XMRIG
 
         raise KeyError(f"Unknown dir request: {aDir}")
 

@@ -29,7 +29,7 @@ def test_uninitialized_get_dir_db(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
     mgr = BootstrapMgr()
     with pytest.raises(RuntimeError):
-        mgr.get_dir(DDir.DB)    
+        mgr.get_dir(DDir.DB)
 
 
 def test_get_dir_db4e():
@@ -194,7 +194,7 @@ def test_get_logrotate_template_p2pool(tmp_path):
     expected = os.path.abspath(
         os.path.join(
             fake_tmpl_dir,
-            DElem.P2POOL + "-" + DDef.P2POOL_VERSION,
+            DElem.P2POOL,
             DDef.CONF_DIR,
             f"{DElem.P2POOL}-{DDef.LOGROTATE}{DDef.CONF_SUFFIX}",
         )
@@ -219,7 +219,7 @@ def test_get_logrotate_template_xmrig(tmp_path):
     expected = os.path.abspath(
         os.path.join(
             fake_tmpl_dir,
-            DElem.XMRIG + "-" + DDef.XMRIG_VERSION,
+            DElem.XMRIG,
             DDef.CONF_DIR,
             f"{DElem.XMRIG}-{DDef.LOGROTATE}{DDef.CONF_SUFFIX}",
         )

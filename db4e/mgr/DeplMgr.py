@@ -183,8 +183,8 @@ class DeplMgr:
 
     def add_p2pool_deployment(self, p2pool: P2Pool):
         # Generate the configuration
+        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if p2pool.parent() != DField.DISABLE:
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
             # Upstream monero daemon is remote
             if p2pool.parent_remote():
@@ -269,9 +269,9 @@ class DeplMgr:
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
         # Generate the XMRig configuration
+        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if xmrig.parent() != DField.DISABLE:
             # Generate the configuration
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.XMRIG)
 
             # Upstream P2Pool is remote
@@ -331,7 +331,7 @@ class DeplMgr:
                 return
 
         # Don't create a remote XMRig deployment record if one already exists.
-        for remote_xmrig in self.depl_db.get_remote_xmrigs():
+        for remote_xmrig in self.depl_db.get_xmrig_remotes():
             if remote_xmrig.instance() == xmrig.instance():
                 # TODO route to update() so the timestamp is updated.
                 return
@@ -475,12 +475,14 @@ class DeplMgr:
         ## Updating the primary server
         # Keep the original primary_server for the primary_remote update
         # below.
-        if db4e.primary_server() != new_db4e.primary_server() or \
-            db4e.primary_remote != new_db4e.primary_remote():
+        if (
+            db4e.primary_server() != new_db4e.primary_server()
+            or db4e.primary_remote != new_db4e.primary_remote()
+        ):
             # The primary server is configured with two attributes:
             # 1. primary_server: The ID of the row in SQLite for the Monero or Remote Monero
             # instance or -1 if the primary server is disabled.
-            # 2. primary_remote: 
+            # 2. primary_remote:
             #    Value of 1  : Primary server is remote (monerod_remote table)
             #    Value of 0  : Primary server is local (monerod table)
             #    Value of -1 : Primary server is disabled
@@ -936,8 +938,10 @@ class DeplMgr:
             update_config, update = True, True
 
         ## Upstream Monerod
-        if p2pool.parent() != new_p2pool.parent() or \
-            p2pool.parent_remote() != new_p2pool.parent_remote():
+        if (
+            p2pool.parent() != new_p2pool.parent()
+            or p2pool.parent_remote() != new_p2pool.parent_remote()
+        ):
 
             if new_p2pool.parent() == DField.DISABLE:
                 new_instance = "DISABLE"
@@ -1078,8 +1082,10 @@ class DeplMgr:
             update, update_config = True, True
 
         # Parent ID
-        if xmrig.parent() != new_xmrig.parent() or \
-            xmrig.parent_remote() != new_xmrig.parent_remote():
+        if (
+            xmrig.parent() != new_xmrig.parent()
+            or xmrig.parent_remote() != new_xmrig.parent_remote()
+        ):
 
             # New XMRig's upstream P2Pool is unset
             if new_xmrig.parent() == DField.DISABLE:

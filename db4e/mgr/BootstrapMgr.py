@@ -127,7 +127,7 @@ class BootstrapMgr:
             return os.path.abspath(
                 os.path.join(
                     tmpl_dir,
-                    DElem.P2POOL + "-" + DDef.P2POOL_VERSION,
+                    DElem.P2POOL,
                     DDef.CONF_DIR,
                     DElem.P2POOL + "-" + DDef.LOGROTATE + DDef.CONF_SUFFIX,
                 )
@@ -137,7 +137,7 @@ class BootstrapMgr:
             return os.path.abspath(
                 os.path.join(
                     tmpl_dir,
-                    DElem.XMRIG + "-" + DDef.XMRIG_VERSION,
+                    DElem.XMRIG,
                     DDef.CONF_DIR,
                     DElem.XMRIG + "-" + DDef.LOGROTATE + DDef.CONF_SUFFIX,
                 )
