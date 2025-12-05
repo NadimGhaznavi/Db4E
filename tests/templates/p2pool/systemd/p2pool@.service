@@ -1,0 +1,32 @@
+# /etc/systemd/system/p2pool@.service
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# P2Pool service definition
+#
+#####################################################################
+
+[Unit]
+Description=P2Pool instance %i
+After=network-online.target p2pool%i.socket
+BindsTo=p2pool%i.socket
+Wants=network.online.target
+
+[Service]
+Type=exec
+Sockets=p2pool@%i.socket
+StandardInput=socket
+StandardOutput=journal
+StandardError=journal
+ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
+TimeoutStopSec=60
+User=[[DB4E_USER]]
+Group=[[DB4E_GROUP]]
+WorkingDirectory=[[P2POOL_DIR]]
+
+[Install]
+WantedBy=multi-user.target

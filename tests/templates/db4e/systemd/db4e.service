@@ -1,0 +1,30 @@
+# /etc/systemd/system/db4e.service
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# Db4E service definition
+#
+#####################################################################
+
+[Unit]
+Description=Database 4 Everything Service
+After=network.target
+
+[Service]
+User=[[DB4E_USER]]
+WorkingDirectory=[[DB4E_DIR]]
+ExecStart=[[DB4E_DIR]]/bin/db4e-server
+Restart=always
+RestartSec=3
+KillMode=process
+Group=[[DB4E_GROUP]]
+StandardOutput=journal
+StandardError=journal
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

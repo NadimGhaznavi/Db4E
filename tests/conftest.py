@@ -8,10 +8,19 @@
 
 # tests/conftest.py
 import pytest
+import os
+import shutil
 from db4e.db.SQLDb import SQLDb
+from db4e.db.DeplDb import DeplDb
+from db4e.db.OpsDb import OpsDb
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.constants.DField import DField
 from db4e.constants.DDir import DDir
+from db4e.constants.DElem import DElem
+from db4e.constants.DDef import DDef
+
+TEMPLATES_DIR = "templates"
+VENDOR_DIR = "vendor"
 
 
 class FakeInitializedBootstrapMgr(BootstrapMgr):
@@ -19,10 +28,28 @@ class FakeInitializedBootstrapMgr(BootstrapMgr):
         # Do NOT call real super().__init__()
         self._initialized = True
         self._base_dir = base_dir
+        tests_dir = os.path.dirname(__file__)
+        # Copy in dummy templates directory and it's contents
+        templates_dir_src = os.path.join(tests_dir, TEMPLATES_DIR)
+        shutil.copytree(
+            templates_dir_src, self._base_dir + "/" + TEMPLATES_DIR, dirs_exist_ok=True
+        )
+        # Copy in dummy vendor directory an it's contents
+        vendor_dir_src = os.path.join(tests_dir, VENDOR_DIR)
+        shutil.copytree(
+            vendor_dir_src, self._base_dir + "/" + VENDOR_DIR, dirs_exist_ok=True
+        )
 
     def get_dir(self, aDir):
         if aDir == DDir.DB:
             return self._base_dir
+        elif aDir == DDir.VENDOR:
+            return self._base_dir + "/" + VENDOR_DIR
+        elif aDir == DDir.TEMPLATE:
+            return self._base_dir + "/" + TEMPLATES_DIR
+        elif aDir == DElem.MONEROD:
+            return DElem.MONEROD  # + "-" + DDef.MONEROD_VERSION
+
         raise KeyError(f"Unknown dir request: {aDir}")
 
     def is_initialized(self):
@@ -76,4 +103,13 @@ def initialized_sql_db(tmp_path):
     return db
 
 
+@pytest.fixture
+def initialized_depl_db(initialized_sql_db):
+    sql_db = initialized_sql_db
+    return DeplDb(sql_db=sql_db)
 
+
+@pytest.fixture
+def initialized_ops_db(initialized_sql_db):
+    sql_db = initialized_sql_db
+    return OpsDb(sql_db=sql_db)
