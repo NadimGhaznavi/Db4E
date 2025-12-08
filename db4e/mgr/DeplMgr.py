@@ -104,7 +104,8 @@ class DeplMgr:
             raise ValueError(f"DeplMgr:add_deployment(): No handler for {elem_class}")
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
-        monerod.ip_addr(socket.gethostname())
+        if not monerod.ip_addr():
+            monerod.ip_addr(socket.gethostname())
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         tmpl_file = self.bs_mgr.get_template(DElem.MONEROD)
 
@@ -184,6 +185,10 @@ class DeplMgr:
     def add_p2pool_deployment(self, p2pool: P2Pool):
         # Generate the configuration
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
+        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
+        if not p2pool.any_ip():
+            p2pool.any_ip(socket.gethostname())
+
         if p2pool.parent() != DField.DISABLE:
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
             # Upstream monero daemon is remote
@@ -202,17 +207,19 @@ class DeplMgr:
 
             # We need to know the upstream Monero to build a config
             if p2pool.parent() != DField.DISABLE:
+                # Add the user's Monero wallet to the instance's record
+                p2pool.user_wallet(db4e.user_wallet())
                 p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
-            p2pool.log_file(
-                os.path.join(
-                    vendor_dir,
-                    DDir.P2POOL,
-                    p2pool.instance(),
-                    DDef.LOG_DIR,
-                    DFile.P2POOL_LOG,
-                )
+        p2pool.log_file(
+            os.path.join(
+                vendor_dir,
+                DDir.P2POOL,
+                p2pool.instance(),
+                DDef.LOG_DIR,
+                DFile.P2POOL_LOG,
             )
+        )
         # Create the per-instance directories
         os.makedirs(
             os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), DDef.LOG_DIR),
@@ -237,11 +244,11 @@ class DeplMgr:
         )
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
         db4e_group = db4e.db4e_group()
         p2pool.gen_logrotate_config(
             tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
         )
+
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
 
