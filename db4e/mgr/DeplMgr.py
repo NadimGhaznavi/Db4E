@@ -299,6 +299,13 @@ class DeplMgr:
             if xmrig.parent() != DField.DISABLE:
                 xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
 
+        # Set the location of the instance's log file
+        xmrig.log_file(
+            os.path.join(
+                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + ".log"
+            )
+        )
+
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
         db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)

@@ -60,3 +60,4 @@ class MoneroDRemote(BaseMonero):
         if zmq_pub_port is not None:
             self._zmq_pub_port = int(zmq_pub_port)
         return self._zmq_pub_port
+

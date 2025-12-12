@@ -274,15 +274,32 @@ def test_add_deployment_xmrig(
 
     # XMRig instances use db4e.group()
     db4e = Db4E()
+    db4e.instance(DElem.DB4E)
     depl_db.insert_one(db4e)
+
+    # Create an upstream P2Pool instance
+    p2p_a = P2Pool()
+    p2p_a.instance("test_p2pool")
+    p2p_a = depl_mgr.add_deployment(p2p_a)
 
     xmrig_a = XMRig()
     xmrig_a.instance("test_xmrig")
+    xmrig_a.parent(p2p_a.id())
+    xmrig_a.parent_remote(0)
     depl_mgr.add_deployment(xmrig_a)
 
     rows = sql_db.execute_query("SELECT * from xmrig")
     assert len(rows) == 1
     assert rows[0]["instance"] == "test_xmrig"
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+    log_file = os.path.join(
+        vendor_dir, DDir.XMRIG, DDef.LOG_DIR, "test_xmrig" + DDef.LOG_SUFFIX
+    )
+    assert xmrig_a.log_file() == log_file
+
+    logrotate_config = os.path.join(vendor_dir, DDef.LOGROTATE, "xmrig-test_xmrig.conf")
+    assert xmrig_a.logrotate_config() == logrotate_config
 
 
 def test_add_deployment_xmrig_remote(
