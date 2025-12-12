@@ -238,6 +238,11 @@ def test_add_deployment_p2pool_full_integration(
 
     assert expected_keys.issubset(config.keys())
 
+    logrotate_config = os.path.join(
+        vendor_dir, DDef.LOGROTATE, "p2pool-test_p2pool.conf"
+    )
+    assert p2p_a.logrotate_config() == logrotate_config
+
 
 def test_add_deployment_p2pool_remote(
     initialized_sql_db,
@@ -291,6 +296,8 @@ def test_add_deployment_xmrig(
     rows = sql_db.execute_query("SELECT * from xmrig")
     assert len(rows) == 1
     assert rows[0]["instance"] == "test_xmrig"
+    assert rows[0]["parent"] == p2p_a.id()
+    assert rows[0]["parent_remote"] == 0
 
     vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
     log_file = os.path.join(
@@ -300,6 +307,9 @@ def test_add_deployment_xmrig(
 
     logrotate_config = os.path.join(vendor_dir, DDef.LOGROTATE, "xmrig-test_xmrig.conf")
     assert xmrig_a.logrotate_config() == logrotate_config
+
+    xmrig_dir = os.path.join(vendor_dir, DDir.XMRIG)
+    assert os.path.exists(xmrig_dir)
 
 
 def test_add_deployment_xmrig_remote(
