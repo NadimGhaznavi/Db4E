@@ -108,6 +108,7 @@ class DDef(ConstGroup):
     XMRIG_CONF_DIR: str = "conf"
     XMRIG_CONFIG: str = "config.json"
     XMRIG_DIR: str = "xmrig"
+    XMRIG_DIV: str = "NaDiM"
     XMRIG_PERMISSIONS: str = "-rwsr-x---"
     XMRIG_PROCESS: str = "xmrig"
     XMRIG_SERVICE_FILE: str = "xmrig@.service"

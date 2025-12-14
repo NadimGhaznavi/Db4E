@@ -1,7 +1,7 @@
 {
     "api": {
-        "id": "[[MINER_NAME]]",
-        "worker-id": "[[MINER_NAME]]"
+        "id": "NaDiMMINER_NAMENaDiM",
+        "worker-id": "NaDiMMINER_NAMENaDiM"
     },
     "http": {
         "enabled": false,
@@ -35,38 +35,97 @@
         "yield": true,
         "asm": true,
         "argon2-impl": null,
-        "argon2": [0, 1, 2, 3],
+        "argon2": [
+            0,
+            1,
+            2,
+            3
+        ],
         "cn": [
-            [1, 0],
-            [1, 1]
+            [
+                1,
+                0
+            ],
+            [
+                1,
+                1
+            ]
         ],
         "cn-heavy": [
-            [1, 0]
+            [
+                1,
+                0
+            ]
         ],
         "cn-lite": [
-            [1, 0],
-            [1, 1],
-            [1, 3]
+            [
+                1,
+                0
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                1,
+                3
+            ]
         ],
         "cn-pico": [
-            [2, 0],
-            [2, 2],
-            [2, 1],
-            [2, 3]
+            [
+                2,
+                0
+            ],
+            [
+                2,
+                2
+            ],
+            [
+                2,
+                1
+            ],
+            [
+                2,
+                3
+            ]
         ],
         "cn/upx2": [
-            [2, 0],
-            [2, 2],
-            [2, 1],
-            [2, 3]
+            [
+                2,
+                0
+            ],
+            [
+                2,
+                2
+            ],
+            [
+                2,
+                1
+            ],
+            [
+                2,
+                3
+            ]
         ],
         "ghostrider": [
-            [8, 0],
-            [8, 1]
+            [
+                8,
+                0
+            ],
+            [
+                8,
+                1
+            ]
         ],
-        "rx": [ [[NUM_THREADS]] ],
-        "rx/arq": [ [[NUM_THREADS]] ],
-        "rx/wow": [ [[NUM_THREADS]] ],
+        "rx": [
+            NaDiMNUM_THREADSNaDiM
+        ],
+        "rx/arq": [
+            NaDiMNUM_THREADSNaDiM
+        ],
+        "rx/wow": [
+            NaDiMNUM_THREADSNaDiM
+        ],
         "cn-lite/0": false,
         "cn/0": false,
         "rx/keva": "rx/wow"
@@ -83,17 +142,17 @@
         "loader": null,
         "nvml": true
     },
-    "log-file": "[[LOG_FILE]]",
+    "log-file": "NaDiMLOG_FILENaDiM",
     "donate-level": 0,
     "donate-over-proxy": 1,
     "pools": [
         {
             "algo": "rx/0",
             "coin": "XMR",
-            "url": "[[URL]]",
-            "user": "[[MINER_NAME]]",
-            "pass": "[[MINER_NAME]]",
-            "rig-id": "[[MINER_NAME]]",
+            "url": "NaDiMURLNaDiM",
+            "user": "NaDiMMINER_NAMENaDiM",
+            "pass": "NaDiMMINER_NAMENaDiM",
+            "rig-id": "NaDiMMINER_NAMENaDiM",
             "nicehash": false,
             "keepalive": false,
             "enabled": true,

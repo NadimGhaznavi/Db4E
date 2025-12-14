@@ -6,7 +6,7 @@
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    License: GPL 3.0
 
-import os
+import os, json
 
 from db4e.mgr.DeplMgr import DeplMgr
 from db4e.recs.monero.Db4E import Db4E
@@ -202,7 +202,6 @@ def test_add_deployment_p2pool_full_integration(
     with open(startup_ini) as f:
         for line in f:
             if "=" in line:
-                print(line, end="")
                 key, value = line.strip().split("=", 1)
                 config[key] = value.strip('"')
 
@@ -285,6 +284,8 @@ def test_add_deployment_xmrig(
     # Create an upstream P2Pool instance
     p2p_a = P2Pool()
     p2p_a.instance("test_p2pool")
+    p2p_a.ip_addr("10.10.10.10")
+    p2p_a.stratum_port(3333)
     p2p_a = depl_mgr.add_deployment(p2p_a)
 
     xmrig_a = XMRig()
@@ -310,6 +311,30 @@ def test_add_deployment_xmrig(
 
     xmrig_dir = os.path.join(vendor_dir, DDir.XMRIG)
     assert os.path.exists(xmrig_dir)
+
+    startup_ini = os.path.join(
+        vendor_dir, DElem.XMRIG, DDef.CONF_DIR, "test_xmrig" + DDef.JSON_SUFFIX
+    )
+    assert os.path.exists(startup_ini)
+
+    with open(startup_ini, "r") as f:
+        config = json.load(f)
+
+    assert config["api"]["id"] == "test_xmrig"
+    assert config["api"]["worker-id"] == "test_xmrig"
+    assert str(config["cpu"]["rx"]) == f"[-{DDef.NUM_THREADS}]"
+    assert str(config["cpu"]["rx/arq"]) == f"[-{DDef.NUM_THREADS}]"
+    assert str(config["cpu"]["rx/wow"]) == f"[-{DDef.NUM_THREADS}]"
+    assert config["log-file"] == log_file
+    assert str(config["pools"][0]["url"]) == "10.10.10.10:3333"
+    assert config["pools"][0]["user"] == "test_xmrig"
+    assert config["pools"][0]["pass"] == "test_xmrig"
+    assert config["pools"][0]["rig-id"] == "test_xmrig"
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 2
+    assert rows[1]["tracked_instance"] == "test_xmrig"
+    assert rows[0]["tracked_instance"] == "test_p2pool"
 
 
 def test_add_deployment_xmrig_remote(

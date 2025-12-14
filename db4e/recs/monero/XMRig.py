@@ -159,11 +159,12 @@ class XMRig(LocalMonero):
             DPlaceholder.URL: url_entry,
             DPlaceholder.LOG_FILE: fq_log,
         }
+        DIV = DDef.XMRIG_DIV
         with open(tmpl_file, "r") as f:
             config_contents = f.read()
             final_config = config_contents
             for key, val in placeholders.items():
-                final_config = final_config.replace(f"[[{key}]]", str(val))
+                final_config = final_config.replace(f"{DIV}{key}{DIV}", str(val))
 
         # Write the config to file
         with open(fq_config, "w") as f:
