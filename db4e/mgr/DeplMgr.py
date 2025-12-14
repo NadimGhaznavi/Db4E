@@ -361,58 +361,6 @@ class DeplMgr:
         )
         return xmrig
 
-    def create_vendor_dir(self, new_dir: str, db4e: Db4E):
-        update_flag = True
-        if os.path.exists(new_dir):
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
-            backup_vendor_dir = new_dir + "." + timestamp
-            try:
-                os.rename(new_dir, backup_vendor_dir)
-                # Add a console log message
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.DB4E,
-                    tracked_instance=DLabel.VENDOR_DIR,
-                    status=DStatus.WARN,
-                    operation=DField.UPDATE,
-                    message="Backed up directory",
-                    details=f"{new_dir} > {backup_vendor_dir}",
-                )
-            except (PermissionError, OSError) as e:
-                update_flag = False
-                # Add a console log message
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.DB4E,
-                    tracked_instance=DLabel.VENDOR_DIR,
-                    status=DStatus.ERROR,
-                    operation=DField.UPDATE,
-                    message="Unable to backup directory",
-                    details=e,
-                )
-                return db4e, update_flag
-        try:
-            os.makedirs(new_dir)
-            # Add a console log message
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.VENDOR_DIR,
-                status=DStatus.COMPLETE,
-                operation=DField.NEW,
-                message="Created new directory",
-                details=new_dir,
-            )
-        except (PermissionError, OSError) as e:
-            update_flag = False
-            # Add a console log message
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.VENDOR_DIR,
-                status=DStatus.ERROR,
-                operation=DField.NEW,
-                message="Unable to create directory",
-                details=e,
-            )
-        return update_flag
-
     def delete_deployment(self, elem):
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
