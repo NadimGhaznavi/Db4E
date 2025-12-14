@@ -336,6 +336,21 @@ def test_add_deployment_xmrig(
     assert rows[1]["tracked_instance"] == "test_xmrig"
     assert rows[0]["tracked_instance"] == "test_p2pool"
 
+    xmrig_a.instance("test_xmrig_2")
+    xmrig_a.num_threads(2)
+    xmrig_a = depl_mgr.add_deployment(xmrig_a)
+
+    startup_ini = os.path.join(
+        vendor_dir, DElem.XMRIG, DDef.CONF_DIR, "test_xmrig_2" + DDef.JSON_SUFFIX
+    )
+    assert os.path.exists(startup_ini)
+
+    with open(startup_ini, "r") as f:
+        config = json.load(f)
+    assert str(config["cpu"]["rx"]) == f"[-1, -1]"
+    assert str(config["cpu"]["rx/arq"]) == f"[-1, -1]"
+    assert str(config["cpu"]["rx/wow"]) == f"[-1, -1]"
+
 
 def test_add_deployment_xmrig_remote(
     initialized_sql_db,

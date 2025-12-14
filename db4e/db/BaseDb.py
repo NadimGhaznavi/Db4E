@@ -116,6 +116,7 @@ class BaseDb:
 
     Concrete database managers must subclass ``BaseDb`` and implement ``_init_db()``.
     """
+
     def __init__(self, sql_db: SQLDb, log_file=None):
         """
         Initialize the base database manager.
@@ -131,19 +132,18 @@ class BaseDb:
         if sql_db.is_initialized():
             self.initialize()
 
-
     def add_timestamp_data(self, data):
         """
         Add individual timestamp columns to a row dictionary.
 
         Adds the following keys:
 
-        - ``updated_y`` — year  
-        - ``updated_mo`` — month  
-        - ``updated_d`` — day  
-        - ``updated_h`` — hour  
-        - ``updated_mi`` — minute  
-        - ``updated_s`` — second  
+        - ``updated_y`` — year
+        - ``updated_mo`` — month
+        - ``updated_d`` — day
+        - ``updated_h`` — hour
+        - ``updated_mi`` — minute
+        - ``updated_s`` — second
 
         :param data: Dictionary representing a database row.
         :type data: dict
@@ -232,7 +232,7 @@ class BaseDb:
         Subclasses must override this to create their required tables.
 
         :raises NotImplementedError: Always.
-        """        
+        """
         raise NotImplementedError
 
     def get_records_since(self, table_name: str, since_ts: int, hourly=False):
@@ -277,6 +277,8 @@ class BaseDb:
         """
         self.check_initialized()
         data = db4e_obj.to_dict()
+        if "id" in data:
+            del data["id"]
         data = self.add_timestamp_data(data)
         # Stable key order (deterministic SQL generation)
         table_name = CLASS_TO_TABLE_MAP[type(db4e_obj)]
