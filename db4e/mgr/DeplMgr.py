@@ -364,6 +364,7 @@ class DeplMgr:
     def delete_deployment(self, elem):
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
+            tracked_type = DElem.MONEROD
             # Delete filesystem artifacts
             config = elem.config_file()
             if os.path.exists(config):
@@ -371,9 +372,12 @@ class DeplMgr:
             depl_dir = os.path.join(vendor_dir, DDir.MONEROD, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
-            # TODO update downstream; update their parent to -1
 
-        elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
+        elif type(elem) == MoneroDRemote:
+            tracked_type = DElem.MONEROD_REMOTE
+
+        elif type(elem) == P2Pool:
+            tracked_type = DElem.P2POOL
             config = elem.config_file()
             if os.path.exists(config):
                 os.remove(config)
@@ -382,7 +386,12 @@ class DeplMgr:
             depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
+
+        elif type(elem) == P2PoolRemote:
+            tracked_type = DElem.P2POOL_REMOTE
+
         elif type(elem) == XMRig:
+            tracked_type = DElem.XMRIG
             config = elem.config_file()
             if os.path.exists(config):
                 os.remove(config)
@@ -392,10 +401,16 @@ class DeplMgr:
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
 
+        elif type(elem) == XMRigRemote:
+            tracked_type = DElem.XMRIG_REMOTE
+
+        else:
+            raise ValueError(f"DeplMgr:delete_deployment(): No handler for {elem}")
+
         self.depl_db.delete_deployment(elem)
         # Create a console log message
         self.ops_db.add_tui_log_line(
-            tracked_type=type(elem),
+            tracked_type=tracked_type,
             tracked_instance=elem.instance(),
             status=DStatus.COMPLETE,
             operation=DField.DELETE,

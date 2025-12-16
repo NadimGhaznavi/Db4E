@@ -14,6 +14,8 @@ from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
 from db4e.mgr.BootstrapMgr import BootstrapMgr
+from db4e.mgr.DeplMgr import DeplMgr
+
 from db4e.constants.DField import DField
 from db4e.constants.DDir import DDir
 from db4e.constants.DElem import DElem
@@ -117,3 +119,18 @@ def initialized_depl_db(initialized_sql_db):
 def initialized_ops_db(initialized_sql_db):
     sql_db = initialized_sql_db
     return OpsDb(sql_db=sql_db)
+
+
+@pytest.fixture
+def initialized_depl_mgr(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
+    return depl_mgr

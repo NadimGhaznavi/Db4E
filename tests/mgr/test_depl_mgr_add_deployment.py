@@ -1,4 +1,4 @@
-# db4e/tests/mgr/test_depl_mgr.py
+# db4e/tests/mgr/test_depl_mgr_add_deployment.py
 #
 #    Database 4 Everything
 #    Author: Nadim-Daniel Ghaznavi
@@ -23,16 +23,12 @@ from db4e.constants.DElem import DElem
 
 
 def test_add_deployment_monerod_full_integration(
-    initialized_sql_db,
-    initialized_bootstrap_mgr,
-    initialized_depl_db,
-    initialized_ops_db,
+    initialized_sql_db, initialized_bootstrap_mgr, initialized_depl_mgr
 ):
     sql_db = initialized_sql_db
     bs_mgr = initialized_bootstrap_mgr
-    depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
+    depl_mgr = initialized_depl_mgr
+
     mon_a = MoneroD()
     mon_a.instance("test_monerod")
     depl_mgr.add_deployment(mon_a)
@@ -110,17 +106,10 @@ def test_add_deployment_monerod_full_integration(
     assert rows[0]["tracked_type"] == "monerod"
 
 
-def test_add_deployment_monerod_remote(
-    initialized_sql_db,
-    initialized_bootstrap_mgr,
-    initialized_depl_db,
-    initialized_ops_db,
-):
+def test_add_deployment_monerod_remote(initialized_sql_db, initialized_depl_mgr):
+    depl_mgr = initialized_depl_mgr
     sql_db = initialized_sql_db
-    bs_mgr = initialized_bootstrap_mgr
-    depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
+
     mon_a = MoneroDRemote()
     mon_a.instance("test_monerod_remote")
     depl_mgr.add_deployment(mon_a)
@@ -134,13 +123,13 @@ def test_add_deployment_p2pool_full_integration(
     initialized_sql_db,
     initialized_bootstrap_mgr,
     initialized_depl_db,
-    initialized_ops_db,
+    initialized_depl_mgr,
 ):
+    depl_mgr = initialized_depl_mgr
+
     sql_db = initialized_sql_db
     bs_mgr = initialized_bootstrap_mgr
     depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
 
     # P2Pool creation calls on db4e.group() to be created...
     db4e = Db4E()
@@ -243,17 +232,9 @@ def test_add_deployment_p2pool_full_integration(
     assert p2p_a.logrotate_config() == logrotate_config
 
 
-def test_add_deployment_p2pool_remote(
-    initialized_sql_db,
-    initialized_bootstrap_mgr,
-    initialized_depl_db,
-    initialized_ops_db,
-):
+def test_add_deployment_p2pool_remote(initialized_sql_db, initialized_depl_mgr):
+    depl_mgr = initialized_depl_mgr
     sql_db = initialized_sql_db
-    bs_mgr = initialized_bootstrap_mgr
-    depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
 
     p2p_a = P2PoolRemote()
     p2p_a.instance("test_p2pool_remote")
@@ -265,16 +246,15 @@ def test_add_deployment_p2pool_remote(
 
 
 def test_add_deployment_xmrig(
+    initialized_depl_mgr,
     initialized_sql_db,
-    initialized_bootstrap_mgr,
     initialized_depl_db,
-    initialized_ops_db,
+    initialized_bootstrap_mgr,
 ):
     sql_db = initialized_sql_db
-    bs_mgr = initialized_bootstrap_mgr
     depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
+    depl_mgr = initialized_depl_mgr
+    bs_mgr = initialized_bootstrap_mgr
 
     # XMRig instances use db4e.group()
     db4e = Db4E()
@@ -352,17 +332,9 @@ def test_add_deployment_xmrig(
     assert str(config["cpu"]["rx/wow"]) == f"[-1, -1]"
 
 
-def test_add_deployment_xmrig_remote(
-    initialized_sql_db,
-    initialized_bootstrap_mgr,
-    initialized_depl_db,
-    initialized_ops_db,
-):
+def test_add_deployment_xmrig_remote(initialized_depl_mgr, initialized_sql_db):
+    depl_mgr = initialized_depl_mgr
     sql_db = initialized_sql_db
-    bs_mgr = initialized_bootstrap_mgr
-    depl_db = initialized_depl_db
-    ops_db = initialized_ops_db
-    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
 
     xmrig_a = XMRigRemote()
     xmrig_a.instance("test_xmrig_remote")
