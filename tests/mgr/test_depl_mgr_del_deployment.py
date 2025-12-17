@@ -152,3 +152,82 @@ def test_del_deployment_p2pool_remote(initialized_depl_mgr, initialized_sql_db):
 
     for row in rows:
         assert row["instance"] != "p2p_b"
+
+
+def test_del_xmrig(initialized_depl_mgr, initialized_sql_db, initialized_depl_db):
+    depl_mgr = initialized_depl_mgr
+    sql_db = initialized_sql_db
+    depl_db = initialized_depl_db
+
+    # XMRig instances use db4e.group()
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    depl_db.insert_one(db4e)
+
+    xmrig_a = XMRig()
+    xmrig_a.instance("xmrig_a")
+    depl_mgr.add_deployment(xmrig_a)
+
+    # Create an upstream P2Pool instance
+    p2p_a = P2Pool()
+    p2p_a.instance("p2p_a")
+    p2p_a.ip_addr("10.10.10.10")
+    p2p_a.stratum_port(3333)
+    p2p_a = depl_mgr.add_deployment(p2p_a)
+
+    xmrig_b = XMRig()
+    xmrig_b.instance("xmrig_b")
+    xmrig_b.parent(p2p_a.id())
+    xmrig_b.parent_remote(0)
+    depl_mgr.add_deployment(xmrig_b)
+
+    xmrig_c = XMRig()
+    xmrig_c.instance("xmrig_c")
+    depl_mgr.add_deployment(xmrig_c)
+
+    rows = sql_db.execute_query("SELECT * from xmrig")
+    assert len(rows) == 3
+
+    config_file = xmrig_b.config_file()
+    logrotate_config = xmrig_b.logrotate_config()
+    assert os.path.exists(config_file)
+    assert os.path.exists(logrotate_config)
+
+    depl_mgr.delete_deployment(xmrig_b)
+
+    assert os.path.exists(config_file) == False
+    assert os.path.exists(logrotate_config) == False
+
+    rows = sql_db.execute_query("SELECT * from xmrig")
+    assert len(rows) == 2
+
+    for row in rows:
+        assert row["instance"] != "xmrig_b"
+
+
+def test_del_xmrig_remote(initialized_depl_mgr, initialized_sql_db):
+    depl_mgr = initialized_depl_mgr
+    sql_db = initialized_sql_db
+
+    xmrig_a = XMRigRemote()
+    xmrig_a.instance("xmrig_a")
+    depl_mgr.add_deployment(xmrig_a)
+
+    xmrig_b = XMRigRemote()
+    xmrig_b.instance("xmrig_b")
+    depl_mgr.add_deployment(xmrig_b)
+
+    xmrig_c = XMRigRemote()
+    xmrig_c.instance("xmrig_c")
+    depl_mgr.add_deployment(xmrig_c)
+
+    rows = sql_db.execute_query("SELECT * from xmrig_remote")
+    assert len(rows) == 3
+
+    depl_mgr.delete_deployment(xmrig_b)
+
+    rows = sql_db.execute_query("SELECT * from xmrig_remote")
+    assert len(rows) == 2
+
+    for row in rows:
+        assert row["instance"] != "xmrig_b"
