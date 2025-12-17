@@ -187,6 +187,8 @@ def test_add_deployment_p2pool_full_integration(
         vendor_dir, DElem.P2POOL, DDef.CONF_DIR, "test_p2pool" + DDef.INI_SUFFIX
     )
     assert os.path.exists(startup_ini)
+    assert startup_ini == p2p_a.config_file()
+
     config = {}
     with open(startup_ini) as f:
         for line in f:
