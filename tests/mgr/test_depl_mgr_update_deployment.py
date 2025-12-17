@@ -13,6 +13,7 @@ from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
 from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
 
 
 def test_update_db4e(
@@ -50,12 +51,34 @@ def test_update_db4e(
     assert rows[0]["vendor_dir"] == vendor_dir
 
     rows = sql_db.execute_query("SELECT * from tui_log_line")
-    for row in rows:
-        for key in row.keys():
-            print(f"{key}: {row[key]}")
 
     assert len(rows) == 2
     assert rows[0]["tracked_instance"] == DLabel.DB4E
     assert rows[0]["tracked_type"] == DElem.DB4E
     assert rows[0]["message"] == DLabel.USER_WALLET
     assert rows[0]["details"] is not None
+
+    # We need a Monero instance to test with
+    mon_a = MoneroD()
+    mon_a.instance("mon_a")
+    mon_a = depl_mgr.add_deployment(mon_a)
+
+    db4e.primary_server(mon_a.id())
+    db4e.primary_remote(0)
+    depl_mgr.update_deployment(db4e)
+
+    rows = sql_db.execute_query("SELECT * from db4e")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["primary_server"] == mon_a.id()
+    assert row["primary_remote"] == 0
+
+    db4e.primary_server(DField.DISABLE)
+    db4e.primary_remote(DField.DISABLE)
+    depl_mgr.update_deployment(db4e)
+
+    rows = sql_db.execute_query("SELECT * from db4e")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["primary_server"] == DField.DISABLE
+    assert row["primary_remote"] == DField.DISABLE
