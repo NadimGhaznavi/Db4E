@@ -437,15 +437,6 @@ class DeplMgr:
             db4e.user_wallet(new_db4e.user_wallet())
             update_flag, update_p2pool_flag = True, True
 
-            # Create a console log line
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.DB4E,
-                tracked_instance=DLabel.DB4E,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.VENDOR_DIR,
-                details=f"{db4e.vendor_dir()} > {new_db4e.vendor_dir()}",
-            )
             if update_flag:
                 db4e.vendor_dir(new_db4e.vendor_dir())
 
