@@ -124,3 +124,31 @@ def test_del_deployment_p2pool(
 
     assert os.path.exists(config_file) == False
     assert os.path.exists(logrotate_config) == False
+
+
+def test_del_deployment_p2pool_remote(initialized_depl_mgr, initialized_sql_db):
+    depl_mgr = initialized_depl_mgr
+    sql_db = initialized_sql_db
+
+    p2p_a = P2PoolRemote()
+    p2p_a.instance("p2p_a")
+    depl_mgr.add_deployment(p2p_a)
+
+    p2p_b = P2PoolRemote()
+    p2p_b.instance("p2p_b")
+    depl_mgr.add_deployment(p2p_b)
+
+    p2p_c = P2PoolRemote()
+    p2p_c.instance("p2p_c")
+    depl_mgr.add_deployment(p2p_c)
+
+    rows = sql_db.execute_query("SELECT * from p2pool_remote")
+    assert len(rows) == 3
+
+    depl_mgr.delete_deployment(p2p_b)
+
+    rows = sql_db.execute_query("SELECT * from p2pool_remote")
+    assert len(rows) == 2
+
+    for row in rows:
+        assert row["instance"] != "p2p_b"
