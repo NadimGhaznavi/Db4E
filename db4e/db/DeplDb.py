@@ -317,6 +317,7 @@ class DeplDb(BaseDb):
                 p2p_port INTEGER,
                 parent INTEGER,
                 parent_remote INTEGER,
+                stats_mod TEXT,
                 stdin_path TEXT,
                 stratum_port INTEGER,
                 user_wallet TEXT,
