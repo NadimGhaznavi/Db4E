@@ -54,6 +54,15 @@ class P2PoolInternal(BaseP2Pool):
         if rec:
             self.from_rec(rec)
 
+    def from_rec(self, rec):
+        super().from_rec(rec)
+        self._stats_mod = rec[DField.STATS_MOD]
+
+    def to_dict(self):
+        data = super().to_dict()
+        data.update({DField.STATS_MOD: self._stats_mod})
+        return data
+
     def stats_mod(self, stats_mod=None):
         if stats_mod is not None:
             self._stats_mod = stats_mod
