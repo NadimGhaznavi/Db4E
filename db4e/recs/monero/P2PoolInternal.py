@@ -45,6 +45,8 @@ class P2PoolInternal(BaseP2Pool):
         self.p2p_port(DDef.P2P_PORT)
         # Start with the default STRATUM_PORT number (this is changed in set_type())
         self.stratum_port(DDef.STRATUM_PORT)
+        # Set the listening IP address
+        self.any_ip(DDef.ANY_IP)
 
         # Historical chain hashrate data
         self._hashrates = None

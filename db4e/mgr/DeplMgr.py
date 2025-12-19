@@ -916,11 +916,11 @@ class DeplMgr:
             else:
                 if new_p2pool.parent_remote():
                     new_instance = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD_REMOTE, id=p2pool.parent()
+                        elem_type=DElem.MONEROD_REMOTE, id=new_p2pool.parent()
                     ).instance()
                 else:
                     new_instance = self.depl_db.get_deployment_by_id(
-                        elem_type=DElem.MONEROD, id=p2pool.parent()
+                        elem_type=DElem.MONEROD, id=new_p2pool.parent()
                     ).instance()
                 update_config = True
 

@@ -13,8 +13,12 @@ import shutil
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
+
+from db4e.recs.monero.Db4E import Db4E
+
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
+from db4e.mgr.InstallMgr import InstallMgr
 
 from db4e.constants.DField import DField
 from db4e.constants.DDir import DDir
@@ -134,3 +138,23 @@ def initialized_depl_mgr(
     ops_db = initialized_ops_db
     depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
     return depl_mgr
+
+
+@pytest.fixture
+def UNUSED_initialized_install_mgr(initialized_bootstrap_mgr, initialized_depl_db):
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+
+    # The InstallMgr creates the three internal P2Pool instances during the install
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    db4e.user_wallet("test_wallet_value")
+    db4e.vendor_dir(bs_mgr.get_dir(DDir.VENDOR))
+    depl_db.insert_one(db4e)
+
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+    install_mgr._deploy_internal_p2pools(db4e=db4e)
+
+    return install_mgr

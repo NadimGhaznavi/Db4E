@@ -39,6 +39,7 @@ class BaseP2Pool(LocalMonero):
         self._in_peers = DDef.IN_PEERS
         self._ip_addr = ""
         self._log_file = ""
+        self._log_level = ""
         self._logrotate_config = ""
         self._max_log_files = DDef.MAX_LOG_FILES
         self._max_log_size = DDef.MAX_LOG_SIZE
@@ -75,10 +76,10 @@ class BaseP2Pool(LocalMonero):
         self._in_peers = rec[DCol.IN_PEERS]
         self._ip_addr = rec[DCol.IP_ADDR]
         self._log_file = rec[DCol.LOG_FILE]
+        self._log_level = rec[DCol.LOG_LEVEL]
         self._logrotate_config = rec[DCol.LOGROTATE_CONFIG]
         self._max_log_files = rec[DCol.MAX_LOG_FILES]
         self._max_log_size = rec[DCol.MAX_LOG_SIZE]
-        self._log_level = rec[DCol.LOG_LEVEL]
         self._out_peers = rec[DCol.OUT_PEERS]
         self._p2p_port = rec[DCol.P2P_PORT]
         self._parent = rec[DCol.PARENT]
@@ -98,10 +99,10 @@ class BaseP2Pool(LocalMonero):
                 DCol.IN_PEERS: self._in_peers,
                 DCol.IP_ADDR: self._ip_addr,
                 DCol.LOG_FILE: self._log_file,
+                DCol.LOG_LEVEL: self._log_level,
                 DCol.LOGROTATE_CONFIG: self._logrotate_config,
                 DCol.MAX_LOG_FILES: self._max_log_files,
                 DCol.MAX_LOG_SIZE: self._max_log_size,
-                DCol.LOG_LEVEL: self._log_level,
                 DCol.OUT_PEERS: self._out_peers,
                 DCol.P2P_PORT: self._p2p_port,
                 DCol.PARENT: self._parent,

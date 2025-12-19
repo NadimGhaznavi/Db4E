@@ -6,9 +6,11 @@
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    License: GPL 3.0
 
+from db4e.mgr.InstallMgr import InstallMgr
+
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
-from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
 from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
@@ -29,6 +31,7 @@ def test_update_db4e(
 
     vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
 
+    # Get a Db4E instance for testing
     db4e = Db4E()
     db4e.instance(DElem.DB4E)
     db4e.user_wallet("user_wallet")
@@ -41,6 +44,7 @@ def test_update_db4e(
     assert rows[0]["user_wallet"] == "user_wallet"
     assert rows[0]["vendor_dir"] == vendor_dir
 
+    # Update user wallet
     db4e.user_wallet("new_user_wallet")
     depl_mgr.update_deployment(db4e)
 
@@ -49,6 +53,10 @@ def test_update_db4e(
     assert rows[0]["instance"] == DElem.DB4E
     assert rows[0]["user_wallet"] == "new_user_wallet"
     assert rows[0]["vendor_dir"] == vendor_dir
+
+    # Confirm that the primary server setting is initialized as disabled
+    assert rows[0]["primary_server"] == DField.DISABLE
+    assert rows[0]["primary_remote"] == DField.DISABLE
 
     rows = sql_db.execute_query("SELECT * from tui_log_line")
 
@@ -63,6 +71,11 @@ def test_update_db4e(
     mon_a.instance("mon_a")
     mon_a = depl_mgr.add_deployment(mon_a)
 
+    # We need internal P2Pool instances for testing
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+    install_mgr._deploy_internal_p2pools(db4e=db4e)
+
+    # Set a primary server
     db4e.primary_server(mon_a.id())
     db4e.primary_remote(0)
     depl_mgr.update_deployment(db4e)
@@ -72,6 +85,14 @@ def test_update_db4e(
     row = rows[0]
     assert row["primary_server"] == mon_a.id()
     assert row["primary_remote"] == 0
+
+    # Confirm that the internal P2Pool instances are now using the primary server
+    rows = sql_db.execute_query("SELECT * from p2pool_internal")
+    assert len(rows) == 3
+
+    for row in rows:
+        assert row["parent"] == mon_a.id()
+        assert row["parent_remote"] == 0
 
     db4e.primary_server(DField.DISABLE)
     db4e.primary_remote(DField.DISABLE)
