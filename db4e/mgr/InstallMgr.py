@@ -307,17 +307,15 @@ class InstallMgr(Container):
     # Copy monerod files
     def _copy_monerod_files(self, db4e: Db4E):
         vendor_dir = db4e.vendor_dir()
-        versioned_monerod_dir = DElem.MONEROD + "-" + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
-
         # Copy in the Monero daemon and startup scripts
         fq_dst_bin_dir = os.path.join(vendor_dir, DElem.MONEROD, DDef.BIN_DIR)
         fq_dst_monerod_dest_script = os.path.join(
             vendor_dir, DElem.MONEROD, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT
         )
         fq_src_monerod = os.path.join(
-            tmpl_dir, versioned_monerod_dir, DDef.BIN_DIR, DDef.MONEROD_PROCESS
+            tmpl_dir, DElem.MONEROD, DDef.BIN_DIR, DDef.MONEROD_PROCESS
         )
 
         shutil.copy(fq_src_monerod, fq_dst_bin_dir)
@@ -330,7 +328,7 @@ class InstallMgr(Container):
             details=f"{fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}",
         )
         fq_src_monerod_start_script = os.path.join(
-            tmpl_dir, versioned_monerod_dir, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT
+            tmpl_dir, DElem.MONEROD, DDef.BIN_DIR, DDef.MONEROD_START_SCRIPT
         )
         shutil.copy(fq_src_monerod_start_script, fq_dst_monerod_dest_script)
         # Make it executable
@@ -353,15 +351,13 @@ class InstallMgr(Container):
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
-        # P2Pool directory
-        versioned_p2pool_dir = DElem.P2POOL + "-" + str(DDef.P2POOL_VERSION)
         # Copy in the P2Pool daemon and startup script
         fq_src_p2pool = os.path.join(
-            tmpl_dir, versioned_p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_PROCESS
+            tmpl_dir, DElem.P2POOL, DDef.BIN_DIR, DDef.P2POOL_PROCESS
         )
         fq_dst_bin_dir = os.path.join(vendor_dir, DElem.P2POOL, DDef.BIN_DIR)
         fq_src_p2pool_start_script = os.path.join(
-            tmpl_dir, versioned_p2pool_dir, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT
+            tmpl_dir, DElem.P2POOL, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT
         )
         fq_dst_p2pool_start_script = os.path.join(
             vendor_dir, DElem.P2POOL, DDef.BIN_DIR, DDef.P2POOL_START_SCRIPT
@@ -395,14 +391,10 @@ class InstallMgr(Container):
     def _copy_xmrig_file(self, db4e: Db4E) -> Db4E:
         vendor_dir = db4e.vendor_dir()
         xmrig_binary = DDef.XMRIG_PROCESS
-        # XMRig directory
-        versioned_xmrig_dir = DElem.XMRIG + "-" + str(DDef.XMRIG_VERSION)
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         fq_dst_xmrig_bin_dir = os.path.join(vendor_dir, DElem.XMRIG, DDef.BIN_DIR)
-        fq_src_xmrig = os.path.join(
-            tmpl_dir, versioned_xmrig_dir, DDef.BIN_DIR, xmrig_binary
-        )
+        fq_src_xmrig = os.path.join(tmpl_dir, DElem.XMRIG, DDef.BIN_DIR, xmrig_binary)
         shutil.copy(fq_src_xmrig, fq_dst_xmrig_bin_dir)
         self.ops_db.add_tui_log_line(
             tracked_type=DElem.DB4E,
@@ -701,7 +693,6 @@ class InstallMgr(Container):
 
     def _generate_tmp_monerod_service_files(self, db4e: Db4E):
         vendor_dir = db4e.vendor_dir()
-        monerod_with_version = DElem.MONEROD + "-" + str(DDef.MONEROD_VERSION)
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -716,7 +707,7 @@ class InstallMgr(Container):
 
         # Generate a temporary monerod.systemd for the sudo script to install
         fq_monerod_service_file = os.path.join(
-            tmpl_dir, monerod_with_version, DDef.SYSTEMD_DIR, DDef.MONEROD_SERVICE_FILE
+            tmpl_dir, DElem.MONEROD, DDef.SYSTEMD_DIR, DDef.MONEROD_SERVICE_FILE
         )
         service_contents = self._replace_placeholders(
             fq_monerod_service_file, placeholders
@@ -728,7 +719,7 @@ class InstallMgr(Container):
         # Generate a temporary monerod.socket for the sudo script to install
         fq_monerod_socket_file = os.path.join(
             tmpl_dir,
-            monerod_with_version,
+            DElem.MONEROD,
             DDef.SYSTEMD_DIR,
             DDef.MONEROD_SOCKET_SERVICE,
         )
@@ -741,7 +732,6 @@ class InstallMgr(Container):
 
     def _generate_tmp_p2pool_service_files(self, db4e: Db4E):
         vendor_dir = db4e.vendor_dir()
-        p2pool_with_version = DElem.P2POOL + "-" + str(DDef.P2POOL_VERSION)
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -759,7 +749,7 @@ class InstallMgr(Container):
 
         # Generate a temporary p2pool.service for the sudo script to install
         fq_p2pool_service_file = os.path.join(
-            tmpl_dir, p2pool_with_version, DDef.SYSTEMD_DIR, DDef.P2POOL_SERVICE_FILE
+            tmpl_dir, DElem.P2POOL, DDef.SYSTEMD_DIR, DDef.P2POOL_SERVICE_FILE
         )
         service_contents = self._replace_placeholders(
             fq_p2pool_service_file, placeholders
@@ -771,7 +761,7 @@ class InstallMgr(Container):
         # Generate a temporary p2pool.socket
         fq_p2pool_socket_file = os.path.join(
             tmpl_dir,
-            p2pool_with_version,
+            DElem.P2POOL,
             DDef.SYSTEMD_DIR,
             DDef.P2POOL_SERVICE_SOCKET_FILE,
         )
@@ -784,7 +774,6 @@ class InstallMgr(Container):
 
     def _generate_tmp_xmrig_service_file(self, db4e: Db4E) -> None:
         vendor_dir = db4e.vendor_dir()
-        xmrig_with_version = DElem.XMRIG + "-" + str(DDef.XMRIG_VERSION)
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         # Temporary directory
@@ -797,7 +786,7 @@ class InstallMgr(Container):
             DPlaceholder.DB4E_GROUP: db4e.db4e_group(),
         }
         fq_xmrig_service_file = os.path.join(
-            tmpl_dir, xmrig_with_version, DDef.SYSTEMD_DIR, DDef.XMRIG_SERVICE_FILE
+            tmpl_dir, DElem.XMRIG, DDef.SYSTEMD_DIR, DDef.XMRIG_SERVICE_FILE
         )
         service_contents = self._replace_placeholders(
             fq_xmrig_service_file, placeholders
