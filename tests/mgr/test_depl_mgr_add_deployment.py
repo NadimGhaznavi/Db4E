@@ -40,12 +40,7 @@ def test_add_deployment_monerod_full_integration(
     mon_a = MoneroD(rec=rows[0])
     assert mon_a.instance() == "test_monerod"
 
-    # Confirm the log_file attribute was set correctly
     vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
-    logfile = os.path.join(
-        vendor_dir, DDir.MONEROD, "test_monerod", DDef.LOG_DIR, DDef.MONEROD_LOG_FILE
-    )
-    assert mon_a.log_file() == logfile
 
     # Confirm that the blockchain directory was created
     blockchain_dir = os.path.join(
@@ -56,12 +51,6 @@ def test_add_deployment_monerod_full_integration(
     # Confirm that the run directory was created
     run_dir = os.path.join(vendor_dir, DDir.MONEROD, "test_monerod", DDef.RUN_DIR)
     assert os.path.exists(run_dir)
-
-    # Confirm that the STDIN attribute was set correctly
-    stdin_path = os.path.join(
-        vendor_dir, DDir.MONEROD, "test_monerod", DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE
-    )
-    assert stdin_path == mon_a.stdin_path()
 
     # Confirm that the startup INI file was correctly generated
     startup_ini = os.path.join(

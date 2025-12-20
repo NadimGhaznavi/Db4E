@@ -6,7 +6,11 @@
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    License: GPL 3.0
 
+import os
+import socket
+
 from db4e.mgr.InstallMgr import InstallMgr
+from db4e.mgr.DeplMgr import DeplMgr
 
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
@@ -16,6 +20,7 @@ from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
+from db4e.constants.DDef import DDef
 
 
 def test_update_db4e(
@@ -103,3 +108,26 @@ def test_update_db4e(
     row = rows[0]
     assert row["primary_server"] == DField.DISABLE
     assert row["primary_remote"] == DField.DISABLE
+
+
+def test_update_monerod(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+
+    # Get a MoneroD instance for testing
+    mon_a = MoneroD()
+    mon_a.instance("mon_a")
+    mon_a = depl_mgr.add_deployment(mon_a)
+
+    mon_a.blockchain_dir("blockchain_dir")
