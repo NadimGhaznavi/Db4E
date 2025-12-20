@@ -72,10 +72,10 @@ class BootstrapMgr:
             return os.path.join(self._config.get(DField.VENDOR_DIR), DDef.LOGROTATE)
 
         elif aDir == DElem.MONEROD:
-            return DElem.MONEROD + "-" + DDef.MONEROD_VERSION
+            return DElem.MONEROD
 
         elif aDir == DElem.P2POOL:
-            return DElem.P2POOL + "-" + DDef.P2POOL_VERSION
+            return DElem.P2POOL
 
         elif aDir == DDir.VENDOR:
             if not self.is_initialized():
@@ -83,7 +83,7 @@ class BootstrapMgr:
             return self._config.get(DField.VENDOR_DIR)
 
         elif aDir == DElem.XMRIG:
-            return DElem.XMRIG + "-" + DDef.XMRIG_VERSION
+            return DElem.XMRIG
 
         else:
             raise ValueError(f"BootstrapMgr:get_dir(): No handler for {aDir}")
