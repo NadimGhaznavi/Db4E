@@ -14,6 +14,7 @@ from db4e.mgr.DeplMgr import DeplMgr
 
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
 from db4e.constants.DElem import DElem
@@ -161,3 +162,44 @@ def test_update_monerod(
     assert row["priority_node_2"] == "p2"
     assert row["priority_port_1"] == 78
     assert row["priority_port_2"] == 90
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 13
+
+
+def test_update_monerod_remote(
+    initialized_bootstrap_mgr,
+    initialized_sql_db,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+
+    # Get a MoneroDRemote instance for testing
+    mon_a = MoneroDRemote()
+    mon_a.instance("mon_a")
+    mon_a = depl_mgr.add_deployment(mon_a)
+
+    mon_a.ip_addr("10.10.10.10")
+    mon_a.rpc_bind_port(456)
+    mon_a.zmq_pub_port(789)
+
+    depl_mgr.update_deployment(mon_a)
+
+    rows = sql_db.execute_query("SELECT * from monerod_remote")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["instance"] == "mon_a"
+    assert row["ip_addr"] == "10.10.10.10"
+    assert row["rpc_bind_port"] == 456
+    assert row["zmq_pub_port"] == 789
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 4
