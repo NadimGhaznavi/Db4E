@@ -542,6 +542,19 @@ class DeplMgr:
                 f"No monerod found for {new_monerod}"
             )
 
+        # Blockchain dir
+        if monerod.blockchain_dir() != new_monerod.blockchain_dir():
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.BLOCKCHAIN_DIR,
+                details=f"{monerod.blockchain_dir()} > {new_monerod.blockchain_dir()}",
+            )
+            monerod.blockchain_dir(new_monerod.blockchain_dir())
+            update, update_config = True, True
+
         # This is an enable/disable operation
         if monerod.enabled() != new_monerod.enabled():
             if monerod.enabled():
@@ -560,7 +573,6 @@ class DeplMgr:
             update = True
 
         # In Peers
-        print(f"{monerod.in_peers()} > {new_monerod.in_peers()}")
         if monerod.in_peers() != new_monerod.in_peers():
             # Create console log line
             self.ops_db.add_tui_log_line(
@@ -572,6 +584,34 @@ class DeplMgr:
                 details=f"{monerod.in_peers()} > {new_monerod.in_peers()}",
             )
             monerod.in_peers(new_monerod.in_peers())
+            update, update_config = True, True
+
+        # IP Address
+        if monerod.ip_addr() != new_monerod.ip_addr():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.IP_ADDR,
+                details=f"{monerod.ip_addr()} > {new_monerod.ip_addr()}",
+            )
+            monerod.ip_addr(new_monerod.ip_addr())
+            update, update_config = True, True
+
+        # Log Level
+        if monerod.log_level() != new_monerod.log_level():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.LOG_LEVEL,
+                details=f"{monerod.log_level()} > {new_monerod.log_level()}",
+            )
+            monerod.log_level(new_monerod.log_level())
             update, update_config = True, True
 
         # Out Peers
@@ -614,48 +654,6 @@ class DeplMgr:
                 details=f"{monerod.rpc_bind_port()} > {new_monerod.rpc_bind_port()}",
             )
             monerod.rpc_bind_port(new_monerod.rpc_bind_port())
-            update, update_config = True, True
-
-        # ZMQ Pub Port
-        if monerod.zmq_pub_port() != new_monerod.zmq_pub_port():
-            # Create console log line
-            self.ops_db.add_tui_log_line(
-                tracked_instance=monerod.instance(),
-                tracked_type=DElem.MONEROD,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.ZMQ_PUB_PORT,
-                details=f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}",
-            )
-            monerod.zmq_pub_port(new_monerod.zmq_pub_port())
-            update, update_config = True, True
-
-        # ZMQ RPC Port
-        if monerod.zmq_rpc_port() != new_monerod.zmq_rpc_port():
-            # Create console log line
-            self.ops_db.add_tui_log_line(
-                tracked_instance=monerod.instance(),
-                tracked_type=DElem.MONEROD,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.ZMQ_RPC_PORT,
-                details=f"{monerod.zmq_rpc_port()} > {new_monerod.zmq_rpc_port()}",
-            )
-            monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
-            update, update_config = True, True
-
-        # Log Level
-        if monerod.log_level() != new_monerod.log_level():
-            # Create console log line
-            self.ops_db.add_tui_log_line(
-                tracked_instance=monerod.instance(),
-                tracked_type=DElem.MONEROD,
-                status=DStatus.COMPLETE,
-                operation=DField.UPDATE,
-                message=DLabel.LOG_LEVEL,
-                details=f"{monerod.log_level()} > {new_monerod.log_level()}",
-            )
-            monerod.log_level(new_monerod.log_level())
             update, update_config = True, True
 
         # Max Log Files
@@ -736,6 +734,62 @@ class DeplMgr:
                 details=f"{monerod.priority_port_2()} > {new_monerod.priority_port_2()}",
             )
             monerod.priority_port_2(new_monerod.priority_port_2())
+            update, update_config = True, True
+
+        # Max Log Files
+        if monerod.max_log_files() != new_monerod.max_log_files():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.MAX_LOG_FILES,
+                details=f"{monerod.max_log_files()} > {new_monerod.max_log_files()}",
+            )
+            monerod.max_log_files(new_monerod.max_log_files())
+            update, update_config = True, True
+
+        # Max Log Size
+        if monerod.max_log_size() != new_monerod.max_log_size():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.MAX_LOG_SIZE,
+                details=f"{monerod.max_log_size()} > {new_monerod.max_log_size()}",
+            )
+            monerod.max_log_size(new_monerod.max_log_size())
+            update, update_config = True, True
+
+        # ZMQ Pub Port
+        if monerod.zmq_pub_port() != new_monerod.zmq_pub_port():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.ZMQ_PUB_PORT,
+                details=f"{monerod.zmq_pub_port()} > {new_monerod.zmq_pub_port()}",
+            )
+            monerod.zmq_pub_port(new_monerod.zmq_pub_port())
+            update, update_config = True, True
+
+        # ZMQ RPC Port
+        if monerod.zmq_rpc_port() != new_monerod.zmq_rpc_port():
+            # Create console log line
+            self.ops_db.add_tui_log_line(
+                tracked_instance=monerod.instance(),
+                tracked_type=DElem.MONEROD,
+                status=DStatus.COMPLETE,
+                operation=DField.UPDATE,
+                message=DLabel.ZMQ_RPC_PORT,
+                details=f"{monerod.zmq_rpc_port()} > {new_monerod.zmq_rpc_port()}",
+            )
+            monerod.zmq_rpc_port(new_monerod.zmq_rpc_port())
             update, update_config = True, True
 
         # Update the configuration
