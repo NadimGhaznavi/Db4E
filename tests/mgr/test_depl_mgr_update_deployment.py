@@ -131,3 +131,33 @@ def test_update_monerod(
     mon_a = depl_mgr.add_deployment(mon_a)
 
     mon_a.blockchain_dir("blockchain_dir")
+    mon_a.in_peers(2)
+    mon_a.ip_addr("10.10.10.10")
+    mon_a.max_log_files(2)
+    mon_a.max_log_size(200)
+    mon_a.out_peers(3)
+    mon_a.p2p_bind_port(123)
+    mon_a.rpc_bind_port(456)
+    mon_a.priority_node_1("p1")
+    mon_a.priority_node_2("p2")
+    mon_a.priority_port_1("78")
+    mon_a.priority_port_2("90")
+
+    depl_mgr.update_deployment(mon_a)
+
+    rows = sql_db.execute_query("SELECT * from monerod")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["instance"] == "mon_a"
+    assert row["blockchain_dir"] == "blockchain_dir"
+    assert row["in_peers"] == 2
+    assert row["ip_addr"] == "10.10.10.10"
+    assert row["max_log_files"] == 2
+    assert row["max_log_size"] == 200
+    assert row["out_peers"] == 3
+    assert row["p2p_bind_port"] == 123
+    assert row["rpc_bind_port"] == 456
+    assert row["priority_node_1"] == "p1"
+    assert row["priority_node_2"] == "p2"
+    assert row["priority_port_1"] == 78
+    assert row["priority_port_2"] == 90
