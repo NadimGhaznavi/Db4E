@@ -90,14 +90,14 @@ def test_get_dir_logrotate(tmp_dir):
 
 def test_get_dir_monerod():
     mgr = BootstrapMgr()
-    expected = DElem.MONEROD + "-" + DDef.MONEROD_VERSION
+    expected = DElem.MONEROD
     result = mgr.get_dir(DElem.MONEROD)
     assert result == expected
 
 
 def test_get_dir_p2pool():
     mgr = BootstrapMgr()
-    expected = DElem.P2POOL + "-" + DDef.P2POOL_VERSION
+    expected = DElem.P2POOL
     result = mgr.get_dir(DElem.P2POOL)
     assert result == expected
 
@@ -136,7 +136,7 @@ def test_initialized_get_dir_vendor(tmp_path, monkeypatch):
 
 def test_get_dir_xmrig():
     mgr = BootstrapMgr()
-    expected = DElem.XMRIG + "-" + DDef.XMRIG_VERSION
+    expected = DElem.XMRIG
     result = mgr.get_dir(DElem.XMRIG)
     assert result == expected
 
