@@ -1,4 +1,4 @@
-# db4e/tests/mgr/test_monerod_remote.py
+# db4e/tests/recs/monero/test_monerod_remote.py
 #
 #    Database 4 Everything
 #    Author: Nadim-Daniel Ghaznavi
