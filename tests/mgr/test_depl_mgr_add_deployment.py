@@ -81,8 +81,14 @@ def test_add_deployment_monerod_full_integration(
     assert config["PRIORITY_NODE_1_PORT"] == "18080"
     assert config["PRIORITY_NODE_2"] == "nodes.hashvault.pro"
     assert config["PRIORITY_NODE_2_PORT"] == "18080"
+    stdin_path = os.path.join(
+        vendor_dir, DElem.MONEROD, "test_monerod", DDef.RUN_DIR, DDef.MONEROD_STDIN_PIPE
+    )
     assert config["STDIN_PATH"] == stdin_path
-    assert config["LOG_FILE"] == logfile
+    log_file = os.path.join(
+        vendor_dir, DElem.MONEROD, "test_monerod", DDef.LOG_DIR, DDef.MONEROD_LOG_FILE
+    )
+    assert config["LOG_FILE"] == log_file
     assert config["MONEROD_DIR"] == vendor_dir + "/" + DDir.MONEROD
     assert (
         config["BLOCKCHAIN_DIR"]
