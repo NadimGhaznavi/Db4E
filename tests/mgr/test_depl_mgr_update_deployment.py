@@ -15,7 +15,10 @@ from db4e.mgr.DeplMgr import DeplMgr
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.XMRig import XMRig
 
 from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
@@ -203,3 +206,228 @@ def test_update_monerod_remote(
 
     rows = sql_db.execute_query("SELECT * from tui_log_line")
     assert len(rows) == 4
+
+
+def test_update_p2pool(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    db4e.user_wallet("test_wallet_value")
+    db4e.vendor_dir(vendor_dir)
+    depl_db.insert_one(db4e)
+
+    mon_a = MoneroD()
+    mon_a.instance("mon_a")
+    mon_a = depl_mgr.add_deployment(mon_a)
+
+    mon_b = MoneroD()
+    mon_b.instance("mon_b")
+    mon_b = depl_mgr.add_deployment(mon_b)
+
+    # Get a P2Pool instance for testing
+    p2p_a = P2Pool()
+    p2p_a.instance("p2p_a")
+    p2p_a.parent(mon_a.id())
+    p2p_a.parent_remote(0)
+    p2p_a = depl_mgr.add_deployment(p2p_a)
+
+    p2p_a.enabled(True)
+    p2p_a.in_peers(3)
+    p2p_a.out_peers(4)
+    p2p_a.p2p_port(12345)
+    p2p_a.stratum_port(23456)
+    p2p_a.log_level(1)
+    p2p_a.parent(mon_b.id())
+    p2p_a.parent_remote(0)
+    p2p_a.chain(DField.NANO_CHAIN)
+
+    depl_mgr.update_deployment(p2p_a)
+
+    rows = sql_db.execute_query("SELECT * from p2pool")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["instance"] == "p2p_a"
+    assert row["enabled"] == 1
+    assert row["in_peers"] == 3
+    assert row["out_peers"] == 4
+    assert row["p2p_port"] == 12345
+    assert row["stratum_port"] == 23456
+    assert row["log_level"] == 1
+    assert row["parent"] == mon_b.id()
+    assert row["parent_remote"] == 0
+    assert row["chain"] == DField.NANO_CHAIN
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 11
+
+
+def test_update_p2pool_remote(
+    initialized_bootstrap_mgr,
+    initialized_sql_db,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    # Get a P2PoolRemote instance for testing
+    p2p_a = P2PoolRemote()
+    p2p_a.instance("p2p_a")
+    p2p_a = depl_mgr.add_deployment(p2p_a)
+
+    p2p_a.ip_addr("10.10.10.10")
+    p2p_a.stratum_port(1234)
+
+    depl_mgr.update_deployment(p2p_a)
+
+    rows = sql_db.execute_query("SELECT * from p2pool_remote")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["instance"] == "p2p_a"
+    assert row["ip_addr"] == "10.10.10.10"
+    assert row["stratum_port"] == 1234
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 3
+
+
+def test_update_p2pool_internal(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    db4e.user_wallet("test_wallet_value")
+    db4e.vendor_dir(vendor_dir)
+    depl_db.insert_one(db4e)
+
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+    install_mgr._deploy_internal_p2pools(db4e=db4e)
+
+    mon_a = MoneroD()
+    mon_a.instance("mon_a")
+    mon_a = depl_mgr.add_deployment(mon_a)
+
+    # Get an internal P2Pool instance for testing
+    p2p_a = depl_db.get_deployment(DElem.P2POOL_INTERNAL, DLabel.MAIN_CHAIN)
+    p2p_a.enabled(True)
+    p2p_a.in_peers(3)
+    p2p_a.out_peers(4)
+    p2p_a.p2p_port(12345)
+    p2p_a.stratum_port(23456)
+    p2p_a.log_level(1)
+    p2p_a.parent(mon_a.id())
+    p2p_a.parent_remote(0)
+    p2p_a.chain(DField.NANO_CHAIN)
+
+    depl_mgr.update_deployment(p2p_a)
+
+    rows = sql_db.execute_query("SELECT * from p2pool_internal")
+    assert len(rows) == 3
+    row = None
+    for rec in rows:
+        if rec["instance"] == DLabel.MAIN_CHAIN:
+            row = rec
+            break
+    assert row is not None
+    assert row["enabled"] == 1
+    assert row["in_peers"] == 3
+    assert row["out_peers"] == 4
+    assert row["p2p_port"] == 12345
+    assert row["stratum_port"] == 23456
+    assert row["log_level"] == 1
+    assert row["parent"] == mon_a.id()
+    assert row["parent_remote"] == 0
+    assert row["chain"] == DField.NANO_CHAIN
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 12
+
+
+def test_update_xmrig(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+
+    depl_mgr = DeplMgr(bs_mgr=bs_mgr, sql_db=sql_db, depl_db=depl_db, ops_db=ops_db)
+
+    vendor_dir = bs_mgr.get_dir(DDir.VENDOR)
+
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    db4e.user_wallet("test_wallet_value")
+    db4e.vendor_dir(vendor_dir)
+    depl_db.insert_one(db4e)
+
+    p2p_a = P2Pool()
+    p2p_a.instance("p2p_a")
+    p2p_a.ip_addr("10.10.10.10")
+    p2p_a.stratum_port(3333)
+    p2p_a = depl_mgr.add_deployment(p2p_a)
+
+    p2p_b = P2Pool()
+    p2p_b.instance("p2p_b")
+    p2p_b.ip_addr("10.10.10.11")
+    p2p_b.stratum_port(4444)
+    p2p_b = depl_mgr.add_deployment(p2p_b)
+
+    # Get a XMRig instance for testing
+    xm_a = XMRig()
+    xm_a.instance("xm_a")
+    xm_a.parent(p2p_a.id())
+    xm_a.parent_remote(0)
+    xm_a = depl_mgr.add_deployment(xm_a)
+
+    xm_a.enabled(True)
+    xm_a.num_threads(2)
+    xm_a.parent(p2p_b.id())
+    xm_a.parent_remote(0)
+
+    depl_mgr.update_deployment(xm_a)
+
+    rows = sql_db.execute_query("SELECT * from xmrig")
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["instance"] == "xm_a"
+    assert row["enabled"] == 1
+    assert row["num_threads"] == 2
+    assert row["parent"] == p2p_b.id()
+    assert row["parent_remote"] == 0
+    assert row["version"] == DDef.XMRIG_VERSION
+
+    rows = sql_db.execute_query("SELECT * from tui_log_line")
+    assert len(rows) == 6
