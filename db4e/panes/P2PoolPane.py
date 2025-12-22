@@ -21,7 +21,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DLabel import DLabel
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
 
 
@@ -107,15 +107,15 @@ class P2PoolPane(Container):
                 ),
                 Vertical(
                     Horizontal(
-                        Button(DLabel.HASHRATE, id=DButton.HASHRATE),
-                        Button(DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND),
-                        Button(DLabel.NEW, id=DButton.NEW),
-                        Button(DLabel.TABLES, id=DButton.TABLES),
-                        Button(DLabel.UPDATE, id=DButton.UPDATE),
-                        Button(DLabel.START, id=DButton.ENABLE),
-                        Button(DLabel.VIEW_LOG, id=DButton.VIEW_LOG),
-                        Button(DLabel.STOP, id=DButton.DISABLE),
-                        Button(DLabel.DELETE, id=DButton.DELETE),
+                        Button(DButtonL.HASHRATE, id=DButtonF.HASHRATE),
+                        Button(DButtonL.SHARES_FOUND, id=DButtonF.SHARES_FOUND),
+                        Button(DButtonL.NEW, id=DButtonF.NEW),
+                        Button(DButtonL.TABLES, id=DButtonF.TABLES),
+                        Button(DButtonL.UPDATE, id=DButtonF.UPDATE),
+                        Button(DButtonL.START, id=DButtonF.ENABLE),
+                        Button(DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
+                        Button(DButtonL.STOP, id=DButtonF.DISABLE),
+                        Button(DButtonL.DELETE, id=DButtonF.DELETE),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -230,15 +230,15 @@ class P2PoolPane(Container):
 
         # Map button to action
         button_map = {
-            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
-            DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
-            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
-            DButton.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
-            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+            DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButtonF.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButtonF.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
+            DButtonF.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
+            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
 
         if button_id not in button_map:
@@ -252,7 +252,7 @@ class P2PoolPane(Container):
             DField.ELEMENT: self.p2pool,
         }
 
-        if button_id == DButton.VIEW_LOG:
+        if button_id == DButtonF.VIEW_LOG:
             form_data[DField.INSTANCE] = self.p2pool.instance()
 
         self.app.post_message(Db4eMsg(self, form_data=form_data))

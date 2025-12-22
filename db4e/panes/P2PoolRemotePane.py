@@ -1,12 +1,10 @@
-"""
-db4e/Panes/P2PoolRemotePane.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
+# db4e/Panes/P2PoolRemotePane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button, Input
@@ -19,7 +17,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
 
 
@@ -69,9 +67,9 @@ class P2PoolRemotePane(Container):
                     classes=DForm.HEALTH_BOX,
                 ),
                 Horizontal(
-                    Button(DLabel.NEW, id=DButton.NEW),
-                    Button(DLabel.UPDATE, id=DButton.UPDATE),
-                    Button(DLabel.DELETE, id=DButton.DELETE),
+                    Button(DButtonL.NEW, id=DButtonF.NEW),
+                    Button(DButtonL.UPDATE, id=DButtonF.UPDATE),
+                    Button(DButtonL.DELETE, id=DButtonF.DELETE),
                     classes=DForm.BUTTON_ROW,
                 ),
                 classes=DForm.PANE_BOX,
@@ -128,9 +126,9 @@ class P2PoolRemotePane(Container):
 
         # Map button to action
         button_map = {
-            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
         }
 
         if button_id not in button_map:

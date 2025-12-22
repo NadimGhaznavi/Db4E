@@ -1,12 +1,11 @@
-"""
-db4e/Panes/ChainBlocksFoundPane.py
+# db4e/Panes/ChainBlocksFoundPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 import math
 
@@ -20,7 +19,6 @@ from db4e.recs.monero.P2Pool import P2Pool
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DForm import DForm
-from db4e.constants.DSelect import DSelect
 
 
 class ChainBlocksFoundPane(Container):

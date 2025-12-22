@@ -16,7 +16,7 @@ from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
 from db4e.messages.Db4eMsg import Db4eMsg
 
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DJob import DJob
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
@@ -80,10 +80,10 @@ class ChainPane(Container):
                 ),
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.BLOCKS_FOUND, id=DButton.BLOCKS_FOUND),
-                        Button(label=DLabel.HASHRATE, id=DButton.HASHRATE),
-                        Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG),
-                        Button(label=DLabel.RESTART, id=DButton.RESTART),
+                        Button(label=DButtonL.BLOCKS_FOUND, id=DButtonF.BLOCKS_FOUND),
+                        Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
+                        Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
+                        Button(label=DButtonL.RESTART, id=DButtonF.RESTART),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -127,7 +127,7 @@ class ChainPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         button_id = event.button.id
 
-        if button_id == DButton.BLOCKS_FOUND:
+        if button_id == DButtonF.BLOCKS_FOUND:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.BLOCKS_FOUND,
@@ -135,7 +135,7 @@ class ChainPane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
-        if button_id == DButton.HASHRATE:
+        if button_id == DButtonF.HASHRATE:
             form_data = {
                 DField.TO_MODULE: DModule.OPS_MGR,
                 DField.TO_METHOD: DMethod.HASHRATES,
@@ -143,7 +143,7 @@ class ChainPane(Container):
                 DField.ELEMENT: self.p2pool,
             }
 
-        elif button_id == DButton.RESTART:
+        elif button_id == DButtonF.RESTART:
             form_data = {
                 DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
@@ -151,7 +151,7 @@ class ChainPane(Container):
                 DField.INSTANCE: self.p2pool.instance(),
             }
 
-        elif button_id == DButton.VIEW_LOG:
+        elif button_id == DButtonF.VIEW_LOG:
             form_data = {
                 DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.TO_MODULE: DModule.OPS_MGR,

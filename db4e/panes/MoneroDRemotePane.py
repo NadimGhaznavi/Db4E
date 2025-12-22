@@ -19,7 +19,7 @@ from db4e.constants.DElem import DElem
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DLabel import DLabel
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
 
 
@@ -76,9 +76,9 @@ class MoneroDRemotePane(Container):
                     id=DForm.HEALTH_BOX,
                 ),
                 Horizontal(
-                    Button(label=DLabel.NEW, id=DButton.NEW),
-                    Button(label=DLabel.UPDATE, id=DButton.UPDATE),
-                    Button(label=DLabel.DELETE, id=DButton.DELETE),
+                    Button(label=DButtonF.NEW, id=DButtonF.NEW),
+                    Button(label=DButtonF.UPDATE, id=DButtonF.UPDATE),
+                    Button(label=DButtonF.DELETE, id=DButtonF.DELETE),
                     classes=DForm.BUTTON_ROW,
                 ),
             ),
@@ -144,9 +144,9 @@ class MoneroDRemotePane(Container):
 
         # Map button to action
         button_map = {
-            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
         }
 
         if button_id not in button_map:

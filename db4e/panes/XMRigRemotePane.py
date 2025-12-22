@@ -18,7 +18,7 @@ from db4e.util.Helper import minutes_to_uptime
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DForm import DForm
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DElem import DElem
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
@@ -55,8 +55,8 @@ class XMRigRemotePane(Container):
                 ),
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.HASHRATE, id=DButton.HASHRATE),
-                        Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND),
+                        Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
+                        Button(label=DButtonL.SHARES_FOUND, id=DButtonF.SHARES_FOUND),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -81,8 +81,8 @@ class XMRigRemotePane(Container):
 
         button_id = event.button.id
         button_map = {
-            DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
-            DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
+            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
         }
 
         if button_id not in button_map:

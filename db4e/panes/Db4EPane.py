@@ -25,7 +25,7 @@ from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DForm import DForm
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 
 color = "#9cae41"
@@ -84,9 +84,9 @@ class Db4EPane(Container):
                     id=DForm.HEALTH_BOX,
                 ),
                 Horizontal(
-                    Button(label=DLabel.UPDATE, id=DButton.UPDATE),
-                    Button(label=DLabel.RUNTIME, id=DButton.RUNTIME),
-                    Button(label=DLabel.PAYMENTS, id=DButton.PAYMENTS),
+                    Button(label=DButtonL.UPDATE, id=DButtonF.UPDATE),
+                    Button(label=DButtonL.RUNTIME, id=DButtonF.RUNTIME),
+                    Button(label=DButtonL.PAYMENTS, id=DButtonF.PAYMENTS),
                     classes=DForm.BUTTON_ROW,
                 ),
                 classes=DForm.PANE_BOX,
@@ -165,9 +165,9 @@ class Db4EPane(Container):
             self.db4e.primary_remote(remote_flag)
 
         button_map = {
-            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.RUNTIME: (DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG),
-            DButton.PAYMENTS: (DModule.OPS_MGR, DMethod.GET_PAYMENTS),
+            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButtonF.RUNTIME: (DModule.OPS_MGR, DMethod.GET_RUNTIME_LOG),
+            DButtonF.PAYMENTS: (DModule.OPS_MGR, DMethod.GET_PAYMENTS),
         }
 
         module, method = button_map[button_id]

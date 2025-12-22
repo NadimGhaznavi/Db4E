@@ -20,7 +20,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DMethod import DMethod
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DForm import DForm
 
@@ -73,8 +73,8 @@ class InitialSetupPane(Container):
                 ),
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.PROCEED, id=DButton.PROCEED),
-                        Button(label=DLabel.ABORT, id=DButton.ABORT),
+                        Button(label=DButtonL.PROCEED, id=DButtonF.PROCEED),
+                        Button(label=DButtonL.ABORT, id=DButtonF.ABORT),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -106,7 +106,7 @@ class InitialSetupPane(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()
         button_id = event.button.id
-        if button_id == DButton.PROCEED:
+        if button_id == DButtonF.PROCEED:
             self.db4e.user_wallet(
                 self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value
             )
@@ -121,5 +121,5 @@ class InitialSetupPane(Container):
             }
             self.app.post_message(RefreshNavPane(self))
             self.app.post_message(Db4eMsg(self, form_data))
-        elif button_id == DButton.ABORT:
+        elif button_id == DButtonF.ABORT:
             self.app.post_message(Quit(self))

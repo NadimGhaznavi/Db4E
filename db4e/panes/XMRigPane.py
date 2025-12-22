@@ -15,7 +15,7 @@ from textual.widgets import Label, Input, Button, RadioSet, RadioButton
 from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.XMRig import XMRig
 from db4e.messages.Db4eMsg import Db4eMsg
-from db4e.constants.DButton import DButton
+from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DMethod import DMethod
@@ -76,14 +76,14 @@ class XMRigPane(Container):
                 ),
                 Vertical(
                     Horizontal(
-                        Button(label=DLabel.HASHRATE, id=DButton.HASHRATE),
-                        Button(label=DLabel.SHARES_FOUND, id=DButton.SHARES_FOUND),
-                        Button(label=DLabel.NEW, id=DButton.NEW),
-                        Button(label=DLabel.UPDATE, id=DButton.UPDATE),
-                        Button(label=DLabel.START, id=DButton.ENABLE),
-                        Button(label=DLabel.VIEW_LOG, id=DButton.VIEW_LOG),
-                        Button(label=DLabel.STOP, id=DButton.DISABLE),
-                        Button(label=DLabel.DELETE, id=DButton.DELETE),
+                        Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
+                        Button(label=DButtonL.SHARES_FOUND, id=DButtonF.SHARES_FOUND),
+                        Button(label=DButtonL.NEW, id=DButtonF.NEW),
+                        Button(label=DButtonL.UPDATE, id=DButtonF.UPDATE),
+                        Button(label=DButtonL.START, id=DButtonF.ENABLE),
+                        Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
+                        Button(label=DButtonL.STOP, id=DButtonF.DISABLE),
+                        Button(label=DButtonL.DELETE, id=DButtonF.DELETE),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -167,14 +167,14 @@ class XMRigPane(Container):
 
         # Map button to action
         button_map = {
-            DButton.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButton.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButton.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
-            DButton.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
-            DButton.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButton.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
-            DButton.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButton.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+            DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
+            DButtonF.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButtonF.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
+            DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
+            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
+            DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
 
         if button_id not in button_map:
