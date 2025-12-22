@@ -1,13 +1,12 @@
-"""
-db4e/Constants/DFile.py
+# db4e/Constants/DFile.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-"""
 
 from db4e.util.ConstGroup import ConstGroup
 from db4e.constants.DField import DField

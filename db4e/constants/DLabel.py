@@ -1,18 +1,16 @@
-"""
-db4e/Constants/DLabel.py
+# db4e/Constants/DLabel.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from db4e.util.ConstGroup import ConstGroup
 
 
 class DLabel(ConstGroup):
-    ABORT: str = "Abort"
     ACTIVE_MINERS: str = "Active Miners"
     ALL_TIME: str = "All Available"
     APPLY: str = "Apply"
@@ -21,7 +19,6 @@ class DLabel(ConstGroup):
     BLOCKCHAIN: str = "Blockchain"
     BLOCKCHAIN_DIR: str = "Blockchain Directory"
     BLOCKS: str = "Blocks"
-    BLOCKS_FOUND: str = "Blocks Found"
     CHAIN: str = "Chain"
     CHAIN_STATS: str = "Chain Stats"
     CONFIG: str = "Configuration"
@@ -32,13 +29,10 @@ class DLabel(ConstGroup):
     DB4E_LONG: str = "Database 4 Everything"
     DB4E_GROUP: str = "Db4E Group"
     DB4E_USER: str = "Db4E User"
-    DELETE: str = "Delete"
     DETAILS: str = "Details"
     DEPLOYMENTS: str = "Deployments"
-    DISABLE: str = "Disable"
     DONATIONS: str = "Donations"
     DONATIONS_WALLET: str = "Donations Wallet"
-    ENABLE: str = "Enable"
     ENABLED: str = "Enabled"
     ELEMENT_TYPE: str = "Component"
     ENABLED_FLAG: str = "Enabled flag"
@@ -47,7 +41,6 @@ class DLabel(ConstGroup):
     EVENT: str = "Event"
     GROUP: str = "Group"
     H_PER_S: str = "H/s"
-    HASHRATE: str = "Hashrate"
     HASHRATES: str = "Hashrates"
     HEALTH: str = "Health Checks"
     HEALTH_MSGS: str = "Health Checks"
@@ -81,7 +74,6 @@ class DLabel(ConstGroup):
     MONTHS_6: str = "Six Months"
     NANO_CHAIN: str = "Nano"
     NANO_CHAIN_LONG: str = "Nano Sidechain"
-    NEW: str = "New"
     NUM_THREADS: str = "Number of threads"
     OBJECT_ID: str = "Object ID"
     OPERATION: str = "Operation"
@@ -99,7 +91,6 @@ class DLabel(ConstGroup):
     PARENT: str = "Parent"
     PARENT_ID: str = "Parent ID"
     PARENT_REMOTE: str = "Parent Remote"
-    PAYMENTS: str = "Payments"
     PLOT: str = "Plot"
     PRIMARY_SERVER: str = "Primary Server"
     PRIMARY_REMOTE: str = "Primary Remote"
@@ -107,38 +98,28 @@ class DLabel(ConstGroup):
     PRIORITY_NODE_2: str = "Priority node 2"
     PRIORITY_PORT_1: str = "Priority port 1"
     PRIORITY_PORT_2: str = "Priority port 2"
-    PROCEED: str = "Proceed"
     REMOTE: str = "Remote"
-    RESTART: str = "Restart"
     RESULTS: str = "Results"
     RPC_BIND_PORT: str = "RPC bind port"
-    RUNTIME: str = "Run Time"
     RUNTIME_LOG: str = "Runtime Log"
     SHARES: str = "Shares"
-    SHARES_FOUND: str = "Shares Found"
     SHOW_TIME_STATS: str = "Show Time Stats"
     SOFTWARE_SYSTEM: str = "Software System"
-    START: str = "Start"
     STATUS: str = "Status"
     STARTUP_SCRIPT: str = "Startup script"
     STATS_MOD: str = "API stats_mod"
     STDIN_PATH: str = "Standard Input FIFO"
-    STOP: str = "Stop"
     STRATUM_PORT: str = "Stratum port"
-    TABLES: str = "Tables"
     TIMESTAMP: str = "Timestamp"
     TOTAL: str = "Total"
     TUI_LOG: str = "Console Log"
     TYPE: str = "Type"
-    UPDATE: str = "Update"
-    UPTIME: str = "Uptime"
     UPSTREAM_MONERO: str = "Upstream Monero"
     UPSTREAM_P2POOL: str = "Upstream P2Pool"
     USER: str = "User"
     USER_WALLET: str = "Monero user wallet"
     VENDOR_DIR: str = "Deployment directory"
     VERSION: str = "Version"
-    VIEW_LOG: str = "View Log"
     WEEK_1: str = "One Week"
     WEEKS_2: str = "Two Weeks"
     WELCOME: str = "Welcome"

@@ -1,15 +1,14 @@
-"""
-db4e/Constants/DPlaceholder.py
+# db4e/Constants/DPlaceholder.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# Used to generate the systemd service definition files in the InstallMgr using
+# service definition templates.
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-
-Used to generate the systemd service definition files in the InstallMgr using
-service definition templates.
-"""
 
 from db4e.util.ConstGroup import ConstGroup
 
