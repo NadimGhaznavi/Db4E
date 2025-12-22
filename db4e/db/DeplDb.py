@@ -46,21 +46,54 @@ from db4e.constants.DElem import DElem
 
 
 class DeplDb(BaseDb):
+    """
+    Deployment database access layer.
+
+    Provides CRUD and lookup helpers for deployment records such as
+    MoneroD, P2Pool, XMRig, and related remote/internal variants.
+    """
 
     def __init__(self, sql_db: SQLDb, log_file=None):
+        """
+        Initialize the deployment database manager.
+
+        :param sql_db: Initialized SQL database wrapper.
+        :type sql_db: SQLDb
+        :param log_file: Optional log file path.
+        :type log_file: str or None
+        """
         super().__init__(sql_db=sql_db, log_file=log_file)
 
     def clear_all(self):
+        """
+        Delete all rows from all deployment tables.
+        """
         self.check_initialized()
         for table in ELEM_TABLE_LIST:
             self.sql_db.executescript(f"DELETE FROM {table}")
 
     def delete_deployment(self, elem):
+        """
+        Delete a deployment record by object instance.
+
+        :param elem: Deployment object to delete.
+        :type elem: object
+        """
         self.check_initialized()
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
     def get_deployment(self, elem_type: str, instance: str):
+        """
+        Fetch a deployment record by type and instance name.
+
+        :param elem_type: Deployment element type string.
+        :type elem_type: str
+        :param instance: Instance name.
+        :type instance: str
+        :return: Deployment object or None.
+        :rtype: object or None
+        """
         self.check_initialized()
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
         rows = self.sql_db.execute_query(
@@ -73,6 +106,12 @@ class DeplDb(BaseDb):
         return object
 
     def get_deployments(self):
+        """
+        Return all deployment records across all deployment tables.
+
+        :return: List of deployment objects.
+        :rtype: list
+        """
         self.check_initialized()
         object_list = []
         for table in ELEM_TABLE_LIST:
@@ -82,6 +121,16 @@ class DeplDb(BaseDb):
         return object_list
 
     def get_deployment_by_id(self, elem_type: str, id: str):
+        """
+        Fetch a deployment record by type and database ID.
+
+        :param elem_type: Deployment element type string.
+        :type elem_type: str
+        :param id: Database ID.
+        :type id: str
+        :return: Deployment object or None.
+        :rtype: object or None
+        """
         self.check_initialized()
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
         rec_list = self.sql_db.execute_query(f"SELECT * FROM {table} WHERE id=?", (id,))
@@ -98,6 +147,14 @@ class DeplDb(BaseDb):
             return None
 
     def get_deployments_by_type_str(self, elem_type: str):
+        """
+        Fetch all deployments for a given element type.
+
+        :param elem_type: Deployment element type string.
+        :type elem_type: str
+        :return: List of deployment objects.
+        :rtype: list
+        """
         self.check_initialized()
         object_list = []
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
@@ -109,6 +166,14 @@ class DeplDb(BaseDb):
         return object_list
 
     def get_deployment_ids_and_instances(self, table):
+        """
+        Build a mapping of instance name to (id, remote_flag) for a table.
+
+        :param table: Table name to query.
+        :type table: str
+        :return: Mapping of instance name to (id, remote_flag).
+        :rtype: dict
+        """
         recs = self.sql_db.find_many(table=table)
 
         # Flag if the upstream element is local or remote
@@ -125,27 +190,56 @@ class DeplDb(BaseDb):
 
     ## Get deployment types
     def get_monerods(self):
+        """
+        Return all MoneroD deployments.
+        """
         return self.get_deployments_by_type_str(DElem.MONEROD)
 
     def get_monerod_remotes(self):
+        """
+        Return all remote MoneroD deployments.
+        """
         return self.get_deployments_by_type_str(DElem.MONEROD_REMOTE)
 
     def get_p2pools(self):
+        """
+        Return all P2Pool deployments.
+        """
         return self.get_deployments_by_type_str(DElem.P2POOL)
 
     def get_p2pool_remotes(self):
+        """
+        Return all remote P2Pool deployments.
+        """
         return self.get_deployments_by_type_str(DElem.P2POOL_REMOTE)
 
     def get_p2pool_internals(self):
+        """
+        Return all internal P2Pool deployments.
+        """
         return self.get_deployments_by_type_str(DElem.P2POOL_INTERNAL)
 
     def get_xmrigs(self):
+        """
+        Return all XMRig deployments.
+        """
         return self.get_deployments_by_type_str(DElem.XMRIG)
 
     def get_xmrig_remotes(self):
+        """
+        Return all remote XMRig deployments.
+        """
         return self.get_deployments_by_type_str(DElem.XMRIG_REMOTE)
 
     def get_downstream(self, elem):
+        """
+        Return downstream deployments for a given element.
+
+        :param elem: Upstream deployment object.
+        :type elem: object
+        :return: List of downstream deployment objects.
+        :rtype: list
+        """
         elem_class = type(elem)
         parent_id = elem.id()
         obj_list = []
@@ -176,6 +270,14 @@ class DeplDb(BaseDb):
         return obj_list
 
     def get_new(self, elem_type):
+        """
+        Construct a new deployment object for a given element type.
+
+        :param elem_type: Deployment element type string.
+        :type elem_type: str
+        :return: Newly constructed deployment object.
+        :rtype: object
+        """
 
         if elem_type == DElem.MONEROD:
             return MoneroD()
@@ -200,6 +302,9 @@ class DeplDb(BaseDb):
             raise ValueError(f"DeplMgr:get_new(): No handler for {elem_type}")
 
     def _init_db(self):
+        """
+        Initialize deployment tables in the SQLite database.
+        """
         self.sql_db.executescript(
             """
             CREATE TABLE IF NOT EXISTS db4e (

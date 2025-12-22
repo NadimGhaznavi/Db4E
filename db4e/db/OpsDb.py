@@ -1,13 +1,11 @@
-"""
-db4e/db/OpsDb.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-"""
+# db4e/db/OpsDb.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
 
 # Supporting modules
 import time
@@ -32,14 +30,38 @@ from db4e.constants.DSQL import DCol, OPS_TABLE_LIST
 
 
 class OpsDb(BaseDb):
+    """
+    Operations database access layer.
+
+    Manages uptime tracking and TUI log line records.
+    """
 
     def __init__(self, sql_db: SQLDb, log_file=None):
+        """
+        Initialize the operations database manager.
+
+        :param sql_db: Initialized SQL database wrapper.
+        :type sql_db: SQLDb
+        :param log_file: Optional log file path.
+        :type log_file: str or None
+        """
         super().__init__(sql_db=sql_db, log_file=log_file)
 
     def get_ops_events(self):
+        """
+        Placeholder for ops event retrieval.
+        """
         pass
 
     def add_start_event(self, elem_type, instance_name):
+        """
+        Record a start event for an element instance.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :param instance_name: Instance name.
+        :type instance_name: str
+        """
         self.check_initialized()
         # Create a new current_uptime record
         cur_uptime = CurrentUptime(
@@ -50,6 +72,14 @@ class OpsDb(BaseDb):
         self.insert_one(cur_uptime)
 
     def add_stop_event(self, elem_type, instance_name):
+        """
+        Record a stop event for an element instance and update uptime totals.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :param instance_name: Instance name.
+        :type instance_name: str
+        """
         self.check_initialized()
         # Get the current uptime record where the stop event is not set
         rec = self.get_open_cur_uptime_rec(elem_type, instance_name)
@@ -103,6 +133,34 @@ class OpsDb(BaseDb):
         updated_mi=None,
         updated_s=None,
     ):
+        """
+        Add a single TUI log line entry.
+
+        :param tracked_instance: Tracked instance name.
+        :type tracked_instance: str
+        :param tracked_type: Tracked element type.
+        :type tracked_type: str
+        :param status: Status string.
+        :type status: str
+        :param operation: Operation string.
+        :type operation: str
+        :param message: Message label or text.
+        :type message: str
+        :param details: Optional details text.
+        :type details: str or None
+        :param updated_y: Optional year override.
+        :type updated_y: int or None
+        :param updated_mo: Optional month override.
+        :type updated_mo: int or None
+        :param updated_d: Optional day override.
+        :type updated_d: int or None
+        :param updated_h: Optional hour override.
+        :type updated_h: int or None
+        :param updated_mi: Optional minute override.
+        :type updated_mi: int or None
+        :param updated_s: Optional second override.
+        :type updated_s: int or None
+        """
         self.check_initialized()
         log_line = TUILogLine(
             tracked_instance=tracked_instance,
@@ -135,6 +193,12 @@ class OpsDb(BaseDb):
         self.insert_one(log_line)
 
     def add_tui_log_line_data(self, log_line_data):
+        """
+        Add multiple TUI log line entries from a list of dicts.
+
+        :param log_line_data: Iterable of log line dictionaries.
+        :type log_line_data: list[dict]
+        """
         self.check_initialized()
         for log_line in log_line_data:
             if DCol.DETAILS in log_line:
@@ -151,6 +215,9 @@ class OpsDb(BaseDb):
             )
 
     def check_current_recs(self):
+        """
+        Close any open current uptime records and roll into total uptime.
+        """
         self.check_initialized()
         sql = f"SELECT * FROM current_uptime WHERE stop_time IS NULL"
         recs = self.sql_db.execute_query(sql)
@@ -182,20 +249,51 @@ class OpsDb(BaseDb):
                 self.insert_one(total_uptime)
 
     def clear_tui_log(self):
+        """
+        Remove all TUI log line records.
+        """
         self.check_initialized()
         self.sql_db.execute_query(f"DELETE FROM {DTable.TUI_LOG_LINE}")
 
     def get_open_cur_uptime_rec(self, elem_type, instance) -> CurrentUptime:
+        """
+        Fetch the open current uptime record for a specific instance.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :param instance: Instance name.
+        :type instance: str
+        :return: Current uptime record or None.
+        :rtype: sqlite3.Row or None
+        """
         self.check_initialized()
         sql = f"SELECT * FROM current_uptime WHERE tracked_type=? AND tracked_instance=? AND stop_time IS NULL"
         return self.sql_db.find_one(sql, (elem_type, instance))
 
     def get_total_uptime_rec(self, elem_type, instance) -> TotalUptime:
+        """
+        Fetch the total uptime record for a specific instance.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :param instance: Instance name.
+        :type instance: str
+        :return: Total uptime record or None.
+        :rtype: sqlite3.Row or None
+        """
         self.check_initialized()
         sql = f"SELECT * FROM total_uptime WHERE tracked_type=? AND tracked_instance=?"
         return self.sql_db.find_one(sql, (elem_type, instance))
 
     def get_tui_log(self, elem_type=None):
+        """
+        Fetch TUI log lines ordered by newest first.
+
+        :param elem_type: Optional element type filter (unused).
+        :type elem_type: str or None
+        :return: List of TUILogLine objects.
+        :rtype: list[TUILogLine]
+        """
         self.check_initialized()
         recs = self.sql_db.execute_query(
             f"SELECT * FROM {DTable.TUI_LOG_LINE} ORDER BY id DESC"
@@ -206,6 +304,14 @@ class OpsDb(BaseDb):
         return log_lines
 
     def get_tui_log_lines_since(self, since_ts: int) -> list[dict]:
+        """
+        Fetch TUI log lines updated after a given timestamp.
+
+        :param since_ts: Unix timestamp to filter by.
+        :type since_ts: int
+        :return: List of log line dictionaries.
+        :rtype: list[dict]
+        """
         sql = """
             SELECT *,
                 strftime('%s',
@@ -221,6 +327,9 @@ class OpsDb(BaseDb):
         return [dict(row) for row in results]
 
     def update_current(self):
+        """
+        Update the current time for all open uptime records.
+        """
         time.time()
         self.check_initialized()
         sql = """UPDATE current_uptime
@@ -231,6 +340,9 @@ class OpsDb(BaseDb):
         self.sql_db.execute_query(sql, values)
 
     def _init_db(self):
+        """
+        Initialize ops tables in the SQLite database.
+        """
         self.sql_db.executescript(
             """
             CREATE TABLE IF NOT EXISTS current_uptime (

@@ -1,12 +1,10 @@
-"""
-db4e/MiningDb.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
+# db4e/MiningDb.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 # Supporting modules
 from datetime import datetime
@@ -36,12 +34,33 @@ from db4e.constants.DSQL import DCol, MINING_TABLE_LIST, HOURLY_MINING_TABLE_LIS
 
 
 class MiningDb(BaseDb):
+    """
+    Mining database access layer.
+
+    Stores and retrieves mining telemetry such as hashrates, shares,
+    and payments across multiple mining-related tables.
+    """
 
     def __init__(self, sql_db: SQLDb, log_file=None):
+        """
+        Initialize the mining database manager.
+
+        :param sql_db: Initialized SQL database wrapper.
+        :type sql_db: SQLDb
+        :param log_file: Optional log file path.
+        :type log_file: str or None
+        """
         super().__init__(sql_db=sql_db, log_file=log_file)
 
     def add_hourly_data(self, data):
-        """Add timestamp data for hourly records"""
+        """
+        Add timestamp data for hourly records.
+
+        :param data: Row dictionary to update in-place.
+        :type data: dict
+        :return: The same dictionary with timestamp fields added.
+        :rtype: dict
+        """
         now = datetime.now()
         data.update(
             {
@@ -54,6 +73,12 @@ class MiningDb(BaseDb):
         return data
 
     def add_updated_hourly_ts_column(self, table_name):
+        """
+        Add a computed hourly ``updated_ts`` column and index to a table.
+
+        :param table_name: Target table name.
+        :type table_name: str
+        """
         # Avoid raising an exception because the column already exists
         try:
             self.sql_db.executescript(
@@ -81,6 +106,14 @@ class MiningDb(BaseDb):
         )
 
     def insert_constrained_one(self, mining_object):
+        """
+        Insert or update an hourly mining record using its unique constraints.
+
+        :param mining_object: Mining record instance to insert.
+        :type mining_object: object
+        :return: The same object with its ``id`` populated.
+        :rtype: object
+        """
         self.check_initialized()
         data = mining_object.to_dict()
         data = self.add_hourly_data(data)
@@ -104,7 +137,10 @@ class MiningDb(BaseDb):
     ## Add functions for mining records
     def add_block_found(self, chain):
         """
-        Block found record
+        Store a block-found event.
+
+        :param chain: Chain identifier.
+        :type chain: str
         """
         self.check_initialized()
         block_found_event = BlockFoundEvent(chain=chain)
@@ -112,7 +148,14 @@ class MiningDb(BaseDb):
 
     def add_chain_hashrate(self, chain, hashrate, units):
         """
-        Historical hourly chain hashrate record
+        Store historical hourly chain hashrate.
+
+        :param chain: Chain identifier.
+        :type chain: str
+        :param hashrate: Hashrate value.
+        :type hashrate: float
+        :param units: Hashrate units.
+        :type units: str
         """
         self.check_initialized()
         chain_hashrate = ChainHashrate(chain=chain, hashrate=hashrate, units=units)
@@ -120,7 +163,12 @@ class MiningDb(BaseDb):
 
     def add_chain_miners(self, chain, num_miners):
         """
-        Historical hourly "number of unique wallets" on the sidechain
+        Store historical hourly number of miners.
+
+        :param chain: Chain identifier.
+        :type chain: str
+        :param num_miners: Count of miners.
+        :type num_miners: int
         """
         self.check_initialized()
         chain_miners = ChainMiners(chain=chain, num_miners=num_miners)
@@ -128,7 +176,18 @@ class MiningDb(BaseDb):
 
     def add_miner_hashrate(self, miner_name, chain, pool, hashrate, units):
         """
-        Store the miner hashrate
+        Store the miner hashrate.
+
+        :param miner_name: Miner identifier.
+        :type miner_name: str
+        :param chain: Chain identifier.
+        :type chain: str
+        :param pool: Pool identifier.
+        :type pool: str
+        :param hashrate: Hashrate value.
+        :type hashrate: float
+        :param units: Hashrate units.
+        :type units: str
         """
         # TODO
         #
@@ -156,7 +215,16 @@ class MiningDb(BaseDb):
 
     def add_pool_hashrate(self, chain, pool, hashrate, unit):
         """
-        Store the pool hashrate
+        Store the pool hashrate.
+
+        :param chain: Chain identifier.
+        :type chain: str
+        :param pool: Pool identifier.
+        :type pool: str
+        :param hashrate: Hashrate value.
+        :type hashrate: float
+        :param unit: Hashrate units.
+        :type unit: str
         """
         self.check_initialized()
         pool_hashrate = PoolHashrate(
@@ -166,7 +234,16 @@ class MiningDb(BaseDb):
 
     def add_share_found(self, miner, effort, chain, pool):
         """
-        Create a JSON document and pass it to the Db4eDb to be added to the backend database
+        Store a share-found event.
+
+        :param miner: Miner identifier.
+        :type miner: str
+        :param effort: Effort value.
+        :type effort: float
+        :param chain: Chain identifier.
+        :type chain: str
+        :param pool: Pool identifier.
+        :type pool: str
         """
         self.check_initialized()
         share_found_event = ShareFoundEvent(
@@ -176,74 +253,145 @@ class MiningDb(BaseDb):
 
     def add_share_position(self, chain, pool, position):
         """
-        Store the share position
+        Store the share position.
+
+        :param chain: Chain identifier.
+        :type chain: str
+        :param pool: Pool identifier.
+        :type pool: str
+        :param position: Share position.
+        :type position: int
         """
         self.check_initialized()
         share_position = SharePosition(chain=chain, pool=pool, position=position)
         self.insert_constrained_one(share_position)
 
     def add_to_wallet(self, amount):
+        """
+        Placeholder for wallet balance updates.
+
+        :param amount: Amount to add.
+        :type amount: float
+        """
         # CAREFUL with datatypes here!!!
         self.check_initialized()
         # TODO
 
     def add_xmr_payment(self, chain, payment, pool):
         """
-        Store the XMR payment
+        Store an XMR payment.
+
+        :param chain: Chain identifier.
+        :type chain: str
+        :param payment: Payment value.
+        :type payment: float
+        :param pool: Pool identifier.
+        :type pool: str
         """
         self.check_initialized()
         xmr_payment = XMRPayment(chain=chain, payment=payment, pool=pool)
         self.insert_one(xmr_payment)
 
     def get_block_found_events(self, chain=None):
+        """
+        Fetch block-found events, optionally filtered by chain.
+        """
         self.check_initialized()
 
     def get_chain_hashrate(self, instance):
+        """
+        Fetch the latest chain hashrate for an instance.
+        """
         self.check_initialized()
 
     def get_chain_hashrates(self, instance):
+        """
+        Fetch historical chain hashrates for an instance.
+        """
         self.check_initialized()
 
     def get_miner_hashrate(self, miner):
+        """
+        Fetch the latest miner hashrate for a miner.
+        """
         self.check_initialized()
 
     def get_miner_hashrates(self, miner):
+        """
+        Fetch historical miner hashrates for a miner.
+        """
         self.check_initialized()
 
     def get_miner_uptime(self, miner):
+        """
+        Fetch miner uptime details.
+        """
         self.check_initialized()
 
     def get_payments(self):
+        """
+        Fetch payment records.
+        """
         self.check_initialized()
 
     def get_pool_hashrate(self, instance):
+        """
+        Fetch the latest pool hashrate for an instance.
+        """
         self.check_initialized()
 
     def get_pool_hashrates(self, instance):
+        """
+        Fetch historical pool hashrates for an instance.
+        """
         self.check_initialized()
 
     def get_share_found_events(self, pool=None, miner=None):
+        """
+        Fetch share-found events, optionally filtered by pool or miner.
+        """
         self.check_initialized()
 
     def get_xmrigs_remote(self):
+        """
+        Fetch remote XMRig records.
+        """
         self.check_initialized()
 
     def get_share_position(self):
+        """
+        Fetch current share positions.
+        """
         self.check_initialized()
 
     def get_shares(self):
+        """
+        Fetch share records.
+        """
         self.check_initialized()
 
     def get_wallet_balance(self):
+        """
+        Fetch wallet balance.
+        """
         self.check_initialized()
 
     def get_miners(self):
+        """
+        Fetch miner records.
+        """
         self.check_initialized()
 
     def get_xmr_payments(self):
+        """
+        Fetch XMR payment records.
+        """
         self.check_initialized()
 
     def _init_db(self):
+        """
+        Initialize mining tables in the SQLite database.
+        """
         self.sql_db.executescript(
             """
             CREATE TABLE IF NOT EXISTS block_found_event (
