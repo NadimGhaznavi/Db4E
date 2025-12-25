@@ -1,12 +1,11 @@
-"""
-db4e/Panes/XMRigHashratesPane.py
+# db4e/Panes/XMRigHashratesPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
@@ -22,10 +21,17 @@ from db4e.constants.DSelect import DSelect
 
 
 class XMRigHashratesPane(Container):
+    """Textual pane for XMRigHashratesPane."""
+
 
     selected_time = DSelect.ONE_WEEK_HOURS
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", classes=DForm.INTRO, id=DForm.INTRO),
@@ -63,18 +69,37 @@ class XMRigHashratesPane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         self.query_one(Select).value = DSelect.ONE_WEEK_HOURS
         self.query_one(f"#{DField.HASHRATE_PLOT}", HashratePlot).hashrate_plot(
             DSelect.ONE_WEEK
         )
 
     def on_select_changed(self, event: Select.Changed) -> None:
+        """Handle select changed events.
+        
+        :param event: Event payload.
+        :type event: Select.Changed
+        :return: None
+        :rtype: None
+        """
         selected_time = event.value
         self.query_one(f"#{DField.HASHRATE_PLOT}", HashratePlot).hashrate_plot(
             selected_time
         )
 
     def set_data(self, xmrig: XMRig):
+        """Set the data for the pane.
+        
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRig
+        :return: None
+        :rtype: None
+        """
         # Update textual labels
         self.query_one(f"#{DForm.INTRO}", Label).update(
             f"View historical hashrate data for the [cyan]{xmrig.instance()} {DLabel.XMRIG}[/] deployment."

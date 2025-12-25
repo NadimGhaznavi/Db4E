@@ -1,12 +1,11 @@
-"""
-db4e/Panes/RuntimePane.py
+# db4e/Panes/RuntimePane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from rich import box
 from rich.table import Table
@@ -21,12 +20,26 @@ from db4e.constants.DOps import DOps
 
 
 class RuntimePane(Static):
+    """Textual pane for RuntimePane."""
+
 
     def __init__(self, **kwargs):
+        """Initialize the pane.
+        
+        :param kwargs: Widget keyword arguments.
+        :type kwargs: dict
+        :return: None
+        :rtype: None
+        """
         super().__init__(**kwargs)
         self.results = Static()
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Static(
@@ -38,6 +51,13 @@ class RuntimePane(Static):
         )
 
     def set_data(self, events):
+        """Set the data for the pane.
+        
+        :param events: Parameter.
+        :type events: object
+        :return: None
+        :rtype: None
+        """
         table = Table(
             show_header=True,
             header_style="bold #31b8e6",

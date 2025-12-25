@@ -1,12 +1,11 @@
-"""
-db4e/Panes/XMRigRemotePane.py
+# db4e/Panes/XMRigRemotePane.py
+#
+# Database 4 Everything
+# Author: Nadim-Daniel Ghaznavi
+# Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+# GitHub: https://github.com/NadimGhaznavi/db4e
+# License: GPL 3.0
 
-Database 4 Everything
-Author: Nadim-Daniel Ghaznavi
-Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-GitHub: https://github.com/NadimGhaznavi/db4e
-License: GPL 3.0
-"""
 
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button
@@ -25,10 +24,17 @@ from db4e.constants.DMethod import DMethod
 
 
 class XMRigRemotePane(Container):
+    """Textual pane for XMRigRemotePane."""
+
 
     xmrig: XMRigRemote | None = None
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         intro = f"View information about the [cyan]{DLabel.XMRIG_REMOTE}[/] deployment."
         yield Vertical(
             ScrollableContainer(
@@ -65,6 +71,13 @@ class XMRigRemotePane(Container):
         )
 
     def set_data(self, xmrig: XMRigRemote):
+        """Set the data for the pane.
+        
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRigRemote
+        :return: None
+        :rtype: None
+        """
         self.xmrig = xmrig
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(xmrig.instance())
         self.query_one(f"#{DForm.IP_ADDR_LABEL}", Label).update(xmrig.ip_addr())
@@ -76,6 +89,13 @@ class XMRigRemotePane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         if not self.xmrig:
             return
 

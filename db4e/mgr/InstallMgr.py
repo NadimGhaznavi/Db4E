@@ -1,12 +1,10 @@
-"""
-db4e/Modules/InstallMgr.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
+# db4e/Modules/InstallMgr.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 import os, shutil
 from datetime import datetime, timezone
@@ -38,8 +36,17 @@ from db4e.constants.DFile import DFile
 
 
 class InstallMgr(Container):
+    """
+    Installer and bootstrap orchestrator for Db4E deployments.
+    """
 
     def __init__(self, bs_mgr: BootstrapMgr):
+        """
+        Initialize the installer manager and its DB backends.
+
+        :param bs_mgr: Bootstrap manager instance.
+        :type bs_mgr: BootstrapMgr
+        """
         super().__init__()
         self.bs_mgr = bs_mgr
         self.sql_db = SQLDb(db_type=DField.SERVER, bs_mgr=bs_mgr)
@@ -49,6 +56,14 @@ class InstallMgr(Container):
         self.tmp_dir = None
 
     def initial_setup(self, form_data: dict) -> dict:
+        """
+        Run the initial setup workflow and return log lines.
+
+        :param form_data: Initial setup form payload.
+        :type form_data: dict
+        :return: TUI log line data.
+        :rtype: list[dict]
+        """
         # Track the progress of the initial install
         abort_install = False
 
@@ -202,10 +217,26 @@ class InstallMgr(Container):
         return log_lines
 
     def initial_setup_proceed(self, form_data: dict):
+        """
+        Placeholder for initial setup proceed action.
+
+        :param form_data: Initial setup form payload.
+        :type form_data: dict
+        :return: Db4E deployment object.
+        :rtype: Db4E
+        """
         db4e = Db4E()
         return db4e
 
     def _add_timestamp(self, log_line: dict):
+        """
+        Add timestamp fields to a log line dict.
+
+        :param log_line: Log line dictionary to update.
+        :type log_line: dict
+        :return: Updated log line dictionary.
+        :rtype: dict
+        """
         now = datetime.now()
         log_line.update(
             {
@@ -220,6 +251,16 @@ class InstallMgr(Container):
         return log_line
 
     def _check_wallet(self, log_line_data: list, db4e: Db4E):
+        """
+        Validate that a user wallet is present.
+
+        :param log_line_data: Accumulated log lines.
+        :type log_line_data: list[dict]
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Tuple of (log_line_data, abort_install).
+        :rtype: tuple[list[dict], bool]
+        """
         # print(f"InstallMgr:_check_wallet(): user_wallet: {user_wallet}")
         abort_install = False
         # User did not provide any wallet
@@ -250,6 +291,16 @@ class InstallMgr(Container):
         return log_line_data, abort_install
 
     def _check_vendor_dir(self, db4e: Db4E, log_line_data: list):
+        """
+        Validate that a vendor directory is present.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :param log_line_data: Accumulated log lines.
+        :type log_line_data: list[dict]
+        :return: Tuple of (log_line_data, abort_install).
+        :rtype: tuple[list[dict], bool]
+        """
         # print(f"InstallMgr:_vendor_dir(): {vendor_dir}")
         abort_install = False
         if not db4e.vendor_dir():
@@ -267,6 +318,14 @@ class InstallMgr(Container):
 
     # Copy Db4E files
     def _copy_db4e_files(self, vendor_dir):
+        """
+        Copy Db4E scripts into the vendor directory.
+
+        :param vendor_dir: Vendor directory path.
+        :type vendor_dir: str
+        :return: List of results or log entries.
+        :rtype: list
+        """
         results = []
         db4e_src_dir = DElem.DB4E
         db4e_dest_dir = DElem.DB4E + "-" + str(DDef.DB4E_VERSION)
@@ -306,6 +365,14 @@ class InstallMgr(Container):
 
     # Copy monerod files
     def _copy_monerod_files(self, db4e: Db4E):
+        """
+        Copy MoneroD binaries and scripts into the vendor directory.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
@@ -348,6 +415,14 @@ class InstallMgr(Container):
         return db4e
 
     def _copy_p2pool_files(self, db4e: Db4E) -> Db4E:
+        """
+        Copy P2Pool binaries and scripts into the vendor directory.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
@@ -389,6 +464,14 @@ class InstallMgr(Container):
         return db4e
 
     def _copy_xmrig_file(self, db4e: Db4E) -> Db4E:
+        """
+        Copy XMRig binaries into the vendor directory.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         xmrig_binary = DDef.XMRIG_PROCESS
         # Template directory
@@ -407,6 +490,14 @@ class InstallMgr(Container):
         return db4e
 
     def _create_db4e_dirs(self, db4e: Db4E) -> Db4E:
+        """
+        Create Db4E vendor directories.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         fq_db4e_dir = os.path.join(vendor_dir, DElem.DB4E)
         # Create the base Db4E directory
@@ -433,6 +524,14 @@ class InstallMgr(Container):
         return db4e
 
     def _create_monerod_dirs(self, db4e: Db4E) -> Db4E:
+        """
+        Create MoneroD vendor directories.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         fq_monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
 
@@ -462,6 +561,14 @@ class InstallMgr(Container):
         return db4e
 
     def _create_p2pool_dirs(self, db4e: Db4E) -> Db4E:
+        """
+        Create P2Pool vendor directories.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         fq_p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
 
@@ -491,6 +598,16 @@ class InstallMgr(Container):
         return db4e
 
     def _create_vendor_dir(self, db4e: Db4E, log_line_data):
+        """
+        Create or rotate the vendor directory.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :param log_line_data: Accumulated log lines.
+        :type log_line_data: list[dict]
+        :return: Tuple of (log_line_data, abort_install).
+        :rtype: tuple[list[dict], bool]
+        """
         # print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
         abort_install = False
         vendor_dir = db4e.vendor_dir()
@@ -564,6 +681,14 @@ class InstallMgr(Container):
         return log_line_data, abort_install
 
     def _create_xmrig_dirs(self, db4e: Db4E) -> Db4E:
+        """
+        Create XMRig vendor directories.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         fq_xmrig_dir = os.path.join(vendor_dir, DElem.XMRIG)
         os.mkdir(os.path.join(fq_xmrig_dir))
@@ -590,6 +715,14 @@ class InstallMgr(Container):
 
     # Deploy metrics gathering P2Pool instances
     def _deploy_internal_p2pools(self, db4e: Db4E):
+        """
+        Deploy internal P2Pool instances for metrics gathering.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         for chain_label in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
             p2pool = P2PoolInternal()
@@ -639,6 +772,14 @@ class InstallMgr(Container):
 
     # Create a logrotate file for Db4E
     def _generate_db4e_logrotate(self, db4e: Db4E):
+        """
+        Generate the Db4E logrotate configuration.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.DB4E)
         vendor_dir = db4e.vendor_dir()
         fq_config = os.path.join(
@@ -672,6 +813,12 @@ class InstallMgr(Container):
 
     # Update the db4e service template with deployment values
     def _generate_db4e_service_file(self, db4e: Db4E):
+        """
+        Generate a temporary Db4E service file.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        """
         tmp_dir = self._get_tmp_dir()
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
         db4e_dir = self.bs_mgr.get_dir(DDir.INSTALL)
@@ -692,6 +839,12 @@ class InstallMgr(Container):
             f.write(service_contents)
 
     def _generate_tmp_monerod_service_files(self, db4e: Db4E):
+        """
+        Generate temporary MoneroD systemd service files.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
@@ -731,6 +884,12 @@ class InstallMgr(Container):
             f.write(service_contents)
 
     def _generate_tmp_p2pool_service_files(self, db4e: Db4E):
+        """
+        Generate temporary P2Pool systemd service files.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
@@ -773,6 +932,12 @@ class InstallMgr(Container):
             f.write(service_contents)
 
     def _generate_tmp_xmrig_service_file(self, db4e: Db4E) -> None:
+        """
+        Generate a temporary XMRig systemd service file.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Template directory
         tmpl_dir = self.bs_mgr.get_dir(DDir.TEMPLATE)
@@ -796,6 +961,12 @@ class InstallMgr(Container):
             f.write(service_contents)
 
     def _get_tmp_dir(self):
+        """
+        Return the temporary directory path, creating it if needed.
+
+        :return: Temporary directory path.
+        :rtype: str
+        """
         # Helper function
         if not self.tmp_dir:
             tmp_obj = tempfile.TemporaryDirectory()
@@ -804,6 +975,16 @@ class InstallMgr(Container):
         return self.tmp_dir
 
     def _replace_placeholders(self, path: str, placeholders: dict) -> str:
+        """
+        Replace placeholders in a template file and return its contents.
+
+        :param path: Template file path.
+        :type path: str
+        :param placeholders: Placeholder mapping.
+        :type placeholders: dict
+        :return: Rendered template contents.
+        :rtype: str
+        """
         if not os.path.exists(path):
             raise FileNotFoundError(f"Template file ({path}) not found")
         with open(path, "r") as f:
@@ -813,11 +994,25 @@ class InstallMgr(Container):
         return content
 
     def _return_tui_log(self):
+        """
+        Return TUI log data and append an install success marker.
+
+        :return: Log data list.
+        :rtype: list
+        """
         log_data = self.ops_db.get_tui_log()
         log_data.append(DField.INSTALL_SUCCESSFUL)
         return log_data
 
     def _run_sudo_installer(self, db4e: Db4E) -> Db4E:
+        """
+        Run the sudo installer script to complete installation.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: Updated Db4E deployment object.
+        :rtype: Db4E
+        """
         vendor_dir = db4e.vendor_dir()
         # Temporary directory
         tmp_dir = self._get_tmp_dir()

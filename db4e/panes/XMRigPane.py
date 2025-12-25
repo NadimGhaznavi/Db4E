@@ -1,12 +1,11 @@
-"""
-db4e/Panes/XMRigPane.py
+# db4e/Panes/XMRigPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.reactive import reactive
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
@@ -25,12 +24,19 @@ from db4e.constants.DForm import DForm
 
 
 class XMRigPane(Container):
+    """Textual pane for XMRigPane."""
+
 
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
     xmrig = None
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         # Remote P2Pool daemon deployment form
         yield Vertical(
             ScrollableContainer(
@@ -92,16 +98,35 @@ class XMRigPane(Container):
         )
 
     def get_p2pool_id(self, instance=None):
+        """Resolve the selected P2Pool ID.
+        
+        :param instance: Instance name.
+        :type instance: str
+        :return: P2Pool (id, remote_flag) tuple or False.
+        :rtype: tuple[int, int] or bool
+        """
         if instance and instance in self.instance_map:
             return self.instance_map[instance]
         return False
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         self.query_one(f"#{DForm.RADIO_SET}", RadioSet).border_subtitle = DLabel.P2POOL
         self.query_one(f"#{DForm.FORM_BOX}", Vertical).border_subtitle = DLabel.CONFIG
         self.query_one(f"#{DForm.HEALTH_BOX}", Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, xmrig: XMRig):
+        """Set the data for the pane.
+        
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRig
+        :return: None
+        :rtype: None
+        """
         # print(f"XMRig:set_data(): {xmrig}")
         self.xmrig = xmrig
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = xmrig.instance()
@@ -152,6 +177,13 @@ class XMRigPane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         if radio_set.pressed_button:
@@ -193,6 +225,15 @@ class XMRigPane(Container):
         # self.app.post_message(RefreshNavPane(self))
 
     def watch_radio_button_list(self, old, new):
+        """React to changes in radio button list.
+        
+        :param old: Previous value.
+        :type old: list
+        :param new: New value.
+        :type new: list
+        :return: None
+        :rtype: None
+        """
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         for child in list(radio_set.children):
             child.remove()

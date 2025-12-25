@@ -1,13 +1,11 @@
-"""
-db4e/mgr/APIMgr.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-"""
+# db4e/mgr/APIMgr.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
 
 from fastapi import FastAPI, HTTPException, Query, Request
 import uvicorn
@@ -38,8 +36,21 @@ from db4e.constants.DSync import DSync
 
 
 class APIMgr:
+    """
+    API manager that exposes deployment operations via FastAPI.
+    """
 
     def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb, depl_mgr: DeplMgr):
+        """
+        Initialize the API manager and configure the Uvicorn server.
+
+        :param bs_mgr: Bootstrap manager for directory access.
+        :type bs_mgr: BootstrapMgr
+        :param sql_db: SQL database wrapper (unused directly here).
+        :type sql_db: SQLDb
+        :param depl_mgr: Deployment manager for handling requests.
+        :type depl_mgr: DeplMgr
+        """
         self.bs_mgr = bs_mgr
         self.depl_mgr = depl_mgr
         self.app = FastAPI(title=DLabel.DB4E_LONG)
@@ -58,6 +69,16 @@ class APIMgr:
         self.log = logging.getLogger("uvicorn.error")
 
     def factory(self, table_name, elem_rec):
+        """
+        Build a deployment object from a table name and record payload.
+
+        :param table_name: Deployment table name.
+        :type table_name: str
+        :param elem_rec: Deployment record payload.
+        :type elem_rec: dict
+        :return: Deployment object instance.
+        :rtype: object
+        """
         depl_obj = None
         if table_name == DTable.DB4E:
             depl_obj = Db4E(elem_rec)
@@ -74,6 +95,12 @@ class APIMgr:
         return depl_obj
 
     def log_config(self):
+        """
+        Build the Uvicorn logging configuration.
+
+        :return: Logging configuration dictionary.
+        :rtype: dict
+        """
         # Configure the log file
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         log_file = os.path.join(vendor_dir, DElem.DB4E, DDef.LOG_DIR, DFile.UVICORN_LOG)
@@ -101,18 +128,30 @@ class APIMgr:
         }
 
     async def serve(self):
+        """
+        Start the Uvicorn server.
+        """
         try:
             await self.server.serve()
         except asyncio.CancelledError:
             pass
 
     async def shutdown(self):
+        """
+        Stop the Uvicorn server.
+        """
         await self.server.shutdown()
 
     def _register_routes(self):
+        """
+        Register FastAPI route handlers.
+        """
 
         @self.app.get("/")
         async def read_root():
+            """
+            Root health check endpoint.
+            """
             return {"message": "Welcome to Db4E API"}
 
         # New deployment request

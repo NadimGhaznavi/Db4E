@@ -29,7 +29,7 @@ from db4e.widgets.TopBar import TopBar
 from db4e.widgets.NavPane import NavPane
 from db4e.widgets.Clock import Clock
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.UpdateTopBar import UpdateTopBar
 
@@ -134,7 +134,7 @@ class Db4EClient(App):
 
     # Every form sends the form data here
     @work(exclusive=True)
-    async def on_db4e_msg(self, message: Db4eMsg) -> None:
+    async def on_db4e_msg(self, message: Db4EMsg) -> None:
         # print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = await self.msg_router.dispatch(
             message.form_data[DField.TO_MODULE],

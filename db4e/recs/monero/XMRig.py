@@ -27,8 +27,21 @@ from db4e.constants.DSQL import DCol
 
 
 class XMRig(LocalMonero):
+    """
+    Record for a locally managed XMRig miner and its configuration.
+    """
 
     def __init__(self, rec=None, log_file=None):
+        """
+        Initialize the XMRig record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :param log_file: Optional log file path for logger initialization.
+        :type log_file: str or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         # XMRig Attributes
         self._config_file = ""
@@ -62,6 +75,14 @@ class XMRig(LocalMonero):
             self.log = Db4ELogger(db4e_module=DModule.XMRIG, log_file=log_file)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._config_file = rec[DCol.CONFIG_FILE]
         self._log_file = rec[DCol.LOG_FILE]
@@ -74,6 +95,12 @@ class XMRig(LocalMonero):
         self._version = rec[DCol.VERSION]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the record.
+
+        :return: Dictionary with XMRig fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         data.update(
             {
@@ -93,52 +120,134 @@ class XMRig(LocalMonero):
     ## Attribute get/set methods
 
     def config_file(self, config_file=None):
+        """
+        Get or set the config file path.
+
+        :param config_file: Optional config file path to set.
+        :type config_file: str or None
+        :return: Current config file path.
+        :rtype: str
+        """
         if config_file is not None:
             self._config_file = config_file
         return self._config_file
 
     def log_file(self, log_file=None):
+        """
+        Get or set the log file path.
+
+        :param log_file: Optional log file path to set.
+        :type log_file: str or None
+        :return: Current log file path.
+        :rtype: str
+        """
         if log_file is not None:
             self._log_file = log_file
         return self._log_file
 
     def logrotate_config(self, logrotate_config=None):
+        """
+        Get or set the logrotate config file path.
+
+        :param logrotate_config: Optional config file path to set.
+        :type logrotate_config: str or None
+        :return: Current logrotate config path.
+        :rtype: str
+        """
         if logrotate_config is not None:
             self._logrotate_config = logrotate_config
         return self._logrotate_config
 
     def max_log_files(self, max_log_files=None):
+        """
+        Get or set the maximum number of log files to retain.
+
+        :param max_log_files: Optional max log file count to set.
+        :type max_log_files: int or None
+        :return: Current max log file count.
+        :rtype: int
+        """
         if max_log_files is not None:
             self._max_log_files = int(max_log_files)
         return self._max_log_files
 
     def max_log_size(self, max_log_size=None):
+        """
+        Get or set the maximum log file size.
+
+        :param max_log_size: Optional max log size to set.
+        :type max_log_size: int or None
+        :return: Current max log size.
+        :rtype: int
+        """
         if max_log_size is not None:
             self._max_log_size = int(max_log_size)
         return self._max_log_size
 
     def num_threads(self, num_threads=None):
+        """
+        Get or set the number of mining threads.
+
+        :param num_threads: Optional thread count to set.
+        :type num_threads: int or None
+        :return: Current thread count.
+        :rtype: int
+        """
         if num_threads is not None:
             self._num_threads = int(num_threads)
         return self._num_threads
 
     def parent(self, parent=None):
+        """
+        Get or set the upstream P2Pool ID.
+
+        :param parent: Optional parent ID to set.
+        :type parent: int or None
+        :return: Current parent ID.
+        :rtype: int
+        """
         if parent is not None:
             self._parent = int(parent)
         return self._parent
 
     def parent_remote(self, parent_remote=None):
+        """
+        Get or set the remote parent flag or ID.
+
+        :param parent_remote: Optional remote parent value to set.
+        :type parent_remote: int or None
+        :return: Current remote parent value.
+        :rtype: int
+        """
         if parent_remote is not None:
             self._parent_remote = int(parent_remote)
         return self._parent_remote
 
     def version(self, version=None):
+        """
+        Get or set the XMRig version string.
+
+        :param version: Optional version string to set.
+        :type version: str or None
+        :return: Current version string.
+        :rtype: str
+        """
         if version is not None:
             self._version = str(version)
         return self._version
 
     # Generate the XMRig startup config file
     def gen_config(self, tmpl_file: str, vendor_dir: str):
+        """
+        Generate an XMRig config file from a template.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :param vendor_dir: Vendor directory root.
+        :type vendor_dir: str
+        :return: None
+        :rtype: None
+        """
         # XMRig configuration file
         fq_config = os.path.join(
             vendor_dir, DElem.XMRIG, DDef.CONF_DIR, self.instance() + DDef.JSON_SUFFIX
@@ -173,6 +282,18 @@ class XMRig(LocalMonero):
 
     # Generate the XMRig logrotate configuration
     def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
+        """
+        Generate an XMRig logrotate configuration file.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :param vendor_dir: Vendor directory root.
+        :type vendor_dir: str
+        :param db4e_group: Db4E group name for permissions.
+        :type db4e_group: str
+        :return: None
+        :rtype: None
+        """
         # Logrotate configuration file
         fq_config = os.path.join(
             vendor_dir,
@@ -211,24 +332,56 @@ class XMRig(LocalMonero):
 
     # The current hashrate
     def hashrate(self, hashrate=None):
+        """
+        Get or set the current miner hashrate.
+
+        :param hashrate: Optional hashrate value to set.
+        :type hashrate: int or None
+        :return: Current hashrate value.
+        :rtype: int or None
+        """
         if hashrate is not None:
             self._hashrate = hashrate
         return self._hashrate
 
     # Historical hashrate data
     def hashrates(self, hashrate_data=None):
+        """
+        Get or set historical miner hashrate data.
+
+        :param hashrate_data: Optional historical data to set.
+        :type hashrate_data: list or dict or None
+        :return: Historical hashrate data.
+        :rtype: list or dict or None
+        """
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
 
     # Instance map: Used to construct the upstream P2Pool radioset
     def instance_map(self, map=None):
+        """
+        Get or set the instance map for radioset construction.
+
+        :param map: Optional instance map to set.
+        :type map: dict or None
+        :return: Current instance map.
+        :rtype: dict
+        """
         if map:
             self._instance_map = map
         return self._instance_map
 
     # Historical share found data
     def shares_found(self, shares_found_data=None):
+        """
+        Get or set historical share found data.
+
+        :param shares_found_data: Optional historical data to set.
+        :type shares_found_data: list or dict or None
+        :return: Historical share found data.
+        :rtype: list or dict or None
+        """
         if shares_found_data is not None:
             self._shares_found = shares_found_data
         return self._shares_found

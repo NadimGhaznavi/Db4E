@@ -1,13 +1,11 @@
-"""
-db4e/mgr/DeplMgr.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-"""
+# db4e/mgr/DeplMgr.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
 
 import os
 from datetime import datetime
@@ -47,6 +45,10 @@ from db4e.constants.DSQL import DTable
 
 
 class Default:
+    """
+    Default constants and template identifiers used by the deployment manager.
+    """
+
     MONEROD_VERSION = DDef.MONEROD_VERSION
     P2POOL_VERSION = DDef.P2POOL_VERSION
     XMRIG_VERSION = DDef.XMRIG_VERSION
@@ -57,6 +59,9 @@ class Default:
 
 
 class DeplMgr:
+    """
+    Deployment manager for adding, updating, and deleting runtime deployments.
+    """
 
     # update_p2pool_deployment() is overloaded ...
     @overload
@@ -67,12 +72,32 @@ class DeplMgr:
     def __init__(
         self, bs_mgr: BootstrapMgr, depl_db: DeplDb, ops_db: OpsDb, sql_db=None
     ):
+        """
+        Initialize the deployment manager.
+
+        :param bs_mgr: Bootstrap manager for directory and template access.
+        :type bs_mgr: BootstrapMgr
+        :param depl_db: Deployment database manager.
+        :type depl_db: DeplDb
+        :param ops_db: Operations database manager.
+        :type ops_db: OpsDb
+        :param sql_db: Optional SQL database wrapper.
+        :type sql_db: SQLDb or None
+        """
         self.bs_mgr = bs_mgr
         self.depl_db = depl_db
         self.ops_db = ops_db
         self.sql_db = sql_db
 
     def add_deployment(self, elem):
+        """
+        Dispatch to the appropriate add handler for a deployment element.
+
+        :param elem: Deployment object to add.
+        :type elem: object
+        :return: The created deployment object.
+        :rtype: object
+        """
         elem_class = type(elem)
 
         # Add a remote Monero daemon deployment
@@ -104,6 +129,14 @@ class DeplMgr:
             raise ValueError(f"DeplMgr:add_deployment(): No handler for {elem_class}")
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
+        """
+        Add a local MoneroD deployment and generate its filesystem artifacts.
+
+        :param monerod: MoneroD deployment object.
+        :type monerod: MoneroD
+        :return: The created MoneroD deployment object.
+        :rtype: MoneroD
+        """
         if not monerod.ip_addr():
             monerod.ip_addr(socket.gethostname())
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
@@ -171,6 +204,14 @@ class DeplMgr:
         return monerod
 
     def add_remote_monerod_deployment(self, monerod: MoneroDRemote):
+        """
+        Add a remote MoneroD deployment.
+
+        :param monerod: Remote MoneroD deployment object.
+        :type monerod: MoneroDRemote
+        :return: The created MoneroDRemote deployment object.
+        :rtype: MoneroDRemote
+        """
         monerod = self.depl_db.insert_one(monerod)
         # Create a console log message
         self.ops_db.add_tui_log_line(
@@ -183,6 +224,14 @@ class DeplMgr:
         return monerod
 
     def add_p2pool_deployment(self, p2pool: P2Pool):
+        """
+        Add a local P2Pool deployment and generate its filesystem artifacts.
+
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2Pool
+        :return: The created P2Pool deployment object.
+        :rtype: P2Pool
+        """
         # Generate the configuration
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
@@ -263,6 +312,14 @@ class DeplMgr:
         return p2pool
 
     def add_remote_p2pool_deployment(self, p2pool: P2PoolRemote) -> P2PoolRemote:
+        """
+        Add a remote P2Pool deployment.
+
+        :param p2pool: Remote P2Pool deployment object.
+        :type p2pool: P2PoolRemote
+        :return: The created P2PoolRemote deployment object.
+        :rtype: P2PoolRemote
+        """
         p2pool = self.depl_db.insert_one(p2pool)
         # Create a console log message
         self.ops_db.add_tui_log_line(
@@ -275,6 +332,14 @@ class DeplMgr:
         return p2pool
 
     def add_xmrig_deployment(self, xmrig: XMRig) -> XMRig:
+        """
+        Add a local XMRig deployment and generate its filesystem artifacts.
+
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRig
+        :return: The created XMRig deployment object.
+        :rtype: XMRig
+        """
         # Generate the XMRig configuration
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if xmrig.parent() != DField.DISABLE:
@@ -362,6 +427,12 @@ class DeplMgr:
         return xmrig
 
     def delete_deployment(self, elem):
+        """
+        Delete a deployment and remove its filesystem artifacts.
+
+        :param elem: Deployment object to delete.
+        :type elem: object
+        """
         vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
             tracked_type = DElem.MONEROD
@@ -418,6 +489,12 @@ class DeplMgr:
         )
 
     def update_db4e_deployment(self, new_db4e: Db4E):
+        """
+        Update the Db4E deployment record and propagate dependent changes.
+
+        :param new_db4e: Updated Db4E deployment object.
+        :type new_db4e: Db4E
+        """
         update_flag = False
         update_p2pool_flag = False
         # The current record, we'll update this and write it back in
@@ -511,6 +588,14 @@ class DeplMgr:
                 self.update_deployment(p2pool)
 
     def update_deployment(self, elem):
+        """
+        Dispatch to the appropriate update handler for a deployment element.
+
+        :param elem: Deployment object with updated values.
+        :type elem: object
+        :return: Updated deployment object, if applicable.
+        :rtype: object
+        """
         # print(f"DeplMgr:update_deployment(): {rec}")
         if type(elem) == Db4E:
             return self.update_db4e_deployment(elem)
@@ -531,6 +616,12 @@ class DeplMgr:
             )
 
     def update_monerod_deployment(self, new_monerod: MoneroD):
+        """
+        Update a local MoneroD deployment.
+
+        :param new_monerod: Updated MoneroD deployment object.
+        :type new_monerod: MoneroD
+        """
         # Flags to indicate if we're updaing the DB and/or the startup config
         update, update_config = False, False
         # print(f"DeplMgr:update_monerod_deployment(): {new_monerod}")
@@ -804,6 +895,12 @@ class DeplMgr:
             self.depl_db.update_one(monerod)
 
     def update_monerod_remote_deployment(self, new_monerod: MoneroDRemote):
+        """
+        Update a remote MoneroD deployment.
+
+        :param new_monerod: Updated MoneroDRemote deployment object.
+        :type new_monerod: MoneroDRemote
+        """
         update = False
         monerod = self.depl_db.get_deployment(
             DElem.MONEROD_REMOTE, new_monerod.instance()
@@ -859,6 +956,12 @@ class DeplMgr:
             monerod = self.depl_db.update_one(monerod)
 
     def update_p2pool_deployment(self, new_p2pool):
+        """
+        Update a local or internal P2Pool deployment.
+
+        :param new_p2pool: Updated P2Pool or P2PoolInternal deployment object.
+        :type new_p2pool: P2Pool or P2PoolInternal
+        """
         # Flags indicating what needs to be done at the end of the function
         update, update_config = False, False
         # Resolve which P2Pool type we're updating
@@ -1038,6 +1141,14 @@ class DeplMgr:
             self.depl_db.update_one(p2pool)
 
     def update_p2pool_remote_deployment(self, new_p2pool: P2PoolRemote) -> P2PoolRemote:
+        """
+        Update a remote P2Pool deployment.
+
+        :param new_p2pool: Updated P2PoolRemote deployment object.
+        :type new_p2pool: P2PoolRemote
+        :return: Updated P2PoolRemote deployment object.
+        :rtype: P2PoolRemote
+        """
         update = False
         p2pool = self.depl_db.get_deployment(DElem.P2POOL_REMOTE, new_p2pool.instance())
 
@@ -1072,6 +1183,14 @@ class DeplMgr:
             self.depl_db.update_one(p2pool)
 
     def update_xmrig_deployment(self, new_xmrig: XMRig) -> XMRig:
+        """
+        Update a local XMRig deployment.
+
+        :param new_xmrig: Updated XMRig deployment object.
+        :type new_xmrig: XMRig
+        :return: Updated XMRig deployment object.
+        :rtype: XMRig
+        """
         update, update_config = False, False
 
         xmrig = self.depl_db.get_deployment(DElem.XMRIG, new_xmrig.instance())

@@ -1,12 +1,11 @@
-"""
-db4e/Panes/MoneroDPane.py
+# db4e/Panes/MoneroDPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, Checkbox
@@ -29,8 +28,15 @@ hi = "#d7e556"
 
 
 class MoneroDPane(Container):
+    """Textual pane for MoneroDPane."""
+
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         # Local Monero daemon deployment form
         yield Vertical(
             ScrollableContainer(
@@ -195,12 +201,24 @@ class MoneroDPane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         form_box = self.query_one("#" + DForm.FORM_BOX, Vertical)
         form_box.border_subtitle = DLabel.CONFIG
         health_box = self.query_one("#" + DForm.HEALTH_BOX, Vertical)
         health_box.border_subtitle = DLabel.STATUS
 
     def set_data(self, monerod: MoneroD):
+        """Set the data for the pane.
+        
+        :param monerod: MoneroD deployment object.
+        :type monerod: MoneroD
+        :return: None
+        :rtype: None
+        """
         self.monerod = monerod
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
@@ -287,6 +305,13 @@ class MoneroDPane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         self.monerod.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)

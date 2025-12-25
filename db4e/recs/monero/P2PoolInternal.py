@@ -34,6 +34,14 @@ class P2PoolInternal(BaseP2Pool):
     """
 
     def __init__(self, rec=None):
+        """
+        Initialize the internal P2Pool record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         self._stats_mod = None
         # Incoming and outgoing peer connection limits
@@ -57,31 +65,85 @@ class P2PoolInternal(BaseP2Pool):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._stats_mod = rec[DField.STATS_MOD]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the record.
+
+        :return: Dictionary with internal P2Pool fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         data.update({DField.STATS_MOD: self._stats_mod})
         return data
 
     def stats_mod(self, stats_mod=None):
+        """
+        Get or set the stats module identifier.
+
+        :param stats_mod: Optional stats module value to set.
+        :type stats_mod: str or int or None
+        :return: Current stats module value.
+        :rtype: str or int or None
+        """
         if stats_mod is not None:
             self._stats_mod = stats_mod
         return self._stats_mod
 
     def blocks_found(self, blocks_found=None):
+        """
+        Get or set historical blocks found data.
+
+        :param blocks_found: Optional historical data to set.
+        :type blocks_found: list or dict or None
+        :return: Historical blocks found data.
+        :rtype: list or dict or None
+        """
         if blocks_found is not None:
             self._blocks_found = blocks_found
         return self._blocks_found
 
     def hashrates(self, hashrates=None):
+        """
+        Get or set historical chain hashrate data.
+
+        :param hashrates: Optional historical data to set.
+        :type hashrates: list or dict or None
+        :return: Historical chain hashrate data.
+        :rtype: list or dict or None
+        """
         if hashrates is not None:
             self._hashrates = hashrates
         return self._hashrates
 
     # Helper function to configure the the three internal P2Pool instances
     def set_type(self, chain_label, log_file, stats_mod, stdin_path, config_file):
+        """
+        Configure this internal instance for a specific chain label.
+
+        :param chain_label: Chain label key.
+        :type chain_label: str
+        :param log_file: Log file path.
+        :type log_file: str
+        :param stats_mod: Stats module identifier.
+        :type stats_mod: str or int
+        :param stdin_path: Stdin pipe path.
+        :type stdin_path: str
+        :param config_file: Config file path.
+        :type config_file: str
+        :return: None
+        :rtype: None
+        """
 
         try:
             chain_field, offset = CHAIN_CONFIG[chain_label]

@@ -1,12 +1,10 @@
-"""
-db4e/Modules/MessageRouter.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
+# db4e/Modules/MessageRouter.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.PaneMgr import PaneMgr
@@ -27,6 +25,10 @@ from db4e.constants.DModule import DModule
 
 
 class RouteMgr:
+    """
+    Route manager that maps UI actions to handlers and panes.
+    """
+
     def __init__(
         self,
         depl_db: DeplDb,
@@ -35,6 +37,20 @@ class RouteMgr:
         pane_mgr: PaneMgr,
         sync_client: SyncClient,
     ):
+        """
+        Initialize the route manager and register routes.
+
+        :param depl_db: Deployment database manager.
+        :type depl_db: DeplDb
+        :param ops_db: Operations database manager.
+        :type ops_db: OpsDb
+        :param install_mgr: Installer manager instance.
+        :type install_mgr: InstallMgr
+        :param pane_mgr: Pane manager instance.
+        :type pane_mgr: PaneMgr
+        :param sync_client: Sync client for server communication.
+        :type sync_client: SyncClient
+        """
         self.routes: dict[tuple[str, str, str], tuple[callable, str]] = {}
         self._panes = {}
         self.install_mgr = install_mgr
@@ -47,6 +63,9 @@ class RouteMgr:
         self.load_routes()
 
     def load_routes(self):
+        """
+        Register all UI routes and handlers.
+        """
         # Db4e core - Proceed/abort initial install
         self.register(
             DModule.INSTALL_MGR,
@@ -328,14 +347,50 @@ class RouteMgr:
         )
 
     def get_handler(self, module: str, method: str, component: str = ""):
+        """
+        Retrieve a handler for a given route key.
+
+        :param module: Module identifier.
+        :type module: str
+        :param method: Method identifier.
+        :type method: str
+        :param component: Component identifier.
+        :type component: str
+        :return: Handler tuple or None.
+        :rtype: tuple[callable, str] or None
+        """
         return self.routes.get((module, method, component))
 
     def get_pane(self, module: str, method: str, component: str = ""):
+        """
+        Retrieve a pane for a given route key.
+
+        :param module: Module identifier.
+        :type module: str
+        :param method: Method identifier.
+        :type method: str
+        :param component: Component identifier.
+        :type component: str
+        :return: Pane name or None.
+        :rtype: str or None
+        """
         return self._panes.get((module, method, component))
 
     async def dispatch(
         self, some_module: str, some_method: str = None, payload: dict = None
     ):
+        """
+        Dispatch a route payload to the registered handler.
+
+        :param some_module: Module identifier.
+        :type some_module: str
+        :param some_method: Method identifier.
+        :type some_method: str
+        :param payload: Payload data.
+        :type payload: dict or None
+        :return: Tuple of (result, pane).
+        :rtype: tuple[object, str]
+        """
         print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(DField.ELEMENT_TYPE, "")
         handler = self.get_handler(some_module, some_method, elem_type)
@@ -364,4 +419,18 @@ class RouteMgr:
     def register(
         self, field: str, method: str, component: str, callback: callable, pane: str
     ):
+        """
+        Register a route handler and its associated pane.
+
+        :param field: Module or field identifier.
+        :type field: str
+        :param method: Method identifier.
+        :type method: str
+        :param component: Component identifier.
+        :type component: str
+        :param callback: Handler callable.
+        :type callback: callable
+        :param pane: Pane name to display.
+        :type pane: str
+        """
         self.routes[(field, method, component)] = (callback, pane)

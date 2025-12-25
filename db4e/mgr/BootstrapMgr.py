@@ -1,3 +1,12 @@
+# db4e/mgr/BootstrapMgr.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
+
 from __future__ import annotations
 import os
 import platform
@@ -22,16 +31,28 @@ class BootstrapMgr:
     """
 
     def __init__(self):
+        """
+        Initialize the bootstrap manager and load existing config if present.
+        """
         self._config_path = Path.home() / DFile.DOT_DB4E
         self._config = {}
         if self._config_path.exists():
             self._config = self._load()
 
     def _load(self) -> dict:
+        """
+        Load the bootstrap configuration from disk.
+
+        :return: Parsed configuration dictionary.
+        :rtype: dict
+        """
         with self._config_path.open("rb") as f:
             return tomllib.load(f)
 
     def _save(self):
+        """
+        Persist the bootstrap configuration to disk.
+        """
         with self._config_path.open("wb") as f:
             tomli_w.dump(self._config, f)
 
@@ -42,6 +63,14 @@ class BootstrapMgr:
                 pass
 
     def get_dir(self, aDir: str) -> str | None:
+        """
+        Resolve key directories used by the application.
+
+        :param aDir: Directory selector constant.
+        :type aDir: str
+        :return: Absolute or configured directory path.
+        :rtype: str or None
+        """
         if aDir == DDir.DB:
             if not self.is_initialized():
                 raise RuntimeError("BootstrapMgr not initialized")
@@ -89,6 +118,14 @@ class BootstrapMgr:
             raise ValueError(f"BootstrapMgr:get_dir(): No handler for {aDir}")
 
     def get_file(self, aFile: str) -> str | None:
+        """
+        Resolve key file paths used by the application.
+
+        :param aFile: File selector constant.
+        :type aFile: str
+        :return: Absolute file path or None.
+        :rtype: str or None
+        """
         if not self.is_initialized():
             return None
 
@@ -108,6 +145,14 @@ class BootstrapMgr:
             return python
 
     def get_logrotate_template(self, elem_type):
+        """
+        Return the logrotate template path for a given element type.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :return: Absolute template path or None.
+        :rtype: str or None
+        """
         if not self.is_initialized():
             return None
 
@@ -144,6 +189,14 @@ class BootstrapMgr:
             )
 
     def get_template(self, elem_type):
+        """
+        Return the startup template path for a given element type.
+
+        :param elem_type: Element type identifier.
+        :type elem_type: str
+        :return: Template path.
+        :rtype: str
+        """
         tmpl_dir = self.get_dir(DDir.TEMPLATE)
 
         # Get a monerod startup template
@@ -173,13 +226,28 @@ class BootstrapMgr:
         return tmpl_file
 
     def initialize(self, vendor_dir: str):
+        """
+        Initialize bootstrap configuration with a vendor directory.
+
+        :param vendor_dir: Vendor directory to persist.
+        :type vendor_dir: str
+        """
         vendor_dir_path = Path(vendor_dir).expanduser().resolve()
         vendor_dir_path.mkdir(parents=True, exist_ok=True)
         self._config[DField.VENDOR_DIR] = str(vendor_dir_path)
         self._save()
 
     def is_initialized(self) -> bool:
+        """
+        Check whether the bootstrap configuration has been initialized.
+
+        :return: True if initialized, otherwise False.
+        :rtype: bool
+        """
         return self._config_path.exists() and DField.VENDOR_DIR in self._config
 
     def __repr__(self):
+        """
+        Return a concise representation of the bootstrap manager.
+        """
         return f"BootstrapMgr(vendor_dir={self.get_vendor_dir()})"

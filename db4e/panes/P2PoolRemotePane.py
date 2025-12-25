@@ -22,10 +22,17 @@ from db4e.constants.DForm import DForm
 
 
 class P2PoolRemotePane(Container):
+    """Textual pane for P2PoolRemotePane."""
+
 
     p2pool: P2PoolRemote = None
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", classes=DForm.INTRO, id=DForm.INTRO),
@@ -77,10 +84,22 @@ class P2PoolRemotePane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         self.query_one(f"#{DForm.FORM_BOX}", Vertical).border_subtitle = DLabel.CONFIG
         self.query_one(f"#{DForm.HEALTH_BOX}", Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, p2pool: P2PoolRemote):
+        """Set the data for the pane.
+        
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2PoolRemote
+        :return: None
+        :rtype: None
+        """
         self.p2pool = p2pool
 
         print(f"P2PoolRemotePane:set_data(): type: {type(p2pool)}")
@@ -115,6 +134,13 @@ class P2PoolRemotePane(Container):
         self.query_one(f"#{DForm.INTRO}", Label).update(intro_text)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         # Update p2pool object with current input values

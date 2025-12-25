@@ -1,12 +1,11 @@
-"""
-db4e/Panes/InitialSetupPane.py
+# db4e/Panes/InitialSetupPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.widgets import Label, Input, Button
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
@@ -31,10 +30,17 @@ hi = "cyan"
 
 
 class InitialSetupPane(Container):
+    """Textual pane for InitialSetupPane."""
+
 
     rec = {}
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", id=DForm.INTRO, classes=DForm.INTRO),
@@ -84,6 +90,13 @@ class InitialSetupPane(Container):
         )
 
     def set_data(self, db4e: Db4E):
+        """Set the data for the pane.
+        
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: None
+        :rtype: None
+        """
         # print(f"InitialSetup:set_data(): rec: {rec}")
         self.db4e = db4e
         INTRO = (
@@ -104,6 +117,13 @@ class InitialSetupPane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         event.stop()
         button_id = event.button.id
         if button_id == DButtonF.PROCEED:

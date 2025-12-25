@@ -1,12 +1,11 @@
-"""
-db4e/Panes/P2PoolTablesPane.py
+# db4e/Panes/P2PoolTablesPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from rich import box
 from rich.table import Table
@@ -23,15 +22,29 @@ from db4e.constants.DField import DField
 
 
 class P2PoolTablesPane(Static):
+    """Textual pane for P2PoolTablesPane."""
+
 
     hashrates_table = Static("Missing Data", id="hashrates_table")
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(self.hashrates_table, classes=DForm.PANE_BOX)
         )
 
     def set_data(self, table_data: dict):
+        """Set the data for the pane.
+        
+        :param table_data: Table data payload.
+        :type table_data: dict
+        :return: None
+        :rtype: None
+        """
         table = Table(
             title="14 Day Hashrate History",
             show_header=True,

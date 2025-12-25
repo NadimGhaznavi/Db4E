@@ -1,12 +1,11 @@
-"""
-db4e/Panes/LogViewPane.py
+# db4e/Panes/LogViewPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 import os
 import asyncio
@@ -20,11 +19,18 @@ from db4e.constants.DDef import DDef
 
 
 class LogViewPane(Container):
+    """Textual pane for LogViewPane."""
+
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
 
         yield Vertical(
             Label("", id=f"{DForm.HEADER}", classes=DForm.FORM_1),
@@ -35,7 +41,13 @@ class LogViewPane(Container):
         )
 
     def preload(self, path):
-        """Return the last num_lines from file at path."""
+        """Load recent log lines from a file.
+        
+        :param path: Log file path.
+        :type path: str
+        :return: List of log lines.
+        :rtype: list[str]
+        """
         if os.path.exists(path):
             with open(path, "rb") as f:
                 f.seek(0, os.SEEK_END)
@@ -55,6 +67,13 @@ class LogViewPane(Container):
             return ["No log file found"]
 
     def set_data(self, elem):
+        """Set the data for the pane.
+        
+        :param elem: Deployment object.
+        :type elem: object
+        :return: None
+        :rtype: None
+        """
         old_lines = self.preload(elem.log_file())
         log_widget = self.query_one(Log)
         log_widget.clear()
@@ -72,6 +91,15 @@ class LogViewPane(Container):
         )
 
     async def watch_log(self, path, last_size: int = 0):
+        """Tail a log file and stream new lines.
+        
+        :param path: Log file path.
+        :type path: str
+        :param last_size: Previous file size in bytes.
+        :type last_size: int
+        :return: None
+        :rtype: None
+        """
         try:
             while True:
                 if os.path.exists(path):

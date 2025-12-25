@@ -1,12 +1,11 @@
-"""
-db4e/Panes/WelcomePane.py
+# db4e/Panes/WelcomePane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from rich import box
 from rich.table import Table
@@ -20,8 +19,15 @@ color = "#31b8e6"
 
 
 class WelcomePane(Container):
+    """Textual pane for WelcomePane."""
+
 
     def compose(self) -> ComposeResult:
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
 
         highlights = Table(
             title="[cyan b]Db4E Features Today[/]",

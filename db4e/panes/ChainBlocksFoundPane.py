@@ -22,11 +22,21 @@ from db4e.constants.DForm import DForm
 
 
 class ChainBlocksFoundPane(Container):
+    """
+    Textual pane for displaying blocks-found history for a P2Pool chain.
+    """
+
 
     days = reactive([])
     blocks_found = reactive([])
 
     def compose(self):
+        """
+        Compose the pane layout.
+
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
 
         yield Vertical(
             ScrollableContainer(
@@ -37,11 +47,29 @@ class ChainBlocksFoundPane(Container):
         )
 
     def on_mount(self) -> None:
+        """
+        Handle the mount lifecycle event.
+
+        :return: None
+        :rtype: None
+        """
         plt = self.query_one(PlotextPlot).plt
         plt.bar(self.days, self.blocks_found, color="blue")
         plt.title("Blocks Found")
 
     def reduce_data(self, days, blocks_found, max_bars=100):
+        """
+        Reduce raw data to a maximum number of bars for plotting.
+
+        :param days: Sequence of day indices or timestamps.
+        :type days: list[int] or list[float]
+        :param blocks_found: Sequence of blocks found values.
+        :type blocks_found: list[int]
+        :param max_bars: Maximum number of bars to return.
+        :type max_bars: int
+        :return: Reduced (days, blocks_found) sequences.
+        :rtype: tuple[list[int], list[int]]
+        """
         n = len(days)
         if n <= max_bars:
             return days, blocks_found  # nothing to do
@@ -60,6 +88,14 @@ class ChainBlocksFoundPane(Container):
         return agg_days, agg_blocks
 
     def set_data(self, p2pool: P2Pool):
+        """
+        Set the data for the pane and refresh the plot.
+
+        :param p2pool: P2Pool deployment with blocks-found data.
+        :type p2pool: P2Pool
+        :return: None
+        :rtype: None
+        """
         print(f"ChainBlocksFoundPane:set_data()")
         LONG_NAME = {
             DLabel.MINI_CHAIN: "Mini Sidechain",
@@ -89,6 +125,16 @@ class ChainBlocksFoundPane(Container):
             plt.title("Blocks Found")
 
     def watch_days(self, old, new):
+        """
+        React to changes in days and refresh the plot.
+
+        :param old: Previous days value.
+        :type old: list[int] or list[float]
+        :param new: New days value.
+        :type new: list[int] or list[float]
+        :return: None
+        :rtype: None
+        """
         plt = self.query_one(PlotextPlot).plt
 
         plt.bar(self.days, self.blocks_found, color="blue")

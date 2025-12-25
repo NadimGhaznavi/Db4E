@@ -13,8 +13,19 @@ from db4e.constants.DStatus import DStatus
 
 
 class BaseMonero(BaseElem):
+    """
+    Base record for Monero-related deployments with status tracking.
+    """
 
     def __init__(self, rec=None):
+        """
+        Initialize the base Monero record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         self._instance = ""
         self._updated_y = None
@@ -31,6 +42,14 @@ class BaseMonero(BaseElem):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._instance = rec[DCol.INSTANCE]
         # The "rec" is from the database (otherwise it's from a TUI form i.e. "new")
@@ -43,20 +62,48 @@ class BaseMonero(BaseElem):
             self._updated_s = rec[DCol.UPDATED_SECOND]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the base record.
+
+        :return: Dictionary with base Monero fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         data.update({DCol.INSTANCE: self._instance})
         return data
 
     def instance(self, instance=None):
+        """
+        Get or set the instance name.
+
+        :param instance: Optional instance name to set.
+        :type instance: str or None
+        :return: Current instance name.
+        :rtype: str
+        """
         if instance is not None:
             self._instance = instance
         return self._instance
 
     def pop_msgs(self):
+        """
+        Return the collected status messages.
+
+        :return: List of status messages.
+        :rtype: list
+        """
         return self._msgs
 
     # The health of the deployed instance
     def status(self, status=None):
+        """
+        Get or set the health status.
+
+        :param status: Optional status value to set.
+        :type status: str or None
+        :return: Current status value.
+        :rtype: str
+        """
         if status is not None:
             self._status = status
         return self._status

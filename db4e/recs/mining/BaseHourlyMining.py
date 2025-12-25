@@ -14,8 +14,19 @@ from db4e.constants.DSQL import DCol
 
 
 class BaseHourlyMining(BaseElem):
+    """
+    Base record for hourly mining metrics.
+    """
 
     def __init__(self, rec=None):
+        """
+        Initialize the hourly mining record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         self._updated_y = None
         self._updated_mo = None
@@ -25,6 +36,14 @@ class BaseHourlyMining(BaseElem):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._updated_y = rec[DCol.UPDATED_YEAR]
         self._updated_mo = rec[DCol.UPDATED_MONTH]
@@ -32,5 +51,11 @@ class BaseHourlyMining(BaseElem):
         self._updated_h = rec[DCol.UPDATED_HOUR]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the record.
+
+        :return: Dictionary with hourly mining fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         return data

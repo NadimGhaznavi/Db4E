@@ -1,12 +1,11 @@
-"""
-db4e/Panes/P2PoolInternalPane.py
+# db4e/Panes/P2PoolInternalPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Button
@@ -14,7 +13,7 @@ from textual.widgets import Label, Button
 from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DJob import DJob
@@ -27,10 +26,16 @@ from db4e.constants.DForm import DForm
 
 
 class ChainPane(Container):
+    """Textual pane for ChainPane."""
 
     p2pool = None
 
     def compose(self):
+        """Compose the pane layout.
+
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         # Internal P2Pool daemon analythics form
         INTRO = f"View information about the [cyan]{DLabel.P2POOL_INTERNAL}[/] deployment here."
 
@@ -92,10 +97,22 @@ class ChainPane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+
+        :return: None
+        :rtype: None
+        """
         self.query_one("#" + DForm.FORM_BOX, Vertical).border_subtitle = DLabel.CONFIG
         self.query_one("#" + DForm.HEALTH_BOX, Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, p2pool: P2PoolInternal):
+        """Set the data for the pane.
+
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2PoolInternal
+        :return: None
+        :rtype: None
+        """
         self.p2pool = p2pool
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(p2pool.instance())
         self.query_one(f"#{DForm.CONFIG_FILE_LABEL}", Label).update(
@@ -125,6 +142,13 @@ class ChainPane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         if button_id == DButtonF.BLOCKS_FOUND:

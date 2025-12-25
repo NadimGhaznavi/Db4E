@@ -1,12 +1,11 @@
-"""
-db4e/Panes/P2PoolPane.py
+# db4e/Panes/P2PoolPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, ScrollableContainer, Vertical, Horizontal
 from textual.widgets import Label, Input, Button, RadioButton, RadioSet
@@ -26,12 +25,19 @@ from db4e.constants.DForm import DForm
 
 
 class P2PoolPane(Container):
+    """Textual pane for P2PoolPane."""
+
 
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
     p2pool = None
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", classes=DForm.INTRO, id=DForm.INTRO),
@@ -124,6 +130,11 @@ class P2PoolPane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         self.query_one(f"#{DForm.RADIO_SET}", RadioSet).border_subtitle = (
             DLabel.UPSTREAM_MONERO
         )
@@ -134,6 +145,13 @@ class P2PoolPane(Container):
         self.query_one(f"#{DForm.HEALTH_BOX}", Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, p2pool: P2Pool):
+        """Set the data for the pane.
+        
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2Pool
+        :return: None
+        :rtype: None
+        """
         self.p2pool = p2pool
 
         # Populate inputs and labels
@@ -191,6 +209,13 @@ class P2PoolPane(Container):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
@@ -258,6 +283,15 @@ class P2PoolPane(Container):
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
     def watch_radio_button_list(self, old, new):
+        """React to changes in radio button list.
+        
+        :param old: Previous value.
+        :type old: list
+        :param new: New value.
+        :type new: list
+        :return: None
+        :rtype: None
+        """
         radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
         for child in list(radio_set.children):
             child.remove()

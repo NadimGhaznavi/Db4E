@@ -1,12 +1,11 @@
-"""
-db4e/Panes/P2PoolHashratesPane.py
+# db4e/Panes/P2PoolHashratesPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
@@ -21,10 +20,17 @@ from db4e.constants.DSelect import DSelect
 
 
 class P2PoolHashratesPane(Container):
+    """Textual pane for P2PoolHashratesPane."""
+
 
     selected_time = DSelect.ONE_WEEK_HOURS
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", classes=DForm.INTRO, id=DForm.INTRO),
@@ -57,11 +63,25 @@ class P2PoolHashratesPane(Container):
         )
 
     def on_select_changed(self, event: Select.Changed) -> None:
+        """Handle select changed events.
+        
+        :param event: Event payload.
+        :type event: Select.Changed
+        :return: None
+        :rtype: None
+        """
         self.selected_time = event.value
         plot = self.query_one(f"#{DField.HASHRATE_PLOT}", Db4EPlot)
         plot.update_time_range(self.selected_time)
 
     def set_data(self, p2pool: P2Pool):
+        """Set the data for the pane.
+        
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2Pool
+        :return: None
+        :rtype: None
+        """
         intro_text = (
             f"The chart below shows the hashrate for the "
             f"[cyan]{p2pool.instance()} {DLabel.P2POOL}[/] deployment. "

@@ -1,12 +1,11 @@
-"""
-db4e/Panes/Db4EPane.py
+# db4e/Panes/Db4EPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual import on
 from textual.widgets import Label, Input, Button, RadioButton, RadioSet
@@ -33,12 +32,19 @@ hi = "cyan"
 
 
 class Db4EPane(Container):
+    """Textual pane for Db4EPane."""
+
 
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
     db4e = None
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(
                 Label("", id=DForm.INTRO, classes=DForm.INTRO),
@@ -94,6 +100,11 @@ class Db4EPane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         self.query_one(f"#{DForm.RADIO_SET}", RadioSet).border_subtitle = (
             DLabel.PRIMARY_SERVER
         )
@@ -101,6 +112,13 @@ class Db4EPane(Container):
         self.query_one("#" + DForm.HEALTH_BOX, Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, db4e: Db4E):
+        """Set the data for the pane.
+        
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: None
+        :rtype: None
+        """
         self.db4e = db4e
         INTRO = (
             f"Welcome to the [bold {hi}]Database 4 Everything Core "
@@ -145,6 +163,13 @@ class Db4EPane(Container):
             primary_server_radio_set.mount(rb)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         self.db4e.user_wallet(
@@ -182,6 +207,15 @@ class Db4EPane(Container):
         self.app.post_message(Db4eMsg(self, form_data=form_data))
 
     def watch_radio_button_list(self, old, new):
+        """React to changes in radio button list.
+        
+        :param old: Previous value.
+        :type old: list
+        :param new: New value.
+        :type new: list
+        :return: None
+        :rtype: None
+        """
         for child in list(self.query_one(f"#{DForm.RADIO_SET}", RadioSet).children):
             child.remove()
 

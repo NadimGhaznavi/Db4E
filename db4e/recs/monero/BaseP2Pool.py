@@ -29,8 +29,19 @@ CHAIN_TO_CHAIN_LABEL_MAP = {
 
 
 class BaseP2Pool(LocalMonero):
+    """
+    Base record for P2Pool configurations and runtime metadata.
+    """
 
     def __init__(self, rec=None):
+        """
+        Initialize the P2Pool base record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         # P2Pool attributes
         self._any_ip = ""
@@ -69,6 +80,14 @@ class BaseP2Pool(LocalMonero):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._any_ip = rec[DCol.ANY_IP]
         self._chain = rec[DCol.CHAIN]
@@ -90,6 +109,12 @@ class BaseP2Pool(LocalMonero):
         self._version = rec[DCol.VERSION]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the record.
+
+        :return: Dictionary with P2Pool fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         data.update(
             {
@@ -118,97 +143,251 @@ class BaseP2Pool(LocalMonero):
     ## Attribute get/set methods
 
     def any_ip(self, any_ip=None):
+        """
+        Get or set the bind address.
+
+        :param any_ip: Optional IP address to set.
+        :type any_ip: str or None
+        :return: Current bind address.
+        :rtype: str
+        """
         if any_ip is not None:
             self._any_ip = any_ip
         return self._any_ip
 
     def chain(self, chain=None):
+        """
+        Get or set the chain identifier.
+
+        :param chain: Optional chain value to set.
+        :type chain: str or None
+        :return: Current chain identifier.
+        :rtype: str
+        """
         if chain is not None:
             self._chain = chain
         return self._chain
 
     def config_file(self, config_file=None):
+        """
+        Get or set the config file path.
+
+        :param config_file: Optional config file path to set.
+        :type config_file: str or None
+        :return: Current config file path.
+        :rtype: str
+        """
         if config_file is not None:
             self._config_file = config_file
         return self._config_file
 
     def in_peers(self, in_peers=None):
+        """
+        Get or set the inbound peer limit.
+
+        :param in_peers: Optional inbound peer count to set.
+        :type in_peers: int or None
+        :return: Current inbound peer count.
+        :rtype: int
+        """
         if in_peers is not None:
             self._in_peers = int(in_peers)
         return self._in_peers
 
     def ip_addr(self, ip_addr=None):
+        """
+        Get or set the listening IP address.
+
+        :param ip_addr: Optional IP address to set.
+        :type ip_addr: str or None
+        :return: Current listening IP address.
+        :rtype: str
+        """
         if ip_addr is not None:
             self._ip_addr = ip_addr
         return self._ip_addr
 
     def log_file(self, log_file=None):
+        """
+        Get or set the log file path.
+
+        :param log_file: Optional log file path to set.
+        :type log_file: str or None
+        :return: Current log file path.
+        :rtype: str
+        """
         if log_file is not None:
             self._log_file = log_file
         return self._log_file
 
     def logrotate_config(self, logrotate_config=None):
+        """
+        Get or set the logrotate config file path.
+
+        :param logrotate_config: Optional config file path to set.
+        :type logrotate_config: str or None
+        :return: Current logrotate config path.
+        :rtype: str
+        """
         if logrotate_config is not None:
             self._logrotate_config = logrotate_config
         return self._logrotate_config
 
     def max_log_files(self, max_log_files=None):
+        """
+        Get or set the maximum number of log files to retain.
+
+        :param max_log_files: Optional max log file count to set.
+        :type max_log_files: int or None
+        :return: Current max log file count.
+        :rtype: int
+        """
         if max_log_files is not None:
             self._max_log_files = int(max_log_files)
         return self._max_log_files
 
     def max_log_size(self, max_log_size=None):
+        """
+        Get or set the maximum log file size.
+
+        :param max_log_size: Optional max log size to set.
+        :type max_log_size: int or None
+        :return: Current max log size.
+        :rtype: int
+        """
         if max_log_size is not None:
             self._max_log_size = int(max_log_size)
         return self._max_log_size
 
     def log_level(self, log_level=None):
+        """
+        Get or set the log verbosity level.
+
+        :param log_level: Optional log level to set.
+        :type log_level: int or None
+        :return: Current log level.
+        :rtype: int
+        """
         if log_level is not None:
             self._log_level = int(log_level)
         return self._log_level
 
     def out_peers(self, out_peers=None):
+        """
+        Get or set the outbound peer limit.
+
+        :param out_peers: Optional outbound peer count to set.
+        :type out_peers: int or None
+        :return: Current outbound peer count.
+        :rtype: int
+        """
         if out_peers is not None:
             self._out_peers = int(out_peers)
         return self._out_peers
 
     def p2p_port(self, p2p_port=None):
+        """
+        Get or set the P2P port.
+
+        :param p2p_port: Optional port to set.
+        :type p2p_port: int or None
+        :return: Current P2P port.
+        :rtype: int
+        """
         if p2p_port is not None:
             self._p2p_port = int(p2p_port)
         return self._p2p_port
 
     def parent(self, parent=None):
+        """
+        Get or set the upstream Monero daemon ID.
+
+        :param parent: Optional parent ID to set.
+        :type parent: int or None
+        :return: Current parent ID.
+        :rtype: int
+        """
         if parent is not None:
             self._parent = int(parent)
         return self._parent
 
     def parent_remote(self, parent_remote=None):
+        """
+        Get or set the remote parent flag or ID.
+
+        :param parent_remote: Optional remote parent value to set.
+        :type parent_remote: int or None
+        :return: Current remote parent value.
+        :rtype: int
+        """
         if parent_remote is not None:
             self._parent_remote = int(parent_remote)
         return self._parent_remote
 
     def stdin_path(self, stdin_path=None):
+        """
+        Get or set the stdin pipe path.
+
+        :param stdin_path: Optional stdin path to set.
+        :type stdin_path: str or None
+        :return: Current stdin path.
+        :rtype: str
+        """
         if stdin_path is not None:
             self._stdin_path = stdin_path
         return self._stdin_path
 
     def stratum_port(self, stratum_port=None):
+        """
+        Get or set the stratum port.
+
+        :param stratum_port: Optional port to set.
+        :type stratum_port: int or None
+        :return: Current stratum port.
+        :rtype: int
+        """
         if stratum_port is not None:
             self._stratum_port = int(stratum_port)
         return self._stratum_port
 
     def user_wallet(self, user_wallet=None):
+        """
+        Get or set the user wallet address.
+
+        :param user_wallet: Optional wallet address to set.
+        :type user_wallet: str or None
+        :return: Current wallet address.
+        :rtype: str
+        """
         if user_wallet is not None:
             self._user_wallet = user_wallet
         return self._user_wallet
 
     def version(self, version=None):
+        """
+        Get or set the P2Pool version string.
+
+        :param version: Optional version string to set.
+        :type version: str or None
+        :return: Current version string.
+        :rtype: str
+        """
         if version is not None:
             self._version = str(version)
         return self._version
 
     # Generate the P2Pool startup config file
     def gen_config(self, tmpl_file: str, vendor_dir: str):
+        """
+        Generate a P2Pool config file from a template.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :param vendor_dir: Vendor directory root.
+        :type vendor_dir: str
+        :return: None
+        :rtype: None
+        """
 
         p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
         api_dir = os.path.join(p2pool_dir, self.instance(), DDef.API_DIR)
@@ -255,6 +434,18 @@ class BaseP2Pool(LocalMonero):
 
     # Generate the P2Pool logrotate configuration
     def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
+        """
+        Generate a P2Pool logrotate configuration file.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :param vendor_dir: Vendor directory root.
+        :type vendor_dir: str
+        :param db4e_group: Db4E group name for permissions.
+        :type db4e_group: str
+        :return: None
+        :rtype: None
+        """
         # Logrotate configuration file
         fq_config = os.path.join(
             vendor_dir,
@@ -282,24 +473,56 @@ class BaseP2Pool(LocalMonero):
 
     # The current pool hashrate
     def hashrate(self, hashrate=None):
+        """
+        Get or set the current pool hashrate.
+
+        :param hashrate: Optional hashrate value to set.
+        :type hashrate: int or None
+        :return: Current hashrate value.
+        :rtype: int or None
+        """
         if hashrate is not None:
             self._hashrate = hashrate
         return self._hashrate
 
     # Historical pool hashrate data
     def hashrates(self, hashrate_data=None):
+        """
+        Get or set historical pool hashrate data.
+
+        :param hashrate_data: Optional historical data to set.
+        :type hashrate_data: list or dict or None
+        :return: Historical hashrate data.
+        :rtype: list or dict or None
+        """
         if hashrate_data is not None:
             self._hashrates = hashrate_data
         return self._hashrates
 
     # Instance map: Used to construct the upstream Monero daemon radioset
     def instance_map(self, map=None):
+        """
+        Get or set the instance map for radioset construction.
+
+        :param map: Optional instance map to set.
+        :type map: dict or None
+        :return: Current instance map.
+        :rtype: dict
+        """
         if map is not None:
             self._instance_map = map
         return self._instance_map
 
     # Historical share found data
     def shares_found(self, shares_found=None):
+        """
+        Get or set historical share found data.
+
+        :param shares_found: Optional historical data to set.
+        :type shares_found: list or dict or None
+        :return: Historical share found data.
+        :rtype: list or dict or None
+        """
         if shares_found is not None:
             self._shares_found = shares_found
         return self._shares_found

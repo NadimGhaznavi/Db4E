@@ -18,8 +18,19 @@ from db4e.constants.DDef import DDef
 
 
 class Db4E(LocalMonero):
+    """
+    Record representing a Db4E deployment configuration.
+    """
 
     def __init__(self, rec=None):
+        """
+        Initialize the Db4E record and optionally hydrate from a DB record.
+
+        :param rec: Optional database record mapping.
+        :type rec: dict or None
+        :return: None
+        :rtype: None
+        """
         super().__init__()
         self._donation_wallet = DDef.DONATION_WALLET
         self._db4e_group = None
@@ -46,6 +57,14 @@ class Db4E(LocalMonero):
             self.from_rec(rec)
 
     def from_rec(self, rec):
+        """
+        Populate the object from a database record.
+
+        :param rec: Database record mapping.
+        :type rec: dict
+        :return: None
+        :rtype: None
+        """
         super().from_rec(rec)
         self._donation_wallet = rec[DCol.DONATION_WALLET]
         self._db4e_group = rec[DCol.DB4E_GROUP]
@@ -57,6 +76,12 @@ class Db4E(LocalMonero):
         self._vendor_dir = rec[DCol.VENDOR_DIR]
 
     def to_dict(self):
+        """
+        Return a dictionary representation of the record.
+
+        :return: Dictionary with Db4E deployment fields.
+        :rtype: dict
+        """
         data = super().to_dict()
         data.update(
             {
@@ -75,54 +100,131 @@ class Db4E(LocalMonero):
     ## Attribute get/set methods
 
     def donation_wallet(self, donation_wallet=None):
+        """
+        Get or set the donation wallet address.
+
+        :param donation_wallet: Optional wallet address to set.
+        :type donation_wallet: str or None
+        :return: Current donation wallet address.
+        :rtype: str
+        """
         if donation_wallet is not None:
             self._donation_wallet = donation_wallet
         return self._donation_wallet
 
     def db4e_group(self, group=None):
+        """
+        Get or set the Db4E group name.
+
+        :param group: Optional group name to set.
+        :type group: str or None
+        :return: Current group name.
+        :rtype: str or None
+        """
         if group is not None:
             self._db4e_group = group
         return self._db4e_group
 
     def db4e_user(self, user=None):
+        """
+        Get or set the Db4E user name.
+
+        :param user: Optional user name to set.
+        :type user: str or None
+        :return: Current user name.
+        :rtype: str or None
+        """
         if user is not None:
             self._db4e_user = user
         return self._db4e_user
 
     def install_dir(self, install_dir=None):
+        """
+        Get or set the install directory path.
+
+        :param install_dir: Optional directory path to set.
+        :type install_dir: str or None
+        :return: Current install directory.
+        :rtype: str or None
+        """
         if install_dir is not None:
             self._install_dir = install_dir
         return self._install_dir
 
     def primary_server(self, primary_server=None):
+        """
+        Get or set the primary server flag or ID.
+
+        :param primary_server: Optional value to set.
+        :type primary_server: int or str or None
+        :return: Current primary server value.
+        :rtype: int or str or None
+        """
         if primary_server is not None:
             self._primary_server = primary_server
         return self._primary_server
 
     def primary_remote(self, primary_remote=None):
+        """
+        Get or set the primary remote flag or ID.
+
+        :param primary_remote: Optional value to set.
+        :type primary_remote: int or str or None
+        :return: Current primary remote value.
+        :rtype: int or str or None
+        """
         if primary_remote is not None:
             self._primary_remote = primary_remote
         return self._primary_remote
 
     def user_wallet(self, user_wallet=None):
+        """
+        Get or set the user wallet address.
+
+        :param user_wallet: Optional wallet address to set.
+        :type user_wallet: str or None
+        :return: Current user wallet address.
+        :rtype: str
+        """
         if user_wallet is not None:
             self._user_wallet = user_wallet
         return self._user_wallet
 
     def vendor_dir(self, vendor_dir=None):
+        """
+        Get or set the vendor directory path.
+
+        :param vendor_dir: Optional directory path to set.
+        :type vendor_dir: str or None
+        :return: Current vendor directory.
+        :rtype: str or None
+        """
         if vendor_dir is not None:
             self._vendor_dir = vendor_dir
         return self._vendor_dir
 
     # Instance map: Used to construct the primary server radioset
     def instance_map(self, map=None):
+        """
+        Get or set the instance map for radioset construction.
+
+        :param map: Optional instance map to set.
+        :type map: dict or None
+        :return: Current instance map.
+        :rtype: dict
+        """
         if map:
             self._instance_map = map
         return self._instance_map
 
     # Set the Db4E user and group based on who is running this app
     def set_effective_identity(self):
-        """Set the Db4E user and group based on who is running this app"""
+        """
+        Set the Db4E user and group based on the effective OS identity.
+
+        :return: None
+        :rtype: None
+        """
         # User account
         user = getpass.getuser()
         # User's group

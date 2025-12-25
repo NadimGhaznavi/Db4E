@@ -1,12 +1,10 @@
-"""
-db4e/Modules/PaneMgr.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
+# db4e/Modules/PaneMgr.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 import inspect
 from dataclasses import dataclass, field
@@ -24,19 +22,36 @@ from db4e.constants.DField import DField
 
 @dataclass
 class PaneState:
+    """
+    Immutable view of the active pane name and its associated data payload.
+    """
+
     name: str = ""
     data: dict = field(default_factory=dict)
 
 
 class PaneMgr(Widget):
+    """
+    Pane manager for switching and updating Textual panes.
+    """
+
     pane_state = reactive(PaneState(), always_update=True)
 
     def __init__(self, catalogue: PaneCatalogue):
+        """
+        Initialize the pane manager with a pane catalogue.
+
+        :param catalogue: Pane catalogue with registered panes and metadata.
+        :type catalogue: PaneCatalogue
+        """
         super().__init__()
         self.catalogue = catalogue
         self.panes = {}
 
     def compose(self):
+        """
+        Compose the content switcher and register all panes.
+        """
         with ContentSwitcher(initial=self.pane_state.name, id="content_switcher"):
             for pane_name in self.catalogue.registry:
                 # Instantiate each pane once, store a reference
@@ -46,10 +61,21 @@ class PaneMgr(Widget):
                 yield pane
 
     def on_mount(self) -> None:
+        """
+        Initialize the pane state after mount.
+        """
         initial = PaneState(name=DPane.WELCOME)
         self.set_pane(initial.name, initial.data)
 
     def set_pane(self, name: str, data: dict | None = None):
+        """
+        Set the active pane and optional payload data.
+
+        :param name: Pane name or dict payload with name/data.
+        :type name: str or dict
+        :param data: Optional pane data payload.
+        :type data: dict or None
+        """
         if type(name) == dict:
             if DField.DATA in name:
                 data = name[DField.DATA]
@@ -62,6 +88,14 @@ class PaneMgr(Widget):
                 pane.set_data(data)
 
     def watch_pane_state(self, old: PaneState, new: PaneState):
+        """
+        React to pane state changes and update the active pane.
+
+        :param old: Previous pane state.
+        :type old: PaneState
+        :param new: New pane state.
+        :type new: PaneState
+        """
         try:
             content_switcher = self.query_one("#content_switcher", ContentSwitcher)
         except NoMatches:

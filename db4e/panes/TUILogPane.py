@@ -1,12 +1,11 @@
-"""
-db4e/Panes/TUILogPane.py
+# db4e/Panes/TUILogPane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from rich import box
 from rich.table import Table
@@ -35,16 +34,30 @@ TYPE_TABLE = {
 
 
 class TUILogPane(Static):
+    """Textual pane for TUILogPane."""
+
 
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
 
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         yield Vertical(
             ScrollableContainer(Static(id=DForm.LOG_WIDGET)), classes=DForm.PANE_BOX
         )
 
     def set_data(self, log_lines: list):
+        """Set the data for the pane.
+        
+        :param log_lines: Log line list.
+        :type log_lines: list
+        :return: None
+        :rtype: None
+        """
         # self.log_widget.clear()
         table = Table(
             show_header=True,

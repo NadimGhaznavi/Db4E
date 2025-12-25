@@ -1,13 +1,10 @@
-"""
-db4e/server.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-
-"""
+# db4e/server.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
 import os, sys
 
@@ -73,6 +70,9 @@ class Db4eServer:
     """
 
     def __init__(self):
+        """
+        Initialize the Db4E server and supporting managers.
+        """
 
         # Bootstrap manager
         self.bs_mgr = BootstrapMgr()
@@ -142,6 +142,9 @@ class Db4eServer:
         self.api_mgr.app.include_router(init_sync_server(self.sql_db))
 
     async def check_deployments(self):
+        """
+        Continuously check deployment state and reconcile services.
+        """
 
         while True:
 
@@ -216,6 +219,9 @@ class Db4eServer:
             await asyncio.sleep(POLL_INTERVAL)
 
     def chown_logrotate_files(self):
+        """
+        Ensure logrotate files have the correct ownership.
+        """
         if DDebug.FUNCTION:
             self.log.debug("Db4eServer:chown_logrotate_files():")
         logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
@@ -232,6 +238,12 @@ class Db4eServer:
                 self.log.critical(f"chown_logrotate_files() failed: {e} {stderr}")
 
     def delete(self, elem):
+        """
+        Delete a deployment and stop related services or watchers.
+
+        :param elem: Deployment object to delete.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:delete(): {elem}")
         self.log.info(f"Job: Deleting {elem}")
@@ -260,6 +272,12 @@ class Db4eServer:
             self.depl_mgr.delete_deployment(elem)
 
     def disable(self, elem):
+        """
+        Disable a deployment and cascade to downstream elements.
+
+        :param elem: Deployment object to disable.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable(): {elem}")
         # print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
@@ -277,6 +295,12 @@ class Db4eServer:
         self.log.info(f"Disable: {elem}")
 
     def disable_downstream(self, elem):
+        """
+        Disable downstream deployments for a given element.
+
+        :param elem: Upstream deployment object.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:disable_downstream(): {elem}")
 
@@ -315,6 +339,12 @@ class Db4eServer:
                     # TODO add TuiLogRec
 
     def enable(self, elem):
+        """
+        Enable a deployment.
+
+        :param elem: Deployment object to enable.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:enable(): {elem}")
         # print(f"Db4eServer:enable(): {elem}: current: {elem.enabled()}")
@@ -326,6 +356,12 @@ class Db4eServer:
         self.depl_mgr.update_deployment(elem)
 
     def ensure_running(self, elem):
+        """
+        Ensure a deployment service is running.
+
+        :param elem: Deployment object to start if needed.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:ensure_running(): {elem}")
         # Check if the deployment service is running, start it if it's not
@@ -363,6 +399,12 @@ class Db4eServer:
             self.starting.discard(instance)
 
     def ensure_stopped(self, elem):
+        """
+        Ensure a deployment service is stopped.
+
+        :param elem: Deployment object to stop if needed.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:ensure_stopped(): {elem}")
         sd = self.systemd
@@ -404,6 +446,12 @@ class Db4eServer:
             self.log.critical(f"ERROR: Failed to stop {elem}, return code was {rc}")
 
     def restart(self, elem):
+        """
+        Restart a deployment service if supported.
+
+        :param elem: Deployment object to restart.
+        :type elem: object
+        """
         if DDebug.FUNCTION:
             self.log.debug(f"Db4eServer:restart(): {elem}")
         # Note that XMRig does not need to be restarted, it's smart enough to notice that
@@ -419,6 +467,9 @@ class Db4eServer:
         sd.restart()
 
     async def rotate_logs(self):
+        """
+        Periodically run logrotate and restart services when needed.
+        """
         while True:
             # Run logrotate every two hours
             cur_hour = datetime.now().hour
@@ -497,10 +548,15 @@ class Db4eServer:
                 continue
 
     async def run_api_server(self):
+        """
+        Run the API server.
+        """
         await self.api_mgr.serve()
 
     async def run_all(self):
-        """Run all server components concurrently."""
+        """
+        Run all server components concurrently.
+        """
         # graceful shutdown support
         self.stop_event = asyncio.Event()
 
@@ -530,6 +586,14 @@ class Db4eServer:
         await asyncio.gather(*tasks, return_exceptions=True)
 
     async def shutdown(self, signum, frame):
+        """
+        Shutdown the server and cleanup watchers.
+
+        :param signum: Signal number.
+        :type signum: int
+        :param frame: Signal frame.
+        :type frame: object
+        """
         self.log.info(f"Shutdown requested (signal {signum})")
         self.running.clear()
         await self.api_mgr.shutdown()
@@ -551,13 +615,24 @@ class Db4eServer:
         sys.exit(0)
 
     async def shutdown_signal(self, sig):
-        """Handle system signals."""
+        """
+        Handle system signals.
+
+        :param sig: Signal object.
+        :type sig: signal.Signals
+        """
         self.log.info(f"Received shutdown signal {sig.name}, stopping server...")
         await self.shutdown()
         self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
     def set_int_p2pool_primary(self, monerod_id):
+        """
+        Set the primary MoneroD for internal P2Pool instances.
+
+        :param monerod_id: MoneroD deployment ID.
+        :type monerod_id: int
+        """
         for p2pool in self.depl_db.get_p2pool_internals():
             if p2pool.parent() != monerod_id:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
@@ -582,10 +657,20 @@ class Db4eServer:
                 self.ensure_running(p2pool)
 
     def start(self):
-        """Entry point for starting the async event loop."""
+        """
+        Entry point for starting the async event loop.
+        """
         asyncio.run(self.run_all())
 
     async def start_log_watcher(self, p2pool, stop_event):
+        """
+        Start a log watcher for a P2Pool instance.
+
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2Pool or P2PoolInternal
+        :param stop_event: Event to signal watcher shutdown.
+        :type stop_event: asyncio.Event
+        """
         instance = p2pool.instance()
         # User defined, local P2Pool instance
         if type(p2pool) == P2Pool:
@@ -621,6 +706,12 @@ class Db4eServer:
         self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
 
     def UNUSED_update(self, elem):
+        """
+        Placeholder for update handling logic.
+
+        :param elem: Deployment object to update.
+        :type elem: object
+        """
         self.log.info(f"Updated: {elem}")
 
         # TODO check return value, restart if needed
@@ -632,11 +723,17 @@ class Db4eServer:
             # TODO implement restart
 
     async def update_current(self):
+        """
+        Periodically update current uptime records.
+        """
         while True:
             self.ops_db.update_current()
             await asyncio.sleep(5)
 
     def unset_int_p2pool_primary(self):
+        """
+        Clear the primary MoneroD for internal P2Pool instances.
+        """
         if DDebug.FUNCTION:
             self.log.debug("Db4eServer:unset_int_p2pool_primary():")
         for p2pool in self.depl_db.get_p2pool_internals():
@@ -649,6 +746,9 @@ class Db4eServer:
 
 
 def main():
+    """
+    Entry point for running the Db4E server.
+    """
     # Set environment variables for better color support
     os.environ[DField.TERM_ENVIRON] = DDef.TERM
     os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM

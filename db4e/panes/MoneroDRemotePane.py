@@ -1,12 +1,11 @@
-"""
-db4e/Panes/MoneroDRemotePane.py
+# db4e/Panes/MoneroDRemotePane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-"""
 
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button, Input
@@ -24,7 +23,14 @@ from db4e.constants.DForm import DForm
 
 
 class MoneroDRemotePane(Container):
+    """Textual pane for MoneroDRemotePane."""
+
     def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
         # Remote Monero daemon deployment form
         yield Vertical(
             ScrollableContainer(
@@ -86,12 +92,24 @@ class MoneroDRemotePane(Container):
         )
 
     def on_mount(self):
+        """Handle the mount lifecycle event.
+        
+        :return: None
+        :rtype: None
+        """
         form_box = self.query_one(f"#{DForm.FORM_BOX}", Vertical)
         form_box.border_subtitle = DLabel.CONFIG
         health_box = self.query_one(f"#{DForm.HEALTH_BOX}", Vertical)
         health_box.border_subtitle = DLabel.STATUS
 
     def set_data(self, monerod: MoneroDRemote):
+        """Set the data for the pane.
+        
+        :param monerod: MoneroD deployment object.
+        :type monerod: MoneroDRemote
+        :return: None
+        :rtype: None
+        """
         self.monerod = monerod
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
@@ -131,6 +149,13 @@ class MoneroDRemotePane(Container):
         self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
         button_id = event.button.id
 
         self.monerod.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
