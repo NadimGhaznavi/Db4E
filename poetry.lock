@@ -2222,14 +2222,14 @@ widechars = ["wcwidth"]
 
 [[package]]
 name = "textual"
-version = "6.4.0"
+version = "8.2.0"
 description = "Modern Text User Interface framework"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "textual-6.4.0-py3-none-any.whl", hash = "sha256:b346dbb8e12f17cefb33ddfdf7f19bdc9e66c29daf82fc981a8db6b7d985e115"},
-    {file = "textual-6.4.0.tar.gz", hash = "sha256:f40df9165a001c10249698d532f2f5a71708b70f0e4ef3fce081a9dd93ffeaaa"},
+    {file = "textual-8.2.0-py3-none-any.whl", hash = "sha256:0478fed6e945bcadd6f3841e10d05213d318cdb5c4345c04ae78f7ec32e7b63d"},
+    {file = "textual-8.2.0.tar.gz", hash = "sha256:a06201a732b2d2683d2ea11c2538eeb7315c4c7138ed8c8bdb48150b805eaf1e"},
 ]
 
 [package.dependencies]
@@ -2281,36 +2281,36 @@ typing-extensions = ">=4.4.0,<5.0.0"
 
 [[package]]
 name = "textual-hires-canvas"
-version = "0.10.1"
+version = "0.14.0"
 description = "High-resolution drawing canvas for Textual apps"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "textual_hires_canvas-0.10.1-py3-none-any.whl", hash = "sha256:7f6da9368f1f6bb59fa4ba4039ee9656f36b289cd76e4693b8b919916cf61a77"},
-    {file = "textual_hires_canvas-0.10.1.tar.gz", hash = "sha256:d7285ce5cb210ebbea0f37469bb1be9de59448d8e00ec7734a8f85ca0397dd20"},
+    {file = "textual_hires_canvas-0.14.0-py3-none-any.whl", hash = "sha256:8cd67d656387220684449e837dd5809b6c00c5dfee8e4b494414b5837cb5a804"},
+    {file = "textual_hires_canvas-0.14.0.tar.gz", hash = "sha256:0fa512492ddd2cd6c2a970a6beea58f5350f4cf25f40ad14ffd9fa86c6458769"},
 ]
 
 [package.dependencies]
 numpy = ">=2.2.1"
-textual = ">=1.0.0"
+textual = ">=6.2.0"
 
 [[package]]
 name = "textual-plot"
-version = "0.8.0"
+version = "0.10.1"
 description = "A native plotting widget for Textual apps"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "textual_plot-0.8.0-py3-none-any.whl", hash = "sha256:c35f33d6ee9ce14063f68abe994f876fddf4bcf171e083a8a1e6e311cae787ae"},
-    {file = "textual_plot-0.8.0.tar.gz", hash = "sha256:8e92447295af3f41d9d552013fbd812081894c48aa255eeb6242609ba92dfe7f"},
+    {file = "textual_plot-0.10.1-py3-none-any.whl", hash = "sha256:74ff3a8b2d84bd71b3a9abbac95139ff952f190e6bac60c7091911c63a1863ba"},
+    {file = "textual_plot-0.10.1.tar.gz", hash = "sha256:503db96d849134293228419324eb15efbadf1f1927a2e0a229b54e7a7e5d5292"},
 ]
 
 [package.dependencies]
 numpy = ">=2.2.1"
 textual = ">=1.0.0"
-textual-hires-canvas = ">=0.10.1"
+textual-hires-canvas = ">=0.14.0"
 
 [[package]]
 name = "textual-plotext"
@@ -3105,4 +3105,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.14"
-content-hash = "5e336538fad3472936fcc605ee79c1a2f0ff210f942d4d8e683c6c57eff97f40"
+content-hash = "b7511ad173f8e3f2c7059889573c41b5edeb9a2e6cd05c97d56e7aa41533ef9c"
