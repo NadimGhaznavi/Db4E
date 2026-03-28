@@ -7,17 +7,17 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
-class DSystemD(ConstGroup):
-    ACTIVE: str = "active"
-    DISABLE: str = "disable"
-    ENABLE: str = "enable"
-    ENABLED: str = "enabled"
-    PID: str = "pid"
-    RAW_STDOUT: str = "raw_stdout"
-    RAW_STDERR: str = "raw_stderr"
-    START: str = "start"
-    STATUS: str = "status"
-    STOP: str = "stop"
+class DSystemD:
+    ACTIVE: Final[str] = "active"
+    DISABLE: Final[str] = "disable"
+    ENABLE: Final[str] = "enable"
+    ENABLED: Final[str] = "enabled"
+    PID: Final[str] = "pid"
+    RAW_STDOUT: Final[str] = "raw_stdout"
+    RAW_STDERR: Final[str] = "raw_stderr"
+    START: Final[str] = "start"
+    STATUS: Final[str] = "status"
+    STOP: Final[str] = "stop"

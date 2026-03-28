@@ -13,7 +13,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.reactive import reactive
 
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 
 
 from db4e.recs.monero.Db4E import Db4E

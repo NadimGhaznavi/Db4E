@@ -11,7 +11,7 @@ from textual.widgets import Label, Button, Input
 
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.util.Helper import gen_results_table
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem

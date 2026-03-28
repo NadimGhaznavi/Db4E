@@ -31,7 +31,23 @@ LOG_LEVELS = {
 
 
 class Db4ELogger:
+    """
+    Logger wrapper for Db4E modules with optional DB logging.
+    """
+
     def __init__(self, db4e_module: str, db=False, log_file=None):
+        """
+        Initialize a logger for a Db4E module.
+
+        :param db4e_module: Module name or identifier for log entries.
+        :type db4e_module: str
+        :param db: Whether to log to the database.
+        :type db: bool
+        :param log_file: Optional log file path.
+        :type log_file: str or None
+        :return: None
+        :rtype: None
+        """
         logger_name = f"{db4e_module}"
         self._db4e_module = db4e_module
         self._logger = logging.getLogger(logger_name)
@@ -61,39 +77,104 @@ class Db4ELogger:
         self._logger.propagate = False
 
     def shutdown(self):
+        """
+        Shutdown logging and flush handlers.
+
+        :return: None
+        :rtype: None
+        """
         # Exit cleanly
         logging.shutdown()  # Flush all handlers
 
     # Basic log message handling, wraps Python's logging object
     def info(self, message, extra=None):
+        """
+        Log an info message.
+
+        :param message: Log message.
+        :type message: str
+        :param extra: Optional extra fields to attach.
+        :type extra: dict or None
+        :return: None
+        :rtype: None
+        """
         extra = extra or {}  # Make sure extra isn't 'None'
         extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.info(message, extra=extra)
 
     def debug(self, message, extra=None):
+        """
+        Log a debug message.
+
+        :param message: Log message.
+        :type message: str
+        :param extra: Optional extra fields to attach.
+        :type extra: dict or None
+        :return: None
+        :rtype: None
+        """
         extra = extra or {}
         extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.debug(message, extra=extra)
 
     def warning(self, message, extra=None):
+        """
+        Log a warning message.
+
+        :param message: Log message.
+        :type message: str
+        :param extra: Optional extra fields to attach.
+        :type extra: dict or None
+        :return: None
+        :rtype: None
+        """
         extra = extra or {}
         extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.warning(message, extra=extra)
 
     def error(self, message, extra=None):
+        """
+        Log an error message.
+
+        :param message: Log message.
+        :type message: str
+        :param extra: Optional extra fields to attach.
+        :type extra: dict or None
+        :return: None
+        :rtype: None
+        """
         extra = extra or {}
         extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.error(message, extra=extra)
 
     def critical(self, message, extra=None):
+        """
+        Log a critical message.
+
+        :param message: Log message.
+        :type message: str
+        :param extra: Optional extra fields to attach.
+        :type extra: dict or None
+        :return: None
+        :rtype: None
+        """
         extra = extra or {}
         extra[DField.ELEMENT_TYPE] = self._db4e_module
         self._logger.critical(message, extra=extra)
 
 
 class Db4eDbLogHandler(logging.Handler):
+    """
+    Logging handler that writes records to MongoDB.
+    """
 
     def __init__(self):
+        """
+        Initialize the MongoDB-backed log handler.
+
+        :return: None
+        :rtype: None
+        """
         super().__init__()
 
         self._db_server = DDef.DB_SERVER
@@ -105,6 +186,14 @@ class Db4eDbLogHandler(logging.Handler):
         self._db = None
 
     def emit(self, record):
+        """
+        Emit a log record to the database.
+
+        :param record: Log record to emit.
+        :type record: logging.LogRecord
+        :return: None
+        :rtype: None
+        """
         log_entry = {
             DField.TIMESTAMP: datetime.now(timezone.utc),
             DField.LEVEL: record.levelname,
@@ -127,11 +216,23 @@ class Db4eDbLogHandler(logging.Handler):
             traceback.print_exc()
 
     def db(self):
+        """
+        Return a MongoDB database handle, connecting if needed.
+
+        :return: Database handle.
+        :rtype: object
+        """
         if not self.connected:
             self.connect()
         return self._db
 
     def connect(self):
+        """
+        Connect to the MongoDB server with retry.
+
+        :return: None
+        :rtype: None
+        """
         db_server = self._db_server
         db_port = self._db_port
         retries = 3
@@ -152,6 +253,14 @@ class Db4eDbLogHandler(logging.Handler):
         self._db = client[DDef.DB_NAME]
 
     def log_db_message(self, log_entry):
+        """
+        Insert a log entry into the log collection.
+
+        :param log_entry: Log entry payload.
+        :type log_entry: dict
+        :return: None
+        :rtype: None
+        """
         db = self.db()
         col = db[DDef.LOG_COLLECTION]
         col.insert_one(log_entry)

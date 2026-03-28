@@ -23,13 +23,33 @@ from db4e.constants.DElem import DElem
 
 
 class FormChecker:
-    """Checks the validity of form data."""
+    """
+    Validate deployment form data and log errors.
+    """
 
     def __init__(self, ops_db: OpsDb, depl_db: DeplDb):
+        """
+        Initialize the form checker with database handles.
+
+        :param ops_db: Operations database handle.
+        :type ops_db: OpsDb
+        :param depl_db: Deployment database handle.
+        :type depl_db: DeplDb
+        :return: None
+        :rtype: None
+        """
         self.ops_db = ops_db
         self.depl_db = depl_db
 
     def valid(self, depl_obj):
+        """
+        Validate a deployment object based on its class.
+
+        :param depl_obj: Deployment object to validate.
+        :type depl_obj: object
+        :return: True if valid.
+        :rtype: bool
+        """
         depl_class = type(depl_obj)
 
         # Make sure we have all the required fields
@@ -47,6 +67,14 @@ class FormChecker:
             return self.check_xmrig_fields(depl_obj)
 
     def check_db4e_fields(self, db4e: Db4E) -> bool:
+        """
+        Validate Db4E deployment fields.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.USER_WALLET, db4e.user_wallet),
             (DLabel.VENDOR_DIR, db4e.vendor_dir),
@@ -54,6 +82,14 @@ class FormChecker:
         return self._check_fields(db4e, required_fields)
 
     def check_monerod_fields(self, monerod: MoneroD) -> bool:
+        """
+        Validate MoneroD deployment fields.
+
+        :param monerod: MoneroD deployment object.
+        :type monerod: MoneroD
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.INSTANCE, monerod.instance),
             (DLabel.IN_PEERS, monerod.in_peers),
@@ -72,6 +108,14 @@ class FormChecker:
         return self._check_fields(monerod, required_fields)
 
     def check_monerod_remote_fields(self, monerod: MoneroDRemote) -> bool:
+        """
+        Validate MoneroDRemote deployment fields.
+
+        :param monerod: MoneroDRemote deployment object.
+        :type monerod: MoneroDRemote
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.INSTANCE, monerod.instance),
             (DLabel.IP_ADDR, monerod.ip_addr),
@@ -81,6 +125,14 @@ class FormChecker:
         return self._check_fields(monerod, required_fields)
 
     def check_p2pool_fields(self, p2pool: P2Pool) -> bool:
+        """
+        Validate P2Pool deployment fields.
+
+        :param p2pool: P2Pool deployment object.
+        :type p2pool: P2Pool
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.INSTANCE, p2pool.instance),
             (DLabel.IN_PEERS, p2pool.in_peers),
@@ -91,6 +143,14 @@ class FormChecker:
         return self._check_fields(p2pool, required_fields)
 
     def check_p2pool_remote_fields(self, p2pool: P2PoolRemote) -> bool:
+        """
+        Validate P2PoolRemote deployment fields.
+
+        :param p2pool: P2PoolRemote deployment object.
+        :type p2pool: P2PoolRemote
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.INSTANCE, p2pool.instance),
             (DLabel.IP_ADDR, p2pool.ip_addr),
@@ -99,6 +159,14 @@ class FormChecker:
         return self._check_fields(p2pool, required_fields)
 
     def check_xmrig_fields(self, xmrig: XMRig) -> bool:
+        """
+        Validate XMRig deployment fields.
+
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRig
+        :return: True if valid.
+        :rtype: bool
+        """
         required_fields = [
             (DLabel.INSTANCE, xmrig.instance),
             (DLabel.NUM_THREADS, xmrig.num_threads),
@@ -107,6 +175,16 @@ class FormChecker:
         return self._check_fields(xmrig, required_fields)
 
     def _check_fields(self, obj, required_fields):
+        """
+        Check a list of required fields for a deployment object.
+
+        :param obj: Deployment object being checked.
+        :type obj: object
+        :param required_fields: List of (label, getter) pairs.
+        :type required_fields: list
+        :return: True if all required fields are present.
+        :rtype: bool
+        """
         valid_flag = True
         for label, method in required_fields:
             value = method()
@@ -123,6 +201,14 @@ class FormChecker:
         return valid_flag
 
     def instance_exists(self, depl_obj) -> bool:
+        """
+        Check whether a deployment instance already exists.
+
+        :param depl_obj: Deployment object to check.
+        :type depl_obj: object
+        :return: False if instance exists; otherwise None.
+        :rtype: bool or None
+        """
         depl_instance = depl_obj.instance()
         depl_class = type(depl_obj)
 

@@ -71,11 +71,30 @@ REGISTRY = {
 
 
 class PaneCatalogue:
+    """
+    Registry wrapper for pane classes and metadata.
+    """
 
     def __init__(self):
+        """
+        Initialize the pane catalogue.
+
+        :return: None
+        :rtype: None
+        """
         self.registry = REGISTRY
 
     def get_pane(self, pane_name: str, pane_data=None) -> Container:
+        """
+        Instantiate a pane by name.
+
+        :param pane_name: Pane name key.
+        :type pane_name: str
+        :param pane_data: Optional data payload for the pane.
+        :type pane_data: object or None
+        :return: Pane instance.
+        :rtype: Container
+        """
         pane_class, _, _ = self.registry[pane_name]
         return (
             pane_class(id=pane_name, data=pane_data)
@@ -84,5 +103,13 @@ class PaneCatalogue:
         )
 
     def get_metadata(self, pane_name: str) -> tuple[str, str]:
+        """
+        Return metadata tuple for a pane.
+
+        :param pane_name: Pane name key.
+        :type pane_name: str
+        :return: (component label, message label).
+        :rtype: tuple
+        """
         _, component, msg = self.registry.get(pane_name, (None, "", ""))
         return component, msg

@@ -29,12 +29,12 @@ def get_component_value(data, field_name):
     """
     Generic helper to get any component value by field name.
 
-    Args:
-        data (dict): Dictionary containing components with field/value pairs
-        field_name (str): The field name to search for
-
-    Returns:
-        any or None: The component value, or None if not found
+    :param data: Dictionary containing components with field/value pairs.
+    :type data: dict
+    :param field_name: The field name to search for.
+    :type field_name: str
+    :return: The component value, or None if not found.
+    :rtype: object or None
     """
     if not isinstance(data, dict) or "components" not in data:
         return None
@@ -49,7 +49,12 @@ def get_component_value(data, field_name):
 
 
 def get_effective_identity():
-    """Return the effective user and group for the account running Db3e"""
+    """
+    Return the effective user and group for the account running Db4E.
+
+    :return: Mapping of user and group.
+    :rtype: dict
+    """
     # User account
     user = getpass.getuser()
     # User's group
@@ -63,11 +68,10 @@ def get_remote_state(data):
     """
     Parse out the remote state from a data structure.
 
-    Args:
-        data (dict): Dictionary containing components with field/value pairs
-
-    Returns:
-        bool or None: The remote state value, or None if not found
+    :param data: Dictionary containing components with field/value pairs.
+    :type data: dict
+    :return: The remote state value, or None if not found.
+    :rtype: bool or None
     """
     if not isinstance(data, dict) or "components" not in data:
         return None
@@ -82,6 +86,14 @@ def get_remote_state(data):
 
 
 def gen_results_table(results):
+    """
+    Build a Rich table of result rows.
+
+    :param results: List of result dictionaries.
+    :type results: list
+    :return: Rich table instance.
+    :rtype: Table
+    """
 
     table = Table(
         show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE
@@ -104,6 +116,14 @@ def gen_results_table(results):
 
 
 def minutes_to_uptime(minutes: int):
+    """
+    Convert minutes into a compact uptime string.
+
+    :param minutes: Uptime in minutes.
+    :type minutes: int
+    :return: Uptime string.
+    :rtype: str
+    """
     # Return a string like:
     # 0h 0m 45s
     # 1d 7h 32m
@@ -118,6 +138,16 @@ def minutes_to_uptime(minutes: int):
 
 
 def normalize_hashrate(hashrate, units):
+    """
+    Normalize a hashrate to H/s based on its units.
+
+    :param hashrate: Hashrate value.
+    :type hashrate: int or float or str
+    :param units: Hashrate units (e.g., kH/s, MH/s).
+    :type units: str
+    :return: Normalized hashrate in H/s.
+    :rtype: float
+    """
     # Convert the hashrate units into H/s
     if units.lower() == "kh/s":
         hashrate = float(hashrate) * 1000
@@ -131,12 +161,30 @@ def normalize_hashrate(hashrate, units):
 
 
 def piconero_to_xmr(piconeros: int) -> Decimal:
-    """Convert integer piconeros to human-readable XMR (as Decimal)."""
+    """
+    Convert integer piconeros to human-readable XMR (as Decimal).
+
+    :param piconeros: Amount in piconeros.
+    :type piconeros: int
+    :return: Amount in XMR.
+    :rtype: Decimal
+    """
     return Decimal(piconeros) / PICONEROS_PER_XMR
 
 
 def result_row(label: str, status: str, msg: str):
-    """Return a standardized result dict for display in Results pane."""
+    """
+    Return a standardized result dict for display in Results pane.
+
+    :param label: Result label.
+    :type label: str
+    :param status: Status string.
+    :type status: str
+    :param msg: Message string.
+    :type msg: str
+    :return: Result dictionary.
+    :rtype: dict
+    """
     assert status in {
         DStatus.GOOD,
         DStatus.WARN,
@@ -146,7 +194,8 @@ def result_row(label: str, status: str, msg: str):
 
 
 def set_component_value(rec, updates):
-    """Updates multiple component values in a deployment record from a dictionary.
+    """
+    Update multiple component values in a deployment record from a dictionary.
 
     This function iterates through the 'components' list of a given record.
     For each component, it checks if its 'field' name exists as a key in the
@@ -155,22 +204,12 @@ def set_component_value(rec, updates):
 
     The modification is done in-place on the 'rec' dictionary.
 
-    Args:
-        rec (dict): The deployment record dictionary to update. It is expected
-            to have a 'components' key containing a list of component dicts.
-        updates (dict): A dictionary where keys are the 'field' names to
-            update and values are the new values.
-
-    Returns:
-        dict: The modified deployment record dictionary.
-
-    Usage Example:
-        rec = {
-            'components': [{'field': 'user', 'value': 'old_user'}]
-        }
-        updates = {'user': 'new_user'}
-        updated_rec = update_component_values(rec, updates)
-        # updated_rec['components'][0]['value'] is now 'new_user'
+    :param rec: Deployment record dictionary to update.
+    :type rec: dict
+    :param updates: Mapping of field names to new values.
+    :type updates: dict
+    :return: The modified deployment record dictionary.
+    :rtype: dict
     """
     for component in rec.get(DField.COMPONENTS, []):
         field = component.get(DField.FIELD)
@@ -181,8 +220,12 @@ def set_component_value(rec, updates):
 
 def split_timestamp(timestamp: str):
     """
-    - Accepts a timestamp in the form: datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    - Returns (year, month, day, hour, minute)
+    Split a timestamp into discrete components.
+
+    :param timestamp: Timestamp string in "%Y-%m-%d %H:%M:%S" format.
+    :type timestamp: str
+    :return: (year, month, day, hour, minute, second) tuple.
+    :rtype: tuple
     """
     year_month_day, hour_minute_second = timestamp.split(" ")
     year, month, day = year_month_day.split("-")
@@ -191,6 +234,14 @@ def split_timestamp(timestamp: str):
 
 
 def sudo_del_file(aFile: str):
+    """
+    Remove a file using sudo, returning command output.
+
+    :param aFile: Path to file to delete.
+    :type aFile: str
+    :return: Command result dictionary.
+    :rtype: dict or None
+    """
     if not os.path.exists(aFile):
         # Nothing to do
         return
@@ -214,6 +265,15 @@ def sudo_del_file(aFile: str):
 
 
 def uptime_to_minutes(uptime_str: str):
+    """
+    Convert an uptime string to total minutes.
+
+    :param uptime_str: Uptime string (e.g., "1d 2h 3m 4s").
+    :type uptime_str: str
+    :return: Total minutes.
+    :rtype: int
+    :raises ValueError: If the format is invalid.
+    """
     pattern = re.compile(r"(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?")
     match = pattern.fullmatch(uptime_str)
     if not match:
@@ -230,5 +290,12 @@ def uptime_to_minutes(uptime_str: str):
 
 
 def xmr_to_piconero(xmr: float | str) -> int:
-    """Convert an XMR value to integer piconeros (avoids float rounding)."""
+    """
+    Convert an XMR value to integer piconeros (avoids float rounding).
+
+    :param xmr: XMR amount.
+    :type xmr: float or str
+    :return: Amount in piconeros.
+    :rtype: int
+    """
     return int(Decimal(str(xmr)) * PICONEROS_PER_XMR)

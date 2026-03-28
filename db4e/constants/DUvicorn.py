@@ -8,19 +8,19 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
 # Uvicorn constants
-class DUvicorn(ConstGroup):
-    CLASS: str = "class"
-    DEFAULT: str = "default"
-    DISABLE_EXISTING_LOGGERS: str = "disable_existing_loggers"
-    FILENAME: str = "filename"
-    FMT: str = "fmt"
-    FORMATTERS: str = "formatters"
-    FORMATTER: str = "formatter"
-    HANDLERS: str = "handlers"
-    LOGGING_FILEHANDLER: str = "logging.FileHandler"
-    USE_COLORS: str = "use_colors"
-    UVICORN_LOGGING_DEFAULT_FORMATTER: str = "uvicorn.logging.DefaultFormatter"
+class DUvicorn:
+    CLASS: Final[str] = "class"
+    DEFAULT: Final[str] = "default"
+    DISABLE_EXISTING_LOGGERS: Final[str] = "disable_existing_loggers"
+    FILENAME: Final[str] = "filename"
+    FMT: Final[str] = "fmt"
+    FORMATTERS: Final[str] = "formatters"
+    FORMATTER: Final[str] = "formatter"
+    HANDLERS: Final[str] = "handlers"
+    LOGGING_FILEHANDLER: Final[str] = "logging.FileHandler"
+    USE_COLORS: Final[str] = "use_colors"
+    UVICORN_LOGGING_DEFAULT_FORMATTER: Final[str] = "uvicorn.logging.DefaultFormatter"

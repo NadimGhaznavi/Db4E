@@ -8,26 +8,26 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 from db4e.constants.DField import DField
 
 
 # Files
-class DFile(ConstGroup):
-    BACKUP_SCRIPT: str = "backup_script"
-    CHOWN: str = "chown"
-    CLIENT_DB: str = "client.db"
-    CONFIG_FILE: str = DField.CONFIG_FILE
-    DOT_DB4E: str = ".db4e"
-    LOGROTATE: str = "logrotate"
-    MONGODUMP: str = "mongodump"
-    P2POOL_LOG: str = "p2pool.log"
-    P2POOL_STDIN: str = "p2pool.stdin"
-    PYTHON: str = "python"
-    RM: str = "rm"
-    SCRIPT: str = "script"
-    SERVER_DB: str = "server.db"
-    STATS_MOD: str = "stats_mod"
-    SUDO: str = "sudo"
-    SYSTEMCTL: str = "systemctl"
-    UVICORN_LOG: str = "uvicorn.log"
+class DFile:
+    BACKUP_SCRIPT: Final[str] = "backup_script"
+    CHOWN: Final[str] = "chown"
+    CLIENT_DB: Final[str] = "client.db"
+    CONFIG_FILE: Final[str] = DField.CONFIG_FILE
+    DOT_DB4E: Final[str] = ".db4e"
+    LOGROTATE: Final[str] = "logrotate"
+    MONGODUMP: Final[str] = "mongodump"
+    P2POOL_LOG: Final[str] = "p2pool.log"
+    P2POOL_STDIN: Final[str] = "p2pool.stdin"
+    PYTHON: Final[str] = "python"
+    RM: Final[str] = "rm"
+    SCRIPT: Final[str] = "script"
+    SERVER_DB: Final[str] = "server.db"
+    STATS_MOD: Final[str] = "stats_mod"
+    SUDO: Final[str] = "sudo"
+    SYSTEMCTL: Final[str] = "systemctl"
+    UVICORN_LOG: Final[str] = "uvicorn.log"

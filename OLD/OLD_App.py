@@ -29,7 +29,7 @@ from db4e.widgets.TopBar import TopBar
 from db4e.widgets.NavPane import NavPane
 from db4e.widgets.Clock import Clock
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.UpdateTopBar import UpdateTopBar
 

@@ -7,8 +7,8 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
-class DDebug(ConstGroup):
-    FUNCTION: str = "False1"
+class DDebug:
+    FUNCTION: Final[str] = "False"

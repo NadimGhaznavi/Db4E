@@ -11,7 +11,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Label, Button
 
 from db4e.recs.monero.XMRigRemote import XMRigRemote
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.util.Helper import minutes_to_uptime
 
 from db4e.constants.DLabel import DLabel

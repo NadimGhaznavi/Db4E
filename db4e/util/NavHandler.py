@@ -23,12 +23,30 @@ from db4e.constants.DSQL import DTable
 
 
 class NavHandler:
-    """Class to handle NavPane requests"""
+    """
+    Handle NavPane requests for deployments and new records.
+    """
 
     def __init__(self, depl_db: DeplDb):
+        """
+        Initialize the navigation handler.
+
+        :param depl_db: Deployment database handle.
+        :type depl_db: DeplDb
+        :return: None
+        :rtype: None
+        """
         self.depl_db = depl_db
 
     def get_deployment(self, request):
+        """
+        Return an existing deployment based on request parameters.
+
+        :param request: Request payload containing element type and instance.
+        :type request: dict
+        :return: Deployment object.
+        :rtype: object
+        """
         elem_type = request.get(DField.ELEMENT_TYPE)
         instance = request.get(DField.INSTANCE)
         depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
@@ -55,6 +73,14 @@ class NavHandler:
         return depl_obj
 
     def get_new(self, request):
+        """
+        Return a new deployment object based on request parameters.
+
+        :param request: Request payload containing element type.
+        :type request: dict
+        :return: New deployment object.
+        :rtype: object
+        """
         elem_type = request.get(DField.ELEMENT_TYPE)
 
         if elem_type == DElem.MONEROD:
@@ -88,5 +114,13 @@ class NavHandler:
             raise ValueError(f"NavHandler:get_new():Unknown element type: {elem_type}")
 
     def set_pane(self, request):
+        """
+        Return the pane name to display for the request.
+
+        :param request: Request payload containing element type.
+        :type request: dict
+        :return: Pane name.
+        :rtype: str
+        """
         pane_name = request.get(DField.ELEMENT_TYPE)
         return pane_name

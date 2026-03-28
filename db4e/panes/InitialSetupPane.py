@@ -11,7 +11,7 @@ from textual.widgets import Label, Input, Button
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
 from db4e.recs.monero.Db4E import Db4E
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.Quit import Quit
 

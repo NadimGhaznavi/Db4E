@@ -10,7 +10,7 @@
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, Checkbox
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.util.Helper import gen_results_table
 from db4e.constants.DField import DField

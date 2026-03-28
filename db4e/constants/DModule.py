@@ -7,27 +7,27 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
 # Modules
-class DModule(ConstGroup):
-    BASE_ELEM: str = "BaseElem"
-    BASE_MONERO: str = "BaseMonero"
-    DB4E: str = "Db4E"
-    DB4E_SERVER: str = "Db4eServer"
-    DEPLOYMENT_DB: str = "DeplDb"
-    DEPLOYMENT_CLIENT: str = "DeploymentClient"
-    DEPLOYMENT_MGR: str = "DeploymentMgr"
-    HEALTH_MGR: str = "HealthMgr"
-    INSTALL_MGR: str = "InstallMgr"
-    LOCAL_ELEM: str = "LocalElem"
-    MINING_DB: str = "MiningDb"
-    NAV_HANDLER: str = "NavHandler"
-    OPS_DB: str = "OpsDb"
-    OPS_MGR: str = "OpsManager"
-    P2POOL_WATCHER: str = "P2PoolWatcher"
-    PANE_MGR: str = "PaneMgr"
-    SQL_DB: str = "SQLDb"
-    SYNC_CLIENT: str = "SyncClient"
-    XMRIG: str = "XMRig"
+class DModule:
+    BASE_ELEM: Final[str] = "BaseElem"
+    BASE_MONERO: Final[str] = "BaseMonero"
+    DB4E: Final[str] = "Db4E"
+    DB4E_SERVER: Final[str] = "Db4eServer"
+    DEPLOYMENT_DB: Final[str] = "DeplDb"
+    DEPLOYMENT_CLIENT: Final[str] = "DeploymentClient"
+    DEPLOYMENT_MGR: Final[str] = "DeploymentMgr"
+    HEALTH_MGR: Final[str] = "HealthMgr"
+    INSTALL_MGR: Final[str] = "InstallMgr"
+    LOCAL_ELEM: Final[str] = "LocalElem"
+    MINING_DB: Final[str] = "MiningDb"
+    NAV_HANDLER: Final[str] = "NavHandler"
+    OPS_DB: Final[str] = "OpsDb"
+    OPS_MGR: Final[str] = "OpsManager"
+    P2POOL_WATCHER: Final[str] = "P2PoolWatcher"
+    PANE_MGR: Final[str] = "PaneMgr"
+    SQL_DB: Final[str] = "SQLDb"
+    SYNC_CLIENT: Final[str] = "SyncClient"
+    XMRIG: Final[str] = "XMRig"

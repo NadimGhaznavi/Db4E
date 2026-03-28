@@ -59,7 +59,9 @@ SYNC_SCHEDULE = {
 
 
 class SyncClient:
-    """Standalone SyncClient integrated with the TUI."""
+    """
+    Sync client that coordinates deployments and table synchronization.
+    """
 
     def __init__(
         self,
@@ -70,7 +72,24 @@ class SyncClient:
         bs_mgr: BootstrapMgr,
         log_file=None,
     ):
-        """Constructor"""
+        """
+        Initialize the sync client with DB handles and server configuration.
+
+        :param sql_db: SQL database handle for local sync state.
+        :type sql_db: SQLDb
+        :param server_url: Sync server base URL.
+        :type server_url: str
+        :param ops_db: Operations database handle.
+        :type ops_db: OpsDb
+        :param depl_db: Deployment database handle.
+        :type depl_db: DeplDb
+        :param bs_mgr: Bootstrap manager for install paths.
+        :type bs_mgr: BootstrapMgr
+        :param log_file: Optional log file path for the logger.
+        :type log_file: str or None
+        :return: None
+        :rtype: None
+        """
         if log_file:
             self.log = Db4ELogger(db4e_module=__name__, log_file=log_file)
         self.ops_db = ops_db
@@ -82,7 +101,14 @@ class SyncClient:
         self._task = None
 
     async def add_deployment(self, depl_request):
-        """Send a "create new deployment" request to the sync server."""
+        """
+        Send a "create new deployment" request to the sync server.
+
+        :param depl_request: Deployment request payload.
+        :type depl_request: dict
+        :return: TUI log contents.
+        :rtype: list
+        """
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
         depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
@@ -106,7 +132,14 @@ class SyncClient:
         )
 
     async def delete_deployment(self, depl_request):
-        """Send a "delete deployment" request to the sync server."""
+        """
+        Send a "delete deployment" request to the sync server.
+
+        :param depl_request: Deployment request payload.
+        :type depl_request: dict
+        :return: TUI log contents.
+        :rtype: list
+        """
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
         depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
@@ -122,16 +155,40 @@ class SyncClient:
         )
 
     async def start(self):
+        """
+        Start the background sync loop task.
+
+        :return: None
+        :rtype: None
+        """
         if not self._task:
             self._task = asyncio.create_task(self._sync_loop())
 
     async def stop(self):
+        """
+        Stop the background sync loop task.
+
+        :return: None
+        :rtype: None
+        """
         self._running = False
         if self._task:
             await self._task
             self._task = None
 
     async def sync_table(self, table_name: str, since_ts: int = 0, limit: int = 1000):
+        """
+        Synchronize a table from the server into the local DB.
+
+        :param table_name: Table name to sync.
+        :type table_name: str
+        :param since_ts: Timestamp cutoff (exclusive).
+        :type since_ts: int
+        :param limit: Maximum number of rows to fetch.
+        :type limit: int
+        :return: Sync payload containing rows and metadata.
+        :rtype: dict
+        """
         url = f"{self.server_url}/sync/{table_name}?since={since_ts}&limit={limit}"
         # url = f"{self.server_url}/sync/{table_name}?since=0"
         try:
@@ -148,7 +205,14 @@ class SyncClient:
         return payload
 
     async def update_deployment(self, depl_request):
-        """Send a "update deployment" request to the sync server."""
+        """
+        Send an "update deployment" request to the sync server.
+
+        :param depl_request: Deployment request payload.
+        :type depl_request: dict
+        :return: TUI log contents.
+        :rtype: list
+        """
         depl_obj = depl_request.get(DField.ELEMENT)
         depl_table = CLASS_TO_TABLE_MAP[type(depl_obj)]
 
@@ -181,6 +245,20 @@ class SyncClient:
         return self.ops_db.get_tui_log()
 
     async def _send_request(self, depl_table, depl_obj, url, payload):
+        """
+        Send a JSON request to the sync server and refresh local tables.
+
+        :param depl_table: Deployment table name.
+        :type depl_table: str
+        :param depl_obj: Deployment object being updated.
+        :type depl_obj: object
+        :param url: Target URL for the request.
+        :type url: str
+        :param payload: Request JSON payload.
+        :type payload: dict
+        :return: TUI log contents.
+        :rtype: list
+        """
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(url, json=payload)
@@ -201,7 +279,16 @@ class SyncClient:
             return self.ops_db.get_tui_log()
 
     def _merge_row(self, table_name, row):
-        """Insert or update a single row in the local DB."""
+        """
+        Insert or update a single row in the local DB.
+
+        :param table_name: Table name to update.
+        :type table_name: str
+        :param row: Row payload to merge.
+        :type row: dict
+        :return: None
+        :rtype: None
+        """
         # Don't include the generated updated_ts column
         row.pop(DCol.UPDATED_TS, None)
         cols = list(row.keys())
@@ -217,7 +304,12 @@ class SyncClient:
         self.sql_db.update_last_sync(table_name, max_updated_ts)
 
     async def _sync_loop(self):
-        """Main sync scheduler loop."""
+        """
+        Run the main sync scheduler loop.
+
+        :return: None
+        :rtype: None
+        """
         self._running = True
         last_sync_times = {tbl: 0 for tbl in SYNC_SCHEDULE}
         while self._running:

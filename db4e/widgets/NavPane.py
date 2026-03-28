@@ -20,7 +20,7 @@ from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 
 from db4e.db.DeplDb import DeplDb
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 
 from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField

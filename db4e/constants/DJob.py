@@ -7,32 +7,32 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 from db4e.constants.DField import DField
 
 
-class DJob(ConstGroup):
-    ATTEMPTS: str = "attempts"
-    COMPLETED: str = "completed"
-    CREATED_AT: str = "created_at"
-    DELETE: str = "delete"
-    DISABLE: str = "disable"
-    ELEMENT: str = DField.ELEMENT
-    ELEMENT_TYPE: str = DField.ELEMENT_TYPE
-    ENABLE: str = "enable"
-    INSTANCE: str = DField.INSTANCE
-    JOB_ID: str = "job_id"
-    JOB_QUEUE: str = "job_queue"
-    MESSAGE: str = DField.MESSAGE
-    NEW: str = "new"
-    OBJECT_ID: str = DField.OBJECT_ID
-    OP: str = DField.OP
-    PRIORITY: str = "priority"
-    PENDING: str = "pending"
-    RETRY: str = "retry"
-    PROCESSING: str = "processing"
-    RESTART: str = "restart"
-    SET_PRIMARY: str = "set primary"
-    STATUS: str = "status"
-    UPDATE: str = "update"
-    UPDATED_AT: str = "updated_at"
+class DJob:
+    ATTEMPTS: Final[str] = "attempts"
+    COMPLETED: Final[str] = "completed"
+    CREATED_AT: Final[str] = "created_at"
+    DELETE: Final[str] = "delete"
+    DISABLE: Final[str] = "disable"
+    ELEMENT: Final[str] = DField.ELEMENT
+    ELEMENT_TYPE: Final[str] = DField.ELEMENT_TYPE
+    ENABLE: Final[str] = "enable"
+    INSTANCE: Final[str] = DField.INSTANCE
+    JOB_ID: Final[str] = "job_id"
+    JOB_QUEUE: Final[str] = "job_queue"
+    MESSAGE: Final[str] = DField.MESSAGE
+    NEW: Final[str] = "new"
+    OBJECT_ID: Final[str] = DField.OBJECT_ID
+    OP: Final[str] = DField.OP
+    PRIORITY: Final[str] = "priority"
+    PENDING: Final[str] = "pending"
+    RETRY: Final[str] = "retry"
+    PROCESSING: Final[str] = "processing"
+    RESTART: Final[str] = "restart"
+    SET_PRIMARY: Final[str] = "set primary"
+    STATUS: Final[str] = "status"
+    UPDATE: Final[str] = "update"
+    UPDATED_AT: Final[str] = "updated_at"

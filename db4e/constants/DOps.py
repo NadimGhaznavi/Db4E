@@ -7,7 +7,7 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 from db4e.constants.DField import DField
 
 ###############################################################
@@ -19,9 +19,9 @@ from db4e.constants.DField import DField
 ###############################################################
 
 
-class DOps(ConstGroup):
-    CURRENT_UPTIME: str = "current_uptime"
-    START_STOP_EVENT: str = "start_stop_event"
-    START_TIME: str = "start_time"
-    STOP_TIME: str = "stop_time"
-    TOTAL_UPTIME: str = "total_uptime"
+class DOps:
+    CURRENT_UPTIME: Final[str] = "current_uptime"
+    START_STOP_EVENT: Final[str] = "start_stop_event"
+    START_TIME: Final[str] = "start_time"
+    STOP_TIME: Final[str] = "stop_time"
+    TOTAL_UPTIME: Final[str] = "total_uptime"

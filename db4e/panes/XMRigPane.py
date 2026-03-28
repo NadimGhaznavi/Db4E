@@ -13,7 +13,7 @@ from textual.widgets import Label, Input, Button, RadioSet, RadioButton
 
 from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.XMRig import XMRig
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField

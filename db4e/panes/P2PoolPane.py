@@ -11,7 +11,7 @@ from textual.containers import Container, ScrollableContainer, Vertical, Horizon
 from textual.widgets import Label, Input, Button, RadioButton, RadioSet
 from textual.reactive import reactive
 
-from db4e.messages.Db4eMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4eMsg
 from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.util.Helper import gen_results_table

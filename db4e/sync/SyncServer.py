@@ -20,10 +20,36 @@ router = APIRouter(prefix="/sync", tags=["sync"])
 
 
 class SyncServer:
+    """
+    Sync server helper for serving updated table rows.
+    """
+
     def __init__(self, sql_db: SQLDb, log_file=None):
+        """
+        Initialize the sync server with an SQL database handle.
+
+        :param sql_db: SQL database handle for table access.
+        :type sql_db: SQLDb
+        :param log_file: Optional log file path (unused).
+        :type log_file: str or None
+        :return: None
+        :rtype: None
+        """
         self.sql_db = sql_db
 
     def get_rows_since(self, table_name: str, since_ts: int = 0, limit: int = 1000):
+        """
+        Return rows updated after a given timestamp.
+
+        :param table_name: Table name to query.
+        :type table_name: str
+        :param since_ts: Timestamp cutoff (exclusive).
+        :type since_ts: int
+        :param limit: Maximum number of rows to return.
+        :type limit: int
+        :return: Rows as dictionaries.
+        :rtype: list
+        """
         sql = f"""
             SELECT *
             FROM {table_name}
@@ -38,6 +64,14 @@ sync_server: SyncServer | None = None
 
 
 def init_sync_server(sql_db: SQLDb):
+    """
+    Initialize the global sync server instance.
+
+    :param sql_db: SQL database handle for the sync server.
+    :type sql_db: SQLDb
+    :return: FastAPI router for sync endpoints.
+    :rtype: APIRouter
+    """
     global sync_server
     sync_server = SyncServer(sql_db)
     return router
@@ -49,6 +83,18 @@ async def get_table_data(
     since_ts: int = Query(0, alias="since"),
     limit: int = Query(1000),
 ):
+    """
+    Return rows for a table updated after the provided timestamp.
+
+    :param table_name: Table name to query.
+    :type table_name: str
+    :param since_ts: Timestamp cutoff (exclusive).
+    :type since_ts: int
+    :param limit: Maximum number of rows to return.
+    :type limit: int
+    :return: Response payload with rows and latest timestamp.
+    :rtype: dict
+    """
     if not sync_server:
         raise RuntimeError("SyncServer not initialized")
     # print(f"Table: {table_name}, since: {since_ts}, limit: {limit}")

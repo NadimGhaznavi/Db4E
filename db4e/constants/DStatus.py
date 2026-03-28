@@ -7,15 +7,15 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
 # Status
-class DStatus(ConstGroup):
-    COMPLETE: str = "complete"
-    ERROR: str = "error"
-    GOOD: str = "good"
-    PENDING: str = "pending"
-    PROCESSING: str = "processing"
-    UNKNOWN: str = "unknown"
-    WARN: str = "warn"
+class DStatus:
+    COMPLETE: Final[str] = "complete"
+    ERROR: Final[str] = "error"
+    GOOD: Final[str] = "good"
+    PENDING: Final[str] = "pending"
+    PROCESSING: Final[str] = "processing"
+    UNKNOWN: Final[str] = "unknown"
+    WARN: Final[str] = "warn"

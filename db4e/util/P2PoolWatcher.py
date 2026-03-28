@@ -33,6 +33,9 @@ from db4e.constants.DDef import DDef
 
 
 class P2PoolWatcher:
+    """
+    Monitor P2Pool logs and emit mining and deployment updates.
+    """
 
     def __init__(
         self,
@@ -46,6 +49,30 @@ class P2PoolWatcher:
         db4e_log_file: str,
         stats_mod=None,
     ):
+        """
+        Initialize the P2Pool log watcher.
+
+        :param mining_db: Mining database handle.
+        :type mining_db: MiningDb
+        :param chain: Chain identifier (main/mini/nano).
+        :type chain: str
+        :param log_file: P2Pool log file path to monitor.
+        :type log_file: str
+        :param stdin_path: P2Pool stdin pipe path.
+        :type stdin_path: str
+        :param stop_event: Event signaling shutdown.
+        :type stop_event: asyncio.Event
+        :param pool: Pool identifier.
+        :type pool: str
+        :param depl_mgr: Deployment manager for remote miner updates.
+        :type depl_mgr: DeplMgr
+        :param db4e_log_file: Db4E log file path for watcher logs.
+        :type db4e_log_file: str
+        :param stats_mod: Optional stats module file path for internal P2Pool.
+        :type stats_mod: str or None
+        :return: None
+        :rtype: None
+        """
         self.mining_db = mining_db
         self.depl_mgr = depl_mgr
         self.ops_col = DDef.OPS_COLLECTION
@@ -68,9 +95,21 @@ class P2PoolWatcher:
         self.log = Db4ELogger(db4e_module=logger_id, log_file=db4e_log_file)
 
     def chain(self):
+        """
+        Return the configured chain identifier.
+
+        :return: Chain identifier.
+        :rtype: str
+        """
         return self._chain
 
     def get_handlers(self):
+        """
+        Return the log-line handlers based on watcher mode.
+
+        :return: List of handler callables.
+        :rtype: list
+        """
 
         if self.stats_mod():
             # This is only used when the P2PoolWatcher is watching an internal P2Pool
@@ -102,6 +141,9 @@ class P2PoolWatcher:
         {"height":3502949},"pool":{"stats":{"lastBlockFound":"0000"},
         "blocks":["0000...0000:0","0"],
         "miners":306,"hashrate":2335864,"roundHashes":19272205524784}}
+
+        :return: Number of miners from stats_mod, if available.
+        :rtype: int or None
         """
         try:
             stats_mod = self.stats_mod()
@@ -117,6 +159,14 @@ class P2PoolWatcher:
             self.log.critical(f"P2PoolWatcher:get_sidechain_miners(): ERROR: {e}")
 
     def pool(self, pool=None):
+        """
+        Get or set the pool identifier.
+
+        :param pool: Optional pool identifier to set.
+        :type pool: str or None
+        :return: Current pool identifier.
+        :rtype: str
+        """
         if pool is not None:
             self._pool = pool
         return self._pool
@@ -127,6 +177,10 @@ class P2PoolWatcher:
 
         2024-11-09 19:52:19.1734 P2Pool BLOCK FOUND: main chain block at height 3277801 was mined by someone else in this p2pool
 
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} P2Pool BLOCK FOUND"
@@ -145,6 +199,11 @@ class P2PoolWatcher:
 
         Main chain hashrate       = 3.105 GH/s
         Main chain hashrate       = 5.079 GH/s
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r"Main chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<units>[kKMGT]?H/s)"
@@ -176,6 +235,11 @@ class P2PoolWatcher:
         2025-09-21 10:33:36.2717 StratumServer 192.168.0.176:40816        no     0h 6m 21s           125002              4.166 kH/s     kermit
         2024-11-09 20:05:01.4647 StratumServer 192.168.0.27:57888         no     14h 59m 52s         23666               788 H/s        paris
         2025-09-21 10:33:36.2717 StratumServer 192.168.0.122:54958        no     1d 7h 28m 31s       49595               1.653 kH/s     islands
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         # Look for a worker stat line
         try:
@@ -226,6 +290,11 @@ class P2PoolWatcher:
         Sample log message to watch for:
 
         Side chain hashrate       = 12.291 MH/s
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r"Side chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<units>[KMGT]?H/s)"
@@ -258,6 +327,11 @@ class P2PoolWatcher:
         Sample log message to watch for:
 
         Hashrate (1h  est)   = 5.515 kH/s
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r"Hashrate\s*\(1h\s*est\)\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<units>[kKMmGgTt]?H/s)"
@@ -276,6 +350,11 @@ class P2PoolWatcher:
         Sample log messages to watch for:
 
         2024-11-10 00:47:47.5596 StratumServer SHARE FOUND: mainchain height 3277956, sidechain height 9143872, diff 126624856, client 192.168.0.86:37294, user sally, effort 91.663%
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} StratumServer SHARE FOUND:.* sidechain height (?P<height>\d+).*client (?P<ip_addr>\d+.\d+.\d+.\d+):\d+, user (?P<miner>.*), effort (?P<effort>\d+.\d+)"
@@ -300,6 +379,11 @@ class P2PoolWatcher:
 
         Your shares position      = [.........................1....]
         Your shares               = 0 blocks (+0 uncles, 0 orphans)
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r"Your shares position .* = (?P<position>\[.*\])"
@@ -325,6 +409,11 @@ class P2PoolWatcher:
 
         2024-11-09 19:52:19.1740 P2Pool Your wallet 48wY7nYBsQNSw7fDEG got a payout of 0.001080066485 XMR in block 3277801
         2025-06-02 21:42:53.0727 P2Pool Your wallet 48wdY6fDEG got a payout of 0.000295115076 XMR in block 3425427
+
+        :param log_line: Log line to inspect.
+        :type log_line: str
+        :return: None
+        :rtype: None
         """
         try:
             pattern = r".*(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}):\d{2}.\d{4} .*got a payout of (?P<payment>0.\d+) XMR"
@@ -342,9 +431,21 @@ class P2PoolWatcher:
             self.log.critical(f"P2PoolWatcher:is_xmr_payment(): ERROR: {e}")
 
     def log_file(self):
+        """
+        Return the log file path being monitored.
+
+        :return: Log file path.
+        :rtype: str
+        """
         return self._log_file
 
     async def monitor_log(self):
+        """
+        Monitor the log file and dispatch lines to handlers.
+
+        :return: None
+        :rtype: None
+        """
 
         # Start the P2Pool command service, used to send "workers" and "status"
         # commands to the running P2Pool process.
@@ -405,6 +506,14 @@ class P2PoolWatcher:
         self.p2pool_cmd_service_task = None
 
     def send_cmd(self, cmd: str):
+        """
+        Send a command to the P2Pool stdin pipe.
+
+        :param cmd: Command string to send.
+        :type cmd: str
+        :return: None
+        :rtype: None
+        """
         if not cmd.endswith("\n"):
             cmd += "\n"
         encoded_cmd = cmd.encode("utf-8")  # encode explicitly for non-blocking write
@@ -431,24 +540,58 @@ class P2PoolWatcher:
             os.close(fd)
 
     def send_status_cmd(self):
+        """
+        Send a status command to the running P2Pool instance.
+
+        :return: None
+        :rtype: None
+        """
         self.log.debug("Sending status command")
         self.send_cmd(DField.STATUS)
 
     def send_workers_cmd(self):
+        """
+        Send a workers command to the running P2Pool instance.
+
+        :return: None
+        :rtype: None
+        """
         self.log.debug("Sending workers command")
         self.send_cmd(DField.WORKERS)
 
     def stats_mod(self, stats_mod=None):
+        """
+        Get or set the stats module file path.
+
+        :param stats_mod: Optional stats module path to set.
+        :type stats_mod: str or None
+        :return: Current stats module path.
+        :rtype: str or None
+        """
         if stats_mod is not None:
             self._stats_mod = stats_mod
         return self._stats_mod
 
     def stdin_path(self, stdin_path=None) -> str:
+        """
+        Get or set the stdin pipe path.
+
+        :param stdin_path: Optional stdin path to set.
+        :type stdin_path: str or None
+        :return: Current stdin path.
+        :rtype: str
+        """
         if stdin_path is not None:
             self._stdin_path = stdin_path
         return self._stdin_path
 
     async def p2pool_cmd_service(self):
+        """
+        Periodically send status and workers commands to P2Pool.
+
+        :return: None
+        :rtype: None
+        """
         self.log.info("Starting P2Pool command service")
 
         try:
