@@ -7,10 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Issues
-- Fix internal links on the Schema page.
-
-## [Unreleased]
+## [0.48.2] - 2026-03-28 @ 12:51 - Catchup Release
 
 ### Added
 - Added a `tui_log` table to the `SQLdb:init_db` method and to the `pages/Schema` page.
