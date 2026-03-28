@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Also replaced `time.sleep()` with `asyncio.sleep()` and `open()` with `aiofiles.open()`.
 - Upgraded `Textual` from 6.0.0 to 6.4.0.
 - Moved *Mgr* classes into a `mgr` folder. Renamed `MessageRouter` to `RouteMgr`.
+- Remove dependency on ConstGroup.
 
 ### Fixed
 - Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.
