@@ -7,11 +7,11 @@
 #    License: GPL 3.0
 
 
-from db4e.util.ConstGroup import ConstGroup
+from typing import Final
 
 
 # Elements
-class DSync(ConstGroup):
-    ELEMENT: str = "element"
-    ELEM_TYPE: str = "elem_type"
-    TABLE_NAME: str = "table_name"
+class DSync:
+    ELEMENT: Final[str] = "element"
+    ELEM_TYPE: Final[str] = "elem_type"
+    TABLE_NAME: Final[str] = "table_name"
