@@ -1,0 +1,115 @@
+"""
+db4e/Modules/PaneCatalogue.py
+
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
+    License: GPL 3.0
+"""
+
+from textual.containers import Container
+
+from db4e.panes.ChainBlocksFoundPane import ChainBlocksFoundPane
+from db4e.panes.ChainHashratesPane import ChainHashratesPane
+from db4e.panes.Db4EPane import Db4EPane
+from db4e.panes.DonationsPane import DonationsPane
+from db4e.panes.InitialSetupPane import InitialSetupPane
+from db4e.panes.LogViewPane import LogViewPane
+from db4e.panes.MoneroDPane import MoneroDPane
+from db4e.panes.MoneroDRemotePane import MoneroDRemotePane
+from db4e.panes.P2PoolPane import P2PoolPane
+from db4e.panes.P2PoolHashratesPane import P2PoolHashratesPane
+from db4e.panes.P2PoolTablesPane import P2PoolTablesPane
+from db4e.panes.ChainPane import ChainPane
+from db4e.panes.P2PoolRemotePane import P2PoolRemotePane
+from db4e.panes.P2PoolSharesFoundPane import P2PoolSharesFoundPane
+from db4e.panes.PaymentsPane import PaymentsPane
+from db4e.panes.ResultsPane import ResultsPane
+from db4e.panes.TUILogPane import TUILogPane
+from db4e.panes.RuntimePane import RuntimePane
+from db4e.panes.WelcomePane import WelcomePane
+from db4e.panes.XMRigHashratesPane import XMRigHashratesPane
+from db4e.panes.XMRigPane import XMRigPane
+from db4e.panes.XMRigRemotePane import XMRigRemotePane
+from db4e.panes.XMRigSharesFoundPane import XMRigSharesFoundPane
+
+
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DPane import DPane
+
+
+REGISTRY = {
+    DPane.CHAIN: (ChainPane, DLabel.P2POOL_INTERNAL, DLabel.CONFIG),
+    DPane.CHAIN_BLOCKS_FOUND: (ChainBlocksFoundPane, DLabel.CHAIN, DLabel.BLOCKS_FOUND),
+    DPane.CHAIN_HASHRATES: (ChainHashratesPane, DLabel.CHAIN, DLabel.HASHRATE),
+    DPane.DB4E: (Db4EPane, DLabel.DB4E_LONG, DLabel.DB4E),
+    DPane.DONATIONS: (DonationsPane, DLabel.DONATIONS, DLabel.DONATIONS),
+    DPane.INITIAL_SETUP: (InitialSetupPane, DLabel.DB4E_LONG, DLabel.INITIAL_SETUP),
+    DPane.LOG_VIEW: (LogViewPane, DLabel.LOG, DLabel.LOG_VIEWER),
+    DPane.MONEROD: (MoneroDPane, DLabel.MONEROD, DLabel.NEW),
+    DPane.MONEROD_REMOTE: (MoneroDRemotePane, DLabel.MONEROD_REMOTE, DLabel.CONFIG),
+    DPane.P2POOL: (P2PoolPane, DLabel.P2POOL, DLabel.NEW),
+    DPane.P2POOL_HASHRATES: (P2PoolHashratesPane, DLabel.P2POOL, DLabel.HASHRATE),
+    DPane.P2POOL_REMOTE: (P2PoolRemotePane, DLabel.P2POOL_REMOTE, DLabel.CONFIG),
+    DPane.P2POOL_SHARES_FOUND: (
+        P2PoolSharesFoundPane,
+        DLabel.P2POOL,
+        DLabel.SHARES_FOUND,
+    ),
+    DPane.P2POOL_TABLES: (P2PoolTablesPane, DLabel.P2POOL, DLabel.TABLES),
+    DPane.PAYMENTS: (PaymentsPane, DLabel.DB4E_LONG, DLabel.PAYMENTS),
+    DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
+    DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
+    DPane.RUNTIME_LOG: (RuntimePane, DLabel.DB4E_LONG, DLabel.RUNTIME_LOG),
+    DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
+    DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
+    DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATE),
+    DPane.XMRIG_REMOTE: (XMRigRemotePane, DLabel.XMRIG, DLabel.CONFIG),
+    DPane.XMRIG_SHARES_FOUND: (XMRigSharesFoundPane, DLabel.XMRIG, DLabel.SHARES_FOUND),
+}
+
+
+class PaneCatalogue:
+    """
+    Registry wrapper for pane classes and metadata.
+    """
+
+    def __init__(self):
+        """
+        Initialize the pane catalogue.
+
+        :return: None
+        :rtype: None
+        """
+        self.registry = REGISTRY
+
+    def get_pane(self, pane_name: str, pane_data=None) -> Container:
+        """
+        Instantiate a pane by name.
+
+        :param pane_name: Pane name key.
+        :type pane_name: str
+        :param pane_data: Optional data payload for the pane.
+        :type pane_data: object or None
+        :return: Pane instance.
+        :rtype: Container
+        """
+        pane_class, _, _ = self.registry[pane_name]
+        return (
+            pane_class(id=pane_name, data=pane_data)
+            if pane_data
+            else pane_class(id=pane_name)
+        )
+
+    def get_metadata(self, pane_name: str) -> tuple[str, str]:
+        """
+        Return metadata tuple for a pane.
+
+        :param pane_name: Pane name key.
+        :type pane_name: str
+        :return: (component label, message label).
+        :rtype: tuple
+        """
+        _, component, msg = self.registry.get(pane_name, (None, "", ""))
+        return component, msg

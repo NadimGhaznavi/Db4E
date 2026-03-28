@@ -1,160 +1,160 @@
-"""
-tests/conftest.py
+# db4e/tests/conftest.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
 
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
-    Copyright (c) 2024-2025 NadimGhaznavi <https://github.com/NadimGhaznavi/db4e>
-    License: GPL 3.0
-"""
-import sys, os
-import grp, getpass
+# tests/conftest.py
 import pytest
-from db4e.Modules.ConfigMgr import ConfigMgr
-from db4e.Modules.InstallMgr import InstallMgr
-from db4e.Constants.Defaults import (
-    API_DIR_DEFAULT, BACKUP_DIR_DEFAULT, BACKUP_SCRIPT_DEFAULT, BIN_DIR_DEFAULT, 
-    BLOCKCHAIN_DIR_DEFAULT, CONF_DIR_DEFAULT, DB_NAME_DEFAULT, DB_PORT_DEFAULT, 
-    DB_RETRY_TIMEOUT_DEFAULT, DB_SERVER_DEFAULT, DB4E_DIR_DEFAULT, 
-    DB4E_INITIAL_SETUP_SCRIPT_DEFAULT, DB4E_INSTALL_SERVICE_DEFAULT, 
-    DB4E_LOG_FILE_DEFAULT, DB4E_PROCESS_DEFAULT, DB4E_REFRESH_DEFAULT, 
-    DB4E_SERVICE_FILE_DEFAULT, DB4E_UNINSTALL_SCRIPT_DEFAULT, DEPLOYMENT_COL_DEFAULT, 
-    DEV_DIR_DEFAULT, LOG_COLLECTION_DEFAULT, LOG_DIR_DEFAULT, LOG_RETENTION_DAYS_DEFAULT, 
-    MAX_BACKUPS_DEFAULT, METRICS_COLLECTION_DEFAULT, MINING_COL_DEFAULT, MONEROD_CONFIG_DEFAULT, 
-    MONEROD_LOG_FILE_DEFAULT, MONEROD_PROCESS_DEFAULT, MONEROD_SERVICE_DEFAULT, 
-    MONEROD_SOCKET_SERVICE_DEFAULT, MONEROD_STDIN_PIPE_DEFAULT, MONEROD_START_SCRIPT_DEFAULT, 
-    MONEROD_VERSION_DEFAULT, P2POOL_CONFIG_DEFAULT, P2POOL_LOG_FILE_DEFAULT, 
-    P2POOL_PROCESS_DEFAULT, P2POOL_SERVICE_FILE_DEFAULT, P2POOL_SERVICE_SOCKET_FILE_DEFAULT, 
-    P2POOL_START_SCRIPT_DEFAULT, P2POOL_STDIN_PIPE_DEFAULT, P2POOL_VERSION_DEFAULT, 
-    PYPI_REPO_DEFAULT, RUN_DIR_DEFAULT, SRC_DIR_DEFAULT, SYSTEMD_DIR_DEFAULT, 
-    TEMPLATES_DIR_DEFAULT, VENDOR_DIR_DEFAULT, XMRIG_CONF_DIR_DEFAULT, XMRIG_CONFIG_DEFAULT, 
-    XMRIG_PERMISSIONS_DEFAULT, XMRIG_PROCESS_DEFAULT, XMRIG_SERVICE_FILE_DEFAULT, XMRIG_VERSION_DEFAULT
-)
+import os
+import shutil
+from db4e.db.SQLDb import SQLDb
+from db4e.db.DeplDb import DeplDb
+from db4e.db.OpsDb import OpsDb
 
-from db4e.Constants.Fields import (
-    APP_VERSION_FIELD, DB_FIELD, DB_NAME_FIELD, DB4E_FIELD, MINING_COL_FIELD, OP_FIELD, API_DIR_FIELD, BACKUP_DIR_FIELD, 
-    BACKUP_SCRIPT_FIELD, BIN_DIR_FIELD, BLOCKCHAIN_DIR_FIELD, CONF_DIR_FIELD, CONFIG_FIELD, 
-    DB4E_DIR_FIELD, DB4E_REFRESH_FIELD, DEPLOYMENT_COL_FIELD, DESC_FIELD, DEV_DIR_FIELD, 
-    LOG_COLLECTION_FIELD, LOG_DIR_FIELD, LOG_FILE_FIELD, LOG_RETENTION_DAYS_FIELD, 
-    MAX_BACKUPS_FIELD, METRICS_COLLECTION_FIELD, MINING_COL_FIELD, MONEROD_FIELD, NAME_FIELD, 
-    P2POOL_FIELD, PERMISSIONS_FIELD, PORT_FIELD, PROCESS_FIELD, PYPI_REPO_FIELD, 
-    RETRY_TIMEOUT_FIELD, RUN_DIR_FIELD, RUN_UI_FIELD, SERVER_FIELD, SERVICE_FILE_FIELD, 
-    SERVICE_LOG_FILE_FIELD, SETUP_SCRIPT_FIELD, SERVICE_INSTALL_SCRIPT_FIELD, 
-    SERVICE_UNINSTALL_SCRIPT_FIELD, SOCKET_FILE_FIELD, SRC_DIR_FIELD, START_SCRIPT_FIELD, 
-    STDIN_PIPE_FIELD, SYSTEMD_DIR_FIELD, TEMPLATE_DIR_FIELD, USER_WALLET_FIELD, VENDOR_DIR_FIELD, VERSION_FIELD, 
-    XMRIG_FIELD
-)
+from db4e.recs.monero.Db4E import Db4E
 
-from db4e.Constants.Labels import DB4E_LONG_LABEL, MONEROD_LABEL, P2POOL_LABEL, XMRIG_LABEL
-def has_message(results, substring):
-    return any(substring in list(r.values())[0]['msg'] for r in results)
+from db4e.mgr.BootstrapMgr import BootstrapMgr
+from db4e.mgr.DeplMgr import DeplMgr
+from db4e.mgr.InstallMgr import InstallMgr
 
-# Add near has_message
-def has_status(results, expected_status):
-    """Return True if any result dict has the expected status."""
-    return any(list(r.values())[0]['status'] == expected_status for r in results)
+from db4e.constants.DField import DField
+from db4e.constants.DDir import DDir
+from db4e.constants.DElem import DElem
+from db4e.constants.DDef import DDef
+
+TEMPLATES_DIR = "templates"
+VENDOR_DIR = "vendor"
 
 
-def get_effective_user_group():
-    """Return the effective username and group name."""
-    user = getpass.getuser()
-    # User's group
-    effective_gid = os.getegid()
-    group_entry = grp.getgrgid(effective_gid)
-    group = group_entry.gr_name
+class FakeInitializedBootstrapMgr(BootstrapMgr):
+    def __init__(self, base_dir):
+        # Do NOT call real super().__init__()
+        self._initialized = True
+        self._base_dir = base_dir
+        tests_dir = os.path.dirname(__file__)
+        # Copy in dummy templates directory and it's contents
+        templates_dir_src = os.path.join(tests_dir, TEMPLATES_DIR)
+        shutil.copytree(
+            templates_dir_src, self._base_dir + "/" + TEMPLATES_DIR, dirs_exist_ok=True
+        )
+        # Copy in dummy vendor directory an it's contents
+        vendor_dir_src = os.path.join(tests_dir, VENDOR_DIR)
+        shutil.copytree(
+            vendor_dir_src, self._base_dir + "/" + VENDOR_DIR, dirs_exist_ok=True
+        )
 
-    return user, group
+    def get_dir(self, aDir):
+        if aDir == DDir.DB:
+            return self._base_dir
+        elif aDir == DDir.VENDOR:
+            return self._base_dir + "/" + VENDOR_DIR
+        elif aDir == DDir.TEMPLATE:
+            return self._base_dir + "/" + TEMPLATES_DIR
+        elif aDir == DElem.MONEROD:
+            return DElem.MONEROD
+        elif aDir == DElem.P2POOL:
+            return DElem.P2POOL
+        elif aDir == DElem.XMRIG:
+            return DElem.XMRIG
 
-@pytest.fixture
-def config(monkeypatch):
-    monkeypatch.setattr(sys, 'argv', ['test_script', '-b'])
-    cfg = ConfigMgr("0.16.1")
-        
-    cfg.config = {
-            DB4E_FIELD: {
-                APP_VERSION_FIELD: "0.17.1",
-                OP_FIELD: RUN_UI_FIELD,
-                API_DIR_FIELD: API_DIR_DEFAULT,
-                BIN_DIR_FIELD: BIN_DIR_DEFAULT,
-                CONF_DIR_FIELD: CONF_DIR_DEFAULT,
-                DB_NAME_FIELD: DB_NAME_DEFAULT,
-                DB4E_DIR_FIELD: DB4E_DIR_DEFAULT,
-                DESC_FIELD: DB4E_LONG_LABEL,
-                DEV_DIR_FIELD: DEV_DIR_DEFAULT,
-                LOG_DIR_FIELD: LOG_DIR_DEFAULT,
-                PROCESS_FIELD: DB4E_PROCESS_DEFAULT,
-                PYPI_REPO_FIELD: PYPI_REPO_DEFAULT,
-                DB4E_REFRESH_FIELD: DB4E_REFRESH_DEFAULT,
-                RUN_DIR_FIELD: RUN_DIR_DEFAULT,
-                SERVICE_FILE_FIELD: DB4E_SERVICE_FILE_DEFAULT,
-                SETUP_SCRIPT_FIELD: DB4E_INITIAL_SETUP_SCRIPT_DEFAULT,
-                SERVICE_INSTALL_SCRIPT_FIELD: DB4E_INSTALL_SERVICE_DEFAULT,
-                SERVICE_LOG_FILE_FIELD: DB4E_LOG_FILE_DEFAULT,
-                SERVICE_UNINSTALL_SCRIPT_FIELD: DB4E_UNINSTALL_SCRIPT_DEFAULT,
-                SRC_DIR_FIELD: SRC_DIR_DEFAULT,
-                SYSTEMD_DIR_FIELD: SYSTEMD_DIR_DEFAULT,
-                TEMPLATE_DIR_FIELD: TEMPLATES_DIR_DEFAULT,
-                VENDOR_DIR_FIELD: VENDOR_DIR_DEFAULT,
-            },
-            DB_FIELD: {
-                BACKUP_DIR_FIELD: BACKUP_DIR_DEFAULT,
-                BACKUP_SCRIPT_FIELD:BACKUP_SCRIPT_DEFAULT,
-                DB_NAME_FIELD: DB_NAME_DEFAULT,
-                DEPLOYMENT_COL_FIELD: DEPLOYMENT_COL_DEFAULT,
-                LOG_COLLECTION_FIELD: LOG_COLLECTION_DEFAULT,
-                LOG_RETENTION_DAYS_FIELD: LOG_RETENTION_DAYS_DEFAULT,
-                MAX_BACKUPS_FIELD: MAX_BACKUPS_DEFAULT,
-                METRICS_COLLECTION_FIELD: METRICS_COLLECTION_DEFAULT,
-                MINING_COL_FIELD: MINING_COL_DEFAULT,
-                NAME_FIELD: DB_NAME_DEFAULT,
-                PORT_FIELD: DB_PORT_DEFAULT,
-                RETRY_TIMEOUT_FIELD: DB_RETRY_TIMEOUT_DEFAULT,
-                SERVER_FIELD: DB_SERVER_DEFAULT,
-            },
-            MONEROD_FIELD: {
-                BLOCKCHAIN_DIR_FIELD: BLOCKCHAIN_DIR_DEFAULT,
-                CONFIG_FIELD: MONEROD_CONFIG_DEFAULT,
-                DESC_FIELD: MONEROD_LABEL,
-                LOG_FILE_FIELD: MONEROD_LOG_FILE_DEFAULT,
-                PROCESS_FIELD: MONEROD_PROCESS_DEFAULT,
-                SERVICE_FILE_FIELD: MONEROD_SERVICE_DEFAULT,
-                SOCKET_FILE_FIELD: MONEROD_SOCKET_SERVICE_DEFAULT,
-                STDIN_PIPE_FIELD: MONEROD_STDIN_PIPE_DEFAULT,
-                START_SCRIPT_FIELD: MONEROD_START_SCRIPT_DEFAULT,
-                VERSION_FIELD: MONEROD_VERSION_DEFAULT,
-            },
-            P2POOL_FIELD: {
-                CONFIG_FIELD: P2POOL_CONFIG_DEFAULT,
-                DESC_FIELD: P2POOL_LABEL,
-                LOG_FILE_FIELD: P2POOL_LOG_FILE_DEFAULT,
-                PROCESS_FIELD: P2POOL_PROCESS_DEFAULT,
-                SERVICE_FILE_FIELD: P2POOL_SERVICE_FILE_DEFAULT,
-                SOCKET_FILE_FIELD: P2POOL_SERVICE_SOCKET_FILE_DEFAULT,
-                START_SCRIPT_FIELD: P2POOL_START_SCRIPT_DEFAULT,
-                STDIN_PIPE_FIELD: P2POOL_STDIN_PIPE_DEFAULT,
-                VERSION_FIELD: P2POOL_VERSION_DEFAULT,                
-            },
-            XMRIG_FIELD: {
-                DESC_FIELD: XMRIG_LABEL,
-                CONF_DIR_FIELD: XMRIG_CONF_DIR_DEFAULT,
-                CONFIG_FIELD: XMRIG_CONFIG_DEFAULT, 
-                PERMISSIONS_FIELD: XMRIG_PERMISSIONS_DEFAULT,
-                PROCESS_FIELD: XMRIG_PROCESS_DEFAULT, 
-                SERVICE_FILE_FIELD: XMRIG_SERVICE_FILE_DEFAULT, 
-                VERSION_FIELD: XMRIG_VERSION_DEFAULT
-            }
-    }
-    return cfg
+        raise KeyError(f"Unknown dir request: {aDir}")
+
+    def is_initialized(self):
+        return True
+
+
+class FakeUnitializedBootstrapMgr(BootstrapMgr):
+    def __init__(self):
+        # Do NOT call real super().__init__()
+        self._initialized = False
+        self._base_dir = "/not/implemented"
+
+    def is_initialized(self):
+        return False
+
+    def get_dir(self, aDir):
+        if aDir == DDir.DB:
+            return self._base_dir
+        raise KeyError(f"Unknown dir request: {aDir}")
+
 
 @pytest.fixture
-def install_mgr(config):
-    return InstallMgr(config)
+def uninitialized_bootstrap_mgr():
+    return FakeUnitializedBootstrapMgr()
+
 
 @pytest.fixture
-def sample_rec():
-    # Provide a minimal dict that looks like a db4e record,
-    # with keys used in your tests.
-    return {
-        USER_WALLET_FIELD: "",
-        VENDOR_DIR_FIELD: "",
-        # Add any other necessary keys your code might expect
-    }
+def initialized_bootstrap_mgr(tmp_path):
+    """
+    Uses tmp_path, a built-in pytest fixture.
+    """
+    return FakeInitializedBootstrapMgr(base_dir=str(tmp_path))
+
+
+@pytest.fixture
+def tmp_dir(tmp_path):
+    return tmp_path
+
+
+@pytest.fixture
+def uninitialized_sql_db():
+    fake_bs = FakeUnitializedBootstrapMgr()
+    db = SQLDb(db_type=DField.SERVER, bs_mgr=fake_bs)
+    return db
+
+
+@pytest.fixture
+def initialized_sql_db(tmp_path):
+    fake_bs = FakeInitializedBootstrapMgr(base_dir=str(tmp_path))
+    db = SQLDb(db_type=DField.SERVER, bs_mgr=fake_bs)
+    return db
+
+
+@pytest.fixture
+def initialized_depl_db(initialized_sql_db):
+    sql_db = initialized_sql_db
+    return DeplDb(sql_db=sql_db)
+
+
+@pytest.fixture
+def initialized_ops_db(initialized_sql_db):
+    sql_db = initialized_sql_db
+    return OpsDb(sql_db=sql_db)
+
+
+@pytest.fixture
+def initialized_depl_mgr(
+    initialized_sql_db,
+    initialized_bootstrap_mgr,
+    initialized_depl_db,
+    initialized_ops_db,
+):
+    sql_db = initialized_sql_db
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+    ops_db = initialized_ops_db
+    depl_mgr = DeplMgr(sql_db=sql_db, bs_mgr=bs_mgr, depl_db=depl_db, ops_db=ops_db)
+    return depl_mgr
+
+
+@pytest.fixture
+def UNUSED_initialized_install_mgr(initialized_bootstrap_mgr, initialized_depl_db):
+    bs_mgr = initialized_bootstrap_mgr
+    depl_db = initialized_depl_db
+
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+
+    # The InstallMgr creates the three internal P2Pool instances during the install
+    db4e = Db4E()
+    db4e.instance(DElem.DB4E)
+    db4e.user_wallet("test_wallet_value")
+    db4e.vendor_dir(bs_mgr.get_dir(DDir.VENDOR))
+    depl_db.insert_one(db4e)
+
+    install_mgr = InstallMgr(bs_mgr=bs_mgr)
+    install_mgr._deploy_internal_p2pools(db4e=db4e)
+
+    return install_mgr

@@ -1,0 +1,33 @@
+# /etc/systemd/system/db4e.service
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi 
+#    Copyright: (c) 2024-2025 NadimGhaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# Monero Blockchain daemon service definition
+#
+#####################################################################
+
+[Unit]
+Description=Monero Daemon instance %i
+After=network.target
+Wants=network.target
+Requires=monerod@%i.socket
+
+[Service]
+User=[[DB4E_USER]]
+Group=[[DB4E_GROUP]]
+StandardInput=socket
+Sockets=monerod@%i.socket
+WorkingDirectory=[[MONEROD_DIR]]
+Type=simple
+Restart=always
+ExecStart=[[MONEROD_DIR]]/bin/start-monerod.sh [[MONEROD_DIR]]/conf/%i.ini
+TimeoutStopSec=60
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

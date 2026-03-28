@@ -1,0 +1,96 @@
+# db4e/Panes/RuntimePane.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+
+
+from rich import box
+from rich.table import Table
+
+from textual.widgets import Static
+from textual.containers import ScrollableContainer, Vertical
+
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DForm import DForm
+from db4e.constants.DField import DField
+from db4e.constants.DOps import DOps
+
+
+class RuntimePane(Static):
+    """Textual pane for RuntimePane."""
+
+
+    def __init__(self, **kwargs):
+        """Initialize the pane.
+        
+        :param kwargs: Widget keyword arguments.
+        :type kwargs: dict
+        :return: None
+        :rtype: None
+        """
+        super().__init__(**kwargs)
+        self.results = Static()
+
+    def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
+        yield Vertical(
+            ScrollableContainer(
+                Static(
+                    "Missing Data",
+                    id=DForm.LOG_WIDGET,
+                ),
+                classes=DForm.PANE_BOX,
+            )
+        )
+
+    def set_data(self, events):
+        """Set the data for the pane.
+        
+        :param events: Parameter.
+        :type events: object
+        :return: None
+        :rtype: None
+        """
+        table = Table(
+            show_header=True,
+            header_style="bold #31b8e6",
+            style="#0c323e",
+            box=box.SIMPLE,
+        )
+        table.add_column(DLabel.ELEMENT_TYPE)
+        table.add_column(f"[yellow]{DLabel.INSTANCE}[/]")
+        table.add_column("", justify=DField.RIGHT, width=8),
+        table.add_column(DLabel.CURRENT, justify=DField.RIGHT)
+        table.add_column("", justify=DField.RIGHT, width=8),
+        table.add_column(f"[green]{DLabel.TOTAL}[/]", justify=DField.RIGHT)
+
+        for event in events:
+            # Split current uptime day(s) and hours:minutes:seconds
+            if "," in event[DOps.CURRENT_UPTIME]:
+                cur_days, cur_time = event[DOps.CURRENT_UPTIME].split(",")
+            else:
+                cur_days = ""
+                cur_time = event[DOps.CURRENT_UPTIME]
+
+            # Same split for total uptime
+            if "," in event[DOps.TOTAL_UPTIME]:
+                total_days, total_time = event[DOps.TOTAL_UPTIME].split(",")
+            else:
+                total_days = ""
+                total_time = event[DOps.TOTAL_UPTIME]
+            table.add_row(
+                f"[b]{event[DField.ELEMENT_TYPE]}[/]",
+                f"[yellow]{event[DField.INSTANCE]}[/]",
+                f"[cyan]{cur_days}[/]",
+                f"[cyan]{cur_time}[/]",
+                f"[green]{total_days}[/]",
+                f"[green]{total_time}[/]",
+            )
+        self.query_one(f"#{DForm.LOG_WIDGET}", Static).update(table)

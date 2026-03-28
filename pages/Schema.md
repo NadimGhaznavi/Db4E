@@ -26,12 +26,14 @@ The rest of this document is dedicated to a detailed description of the specific
   - [Remote Monero Table](#remote_monero_table)
   - [P2Pool Table](#p2pool_table)
   - [Remote P2Pool Table](#remote_p2pool_table)
+  - [Internal P2Pool Table](#internal_p2pool_table)
   - [XMRig Table](#xmrig_table)
   - [Remote XMRig Table](#remote_xmrig_table)
 
 - [Operations Tables](#operations_tables)
-  - [Start/Stop Table](#start_stop_table)
   - [Current Uptime Table](#current_uptime_table)
+  - [Total Uptime Table](#total_uptime_table)
+  - [TUI Log Table](#tui_log_table)
 
 - [Mining Tables](#mining_tables)
   - [Block Found Event Table](#block_found_event_table)
@@ -43,8 +45,6 @@ The rest of this document is dedicated to a detailed description of the specific
   - [Share Position Table](#shares_position_table)
   - [XMR Payments Table](#xmr_payments_table)
 
-
----
 
 ---
 
@@ -69,6 +69,7 @@ db4e_user       | TEXT      | The Linux group that the Db4E application runs as.
 install_dir     | TEXT      | The base *venv* directory holding the PIP *Db4E* package.
 instance        | TEXT      | The deployment name; `db4e`.
 primary_server  | INTEGER   | A *foreign key* that points at the `monero` table's `id` column.
+primary_remote  | INTEGER   | A boolean indicating if the *primary server* is remote
 user_wallet     | TEXT      | The user's *Monero* wallet, where mining profits are directed.
 vendor_dir      | TEXT      | The directory where *Db4E's* runtime filesystem artifacts are deployed.
 updated_y       | INTEGER   | The year the record was updated
@@ -168,6 +169,7 @@ log_level         | INTEGER   | The log level of the *P2Pool daemon*.
 out_peers         | INTEGER   | The number of outgoing peer connections.
 p2p_port          | INTEGER   | The *P2Pool P2P Port* number.
 parent            | INTEGER   | A *foreign key* that points at a `monerod` or `monerod_remote` table's `id` column.
+parent_remote     | INTEGER   | A boolean indicating if the *parent* is remote
 stdin_path        | TEXT      | The path to the *P2Pool* STDIN file.
 stratum_port      | INTEGER   | The *P2Pool Stratum Port* number.
 user_wallet       | TEXT      | The user's *Monero* wallet, where mining payouts are directed.
@@ -207,6 +209,47 @@ updated_s       | INTEGER   | The second the record was updated
 
 ---
 
+## Internal P2Pool Table
+
+This table represents an *Internal P2Pool* software deployment on the *Db4E* server. *Db4E* deploys three internal *P2Pool* instances to collect *block found events*, *chain hashrate* and *active miners* data for the *Main*, *Mini* and *Nano* chains.
+
+- Table name: `p2pool_internal`
+
+Column            | Data Type | Description
+------------------|-----------|-------------------------
+id                | INTEGER   | The *primary key* for the table.
+any_ip            | TEXT      | The *IP address* that the *P2Pool* software listens on.
+chain             | TEXT      | The *chain* name: `mainchain`, `minisidechain`, `nanosidechain`.
+config_file       | TEXT      | The path to the *P2Pool* configuration file.
+enabled           | INTEGER   | 0 or 1, representing whether the *P2Pool* deployment is enabled.
+in_peers          | INTEGER   | The number of incoming peer connections.
+instance          | TEXT      | The deployment name.
+ip_addr           | TEXT      | The *IP address* that the *P2Pool* software listens on.
+log_file          | TEXT      | The path to the *P2Pool* log file.
+log_rotate_config | TEXT      | The path to the *P2Pool* log rotation configuration file.
+max_log_files     | INTEGER   | The maximum number of log files. These are rotated.
+max_log_size      | INTEGER   | The maximum size of a log file in bytes.
+log_level         | INTEGER   | The log level of the *P2Pool daemon*.
+out_peers         | INTEGER   | The number of outgoing peer connections.
+p2p_port          | INTEGER   | The *P2Pool P2P Port* number.
+parent            | INTEGER   | A *foreign key* that points at a `monerod` or `monerod_remote` table's `id` column.
+parent_remote     | INTEGER   | A boolean indicating if the *parent* is remote
+stdin_path        | TEXT      | The path to the *P2Pool* STDIN file.
+stratum_port      | INTEGER   | The *P2Pool Stratum Port* number.
+user_wallet       | TEXT      | The user's *Monero* wallet, where mining payouts are directed.
+version           | TEXT      | The version of the *P2Pool* software.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
+
+- For the `any_ip` column, a value of `0.0.0.0` is valid and means that the software will bind to all available network interfaces.
+- For the `parent` column, a value of `-1` indicates that the parent is unset.
+
+---
+
 ## XMRig Table
 
 This table represents a *XMRig* software deployment on the *Db4E* server. *Db4E* supports deploying multiple *XMRig* deployments.
@@ -237,7 +280,7 @@ updated_s         | INTEGER   | The second the record was updated
 
 ## Remote XMRig Table
 
-This table represents a reference to a *XMRig* deployment on a remote node. *Db4E* supports deploying multiple *XMRig* deployments. This is a **reference**, *Db4E* does not operate on remote nodes.
+This table represents a reference to a *Remote XMRig* deployment on a remote node. *Db4E* supports deploying multiple *Remote XMRig* deployments. This is a **reference**, *Db4E* does not operate on remote nodes.
 
 - Table name: `xmrig_remote`
 
@@ -246,22 +289,13 @@ Column            | Data Type | Description
 id                | INTEGER   | The *primary key* for the table.
 instance          | TEXT      | The miner name.
 ip_addr           | TEXT      | The hostname or IP address of the remote *XMRig* node.
-hashrate          | REAL      | The latest captured hashrate of the remote *XMRig* node in *H/s*.
 updated_y         | INTEGER   | Local year.
 updated_mo        | INTEGER   | Local month.
 updated_d         | INTEGER   | Local day.
 updated_h         | INTEGER   | Local hour.
 updated_mi        | INTEGER   | Local minute.
 updated_s         | INTEGER   | Local second.
-uptime            | TEXT      | The uptime of the remote *XMRig* node from the local *P2Pool* log.
-utc_y             | INTEGER   | The year the record was updated
-utc_mo            | INTEGER   | The month the record was updated
-utc_d             | INTEGER   | The day the record was updated
-utc_h             | INTEGER   | The hour the record was updated
-utc_mi            | INTEGER   | The minute the record was updated
-utc_s             | INTEGER   | The second the record was updated
 
-- The *local* times are from the *Db4E* server whereas the *updated* time is from the *P2Pool* log. The latter are in the UTC timezone.
 
 ---
 
@@ -271,30 +305,15 @@ This section details the *operations* tables. These tables are used to record st
 
 ---
 
-## Start Stop Table
-
-This table contains the start and stop times of the deployed components.
-
-- Table name: `start_stop`
-
-Column            | Data Type | Description
-------------------|-----------|-------------------------
-id                | INTEGER   | The *primary key* for the table.
-element           | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
-instance          | TEXT      | The deployment name.
-event             | TEXT      | The type of event i.e. `start` or `stop`
-updated_y         | INTEGER   | The year the record was updated
-updated_mo        | INTEGER   | The month the record was updated
-updated_d         | INTEGER   | The day the record was updated
-updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
-
----
-
 ## Current Uptime Table
 
-This table contains the current uptime of a deployed component. The contents of this table are constructed as *start/stop* events are created in the `start_stop` table. This table is updated when a new record is inserted into the `start_stop` table. 
+This table contains the current uptime of a deployed component. The contents of this table are created when a component is started.
+
+The table is also updated once a minute when the `cur_time` is updated. This allows the
+timekeeping to be accurate in the event of an unexpected shutdown.
+
+On startup the server seaches for any open (records with no `stop_time`) and closes them
+using the `cur_time` value for the `stop_time`.
 
 
 - Table name: `current_uptime`
@@ -302,15 +321,70 @@ This table contains the current uptime of a deployed component. The contents of 
 Column            | Data Type | Description
 ------------------|-----------|-------------------------
 id                | INTEGER   | The *primary key* for the table.
-element           | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
-instance          | TEXT      | The deployment name.
-start_time        | INTEGER   | A *foreign key* that points at a `start_stop` table's `id`
-stop_time         | INTEGER   | A *foreign key* that points at a `start_stop` table's `id`
+tracked_type      | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
+tracked_instance  | TEXT      | The deployment name.
+start_time        | INTEGER   | Seconds since the epoch.
+stop_time         | INTEGER   | Seconds since the epoch.
+cur_time          | INTEGER   | Seconds since the epoch.
 current_secs      | INTEGER   | The current uptime in seconds.
-current           | INTEGER   | 0 or 1, indicating whether the record is the current uptime.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
 
 - The can be only one record for each deployment instance where the `current` column is set to `1`.
-- The *total uptime* for a deployed instance can be calculated from this table.
+
+
+---
+## Total Uptime Table
+
+This table contains the total uptime of a deployed component. Each unique `type`/`instance` pair has a corresponding entry in this table. The table is updated when record in the `current_uptime` table is *closed* i.e.the `stop_time` is set.
+
+- Table name: `total_uptime`
+
+Column            | Data Type | Description
+------------------|-----------|-------------------------
+id                | INTEGER   | The *primary key* for the table.
+tracked_type      | TEXT      | The deployed element e.g. `monerod`, `xmrig` and `db4e`.
+tracked_instance  | TEXT      | The deployment name.
+start_time        | INTEGER   | Seconds since the epoch.
+stop_time         | INTEGER   | Seconds since the epoch.
+cur_time          | INTEGER   | Seconds since the epoch.
+current_secs      | INTEGER   | The current uptime in seconds.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
+
+- The can be only one record for each deployment instance where the `current` column is set to `1`.
+
+---
+
+## TUI Log Table
+
+This table contains records of operations performed by the *Db4E Client* such as adding a new deployment, starting or stopping a deployment, or changing a deployment's configuration.
+
+- Table name: `tui_log_line`
+
+Column            | Data Type | Description
+------------------|-----------|-------------------------
+id                | INTEGER   | The *primary key* for the table.
+elem_type         | TEXT      | The element type being operated on: E.g. `monerod`, `xmrig` or `db4e`.
+instance          | TEXT      | The deployment name.
+status            | TEXT      | The status of the operation: `PENDING`, `PROCESSING` or `COMPLETED`.
+operation         | TEXT      | The type of operation: 'ENABLE`, `DISABLE`, 'DELETE`, `RESTART`, `UPDATE` or `NEW`. 
+message           | TEXT      | A description of the operation.
+details           | TEXT      | Additional details of the operation.
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
 
 ---
 
@@ -354,9 +428,8 @@ updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
 updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
 
+- Unique constraint: `UNIQUE (chain, updated_y, updated_mo, updated_d, updated_h)`
 ---
 
 ## Chain Miners Table
@@ -374,9 +447,8 @@ updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
 updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
 
+- Unique constraint: `UNIQUE (chain, updated_y, updated_mo, updated_d, updated_h)`
 ---
 
 ## Miner Hashrate
@@ -396,11 +468,10 @@ updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
 updated_h         | INTEGER   | The hour the record was updated
-updated_mi        | INTEGER   | The minute the record was updated
-updated_s         | INTEGER   | The second the record was updated
 
 - The `instance` name of the miner is also in the `xmrig` or `xmrig_remote` deployment table.
 - The `instance` name of the local `P2Pool` deployment is also in the `p2pool` deployment table.
+- Unique constraint: `UNIQUE (miner, chain, pool, updated_y, updated_mo, updated_d, updated_h)`
 
 ---
 
@@ -481,8 +552,7 @@ Column            | Data Type | Description
 id                | INTEGER   | The *primary key* for the table.
 pool              | TEXT      | The `instance` name of the local `P2Pool`
 chain             | TEXT      | The `chain` name: `mainchain`, `minisidechain`, `nanosidechain`.
-xmr               | INTEGER   | The portion of the *XMR payment* that is greater than 1.
-xmr_part          | INTEGER   | The portion of the *XMR payment* that is less than 1.
+piconero          | INTEGER   | XMR in piconeros
 updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
@@ -509,3 +579,22 @@ The following indexes and constraints are designed to optimize typical Db4E work
 
 the `PRAGMA foreign_keys = ON` is used when opening connections to enforce foreign key constraints.
 
+---
+
+# Generated Columns
+
+In order to facilitate the synchronization process between the **Db4E service** and the **Textual TUI Client**, every table has a *virtual* `updated_ts` column:
+
+```
+ALTER TABLE {table_name}
+ADD COLUMN updated_ts INTEGER
+    GENERATED ALWAYS AS (
+        (strftime('%s', 
+            printf('%04d-%02d-%02d %02d:%02d:%02d',
+                updated_y, updated_mo, updated_d, updated_h, updated_mi, updated_s
+            )
+        ))
+    ) VIRTUAL;
+```
+
+For the *hourly mining metrics* tables (e.g. `miner_hashrate`, `pool_hashrate` and `chain_hashrate`), the `updated_mi` and `updated_s` values are set to zero.

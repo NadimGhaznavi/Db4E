@@ -1,0 +1,119 @@
+# db4e/Panes/XMRigRemotePane.py
+#
+# Database 4 Everything
+# Author: Nadim-Daniel Ghaznavi
+# Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+# GitHub: https://github.com/NadimGhaznavi/db4e
+# License: GPL 3.0
+
+
+from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
+from textual.widgets import Label, Button
+
+from db4e.recs.monero.XMRigRemote import XMRigRemote
+from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.util.Helper import minutes_to_uptime
+
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DField import DField
+from db4e.constants.DForm import DForm
+from db4e.constants.DButton import DButtonF, DButtonL
+from db4e.constants.DElem import DElem
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
+
+
+class XMRigRemotePane(Container):
+    """Textual pane for XMRigRemotePane."""
+
+
+    xmrig: XMRigRemote | None = None
+
+    def compose(self):
+        """Compose the pane layout.
+        
+        :return: Yielded child widgets for this pane.
+        :rtype: ComposeResult
+        """
+        intro = f"View information about the [cyan]{DLabel.XMRIG_REMOTE}[/] deployment."
+        yield Vertical(
+            ScrollableContainer(
+                Label(intro, classes=DForm.INTRO),
+                Vertical(
+                    Horizontal(
+                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_20),
+                        Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC),
+                    ),
+                    Horizontal(
+                        Label(DLabel.IP_ADDR, classes=DForm.FORM_LABEL_20),
+                        Label("", id=DForm.IP_ADDR_LABEL, classes=DForm.STATIC),
+                    ),
+                    Horizontal(
+                        Label(DLabel.HASHRATE, classes=DForm.FORM_LABEL_20),
+                        Label("", id=DForm.HASHRATE_LABEL, classes=DForm.STATIC),
+                    ),
+                    Horizontal(
+                        Label(DLabel.UPTIME, classes=DForm.FORM_LABEL_20),
+                        Label("", id=DForm.UPTIME_LABEL, classes=DForm.STATIC),
+                    ),
+                    classes=DForm.FORM_4,
+                    id=DForm.FORM_FIELD,
+                ),
+                Vertical(
+                    Horizontal(
+                        Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
+                        Button(label=DButtonL.SHARES_FOUND, id=DButtonF.SHARES_FOUND),
+                        classes=DForm.BUTTON_ROW,
+                    )
+                ),
+            ),
+            classes=DForm.PANE_BOX,
+        )
+
+    def set_data(self, xmrig: XMRigRemote):
+        """Set the data for the pane.
+        
+        :param xmrig: XMRig deployment object.
+        :type xmrig: XMRigRemote
+        :return: None
+        :rtype: None
+        """
+        self.xmrig = xmrig
+        self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(xmrig.instance())
+        self.query_one(f"#{DForm.IP_ADDR_LABEL}", Label).update(xmrig.ip_addr())
+        self.query_one(f"#{DForm.HASHRATE_LABEL}", Label).update(
+            f"{xmrig.hashrate()} {DLabel.H_PER_S}"
+        )
+        self.query_one(f"#{DForm.UPTIME_LABEL}", Label).update(
+            minutes_to_uptime(xmrig.uptime())
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+        
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
+        if not self.xmrig:
+            return
+
+        button_id = event.button.id
+        button_map = {
+            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
+        }
+
+        if button_id not in button_map:
+            raise ValueError(f"No handler for button {button_id}")
+
+        module, method = button_map[button_id]
+
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+            DField.ELEMENT: self.xmrig,
+        }
+        self.app.post_message(Db4eMsg(self, form_data=form_data))

@@ -1,0 +1,205 @@
+"""
+db4e/Modules/OpsMgr.py
+
+    Database 4 Everything
+    Author: Nadim-Daniel Ghaznavi
+    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+    GitHub: https://github.com/NadimGhaznavi/db4e
+    License: GPL 3.0
+"""
+
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+
+from db4e.db.MiningDb import MiningDb
+from db4e.db.MiningETL import MiningETL
+from db4e.db.DeplDb import DeplDb
+from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.XMRig import XMRig
+from db4e.recs.monero.XMRigRemote import XMRigRemote
+
+from db4e.constants.DElem import DElem
+from db4e.constants.DField import DField
+from db4e.constants.DDef import DDef
+from db4e.constants.DPane import DPane
+
+
+class OpsMgr:
+
+    def __init__(
+        self,
+        depl_db: DeplDb,
+        mining_db: MiningDb,
+        ops_etl: OpsETL,
+    ):
+
+        self.mining_db = mining_db
+        self.mining_etl = MiningETL(self.mining_db)
+        self.ops_etl = ops_etl
+        self.ops_db = ops_db
+
+    ### Get deployments by type...
+
+    def get_monerods(self) -> list:
+        return self.depl_db.get_monerods()
+
+    def get_monerods_remote(self) -> list:
+        return self.depl_db.get_monerods_remote()
+
+    def get_p2pools(self) -> list:
+        return self.depl_db.get_p2pools()
+
+    def get_p2pools_remote(self) -> list:
+        return self.depl_db.get_p2pools_remote()
+
+    def get_int_p2pools(self) -> list:
+        return self.depl_db.get_int_p2pools()
+
+    def get_xmrigs(self) -> list:
+        return self.depl_db.get_xmrigs()
+
+    def get_xmrigs_remote(self) -> list:
+        return self.depl_db.get_xmrigs_remote()
+
+    ### End of get deployments by type...
+
+    def add_deployment(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+        elem = self.depl_client.add_deployment(elem)
+        self.depl_db.check(elem)
+        return elem
+
+    def blocks_found(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+        if type(elem == InternalP2Pool):
+            # elem.blocks_found(self.mining_etl.get_block_found_events(instance=elem.instance()))
+            res = self.mining_etl.get_block_found_events(instance=elem.instance())
+            elem.blocks_found(res)
+            print(f"OpsMgr:blocks_found() {res}")
+
+        return elem
+
+    def get_deployment(self, elem_type, instance=None):
+        if type(elem_type) == dict:
+            instance = elem_type[DField.INSTANCE]
+            elem_type = elem_type[DField.ELEMENT_TYPE]
+
+        elem = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
+
+        if type(elem) == Db4E:
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+            )
+
+        elif type(elem) == P2Pool or type(elem) == InternalP2Pool:
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.MONEROD)
+            )
+            if elem.parent() != DField.DISABLE:
+                elem.monerod = self.db_cache.get_deployment_by_id(elem.parent())
+
+        elif type(elem) == XMRig:
+            elem.instance_map(
+                self.db_cache.get_deployment_ids_and_instances(DElem.P2POOL)
+            )
+            if elem.parent() != DField.DISABLE:
+                elem.p2pool = self.db_cache.get_deployment_by_id(elem.parent())
+
+        elif type(elem) == XMRigRemote:
+            # The Remote XMRig pane displays analytics
+            return self.hashrates(form_data={DField.ELEMENT: elem})
+
+        return elem
+
+    def get_remote_xmrig_timestamp(self, xmrig: XMRigRemote):
+        return self.mining_etl.get_remote_xmrig_timestamp(xmrig.instance())
+
+    def get_runtime_log(self, form_data: dict):
+        return self.ops_etl.get_ops_summary()
+
+    def get_table_data(self, form_data: dict):
+        p2pool = form_data[DField.ELEMENT]
+        return {}
+
+    def get_new(self, form_data: dict):
+        elem = self.depl_client.get_new(form_data[DField.ELEMENT_TYPE])
+        return elem
+
+    def get_payments(self, form_data: dict):
+        return self.mining_etl.get_payments()
+
+    def get_tui_log(self, job_list: list):
+        return self.depl_client.job_queue.get_jobs()
+
+    def get_start_stop_log(self, event_list: list):
+        return self.ops_db.get_ops_events()
+
+    def hashrates(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+
+        if type(elem) == P2Pool:
+            elem.hashrate(self.mining_etl.get_pool_hashrate(instance=elem.instance()))
+            elem.hashrates(self.mining_etl.get_pool_hashrates(instance=elem.instance()))
+
+        if type(elem) == InternalP2Pool:
+            elem.hashrate(self.mining_etl.get_chain_hashrate(instance=elem.instance()))
+            elem.hashrates(
+                self.mining_etl.get_chain_hashrates(instance=elem.instance())
+            )
+
+        elif type(elem) == XMRig:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
+            elem.uptime(self.mining_etl.get_miner_uptime(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+            elem.hashrate(self.mining_etl.get_miner_hashrate(elem.instance()))
+
+        elif type(elem) == XMRigRemote:
+            elem.hashrates(self.mining_etl.get_miner_hashrates(elem.instance()))
+
+        return elem
+
+    def log_viewer(self, form_data: dict):
+        elem_type = form_data[DField.ELEMENT_TYPE]
+        instance = form_data[DField.INSTANCE]
+        elem = self.depl_client.get_deployment(elem_type=elem_type, instance=instance)
+        return elem
+
+    def plot(self, plot_metadata: dict):
+        return plot_metadata
+
+    def shares_found(self, form_data: dict):
+        elem = form_data[DField.ELEMENT]
+
+        if type(elem) == P2Pool:
+            elem.shares_found(
+                self.mining_etl.get_share_found_events(pool=elem.instance())
+            )
+
+        elif type(elem) == XMRigRemote or type(elem) == XMRig:
+            elem.shares_found(
+                self.mining_etl.get_share_found_events(miner=elem.instance())
+            )
+
+        else:
+            raise ValueError(
+                f"OpsMgr:shares_found(): Unsupported element type {type(elem)}"
+            )
+
+        return elem
+
+    def set_donations(self, form_data: dict):
+        return DPane.DONATIONS
+
+    def update_deployment(self, data: dict):
+        print(f"OpsMgr:update_deployment(): {data}")
+
+        elem = data[DField.ELEMENT]
+        self.depl_client.update_deployment(elem)
+        self.depl_db.check(elem)
+        return elem

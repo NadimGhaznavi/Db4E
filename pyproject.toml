@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.14"
 
 # Core runtime dependencies
 pymongo = "^4.13.2"
@@ -29,9 +29,9 @@ PyYAML = "^6.0.2"
 rich = "^14.0.0"
 loguru = "^0.7.3"
 myloginpath = "^0.0.4"
-textual = {extras = ["syntax"], version = "^6.0.0"}
+textual = {extras = ["syntax"], version = "^8.2.0"}
 textual-dev = "^1.7.0"
-textual-plot = "^0.8.0"
+textual-plot = "^0.10.1"
 textual-plotext = "^1.0.1"
 plotext = "^5.3.2"
 requests = "^2.32.3"
@@ -45,14 +45,21 @@ pydantic = "^2.12.2"
 httpx = "^0.28.1"
 pytest-asyncio = "^1.2.0"
 tomli_w = "^1.2.0"
+aiofiles = "^25.1.0"
+sphinxcontrib-applehelp = "^2.0.0"
+sphinxcontrib-devhelp = "^2.0.0"
+sphinxcontrib-htmlhelp = "^2.0.0"
+sphinxcontrib-jsmath = "^1.0.1"
+sphinxcontrib-qthelp = "^2.0.0"
+sphinxcontrib-serializinghtml = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pytest-mock = "^3.14.1"
 
 [tool.poetry.scripts]
-db4e = "db4e.App:main"
-db4e-server = "db4e.server:main"
+db4e = "db4e.Db4EClient:main"
+db4e-server = "db4e.Db4EServer:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

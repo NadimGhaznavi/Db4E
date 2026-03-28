@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## Issues
+- Fix internal links on the Schema page.
+
+## [Unreleased]
+
+### Added
+- Added a `tui_log` table to the `SQLdb:init_db` method and to the `pages/Schema` page.
+- Added a `TUILogMsg` class to encapsulate a TUI log record.
+- Added an `internal_p2pool` table to the `SQLmgr:init_db` method and to the `pages/Schema` page.
+- Added `BaseMonero` and `BaseP2Pool` classes.
+- Added `aiofiles` to `pyproject.toml` to support the migration of `P2PoolWatcher` from a *threaded* to an *asyncio* model.
+  - Updated `poetry.lock` file.
+- Added *sphinx* documentation generator:
+  - Installed pip meta package to generate documentation.
+  - Updated the core `conf.py` to parse code for inline documentation.
+  - Added a *GitHub Pages* workflow to automatically generate documenation when when a new release is cuts.
+- Added timestamp data to the `CurrentUptime` class to enable client/server data syncs.
+- New `APIMgr` class that uses `fastapi` and `uvicorn` to enable client/server communication:
+  - Data syncs between the `client.db` and `server.db`.
+- Implemented a client/server database sync process.
+  - *Db4E* client owns a `client.db`, *Db4E* service owns a `server.db`.
+  - Implemented a sync using `uvicorn` and `fastapi`.
+- Added `initialize()` functions to call `_init_db()` for `OpsDb`, `DeplDb` and `MiningDb`.
+- Added a `status()` function to `BaseP2Pool` class.
+
+### Changed
+- Replaced the `DeplMgr:get_dir()` with `BootstrapMgr` module's `get_dir()` and `get_file()` functions.
+- Changed the `LOG_ROTATE_CONFIG` constant to `LOGROTATE_CONFIG` in the `DDef` and `DField` constants files.
+  - Changed backend `p2pool` and `xmrig` table's `log_rotate_config` to `logrotate_config`
+  - Updated the `__dict__` and `__init__` methods in the `P2Pool` and `XMRig` classes.
+  - Updated the `Components:LogRotateConfig` class.
+- Completed conversion of the `InstallMgr` to use the new `SQLDb` and `BootstrapMgr` modules.
+- Modifed `MessageRouter` and `InstallMgr` to use the *Console Log* pane to show install results.
+- Complete rewrite of the `DeplMgr` module as part of the shift from **Mongo** to **SQLite3**.
+- In `Db4ESystemD`, replaced the Mongo *ops* collection, with inserts of `StartStopRec` into SQLite `start_stop` table.
+- Modified `SQLMgr:init_db()` to add `UNIQUE` constraints to the *hourly* records.
+- Modified `SQLMgr:insert_one()` to handle the *hourly* record tables using the new constraint.
+- Complete re-write of `MiningDb`: Migrated from Mongo `MiningDb` to SQLite `SQLMgr`.
+- Update of `P2PoolWatcher` to match changes in `MiningDb`.
+- Replaced all of the `InitialInstall` messages that were sent to a transient `Results` pane to the *Console Log* pane.
+- Complete rewrite of the `TuiLogPane` parsing logic to reflect the new backend.
+- Refactored `Db4e`, `MoneroD`, `MoneroDRemote`, `P2Pool`, `P2PoolRemote` and `XMRig` classes.
+- Complete rewrite of the `DeplMgr` module to use the new backend.
+- Converted the `P2PoolWatcher` module from a threaded model to an asyncio model.
+  - Also replaced `time.sleep()` with `asyncio.sleep()` and `open()` with `aiofiles.open()`.
+- Upgraded `Textual` from 6.0.0 to 6.4.0.
+- Moved *Mgr* classes into a `mgr` folder. Renamed `MessageRouter` to `RouteMgr`.
+- Remove dependency on ConstGroup.
+
+### Fixed
+- Integration of `BootstrapMgr`, `SQLDb` and `InstallMgr` modules.
+- Set the `id` for the *Introduction* label on the `InitialSetupPane`.
+- `pages/Schema.md`:
+  - Corrected *Internal P2Pool* section header name.
+
+### Removed
+- `DbCache` module.
+- `Job` module. It has been replaced by the `TUILogMsg` class.
+- `TUILogMsg` module. It has replaced by `OpsDb:add_tui_log_line()`.
+
+---
+
 ## [0.48.1] - 2025-10-17
 
 ### Added
