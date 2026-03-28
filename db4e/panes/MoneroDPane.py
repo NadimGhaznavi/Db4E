@@ -10,7 +10,7 @@
 from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
 from textual.widgets import Label, Input, Button, Checkbox
 
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.util.Helper import gen_results_table
 from db4e.constants.DField import DField
@@ -30,10 +30,9 @@ hi = "#d7e556"
 class MoneroDPane(Container):
     """Textual pane for MoneroDPane."""
 
-
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -202,7 +201,7 @@ class MoneroDPane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -213,7 +212,7 @@ class MoneroDPane(Container):
 
     def set_data(self, monerod: MoneroD):
         """Set the data for the pane.
-        
+
         :param monerod: MoneroD deployment object.
         :type monerod: MoneroD
         :return: None
@@ -306,7 +305,7 @@ class MoneroDPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None

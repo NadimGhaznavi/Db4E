@@ -13,7 +13,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.reactive import reactive
 
 
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 
 
 from db4e.recs.monero.Db4E import Db4E
@@ -34,14 +34,13 @@ hi = "cyan"
 class Db4EPane(Container):
     """Textual pane for Db4EPane."""
 
-
     instance_map = {}
     radio_button_list = reactive([], always_update=True)
     db4e = None
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -101,7 +100,7 @@ class Db4EPane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -113,7 +112,7 @@ class Db4EPane(Container):
 
     def set_data(self, db4e: Db4E):
         """Set the data for the pane.
-        
+
         :param db4e: Db4E deployment object.
         :type db4e: Db4E
         :return: None
@@ -164,7 +163,7 @@ class Db4EPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None
@@ -208,7 +207,7 @@ class Db4EPane(Container):
 
     def watch_radio_button_list(self, old, new):
         """React to changes in radio button list.
-        
+
         :param old: Previous value.
         :type old: list
         :param new: New value.

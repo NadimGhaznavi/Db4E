@@ -13,7 +13,7 @@ from textual.widgets import Label, Input, Button, RadioSet, RadioButton
 
 from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.XMRig import XMRig
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
@@ -26,14 +26,13 @@ from db4e.constants.DForm import DForm
 class XMRigPane(Container):
     """Textual pane for XMRigPane."""
 
-
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
     xmrig = None
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -99,7 +98,7 @@ class XMRigPane(Container):
 
     def get_p2pool_id(self, instance=None):
         """Resolve the selected P2Pool ID.
-        
+
         :param instance: Instance name.
         :type instance: str
         :return: P2Pool (id, remote_flag) tuple or False.
@@ -111,7 +110,7 @@ class XMRigPane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -121,7 +120,7 @@ class XMRigPane(Container):
 
     def set_data(self, xmrig: XMRig):
         """Set the data for the pane.
-        
+
         :param xmrig: XMRig deployment object.
         :type xmrig: XMRig
         :return: None
@@ -178,7 +177,7 @@ class XMRigPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None
@@ -226,7 +225,7 @@ class XMRigPane(Container):
 
     def watch_radio_button_list(self, old, new):
         """React to changes in radio button list.
-        
+
         :param old: Previous value.
         :type old: list
         :param new: New value.

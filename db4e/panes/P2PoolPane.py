@@ -11,7 +11,7 @@ from textual.containers import Container, ScrollableContainer, Vertical, Horizon
 from textual.widgets import Label, Input, Button, RadioButton, RadioSet
 from textual.reactive import reactive
 
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.util.Helper import gen_results_table
@@ -27,14 +27,13 @@ from db4e.constants.DForm import DForm
 class P2PoolPane(Container):
     """Textual pane for P2PoolPane."""
 
-
     radio_button_list = reactive([], always_update=True)
     instance_map = {}
     p2pool = None
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -131,7 +130,7 @@ class P2PoolPane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -146,7 +145,7 @@ class P2PoolPane(Container):
 
     def set_data(self, p2pool: P2Pool):
         """Set the data for the pane.
-        
+
         :param p2pool: P2Pool deployment object.
         :type p2pool: P2Pool
         :return: None
@@ -210,7 +209,7 @@ class P2PoolPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None
@@ -284,7 +283,7 @@ class P2PoolPane(Container):
 
     def watch_radio_button_list(self, old, new):
         """React to changes in radio button list.
-        
+
         :param old: Previous value.
         :type old: list
         :param new: New value.

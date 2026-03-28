@@ -13,7 +13,7 @@ from textual.widgets import Label, Button
 from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DJob import DJob

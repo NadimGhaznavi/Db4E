@@ -10,7 +10,7 @@
 from textual.containers import Container, Vertical, Horizontal, ScrollableContainer
 from textual.widgets import Label, Button, Input
 
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.util.Helper import gen_results_table
 from db4e.constants.DField import DField
@@ -27,7 +27,7 @@ class MoneroDRemotePane(Container):
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -93,7 +93,7 @@ class MoneroDRemotePane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -104,7 +104,7 @@ class MoneroDRemotePane(Container):
 
     def set_data(self, monerod: MoneroDRemote):
         """Set the data for the pane.
-        
+
         :param monerod: MoneroD deployment object.
         :type monerod: MoneroDRemote
         :return: None
@@ -150,7 +150,7 @@ class MoneroDRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None

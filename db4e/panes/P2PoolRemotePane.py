@@ -11,7 +11,7 @@ from textual.widgets import Label, Button, Input
 
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.util.Helper import gen_results_table
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem
@@ -24,12 +24,11 @@ from db4e.constants.DForm import DForm
 class P2PoolRemotePane(Container):
     """Textual pane for P2PoolRemotePane."""
 
-
     p2pool: P2PoolRemote = None
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -85,7 +84,7 @@ class P2PoolRemotePane(Container):
 
     def on_mount(self):
         """Handle the mount lifecycle event.
-        
+
         :return: None
         :rtype: None
         """
@@ -94,7 +93,7 @@ class P2PoolRemotePane(Container):
 
     def set_data(self, p2pool: P2PoolRemote):
         """Set the data for the pane.
-        
+
         :param p2pool: P2Pool deployment object.
         :type p2pool: P2PoolRemote
         :return: None
@@ -135,7 +134,7 @@ class P2PoolRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None

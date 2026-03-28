@@ -11,7 +11,7 @@ from textual.containers import Container, Vertical, Horizontal, ScrollableContai
 from textual.widgets import Label, Button
 
 from db4e.recs.monero.XMRigRemote import XMRigRemote
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.util.Helper import minutes_to_uptime
 
 from db4e.constants.DLabel import DLabel
@@ -26,12 +26,11 @@ from db4e.constants.DMethod import DMethod
 class XMRigRemotePane(Container):
     """Textual pane for XMRigRemotePane."""
 
-
     xmrig: XMRigRemote | None = None
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -72,7 +71,7 @@ class XMRigRemotePane(Container):
 
     def set_data(self, xmrig: XMRigRemote):
         """Set the data for the pane.
-        
+
         :param xmrig: XMRig deployment object.
         :type xmrig: XMRigRemote
         :return: None
@@ -90,7 +89,7 @@ class XMRigRemotePane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None

@@ -11,7 +11,7 @@ from textual.widgets import Label, Input, Button
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 
 from db4e.recs.monero.Db4E import Db4E
-from db4e.messages.Db4EMsg import Db4eMsg
+from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.Quit import Quit
 
@@ -32,12 +32,11 @@ hi = "cyan"
 class InitialSetupPane(Container):
     """Textual pane for InitialSetupPane."""
 
-
     rec = {}
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -91,7 +90,7 @@ class InitialSetupPane(Container):
 
     def set_data(self, db4e: Db4E):
         """Set the data for the pane.
-        
+
         :param db4e: Db4E deployment object.
         :type db4e: Db4E
         :return: None
@@ -118,7 +117,7 @@ class InitialSetupPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None
