@@ -22,6 +22,8 @@ from db4e.constants.DSQL import DCol
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DField import DField
 
+from db4e.recs.ops.TUILogLine import TUILogLine
+
 
 TYPE_TABLE = {
     DElem.DB4E: DLabel.DB4E,
@@ -74,31 +76,50 @@ class TUILogPane(Static):
         table.add_column(DLabel.MESSAGE)
         table.add_column(DLabel.DETAILS)
         for log_line in log_lines:
-            year = log_line[DField.UPDATED_Y]
-            month = log_line[DField.UPDATED_MO]
-            day = log_line[DField.UPDATED_D]
-            hour = log_line[DField.UPDATED_H]
-            minute = log_line[DField.UPDATED_MI]
-            second = log_line[DField.UPDATED_S]
+
+            # Handle dict log_line messages
+            if isinstance(log_line, dict):
+                year = log_line[DField.UPDATED_Y]
+                month = log_line[DField.UPDATED_MO]
+                day = log_line[DField.UPDATED_D]
+                hour = log_line[DField.UPDATED_H]
+                minute = log_line[DField.UPDATED_MI]
+                second = log_line[DField.UPDATED_S]
+                status = log_line[DField.STATUS].upper()
+                operation = log_line[DField.OPERATION].capitalize()
+                tracked_type = log_line.get(DCol.TRACKED_TYPE, "")
+                instance = log_line.get(DCol.TRACKED_INSTANCE) or ""
+                message = log_line.get(DField.MESSAGE) or ""
+                details = log_line.get(DField.DETAILS) or ""
+
+            # Handle TUILogLine messages
+            elif isinstance(log_line, TUILogLine):
+                year = log_line.updated_year()
+                month = log_line.updated_month()
+                day = log_line.updated_day()
+                hour = log_line.updated_hour()
+                minute = log_line.updated_minute()
+                second = log_line.updated_second()
+                status = log_line.status().upper()
+                operation = log_line.operation()
+                tracked_type = log_line.tracked_type() or ""
+                instance = log_line.tracked_instance() or ""
+                message = log_line.message() or ""
+                details = log_line.details() or ""
 
             date = f"{year}-{month:02d}-{day:02d}"
             time = f"{hour:02d}:{minute:02d}:{second:02d}"
-            status = log_line[DField.STATUS].upper()
             if status == DStatus.GOOD.upper():
                 status = f"[b green]{status}[/]"
             elif status == DStatus.WARN.upper():
                 status = f"[b yellow]{status}[/]"
             elif status == DStatus.ERROR.upper():
                 status = f"[b red]{status}[/]"
-            operation = log_line[DField.OPERATION].capitalize()
-            tracked_type = log_line.get(DCol.TRACKED_TYPE, "")
+
             if tracked_type:
                 elem = TYPE_TABLE[tracked_type]
             else:
                 elem = ""
-            instance = log_line.get(DCol.TRACKED_INSTANCE) or ""
-            message = log_line.get(DField.MESSAGE) or ""
-            details = log_line.get(DField.DETAILS) or ""
 
             table.add_row(
                 f"[b]{date}[/] [b green]{time}[/]",
