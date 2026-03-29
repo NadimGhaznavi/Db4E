@@ -115,9 +115,9 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_data = event.node.data
             parent_data = event.node.parent.data
-            print(
-                f"NavPane:on_tree_node_selected(): leaf_item ({leaf_data}), parent_item ({parent_data})"
-            )
+            # print(
+            #    f"NavPane:on_tree_node_selected(): leaf_data ({leaf_data}), parent_data ({parent_data})"
+            # )
 
             # Initial Setup
             if leaf_data == DLabel.INITIAL_SETUP:
@@ -357,6 +357,7 @@ class NavPane(Container):
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: leaf_data,
                     }
+            print(f"Posting message with form_data: {form_data}")
             self.post_message(Db4EMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:
