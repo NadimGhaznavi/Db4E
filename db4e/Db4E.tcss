@@ -4,9 +4,23 @@ Screen {
     background: black;
     layout: grid;
     grid-size: 2;
-    grid-columns: 2fr 7fr;
-    grid-rows: 13fr 1fr;
+    grid-columns: 30 110;
+    grid-rows: 40 3;
     grid-gutter: 0 1; }
+
+NavPane {
+    padding: 0 2;
+    width: 30;
+    border: round #0c323e;
+    background: black; }
+
+TopBar {
+    height: 3;
+    width: 140;
+    padding: 0 2;
+    border: round #0c323e;
+    dock: top;
+    background: black }
 
 Clock {
     height: 3;
@@ -31,24 +45,11 @@ PlotWidget {
     background: black;
 }
 
-NavPane {
-    height: 9fr;
-    padding: 0 2;
-    border: round #0c323e;
-    background: black; }
-
 RadioButton {
     color: #31b8e6; }
 
 Select {
     width: 20; }
-
-TopBar {
-    height: 3;
-    padding: 0 2;
-    border: round #0c323e;
-    dock: top;
-    background: black }
 
 MarkdownViewer {
     background: black; }
