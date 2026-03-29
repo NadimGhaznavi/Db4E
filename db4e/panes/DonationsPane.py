@@ -37,12 +37,14 @@ class DonationsPane(Container):
             ScrollableContainer(
                 Label(INTRO, classes="form_intro"),
                 Vertical(
-                    Label(
-                        f"[cyan]{DLabel.DB4E_LONG}[/] project Monero donation wallet:"
-                    ),
+                    Label(f"[cyan]{DLabel.DB4E_LONG}[/] Monero wallet:"),
                     Label(f"[{hi}]{DDef.DONATION_WALLET}[/]"),
                     Label(),
-                    Label("Coming Soon: 🚧 [cyan]Paypal[/] 🚧", classes=DForm.PANE_BOX),
+                    Label(f"[cyan]PayPal[/] account:"),
+                    Label(f"[{hi}]{DDef.PAYPAL_DONATIONS}"),
+                    Label(),
+                    Label(f"eTransfer:"),
+                    Label(f"[{hi}]{DDef.EMAIL}"),
                     classes=DForm.INFO_MSG,
                 ),
             ),

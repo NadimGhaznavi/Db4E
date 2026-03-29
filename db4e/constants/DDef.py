@@ -45,6 +45,7 @@ class DDef:
     DONATION_WALLET: Final[str] = (
         "48aTDJfRH2JLcKW2fz4m9HJeLLVK5rMo1bKiNHFc43Ht2e2kPVh2tmk3Md7npz1WsSU7bpgtX2Xnf59RHCLUEaHfQHwao4j"
     )
+    EMAIL: Final[str] = "nghaznavi@gmail.com"
     GZIP_SUFFIX: Final[str] = ".gz"
     IN_PEERS: Final[int] = 16
     INI_SUFFIX: Final[str] = ".ini"
@@ -87,6 +88,7 @@ class DDef:
     P2POOL_START_SCRIPT: Final[str] = "start-p2pool.sh"
     P2POOL_STDIN_PIPE: Final[str] = "p2pool.stdin"
     P2POOL_VERSION: Final[str] = "4.11"
+    PAYPAL_DONATIONS: Final[str] = "paypal.me/NadimG"
     PRIORITY_NODE_1: Final[str] = "p2pmd.xmrvsbeast.com"
     PRIORITY_NODE_2: Final[str] = "nodes.hashvault.pro"
     PYPI_REPO: Final[str] = "https://pypi.org/pypi/db4e/json"
