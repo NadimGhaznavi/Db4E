@@ -67,7 +67,7 @@ class TUILogPane(Static):
             style="#0c323e",
             box=box.SIMPLE,
         )
-        print(log_lines)
+        # print(log_lines)
         table.add_column(DLabel.TIMESTAMP)
         table.add_column(DLabel.STATUS)
         table.add_column(DLabel.OPERATION)

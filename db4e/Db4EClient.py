@@ -135,7 +135,7 @@ class Db4EClient(App):
     # Every form sends the form data here
     @work(exclusive=True)
     async def on_db4emsg(self, message: Db4EMsg) -> None:
-        print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
+        # print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = await self.msg_router.dispatch(
             message.form_data[DField.TO_MODULE],
             message.form_data[DField.TO_METHOD],

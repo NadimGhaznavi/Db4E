@@ -391,7 +391,7 @@ class RouteMgr:
         :return: Tuple of (result, pane).
         :rtype: tuple[object, str]
         """
-        print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
+        # print(f"MessageRouter:dispatch(): {some_module}:{some_method}({payload})")
         elem_type = payload.get(DField.ELEMENT_TYPE, "")
         handler = self.get_handler(some_module, some_method, elem_type)
         if not handler:
