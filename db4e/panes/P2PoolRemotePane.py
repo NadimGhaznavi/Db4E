@@ -167,4 +167,4 @@ class P2PoolRemotePane(Container):
             DField.ELEMENT: self.p2pool,
         }
 
-        self.app.post_message(Db4eMsg(self, form_data=form_data))
+        self.app.post_message(Db4EMsg(self, form_data=form_data))

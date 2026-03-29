@@ -21,10 +21,9 @@ hi = "#d7e556"
 class DonationsPane(Container):
     """Textual pane for DonationsPane."""
 
-
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -52,11 +51,11 @@ class DonationsPane(Container):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
-        
+
         :param event: Event payload.
         :type event: Button.Pressed
         :return: None
         :rtype: None
         """
         pass
-        # self.app.post_message(Db4eMsg(self, form_data=form_data))
+        # self.app.post_message(Db4EMsg(self, form_data=form_data))

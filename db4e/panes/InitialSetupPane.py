@@ -139,6 +139,6 @@ class InitialSetupPane(Container):
                 DField.ELEMENT: self.db4e,
             }
             self.app.post_message(RefreshNavPane(self))
-            self.app.post_message(Db4eMsg(self, form_data))
+            self.app.post_message(Db4EMsg(self, form_data))
         elif button_id == DButtonF.ABORT:
             self.app.post_message(Quit(self))
