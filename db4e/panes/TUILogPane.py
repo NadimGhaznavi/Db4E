@@ -20,6 +20,7 @@ from db4e.constants.DForm import DForm
 from db4e.constants.DDef import DDef
 from db4e.constants.DSQL import DCol
 from db4e.constants.DStatus import DStatus
+from db4e.constants.DField import DField
 
 
 TYPE_TABLE = {
@@ -36,13 +37,12 @@ TYPE_TABLE = {
 class TUILogPane(Static):
     """Textual pane for TUILogPane."""
 
-
     log_lines = reactive([], always_update=True)
     max_lines = DDef.MAX_LOG_LINES
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -52,7 +52,7 @@ class TUILogPane(Static):
 
     def set_data(self, log_lines: list):
         """Set the data for the pane.
-        
+
         :param log_lines: Log line list.
         :type log_lines: list
         :return: None
@@ -65,6 +65,7 @@ class TUILogPane(Static):
             style="#0c323e",
             box=box.SIMPLE,
         )
+        print(log_lines)
         table.add_column(DLabel.TIMESTAMP)
         table.add_column(DLabel.STATUS)
         table.add_column(DLabel.OPERATION)
@@ -73,27 +74,31 @@ class TUILogPane(Static):
         table.add_column(DLabel.MESSAGE)
         table.add_column(DLabel.DETAILS)
         for log_line in log_lines:
-            year = log_line.updated_year()
-            month = log_line.updated_month()
-            day = log_line.updated_day()
-            hour = log_line.updated_hour()
-            minute = log_line.updated_minute()
-            second = log_line.updated_second()
+            year = log_line[DField.UPDATED_Y]
+            month = log_line[DField.UPDATED_MO]
+            day = log_line[DField.UPDATED_D]
+            hour = log_line[DField.UPDATED_H]
+            minute = log_line[DField.UPDATED_MI]
+            second = log_line[DField.UPDATED_S]
 
             date = f"{year}-{month:02d}-{day:02d}"
             time = f"{hour:02d}:{minute:02d}:{second:02d}"
-            status = log_line.status().upper()
+            status = log_line[DField.STATUS].upper()
             if status == DStatus.GOOD.upper():
                 status = f"[b green]{status}[/]"
             elif status == DStatus.WARN.upper():
                 status = f"[b yellow]{status}[/]"
             elif status == DStatus.ERROR.upper():
                 status = f"[b red]{status}[/]"
-            operation = log_line.operation().capitalize()
-            elem = TYPE_TABLE[log_line.tracked_type()]
-            instance = log_line.tracked_instance()
-            message = log_line.message()
-            details = log_line.details() or ""
+            operation = log_line[DField.OPERATION].capitalize()
+            tracked_type = log_line.get(DCol.TRACKED_TYPE, "")
+            if tracked_type:
+                elem = TYPE_TABLE[tracked_type]
+            else:
+                elem = ""
+            instance = log_line.get(DCol.TRACKED_INSTANCE) or ""
+            message = log_line.get(DField.MESSAGE) or ""
+            details = log_line.get(DField.DETAILS) or ""
 
             table.add_row(
                 f"[b]{date}[/] [b green]{time}[/]",
