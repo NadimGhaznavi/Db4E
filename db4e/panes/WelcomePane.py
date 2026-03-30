@@ -21,10 +21,9 @@ color = "#31b8e6"
 class WelcomePane(Container):
     """Textual pane for WelcomePane."""
 
-
     def compose(self) -> ComposeResult:
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -45,12 +44,12 @@ class WelcomePane(Container):
             "[#31b8e6]Simply `pip install db4e` to get started[/]",
         )
         highlights.add_row(
-            "🛠️",
+            "👨",
             "[#31b8e6]Deployment Manager[/]",
             "[#31b8e6]Smooth vendor directory handling and update workflows.[/]",
         )
         highlights.add_row(
-            "🖥️",
+            "📺",
             "[#31b8e6]Textual TUI[/]",
             "[#31b8e6]Fully integrated Textual-based TUI with interactive forms.[/]",
         )
@@ -121,7 +120,7 @@ class WelcomePane(Container):
             "[#31b8e6]Full unit + integration testing suite and CI/CD integration.[/]",
         )
         coming.add_row(
-            "🕵️",
+            "✨",
             "[#31b8e6]Community[/]",
             "[#31b8e6]Community building and open contributions — feedback welcomed![/]",
         )

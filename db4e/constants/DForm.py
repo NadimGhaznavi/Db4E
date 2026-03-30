@@ -52,6 +52,7 @@ class DForm:
     HEADER: Final[str] = "header"
     HEALTH_BOX: Final[str] = "health_box"
     INSTALL_DIR_LABEL: Final[str] = "install_dir_label"
+    LOG_HEADER: Final[str] = "log_header"
     LOG_LEVEL_INPUT: Final[str] = "log_level_input"
     LOG_LEVEL_LABEL: Final[str] = "log_level_label"
     LOG_WIDGET: Final[str] = "log_widget"

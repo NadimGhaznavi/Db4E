@@ -16,7 +16,7 @@ NavPane {
 
 TopBar {
     height: 3;
-    width: 140;
+    width: 141;
     padding: 0 2;
     border: round #0c323e;
     dock: top;

@@ -44,7 +44,7 @@ SETUP = "SETUP"
 XMR = "XMR"
 
 ICON = {
-    CHAIN: "⛓️",
+    CHAIN: "🧵",
     CORE: "📡",
     DEPL: "💻",
     GIFT: "🎉",
@@ -54,8 +54,9 @@ ICON = {
     NEW: "🔧",
     P2P: "🌊",
     SETUP: "⚙️",
-    XMR: "⛏️ ",
+    XMR: "🔍",
 }
+#    XMR: "⛏️",
 
 STATE_ICON = {
     DStatus.GOOD: "🟢",
@@ -112,6 +113,7 @@ class NavPane(Container):
 
     @work(exclusive=True)
     async def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
+        form_data = {}
         if not event.node.children and event.node.parent:
             leaf_data = event.node.data
             parent_data = event.node.parent.data

@@ -7,12 +7,15 @@
 #    License: GPL 3.0
 
 
-from rich import box
-from rich.table import Table
-
+from textual.app import Widget
 from textual.reactive import reactive
-from textual.widgets import Static
-from textual.containers import ScrollableContainer, Vertical
+from textual.widgets import RichLog, Label
+from textual.containers import (
+    Container,
+    ScrollableContainer,
+    Vertical,
+    HorizontalScroll,
+)
 
 from db4e.constants.DElem import DElem
 from db4e.constants.DLabel import DLabel
@@ -30,13 +33,13 @@ TYPE_TABLE = {
     DElem.MONEROD: DLabel.MONEROD_SHORT,
     DElem.MONEROD_REMOTE: DLabel.MONEROD_REMOTE_SHORT,
     DElem.P2POOL: DLabel.P2POOL_SHORT,
-    DElem.P2POOL_INTERNAL: DLabel.P2POOL_INTERNAL_SHORT,
+    DElem.P2POOL_INTERNAL: DLabel.P2POOL_INT,
     DElem.P2POOL_REMOTE: DLabel.P2POOL_REMOTE_SHORT,
     DElem.XMRIG: DLabel.XMRIG_SHORT,
 }
 
 
-class TUILogPane(Static):
+class TUILogPane(Container):
     """Textual pane for TUILogPane."""
 
     log_lines = reactive([], always_update=True)
@@ -49,7 +52,8 @@ class TUILogPane(Static):
         :rtype: ComposeResult
         """
         yield Vertical(
-            ScrollableContainer(Static(id=DForm.LOG_WIDGET)), classes=DForm.PANE_BOX
+            RichLog(highlight=True, markup=True, id=DForm.LOG_WIDGET),
+            classes=DForm.PANE_BOX,
         )
 
     def set_data(self, log_lines: list):
@@ -61,20 +65,26 @@ class TUILogPane(Static):
         :rtype: None
         """
         # self.log_widget.clear()
-        table = Table(
-            show_header=True,
-            header_style="bold #31b8e6",
-            style="#0c323e",
-            box=box.SIMPLE,
+        log_widget = self.query_one(f"#{DForm.LOG_WIDGET}", RichLog)
+
+        log_widget.write(
+            f"[b cyan]{DLabel.DATE:<10s}  {DLabel.TIME:<8s}[/]  "
+            f"[b cyan]{DLabel.STATUS:<10s}[/]  "
+            f"[b cyan]{DLabel.OP:<7s}[/]  "
+            f"[b cyan]{DLabel.TYPE:<13s}[/]  "
+            f"[b cyan]{DLabel.INSTANCE:<18s}[/]  "
+            f"[b cyan]{DLabel.MESSAGE:<20s}[/]  "
+            f"[b cyan]{DLabel.DETAILS:<20s}[/]  "
         )
-        # print(log_lines)
-        table.add_column(DLabel.TIMESTAMP)
-        table.add_column(DLabel.STATUS)
-        table.add_column(DLabel.OPERATION)
-        table.add_column(DLabel.TYPE)
-        table.add_column(DLabel.INSTANCE)
-        table.add_column(DLabel.MESSAGE)
-        table.add_column(DLabel.DETAILS)
+        log_widget.write(
+            f"[b cyan]━━━━━━━━━━  ━━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━━━━━━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━━━━━━━━━━━━━━  [/]"
+            f"[b cyan]━━━━━━━━━━━━━━━━━━━━  [/]"
+        )
         for log_line in log_lines:
 
             # Handle dict log_line messages
@@ -101,7 +111,7 @@ class TUILogPane(Static):
                 minute = log_line.updated_minute()
                 second = log_line.updated_second()
                 status = log_line.status().upper()
-                operation = log_line.operation()
+                operation = log_line.operation().capitalize()
                 tracked_type = log_line.tracked_type() or ""
                 instance = log_line.tracked_instance() or ""
                 message = log_line.message() or ""
@@ -121,14 +131,12 @@ class TUILogPane(Static):
             else:
                 elem = ""
 
-            table.add_row(
-                f"[b]{date}[/] [b green]{time}[/]",
-                status,
-                f"[b]{operation}[/]",
-                elem,
-                f"[yellow]{instance}[/]",
-                message,
-                f"[b]{details}[/]",
+            log_widget.write(
+                f"{date:>10s}  {time:>8s}  "
+                f"{status:<10s}  "
+                f"[b #b48c1e]{operation:<7s}  [/]"
+                f"[#6fbc53]{elem:<13}  [/]"
+                f"[b #6fbc53]{instance:<18s}  [/]"
+                f"[b #bababa]{message:<20s}  [/]"
+                f"[#bababa]{details:<20s}  [/]"
             )
-
-        self.query_one(f"#{DForm.LOG_WIDGET}", Static).update(table)

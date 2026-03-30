@@ -146,7 +146,7 @@ class InstallMgr(Container):
             tracked_type=DElem.DB4E,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="New deployment",
+            message="New Deployment",
         )
 
         # Create base vendor directories
@@ -158,7 +158,7 @@ class InstallMgr(Container):
                 tracked_type=DElem.DB4E,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Created directory",
+                message="Create Directory",
                 details=f"{vendor_dir}/{aDir}",
             )
 
@@ -282,7 +282,7 @@ class InstallMgr(Container):
             DCol.TRACKED_TYPE: DElem.DB4E,
             DCol.OPERATION: DField.NEW,
             DCol.STATUS: DStatus.COMPLETE,
-            DCol.MESSAGE: "Set the user wallet",
+            DCol.MESSAGE: "Set User Wallet",
             DCol.DETAILS: f"{db4e.user_wallet()[:7]}...",
         }
         log_line = self._add_timestamp(log_line)
@@ -358,7 +358,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.DB4E,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed script",
+            message="Install Script",
             details=fq_dest_script,
         )
         return results
@@ -391,7 +391,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.MONEROD,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed program",
+            message="Install Program",
             details=f"{fq_dst_bin_dir}/{DDef.MONEROD_PROCESS}",
         )
         fq_src_monerod_start_script = os.path.join(
@@ -409,7 +409,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.MONEROD,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed script",
+            message="Install Script",
             details=f"{fq_dst_monerod_dest_script}",
         )
         return db4e
@@ -443,7 +443,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.P2POOL,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed program",
+            message="Install Program",
             details=f"{fq_dst_bin_dir}/{DDef.P2POOL_PROCESS}",
         )
         shutil.copy(fq_src_p2pool_start_script, fq_dst_p2pool_start_script)
@@ -458,7 +458,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.P2POOL,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed script",
+            message="Install Script",
             details=f"{fq_dst_p2pool_start_script}",
         )
         return db4e
@@ -484,7 +484,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.XMRIG,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Installed program",
+            message="Install Program",
             details=f"{fq_dst_xmrig_bin_dir}/{xmrig_binary}",
         )
         return db4e
@@ -507,7 +507,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.DB4E,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Created directory",
+            message="Create Directory",
             details=fq_db4e_dir,
         )
         # Create the sub-directories
@@ -518,7 +518,7 @@ class InstallMgr(Container):
                 tracked_instance=DLabel.DB4E,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Created directory",
+                message="Create Directory",
                 details=f"{fq_db4e_dir}/{sub_dir}",
             )
         return db4e
@@ -542,7 +542,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.MONEROD,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Created directory",
+            message="Create Directory",
             details=fq_monerod_dir,
         )
 
@@ -555,7 +555,7 @@ class InstallMgr(Container):
                 tracked_instance=DLabel.MONEROD,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Created directory",
+                message="Create Directory",
                 details=fq_sub_dir,
             )
         return db4e
@@ -579,7 +579,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.P2POOL,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Created directory",
+            message="Create Directory",
             details=fq_p2pool_dir,
         )
 
@@ -592,7 +592,7 @@ class InstallMgr(Container):
                 tracked_instance=DLabel.P2POOL,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Created directory",
+                message="Create Directory",
                 details=fq_sub_dir,
             )
         return db4e
@@ -659,7 +659,7 @@ class InstallMgr(Container):
                 DCol.TRACKED_TYPE: DElem.DB4E,
                 DCol.OPERATION: DField.NEW,
                 DCol.STATUS: DStatus.COMPLETE,
-                DCol.MESSAGE: "Created vendor directory",
+                DCol.MESSAGE: "Create Directory",
                 DCol.DETAILS: vendor_dir,
             }
             log_line = self._add_timestamp(log_line)
@@ -697,7 +697,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.XMRIG,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Created directory",
+            message="Create Directory",
             details=fq_xmrig_dir,
         )
         for sub_dir in [DDef.BIN_DIR, DDef.CONF_DIR, DDef.LOG_DIR]:
@@ -708,7 +708,7 @@ class InstallMgr(Container):
                 tracked_instance=DLabel.XMRIG,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Created directory",
+                message="Create Directory",
                 details=fq_sub_dir,
             )
         return db4e
@@ -757,7 +757,7 @@ class InstallMgr(Container):
                 tracked_instance=f"{chain_label} Sidechain",
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="New deployment",
+                message="New Deployment",
             )
 
             # Create a logrotate config file for the P2Pool log
@@ -806,7 +806,7 @@ class InstallMgr(Container):
             tracked_instance=DLabel.DB4E,
             operation=DField.NEW,
             status=DStatus.COMPLETE,
-            message="Created logrotate config",
+            message="Create Config",
             details=fq_config,
         )
         return db4e
