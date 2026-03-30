@@ -63,10 +63,16 @@ class Db4ELogger:
 
         # Optional file handler
         if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(debug_log_level)
-            fh.setFormatter(formatter)
-            self._logger.addHandler(fh)
+            has_file = any(
+                isinstance(h, logging.FileHandler)
+                and getattr(h, "baseFilename", None) == log_file
+                for h in self._logger.handlers
+            )
+            if not has_file:
+                fh = logging.FileHandler(log_file)
+                fh.setLevel(debug_log_level)
+                fh.setFormatter(formatter)
+                self._logger.addHandler(fh)
 
         # Optional DB handler
         if db:
