@@ -10,15 +10,16 @@ This page details the backend SQLite Table structure used by Db4e. It's broken d
 
 # Tables
 
-*Db4E* leans hard into SQLite3 to persist various kinds of information. These can be classified into three basic types:
+*Db4E* leans hard into SQLite3 to persist various kinds of information. These can be classified into four basic types:
 
-Type        | Description
-------------|------------------
-Deployments | Information that describles the configuration of deployed components.
-Operations  | Information about the start/stop times and runtimes of the deployed components.
-Mining      | Information about mining such as hashrates, share found and block found events.
+Type          | Description
+--------------|------------------
+Deployments   | Information that describles the configuration of deployed components.
+Operations    | Information about the start/stop times and runtimes of the deployed components.
+Mining        | Information about mining such as hashrates, share found and block found events.
+Health Checks | Information about the health of the deployed components.
 
-The rest of this document is dedicated to a detailed description of the specific SQLite tables.
+The rest of this document is dedicated to a detailed description of the specific SQLite tables and other database elements.
 
 - [Deployment Tables](#deployment_tables)
   - [Db4E Table](#db4e_table)
@@ -45,6 +46,11 @@ The rest of this document is dedicated to a detailed description of the specific
   - [Share Position Table](#shares_position_table)
   - [XMR Payments Table](#xmr_payments_table)
 
+- [Health Check Table](#health_check_table)
+
+- [Indexes and Constraints](#indexes_and_constraints)
+
+- [Generated Columns](#generated_columns)
 
 ---
 
@@ -553,6 +559,30 @@ id                | INTEGER   | The *primary key* for the table.
 pool              | TEXT      | The `instance` name of the local `P2Pool`
 chain             | TEXT      | The `chain` name: `mainchain`, `minisidechain`, `nanosidechain`.
 piconero          | INTEGER   | XMR in piconeros
+updated_y         | INTEGER   | The year the record was updated
+updated_mo        | INTEGER   | The month the record was updated
+updated_d         | INTEGER   | The day the record was updated
+updated_h         | INTEGER   | The hour the record was updated
+updated_mi        | INTEGER   | The minute the record was updated
+updated_s         | INTEGER   | The second the record was updated
+
+---
+
+# Health Check Table
+
+This table contains information about the health of the deployed Db4E components. A component,
+(e.g. a *P2Pool instance*) will have several elements that are being monitored.
+
+- Table name: `health_msgs`
+
+Column            | Data Type | Description
+------------------|-----------|-------------------------
+id                | INTEGER   | The *primary key* for the table.
+instance          | TEXT      | The `instance` name of the deployed component
+elem_type         | TEXT      | The *deployed type* e.g. `monerod`, `remote_p2pool` etc.
+category          | TEXT      | The element being reported on (e.g. a directory, a service)
+status            | TEXT      | The status (GOOD, BAD, UNKNOWN) of the element being monitored
+message           | TEXT      | A human readable decription of the elements state
 updated_y         | INTEGER   | The year the record was updated
 updated_mo        | INTEGER   | The month the record was updated
 updated_d         | INTEGER   | The day the record was updated
