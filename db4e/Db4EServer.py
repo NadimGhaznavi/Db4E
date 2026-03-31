@@ -27,6 +27,7 @@ except Exception:
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
 from db4e.mgr.APIMgr import APIMgr
+from db4e.mgr.HealthMgr import HealthMgr
 
 from db4e.sync.SyncServer import init_sync_server
 
@@ -46,7 +47,7 @@ from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
-
+from db4e.db.HealthDb import HealthDb
 
 from db4e.constants.DDebug import DDebug
 from db4e.constants.DDef import DDef
@@ -108,6 +109,14 @@ class Db4eServer:
             sql_db=self.sql_db,
         )
 
+        # Health DB module
+        self.health_db = HealthDb(
+            sql_db=self.sql_db,
+            log_file=fq_log_file,
+        )
+        # Health manager
+        self.health_mgr = HealthMgr(health_db=self.health_db, log_file=fq_log_file)
+
         #  systemd wrapper
         self.systemd = Db4ESystemD(ops_db=self.ops_db)
 
@@ -149,7 +158,7 @@ class Db4eServer:
         while True:
 
             depls = self.depl_db.get_deployments()
-            self.log.debug(f"Db4eServer:check_deployments(): {depls}")
+            # self.log.debug(f"Db4eServer:check_deployments(): {depls}")
             found_primary = False
             for elem in depls:
                 # Get the deployment type
@@ -211,7 +220,7 @@ class Db4eServer:
                             pass
                         self.log_watchers.pop((elem_type, elem.instance()), None)
 
-                # There are no primary Monery deployments
+                # There are no primary Monero deployments
                 if not found_primary:
                     self.unset_int_p2pool_primary()
 
@@ -571,12 +580,13 @@ class Db4eServer:
                 sig, lambda s=sig: asyncio.create_task(handle_shutdown())
             )
 
-        # run all 3 forever
+        # run all forever
         tasks = [
             asyncio.create_task(self.run_api_server(), name="api_server"),
             asyncio.create_task(self.check_deployments(), name="check_deployments"),
             asyncio.create_task(self.rotate_logs(), name="rotate_logs"),
             asyncio.create_task(self.update_current(), name="update_current"),
+            asyncio.create_task(self.run_healthcheck(), name="healthcheck"),
         ]
         # main loop: just wait until stop_event is set
         await self.stop_event.wait()
@@ -584,6 +594,19 @@ class Db4eServer:
         for t in tasks:
             t.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def run_healthcheck(self):
+        """
+        Run health checks on deployed components.
+        """
+
+        while True:
+
+            depls = self.depl_db.get_deployments()
+            for elem in depls:
+                self.health_mgr.check(elem)
+
+            await asyncio.sleep(POLL_INTERVAL)
 
     async def shutdown(self, signum, frame):
         """

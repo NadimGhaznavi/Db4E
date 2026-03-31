@@ -570,10 +570,9 @@ updated_s         | INTEGER   | The second the record was updated
 
 # Health Check Table
 
-This table contains information about the health of the deployed Db4E components. A component,
-(e.g. a *P2Pool instance*) will have several elements that are being monitored.
+This table contains information about the health of the deployed Db4E components. A component, (e.g. a *P2Pool instance*) will have several elements that are being monitored.
 
-- Table name: `health_msgs`
+- Table name: `health_state`
 
 Column            | Data Type | Description
 ------------------|-----------|-------------------------
@@ -590,20 +589,21 @@ updated_h         | INTEGER   | The hour the record was updated
 updated_mi        | INTEGER   | The minute the record was updated
 updated_s         | INTEGER   | The second the record was updated
 
+## Constraints
+
+`UNIQUE(instance, elem_type, category)`
+
 ---
 
-# Indexes and Constraints
+# Constraints
 
 ## Overview
 
-Indexes improve performance for frequent queries — especially those that filter or sort by date or identifier. Constraints maintain data integrity by preventing duplicates or invalid references.
+Constraints maintain data integrity by preventing duplicates or invalid references.
 
-The following indexes and constraints are designed to optimize typical Db4E workflows:
+The following constraints are designed to optimize typical Db4E workflows:
 
-- Efficient retrieval of hashrate and share-found data by date (for plotting and analytics)
-- Fast lookup of current uptime records
 - Reliable foreign-key integrity between tables
-- Enforced uniqueness of certain runtime states (e.g., one “current” uptime per deployment)
 
 ## Foreign Keys
 

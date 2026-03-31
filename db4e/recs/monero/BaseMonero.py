@@ -8,6 +8,7 @@
 #    License: GPL 3.0
 
 from db4e.recs.BaseElem import BaseElem
+from db4e.util.Helper import HealthMsg
 from db4e.constants.DSQL import DCol
 from db4e.constants.DStatus import DStatus
 
@@ -40,6 +41,9 @@ class BaseMonero(BaseElem):
         self._msgs = []
         if rec:
             self.from_rec(rec)
+
+    def add_msg(self, msg: HealthMsg):
+        self._msgs.append(msg)
 
     def from_rec(self, rec):
         """

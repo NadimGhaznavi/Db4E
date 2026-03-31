@@ -7,9 +7,6 @@
 #    Website: https://db4e.osoyalce.com/
 #    License: GPL 3.0
 
-# Supporting modules
-from datetime import datetime
-
 # Base domain DB module
 from db4e.db.BaseDb import (
     TABLE_TO_CLASS_MAP,

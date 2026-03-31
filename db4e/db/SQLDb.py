@@ -22,6 +22,7 @@ from db4e.constants.DSQL import (
     HOURLY_MINING_TABLE_LIST,
     MINING_TABLE_LIST,
     OPS_TABLE_LIST,
+    HEALTH_STATE_TABLE_LIST,
 )
 from db4e.constants.DModule import DModule
 
@@ -38,6 +39,7 @@ class SQLDb:
     - Initializing DB schema metadata (``sync_meta`` table).
     - Acting as a thin wrapper over ``sqlite3`` with additional Db4E-specific logic.
     """
+
     def __init__(self, db_type: str, bs_mgr: BootstrapMgr, log_file=None):
         """
         Initialize a new ``SQLDb`` instance.
@@ -244,6 +246,7 @@ class SQLDb:
             + MINING_TABLE_LIST
             + HOURLY_MINING_TABLE_LIST
             + OPS_TABLE_LIST
+            + HEALTH_STATE_TABLE_LIST
         ):
             self.execute_query(
                 "INSERT OR IGNORE INTO sync_meta (table_name, last_sync_ts) VALUES (?, 0)",

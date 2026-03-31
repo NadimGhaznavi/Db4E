@@ -24,7 +24,8 @@ from db4e.constants.DSQL import DTable
 
 class NavHandler:
     """
-    Handle NavPane requests for deployments and new records.
+    Handle NavPane requests to access deployments and to create new
+    records.
     """
 
     def __init__(self, depl_db: DeplDb):
@@ -51,6 +52,10 @@ class NavHandler:
         instance = request.get(DField.INSTANCE)
         depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
 
+        # The instance map is used to construct the radio button, which is used
+        # to configure an upstream dependency.
+
+        # This instance map is used to configure the "primary server" radio button
         if elem_type == DElem.DB4E:
             local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
             remote = self.depl_db.get_deployment_ids_and_instances(
@@ -58,6 +63,8 @@ class NavHandler:
             )
             depl_obj.instance_map({**local, **remote})
 
+        # This instance map is used to configure the upstream MoneroD or
+        # remote MoneroD instance.
         elif elem_type == DElem.P2POOL:
             local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
             remote = self.depl_db.get_deployment_ids_and_instances(
@@ -65,6 +72,8 @@ class NavHandler:
             )
             depl_obj.instance_map({**local, **remote})
 
+        # This instance map is used to configure the upstream P2Pool or remote
+        # P2Pool instance.
         elif elem_type == DElem.XMRIG:
             local = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL)
             remote = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL_REMOTE)

@@ -82,9 +82,9 @@ class MoneroDRemotePane(Container):
                     id=DForm.HEALTH_BOX,
                 ),
                 Horizontal(
-                    Button(label=DButtonF.NEW, id=DButtonF.NEW),
-                    Button(label=DButtonF.UPDATE, id=DButtonF.UPDATE),
-                    Button(label=DButtonF.DELETE, id=DButtonF.DELETE),
+                    Button(label=DButtonL.NEW, id=DButtonF.NEW),
+                    Button(label=DButtonL.UPDATE, id=DButtonF.UPDATE),
+                    Button(label=DButtonL.DELETE, id=DButtonF.DELETE),
                     classes=DForm.BUTTON_ROW,
                 ),
             ),
@@ -140,8 +140,8 @@ class MoneroDRemotePane(Container):
                 f"Configure the deployment settings for a new "
                 f"[cyan]{DLabel.MONEROD_REMOTE}[/] deployment here. [b]NOTE[/]: This will "
                 f"[b]not[/] install the [cyan]{DLabel.MONEROD_REMOTE}[/] software on a "
-                f"remote machine. This record is used to support the deployment of local "
-                f"[cyan]{DLabel.P2POOL}[/] deployments."
+                f"remote machine. This record is used to support the deployment of "
+                f"[cyan]local {DLabel.P2POOL}[/] deployments."
             )
             self.remove_class(DField.UPDATE)
             self.add_class(DField.NEW)

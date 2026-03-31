@@ -45,6 +45,7 @@ from db4e.db.DeplDb import DeplDb
 from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.OpsETL import OpsETL
+from db4e.db.HealthDb import HealthDb
 
 from db4e.util.PaneCatalogue import PaneCatalogue
 
@@ -91,6 +92,7 @@ class Db4EClient(App):
         self.ops_etl = OpsETL(ops_db=self.ops_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)
         self.mining_db = MiningDb(sql_db=self.sql_db)
+        self.health_db = HealthDb(sql_db=self.sql_db)
         install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_db=self.depl_db)
@@ -156,6 +158,7 @@ class Db4EClient(App):
             self.ops_db.initialize()
             self.depl_db.initialize()
             self.mining_db.initialize()
+            self.health_db.initialize()
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
         else:
             self.pane_mgr.set_pane(name=pane, data=data)

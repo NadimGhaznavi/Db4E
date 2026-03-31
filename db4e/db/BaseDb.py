@@ -44,6 +44,9 @@ from db4e.recs.ops.CurrentUptime import CurrentUptime
 from db4e.recs.ops.TotalUptime import TotalUptime
 from db4e.recs.ops.TUILogLine import TUILogLine
 
+# Health messages
+from db4e.util.Helper import HealthMsg
+
 # Constants
 from db4e.constants.DElem import DElem
 
@@ -71,9 +74,12 @@ CLASS_TO_TABLE_MAP = {
     CurrentUptime: DTable.CURRENT_UPTIME,
     TotalUptime: DTable.TOTAL_UPTIME,
     TUILogLine: DTable.TUI_LOG_LINE,
+    # Health messages
+    HealthMsg: DTable.HEALTH_STATE,
 }
 
 CLASS_STR_TO_TABLE_MAP = {
+    # Deployments
     DElem.DB4E: DTable.DB4E,
     DElem.MONEROD: DTable.MONEROD,
     DElem.MONEROD_REMOTE: DTable.MONEROD_REMOTE,
@@ -82,9 +88,12 @@ CLASS_STR_TO_TABLE_MAP = {
     DElem.P2POOL_INTERNAL: DTable.P2POOL_INTERNAL,
     DElem.XMRIG: DTable.XMRIG,
     DElem.XMRIG_REMOTE: DTable.XMRIG_REMOTE,
+    # Health messages
+    DElem.HEALTH_MSG: DTable.HEALTH_STATE,
 }
 
 CLASS_STR_TO_CLASS_MAP = {
+    # Deployments
     DElem.DB4E: Db4E,
     DElem.MONEROD: MoneroD,
     DElem.MONEROD_REMOTE: MoneroDRemote,
@@ -93,6 +102,8 @@ CLASS_STR_TO_CLASS_MAP = {
     DElem.P2POOL_INTERNAL: P2PoolInternal,
     DElem.XMRIG: XMRig,
     DElem.XMRIG_REMOTE: XMRigRemote,
+    # Health messages
+    DElem.HEALTH_MSG: HealthMsg,
 }
 
 TABLE_TO_CLASS_STR_MAP = {v: k for k, v in CLASS_STR_TO_TABLE_MAP.items()}

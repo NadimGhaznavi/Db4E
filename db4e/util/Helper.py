@@ -12,6 +12,7 @@ Helper functions that are used in multiple modules
 
 import os, grp, getpass, re, subprocess
 from decimal import Decimal
+from dataclasses import dataclass
 
 from rich import box
 from rich.table import Table
@@ -19,10 +20,32 @@ from rich.table import Table
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
+from db4e.constants.DSQL import DCol
 
 
 error_color = "#935fcf"
 PICONEROS_PER_XMR = 1_000_000_000_000  # 10^12
+
+
+@dataclass(slots=True, frozen=True)
+class HealthMsg:
+    category: DField
+    instance: str
+    elem_type: str
+    message: str
+    status: DField
+
+    def to_dict(self):
+        return {
+            DCol.CATEGORY: self.category,
+            DCol.INSTANCE: self.instance,
+            DCol.ELEMENT_TYPE: self.elem_type,
+            DCol.MESSAGE: self.message,
+            DCol.STATUS: self.status,
+        }
+
+    def __repr__(self):
+        return f"<HealthMsg [{self.elem_type}:{self.instance}][{self.category}][{self.status.upper()}]: {self.message}>"
 
 
 def get_component_value(data, field_name):
@@ -85,7 +108,7 @@ def get_remote_state(data):
     return None
 
 
-def gen_results_table(results):
+def gen_results_table(results: list[HealthMsg]):
     """
     Build a Rich table of result rows.
 
@@ -101,17 +124,20 @@ def gen_results_table(results):
     table.add_column("Component", width=25)
     table.add_column("Details")
 
-    for item in results:
-        for category, msg_dict in item.items():
-            message = msg_dict[DField.MESSAGE]
-            if msg_dict[DField.STATUS] == DStatus.GOOD:
-                table.add_row(f"✅ [bold]{category}[/]", f"{message}")
-            elif msg_dict[DField.STATUS] == DStatus.WARN:
-                table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
-            elif msg_dict[DField.STATUS] == DStatus.ERROR:
-                table.add_row(
-                    f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
-                )
+    for health_msg in results:
+        category = health_msg.category
+        status = health_msg.status
+        message = health_msg.message
+        if status == DStatus.GOOD:
+            table.add_row(f"✅ [bold]{category}[/]", f"{message}")
+        elif status == DStatus.WARN:
+            table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+        elif status == DStatus.ERROR:
+            table.add_row(
+                f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
+            )
+        else:
+            raise ValueError(f"Unrecognized status {status}")
     return table
 
 

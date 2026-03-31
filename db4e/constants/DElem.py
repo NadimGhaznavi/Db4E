@@ -11,6 +11,7 @@ from typing import Final
 
 # Elements
 class DElem:
+    # Deployment types
     DB4E: Final[str] = "db4e"
     DB4E_SERVER: Final[str] = "db4e_server"
     MONEROD: Final[str] = "monerod"
@@ -21,3 +22,5 @@ class DElem:
     P2POOL_WATCHER: Final[str] = "p2pool_watcher"
     XMRIG: Final[str] = "xmrig"
     XMRIG_REMOTE: Final[str] = "xmrig_remote"
+    # Health Messages
+    HEALTH_MSG: Final[str] = "health_msg"

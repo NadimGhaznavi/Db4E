@@ -38,10 +38,14 @@ class DTable:
     SHARE_POSITION: Final[str] = "share_position"
     XMR_PAYMENT: Final[str] = "xmr_payment"
 
+    # Health messages
+    HEALTH_STATE: Final[str] = "health_state"
+
 
 class DCol:
     ANY_IP: Final[str] = "any_ip"
     BLOCKCHAIN_DIR: Final[str] = "blockchain_dir"
+    CATEGORY: Final[str] = "category"
     CHAIN: Final[str] = "chain"
     CONFIG_FILE: Final[str] = "config_file"
     CUR_TIME: Final[str] = "cur_time"
@@ -50,6 +54,7 @@ class DCol:
     DB4E_GROUP: Final[str] = "db4e_group"
     DB4E_USER: Final[str] = "db4e_user"
     EFFORT: Final[str] = "effort"
+    ELEM_ID: Final[str] = "elem_id"
     ELEMENT: Final[str] = "element"
     ELEMENT_TYPE: Final[str] = "element_type"
     ENABLED: Final[str] = "enabled"
@@ -144,3 +149,5 @@ OPS_TABLE_LIST = [
     DTable.TOTAL_UPTIME,
     DTable.TUI_LOG_LINE,
 ]
+
+HEALTH_STATE_TABLE_LIST = [DTable.HEALTH_STATE]
