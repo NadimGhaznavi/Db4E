@@ -37,15 +37,14 @@ from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.RouteMgr import RouteMgr
 from db4e.mgr.PaneMgr import PaneMgr
 from db4e.mgr.BootstrapMgr import BootstrapMgr
-
 from db4e.sync.SyncClient import SyncClient
-
 from db4e.db.SQLDb import SQLDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.OpsETL import OpsETL
 from db4e.db.HealthDb import HealthDb
+from db4e.client.HealthClient import HealthClient
 
 from db4e.util.PaneCatalogue import PaneCatalogue
 
@@ -93,6 +92,7 @@ class Db4EClient(App):
         self.depl_db = DeplDb(sql_db=self.sql_db)
         self.mining_db = MiningDb(sql_db=self.sql_db)
         self.health_db = HealthDb(sql_db=self.sql_db)
+        self.health_client = HealthClient(health_db=self.health_db)
         install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_db=self.depl_db)
@@ -103,12 +103,13 @@ class Db4EClient(App):
             bs_mgr=self.bs_mgr,
             server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
         )
-        self.msg_router = RouteMgr(
+        self.route_mgr = RouteMgr(
             depl_db=self.depl_db,
             ops_db=self.ops_db,
             install_mgr=install_mgr,
             pane_mgr=self.pane_mgr,
             sync_client=self.sync_client,
+            health_client=self.health_client,
         )
 
     def compose(self):
@@ -138,16 +139,16 @@ class Db4EClient(App):
     @work(exclusive=True)
     async def on_db4emsg(self, message: Db4EMsg) -> None:
         # print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
-        data, pane = await self.msg_router.dispatch(
+        data, pane = await self.route_mgr.dispatch(
             message.form_data[DField.TO_MODULE],
             message.form_data[DField.TO_METHOD],
             message.form_data,
         )
-        # The Db4E database is within the deployment directory that's only defined
-        # after a successful install. The results of the "InitialInstall" are put
-        # into the tui_log_line table and the TUI Log Pane is displayed. We
-        # intercept that call and initialize the client database when the
-        # "InitialInstall" is successful.
+        # The Db4E database is within the deployment directory that's only
+        # defined after a successful install. The results of the
+        # "InitialInstall" are put into the tui_log_line table and the TUI Log
+        # Pane is displayed. We intercept that call and initialize the client
+        # database when the "InitialInstall" is successful.
         if (
             pane == DPane.TUI_LOG
             and type(data) == list

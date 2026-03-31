@@ -21,6 +21,7 @@ from db4e.recs.monero.Db4E import Db4E
 
 # Constants
 from db4e.constants.DModule import DModule
+from db4e.constants.DElem import DElem
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DField import DField
 
@@ -46,16 +47,16 @@ class HealthMgr:
         # Check that the deployment directory exists
         if os.path.isdir(db4e.vendor_dir()):
             health_msg = HealthMsg(
-                instance=DModule.DB4E,
-                elem_type=DModule.DB4E,
+                instance=DElem.DB4E,
+                elem_type=DElem.DB4E,
                 category=DField.VENDOR_DIR,
                 status=DStatus.GOOD,
                 message=f"Found directory {db4e.vendor_dir()}",
             )
         else:
             health_msg = HealthMsg(
-                instance=DModule.DB4E,
-                elem_type=DModule.DB4E,
+                instance=DElem.DB4E,
+                elem_type=DElem.DB4E,
                 category=DField.VENDOR_DIR,
                 status=DStatus.ERROR,
                 message=f"Directory {db4e.vendor_dir()} not found",

@@ -129,6 +129,7 @@ class SQLDb:
         """
         if not self._initialized:
             raise RuntimeError("SQLDb not initialized")
+        # print(f"execute_query: sql: {sql}, params: {params}")
         self._cursor.execute(sql, params or [])
         self._conn.commit()
         return self._cursor.fetchall()

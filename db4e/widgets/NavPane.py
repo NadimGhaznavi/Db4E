@@ -359,7 +359,7 @@ class NavPane(Container):
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: leaf_data,
                     }
-            print(f"Posting message with form_data: {form_data}")
+            # print(f"Posting message with form_data: {form_data}")
             self.post_message(Db4EMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:

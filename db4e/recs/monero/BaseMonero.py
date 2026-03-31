@@ -98,6 +98,9 @@ class BaseMonero(BaseElem):
         """
         return self._msgs
 
+    def set_msgs(self, msgs: list[HealthMsg]) -> None:
+        self._msgs = msgs
+
     # The health of the deployed instance
     def status(self, status=None):
         """

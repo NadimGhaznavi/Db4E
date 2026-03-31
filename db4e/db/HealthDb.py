@@ -45,6 +45,20 @@ class HealthDb(BaseDb):
         self.sql_db = sql_db
         self.log = Db4ELogger(db4e_module=DModule.HEALTH_DB, log_file=log_file)
 
+    def get_msgs(self, instance: str, elem_type: str):
+        if not self._initialized:
+            raise RuntimeError("SQLDb not initialized")
+
+        sql = f"""
+            SELECT *
+            FROM {DTable.HEALTH_STATE}
+            WHERE {DCol.INSTANCE} = ?
+            AND {DCol.ELEMENT_TYPE} = ?
+        """
+
+        params = (instance, elem_type)
+        return self.sql_db.execute_query(sql, params)
+
     def _init_db(self):
         """
         Initialize the health table in the SQLite database.

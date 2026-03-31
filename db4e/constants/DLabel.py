@@ -33,6 +33,7 @@ class DLabel:
     DB4E_USER: Final[str] = "Db4E User"
     DETAILS: Final[str] = "Details"
     DEPLOYMENTS: Final[str] = "Deployments"
+    DISABLE: Final[str] = "Disable"
     DONATIONS: Final[str] = "Donations"
     DONATIONS_WALLET: Final[str] = "Donations Wallet"
     ENABLED: Final[str] = "Enabled"

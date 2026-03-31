@@ -55,6 +55,8 @@ SYNC_SCHEDULE = {
     DTable.SHARE_FOUND_EVENT: 60,
     DTable.SHARE_POSITION: 60,
     DTable.XMR_PAYMENT: 60,
+    # Health State table
+    DTable.HEALTH_STATE: 10,
 }
 
 

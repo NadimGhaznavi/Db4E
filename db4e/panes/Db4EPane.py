@@ -135,6 +135,7 @@ class Db4EPane(Container):
         self.query_one(f"#{DForm.INSTALL_DIR_LABEL}", Label).update(db4e.install_dir())
         self.query_one(f"#{DForm.VENDOR_DIR_LABEL}", Label).update(db4e.vendor_dir())
         self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = db4e.user_wallet()
+        # print(f"Health msgs: {db4e.pop_msgs()}")
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(db4e.pop_msgs())
         )
@@ -151,9 +152,9 @@ class Db4EPane(Container):
         for instance in instance_map.keys():
             rb = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
             primary_server, primary_remote = db4e.instance_map()[instance]
-            print(f"instance_map: {db4e.instance_map()}")
-            print(f"db4e.primary_server(): {db4e.primary_server()} == {primary_server}")
-            print(f"db4e.primary_remote(): {db4e.primary_remote()} == {primary_remote}")
+            # print(f"instance_map: {db4e.instance_map()}")
+            # print(f"db4e.primary_server(): {db4e.primary_server()} == {primary_server}")
+            # print(f"db4e.primary_remote(): {db4e.primary_remote()} == {primary_remote}")
             if (
                 db4e.primary_server() == primary_server
                 and db4e.primary_remote() == primary_remote

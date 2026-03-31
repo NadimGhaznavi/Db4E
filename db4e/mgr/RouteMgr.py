@@ -8,11 +8,9 @@
 
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.PaneMgr import PaneMgr
-
 from db4e.sync.SyncClient import SyncClient
-
-
 from db4e.util.NavHandler import NavHandler
+from db4e.client.HealthClient import HealthClient
 
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
@@ -36,6 +34,7 @@ class RouteMgr:
         install_mgr: InstallMgr,
         pane_mgr: PaneMgr,
         sync_client: SyncClient,
+        health_client: HealthClient,
     ):
         """
         Initialize the route manager and register routes.
@@ -55,7 +54,10 @@ class RouteMgr:
         self._panes = {}
         self.install_mgr = install_mgr
         self.depl_db = depl_db
-        self.nav_handler = NavHandler(depl_db=self.depl_db)
+        self.nav_handler = NavHandler(
+            depl_db=self.depl_db,
+            health_client=health_client,
+        )
         self.ops_db = ops_db
         self.pane_mgr = pane_mgr
         self.sync_client = sync_client

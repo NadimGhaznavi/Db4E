@@ -1,13 +1,11 @@
-"""
-db4e/util/NavHandler.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    Website: https://db4e.osoyalce.com/
-    License: GPL 3.0
-"""
+# db4e/util/NavHandler.py
+#
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    Website: https://db4e.osoyalce.com/
+#    License: GPL 3.0
 
 from db4e.db.DeplDb import DeplDb
 
@@ -16,6 +14,8 @@ from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
+
+from db4e.client.HealthClient import HealthClient
 
 from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem
@@ -28,7 +28,7 @@ class NavHandler:
     records.
     """
 
-    def __init__(self, depl_db: DeplDb):
+    def __init__(self, depl_db: DeplDb, health_client: HealthClient):
         """
         Initialize the navigation handler.
 
@@ -38,6 +38,7 @@ class NavHandler:
         :rtype: None
         """
         self.depl_db = depl_db
+        self.health_client = health_client
 
     def get_deployment(self, request):
         """
@@ -51,6 +52,13 @@ class NavHandler:
         elem_type = request.get(DField.ELEMENT_TYPE)
         instance = request.get(DField.INSTANCE)
         depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
+
+        # Get the health messages
+        health_msgs = self.health_client.get_msgs(
+            instance=instance, elem_type=elem_type
+        )
+        # print(f"Health msgs: {health_msgs}")
+        depl_obj.set_msgs(health_msgs)
 
         # The instance map is used to construct the radio button, which is used
         # to configure an upstream dependency.
