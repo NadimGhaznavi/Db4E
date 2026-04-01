@@ -70,6 +70,8 @@ class HealthMgr:
             self.check_monerod_remote(elem)
         elif type(elem) == P2PoolRemote:
             self.check_p2pool_remote(elem)
+        elif type(elem) == P2PoolInternal:
+            self.check_p2pool_internal(elem)
 
     def check_db4e(self, db4e: Db4E):
         # Check that the deployment directory exists
@@ -129,6 +131,48 @@ class HealthMgr:
                 instance=monerod.instance(),
                 elem_type=DElem.MONEROD_REMOTE,
                 category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+    def check_p2pool_internal(self, p2pool: P2PoolInternal):
+        ip_addr = p2pool.ip_addr()
+        port = p2pool.stratum_port()
+
+        # Is the instance enabled
+        if p2pool.enabled():
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.ENABLED,
+                status=DStatus.GOOD,
+                message=f"Instance is enabled",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.ENABLED,
+                status=DStatus.ERROR,
+                message=f"Instance is disabled",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Is stratum port open
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.STRATUM_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.STRATUM_PORT,
                 status=DStatus.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
