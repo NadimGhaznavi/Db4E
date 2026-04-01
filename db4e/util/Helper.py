@@ -143,6 +143,22 @@ def gen_results_table(results: list[HealthMsg]):
     return table
 
 
+def is_port_open(host, port):
+    try:
+        infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        for family, socktype, proto, canonname, sockaddr in infos:
+            try:
+                with socket.socket(family, socktype, proto) as sock:
+                    sock.settimeout(5)
+                    sock.connect(sockaddr)  # will raise if connection fails
+                    return True
+            except (ConnectionRefusedError, TimeoutError, OSError):
+                continue
+        return False
+    except socket.gaierror:
+        return False
+
+
 def minutes_to_uptime(minutes: int):
     """
     Convert minutes into a compact uptime string.

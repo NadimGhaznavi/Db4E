@@ -15,7 +15,7 @@ from db4e.util.Db4ELogger import Db4ELogger
 
 # Health DB
 from db4e.db.HealthDb import HealthDb
-from db4e.util.Helper import HealthMsg
+from db4e.util.Helper import HealthMsg, is_port_open
 
 # Deployment elements
 from db4e.recs.monero.Db4E import Db4E
@@ -32,23 +32,6 @@ from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DHealth import DCategory
-from db4e.constants.DLabel import DLabel
-
-
-def is_port_open(host, port):
-    try:
-        infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
-        for family, socktype, proto, canonname, sockaddr in infos:
-            try:
-                with socket.socket(family, socktype, proto) as sock:
-                    sock.settimeout(5)
-                    sock.connect(sockaddr)  # will raise if connection fails
-                    return True
-            except (ConnectionRefusedError, TimeoutError, OSError):
-                continue
-        return False
-    except socket.gaierror:
-        return False
 
 
 class HealthMgr:
