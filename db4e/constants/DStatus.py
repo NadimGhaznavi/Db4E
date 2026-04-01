@@ -15,6 +15,8 @@ class DStatus:
     COMPLETE: Final[str] = "complete"
     ERROR: Final[str] = "error"
     GOOD: Final[str] = "good"
+    IS_RUNNING: Final[str] = "is_running"
+    IS_STOPPED: Final[str] = "is_stopped"
     PENDING: Final[str] = "pending"
     PROCESSING: Final[str] = "processing"
     UNKNOWN: Final[str] = "unknown"
