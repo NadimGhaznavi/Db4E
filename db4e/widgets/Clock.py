@@ -2,7 +2,7 @@
 db4e/Widgets/Clock.py
 
     Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi 
+    Author: Nadim-Daniel Ghaznavi
     Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
     GitHub: https://github.com/NadimGhaznavi/db4e
     License: GPL 3.0
@@ -15,16 +15,29 @@ from textual.app import ComposeResult
 from textual.reactive import reactive
 from textual.containers import Container
 
+hi = "#64e631"
+
+
 class Clock(Container):
 
-    cur_datetime = reactive('')
-    emoji_index = reactive('0')
-    label = Label('', id="clock")
+    cur_datetime = reactive("")
+    emoji_index = reactive("0")
+    label = Label("", id="clock")
 
     CLOCK_EMOJIS = [
-        "🕐", "🕑", "🕒", "🕓", "🕔", "🕕",
-        "🕖", "🕗", "🕘", "🕙", "🕚", "🕛",
-        "🍀"
+        "🕐",
+        "🕑",
+        "🕒",
+        "🕓",
+        "🕔",
+        "🕕",
+        "🕖",
+        "🕗",
+        "🕘",
+        "🕙",
+        "🕚",
+        "🕛",
+        "🍀",
     ]
 
     def compose(self) -> ComposeResult:
@@ -40,4 +53,4 @@ class Clock(Container):
 
     def watch_cur_datetime(self, time: str) -> None:
         emoji = self.CLOCK_EMOJIS[self.emoji_index]
-        self.label.update(f"{time} {emoji}")
+        self.label.update(f"[{hi}]{time}[/] {emoji}")

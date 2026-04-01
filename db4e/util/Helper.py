@@ -121,8 +121,8 @@ def gen_results_table(results: list[HealthMsg]):
     table = Table(
         show_header=True, header_style="bold #31b8e6", style="#0c323e", box=box.SIMPLE
     )
-    table.add_column("Component", width=25)
-    table.add_column("Details")
+    table.add_column("[#64e631]Component[/]", width=25)
+    table.add_column("[#64e631]Details[/]")
 
     for health_msg in results:
         category = health_msg.category

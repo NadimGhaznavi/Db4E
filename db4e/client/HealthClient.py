@@ -11,6 +11,7 @@ from db4e.db.HealthDb import HealthDb
 from db4e.util.Helper import HealthMsg
 
 from db4e.constants.DSQL import DCol
+from db4e.constants.DStatus import DStatus
 
 
 class HealthClient:
@@ -32,3 +33,18 @@ class HealthClient:
                 )
             )
         return health_msgs
+
+    def get_status(self, instance: str, elem_type: str):
+        msgs_rows = self.health_db.get_msgs(instance=instance, elem_type=elem_type)
+
+        status = DStatus.UNKNOWN
+
+        for rec in msgs_rows:
+            if rec[DCol.STATUS] == DStatus.ERROR:
+                status = DStatus.ERROR
+            elif rec[DCol.STATUS] == DStatus.WARN:
+                status = DStatus.WARN
+            elif rec[DCol.STATUS] == DStatus.GOOD:
+                status = DStatus.GOOD
+
+        return status

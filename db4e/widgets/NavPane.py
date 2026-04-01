@@ -8,16 +8,12 @@ Database 4 Everything
     License: GPL 3.0
 """
 
-from typing import Callable, Dict, List, Tuple
-import time
-
 from textual import work
-from textual.widgets import Label, Tree
+from textual.widgets import Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
-from db4e.recs.monero.MoneroDRemote import MoneroDRemote
-
+from db4e.client.HealthClient import HealthClient
 from db4e.db.DeplDb import DeplDb
 
 from db4e.messages.Db4EMsg import Db4EMsg
@@ -68,9 +64,10 @@ STATE_ICON = {
 
 class NavPane(Container):
 
-    def __init__(self, depl_db: DeplDb):
+    def __init__(self, depl_db: DeplDb, health_client: HealthClient):
         super().__init__()
         self.depl_db = depl_db
+        self.health_client = health_client
         self._initialized = False
 
         # Deployments tree

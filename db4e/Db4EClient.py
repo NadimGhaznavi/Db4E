@@ -95,7 +95,7 @@ class Db4EClient(App):
         self.health_client = HealthClient(health_db=self.health_db)
         install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(depl_db=self.depl_db)
+        self.nav_pane = NavPane(depl_db=self.depl_db, health_client=self.health_client)
         self.sync_client = SyncClient(
             sql_db=self.sql_db,
             ops_db=self.ops_db,
