@@ -14,6 +14,8 @@ from db4e.recs.monero.BaseP2Pool import BaseP2Pool
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DDef import DDef
+from db4e.constants.DHealth import DCategory
+from db4e.constants.DStatus import DStatus
 
 
 P2P_PORT_OFFSET = 100
@@ -75,6 +77,19 @@ class P2PoolInternal(BaseP2Pool):
         """
         super().from_rec(rec)
         self._stats_mod = rec[DField.STATS_MOD]
+
+    def is_running(self):
+        if not self.enabled():
+            return False
+
+        for health_msg in self.pop_msgs():
+            if health_msg.category == DCategory.STRATUM_PORT:
+                if health_msg.status == DStatus.GOOD:
+                    return True
+                else:
+                    return False
+
+        return False
 
     def to_dict(self):
         """
