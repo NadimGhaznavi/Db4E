@@ -36,7 +36,7 @@ class DLabel:
     DISABLE: Final[str] = "Disable"
     DONATIONS: Final[str] = "Donations"
     DONATIONS_WALLET: Final[str] = "Donations Wallet"
-    ENABLED: Final[str] = "Enabled"
+    ENABLED: Final[str] = "Is Enabled"
     ELEMENT_TYPE: Final[str] = "Component"
     ENABLED_FLAG: Final[str] = "Enabled flag"
     END: Final[str] = "End"
