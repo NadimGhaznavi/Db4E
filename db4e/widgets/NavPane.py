@@ -429,7 +429,7 @@ class NavPane(Container):
         self.monerod_remote_tree.remove_children()
         self.monerod_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.depl_db.get_monerod_remotes():
-            state = monerod.status()
+            state = self.health_client.get_status(monerod)
             self.monerod_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
             )

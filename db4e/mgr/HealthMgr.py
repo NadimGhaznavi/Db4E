@@ -8,6 +8,7 @@
 #    License: GPL 3.0
 
 import os
+import socket
 
 # Logging DB
 from db4e.util.Db4ELogger import Db4ELogger
@@ -18,12 +19,36 @@ from db4e.util.Helper import HealthMsg
 
 # Deployment elements
 from db4e.recs.monero.Db4E import Db4E
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.recs.monero.MoneroD import MoneroD
+from db4e.recs.monero.MoneroDRemote import MoneroDRemote
+from db4e.recs.monero.P2Pool import P2Pool
+from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.XMRig import XMRig
+from db4e.recs.monero.XMRigRemote import XMRigRemote
 
 # Constants
 from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DStatus import DStatus
-from db4e.constants.DField import DField
+from db4e.constants.DHealth import DCategory
+from db4e.constants.DLabel import DLabel
+
+
+def is_port_open(host, port):
+    try:
+        infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        for family, socktype, proto, canonname, sockaddr in infos:
+            try:
+                with socket.socket(family, socktype, proto) as sock:
+                    sock.settimeout(5)
+                    sock.connect(sockaddr)  # will raise if connection fails
+                    return True
+            except (ConnectionRefusedError, TimeoutError, OSError):
+                continue
+        return False
+    except socket.gaierror:
+        return False
 
 
 class HealthMgr:
@@ -42,6 +67,8 @@ class HealthMgr:
         self.log.debug(f"Performing health check on {elem}")
         if type(elem) == Db4E:
             self.check_db4e(elem)
+        elif type(elem) == MoneroDRemote:
+            self.check_monerod_remote(elem)
 
     def check_db4e(self, db4e: Db4E):
         # Check that the deployment directory exists
@@ -49,7 +76,7 @@ class HealthMgr:
             health_msg = HealthMsg(
                 instance=DElem.DB4E,
                 elem_type=DElem.DB4E,
-                category=DField.VENDOR_DIR,
+                category=DCategory.VENDOR_DIR,
                 status=DStatus.GOOD,
                 message=f"Found directory {db4e.vendor_dir()}",
             )
@@ -57,8 +84,30 @@ class HealthMgr:
             health_msg = HealthMsg(
                 instance=DElem.DB4E,
                 elem_type=DElem.DB4E,
-                category=DField.VENDOR_DIR,
+                category=DCategory.VENDOR_DIR,
                 status=DStatus.ERROR,
                 message=f"Directory {db4e.vendor_dir()} not found",
+            )
+        self.health_db.upsert_one(health_msg)
+
+    def check_monerod_remote(self, monerod: MoneroDRemote):
+        # Check RPC BIND Port is open
+        ip_addr = monerod.ip_addr()
+        port = monerod.rpc_bind_port()
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD_REMOTE,
+                category=DCategory.RPC_BIND_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to {DLabel.RPC_BIND_PORT}: {ip_addr}:{port}",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD_REMOTE,
+                category=DCategory.RPC_BIND_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to {DLabel.RPC_BIND_PORT}: {ip_addr}:{port}",
             )
         self.health_db.upsert_one(health_msg)

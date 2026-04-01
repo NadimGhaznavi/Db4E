@@ -10,6 +10,7 @@
 from db4e.db.HealthDb import HealthDb
 from db4e.util.Helper import HealthMsg
 
+from db4e.db.BaseDb import CLASS_TO_TABLE_MAP
 from db4e.constants.DSQL import DCol
 from db4e.constants.DStatus import DStatus
 
@@ -34,7 +35,10 @@ class HealthClient:
             )
         return health_msgs
 
-    def get_status(self, instance: str, elem_type: str):
+    def get_status(self, monero_obj):
+        instance = monero_obj.instance()
+        elem_type = CLASS_TO_TABLE_MAP[type(monero_obj)]
+
         msgs_rows = self.health_db.get_msgs(instance=instance, elem_type=elem_type)
 
         status = DStatus.UNKNOWN
