@@ -452,7 +452,7 @@ class NavPane(Container):
 
         self.chain.remove_children()
         for int_p2pool in self.depl_db.get_p2pool_internals():
-            state = int_p2pool.status()
+            state = self.health_client.get_status(int_p2pool)
             instance = int_p2pool.instance()
             self.chain.add_leaf(f"{STATE_ICON[state]} {instance}", data=instance)
 
