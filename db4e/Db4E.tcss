@@ -11,21 +11,21 @@ Screen {
 NavPane {
     padding: 0 2;
     width: 30;
-    border: round #0c323e;
+    border: round #2aa5ce;    
     background: black; }
 
 TopBar {
     height: 3;
     width: 141;
     padding: 0 2;
-    border: round #0c323e;
+    border: round #2aa5ce;    
     dock: top;
     background: black }
 
 Clock {
     height: 3;
     padding: 0 2;
-    border: round #0c323e;
+    border: round #2aa5ce;
     align: center middle;
     background: black; }
 
@@ -80,7 +80,7 @@ Tree {
 .form_1 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
@@ -90,7 +90,7 @@ Tree {
 .form_2 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
@@ -102,7 +102,7 @@ Tree {
     color: #31b8e6;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
-    border: round #0c323e;
+    border: round #2aa5ce;
     width: 100%;
     height: 5; 
     background: black; }
@@ -110,7 +110,7 @@ Tree {
 .form_4 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
@@ -122,14 +122,14 @@ Tree {
     color: #31b8e6;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
-    border: round #0c323e;
+    border: round #2aa5ce;
     width: 100%;
     height: 7; }
 
 .form_6 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
@@ -138,7 +138,7 @@ Tree {
 .form_7 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%; 
@@ -147,7 +147,7 @@ Tree {
 .form_8 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%; 
@@ -156,7 +156,7 @@ Tree {
 .form_16 {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     width: 100%;
@@ -172,19 +172,19 @@ Tree {
 .info_msg {
     padding: 0 2;
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     width: 100%;
 }
 
 .form_box {
-    border: round #0c323e; }
+    border: round #2aa5ce; }
 
 /* Intro text at the top */
 
 .form_intro {
     color: #31b8e6;
     padding: 0 2;
-    border: round #0c323e;
+    border: round #2aa5ce;
     width: 100%; }
 
 
@@ -249,7 +249,7 @@ Tree {
 .health_box {
     color: #31b8e6;
     height: auto;
-    border: round #0c323e;
+    border: round #2aa5ce;
     padding: 0 1;
 }
 
@@ -264,14 +264,14 @@ Tree {
 
 .pane_box {
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     padding: 0 1;
     background: black;
 }
 
 .select_box {
     color: #31b8e6;
-    border: round #0c323e;
+    border: round #2aa5ce;
     padding: 0 1;
     height: 3;
     background: black;
@@ -296,7 +296,7 @@ Tree {
 }
 
 .radio_set {
-    border: round #0c323e;
+    border: round #2aa5ce;
     border-subtitle-color: #31b8e6;
     border-subtitle-style: bold;
     padding: 0 1;
@@ -309,7 +309,7 @@ Tree {
     padding: 0 1; }
 
 .switch {
-    border: round #0c323e;
+    border: round #2aa5ce;
     padding: 0 1; 
     height: 1;
 }
@@ -326,7 +326,7 @@ Tree {
 
 Button {
     align: center middle;
-    border: round #0c323e;
+    border: round #2aa5ce;
     width: 15;
     background: black; }
 
