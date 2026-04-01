@@ -66,6 +66,7 @@ class TUILogPane(Container):
         """
         # self.log_widget.clear()
         log_widget = self.query_one(f"#{DForm.LOG_WIDGET}", RichLog)
+        log_widget.clear()
 
         log_widget.write(
             f"[b cyan]{DLabel.DATE:<10s}  {DLabel.TIME:<8s}[/]  "
