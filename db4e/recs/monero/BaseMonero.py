@@ -100,17 +100,3 @@ class BaseMonero(BaseElem):
 
     def set_msgs(self, msgs: list[HealthMsg]) -> None:
         self._msgs = msgs
-
-    # The health of the deployed instance
-    def status(self, status=None):
-        """
-        Get or set the health status.
-
-        :param status: Optional status value to set.
-        :type status: str or None
-        :return: Current status value.
-        :rtype: str
-        """
-        if status is not None:
-            self._status = status
-        return self._status
