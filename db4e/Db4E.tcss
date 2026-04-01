@@ -4,7 +4,7 @@ Screen {
     background: black;
     layout: grid;
     grid-size: 2;
-    grid-columns: 30 110;
+    grid-columns: 30 130;
     grid-rows: 40 3;
     grid-gutter: 0 1; }
 
@@ -16,7 +16,7 @@ NavPane {
 
 TopBar {
     height: 3;
-    width: 141;
+    width: 161;
     padding: 0 2;
     border: round #2aa5ce;    
     dock: top;
