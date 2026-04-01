@@ -445,7 +445,7 @@ class NavPane(Container):
         self.p2pool_remote_tree.remove_children()
         self.p2pool_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for p2pool in self.depl_db.get_p2pool_remotes():
-            state = p2pool.status()
+            state = self.health_client.get_status(p2pool)
             self.p2pool_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance()
             )

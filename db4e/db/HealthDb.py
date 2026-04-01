@@ -88,7 +88,6 @@ class HealthDb(BaseDb):
 
     def upsert_one(self, health_msg: HealthMsg):
         msg_dict = self.add_timestamp_data(health_msg.to_dict())
-        self.log.debug(health_msg)
 
         sql = f"""
             INSERT INTO {DTable.HEALTH_STATE} (

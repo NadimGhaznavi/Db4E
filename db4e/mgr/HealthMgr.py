@@ -64,11 +64,12 @@ class HealthMgr:
         """
         Perform health checks on deployed elements.
         """
-        self.log.debug(f"Performing health check on {elem}")
         if type(elem) == Db4E:
             self.check_db4e(elem)
         elif type(elem) == MoneroDRemote:
             self.check_monerod_remote(elem)
+        elif type(elem) == P2PoolRemote:
+            self.check_p2pool_remote(elem)
 
     def check_db4e(self, db4e: Db4E):
         # Check that the deployment directory exists
@@ -128,6 +129,29 @@ class HealthMgr:
                 instance=monerod.instance(),
                 elem_type=DElem.MONEROD_REMOTE,
                 category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+    def check_p2pool_remote(self, p2pool: P2PoolRemote):
+        ip_addr = p2pool.ip_addr()
+        port = p2pool.stratum_port()
+
+        # Is stratum port open
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_REMOTE,
+                category=DCategory.STRATUM_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_REMOTE,
+                category=DCategory.STRATUM_PORT,
                 status=DStatus.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
