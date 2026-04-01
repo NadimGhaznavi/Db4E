@@ -136,7 +136,7 @@ def gen_results_table(results: list[HealthMsg]):
             table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
         elif status == DStatus.ERROR:
             table.add_row(
-                f"💥 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
+                f"🚨 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
             )
         else:
             raise ValueError(f"Unrecognized status {status}")
