@@ -91,8 +91,9 @@ class HealthMgr:
         self.health_db.upsert_one(health_msg)
 
     def check_monerod_remote(self, monerod: MoneroDRemote):
-        # Check RPC BIND Port is open
         ip_addr = monerod.ip_addr()
+
+        # Is RPC BIND port open
         port = monerod.rpc_bind_port()
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
@@ -100,7 +101,7 @@ class HealthMgr:
                 elem_type=DElem.MONEROD_REMOTE,
                 category=DCategory.RPC_BIND_PORT,
                 status=DStatus.GOOD,
-                message=f"Connected to {DLabel.RPC_BIND_PORT}: {ip_addr}:{port}",
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
@@ -108,6 +109,26 @@ class HealthMgr:
                 elem_type=DElem.MONEROD_REMOTE,
                 category=DCategory.RPC_BIND_PORT,
                 status=DStatus.ERROR,
-                message=f"Failed to connect to {DLabel.RPC_BIND_PORT}: {ip_addr}:{port}",
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Is ZMQ PUB port open
+        port = monerod.zmq_pub_port()
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD_REMOTE,
+                category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD_REMOTE,
+                category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)

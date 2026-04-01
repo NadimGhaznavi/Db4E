@@ -21,6 +21,7 @@ from db4e.constants.DStatus import DStatus
 from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DSQL import DCol
+from db4e.constants.DHealth import CATEGORY_LABEL_MAP
 
 
 error_color = "#935fcf"
@@ -125,7 +126,8 @@ def gen_results_table(results: list[HealthMsg]):
     table.add_column("[#64e631]Details[/]")
 
     for health_msg in results:
-        category = health_msg.category
+        category_field = health_msg.category
+        category = CATEGORY_LABEL_MAP[category_field]
         status = health_msg.status
         message = health_msg.message
         if status == DStatus.GOOD:
