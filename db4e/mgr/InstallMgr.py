@@ -768,6 +768,21 @@ class InstallMgr(Container):
                 tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
             )
 
+            # Create the base, API, run and logs directories
+            base_dir = os.path.join(vendor_dir, DElem.P2POOL, chain_label)
+            os.makedirs(base_dir)
+            for aDir in [DDef.API_DIR, DDef.RUN_DIR, DDef.LOG_DIR]:
+                sub_dir = os.path.join(base_dir, aDir)
+                os.makedirs(sub_dir)
+                self.ops_db.add_tui_log_line(
+                    tracked_type=DElem.P2POOL_INTERNAL,
+                    tracked_instance=f"{chain_label} Sidechain",
+                    operation=DField.NEW,
+                    status=DStatus.COMPLETE,
+                    message="Create Directory",
+                    details=sub_dir,
+                )
+
         return db4e
 
     # Create a logrotate file for Db4E
