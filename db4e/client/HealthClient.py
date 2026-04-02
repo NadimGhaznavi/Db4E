@@ -45,7 +45,7 @@ class HealthClient:
 
         for rec in msgs_rows:
             if rec[DCol.STATUS] == DStatus.ERROR:
-                status = DStatus.ERROR
+                return DStatus.ERROR
             elif rec[DCol.STATUS] == DStatus.WARN:
                 status = DStatus.WARN
             elif rec[DCol.STATUS] == DStatus.GOOD:

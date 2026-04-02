@@ -11,13 +11,14 @@ Helper functions that are used in multiple modules
 """
 
 import os, grp, getpass, re, subprocess
+import socket
 from decimal import Decimal
 from dataclasses import dataclass
 
 from rich import box
 from rich.table import Table
 
-from db4e.constants.DStatus import DStatus
+from db4e.constants.DStatus import DStatus, STATE_ICON
 from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DSQL import DCol
@@ -130,13 +131,14 @@ def gen_results_table(results: list[HealthMsg]):
         category = CATEGORY_LABEL_MAP[category_field]
         status = health_msg.status
         message = health_msg.message
+        icon = STATE_ICON[status]
         if status == DStatus.GOOD:
-            table.add_row(f"✅ [bold]{category}[/]", f"{message}")
+            table.add_row(f"{icon} [bold]{category}[/]", f"{message}")
         elif status == DStatus.WARN:
-            table.add_row(f"⚠️  [yellow]{category}[/]", f"[yellow]{message}[/]")
+            table.add_row(f"{icon}  [yellow]{category}[/]", f"[yellow]{message}[/]")
         elif status == DStatus.ERROR:
             table.add_row(
-                f"🚨 [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
+                f"{icon} [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
             )
         else:
             raise ValueError(f"Unrecognized status {status}")

@@ -21,3 +21,12 @@ class DStatus:
     PROCESSING: Final[str] = "processing"
     UNKNOWN: Final[str] = "unknown"
     WARN: Final[str] = "warn"
+
+
+# Status icons
+STATE_ICON = {
+    DStatus.GOOD: "🟢",
+    DStatus.WARN: "🟡",
+    DStatus.ERROR: "🔴",
+    DStatus.UNKNOWN: "⚪",
+}

@@ -33,6 +33,8 @@ class DMethod:
     PLOT: Final[str] = "plot"
     POST_JOB: Final[str] = "post_job"
     RESTART: Final[str] = "restart"
+    START: Final[str] = "start"
+    STOP: Final[str] = "stop"
     SET_DONATIONS: Final[str] = "set_donations"
     SET_PANE: Final[str] = DField.SET_PANE
     SET_PRIMARY: Final[str] = "set_primary"

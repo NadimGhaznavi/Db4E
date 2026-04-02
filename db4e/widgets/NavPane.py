@@ -24,7 +24,7 @@ from db4e.constants.DLabel import DLabel
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DModule import DModule
 from db4e.constants.DPane import DPane
-from db4e.constants.DStatus import DStatus
+from db4e.constants.DStatus import STATE_ICON
 
 # Icon dictionary keys
 CORE = "CORE"
@@ -53,13 +53,6 @@ ICON = {
     XMR: "🔍",
 }
 #    XMR: "⛏️",
-
-STATE_ICON = {
-    DStatus.GOOD: "🟢",
-    DStatus.WARN: "🟡",
-    DStatus.ERROR: "🔴",
-    DStatus.UNKNOWN: "⚪",
-}
 
 
 class NavPane(Container):

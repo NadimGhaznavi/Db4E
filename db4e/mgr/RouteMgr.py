@@ -277,6 +277,14 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.CHAIN,
         )
+        # Start a stopped deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.START,
+            DElem.P2POOL_INTERNAL,
+            self.sync_client.enable_deployment,
+            DPane.TUI_LOG,
+        )
 
         ## XMRig deployment
         # Display the new deployment form
@@ -319,7 +327,6 @@ class RouteMgr:
             self.sync_client.delete_deployment,
             DPane.TUI_LOG,
         )
-
         ## Remote XMRig Deployment
         # View the "Remote XMRig Pane"
         self.register(
@@ -411,6 +418,9 @@ class RouteMgr:
             result = await callback(payload)
         # await delete_deployment
         elif callback == self.sync_client.delete_deployment:
+            result = await callback(payload)
+        # await enable_deployemnt
+        elif callback == self.sync_client.enable_deployment:
             result = await callback(payload)
 
         # Fallback (a synchronous method, no `await`).

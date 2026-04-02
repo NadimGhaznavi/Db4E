@@ -80,6 +80,13 @@ class DeplDb(BaseDb):
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
+    def enable_deployment(self, elem):
+        self.check_initialized()
+        table = CLASS_TO_TABLE_MAP[type(elem)]
+        self.sql_db.execute_query(
+            f"UPDATE {table} SET enabled=1 WHERE id=?", [elem.id()]
+        )
+
     def get_deployment(self, elem_type: str, instance: str):
         """
         Fetch a deployment record by type and instance name.

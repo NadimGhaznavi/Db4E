@@ -16,6 +16,7 @@ from importlib import metadata
 import subprocess
 import signal
 import re
+import traceback
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -599,14 +600,18 @@ class Db4eServer:
         """
         Run health checks on deployed components.
         """
+        try:
+            while True:
 
-        while True:
+                depls = self.depl_db.get_deployments()
+                for elem in depls:
+                    self.health_mgr.check(elem)
 
-            depls = self.depl_db.get_deployments()
-            for elem in depls:
-                self.health_mgr.check(elem)
+                await asyncio.sleep(POLL_INTERVAL)
 
-            await asyncio.sleep(POLL_INTERVAL)
+        except Exception as e:
+            self.log.critical(f"ERROR: {e}")
+            self.log.critical(f"STACKTRACE: {traceback.format_exc()}")
 
     async def shutdown(self, signum, frame):
         """

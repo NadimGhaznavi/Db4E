@@ -156,6 +156,87 @@ class SyncClient:
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
+    async def enable_deployment(self, depl_request):
+        """
+        Send a "enable deployment" request to the sync server.
+        """
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
+
+        payload = {
+            DSync.ELEMENT: depl_obj.to_dict(),
+            DSync.TABLE_NAME: depl_table,
+        }
+        url = f"{self.server_url}/enable"
+
+        return await self._send_request(
+            depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
+        )
+
+    def _merge_row(self, table_name, row):
+        """
+        Insert or update a single row in the local DB.
+
+        :param table_name: Table name to update.
+        :type table_name: str
+        :param row: Row payload to merge.
+        :type row: dict
+        :return: None
+        :rtype: None
+        """
+        # Don't include the generated updated_ts column
+        row.pop(DCol.UPDATED_TS, None)
+        cols = list(row.keys())
+        placeholders = ", ".join(["?"] * len(cols))
+        updates = ", ".join(f"{col}=excluded.{col}" for col in cols if col != "id")
+        sql = f"""
+            INSERT INTO {table_name} ({', '.join(cols)})
+            VALUES ({placeholders})
+            ON CONFLICT(id) DO UPDATE SET {updates};
+        """
+        self.sql_db.execute_query(sql, tuple(row.values()))
+        max_updated_ts = self.sql_db.get_max_updated_ts(table_name)
+        self.sql_db.update_last_sync(table_name, max_updated_ts)
+
+    async def _send_request(self, depl_table, depl_obj, url, payload):
+        """
+        Send a JSON request to the sync server and refresh local tables.
+
+        :param depl_table: Deployment table name.
+        :type depl_table: str
+        :param depl_obj: Deployment object being updated.
+        :type depl_obj: object
+        :param url: Target URL for the request.
+        :type url: str
+        :param payload: Request JSON payload.
+        :type payload: dict
+        :return: TUI log contents.
+        :rtype: list
+        """
+        # print(
+        #    f"update_last_sync(): depl_table: {depl_table}, depl_obj: {depl_obj}, url: {url}, payload: {payload}"
+        # )
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                # Force a sync of the deployment table and the Console log table
+                await self.sync_table(depl_table, since_ts=0)
+                await self.sync_table(DTable.TUI_LOG_LINE, since_ts=0)
+                return self.ops_db.get_tui_log()
+
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            elem_type = CLASS_TO_TABLE_MAP[type(depl_obj)]
+            self.ops_db.add_tui_log_line(
+                tracked_instance=depl_obj.instance(),
+                tracked_type=elem_type,
+                status=DStatus.ERROR,
+                operation=DField.NEW,
+                message=str(e),
+            )
+            return self.ops_db.get_tui_log()
+
     async def start(self):
         """
         Start the background sync loop task.
@@ -177,6 +258,33 @@ class SyncClient:
         if self._task:
             await self._task
             self._task = None
+
+    async def _sync_loop(self):
+        """
+        Run the main sync scheduler loop.
+
+        :return: None
+        :rtype: None
+        """
+        self._running = True
+        last_sync_times = {tbl: 0 for tbl in SYNC_SCHEDULE}
+        while self._running:
+            start_time = time.time()
+            for table, interval in SYNC_SCHEDULE.items():
+                last_sync = last_sync_times[table]
+                if start_time - last_sync >= interval:
+                    # print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
+                    try:
+                        since_ts = self.sql_db.get_last_sync(table)
+                        await self.sync_table(table, since_ts=since_ts)
+                    except RuntimeError:
+                        # We get this when the app is run for the first time. The initial
+                        # install hasn't been completed and the DB is not initialized
+                        pass
+                    last_sync_times[table] = start_time
+
+            # Sleep a bit before checking again
+            await asyncio.sleep(1)
 
     async def sync_table(self, table_name: str, since_ts: int = 0, limit: int = 1000):
         """
@@ -245,89 +353,3 @@ class SyncClient:
         #    self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.VENDOR))
 
         return self.ops_db.get_tui_log()
-
-    async def _send_request(self, depl_table, depl_obj, url, payload):
-        """
-        Send a JSON request to the sync server and refresh local tables.
-
-        :param depl_table: Deployment table name.
-        :type depl_table: str
-        :param depl_obj: Deployment object being updated.
-        :type depl_obj: object
-        :param url: Target URL for the request.
-        :type url: str
-        :param payload: Request JSON payload.
-        :type payload: dict
-        :return: TUI log contents.
-        :rtype: list
-        """
-        try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post(url, json=payload)
-                resp.raise_for_status()
-                # Force a sync of the deployment table and the Console log table
-                await self.sync_table(depl_table, since_ts=0)
-                await self.sync_table(DTable.TUI_LOG_LINE, since_ts=0)
-                return self.ops_db.get_tui_log()
-
-        except (httpx.RequestError, httpx.HTTPStatusError) as e:
-            self.ops_db.add_tui_log_line(
-                tracked_instance=depl_obj.instance(),
-                tracked_type=depl_obj.elem_type().lower(),
-                status=DStatus.ERROR,
-                operation=DField.NEW,
-                message=str(e),
-            )
-            return self.ops_db.get_tui_log()
-
-    def _merge_row(self, table_name, row):
-        """
-        Insert or update a single row in the local DB.
-
-        :param table_name: Table name to update.
-        :type table_name: str
-        :param row: Row payload to merge.
-        :type row: dict
-        :return: None
-        :rtype: None
-        """
-        # Don't include the generated updated_ts column
-        row.pop(DCol.UPDATED_TS, None)
-        cols = list(row.keys())
-        placeholders = ", ".join(["?"] * len(cols))
-        updates = ", ".join(f"{col}=excluded.{col}" for col in cols if col != "id")
-        sql = f"""
-            INSERT INTO {table_name} ({', '.join(cols)})
-            VALUES ({placeholders})
-            ON CONFLICT(id) DO UPDATE SET {updates};
-        """
-        self.sql_db.execute_query(sql, tuple(row.values()))
-        max_updated_ts = self.sql_db.get_max_updated_ts(table_name)
-        self.sql_db.update_last_sync(table_name, max_updated_ts)
-
-    async def _sync_loop(self):
-        """
-        Run the main sync scheduler loop.
-
-        :return: None
-        :rtype: None
-        """
-        self._running = True
-        last_sync_times = {tbl: 0 for tbl in SYNC_SCHEDULE}
-        while self._running:
-            start_time = time.time()
-            for table, interval in SYNC_SCHEDULE.items():
-                last_sync = last_sync_times[table]
-                if start_time - last_sync >= interval:
-                    # print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
-                    try:
-                        since_ts = self.sql_db.get_last_sync(table)
-                        await self.sync_table(table, since_ts=since_ts)
-                    except RuntimeError:
-                        # We get this when the app is run for the first time. The initial
-                        # install hasn't been completed and the DB is not initialized
-                        pass
-                    last_sync_times[table] = start_time
-
-            # Sleep a bit before checking again
-            await asyncio.sleep(1)

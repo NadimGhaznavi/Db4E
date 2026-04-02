@@ -12,6 +12,8 @@ import uvicorn
 import os
 import asyncio
 import logging
+import traceback
+
 
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
@@ -21,6 +23,7 @@ from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 from db4e.recs.monero.XMRig import XMRig
 
 from db4e.db.SQLDb import SQLDb
@@ -79,10 +82,9 @@ class APIMgr:
         :return: Deployment object instance.
         :rtype: object
         """
-        depl_obj = None
         if table_name == DTable.DB4E:
             depl_obj = Db4E(elem_rec)
-        if table_name == DTable.MONEROD:
+        elif table_name == DTable.MONEROD:
             depl_obj = MoneroD(elem_rec)
         elif table_name == DTable.MONEROD_REMOTE:
             depl_obj = MoneroDRemote(elem_rec)
@@ -90,8 +92,15 @@ class APIMgr:
             depl_obj = P2Pool(elem_rec)
         elif table_name == DTable.P2POOL_REMOTE:
             depl_obj = P2PoolRemote(elem_rec)
+        elif table_name == DTable.P2POOL_INTERNAL:
+            depl_obj = P2PoolInternal(elem_rec)
         elif table_name == DTable.XMRIG:
             depl_obj = XMRig(elem_rec)
+        else:
+            raise ValueError(
+                f"Unrecognized element record type {table_name}/{elem_rec}"
+            )
+
         return depl_obj
 
     def log_config(self):
@@ -133,8 +142,13 @@ class APIMgr:
         """
         try:
             await self.server.serve()
+
         except asyncio.CancelledError:
             pass
+
+        except Exception as e:
+            self.log.critical(f"ERROR: {e}")
+            self.log.critical(f"STACKTRACE: {traceback.format_exc()}")
 
     async def shutdown(self):
         """
@@ -172,7 +186,7 @@ class APIMgr:
             self.depl_mgr.add_deployment(depl_obj)
 
         # Delete deployment request
-        @self.app.delete("/delete/{table_name}")
+        @self.app.post("/delete/{table_name}")
         async def delete_deployment(table_name: str, request: Request):
             """
             Process a delete deployment request.
@@ -184,6 +198,24 @@ class APIMgr:
                 raise HTTPException(status_code=400, detail="Invalid deployment type")
             self.log.info(f"Received delete deployment request: {elem}")
             self.depl_mgr.delete_deployment(elem)
+
+        # Enable deployment
+        @self.app.post("/enable")
+        async def enable_deployment(request: Request):
+            """
+            Process an enable deployment request.
+            """
+            self.log.debug(f"Received request: {request}")
+            payload = await request.json()
+            elem_rec = payload.get(DSync.ELEMENT)
+            table_name = payload.get(DSync.TABLE_NAME)
+            if table_name not in ELEM_TABLE_LIST:
+                raise HTTPException(status_code=400, detail="Invalid deployment type")
+            depl_obj = self.factory(table_name=table_name, elem_rec=elem_rec)
+            self.log.info(
+                f"Received enable deployment request: {table_name}/{elem_rec}"
+            )
+            self.depl_mgr.enable_deployment(elem=depl_obj, elem_type=table_name)
 
         # Update deployment request
         @self.app.post("/update/{table_name}")

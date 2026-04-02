@@ -16,13 +16,13 @@ from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 from db4e.messages.Db4EMsg import Db4EMsg
 
 from db4e.constants.DButton import DButtonF, DButtonL
-from db4e.constants.DJob import DJob
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DForm import DForm
+from db4e.constants.DStatus import DStatus
 
 
 class ChainPane(Container):
@@ -89,6 +89,8 @@ class ChainPane(Container):
                         Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
                         Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
                         Button(label=DButtonL.RESTART, id=DButtonF.RESTART),
+                        Button(label=DButtonL.START, id=DButtonF.START),
+                        Button(label=DButtonL.STOP, id=DButtonF.STOP),
                         classes=DForm.BUTTON_ROW,
                     )
                 ),
@@ -113,6 +115,13 @@ class ChainPane(Container):
         :return: None
         :rtype: None
         """
+        if p2pool.is_running():
+            self.remove_class(DStatus.IS_STOPPED)
+            self.add_class(DStatus.IS_RUNNING)
+        else:
+            self.remove_class(DStatus.IS_RUNNING)
+            self.add_class(DStatus.IS_STOPPED)
+
         self.p2pool = p2pool
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(p2pool.instance())
         self.query_one(f"#{DForm.CONFIG_FILE_LABEL}", Label).update(
@@ -172,6 +181,22 @@ class ChainPane(Container):
                 DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
                 DField.TO_METHOD: DMethod.RESTART,
+                DField.INSTANCE: self.p2pool.instance(),
+            }
+
+        elif button_id == DButtonF.START:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
+                DField.TO_MODULE: DModule.SYNC_CLIENT,
+                DField.TO_METHOD: DMethod.START,
+                DField.ELEMENT: self.p2pool,
+            }
+
+        elif button_id == DButtonF.STOP:
+            form_data = {
+                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
+                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_METHOD: DMethod.STOP,
                 DField.INSTANCE: self.p2pool.instance(),
             }
 

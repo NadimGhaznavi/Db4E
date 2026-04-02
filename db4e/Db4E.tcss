@@ -409,6 +409,8 @@ Button {
     color: #c49b42ff;
     text-style: bold; }
 
+/* Button Visibility */
+
 .new #analytics_button {
     display: none; }
 
@@ -445,12 +447,18 @@ Button {
 .enabled #enable_button {
     display: none; }
 
-.stopped #start_button {
+/* Element is stopped */
+
+.is_stopped #restart_button {
     display: none; }
 
-.stopped #stop_button {
+.is_stopped #stop_button {
     display: none; }
 
+/* Element is running */
+
+.is_running #start_button {
+    display: none; }
 
 
 
