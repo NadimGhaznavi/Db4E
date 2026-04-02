@@ -52,7 +52,7 @@ class TUILogPane(Container):
         :rtype: ComposeResult
         """
         yield Vertical(
-            RichLog(highlight=True, markup=True, id=DForm.LOG_WIDGET),
+            RichLog(highlight=False, markup=True, id=DForm.LOG_WIDGET),
             classes=DForm.PANE_BOX,
         )
 
