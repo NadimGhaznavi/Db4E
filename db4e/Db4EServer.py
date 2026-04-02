@@ -59,8 +59,6 @@ from db4e.constants.DFile import DFile
 from db4e.constants.DModule import DModule
 
 
-DDebug.FUNCTION = False
-
 POLL_INTERVAL = 5
 
 
@@ -232,8 +230,6 @@ class Db4eServer:
         """
         Ensure logrotate files have the correct ownership.
         """
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer:chown_logrotate_files():")
         logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
         # Get a list of files in the logrotate_dir
         file_list = os.listdir(logrotate_dir)
@@ -254,8 +250,6 @@ class Db4eServer:
         :param elem: Deployment object to delete.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:delete(): {elem}")
         self.log.info(f"Job: Deleting {elem}")
         if type(elem) == XMRig:
             elem.enabled(False)
@@ -288,8 +282,6 @@ class Db4eServer:
         :param elem: Deployment object to disable.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:disable(): {elem}")
         # print(f"Db4eServer:disable(): {elem}: current: {elem.enabled()}")
         if not elem.enabled():
             return
@@ -311,9 +303,6 @@ class Db4eServer:
         :param elem: Upstream deployment object.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:disable_downstream(): {elem}")
-
         if type(elem) == MoneroD or type(elem) == MoneroDRemote:
             p2pools = self.depl_db.get_p2pools()
             for p2pool in p2pools:
@@ -355,8 +344,6 @@ class Db4eServer:
         :param elem: Deployment object to enable.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:enable(): {elem}")
         # print(f"Db4eServer:enable(): {elem}: current: {elem.enabled()}")
         if elem.enabled():
             return
@@ -372,8 +359,6 @@ class Db4eServer:
         :param elem: Deployment object to start if needed.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:ensure_running(): {elem}")
         # Check if the deployment service is running, start it if it's not
         sd = self.systemd
         if type(elem) == MoneroD:
@@ -415,8 +400,6 @@ class Db4eServer:
         :param elem: Deployment object to stop if needed.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:ensure_stopped(): {elem}")
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
@@ -462,8 +445,6 @@ class Db4eServer:
         :param elem: Deployment object to restart.
         :type elem: object
         """
-        if DDebug.FUNCTION:
-            self.log.debug(f"Db4eServer:restart(): {elem}")
         # Note that XMRig does not need to be restarted, it's smart enough to notice that
         # the JSON config has been updated and reload the settings
         sd = self.systemd
@@ -762,8 +743,6 @@ class Db4eServer:
         """
         Clear the primary MoneroD for internal P2Pool instances.
         """
-        if DDebug.FUNCTION:
-            self.log.debug("Db4eServer:unset_int_p2pool_primary():")
         for p2pool in self.depl_db.get_p2pool_internals():
             if p2pool.parent() == DField.DISABLE:
                 continue
