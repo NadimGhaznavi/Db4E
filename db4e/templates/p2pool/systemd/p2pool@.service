@@ -15,11 +15,10 @@ Description=P2Pool instance %i
 After=network-online.target
 Wants=network-online.target
 Requires=p2pool@%i.socket
-Sockets=p2pool@%i.socket
-
 
 [Service]
 Type=exec
+Sockets=p2pool@%i.socket
 StandardInput=socket
 StandardOutput=journal
 StandardError=journal
