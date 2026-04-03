@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.48.3] - 2026-04-03 @ 18:14 - SystemD Refactor Release"
+
+### Added
+- `HealthMgr` and "HealthDb` functions and updated some classes to use them
+  - `Db4E` and `InternalP2Pool`
+  - Status health reflected in NavPane elements
+
+### Changed
+- Refactored `Db4ESystemD` to use pystemd.
+- Refactored the *healh check table* creation process
+- Upgraded P2Pool
+
+### Fixed
+- Internal P2Pool instantiation process in `InstallMgr`
+
 ## [0.48.2] - 2026-03-28 @ 12:51 - Catchup Release
 
 ### Added
