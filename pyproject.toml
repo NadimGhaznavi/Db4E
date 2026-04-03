@@ -21,37 +21,35 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.11,<3.14"
 
 # Core runtime dependencies
-pymongo = "^4.13.2"
-PyYAML = "^6.0.2"
-rich = "^14.0.0"
+aiofiles = "^25.1.0"
+fastapi = "^0.119.0"
+httpx = "^0.28.1"
 loguru = "^0.7.3"
 myloginpath = "^0.0.4"
-textual = {extras = ["syntax"], version = "^8.2.0"}
-textual-dev = "^1.7.0"
-textual-plot = "^0.10.1"
-textual-plotext = "^1.0.1"
-plotext = "^5.3.2"
-requests = "^2.32.3"
-zstandard = "^0.23.0"
 orjson = "^3.10.15"
 psutil = "^7.0.0"
-sqlite-utils = "^3.35"
-fastapi = "^0.119.0"
-uvicorn = "^0.37.0"
 pydantic = "^2.12.2"
-httpx = "^0.28.1"
+pystemd = "^0.15.3"
 pytest-asyncio = "^1.2.0"
-tomli_w = "^1.2.0"
-aiofiles = "^25.1.0"
+PyYAML = "^6.0.2"
+requests = "^2.32.3"
+rich = "^14.0.0"
 sphinxcontrib-applehelp = "^2.0.0"
 sphinxcontrib-devhelp = "^2.0.0"
 sphinxcontrib-htmlhelp = "^2.0.0"
 sphinxcontrib-jsmath = "^1.0.1"
 sphinxcontrib-qthelp = "^2.0.0"
 sphinxcontrib-serializinghtml = "^2.0.0"
+sqlite-utils = "^3.35"
+textual = {extras = ["syntax"], version = "^8.2.0"}
+textual-dev = "^1.7.0"
+textual-plot = "^0.10.1"
+tomli_w = "^1.2.0"
+uvicorn = "^0.37.0"
+zstandard = "^0.23.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

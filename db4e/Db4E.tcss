@@ -409,7 +409,15 @@ Button {
     color: #c49b42ff;
     text-style: bold; }
 
+
+
+/* ----------------- */
 /* Button Visibility */
+/* ----------------- */
+
+
+/* New Screen */
+/* ---------- */
 
 .new #analytics_button {
     display: none; }
@@ -432,22 +440,15 @@ Button {
 .new #update_button {
     display: none; }
 
-.update #new_button {
-    display: none; }
-
 .new #delete_button {
     display: none; }
 
 .new #view_log_button {
     display: none; }
 
-.disabled #disable_button {
-    display: none; }
-
-.enabled #enable_button {
-    display: none; }
 
 /* Element is stopped */
+/* ------------------ */
 
 .is_stopped #restart_button {
     display: none; }
@@ -455,10 +456,28 @@ Button {
 .is_stopped #stop_button {
     display: none; }
 
+
 /* Element is running */
+/* ------------------ */
 
 .is_running #start_button {
     display: none; }
 
+.is_running #enable_button {
+    display: none; }
+
+
+
+/* Uptream is not defined */
+/* ---------------------- */
+
+.no_upstream #start_button {
+    display: none; }
+
+.no_upstream #stop_button {
+    display: none; }
+
+.no_upstream #restart_button {
+    display: none; }
 
 

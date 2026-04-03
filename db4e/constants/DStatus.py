@@ -17,6 +17,7 @@ class DStatus:
     GOOD: Final[str] = "good"
     IS_RUNNING: Final[str] = "is_running"
     IS_STOPPED: Final[str] = "is_stopped"
+    NO_UPSTREAM: Final[str] = "no_upstream"
     PENDING: Final[str] = "pending"
     PROCESSING: Final[str] = "processing"
     UNKNOWN: Final[str] = "unknown"
