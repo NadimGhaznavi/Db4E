@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import tempfile
 import subprocess
 import stat
+import traceback
 
 from textual.containers import Container
 
@@ -723,67 +724,101 @@ class InstallMgr(Container):
         :return: Updated Db4E deployment object.
         :rtype: Db4E
         """
-        vendor_dir = db4e.vendor_dir()
-        for chain_label in [DLabel.MAIN_CHAIN, DLabel.MINI_CHAIN, DLabel.NANO_CHAIN]:
-            p2pool = P2PoolInternal()
-            log_file = os.path.join(
-                vendor_dir, DElem.P2POOL, chain_label, DDef.LOG_DIR, DFile.P2POOL_LOG
-            )
-            stats_mod = os.path.join(
-                vendor_dir, DElem.P2POOL, chain_label, DDef.API_DIR, DFile.STATS_MOD
-            )
-            stdin_path = os.path.join(
-                vendor_dir, DElem.P2POOL, chain_label, DDef.RUN_DIR, DFile.P2POOL_STDIN
-            )
-            config_file = os.path.join(
-                vendor_dir, DElem.P2POOL, DDef.CONF_DIR, chain_label + DField.INI_SUFFIX
-            )
-
-            # Set the internal P2Pool instance parameters
-            p2pool.set_type(
-                chain_label=chain_label,
-                log_file=log_file,
-                stats_mod=stats_mod,
-                stdin_path=stdin_path,
-                config_file=config_file,
-            )
-
-            # Add the new deployment record
-            self.depl_db.insert_one(p2pool)
-
-            # Create a TUI log message
-            self.ops_db.add_tui_log_line(
-                tracked_type=DElem.P2POOL_INTERNAL,
-                tracked_instance=f"{chain_label} Sidechain",
-                operation=DField.NEW,
-                status=DStatus.COMPLETE,
-                message="New Deployment",
-            )
-
-            # Create a logrotate config file for the P2Pool log
-            logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-            db4e_group = db4e.db4e_group()
+        try:
             vendor_dir = db4e.vendor_dir()
-            p2pool.gen_logrotate_config(
-                tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
-            )
+            for chain_label in [
+                DLabel.MAIN_CHAIN,
+                DLabel.MINI_CHAIN,
+                DLabel.NANO_CHAIN,
+            ]:
+                p2pool = P2PoolInternal()
+                log_file = os.path.join(
+                    vendor_dir,
+                    DElem.P2POOL,
+                    chain_label,
+                    DDef.LOG_DIR,
+                    DFile.P2POOL_LOG,
+                )
+                stats_mod = os.path.join(
+                    vendor_dir, DElem.P2POOL, chain_label, DDef.API_DIR, DFile.STATS_MOD
+                )
+                stdin_path = os.path.join(
+                    vendor_dir,
+                    DElem.P2POOL,
+                    chain_label,
+                    DDef.RUN_DIR,
+                    DFile.P2POOL_STDIN,
+                )
+                config_file = os.path.join(
+                    vendor_dir,
+                    DElem.P2POOL,
+                    DDef.CONF_DIR,
+                    chain_label + DField.INI_SUFFIX,
+                )
 
-            # Create the base, API, run and logs directories
-            base_dir = os.path.join(vendor_dir, DElem.P2POOL, chain_label)
-            os.makedirs(base_dir)
-            for aDir in [DDef.API_DIR, DDef.RUN_DIR, DDef.LOG_DIR]:
-                sub_dir = os.path.join(base_dir, aDir)
-                os.makedirs(sub_dir)
+                # Set the internal P2Pool instance parameters
+                p2pool.set_type(
+                    chain_label=chain_label,
+                    log_file=log_file,
+                    stats_mod=stats_mod,
+                    stdin_path=stdin_path,
+                    config_file=config_file,
+                )
+
+                # Add the new deployment record
+                self.depl_db.insert_one(p2pool)
+
+                # Create a TUI log message
                 self.ops_db.add_tui_log_line(
                     tracked_type=DElem.P2POOL_INTERNAL,
                     tracked_instance=f"{chain_label} Sidechain",
                     operation=DField.NEW,
                     status=DStatus.COMPLETE,
-                    message="Create Directory",
-                    details=sub_dir,
+                    message="New Deployment",
                 )
 
-        return db4e
+                # Create a logrotate config file for the P2Pool log
+                logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
+                db4e_group = db4e.db4e_group()
+                vendor_dir = db4e.vendor_dir()
+                p2pool.gen_logrotate_config(
+                    tmpl_file=logrotate_tmpl,
+                    vendor_dir=vendor_dir,
+                    db4e_group=db4e_group,
+                )
+                logrotate_config = DElem.P2POOL + "-" + chain_label + DDef.CONF_SUFFIX
+                fq_logrotate_config = os.path.join(
+                    vendor_dir, DDef.LOGROTATE, logrotate_config
+                )
+                self.ops_db.add_tui_log_line(
+                    tracked_type=DElem.P2POOL_INTERNAL,
+                    tracked_instance=f"{chain_label} Sidechain",
+                    operation=DField.NEW,
+                    status=DStatus.COMPLETE,
+                    message="Create Config",
+                    details=fq_logrotate_config,
+                )
+
+                # Create the base, API, run and logs directories
+                base_dir = os.path.join(vendor_dir, DElem.P2POOL, chain_label)
+                os.makedirs(base_dir)
+                for aDir in [DDef.API_DIR, DDef.RUN_DIR, DDef.LOG_DIR]:
+                    sub_dir = os.path.join(base_dir, aDir)
+                    os.makedirs(sub_dir)
+                    self.ops_db.add_tui_log_line(
+                        tracked_type=DElem.P2POOL_INTERNAL,
+                        tracked_instance=f"{chain_label} Sidechain",
+                        operation=DField.NEW,
+                        status=DStatus.COMPLETE,
+                        message="Create Directory",
+                        details=sub_dir,
+                    )
+
+            return db4e
+
+        except Exception as e:
+            print(f"ERROR: {e}")
+            print(f"STACKTRACE: {traceback.format_exc()}")
 
     # Create a logrotate file for Db4E
     def _generate_db4e_logrotate(self, db4e: Db4E):
