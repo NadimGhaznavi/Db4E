@@ -39,7 +39,7 @@ class DDef:
     DB4E_SERVICE_FILE: Final[str] = "db4e.service"
     DB4E_START_SCRIPT: Final[str] = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: Final[str] = "db4e-uninstall-service.sh"
-    DB4E_VERSION: Final[str] = "0.48.3"
+    DB4E_VERSION: Final[str] = "0.48.4"
     DEPL_COLLECTION: Final[str] = "depl"
     DEV_DIR: Final[str] = "dev"
     DONATION_WALLET: Final[str] = (

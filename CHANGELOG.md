@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.48.4] - 2026-04-03 @18:33 - HOTFIX Update PyPI publishing workflows
+
+### Added
+- A step to install system dependencies for libsystemd, which is required for pystemd.
+
+---
+
 ## [0.48.3] - 2026-04-03 @ 18:14 - SystemD Refactor Release"
 
 ### Added
