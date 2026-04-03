@@ -125,6 +125,7 @@ class DLabel:
     TUI_LOG: Final[str] = "Console Log"
     TYPE: Final[str] = "Type"
     UPTIME: Final[str] = "Uptime"
+    UPSTREAM: Final[str] = "Upstream"
     UPSTREAM_MONERO: Final[str] = "Upstream Monero"
     UPSTREAM_P2POOL: Final[str] = "Upstream P2Pool"
     USER: Final[str] = "User"

@@ -184,6 +184,7 @@ class DField:
     UPDATED_MI: Final[str] = "updated_mi"
     UPDATED_S: Final[str] = "updated_s"
     UPDATE_DEPLOYMENT: Final[str] = "update_deployment"
+    UPSTREAM: Final[str] = "upstream"
     UPTIME: Final[str] = "uptime"
     USER: Final[str] = "user"
     USER_WALLET: Final[str] = "user_wallet"

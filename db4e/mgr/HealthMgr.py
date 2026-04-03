@@ -32,6 +32,7 @@ from db4e.constants.DModule import DModule
 from db4e.constants.DElem import DElem
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DHealth import DCategory
+from db4e.constants.DField import DField
 
 
 class HealthMgr:
@@ -158,6 +159,25 @@ class HealthMgr:
                 category=DCategory.STRATUM_PORT,
                 status=DStatus.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Check that there the upstream monerod is defined
+        if p2pool.parent() == DField.DISABLED:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.UPSTREAM,
+                status=DStatus.ERROR,
+                message=f"Upstream Monero is undefined",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=DElem.P2POOL_INTERNAL,
+                category=DCategory.UPSTREAM,
+                status=DStatus.GOOD,
+                message=f"Upstream Monero is defined",
             )
         self.health_db.upsert_one(health_msg)
 
