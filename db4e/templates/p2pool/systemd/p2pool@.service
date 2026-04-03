@@ -12,8 +12,8 @@
 
 [Unit]
 Description=P2Pool instance %i
-After=network-online.target p2pool%i.socket
-BindsTo=p2pool%i.socket
+After=network-online.target p2pool@%i.socket
+BindsTo=p2pool@%i.socket
 Wants=network.online.target
 
 [Service]
