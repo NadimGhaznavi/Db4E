@@ -163,7 +163,7 @@ class HealthMgr:
         self.health_db.upsert_one(health_msg)
 
         # Check that there the upstream monerod is defined
-        if p2pool.parent() == DField.DISABLED:
+        if p2pool.parent() == DField.DISABLE:
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
                 elem_type=DElem.P2POOL_INTERNAL,
