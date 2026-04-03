@@ -11,8 +11,7 @@
 #####################################################################
 
 [Unit]
-Description=Command FIFO for the P2Pool daemon
-PartOf=p2pool@%i.service
+Description=Command FIFO for the P2Pool instance %i
 
 [Socket]
 ListenFIFO=[[P2POOL_DIR]]/%i/run/p2pool.stdin
@@ -22,5 +21,3 @@ SocketUser=[[DB4E_USER]]
 SocketGroup=[[DB4E_GROUP]]
 RemoveOnStop=true
 
-[Install]
-WantedBy=sockets.target
