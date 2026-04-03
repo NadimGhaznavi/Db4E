@@ -49,7 +49,7 @@ ICON = {
     MON: "🌿",
     NEW: "🔧",
     P2P: "🌊",
-    SETUP: "⚙️",
+    SETUP: "🔧",
     XMR: "🔍",
 }
 #    XMR: "⛏️",
