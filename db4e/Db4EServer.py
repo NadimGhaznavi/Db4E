@@ -359,39 +359,37 @@ class Db4eServer:
         :param elem: Deployment object to start if needed.
         :type elem: object
         """
-        # Check if the deployment service is running, start it if it's not
-        sd = self.systemd
-        if type(elem) == MoneroD:
-            instance = elem.instance()
-            sd.service_name("monerod@" + instance)
-        elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
-            instance = elem.instance()
-            sd.service_name("p2pool@" + instance)
-        elif type(elem) == XMRig:
-            instance = elem.instance()
-            sd.service_name("xmrig@" + instance)
-        else:
-            raise ValueError(f"Unknown deployment type: {elem}")
+        try:
+            # Check if the deployment service is running, start it if it's not
+            sd = self.systemd
+            if type(elem) == MoneroD:
+                instance = elem.instance()
+                sd.service_name("monerod@" + instance)
+            elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
+                instance = elem.instance()
+                sd.service_name("p2pool@" + instance)
+            elif type(elem) == XMRig:
+                instance = elem.instance()
+                sd.service_name("xmrig@" + instance)
+            else:
+                raise ValueError(f"Unknown deployment type: {elem}")
 
-        ## Don't keep issuing 'systemctl start <service>' if it's just starting up....
-        if sd.active():
             # It's up - clear the "stopping" and clear the "starting" too
-            self.stopping.discard(instance)
-            self.starting.discard(instance)
-            return
-        if instance in self.starting:
-            # It's already in the process of starting, do nothing
-            return
+            if sd.running():
+                self.stopping.discard(instance)
+                self.starting.discard(instance)
+                return
 
-        # Not active and not starting, start it up
-        self.starting.add(instance)
-        rc = sd.start()
-        if rc == 0:
-            self.log.info(f"Started: {elem}")
-        else:
-            self.log.critical(f"ERROR: Failed to start {elem}, return code was {rc}")
-            self.stopping.discard(instance)
-            self.starting.discard(instance)
+            # It's already in the process of starting, do nothing
+            if instance in self.starting:
+                return
+
+            # Not active and not starting, start it up
+            self.starting.add(instance)
+            sd.start()
+        except Exception as e:
+            self.log.critical(f"ERROR: {e}")
+            self.log.critical(f"STACKTRACE: {traceback.format_exc()}")
 
     def ensure_stopped(self, elem):
         """
@@ -413,30 +411,19 @@ class Db4eServer:
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
 
-        ## Don't keep issuing 'systemctl stop <service>' if it's just shutting down....
-        if not sd.active():
-            # It's down - clear the "stopping" and clear the "starting" too
+        # It's down - clear the "stopping" and clear the "starting" too
+        if not sd.running():
             self.stopping.discard(instance)
             self.starting.discard(instance)
             return
+
+        # It's already in the process of stopping, do nothing
         if instance in self.stopping:
-            # It's already in the process of stopping, do nothing
             return
 
         # Active and not already stopping -> issue stop
         self.stopping.add(instance)
-        rc = sd.stop()
-        if rc == 0:
-            self.log.info(f"Stopped: {elem}")
-            if isinstance(elem, P2Pool):
-                control = self.log_watchers.pop(instance, None)
-                if control:
-                    thread, stop_event, watcher = control
-                    watcher.stop_sub_thread()
-                    stop_event.set()
-                    thread.join()
-        else:
-            self.log.critical(f"ERROR: Failed to stop {elem}, return code was {rc}")
+        sd.stop()
 
     def restart(self, elem):
         """

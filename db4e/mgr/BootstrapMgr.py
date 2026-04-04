@@ -34,9 +34,10 @@ class BootstrapMgr:
         """
         Initialize the bootstrap manager and load existing config if present.
         """
-        self._config_path = Path.home() / DFile.DOT_DB4E
+        # self._config_path = Path.home() / DFile.DOT_DB4E
+        self._config_path = f"/tmp/{DFile.DOT_DB4E}"
         self._config = {}
-        if self._config_path.exists():
+        if os.path.exists(self._config_path):
             self._config = self._load()
 
     def _load(self) -> dict:
@@ -46,14 +47,14 @@ class BootstrapMgr:
         :return: Parsed configuration dictionary.
         :rtype: dict
         """
-        with self._config_path.open("rb") as f:
+        with open(self._config_path, "rb") as f:
             return tomllib.load(f)
 
     def _save(self):
         """
         Persist the bootstrap configuration to disk.
         """
-        with self._config_path.open("wb") as f:
+        with open(self._config_path, "wb") as f:
             tomli_w.dump(self._config, f)
 
         if platform.system() != DLabel.WINDOWS:
@@ -244,7 +245,7 @@ class BootstrapMgr:
         :return: True if initialized, otherwise False.
         :rtype: bool
         """
-        return self._config_path.exists() and DField.VENDOR_DIR in self._config
+        return os.path.exists(self._config_path) and DField.VENDOR_DIR in self._config
 
     def __repr__(self):
         """

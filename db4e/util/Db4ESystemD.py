@@ -128,6 +128,18 @@ class Db4ESystemD:
         time.sleep(1)
         self._unit.Unit.Start(DSystemD.REPLACE.encode())
 
+    def running(self):
+        """
+        Check if a service is running.
+
+        :return: Flag
+        :rtype: bool
+        """
+        return (
+            self._unit.Unit.ActiveState == b"active"
+            and self._unit.Unit.SubState == b"running"
+        )
+
     def service_name(self, service_name=None):
         """
         Get/Set the service_name.

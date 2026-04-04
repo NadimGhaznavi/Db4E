@@ -146,6 +146,8 @@ def gen_results_table(results: list[HealthMsg]):
 
 
 def is_port_open(host, port):
+    if not host:
+        host = "localhost"
     try:
         infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
         for family, socktype, proto, canonname, sockaddr in infos:

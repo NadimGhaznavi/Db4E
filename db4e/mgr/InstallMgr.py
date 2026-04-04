@@ -65,157 +65,162 @@ class InstallMgr(Container):
         :return: TUI log line data.
         :rtype: list[dict]
         """
-        # Track the progress of the initial install
-        abort_install = False
+        try:
+            # Track the progress of the initial install
+            abort_install = False
 
-        # Clear the console log if the DB has been initialized
-        if self.sql_db.is_initialized():
-            self.depl_db.clear_all()
-            self.ops_db.clear_tui_log()
+            # Clear the console log if the DB has been initialized
+            if self.sql_db.is_initialized():
+                self.depl_db.clear_all()
+                self.ops_db.clear_tui_log()
 
-        # This is the data from the form on the InitialSetup pane
-        db4e = form_data[DField.ELEMENT]
+            # This is the data from the form on the InitialSetup pane
+            db4e = form_data[DField.ELEMENT]
 
-        log_line_data = []
+            log_line_data = []
 
-        # Check that the user entered their wallet
-        log_line_data, abort_install = self._check_wallet(
-            log_line_data=log_line_data, db4e=db4e
-        )
-        if abort_install:
-            log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.USER_WALLET,
-                DCol.TRACKED_TYPE: DElem.DB4E,
-                DCol.OPERATION: DField.NEW,
-                DCol.STATUS: DStatus.ERROR,
-                DCol.MESSAGE: "Fatal error, aborting install",
-            }
-            log_line = self._add_timestamp(log_line)
-            log_line_data.append(log_line)
-            return log_line_data
+            # Check that the user entered their wallet
+            log_line_data, abort_install = self._check_wallet(
+                log_line_data=log_line_data, db4e=db4e
+            )
+            if abort_install:
+                log_line = {
+                    DCol.TRACKED_INSTANCE: DLabel.USER_WALLET,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.OPERATION: DField.NEW,
+                    DCol.STATUS: DStatus.ERROR,
+                    DCol.MESSAGE: "Fatal error, aborting install",
+                }
+                log_line = self._add_timestamp(log_line)
+                log_line_data.append(log_line)
+                return log_line_data
 
-        # Check that the user entered a vendor directory
-        log_line_data, abort_install = self._check_vendor_dir(
-            db4e=db4e, log_line_data=log_line_data
-        )
-        if abort_install:
-            log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                DCol.TRACKED_TYPE: DElem.DB4E,
-                DCol.OPERATION: DField.NEW,
-                DCol.STATUS: DStatus.ERROR,
-                DCol.MESSAGE: "Fatal error, aborting install",
-            }
-            log_line = self._add_timestamp(log_line)
-            log_line_data.append(log_line)
-            return log_line_data
+            # Check that the user entered a vendor directory
+            log_line_data, abort_install = self._check_vendor_dir(
+                db4e=db4e, log_line_data=log_line_data
+            )
+            if abort_install:
+                log_line = {
+                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.OPERATION: DField.NEW,
+                    DCol.STATUS: DStatus.ERROR,
+                    DCol.MESSAGE: "Fatal error, aborting install",
+                }
+                log_line = self._add_timestamp(log_line)
+                log_line_data.append(log_line)
+                return log_line_data
 
-        # Create the vendor directory on the filesystem
-        log_line_data, abort_install = self._create_vendor_dir(
-            db4e=db4e, log_line_data=log_line_data
-        )
-        if abort_install:
-            log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                DCol.TRACKED_TYPE: DElem.DB4E,
-                DCol.OPERATION: DField.NEW,
-                DCol.STATUS: DStatus.ERROR,
-                DCol.MESSAGE: "Fatal error, aborting install",
-            }
-            log_line = self._add_timestamp(log_line)
-            log_line_data.append(log_line)
-            return log_line_data
+            # Create the vendor directory on the filesystem
+            log_line_data, abort_install = self._create_vendor_dir(
+                db4e=db4e, log_line_data=log_line_data
+            )
+            if abort_install:
+                log_line = {
+                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.OPERATION: DField.NEW,
+                    DCol.STATUS: DStatus.ERROR,
+                    DCol.MESSAGE: "Fatal error, aborting install",
+                }
+                log_line = self._add_timestamp(log_line)
+                log_line_data.append(log_line)
+                return log_line_data
 
-        ## We have a valid vendor_dir
-        # Initialize the BootstrapMgr and the DB backends
-        self.bs_mgr.initialize(vendor_dir=db4e.vendor_dir())
-        self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
-        # The deployment and ops databases get initialized as part
-        # of the initial install. Force an initializing of the mining
-        # DB.
-        mining_db = MiningDb(sql_db=self.sql_db)
-        mining_db.check_initialized()  # Initializes the DB
+            ## We have a valid vendor_dir
+            # Initialize the BootstrapMgr and the DB backends
+            self.bs_mgr.initialize(vendor_dir=db4e.vendor_dir())
+            self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
+            # The deployment and ops databases get initialized as part
+            # of the initial install. Force an initializing of the mining
+            # DB.
+            mining_db = MiningDb(sql_db=self.sql_db)
+            mining_db.check_initialized()  # Initializes the DB
 
-        # Add the log_line_data to the newly initialized ops DB.
-        self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)
+            # Add the log_line_data to the newly initialized ops DB.
+            self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)
 
-        # Insert the db4e object into the database
-        db4e = self.depl_db.insert_one(db4e)
-        # Create a TUI log message
-        self.ops_db.add_tui_log_line(
-            tracked_instance=DLabel.DB4E,
-            tracked_type=DElem.DB4E,
-            operation=DField.NEW,
-            status=DStatus.COMPLETE,
-            message="New Deployment",
-        )
-
-        # Create base vendor directories
-        vendor_dir = db4e.vendor_dir()
-        for aDir in [DDef.BACKUP_DIR, DDef.LOGROTATE]:
-            os.makedirs(os.path.join(vendor_dir, aDir))
+            # Insert the db4e object into the database
+            db4e = self.depl_db.insert_one(db4e)
+            # Create a TUI log message
             self.ops_db.add_tui_log_line(
-                tracked_instance=DLabel.VENDOR_DIR,
+                tracked_instance=DLabel.DB4E,
                 tracked_type=DElem.DB4E,
                 operation=DField.NEW,
                 status=DStatus.COMPLETE,
-                message="Create Directory",
-                details=f"{vendor_dir}/{aDir}",
+                message="New Deployment",
             )
 
-        # We have everything we need to finish the install. Update the record.
-        self.depl_db.update_one(db4e)
+            # Create base vendor directories
+            vendor_dir = db4e.vendor_dir()
+            for aDir in [DDef.BACKUP_DIR, DDef.LOGROTATE]:
+                os.makedirs(os.path.join(vendor_dir, aDir))
+                self.ops_db.add_tui_log_line(
+                    tracked_instance=DLabel.VENDOR_DIR,
+                    tracked_type=DElem.DB4E,
+                    operation=DField.NEW,
+                    status=DStatus.COMPLETE,
+                    message="Create Directory",
+                    details=f"{vendor_dir}/{aDir}",
+                )
 
-        # Create the Db4E vendor directories
-        db4e = self._create_db4e_dirs(db4e=db4e)
+            # We have everything we need to finish the install. Update the record.
+            self.depl_db.update_one(db4e)
 
-        # Create a lograte file for Db4E
-        db4e = self._generate_db4e_logrotate(db4e=db4e)
+            # Create the Db4E vendor directories
+            db4e = self._create_db4e_dirs(db4e=db4e)
 
-        # Generate the Db4E service file (installed by the sudo installer)
-        self._generate_db4e_service_file(db4e=db4e)
+            # Create a lograte file for Db4E
+            db4e = self._generate_db4e_logrotate(db4e=db4e)
 
-        # Create the Monero daemon vendor directories
-        db4e = self._create_monerod_dirs(db4e=db4e)
+            # Generate the Db4E service file (installed by the sudo installer)
+            self._generate_db4e_service_file(db4e=db4e)
 
-        # Generate the Monero service files (installed by the sudo installer)
-        self._generate_tmp_monerod_service_files(db4e=db4e)
+            # Create the Monero daemon vendor directories
+            db4e = self._create_monerod_dirs(db4e=db4e)
 
-        # Copy in the Monero daemon and start script
-        db4e = self._copy_monerod_files(db4e=db4e)
+            # Generate the Monero service files (installed by the sudo installer)
+            self._generate_tmp_monerod_service_files(db4e=db4e)
 
-        # Create the P2Pool daemon vendor directories
-        db4e = self._create_p2pool_dirs(db4e=db4e)
+            # Copy in the Monero daemon and start script
+            db4e = self._copy_monerod_files(db4e=db4e)
 
-        # Generate the P2Pool service files (installed by the sudo installer)
-        self._generate_tmp_p2pool_service_files(db4e=db4e)
+            # Create the P2Pool daemon vendor directories
+            db4e = self._create_p2pool_dirs(db4e=db4e)
 
-        # Copy in the P2Pool daemon and start script
-        db4e = self._copy_p2pool_files(db4e=db4e)
+            # Generate the P2Pool service files (installed by the sudo installer)
+            self._generate_tmp_p2pool_service_files(db4e=db4e)
 
-        # Create the XMRig miner vendor directories
-        db4e = self._create_xmrig_dirs(db4e=db4e)
+            # Copy in the P2Pool daemon and start script
+            db4e = self._copy_p2pool_files(db4e=db4e)
 
-        # Generate the XMRig service file (installed by the sudo installer)
-        self._generate_tmp_xmrig_service_file(db4e=db4e)
+            # Create the XMRig miner vendor directories
+            db4e = self._create_xmrig_dirs(db4e=db4e)
 
-        # Copy in the XMRig miner
-        db4e = self._copy_xmrig_file(db4e=db4e)
+            # Generate the XMRig service file (installed by the sudo installer)
+            self._generate_tmp_xmrig_service_file(db4e=db4e)
 
-        # Deploy internal P2Pool instances to gather metrics
-        db4e = self._deploy_internal_p2pools(db4e=db4e)
+            # Copy in the XMRig miner
+            db4e = self._copy_xmrig_file(db4e=db4e)
 
-        # Run the installer (with sudo)
-        db4e = self._run_sudo_installer(db4e=db4e)
+            # Deploy internal P2Pool instances to gather metrics
+            db4e = self._deploy_internal_p2pools(db4e=db4e)
 
-        # Return the updated Db4E deployment object with embded results
-        log_lines = self._return_tui_log()
+            # Run the installer (with sudo)
+            db4e = self._run_sudo_installer(db4e=db4e)
 
-        # Close the connection to the vendor_dir/db/server.db file, so the Db4E server can
-        # open it cleanly.
-        self.sql_db.close()
+            # Return the updated Db4E deployment object with embded results
+            log_lines = self._return_tui_log()
 
-        return log_lines
+            # Close the connection to the vendor_dir/db/server.db file, so the Db4E server can
+            # open it cleanly.
+            self.sql_db.close()
+
+            return log_lines
+
+        except Exception as e:
+            print(f"ERROR: {e}")
+            print(f"STACKTRACE: {traceback.format_exc()}")
 
     def initial_setup_proceed(self, form_data: dict):
         """
