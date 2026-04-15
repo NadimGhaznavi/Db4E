@@ -123,7 +123,7 @@ class Db4EClient(App):
         self.register_theme(db4e_theme)
 
         # Set the app's theme
-        self.theme = "db4e"
+        self.theme = DField.DB4E
 
         # Start background sync
         await self.sync_client.start()
