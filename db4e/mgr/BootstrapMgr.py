@@ -13,6 +13,7 @@ import platform
 from pathlib import Path
 import tomllib
 import tomli_w
+import getpass
 
 from db4e.constants.DDir import DDir
 from db4e.constants.DFile import DFile
@@ -34,34 +35,67 @@ class BootstrapMgr:
         """
         Initialize the bootstrap manager and load existing config if present.
         """
-        # self._config_path = Path.home() / DFile.DOT_DB4E
-        self._config_path = f"/tmp/{DFile.DOT_DB4E}"
-        self._config = {}
-        if os.path.exists(self._config_path):
-            self._config = self._load()
+        # The non-root user creates the bootstrap file in /tmp,
+        # The root user picks that up and creates a local version in
+        # /root.
+        cur_user = getpass.getuser()
 
-    def _load(self) -> dict:
+        if cur_user == DField.ROOT:
+            tmp_config = f"/{DDir.TMP}/{DFile.DOT_DB4E}"
+            root_config = f"/{DField.ROOT}/{DFile.DOT_DB4E}"
+
+            # Config found in the /tmp directory
+            if os.path.exists(tmp_config):
+                # Load the config from the /tmp directory
+                self._config = self._load(tmp_config)
+                # Save the config to the /root directory
+                self._save(root_config)
+                # Delete the /tmp config
+                os.unlink(tmp_config)
+
+            elif os.path.exists(root_config):
+                # Load the config
+                self._config = self._load(root_config)
+
+            else:
+                raise RuntimeError("No bootstrap found in /tmp or /root")
+
+        else:
+            home_dir = Path.home()
+            home_config = f"/{home_dir}/{DFile.DOT_DB4E}"
+
+            # Found a home config file, load it
+            if os.path.exists(home_config):
+                self._config = self._load(home_config)
+
+    def _load(self, config_file: str) -> dict:
         """
         Load the bootstrap configuration from disk.
 
         :return: Parsed configuration dictionary.
         :rtype: dict
         """
-        with open(self._config_path, "rb") as f:
+        with open(config_file, "rb") as f:
             return tomllib.load(f)
 
     def _save(self):
         """
-        Persist the bootstrap configuration to disk.
+        Persist the bootstrap configuration to disk. Save it to the
+        user's home directory and to /tmp (for pickup by the Db4E
+        systemd service)
         """
-        with open(self._config_path, "wb") as f:
+        home_dir = Path.home()
+        home_config = f"/{home_dir}/{DFile.DOT_DB4E}"
+        tmp_config = f"/{DDir.TMP}/{DFile.DOT_DB4E}"
+
+        with open(home_config, "wb") as f:
+            tomli_w.dump(self._config, f)
+        with open(tmp_config, "wb") as f:
             tomli_w.dump(self._config, f)
 
         if platform.system() != DLabel.WINDOWS:
-            try:
-                os.chmod(self._config_path, 0o600)
-            except Exception:
-                pass
+            os.chmod(home_config, 0o600)
+            os.chmod(tmp_config, 0o600)
 
     def get_dir(self, aDir: str) -> str | None:
         """

@@ -33,6 +33,7 @@ class DDir:
     SRC: Final[str] = "src_dir"
     SYSTEMD: Final[str] = "systemd_dir"
     TEMPLATE: Final[str] = "template_dir"
+    TMP: Final[str] = "tmp"
     TMP_ENVIRON: Final[str] = "DB4E_TMP"
     VENDOR: Final[str] = DField.VENDOR_DIR
     XMRIG: Final[str] = "xmrig"

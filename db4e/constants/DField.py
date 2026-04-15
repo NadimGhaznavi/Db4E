@@ -142,6 +142,7 @@ class DField:
     RESULTS: Final[str] = "results"
     RETRY_TIMEOUT: Final[str] = "retry_timeout"
     RIGHT: Final[str] = "right"
+    ROOT: Final[str] = "root"
     RUN_BACKUP: Final[str] = "run_backup"
     RPC_BIND_PORT: Final[str] = "rpc_bind_port"
     RUNTIME_LOG: Final[str] = "runtime_log"
