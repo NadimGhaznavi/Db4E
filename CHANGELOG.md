@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.48.4] - 2026-04-03 @18:33 - HOTFIX Update PyPI publishing workflows
+## [0.48.5] - 2026-04-16 @ 11:22 - Sudo Pre-Req test implemented
+
+### Added
+- Created new `util/SudoTest.py` and hooked it into the `Db4EClient` and `NavPane` to ensure that the sudo requirements are met before proceeding with the install.
+
+---
+
+## [0.48.4] - 2026-04-03 @ 18:33 - HOTFIX Update PyPI publishing workflows
 
 ### Added
 - A step to install system dependencies for libsystemd, which is required for pystemd.
