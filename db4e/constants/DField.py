@@ -28,6 +28,7 @@ class DField:
     DATA: Final[str] = "data"
     DATA_DIR: Final[str] = "data_dir"
     DAYS: Final[str] = "days"
+    DB4E: Final[str] = "db4e"
     DB4E_DIR: Final[str] = "db4e_dir"
     DB4E_GROUP: Final[str] = "db4e_group"
     DB4E_LOG_FILE: Final[str] = "db4e_log_file"

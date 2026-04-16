@@ -28,6 +28,7 @@ from db4e.panes.PaymentsPane import PaymentsPane
 from db4e.panes.ResultsPane import ResultsPane
 from db4e.panes.TUILogPane import TUILogPane
 from db4e.panes.RuntimePane import RuntimePane
+from db4e.panes.SudoFailedPane import SudoFailedPane
 from db4e.panes.WelcomePane import WelcomePane
 from db4e.panes.XMRigHashratesPane import XMRigHashratesPane
 from db4e.panes.XMRigPane import XMRigPane
@@ -62,6 +63,7 @@ REGISTRY = {
     DPane.RESULTS: (ResultsPane, DLabel.DB4E_LONG, DLabel.RESULTS),
     DPane.TUI_LOG: (TUILogPane, DLabel.LOG, DLabel.TUI_LOG),
     DPane.RUNTIME_LOG: (RuntimePane, DLabel.DB4E_LONG, DLabel.RUNTIME_LOG),
+    DPane.SUDO_FAILED: (SudoFailedPane, DLabel.DB4E_LONG, DLabel.FAILED_PREREQ),
     DPane.WELCOME: (WelcomePane, DLabel.DB4E_LONG, DLabel.WELCOME),
     DPane.XMRIG: (XMRigPane, DLabel.XMRIG, DLabel.NEW),
     DPane.XMRIG_HASHRATES: (XMRigHashratesPane, DLabel.XMRIG, DLabel.HASHRATE),

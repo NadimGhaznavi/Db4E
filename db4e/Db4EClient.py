@@ -10,7 +10,7 @@ db4e/Db4EClient.py
 """
 
 import os
-import time
+import getpass
 from importlib import metadata
 from textual.app import App
 from textual.containers import Vertical
@@ -45,8 +45,8 @@ from db4e.db.OpsDb import OpsDb
 from db4e.db.OpsETL import OpsETL
 from db4e.db.HealthDb import HealthDb
 from db4e.client.HealthClient import HealthClient
-
 from db4e.util.PaneCatalogue import PaneCatalogue
+from db4e.util.SudoTest import SudoTest
 
 from db4e.constants.DDef import DDef
 from db4e.constants.DField import DField
@@ -111,6 +111,7 @@ class Db4EClient(App):
             sync_client=self.sync_client,
             health_client=self.health_client,
         )
+        self._sudo_failed = False
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
@@ -125,8 +126,14 @@ class Db4EClient(App):
         # Set the app's theme
         self.theme = DField.DB4E
 
-        # Start background sync
-        await self.sync_client.start()
+        # If we're in the "install phase", test to see if password free sudo
+        # access is enabled
+        if not self.bs_mgr.is_initialized():
+            sudo_test = SudoTest()
+            if sudo_test.run_test():
+                self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
+                self._sudo_failed = True
+                self.nav_pane.sudo_failed()
 
     ### Message handling happens here...#31b8e6;
 

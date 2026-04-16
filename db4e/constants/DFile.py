@@ -29,5 +29,6 @@ class DFile:
     SERVER_DB: Final[str] = "server.db"
     STATS_MOD: Final[str] = "stats_mod"
     SUDO: Final[str] = "sudo"
+    SUDO_TEST: Final[str] = "sudo_test.sh"
     SYSTEMCTL: Final[str] = "systemctl"
     UVICORN_LOG: Final[str] = "uvicorn.log"

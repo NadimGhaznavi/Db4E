@@ -72,6 +72,7 @@ class NavPane(Container):
 
         self.depls_branch_state = {DElem.MONEROD: {}, DElem.P2POOL: {}, DElem.XMRIG: {}}
 
+        self._sudo_failed = False
         self.refresh_nav_pane()
 
     def check_initialized(self):
@@ -355,12 +356,15 @@ class NavPane(Container):
     def refresh_nav_pane(self) -> None:
         self.check_initialized()
         if not self.is_initialized():
+
             if not self.initial_branches_added:
                 self.initial_branches_added = True
                 # Initial setup
-                self.depls.root.add_leaf(
-                    f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}", data=DLabel.INITIAL_SETUP
-                )
+                if self._sudo_failed:
+                    self.depls.root.add_leaf(
+                        f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}",
+                        data=DLabel.INITIAL_SETUP,
+                    )
                 # Donations
                 self.depls.root.add_leaf(
                     f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
@@ -480,3 +484,6 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
             )
+
+    def sudo_failed(self):
+        self._sudo_failed = True

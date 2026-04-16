@@ -31,6 +31,7 @@ class DPane:
     PAYMENTS: Final[str] = "PaymentsPane"
     RESULTS: Final[str] = "ResultsPane"
     RUNTIME_LOG: Final[str] = "RuntimeLogPane"
+    SUDO_FAILED: Final[str] = "SudoFailedPane"
     TUI_LOG: Final[str] = "TuiLogPane"
     WELCOME: Final[str] = "WelcomePane"
     XMRIG: Final[str] = "XMRigPane"

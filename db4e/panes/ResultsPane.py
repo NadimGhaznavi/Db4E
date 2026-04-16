@@ -7,9 +7,6 @@
 #    License: GPL 3.0
 
 
-from rich import box
-from rich.table import Table
-from textual.app import ComposeResult
 from textual.widgets import Static, Label
 from textual.containers import ScrollableContainer, Vertical
 
@@ -21,12 +18,11 @@ from db4e.constants.DForm import DForm
 class ResultsPane(Static):
     """Textual pane for ResultsPane."""
 
-
     results = Label()
 
     def __init__(self, **kwargs):
         """Initialize the pane.
-        
+
         :param kwargs: Widget keyword arguments.
         :type kwargs: dict
         :return: None
@@ -37,7 +33,7 @@ class ResultsPane(Static):
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
@@ -45,7 +41,7 @@ class ResultsPane(Static):
 
     def set_data(self, elem):
         """Set the data for the pane.
-        
+
         :param elem: Deployment object.
         :type elem: object
         :return: None

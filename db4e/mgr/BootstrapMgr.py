@@ -43,6 +43,7 @@ class BootstrapMgr:
         if cur_user == DField.ROOT:
             tmp_config = f"/{DDir.TMP}/{DFile.DOT_DB4E}"
             root_config = f"/{DField.ROOT}/{DFile.DOT_DB4E}"
+            self._config_path = root_config
 
             # Config found in the /tmp directory
             if os.path.exists(tmp_config):
@@ -63,6 +64,7 @@ class BootstrapMgr:
         else:
             home_dir = Path.home()
             home_config = f"/{home_dir}/{DFile.DOT_DB4E}"
+            self._config_path = home_config
 
             # Found a home config file, load it
             if os.path.exists(home_config):

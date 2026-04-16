@@ -42,6 +42,8 @@ class DLabel:
     END: Final[str] = "End"
     ERROR: Final[str] = "Error"
     EVENT: Final[str] = "Event"
+    EXIT: Final[str] = "Exit"
+    FAILED_PREREQ: Final[str] = "Failed Pre-Requisite"
     GROUP: Final[str] = "Group"
     H_PER_S: Final[str] = "H/s"
     HASHRATE: Final[str] = "Hashrate"
