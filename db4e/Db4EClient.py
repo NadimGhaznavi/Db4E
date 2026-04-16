@@ -130,10 +130,13 @@ class Db4EClient(App):
         # access is enabled
         if not self.bs_mgr.is_initialized():
             sudo_test = SudoTest()
-            if sudo_test.run_test():
+            return_code = sudo_test.run_test()
+            if return_code != 0:
                 self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
                 self._sudo_failed = True
-                self.nav_pane.sudo_failed()
+                self.nav_pane.set_sudo_failed_flag(True)
+            else:
+                self.nav_pane.set_sudo_failed_flag(False)
 
     ### Message handling happens here...#31b8e6;
 
@@ -151,12 +154,17 @@ class Db4EClient(App):
             message.form_data[DField.TO_METHOD],
             message.form_data,
         )
+
+        # Show the failed pre-requisite screen
+        if self._sudo_failed:
+            self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
+
         # The Db4E database is within the deployment directory that's only
         # defined after a successful install. The results of the
         # "InitialInstall" are put into the tui_log_line table and the TUI Log
         # Pane is displayed. We intercept that call and initialize the client
         # database when the "InitialInstall" is successful.
-        if (
+        elif (
             pane == DPane.TUI_LOG
             and type(data) == list
             and len(data) > 0
@@ -168,6 +176,7 @@ class Db4EClient(App):
             self.mining_db.initialize()
             self.health_db.initialize()
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
+
         else:
             self.pane_mgr.set_pane(name=pane, data=data)
 

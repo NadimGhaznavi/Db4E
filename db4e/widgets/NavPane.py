@@ -360,7 +360,7 @@ class NavPane(Container):
             if not self.initial_branches_added:
                 self.initial_branches_added = True
                 # Initial setup
-                if self._sudo_failed:
+                if not self._sudo_failed:
                     self.depls.root.add_leaf(
                         f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}",
                         data=DLabel.INITIAL_SETUP,
@@ -485,5 +485,5 @@ class NavPane(Container):
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
             )
 
-    def sudo_failed(self):
-        self._sudo_failed = True
+    def set_sudo_failed_flag(self, flag: bool) -> None:
+        self._sudo_failed = flag

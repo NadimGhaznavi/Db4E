@@ -27,13 +27,10 @@ class SudoTest:
             result = subprocess.run(
                 ["/usr/bin/sudo", "-n", "true"],
                 timeout=1,
-                capture_output=True,
-                text=True,
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
             )
-            return True
+            return result.returncode
 
         except subprocess.TimeoutExpired:
-            return True
-
-        finally:
-            return True
+            return 1
