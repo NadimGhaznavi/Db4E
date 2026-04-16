@@ -623,7 +623,7 @@ class InstallMgr(Container):
                 DCol.TRACKED_TYPE: DElem.DB4E,
                 DCol.OPERATION: DField.NEW,
                 DCol.STATUS: DStatus.WARN,
-                DCol.MESSAGE: "Found existing vendor directory",
+                DCol.MESSAGE: "Found directory",
                 DCol.DETAILS: vendor_dir,
             }
             log_line = self._add_timestamp(log_line)
@@ -638,7 +638,7 @@ class InstallMgr(Container):
                     DCol.TRACKED_TYPE: DElem.DB4E,
                     DCol.OPERATION: DField.NEW,
                     DCol.STATUS: DStatus.WARN,
-                    DCol.MESSAGE: "Renamed existing vendor directory",
+                    DCol.MESSAGE: "Renamed directory",
                     DCol.DETAILS: f"{vendor_dir} > {backup_vendor_dir}",
                 }
                 log_line = self._add_timestamp(log_line)

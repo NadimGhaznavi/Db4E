@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.
+- Ensure that the *Bootstrap Manager* config attribute was properly initialized.
 ---
 
 ## [0.48.5] - 2026-04-16 @ 11:22 - Sudo Pre-Req test implemented

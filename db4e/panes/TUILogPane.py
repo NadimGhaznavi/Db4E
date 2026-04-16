@@ -6,15 +6,13 @@
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    License: GPL 3.0
 
+from rich.text import Text
 
-from textual.app import Widget
 from textual.reactive import reactive
-from textual.widgets import RichLog, Label
+from textual.widgets import RichLog
 from textual.containers import (
     Container,
-    ScrollableContainer,
     Vertical,
-    HorizontalScroll,
 )
 
 from db4e.constants.DElem import DElem
@@ -118,26 +116,46 @@ class TUILogPane(Container):
                 message = log_line.message() or ""
                 details = log_line.details() or ""
 
-            date = f"{year}-{month:02d}-{day:02d}"
-            time = f"{hour:02d}:{minute:02d}:{second:02d}"
-            if status == DStatus.GOOD.upper():
-                status = f"[b green]{status}[/]"
+            date_str = f"{year}-{month:02d}-{day:02d}"
+            date_text = Text(f"{date_str:<10}", style="green")
+
+            time_str = f"{hour:02d}:{minute:02d}:{second:02d}"
+            time_text = Text(f"{time_str:<8}")
+            operation = Text(f"{operation:<7}", style="yellow")
+            instance = Text(f"{instance:<18}", style="bold light_salmon3")
+            message = Text(f"{message:<20}", style="bold")
+            details = Text(f"{details:<20}")
+
+            if status == DStatus.GOOD.upper() or status == DStatus.COMPLETE.upper():
+                status_text = Text(f"{status:>10}", style="bold green")
             elif status == DStatus.WARN.upper():
-                status = f"[b yellow]{status}[/]"
+                status_text = Text(f"{status:>10}", style="bold yellow")
             elif status == DStatus.ERROR.upper():
-                status = f"[b red]{status}[/]"
+                status_text = Text(f"{status:>10}", style="bold red")
+            else:
+                raise ValueError(f"Unrecognized status: {status}")
 
             if tracked_type:
                 elem = TYPE_TABLE[tracked_type]
             else:
                 elem = ""
+            elem = Text(f"{elem:<13}", style="light_salmon3")
 
-            log_widget.write(
-                f"{date:>10s}  {time:>8s}  "
-                f"{status:<10s}  "
-                f"[b #b48c1e]{operation:<7s}  [/]"
-                f"[#6fbc53]{elem:<13}  [/]"
-                f"[b #6fbc53]{instance:<18s}  [/]"
-                f"[b #bababa]{message:<20s}  [/]"
-                f"[#bababa]{details:<20s}  [/]"
-            )
+            row = Text()
+            row.append_text(date_text)
+            row.append("  ")
+            row.append_text(time_text)
+            row.append("  ")
+            row.append_text(status_text)
+            row.append("  ")
+            row.append_text(operation)
+            row.append("  ")
+            row.append_text(elem)
+            row.append("  ")
+            row.append_text(instance)
+            row.append("  ")
+            row.append_text(message)
+            row.append("  ")
+            row.append_text(details)
+
+            log_widget.write(row)
