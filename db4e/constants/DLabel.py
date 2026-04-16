@@ -133,6 +133,7 @@ class DLabel:
     USER: Final[str] = "User"
     USER_WALLET: Final[str] = "Monero user wallet"
     VENDOR_DIR: Final[str] = "Deployment Dir"
+    VENDOR_DIR_LONG: Final[str] = "Deployment Directory"
     VERSION: Final[str] = "Version"
     WEEK_1: Final[str] = "One Week"
     WEEKS_2: Final[str] = "Two Weeks"

@@ -66,7 +66,7 @@ class InitialSetupPane(Container):
                         ),
                     ),
                     Horizontal(
-                        Label(DLabel.VENDOR_DIR, classes=DForm.FORM_LABEL),
+                        Label(DLabel.VENDOR_DIR_LONG, classes=DForm.FORM_LABEL),
                         Input(
                             restrict=r"/[a-zA-Z0-9/_.\- ]*",
                             compact=True,
