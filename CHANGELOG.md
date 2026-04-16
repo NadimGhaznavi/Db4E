@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleaed]
+
+### Fixed
+- Made the wording in the *Initial Setup* screen consistent.
+---
+
 ## [0.48.5] - 2026-04-16 @ 11:22 - Sudo Pre-Req test implemented
 
 ### Added

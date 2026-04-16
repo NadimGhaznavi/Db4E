@@ -53,6 +53,8 @@ class BootstrapMgr:
                 self._save(root_config)
                 # Delete the /tmp config
                 os.unlink(tmp_config)
+                # Setup the config object
+                self._config = self._load(root_config)
 
             elif os.path.exists(root_config):
                 # Load the config
@@ -69,6 +71,8 @@ class BootstrapMgr:
             # Found a home config file, load it
             if os.path.exists(home_config):
                 self._config = self._load(home_config)
+            else:
+                self._config = {}
 
     def _load(self, config_file: str) -> dict:
         """
