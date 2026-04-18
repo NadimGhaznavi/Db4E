@@ -22,6 +22,7 @@ from db4e.constants.DMethod import DMethod
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DForm import DForm
+from db4e.constants.DDef import DDef
 
 
 MAX_GROUP_LENGTH = 20
@@ -53,8 +54,12 @@ class InitialSetupPane(Container):
                         Label("", id=DForm.GROUP_NAME_LABEL, classes=DForm.STATIC),
                     ),
                     Horizontal(
-                        Label(DLabel.INSTALL_DIR, classes=DForm.FORM_LABEL),
+                        Label(DLabel.INSTALL_SOURCE, classes=DForm.FORM_LABEL),
                         Label("", id=DForm.INSTALL_DIR_LABEL, classes=DForm.STATIC),
+                    ),
+                    Horizontal(
+                        Label(DLabel.INSTALL_TARGET, classes=DForm.FORM_LABEL),
+                        Label(DDef.DB4E_INSTALL_DIR, classes=DForm.STATIC),
                     ),
                     Horizontal(
                         Label(DLabel.USER_WALLET, classes=DForm.FORM_LABEL),
@@ -62,15 +67,6 @@ class InitialSetupPane(Container):
                             restrict=r"[a-zA-Z0-9]*",
                             compact=True,
                             id=DForm.USER_WALLET_INPUT,
-                            classes=DForm.INPUT_70,
-                        ),
-                    ),
-                    Horizontal(
-                        Label(DLabel.VENDOR_DIR_LONG, classes=DForm.FORM_LABEL),
-                        Input(
-                            restrict=r"/[a-zA-Z0-9/_.\- ]*",
-                            compact=True,
-                            id=DForm.VENDOR_DIR_INPUT,
                             classes=DForm.INPUT_70,
                         ),
                     ),
@@ -111,9 +107,6 @@ class InitialSetupPane(Container):
         self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = (
             db4e.user_wallet() or ""
         )
-        self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value = (
-            db4e.vendor_dir() or ""
-        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button pressed events.
@@ -129,9 +122,7 @@ class InitialSetupPane(Container):
             self.db4e.user_wallet(
                 self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value
             )
-            self.db4e.vendor_dir(
-                self.query_one(f"#{DForm.VENDOR_DIR_INPUT}", Input).value
-            )
+            self.db4e.vendor_dir(DDef.DB4E_INSTALL_DIR)
             form_data = {
                 DField.TO_MODULE: DModule.INSTALL_MGR,
                 DField.TO_METHOD: DMethod.INITIAL_SETUP,
