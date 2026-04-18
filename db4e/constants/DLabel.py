@@ -53,6 +53,8 @@ class DLabel:
     IN_PEERS: Final[str] = "Inbound max peers"
     INITIAL_SETUP: Final[str] = "Initial Setup"
     INSTALL_DIR: Final[str] = "Install Directory"
+    INSTALL_SOURCE: Final[str] = "Install Source"
+    INSTALL_TARGET: Final[str] = "Install Target"
     INSTANCE: Final[str] = "Instance"
     IP_ADDR: Final[str] = "Hostname/IP Address"
     LOCAL_TIMESTAMP: Final[str] = "Localtime Timestamp"

@@ -28,8 +28,10 @@ class DDef:
     DB_PORT: Final[int] = 27017
     DB_RETRY_TIMEOUT: Final[int] = 3000
     DB_SERVER: Final[str] = "localhost"
+    DB4E_CREATE_INSTALL_DIR_SCRIPT: Final[str] = "db4e-create-install-dir.sh"
     DB4E_DIR: Final[str] = "db4e"
     DB4E_INITIAL_SETUP_SCRIPT: Final[str] = "db4e-initial-setup.sh"
+    DB4E_INSTALL_DIR: Final[str] = "/opt/Db4E"
     DB4E_INSTALL_SERVICE: Final[str] = "db4e-install-service.sh"
     DB4E_LOG_FILE: Final[str] = "db4e.log"
     DB4E_LOGGER: Final[str] = "Db4eLogger"
@@ -105,7 +107,7 @@ class DDef:
     TEMPLATES_DIR: Final[str] = "templates"
     TERM: Final[str] = "xterm-256color"
     TMP_DIR: Final[str] = "/tmp"
-    VENDOR_DIR: Final[str] = "vendor"
+    VENDOR_DIR: Final[str] = "/opt/Db4E"
     XMRIG_CONF_DIR: Final[str] = "conf"
     XMRIG_CONFIG: Final[str] = "config.json"
     XMRIG_DIR: Final[str] = "xmrig"

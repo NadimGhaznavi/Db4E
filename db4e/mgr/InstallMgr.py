@@ -616,69 +616,62 @@ class InstallMgr(Container):
         """
         # print(f"InstallMgr:_create_vendor_dir(): vendor_dir {vendor_dir}")
         abort_install = False
-        vendor_dir = db4e.vendor_dir()
-        if os.path.exists(vendor_dir):
-            log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                DCol.TRACKED_TYPE: DElem.DB4E,
-                DCol.OPERATION: DField.NEW,
-                DCol.STATUS: DStatus.WARN,
-                DCol.MESSAGE: "Found directory",
-                DCol.DETAILS: vendor_dir,
-            }
-            log_line = self._add_timestamp(log_line)
-            log_line_data.append(log_line)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_vendor_dir = vendor_dir + "." + timestamp
+        db4e_install_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..")
+        )
 
-            try:
-                os.rename(vendor_dir, backup_vendor_dir)
-                log_line = {
-                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                    DCol.TRACKED_TYPE: DElem.DB4E,
-                    DCol.OPERATION: DField.NEW,
-                    DCol.STATUS: DStatus.WARN,
-                    DCol.MESSAGE: "Renamed directory",
-                    DCol.DETAILS: f"{vendor_dir} > {backup_vendor_dir}",
-                }
-                log_line = self._add_timestamp(log_line)
-                log_line_data.append(log_line)
+        fq_create_install_dir = os.path.abspath(
+            os.path.join(
+                db4e_install_dir, DDef.BIN_DIR, DDef.DB4E_CREATE_INSTALL_DIR_SCRIPT
+            )
+        )
+        stderr = ""
+        try:
+            cmd_result = subprocess.run(
+                [DDef.SUDO_CMD, fq_create_install_dir],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                input=b"",
+                timout=5,
+            )
+            stdout = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stdout.decode().strip()
 
-            except (PermissionError, OSError, FileNotFoundError) as e:
+            # Check the return code
+            if cmd_result.returncode != 0:
+                abort_install = True
                 log_line = {
-                    DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                    DCol.TRACKED_TYPE: DElem.DB4E,
+                    DCol.TRACKED_INSTANCE: DLabel.INSTALL_DIR,
+                    DCol.TRACKED_TYPE: DLabel.DB4E,
                     DCol.OPERATION: DField.NEW,
                     DCol.STATUS: DStatus.ERROR,
-                    DCol.MESSAGE: "Failed to rename existing vendor directory",
-                    DCol.DETAILS: e,
+                    DCol.MESSAGE: "Script failed",
+                    DCol.DETAILS: stderr,
                 }
                 log_line = self._add_timestamp(log_line)
                 log_line_data.append(log_line)
-                abort_install = True
-                return log_line_data, abort_install  # Abort the install
+                return log_line_data, abort_install
 
-        try:
-            os.makedirs(vendor_dir)
-            log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                DCol.TRACKED_TYPE: DElem.DB4E,
-                DCol.OPERATION: DField.NEW,
-                DCol.STATUS: DStatus.COMPLETE,
-                DCol.MESSAGE: "Create Directory",
-                DCol.DETAILS: vendor_dir,
-            }
-            log_line = self._add_timestamp(log_line)
-            log_line_data.append(log_line)
+            script_output = f"{stdout}"
+            for line in script_output.split("\n"):
+                message, details = line.split("----")
+                self.ops_db.add_tui_log_line(
+                    tracked_type=DElem.DB4E,
+                    tracked_instance=DLabel.DB4E,
+                    operation=DField.NEW,
+                    status=DStatus.COMPLETE,
+                    message=message,
+                    details=details,
+                )
 
-        except (PermissionError, FileNotFoundError, FileExistsError) as e:
+        except Exception as e:
             log_line = {
-                DCol.TRACKED_INSTANCE: DLabel.VENDOR_DIR,
-                DCol.TRACKED_TYPE: DElem.DB4E,
+                DCol.TRACKED_INSTANCE: DLabel.INSTALL_DIR,
+                DCol.TRACKED_TYPE: DLabel.DB4E,
                 DCol.OPERATION: DField.NEW,
                 DCol.STATUS: DStatus.ERROR,
-                DCol.MESSAGE: "Failed to create vendor directory",
-                DCol.DETAILS: e,
+                DCol.MESSAGE: "Script failed",
+                DCol.DETAILS: stderr,
             }
             log_line = self._add_timestamp(log_line)
             log_line_data.append(log_line)

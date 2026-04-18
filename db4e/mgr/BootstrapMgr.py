@@ -273,9 +273,8 @@ class BootstrapMgr:
         :param vendor_dir: Vendor directory to persist.
         :type vendor_dir: str
         """
-        vendor_dir_path = Path(vendor_dir).expanduser().resolve()
-        vendor_dir_path.mkdir(parents=True, exist_ok=True)
-        self._config[DField.VENDOR_DIR] = str(vendor_dir_path)
+        self._config_path.mkdir(parents=True, exist_ok=True)
+        self._config[DField.VENDOR_DIR] = str(DDef.DB4E_INSTALL_DIR)
         self._save()
 
     def is_initialized(self) -> bool:
