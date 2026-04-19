@@ -74,6 +74,8 @@ class SQLDb:
             home_dir = Path.home()
             self._db_dir = os.path.join(home_dir, DDir.DOT_DB4E)
             self._db_file = os.path.join(home_dir, DDir.DOT_DB4E, DFile.CLIENT_DB)
+            if not os.path.exists(self._db_dir):
+                os.mkdir(self._db_dir)
 
         # Connect to SQLite, get a cursor and initialize the DB
         self._conn = sqlite3.connect(self._db_file)
