@@ -7,7 +7,6 @@
 #    License: GPL 3.0
 
 import os, sqlite3
-from datetime import datetime
 from pathlib import Path
 
 from db4e.util.Db4ELogger import Db4ELogger
@@ -64,13 +63,29 @@ class SQLDb:
         """
         self.bs_mgr = bs_mgr
         self._db_type = db_type
-        self._db_dir = None
-        self._conn = None
-        self._cursor = None
-        self._sync_meta_initialized = False
 
-        self.initialize()
+        if db_type == DField.SERVER:
+            self._db_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DDir.DB)
+            self._db_file = os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
+            )
 
+        elif db_type == DField.CLIENT:
+            home_dir = Path.home()
+            self._db_dir = os.path.join(home_dir, DDir.DOT_DB4E)
+            self._db_file = os.path.join(home_dir, DDir.DOT_DB4E, DFile.CLIENT_DB)
+
+        # Connect to SQLite, get a cursor and initialize the DB
+        self._conn = sqlite3.connect(self._db_file)
+        self._conn.row_factory = sqlite3.Row
+        self._conn.execute("PRAGMA foreign_keys = ON;")
+        self._cursor = self._conn.cursor()
+        self._initialized = True
+
+        # Initialize the DB
+        if not self._sync_meta_initialized:
+            self._sync_meta_initialized = True
+            self._init_db()
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
         else:
@@ -78,27 +93,6 @@ class SQLDb:
 
         self._sync_meta_initialized = True
         self._init_db()
-
-    def check_initialized(self):
-        """
-        Validate that the SQLDb is fully initialized.
-
-        Initialization means:
-
-        - BootstrapMgr knows the location of the database directory.
-        - A SQLite connection has been created.
-        - The internal ``init_db()`` metadata initialization has been performed.
-
-        :return: ``True`` if initialized, otherwise ``False``.
-        :rtype: bool
-        """
-        if self.is_initialized():
-            return
-        else:
-            if self.bs_mgr.is_initialized():
-                self._initialized = True
-            else:
-                self._initialized = False
 
     def close(self):
         """
@@ -250,44 +244,6 @@ class SQLDb:
                 "INSERT OR IGNORE INTO sync_meta (table_name, last_sync_ts) VALUES (?, 0)",
                 (table_name,),
             )
-
-    def initialize(self):
-        """
-        Initialize the SQLite database file and open a connection.
-
-        This method:
-
-        - Ensures the database directory exists.
-        - Selects the correct database file depending on ``db_type``.
-        - Opens a SQLite connection with ``Row`` factory.
-        - Enables foreign key constraints.
-        - Initializes ``sync_meta`` if not already initialized.
-
-        :param db_dir: Directory where the SQLite file should be created or opened.
-        :type db_dir: str
-        :raises ValueError: If ``db_type`` is not recognized.
-        """
-        home_dir = Path.home()
-        if self._db_type == DField.SERVER:
-            self._db_file = os.path.join(
-                DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
-            )
-        elif self._db_type == DField.CLIENT:
-            self._db_file = os.path.join(home_dir, DDir.DOT_DB4E, DFile.CLIENT_DB)
-        else:
-            raise ValueError(f"Unrecognized db_type: {self._db_type}")
-
-        # Connect to SQLite, get a cursor and initialize the DB
-        self._conn = sqlite3.connect(self._db_file)
-        self._conn.row_factory = sqlite3.Row
-        self._conn.execute("PRAGMA foreign_keys = ON;")
-        self._cursor = self._conn.cursor()
-        self._initialized = True
-
-        # Initialize the DB
-        if not self._sync_meta_initialized:
-            self._sync_meta_initialized = True
-            self._init_db()
 
     def insert_one(self, sql, values):
         """
