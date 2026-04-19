@@ -9,10 +9,7 @@
 
 from __future__ import annotations
 import os
-import platform
 from pathlib import Path
-import tomllib
-import tomli_w
 import getpass
 
 from db4e.constants.DDir import DDir
@@ -27,81 +24,20 @@ class BootstrapMgr:
     """
     Handles reading and writing the user's bootstrap configuration file.
 
-    This file (~/.db4e on Linux/macOS, %USERPROFILE%\\.db4e on Windows)
-    contains minimal information needed to locate and initialize the SQLite DB.
+    This file (~/.db4e/bootstrap on Linux/macOS,
+    %USERPROFILE%\\.db4e\bootstrap on Windows)
+    contains minimal information needed to locate and initialize the
+    SQLite DB.
     """
 
     def __init__(self):
         """
-        Initialize the bootstrap manager and load existing config if present.
+        Initialize the bootstrap manager and load existing config if
+        present.
         """
-        # The non-root user creates the bootstrap file in /tmp,
-        # The root user picks that up and creates a local version in
-        # /root.
-        cur_user = getpass.getuser()
-
-        if cur_user == DField.ROOT:
-            tmp_config = f"/{DDir.TMP}/{DFile.DOT_DB4E}"
-            root_config = f"/{DField.ROOT}/{DFile.DOT_DB4E}"
-            self._config_path = root_config
-
-            # Config found in the /tmp directory
-            if os.path.exists(tmp_config):
-                # Load the config from the /tmp directory
-                self._config = self._load(tmp_config)
-                # Save the config to the /root directory
-                self._save(root_config)
-                # Delete the /tmp config
-                os.unlink(tmp_config)
-                # Setup the config object
-                self._config = self._load(root_config)
-
-            elif os.path.exists(root_config):
-                # Load the config
-                self._config = self._load(root_config)
-
-            else:
-                raise RuntimeError("No bootstrap found in /tmp or /root")
-
-        else:
-            home_dir = Path.home()
-            home_config = f"/{home_dir}/{DFile.DOT_DB4E}"
-            self._config_path = home_config
-
-            # Found a home config file, load it
-            if os.path.exists(home_config):
-                self._config = self._load(home_config)
-            else:
-                self._config = {}
-
-    def _load(self, config_file: str) -> dict:
-        """
-        Load the bootstrap configuration from disk.
-
-        :return: Parsed configuration dictionary.
-        :rtype: dict
-        """
-        with open(config_file, "rb") as f:
-            return tomllib.load(f)
-
-    def _save(self):
-        """
-        Persist the bootstrap configuration to disk. Save it to the
-        user's home directory and to /tmp (for pickup by the Db4E
-        systemd service)
-        """
-        home_dir = Path.home()
-        home_config = f"/{home_dir}/{DFile.DOT_DB4E}"
-        tmp_config = f"/{DDir.TMP}/{DFile.DOT_DB4E}"
-
-        with open(home_config, "wb") as f:
-            tomli_w.dump(self._config, f)
-        with open(tmp_config, "wb") as f:
-            tomli_w.dump(self._config, f)
-
-        if platform.system() != DLabel.WINDOWS:
-            os.chmod(home_config, 0o600)
-            os.chmod(tmp_config, 0o600)
+        # This is either root, if this is the Db4E service, or the
+        # non-root user who is running the TUI.
+        self._cur_user = getpass.getuser()
 
     def get_dir(self, aDir: str) -> str | None:
         """
@@ -115,7 +51,13 @@ class BootstrapMgr:
         if aDir == DDir.DB:
             if not self.is_initialized():
                 raise RuntimeError("BootstrapMgr not initialized")
-            return os.path.join(self._config.get(DField.VENDOR_DIR), DDef.DB_DIR)
+
+            if self._cur_user == DField.ROOT:
+                return os.path.join(DDef.DB4E_INSTALL_DIR, DDir.DB)
+
+            else:
+                home_dir = Path.home()
+                return os.path.join(home_dir, DDir.DOT_DB4E)
 
         elif aDir == DElem.DB4E:
             return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -137,20 +79,13 @@ class BootstrapMgr:
             )
 
         elif aDir == DDir.LOGROTATE:
-            if not self.is_initialized():
-                raise RuntimeError("BootstrapMgr not initialized")
-            return os.path.join(self._config.get(DField.VENDOR_DIR), DDef.LOGROTATE)
+            return os.path.join(DDef.DB4E_INSTALL_DIR, DDef.LOGROTATE)
 
         elif aDir == DElem.MONEROD:
             return DElem.MONEROD
 
         elif aDir == DElem.P2POOL:
             return DElem.P2POOL
-
-        elif aDir == DDir.VENDOR:
-            if not self.is_initialized():
-                raise RuntimeError("BootstrapMgr not initialized")
-            return self._config.get(DField.VENDOR_DIR)
 
         elif aDir == DElem.XMRIG:
             return DElem.XMRIG
@@ -194,9 +129,6 @@ class BootstrapMgr:
         :return: Absolute template path or None.
         :rtype: str or None
         """
-        if not self.is_initialized():
-            return None
-
         tmpl_dir = self.get_dir(DDir.TEMPLATE)
 
         if elem_type == DElem.DB4E:
@@ -266,28 +198,8 @@ class BootstrapMgr:
 
         return tmpl_file
 
-    def initialize(self, vendor_dir: str):
-        """
-        Initialize bootstrap configuration with a vendor directory.
-
-        :param vendor_dir: Vendor directory to persist.
-        :type vendor_dir: str
-        """
-        self._config_path.mkdir(parents=True, exist_ok=True)
-        self._config[DField.VENDOR_DIR] = str(DDef.DB4E_INSTALL_DIR)
-        self._save()
-
-    def is_initialized(self) -> bool:
-        """
-        Check whether the bootstrap configuration has been initialized.
-
-        :return: True if initialized, otherwise False.
-        :rtype: bool
-        """
-        return os.path.exists(self._config_path) and DField.VENDOR_DIR in self._config
-
     def __repr__(self):
         """
         Return a concise representation of the bootstrap manager.
         """
-        return f"BootstrapMgr(vendor_dir={self.get_vendor_dir()})"
+        return f"BootstrapMgr()"

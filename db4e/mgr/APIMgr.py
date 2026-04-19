@@ -43,7 +43,7 @@ class APIMgr:
     API manager that exposes deployment operations via FastAPI.
     """
 
-    def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb, depl_mgr: DeplMgr):
+    def __init__(self, bs_mgr: BootstrapMgr, depl_mgr: DeplMgr):
         """
         Initialize the API manager and configure the Uvicorn server.
 
@@ -111,8 +111,9 @@ class APIMgr:
         :rtype: dict
         """
         # Configure the log file
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
-        log_file = os.path.join(vendor_dir, DElem.DB4E, DDef.LOG_DIR, DFile.UVICORN_LOG)
+        log_file = os.path.join(
+            DDef.DB4E_INSTALL_DIR, DElem.DB4E, DDef.LOG_DIR, DFile.UVICORN_LOG
+        )
         return {
             "version": 1,
             "disable_existing_loggers": False,

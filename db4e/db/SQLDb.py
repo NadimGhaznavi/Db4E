@@ -8,12 +8,14 @@
 
 import os, sqlite3
 from datetime import datetime
+from pathlib import Path
 
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 
 
 from db4e.constants.DFile import DFile
+from db4e.constants.DDef import DDef
 from db4e.constants.DDir import DDir
 from db4e.constants.DField import DField
 from db4e.constants.DSQL import (
@@ -67,20 +69,15 @@ class SQLDb:
         self._cursor = None
         self._sync_meta_initialized = False
 
-        if bs_mgr.is_initialized():
-            self.initialize(db_dir=bs_mgr.get_dir(DDir.DB))
-            self._initialized = True
-        else:
-            self._initialized = False
+        self.initialize()
 
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
         else:
             self.log = None
 
-        if self.is_initialized():
-            self._sync_meta_initialized = True
-            self._init_db()
+        self._sync_meta_initialized = True
+        self._init_db()
 
     def check_initialized(self):
         """
@@ -254,7 +251,7 @@ class SQLDb:
                 (table_name,),
             )
 
-    def initialize(self, db_dir: str):
+    def initialize(self):
         """
         Initialize the SQLite database file and open a connection.
 
@@ -270,14 +267,13 @@ class SQLDb:
         :type db_dir: str
         :raises ValueError: If ``db_type`` is not recognized.
         """
-        self._db_dir = db_dir
-        if not os.path.exists(db_dir):
-            os.makedirs(db_dir)
-
+        home_dir = Path.home()
         if self._db_type == DField.SERVER:
-            self._db_file = os.path.join(db_dir, DFile.SERVER_DB)
+            self._db_file = os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
+            )
         elif self._db_type == DField.CLIENT:
-            self._db_file = os.path.join(db_dir, DFile.CLIENT_DB)
+            self._db_file = os.path.join(home_dir, DDir.DOT_DB4E, DFile.CLIENT_DB)
         else:
             raise ValueError(f"Unrecognized db_type: {self._db_type}")
 

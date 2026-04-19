@@ -15,6 +15,8 @@
 
 TARGET_DIR=/opt/Db4E
 
+DB4E_USER=$1
+
 if [ -e "$TARGET_DIR" ]; then
     echo "Found install dir----/opt/Db4E"
     TS="$(date +%Y%m%d_%H%M%S)"
@@ -24,6 +26,6 @@ fi
 
 
 mkdir -p "$TARGET_DIR"
-chown root:root "$TARGET_DIR"
+chown "$DB4E_USER":root "$TARGET_DIR"
 chmod 755 "$TARGET_DIR"
 echo "Created directory----${TARGET_DIR}"

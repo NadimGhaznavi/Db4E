@@ -121,4 +121,4 @@ echo "Set Permissions----$VENDOR_DIR/xmrig/bin/xmrig"
 
 # Set ownership of the installed files
 chown -R root:"$DB4E_GROUP" "$VENDOR_DIR"
-echo "Set Ownership----$VENDER_DIR"
+echo "Set Ownership----$VENDOR_DIR"

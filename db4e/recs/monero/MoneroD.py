@@ -400,26 +400,24 @@ class MoneroD(LocalMonero):
         return self._zmq_rpc_port
 
     # Generate the startup config file
-    def gen_config(self, tmpl_file: str, vendor_dir: str):
+    def gen_config(self, tmpl_file: str):
         """
         Generate a Monero daemon config file from a template.
 
         :param tmpl_file: Template file path.
         :type tmpl_file: str
-        :param vendor_dir: Vendor directory root.
-        :type vendor_dir: str
         :return: None
         :rtype: None
         """
         # Generate a Monero Daemon configuration file
-        monerod_dir = os.path.join(vendor_dir, DElem.MONEROD)
+        monerod_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DElem.MONEROD)
         fq_config = os.path.join(
             monerod_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX
         )
 
         # Monerod log file
         fq_log = os.path.join(
-            vendor_dir,
+            DDef.DB4E_INSTALL_DIR,
             DElem.MONEROD,
             self.instance(),
             DDef.LOG_DIR,

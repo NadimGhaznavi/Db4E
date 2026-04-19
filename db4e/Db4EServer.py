@@ -80,10 +80,11 @@ class Db4eServer:
             raise ValueError("ERROR: Db4E initial install not completed!")
 
         # Setup logging
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         logs_dir = DDef.LOG_DIR
         log_file = DDef.DB4E_LOG_FILE
-        fq_log_file = os.path.join(vendor_dir, DElem.DB4E, logs_dir, log_file)
+        fq_log_file = os.path.join(
+            DDef.DB4E_INSTALL_DIR, DElem.DB4E, logs_dir, log_file
+        )
         self.log_file = fq_log_file
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
@@ -451,7 +452,6 @@ class Db4eServer:
         while True:
             # Run logrotate every two hours
             cur_hour = datetime.now().hour
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             if self.last_logrotate is None or self.last_logrotate != cur_hour:
                 self.last_logrotate = cur_hour
                 try:
@@ -488,7 +488,7 @@ class Db4eServer:
                                     depls[(elem_type, instance)] = False
 
                         # Watch to see if a log was rotated
-                        pattern = rf"considering log {re.escape(vendor_dir)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
+                        pattern = rf"considering log {re.escape(DDef.DB4E_INSTALL_DIR)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
                         match = re.search(pattern, line)
                         if match:
                             # self.log.critical(f"line: {line}")
@@ -636,12 +636,11 @@ class Db4eServer:
                 p2pool.monerod = self.depl_db.get_deployment_by_id(
                     DElem.MONEROD, monerod_id
                 )
-                vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
                 tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
-                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.gen_config(tmpl_file=tmpl_file)
                 p2pool.log_file(
                     os.path.join(
-                        vendor_dir,
+                        DDef.DB4E_INSTALL_DIR,
                         self.bs_mgr.get_dir(DElem.P2POOL),
                         p2pool.instance(),
                         DDir.LOG,

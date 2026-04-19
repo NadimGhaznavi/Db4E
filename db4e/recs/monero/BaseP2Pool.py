@@ -108,6 +108,153 @@ class BaseP2Pool(LocalMonero):
         self._user_wallet = rec[DCol.USER_WALLET]
         self._version = rec[DCol.VERSION]
 
+    # Generate the P2Pool startup config file
+    def gen_config(self, tmpl_file: str):
+        """
+        Generate a P2Pool config file from a template.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :return: None
+        :rtype: None
+        """
+
+        p2pool_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DElem.P2POOL)
+        api_dir = os.path.join(p2pool_dir, self.instance(), DDef.API_DIR)
+        run_dir = os.path.join(p2pool_dir, self.instance(), DDef.RUN_DIR)
+        log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
+
+        fq_config = os.path.join(
+            p2pool_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX
+        )
+
+        # Monero settings
+        monerod_ip = self.monerod.ip_addr()
+        monerod_zmq_port = self.monerod.zmq_pub_port()
+        monerod_rpc_port = self.monerod.rpc_bind_port()
+
+        # Populate the config templace placeholders
+        placeholders = {
+            DPlaceholder.WALLET: self.user_wallet(),
+            DPlaceholder.P2P_DIR: p2pool_dir,
+            DPlaceholder.MONEROD_IP: monerod_ip,
+            DPlaceholder.ZMQ_PUB_PORT: monerod_zmq_port,
+            DPlaceholder.RPC_BIND_PORT: monerod_rpc_port,
+            DPlaceholder.LOG_LEVEL: self.log_level(),
+            DPlaceholder.P2P_PORT: self.p2p_port(),
+            DPlaceholder.STRATUM_PORT: self.stratum_port(),
+            DPlaceholder.IN_PEERS: self.in_peers(),
+            DPlaceholder.OUT_PEERS: self.out_peers(),
+            DPlaceholder.CHAIN: self.chain(),
+            DPlaceholder.ANY_IP: self.any_ip(),
+            DPlaceholder.API_DIR: api_dir,
+            DPlaceholder.RUN_DIR: run_dir,
+            DPlaceholder.LOG_DIR: log_dir,
+        }
+        with open(tmpl_file, "r") as f:
+            config_contents = f.read()
+            final_config = config_contents
+            for key, val in placeholders.items():
+                final_config = final_config.replace(f"[[{key}]]", str(val))
+
+        # Write the config to file
+        with open(fq_config, "w") as f:
+            f.write(final_config)
+        self.config_file(fq_config)
+
+    # Generate the P2Pool logrotate configuration
+    def gen_logrotate_config(self, tmpl_file: str):
+        """
+        Generate a P2Pool logrotate configuration file.
+
+        :param tmpl_file: Template file path.
+        :type tmpl_file: str
+        :param db4e_group: Db4E group name for permissions.
+        :type db4e_group: str
+        :return: None
+        :rtype: None
+        """
+        # Logrotate configuration file
+        fq_config = os.path.join(
+            DDef.DB4E_INSTALL_DIR,
+            DDef.LOGROTATE,
+            DElem.P2POOL + "-" + self.instance() + DDef.CONF_SUFFIX,
+        )
+
+        # Populate the config template
+        placeholders = {
+            DPlaceholder.VENDOR_DIR: DDef.DB4E_INSTALL_DIR,
+            DPlaceholder.INSTANCE: self.instance(),
+            DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
+            DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
+        }
+        with open(tmpl_file, "r") as f:
+            config_contents = f.read()
+            final_config = config_contents
+            for key, val in placeholders.items():
+                final_config = final_config.replace(f"[[{key}]]", str(val))
+
+        # Write the config to file
+        with open(fq_config, "w") as f:
+            f.write(final_config)
+        self.logrotate_config(fq_config)
+
+    # The current pool hashrate
+    def hashrate(self, hashrate=None):
+        """
+        Get or set the current pool hashrate.
+
+        :param hashrate: Optional hashrate value to set.
+        :type hashrate: int or None
+        :return: Current hashrate value.
+        :rtype: int or None
+        """
+        if hashrate is not None:
+            self._hashrate = hashrate
+        return self._hashrate
+
+    # Historical pool hashrate data
+    def hashrates(self, hashrate_data=None):
+        """
+        Get or set historical pool hashrate data.
+
+        :param hashrate_data: Optional historical data to set.
+        :type hashrate_data: list or dict or None
+        :return: Historical hashrate data.
+        :rtype: list or dict or None
+        """
+        if hashrate_data is not None:
+            self._hashrates = hashrate_data
+        return self._hashrates
+
+    # Instance map: Used to construct the upstream Monero daemon radioset
+    def instance_map(self, map=None):
+        """
+        Get or set the instance map for radioset construction.
+
+        :param map: Optional instance map to set.
+        :type map: dict or None
+        :return: Current instance map.
+        :rtype: dict
+        """
+        if map is not None:
+            self._instance_map = map
+        return self._instance_map
+
+    # Historical share found data
+    def shares_found(self, shares_found=None):
+        """
+        Get or set historical share found data.
+
+        :param shares_found: Optional historical data to set.
+        :type shares_found: list or dict or None
+        :return: Historical share found data.
+        :rtype: list or dict or None
+        """
+        if shares_found is not None:
+            self._shares_found = shares_found
+        return self._shares_found
+
     def to_dict(self):
         """
         Return a dictionary representation of the record.
@@ -375,154 +522,3 @@ class BaseP2Pool(LocalMonero):
         if version is not None:
             self._version = str(version)
         return self._version
-
-    # Generate the P2Pool startup config file
-    def gen_config(self, tmpl_file: str, vendor_dir: str):
-        """
-        Generate a P2Pool config file from a template.
-
-        :param tmpl_file: Template file path.
-        :type tmpl_file: str
-        :param vendor_dir: Vendor directory root.
-        :type vendor_dir: str
-        :return: None
-        :rtype: None
-        """
-
-        p2pool_dir = os.path.join(vendor_dir, DElem.P2POOL)
-        api_dir = os.path.join(p2pool_dir, self.instance(), DDef.API_DIR)
-        run_dir = os.path.join(p2pool_dir, self.instance(), DDef.RUN_DIR)
-        log_dir = os.path.join(p2pool_dir, self.instance(), DDef.LOG_DIR)
-
-        fq_config = os.path.join(
-            p2pool_dir, DDef.CONF_DIR, self.instance() + DDef.INI_SUFFIX
-        )
-
-        # Monero settings
-        monerod_ip = self.monerod.ip_addr()
-        monerod_zmq_port = self.monerod.zmq_pub_port()
-        monerod_rpc_port = self.monerod.rpc_bind_port()
-
-        # Populate the config templace placeholders
-        placeholders = {
-            DPlaceholder.WALLET: self.user_wallet(),
-            DPlaceholder.P2P_DIR: p2pool_dir,
-            DPlaceholder.MONEROD_IP: monerod_ip,
-            DPlaceholder.ZMQ_PUB_PORT: monerod_zmq_port,
-            DPlaceholder.RPC_BIND_PORT: monerod_rpc_port,
-            DPlaceholder.LOG_LEVEL: self.log_level(),
-            DPlaceholder.P2P_PORT: self.p2p_port(),
-            DPlaceholder.STRATUM_PORT: self.stratum_port(),
-            DPlaceholder.IN_PEERS: self.in_peers(),
-            DPlaceholder.OUT_PEERS: self.out_peers(),
-            DPlaceholder.CHAIN: self.chain(),
-            DPlaceholder.ANY_IP: self.any_ip(),
-            DPlaceholder.API_DIR: api_dir,
-            DPlaceholder.RUN_DIR: run_dir,
-            DPlaceholder.LOG_DIR: log_dir,
-        }
-        with open(tmpl_file, "r") as f:
-            config_contents = f.read()
-            final_config = config_contents
-            for key, val in placeholders.items():
-                final_config = final_config.replace(f"[[{key}]]", str(val))
-
-        # Write the config to file
-        with open(fq_config, "w") as f:
-            f.write(final_config)
-        self.config_file(fq_config)
-
-    # Generate the P2Pool logrotate configuration
-    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
-        """
-        Generate a P2Pool logrotate configuration file.
-
-        :param tmpl_file: Template file path.
-        :type tmpl_file: str
-        :param vendor_dir: Vendor directory root.
-        :type vendor_dir: str
-        :param db4e_group: Db4E group name for permissions.
-        :type db4e_group: str
-        :return: None
-        :rtype: None
-        """
-        # Logrotate configuration file
-        fq_config = os.path.join(
-            vendor_dir,
-            DDef.LOGROTATE,
-            DElem.P2POOL + "-" + self.instance() + DDef.CONF_SUFFIX,
-        )
-
-        # Populate the config template
-        placeholders = {
-            DPlaceholder.VENDOR_DIR: vendor_dir,
-            DPlaceholder.INSTANCE: self.instance(),
-            DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
-            DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
-        }
-        with open(tmpl_file, "r") as f:
-            config_contents = f.read()
-            final_config = config_contents
-            for key, val in placeholders.items():
-                final_config = final_config.replace(f"[[{key}]]", str(val))
-
-        # Write the config to file
-        with open(fq_config, "w") as f:
-            f.write(final_config)
-        self.logrotate_config(fq_config)
-
-    # The current pool hashrate
-    def hashrate(self, hashrate=None):
-        """
-        Get or set the current pool hashrate.
-
-        :param hashrate: Optional hashrate value to set.
-        :type hashrate: int or None
-        :return: Current hashrate value.
-        :rtype: int or None
-        """
-        if hashrate is not None:
-            self._hashrate = hashrate
-        return self._hashrate
-
-    # Historical pool hashrate data
-    def hashrates(self, hashrate_data=None):
-        """
-        Get or set historical pool hashrate data.
-
-        :param hashrate_data: Optional historical data to set.
-        :type hashrate_data: list or dict or None
-        :return: Historical hashrate data.
-        :rtype: list or dict or None
-        """
-        if hashrate_data is not None:
-            self._hashrates = hashrate_data
-        return self._hashrates
-
-    # Instance map: Used to construct the upstream Monero daemon radioset
-    def instance_map(self, map=None):
-        """
-        Get or set the instance map for radioset construction.
-
-        :param map: Optional instance map to set.
-        :type map: dict or None
-        :return: Current instance map.
-        :rtype: dict
-        """
-        if map is not None:
-            self._instance_map = map
-        return self._instance_map
-
-    # Historical share found data
-    def shares_found(self, shares_found=None):
-        """
-        Get or set historical share found data.
-
-        :param shares_found: Optional historical data to set.
-        :type shares_found: list or dict or None
-        :return: Historical share found data.
-        :rtype: list or dict or None
-        """
-        if shares_found is not None:
-            self._shares_found = shares_found
-        return self._shares_found

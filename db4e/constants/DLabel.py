@@ -27,6 +27,7 @@ class DLabel:
     CURRENT: Final[str] = "Current"
     DATE: Final[str] = "Date"
     DAYS: Final[str] = "Days"
+    DB_DIR: Final[str] = "Database Directory"
     DB4E: Final[str] = "Db4E Core"
     DB4E_LONG: Final[str] = "Database 4 Everything"
     DB4E_GROUP: Final[str] = "Db4E Group"

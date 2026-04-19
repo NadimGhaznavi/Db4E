@@ -39,7 +39,7 @@ class Db4E(LocalMonero):
         self._primary_server = DField.DISABLE
         self._primary_remote = DField.DISABLE
         self._user_wallet = ""
-        self._vendor_dir = None
+        self._vendor_dir = DDef.DB4E_INSTALL_DIR
         self._instance_map = {}
         # There is only one Db4E deployment
         self.instance(DElem.DB4E)

@@ -237,25 +237,29 @@ class XMRig(LocalMonero):
         return self._version
 
     # Generate the XMRig startup config file
-    def gen_config(self, tmpl_file: str, vendor_dir: str):
+    def gen_config(self, tmpl_file: str):
         """
         Generate an XMRig config file from a template.
 
         :param tmpl_file: Template file path.
         :type tmpl_file: str
-        :param vendor_dir: Vendor directory root.
-        :type vendor_dir: str
         :return: None
         :rtype: None
         """
         # XMRig configuration file
         fq_config = os.path.join(
-            vendor_dir, DElem.XMRIG, DDef.CONF_DIR, self.instance() + DDef.JSON_SUFFIX
+            DDef.DB4E_INSTALL_DIR,
+            DElem.XMRIG,
+            DDef.CONF_DIR,
+            self.instance() + DDef.JSON_SUFFIX,
         )
 
         # XMRig log file
         fq_log = os.path.join(
-            vendor_dir, DElem.XMRIG, DDef.LOG_DIR, self.instance() + DDef.LOG_SUFFIX
+            DDef.DB4E_INSTALL_DIR,
+            DElem.XMRIG,
+            DDef.LOG_DIR,
+            self.instance() + DDef.LOG_SUFFIX,
         )
 
         # Generate a URL:Port field for the config
@@ -281,14 +285,12 @@ class XMRig(LocalMonero):
         self.config_file(fq_config)
 
     # Generate the XMRig logrotate configuration
-    def gen_logrotate_config(self, tmpl_file: str, vendor_dir: str, db4e_group: str):
+    def gen_logrotate_config(self, tmpl_file: str, db4e_group: str):
         """
         Generate an XMRig logrotate configuration file.
 
         :param tmpl_file: Template file path.
         :type tmpl_file: str
-        :param vendor_dir: Vendor directory root.
-        :type vendor_dir: str
         :param db4e_group: Db4E group name for permissions.
         :type db4e_group: str
         :return: None
@@ -296,14 +298,14 @@ class XMRig(LocalMonero):
         """
         # Logrotate configuration file
         fq_config = os.path.join(
-            vendor_dir,
+            DDef.DB4E_INSTALL_DIR,
             DDef.LOGROTATE,
             DElem.XMRIG + "-" + self.instance() + DDef.CONF_SUFFIX,
         )
 
         # Populate the config template placeholders
         placeholders = {
-            DPlaceholder.VENDOR_DIR: vendor_dir,
+            DPlaceholder.VENDOR_DIR: DDef.DB4E_INSTALL_DIR,
             DPlaceholder.INSTANCE: self.instance(),
             DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
             DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),

@@ -15,10 +15,10 @@ from db4e.constants.DField import DField
 # Files
 class DFile:
     BACKUP_SCRIPT: Final[str] = "backup_script"
+    BOOTSTRAP: Final[str] = "bootstrap"
     CHOWN: Final[str] = "chown"
     CLIENT_DB: Final[str] = "client.db"
     CONFIG_FILE: Final[str] = DField.CONFIG_FILE
-    DOT_DB4E: Final[str] = ".db4e"
     LOGROTATE: Final[str] = "logrotate"
     MONGODUMP: Final[str] = "mongodump"
     P2POOL_LOG: Final[str] = "p2pool.log"

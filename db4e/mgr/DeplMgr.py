@@ -139,17 +139,18 @@ class DeplMgr:
         """
         if not monerod.ip_addr():
             monerod.ip_addr(socket.gethostname())
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         tmpl_file = self.bs_mgr.get_template(DElem.MONEROD)
 
         # Monero log file
         os.makedirs(
-            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR),
+            os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.MONEROD, monerod.instance(), DDef.LOG_DIR
+            ),
             exist_ok=True,
         )
         monerod.log_file(
             os.path.join(
-                vendor_dir,
+                DDef.DB4E_INSTALL_DIR,
                 DDir.MONEROD,
                 monerod.instance(),
                 DDef.LOG_DIR,
@@ -160,26 +161,34 @@ class DeplMgr:
         # Blockchain directory
         os.makedirs(
             os.path.join(
-                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR
+                DDef.DB4E_INSTALL_DIR,
+                DDir.MONEROD,
+                monerod.instance(),
+                DDef.BLOCKCHAIN_DIR,
             ),
             exist_ok=True,
         )
         monerod.blockchain_dir(
             os.path.join(
-                vendor_dir, DDir.MONEROD, monerod.instance(), DDef.BLOCKCHAIN_DIR
+                DDef.DB4E_INSTALL_DIR,
+                DDir.MONEROD,
+                monerod.instance(),
+                DDef.BLOCKCHAIN_DIR,
             )
         )
 
         # Run directory
         os.makedirs(
-            os.path.join(vendor_dir, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR),
+            os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.MONEROD, monerod.instance(), DDef.RUN_DIR
+            ),
             exist_ok=True,
         )
 
         # Path to STDIN named pipe
         monerod.stdin_path(
             os.path.join(
-                vendor_dir,
+                DDef.DB4E_INSTALL_DIR,
                 DDir.MONEROD,
                 monerod.instance(),
                 DDef.RUN_DIR,
@@ -188,7 +197,7 @@ class DeplMgr:
         )
 
         # Generate the configuration
-        monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+        monerod.gen_config(tmpl_file=tmpl_file)
 
         # Add the record to the DB
         monerod = self.depl_db.insert_one(monerod)
@@ -233,7 +242,6 @@ class DeplMgr:
         :rtype: P2Pool
         """
         # Generate the configuration
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
         if not p2pool.any_ip():
             p2pool.any_ip(socket.gethostname())
@@ -258,11 +266,11 @@ class DeplMgr:
             if p2pool.parent() != DField.DISABLE:
                 # Add the user's Monero wallet to the instance's record
                 p2pool.user_wallet(db4e.user_wallet())
-                p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                p2pool.gen_config(tmpl_file=tmpl_file)
 
         p2pool.log_file(
             os.path.join(
-                vendor_dir,
+                DDef.DB4E_INSTALL_DIR,
                 DDir.P2POOL,
                 p2pool.instance(),
                 DDef.LOG_DIR,
@@ -271,20 +279,26 @@ class DeplMgr:
         )
         # Create the per-instance directories
         os.makedirs(
-            os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), DDef.LOG_DIR),
+            os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.P2POOL, p2pool.instance(), DDef.LOG_DIR
+            ),
             exist_ok=True,
         )
         os.makedirs(
-            os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), DDef.API_DIR),
+            os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.P2POOL, p2pool.instance(), DDef.API_DIR
+            ),
             exist_ok=True,
         )
         os.makedirs(
-            os.path.join(vendor_dir, DDir.P2POOL, p2pool.instance(), DDef.RUN_DIR),
+            os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.P2POOL, p2pool.instance(), DDef.RUN_DIR
+            ),
             exist_ok=True,
         )
         p2pool.stdin_path(
             os.path.join(
-                vendor_dir,
+                DDef.DB4E_INSTALL_DIR,
                 DDir.P2POOL,
                 p2pool.instance(),
                 DDef.RUN_DIR,
@@ -294,9 +308,7 @@ class DeplMgr:
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
         db4e_group = db4e.db4e_group()
-        p2pool.gen_logrotate_config(
-            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
-        )
+        p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl, db4e_group=db4e_group)
 
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
@@ -341,7 +353,6 @@ class DeplMgr:
         :rtype: XMRig
         """
         # Generate the XMRig configuration
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if xmrig.parent() != DField.DISABLE:
             # Generate the configuration
             tmpl_file = self.bs_mgr.get_template(DElem.XMRIG)
@@ -362,12 +373,15 @@ class DeplMgr:
 
             # We need an upstream P2Pool intance to generate the config
             if xmrig.parent() != DField.DISABLE:
-                xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+                xmrig.gen_config(tmpl_file=tmpl_file)
 
         # Set the location of the instance's log file
         xmrig.log_file(
             os.path.join(
-                vendor_dir, DElem.XMRIG, DDef.LOG_DIR, xmrig.instance() + ".log"
+                DDef.DB4E_INSTALL_DIR,
+                DElem.XMRIG,
+                DDef.LOG_DIR,
+                xmrig.instance() + ".log",
             )
         )
 
@@ -375,9 +389,7 @@ class DeplMgr:
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
         db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
         db4e_group = db4e.db4e_group()
-        xmrig.gen_logrotate_config(
-            tmpl_file=logrotate_tmpl, vendor_dir=vendor_dir, db4e_group=db4e_group
-        )
+        xmrig.gen_logrotate_config(tmpl_file=logrotate_tmpl, db4e_group=db4e_group)
         # Add the new record
         xmrig = self.depl_db.insert_one(xmrig)
         # Create a console log message
@@ -433,14 +445,15 @@ class DeplMgr:
         :param elem: Deployment object to delete.
         :type elem: object
         """
-        vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
         if type(elem) == MoneroD:
             tracked_type = DElem.MONEROD
             # Delete filesystem artifacts
             config = elem.config_file()
             if os.path.exists(config):
                 os.remove(config)
-            depl_dir = os.path.join(vendor_dir, DDir.MONEROD, elem.instance())
+            depl_dir = os.path.join(
+                DDef.DB4E_INSTALL_DIR, DDir.MONEROD, elem.instance()
+            )
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
 
@@ -454,7 +467,7 @@ class DeplMgr:
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
             sudo_del_file(logrotate_config)
-            depl_dir = os.path.join(vendor_dir, DDir.P2POOL, elem.instance())
+            depl_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DDir.P2POOL, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
 
@@ -468,7 +481,7 @@ class DeplMgr:
                 os.remove(config)
             logrotate_config = elem.logrotate_config()
             sudo_del_file(logrotate_config)
-            depl_dir = os.path.join(vendor_dir, DElem.XMRIG, elem.instance())
+            depl_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DElem.XMRIG, elem.instance())
             if os.path.isdir(depl_dir):
                 rmtree(depl_dir)
 
@@ -523,9 +536,6 @@ class DeplMgr:
             )
             db4e.user_wallet(new_db4e.user_wallet())
             update_flag, update_p2pool_flag = True, True
-
-            if update_flag:
-                db4e.vendor_dir(new_db4e.vendor_dir())
 
         ## Updating the primary server
         # Keep the original primary_server for the primary_remote update
@@ -895,9 +905,8 @@ class DeplMgr:
 
         # Update the configuration
         if update_config:
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.MONEROD)
-            monerod.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            monerod.gen_config(tmpl_file=tmpl_file)
 
         # Update the database
         if update:
@@ -1132,7 +1141,6 @@ class DeplMgr:
 
         # Update the configuration file
         if update_config:
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
             ## Get the upstream monero deployment
             # Check if it's local or remote:
@@ -1143,7 +1151,7 @@ class DeplMgr:
             p2pool.monerod = self.depl_db.get_deployment_by_id(
                 elem_type=elem_type, id=p2pool.parent()
             )
-            p2pool.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            p2pool.gen_config(tmpl_file=tmpl_file)
 
         # Update the database
         if update:
@@ -1283,7 +1291,6 @@ class DeplMgr:
 
         # Regenerate config if required
         if update_config:
-            vendor_dir = self.bs_mgr.get_dir(DDir.VENDOR)
             tmpl_file = self.bs_mgr.get_template(DElem.XMRIG)
             if xmrig.parent() != DField.DISABLE:
                 if xmrig.parent_remote():
@@ -1294,7 +1301,7 @@ class DeplMgr:
                     xmrig.p2pool = self.depl_db.get_deployment_by_id(
                         elem_type=DElem.P2POOL, id=xmrig.parent()
                     )
-            xmrig.gen_config(tmpl_file=tmpl_file, vendor_dir=vendor_dir)
+            xmrig.gen_config(tmpl_file=tmpl_file)
 
         if update:
             xmrig.version(DDef.XMRIG_VERSION)

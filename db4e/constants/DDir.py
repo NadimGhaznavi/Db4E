@@ -24,6 +24,7 @@ class DDir:
     DB: Final[str] = "db_dir"
     DB4E: Final[str] = "db4e_dir"
     DEV: Final[str] = "dev_dir"
+    DOT_DB4E: Final[str] = ".db4e"
     INSTALL: Final[str] = DField.INSTALL_DIR
     LOG: Final[str] = "log_dir"
     LOGROTATE: Final[str] = DFile.LOGROTATE

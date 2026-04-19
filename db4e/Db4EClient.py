@@ -10,7 +10,6 @@ db4e/Db4EClient.py
 """
 
 import os
-import getpass
 from importlib import metadata
 from textual.app import App
 from textual.containers import Vertical
