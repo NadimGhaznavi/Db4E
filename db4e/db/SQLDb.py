@@ -84,16 +84,12 @@ class SQLDb:
         self._cursor = self._conn.cursor()
         self._initialized = True
 
-        # Initialize the DB
-        if not self._sync_meta_initialized:
-            self._sync_meta_initialized = True
-            self._init_db()
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
         else:
             self.log = None
 
-        self._sync_meta_initialized = True
+        # Initialize the DB
         self._init_db()
 
     def close(self):
