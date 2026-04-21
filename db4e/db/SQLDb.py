@@ -66,6 +66,8 @@ class SQLDb:
             self._db_file = os.path.join(
                 DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
             )
+            if not os.path.exists(self._db_dir):
+                os.mkdir(self._db_dir)
 
         elif db_type == DField.CLIENT:
             home_dir = Path.home()

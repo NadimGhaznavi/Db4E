@@ -207,10 +207,6 @@ class InstallMgr(Container):
             # Return the updated Db4E deployment object with embded results
             log_lines = self._return_tui_log()
 
-            # Close the connection to the /opt/Db4E/db/server.db file, so the Db4E server can
-            # open it cleanly.
-            self.sql_db.close()
-
             # Successful install
             self.app.post_message(InstallResult(self, result=True))
 

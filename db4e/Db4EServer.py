@@ -76,8 +76,6 @@ class Db4eServer:
 
         # Bootstrap manager
         self.bs_mgr = BootstrapMgr()
-        if not self.bs_mgr.is_initialized():
-            raise ValueError("ERROR: Db4E initial install not completed!")
 
         # Setup logging
         logs_dir = DDef.LOG_DIR
@@ -90,7 +88,6 @@ class Db4eServer:
 
         # SQLite DB module
         self.sql_db = SQLDb(db_type=DField.SERVER, log_file=fq_log_file)
-        self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
 
         # Operations DB module
         self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
