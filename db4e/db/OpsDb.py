@@ -287,7 +287,9 @@ class OpsDb(BaseDb):
         :rtype: list[TUILogLine]
         """
         recs = self.sql_db.execute_query(
-            f"SELECT * FROM {DTable.TUI_LOG_LINE} ORDER BY id DESC"
+            f"SELECT * FROM {DTable.TUI_LOG_LINE} ORDER BY "
+            "updated_y, updated_mo, updated_d, updated_h, "
+            "updated_mi, updated_s"
         )
         log_lines = []
         for rec in recs:
