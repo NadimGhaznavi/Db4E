@@ -90,7 +90,7 @@ class Db4EClient(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         self.bs_mgr = BootstrapMgr()
-        self.sql_db = SQLDb(db_type=DField.CLIENT, bs_mgr=self.bs_mgr)
+        self.sql_db = SQLDb(db_type=DField.CLIENT)
         self.ops_db = OpsDb(sql_db=self.sql_db)
         self.ops_etl = OpsETL(ops_db=self.ops_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)
@@ -212,11 +212,6 @@ class Db4EClient(App):
             and len(data) > 0
             and data[-1] == DField.INSTALL_SUCCESSFUL
         ):
-            self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
-            self.ops_db.initialize()
-            self.depl_db.initialize()
-            self.mining_db.initialize()
-            self.health_db.initialize()
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
 
         else:

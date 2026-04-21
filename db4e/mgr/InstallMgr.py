@@ -73,9 +73,8 @@ class InstallMgr(Container):
             abort_install = False
 
             # Clear the console log if the DB has been initialized
-            if self.sql_db.is_initialized():
-                self.depl_db.clear_all()
-                self.ops_db.clear_tui_log()
+            self.depl_db.clear_all()
+            self.ops_db.clear_tui_log()
 
             # Temporary location to store TUI log line data since the
             # SQLite database hasn't been created yet.
@@ -133,12 +132,6 @@ class InstallMgr(Container):
                 log_line_data.append(log_line)
                 self.app.post_message(InstallResult(self, result=False))
                 return log_line_data
-
-            # The deployment and ops databases get initialized as part
-            # of the initial install. Force an initializing of the mining
-            # DB.
-            mining_db = MiningDb(sql_db=self.sql_db)
-            mining_db.check_initialized()  # Initializes the DB
 
             # Add the log_line_data to the newly initialized ops DB.
             self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)
@@ -609,17 +602,17 @@ class InstallMgr(Container):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 input=b"",
-                timout=5,
+                timeout=5,
             )
             stdout = cmd_result.stdout.decode().strip()
-            stderr = cmd_result.stdout.decode().strip()
+            stderr = cmd_result.stderr.decode().strip()
 
             # Check the return code
             if cmd_result.returncode != 0:
                 abort_install = True
                 log_line = {
                     DCol.TRACKED_INSTANCE: DLabel.INSTALL_DIR,
-                    DCol.TRACKED_TYPE: DLabel.DB4E,
+                    DCol.TRACKED_TYPE: DElem.DB4E,
                     DCol.OPERATION: DField.NEW,
                     DCol.STATUS: DStatus.ERROR,
                     DCol.MESSAGE: "Script failed",
@@ -644,7 +637,7 @@ class InstallMgr(Container):
         except Exception as e:
             log_line = {
                 DCol.TRACKED_INSTANCE: DLabel.INSTALL_DIR,
-                DCol.TRACKED_TYPE: DLabel.DB4E,
+                DCol.TRACKED_TYPE: DElem.DB4E,
                 DCol.OPERATION: DField.NEW,
                 DCol.STATUS: DStatus.ERROR,
                 DCol.MESSAGE: "Script failed",
@@ -652,7 +645,7 @@ class InstallMgr(Container):
             }
             log_line = self._add_timestamp(log_line)
             log_line_data.append(log_line)
-            return log_line_data, abort_install
+            return log_line_data, True  # abort_intall = True
 
         return log_line_data, abort_install
 

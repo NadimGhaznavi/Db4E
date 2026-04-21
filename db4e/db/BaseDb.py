@@ -140,8 +140,7 @@ class BaseDb:
         self.sql_db = sql_db
         self.log = Db4ELogger(db4e_module=__name__, log_file=log_file)
         self._initialized = False
-        if sql_db.is_initialized():
-            self.initialize()
+        self._init_db()
 
     def add_timestamp_data(self, data):
         """
@@ -213,28 +212,6 @@ class BaseDb:
             """
         )
 
-    def check_initialized(self):
-        """
-        Ensure both the underlying SQL database and this manager are initialized.
-
-        If ``sql_db`` becomes initialized, this method will also trigger
-        ``initialize()`` so the subclass can perform table setup.
-        """
-        if self.sql_db.is_initialized():
-            self.initialize()
-        else:
-            self._initialized = False
-
-    def initialize(self):
-        """
-        Initialize the database manager.
-
-        Calls ``_init_db()`` — subclasses must implement this method to create
-        tables and perform table-specific setup.
-        """
-        self._init_db()
-        self._initialized = True
-
     def _init_db(self):
         """
         Abstract hook for database initialization.
@@ -243,7 +220,7 @@ class BaseDb:
 
         :raises NotImplementedError: Always.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Missing _init_db() function")
 
     def get_records_since(self, table_name: str, since_ts: int, hourly=False):
         """
@@ -258,7 +235,6 @@ class BaseDb:
         :return: Rows updated since the timestamp.
         :rtype: list[sqlite3.Row]
         """
-        self.check_initialized()
         ts_col = "updated_hourly_ts" if hourly else "updated_ts"
 
         sql = f"""
@@ -285,7 +261,6 @@ class BaseDb:
         :return: The same object with its ``id`` populated.
         :rtype: object
         """
-        self.check_initialized()
         data = db4e_obj.to_dict()
         if "id" in data:
             del data["id"]
@@ -325,7 +300,6 @@ class BaseDb:
         :return: The updated object.
         :rtype: object
         """
-        self.check_initialized()
         data = db4e_obj.to_dict()
         data = self.add_timestamp_data(data)
         table_name = CLASS_TO_TABLE_MAP[type(db4e_obj)]
@@ -352,7 +326,6 @@ class BaseDb:
         """
         if not rows:
             return
-        self.check_initialized()
 
         # Extract column names from the first row
         columns = rows[0].keys()

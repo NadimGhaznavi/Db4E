@@ -114,7 +114,6 @@ class MiningDb(BaseDb):
         :return: The same object with its ``id`` populated.
         :rtype: object
         """
-        self.check_initialized()
         data = mining_object.to_dict()
         data = self.add_hourly_data(data)
         table_name = CLASS_TO_TABLE_MAP[type(mining_object)]
@@ -142,7 +141,6 @@ class MiningDb(BaseDb):
         :param chain: Chain identifier.
         :type chain: str
         """
-        self.check_initialized()
         block_found_event = BlockFoundEvent(chain=chain)
         self.insert_one(block_found_event)
 
@@ -157,7 +155,6 @@ class MiningDb(BaseDb):
         :param units: Hashrate units.
         :type units: str
         """
-        self.check_initialized()
         chain_hashrate = ChainHashrate(chain=chain, hashrate=hashrate, units=units)
         self.insert_constrained_one(chain_hashrate)
 
@@ -170,7 +167,6 @@ class MiningDb(BaseDb):
         :param num_miners: Count of miners.
         :type num_miners: int
         """
-        self.check_initialized()
         chain_miners = ChainMiners(chain=chain, num_miners=num_miners)
         self.insert_constrained_one(chain_miners)
 
@@ -203,7 +199,6 @@ class MiningDb(BaseDb):
         # running for less than 3 minutes.
 
         # Historical, hourly miner hashrate
-        self.check_initialized()
         miner_hashrate = MinerHashrate(
             miner=miner_name,
             chain=chain,
@@ -226,7 +221,6 @@ class MiningDb(BaseDb):
         :param unit: Hashrate units.
         :type unit: str
         """
-        self.check_initialized()
         pool_hashrate = PoolHashrate(
             chain=chain, pool=pool, hashrate=hashrate, units=unit
         )
@@ -245,7 +239,6 @@ class MiningDb(BaseDb):
         :param pool: Pool identifier.
         :type pool: str
         """
-        self.check_initialized()
         share_found_event = ShareFoundEvent(
             miner=miner, effort=effort, chain=chain, pool=pool
         )
@@ -262,7 +255,6 @@ class MiningDb(BaseDb):
         :param position: Share position.
         :type position: int
         """
-        self.check_initialized()
         share_position = SharePosition(chain=chain, pool=pool, position=position)
         self.insert_constrained_one(share_position)
 
@@ -274,7 +266,6 @@ class MiningDb(BaseDb):
         :type amount: float
         """
         # CAREFUL with datatypes here!!!
-        self.check_initialized()
         # TODO
 
     def add_xmr_payment(self, chain, payment, pool):
@@ -288,7 +279,6 @@ class MiningDb(BaseDb):
         :param pool: Pool identifier.
         :type pool: str
         """
-        self.check_initialized()
         xmr_payment = XMRPayment(chain=chain, payment=payment, pool=pool)
         self.insert_one(xmr_payment)
 
@@ -296,97 +286,97 @@ class MiningDb(BaseDb):
         """
         Fetch block-found events, optionally filtered by chain.
         """
-        self.check_initialized()
+        pass
 
     def get_chain_hashrate(self, instance):
         """
         Fetch the latest chain hashrate for an instance.
         """
-        self.check_initialized()
+        pass
 
     def get_chain_hashrates(self, instance):
         """
         Fetch historical chain hashrates for an instance.
         """
-        self.check_initialized()
+        pass
 
     def get_miner_hashrate(self, miner):
         """
         Fetch the latest miner hashrate for a miner.
         """
-        self.check_initialized()
+        pass
 
     def get_miner_hashrates(self, miner):
         """
         Fetch historical miner hashrates for a miner.
         """
-        self.check_initialized()
+        pass
 
     def get_miner_uptime(self, miner):
         """
         Fetch miner uptime details.
         """
-        self.check_initialized()
+        pass
 
     def get_payments(self):
         """
         Fetch payment records.
         """
-        self.check_initialized()
+        pass
 
     def get_pool_hashrate(self, instance):
         """
         Fetch the latest pool hashrate for an instance.
         """
-        self.check_initialized()
+        pass
 
     def get_pool_hashrates(self, instance):
         """
         Fetch historical pool hashrates for an instance.
         """
-        self.check_initialized()
+        pass
 
     def get_share_found_events(self, pool=None, miner=None):
         """
         Fetch share-found events, optionally filtered by pool or miner.
         """
-        self.check_initialized()
+        pass
 
     def get_xmrigs_remote(self):
         """
         Fetch remote XMRig records.
         """
-        self.check_initialized()
+        pass
 
     def get_share_position(self):
         """
         Fetch current share positions.
         """
-        self.check_initialized()
+        pass
 
     def get_shares(self):
         """
         Fetch share records.
         """
-        self.check_initialized()
+        pass
 
     def get_wallet_balance(self):
         """
         Fetch wallet balance.
         """
-        self.check_initialized()
+        pass
 
     def get_miners(self):
         """
         Fetch miner records.
         """
-        self.check_initialized()
+        pass
 
     def get_xmr_payments(self):
         """
         Fetch XMR payment records.
         """
-        self.check_initialized()
+        pass
 
     def _init_db(self):
         """

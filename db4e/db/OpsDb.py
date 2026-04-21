@@ -62,7 +62,6 @@ class OpsDb(BaseDb):
         :param instance_name: Instance name.
         :type instance_name: str
         """
-        self.check_initialized()
         # Create a new current_uptime record
         cur_uptime = CurrentUptime(
             tracked_type=elem_type, tracked_instance=instance_name
@@ -80,7 +79,6 @@ class OpsDb(BaseDb):
         :param instance_name: Instance name.
         :type instance_name: str
         """
-        self.check_initialized()
         # Get the current uptime record where the stop event is not set
         rec = self.get_open_cur_uptime_rec(elem_type, instance_name)
         current_uptime = CurrentUptime(
@@ -161,7 +159,6 @@ class OpsDb(BaseDb):
         :param updated_s: Optional second override.
         :type updated_s: int or None
         """
-        self.check_initialized()
         log_line = TUILogLine(
             tracked_instance=tracked_instance,
             tracked_type=tracked_type,
@@ -199,7 +196,6 @@ class OpsDb(BaseDb):
         :param log_line_data: Iterable of log line dictionaries.
         :type log_line_data: list[dict]
         """
-        self.check_initialized()
         for log_line in log_line_data:
             if DCol.DETAILS in log_line:
                 details = log_line["details"]
@@ -218,7 +214,6 @@ class OpsDb(BaseDb):
         """
         Close any open current uptime records and roll into total uptime.
         """
-        self.check_initialized()
         sql = f"SELECT * FROM current_uptime WHERE stop_time IS NULL"
         recs = self.sql_db.execute_query(sql)
         for rec in recs:
@@ -252,7 +247,6 @@ class OpsDb(BaseDb):
         """
         Remove all TUI log line records.
         """
-        self.check_initialized()
         self.sql_db.execute_query(f"DELETE FROM {DTable.TUI_LOG_LINE}")
 
     def get_open_cur_uptime_rec(self, elem_type, instance) -> CurrentUptime:
@@ -266,7 +260,6 @@ class OpsDb(BaseDb):
         :return: Current uptime record or None.
         :rtype: sqlite3.Row or None
         """
-        self.check_initialized()
         sql = f"SELECT * FROM current_uptime WHERE tracked_type=? AND tracked_instance=? AND stop_time IS NULL"
         return self.sql_db.find_one(sql, (elem_type, instance))
 
@@ -281,7 +274,6 @@ class OpsDb(BaseDb):
         :return: Total uptime record or None.
         :rtype: sqlite3.Row or None
         """
-        self.check_initialized()
         sql = f"SELECT * FROM total_uptime WHERE tracked_type=? AND tracked_instance=?"
         return self.sql_db.find_one(sql, (elem_type, instance))
 
@@ -294,7 +286,6 @@ class OpsDb(BaseDb):
         :return: List of TUILogLine objects.
         :rtype: list[TUILogLine]
         """
-        self.check_initialized()
         recs = self.sql_db.execute_query(
             f"SELECT * FROM {DTable.TUI_LOG_LINE} ORDER BY id DESC"
         )
@@ -331,7 +322,6 @@ class OpsDb(BaseDb):
         Update the current time for all open uptime records.
         """
         time.time()
-        self.check_initialized()
         sql = """UPDATE current_uptime
             SET cur_time = ?
             WHERE stop_time IS NULL

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # db4e/bin/db4e-create-install-dir.sh
 #

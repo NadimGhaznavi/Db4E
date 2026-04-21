@@ -89,9 +89,7 @@ class Db4eServer:
         self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
 
         # SQLite DB module
-        self.sql_db = SQLDb(
-            db_type=DField.SERVER, bs_mgr=self.bs_mgr, log_file=fq_log_file
-        )
+        self.sql_db = SQLDb(db_type=DField.SERVER, log_file=fq_log_file)
         self.sql_db.initialize(self.bs_mgr.get_dir(DDir.DB))
 
         # Operations DB module

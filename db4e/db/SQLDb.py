@@ -41,7 +41,7 @@ class SQLDb:
     - Acting as a thin wrapper over ``sqlite3`` with additional Db4E-specific logic.
     """
 
-    def __init__(self, db_type: str, bs_mgr: BootstrapMgr, log_file=None):
+    def __init__(self, db_type: str, log_file=None):
         """
         Initialize a new ``SQLDb`` instance.
 
@@ -54,20 +54,17 @@ class SQLDb:
 
         :param db_type: The database type (e.g., ``DField.SERVER`` or ``DField.CLIENT``).
         :type db_type: str
-        :param bs_mgr: Bootstrap manager providing directory and configuration context.
-        :type bs_mgr: BootstrapMgr
         :param log_file: Optional log file path for ``Db4ELogger``.
         :type log_file: str or None
         :return: A new SQLDb object.
         :rtype: SQLDb
         """
-        self.bs_mgr = bs_mgr
         self._db_type = db_type
 
         if db_type == DField.SERVER:
             self._db_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DDir.DB)
             self._db_file = os.path.join(
-                DDef.DB4E_INSTALL_DIR, DDef.DB, DFile.SERVER_DB
+                DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
             )
 
         elif db_type == DField.CLIENT:
@@ -77,14 +74,14 @@ class SQLDb:
             if not os.path.exists(self._db_dir):
                 os.mkdir(self._db_dir)
 
-        print(self._db_file)
+        else:
+            raise RuntimeError("Missing mandatory db_type")
 
         # Connect to SQLite, get a cursor and initialize the DB
         self._conn = sqlite3.connect(self._db_file)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA foreign_keys = ON;")
         self._cursor = self._conn.cursor()
-        self._initialized = True
 
         if log_file:
             self.log = Db4ELogger(db4e_module=DModule.SQL_DB, log_file=log_file)
@@ -104,7 +101,6 @@ class SQLDb:
             self._conn.close()
             self._conn = None
             self._cursor = None
-            self._initialized = False
 
     def execute_query(self, sql, params=None):
         """
@@ -116,10 +112,7 @@ class SQLDb:
         :type params: list or tuple or dict or None
         :return: List of rows returned by the query.
         :rtype: list
-        :raises RuntimeError: If the database has not been initialized.
         """
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
         # print(f"execute_query: sql: {sql}, params: {params}")
         self._cursor.execute(sql, params or [])
         self._conn.commit()
@@ -131,10 +124,7 @@ class SQLDb:
 
         :param sql: The SQL script to execute.
         :type sql: str
-        :raises RuntimeError: If the database has not been initialized.
         """
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
         self._cursor.executescript(sql)
         self._conn.commit()
 
@@ -161,10 +151,7 @@ class SQLDb:
         :type params: tuple
         :return: First matching row or ``None`` if no results.
         :rtype: sqlite3.Row or None
-        :raises RuntimeError: If the database has not been initialized.
         """
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
         self._cursor.execute(sql, params)
         return self._cursor.fetchone() or None
 
@@ -176,10 +163,7 @@ class SQLDb:
         :type table: str
         :return: List of rows from the table.
         :rtype: list
-        :raises RuntimeError: If the database has not been initialized.
         """
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
         self._cursor.execute(f"SELECT * FROM {table}")
         return self._cursor.fetchall()
 
@@ -255,22 +239,10 @@ class SQLDb:
         :type values: tuple or list
         :return: Last inserted row ID.
         :rtype: int
-        :raises RuntimeError: If the database has not been initialized.
         """
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
         self._cursor.execute(sql, values)
         self._conn.commit()
         return self._cursor.lastrowid
-
-    def is_initialized(self):
-        """
-        Check whether the database connection has been fully initialized.
-
-        :return: ``True`` if initialized, otherwise ``False``.
-        :rtype: bool
-        """
-        return self._initialized
 
     def update_one(self, sql, values):
         """

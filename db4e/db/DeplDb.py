@@ -65,7 +65,6 @@ class DeplDb(BaseDb):
         """
         Delete all rows from all deployment tables.
         """
-        self.check_initialized()
         for table in ELEM_TABLE_LIST:
             self.sql_db.executescript(f"DELETE FROM {table}")
 
@@ -76,12 +75,10 @@ class DeplDb(BaseDb):
         :param elem: Deployment object to delete.
         :type elem: object
         """
-        self.check_initialized()
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
     def enable_deployment(self, elem):
-        self.check_initialized()
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(
             f"UPDATE {table} SET enabled=1 WHERE id=?", [elem.id()]
@@ -98,7 +95,6 @@ class DeplDb(BaseDb):
         :return: Deployment object or None.
         :rtype: object or None
         """
-        self.check_initialized()
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
         rows = self.sql_db.execute_query(
             f"SELECT * FROM {table} WHERE instance=?", (instance,)
@@ -116,7 +112,6 @@ class DeplDb(BaseDb):
         :return: List of deployment objects.
         :rtype: list
         """
-        self.check_initialized()
         object_list = []
         for table in ELEM_TABLE_LIST:
             for rec in self.sql_db.find_many(table=table):
@@ -135,7 +130,6 @@ class DeplDb(BaseDb):
         :return: Deployment object or None.
         :rtype: object or None
         """
-        self.check_initialized()
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
         rec_list = self.sql_db.execute_query(f"SELECT * FROM {table} WHERE id=?", (id,))
         rec = rec_list[0] if rec_list else None
@@ -155,7 +149,6 @@ class DeplDb(BaseDb):
         :return: List of deployment objects.
         :rtype: list
         """
-        self.check_initialized()
         object_list = []
         table = CLASS_STR_TO_TABLE_MAP[elem_type]
 

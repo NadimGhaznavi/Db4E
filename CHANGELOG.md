@@ -10,7 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleaed]
 
 ### Added
-- Db4E client config file with an "installation successful" flag
+- **Db4E Installation Flag**
+  - Created a config file to store "installation successful" flag
+  - Passed to the Nav Pane so it knows what to display
+  - Added `Db4EClient` `load_config()`, `save_config()`, `db4e_installed()` methods
+- Added `Db4EClient:sudo_failed()` method
+  - Passed to the Nav Pane so it knows what to display
 
 ### Changed
 - **Architectural Shift**
@@ -23,12 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `SQLDb`
   - Removed the bootstrap file that contained the install directory
 
-
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.
-- Ensure that the *Bootstrap Manager* config attribute was properly initialized.
 - Fixed `TUILogPane` formatting
-
 
 ---
 

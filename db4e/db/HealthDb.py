@@ -46,9 +46,6 @@ class HealthDb(BaseDb):
         self.log = Db4ELogger(db4e_module=DModule.HEALTH_DB, log_file=log_file)
 
     def get_msgs(self, instance: str, elem_type: str):
-        if not self._initialized:
-            raise RuntimeError("SQLDb not initialized")
-
         sql = f"""
             SELECT *
             FROM {DTable.HEALTH_STATE}
