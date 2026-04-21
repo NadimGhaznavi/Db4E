@@ -166,6 +166,7 @@ class Db4EClient(App):
         # Determine if Db4E has been successfully installed
         if self.db4e_installed():
             self.nav_pane.db4e_installed(flag=True)
+            await self.sync_client.start()
 
         # Successful install hasn't happened
         else:
