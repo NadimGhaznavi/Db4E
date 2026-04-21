@@ -23,7 +23,7 @@ class DField:
     COLORTERM_ENVIRON: Final[str] = "COLORTERM"
     COMPONENT: Final[str] = "component"
     COMPONENTS: Final[str] = "components"
-    CONFIG_FILE: Final[str] = "config_file"
+    CONFIG_FILE: Final[str] = "db4e_config"
     CRITICAL: Final[str] = "critical"
     DATA: Final[str] = "data"
     DATA_DIR: Final[str] = "data_dir"

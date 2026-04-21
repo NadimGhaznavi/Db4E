@@ -26,6 +26,7 @@ from db4e.db.SQLDb import SQLDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.DeplDb import DeplDb
 from db4e.db.MiningDb import MiningDb
+from db4e.messages.InstallResult import InstallResult
 
 from db4e.constants.DSQL import DCol
 from db4e.constants.DDir import DDir
@@ -43,7 +44,7 @@ class InstallMgr(Container):
     Installer and bootstrap orchestrator for Db4E deployments.
     """
 
-    def __init__(self, bs_mgr: BootstrapMgr):
+    def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb):
         """
         Initialize the installer manager and its DB backends.
 
@@ -52,7 +53,7 @@ class InstallMgr(Container):
         """
         super().__init__()
         self.bs_mgr = bs_mgr
-        self.sql_db = SQLDb(db_type=DField.SERVER, bs_mgr=bs_mgr)
+        self.sql_db = sql_db
         self.ops_db = OpsDb(sql_db=self.sql_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)
         self.col_name = DDef.DEPL_COLLECTION
@@ -112,6 +113,7 @@ class InstallMgr(Container):
                 }
                 log_line = self._add_timestamp(log_line)
                 log_line_data.append(log_line)
+                self.app.post_message(InstallResult(self, result=False))
                 return log_line_data
 
             # Create the vendor directory on the filesystem
@@ -129,6 +131,7 @@ class InstallMgr(Container):
                 }
                 log_line = self._add_timestamp(log_line)
                 log_line_data.append(log_line)
+                self.app.post_message(InstallResult(self, result=False))
                 return log_line_data
 
             # Initialize the BootstrapMgr and the DB backends
@@ -217,6 +220,9 @@ class InstallMgr(Container):
             # Close the connection to the /opt/Db4E/db/server.db file, so the Db4E server can
             # open it cleanly.
             self.sql_db.close()
+
+            # Successful install
+            self.app.post_message(InstallResult(self, result=True))
 
             return log_lines
 

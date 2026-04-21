@@ -18,7 +18,7 @@ class DFile:
     BOOTSTRAP: Final[str] = "bootstrap"
     CHOWN: Final[str] = "chown"
     CLIENT_DB: Final[str] = "client.db"
-    CONFIG_FILE: Final[str] = DField.CONFIG_FILE
+    CONFIG: Final[str] = DField.CONFIG_FILE
     LOGROTATE: Final[str] = "logrotate"
     MONGODUMP: Final[str] = "mongodump"
     P2POOL_LOG: Final[str] = "p2pool.log"

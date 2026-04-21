@@ -61,7 +61,7 @@ class NavPane(Container):
         super().__init__()
         self.depl_db = depl_db
         self.health_client = health_client
-        self._initialized = False
+        self._db4e_installed = False
 
         # Deployments tree
         self.depls = Tree(f"{ICON[DEPL]} {DLabel.DEPLOYMENTS}")
@@ -73,17 +73,8 @@ class NavPane(Container):
         self.depls_branch_state = {DElem.MONEROD: {}, DElem.P2POOL: {}, DElem.XMRIG: {}}
 
         self._sudo_failed = False
+        self._db4e_installed = False
         self.refresh_nav_pane()
-
-    def check_initialized(self):
-        if self.is_initialized():
-            return
-        else:
-            self.depl_db.check_initialized()
-            if self.depl_db.is_initialized():
-                self._initialized = True
-            else:
-                self._initialized = False
 
     def compose(self) -> ComposeResult:
         yield Vertical(
@@ -95,9 +86,10 @@ class NavPane(Container):
             id="nav_pane",
         )
 
-    def is_initialized(self) -> bool:
-        # print(f"NavPane:is_initialized(): {self._initialized}")
-        return self._initialized
+    def db4e_installed(self, flag=None) -> bool:
+        if flag is not None:
+            self._db4e_installed = flag
+        return self._db4e_installed
 
     async def on_mount(self) -> None:
         self.set_interval(2, self.refresh_nav_pane)
@@ -354,26 +346,36 @@ class NavPane(Container):
             self.post_message(Db4EMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:
-        self.check_initialized()
-        if not self.is_initialized():
+
+        # Db4E hasn't been installed yet
+        if not self.db4e_installed():
 
             if not self.initial_branches_added:
                 self.initial_branches_added = True
-                # Initial setup
-                if not self._sudo_failed:
+
+                # The sudo test passed, we are ready to install
+                if self.sudo_failed():
+
+                    # Show the "donations" nave pane item
                     self.depls.root.add_leaf(
-                        f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}",
-                        data=DLabel.INITIAL_SETUP,
+                        f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
                     )
-                # Donations
+
+                    return
+
+                # Show the "initial install" nav pane item
+                self.depls.root.add_leaf(
+                    f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}",
+                    data=DLabel.INITIAL_SETUP,
+                )
+                # Show the "donaations" nave pane item
                 self.depls.root.add_leaf(
                     f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
                 )
                 return
-            else:
-                return
+            return
 
-        if self.is_initialized() and self.initial_branches_added:
+        if self.initial_branches_added:
             self.depls.root.remove_children()
             self.initial_branches_added = False
 
@@ -485,5 +487,7 @@ class NavPane(Container):
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
             )
 
-    def set_sudo_failed_flag(self, flag: bool) -> None:
-        self._sudo_failed = flag
+    def sudo_failed(self, flag=None) -> bool:
+        if flag is not None:
+            self._sudo_failed = flag
+        return self._sudo_failed

@@ -67,7 +67,7 @@ class SQLDb:
         if db_type == DField.SERVER:
             self._db_dir = os.path.join(DDef.DB4E_INSTALL_DIR, DDir.DB)
             self._db_file = os.path.join(
-                DDef.DB4E_INSTALL_DIR, DDir.DB, DFile.SERVER_DB
+                DDef.DB4E_INSTALL_DIR, DDef.DB, DFile.SERVER_DB
             )
 
         elif db_type == DField.CLIENT:
@@ -76,6 +76,8 @@ class SQLDb:
             self._db_file = os.path.join(home_dir, DDir.DOT_DB4E, DFile.CLIENT_DB)
             if not os.path.exists(self._db_dir):
                 os.mkdir(self._db_dir)
+
+        print(self._db_file)
 
         # Connect to SQLite, get a cursor and initialize the DB
         self._conn = sqlite3.connect(self._db_file)

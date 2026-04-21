@@ -15,6 +15,9 @@ from textual.app import App
 from textual.containers import Vertical
 from textual import work
 from rich.traceback import Traceback
+from pathlib import Path
+import tomllib
+import tomli_w
 
 try:
     __package_name__ = metadata.metadata(__package__ or __name__)["Name"]
@@ -31,6 +34,7 @@ from db4e.widgets.Clock import Clock
 from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.messages.UpdateTopBar import UpdateTopBar
+from db4e.messages.InstallResult import InstallResult
 
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.RouteMgr import RouteMgr
@@ -51,6 +55,7 @@ from db4e.constants.DDef import DDef
 from db4e.constants.DField import DField
 from db4e.constants.DPane import DPane
 from db4e.constants.DDir import DDir
+from db4e.constants.DFile import DFile
 
 from textual.theme import Theme
 
@@ -92,7 +97,7 @@ class Db4EClient(App):
         self.mining_db = MiningDb(sql_db=self.sql_db)
         self.health_db = HealthDb(sql_db=self.sql_db)
         self.health_client = HealthClient(health_db=self.health_db)
-        install_mgr = InstallMgr(bs_mgr=self.bs_mgr)
+        install_mgr = InstallMgr(bs_mgr=self.bs_mgr, sql_db=self.sql_db)
         self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
         self.nav_pane = NavPane(depl_db=self.depl_db, health_client=self.health_client)
         self.sync_client = SyncClient(
@@ -110,13 +115,46 @@ class Db4EClient(App):
             sync_client=self.sync_client,
             health_client=self.health_client,
         )
+        # Sudo test pass/fail flag, the sudo test is a pre-req for a
+        # successful installation.
         self._sudo_failed = False
+        # Initialize the config data structure, it houses a "db4e
+        # installed" flag.
+        self._config = {}
+
+    def db4e_installed(self, flag=None) -> bool:
+        # We received a flag, update the config and save it
+        if flag is not None:
+            self._config[DField.INSTALL_SUCCESSFUL] = flag
+            self.save_config()
+
+        # Load the config from file
+        self.load_config()
+
+        # We don't have a "db4e installed flag", create one and set it to false
+        if DField.INSTALL_SUCCESSFUL not in self._config:
+            self._config[DField.INSTALL_SUCCESSFUL] = False
+            self.save_config()
+
+        return self._config[DField.INSTALL_SUCCESSFUL]
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
         yield self.topbar
         yield Vertical(self.nav_pane, Clock())
         yield self.pane_mgr
+
+    def load_config(self) -> None:
+        config_file = os.path.join(Path.home(), DDir.DOT_DB4E, DFile.CONFIG)
+
+        # Found a config file, load it
+        if os.path.exists(config_file):
+            with open(config_file, "rb") as f:
+                self._config = tomllib.load(f)
+
+        # No config file found, create one
+        else:
+            self.save_config()
 
     async def on_mount(self) -> None:
         # Register the theme
@@ -125,17 +163,22 @@ class Db4EClient(App):
         # Set the app's theme
         self.theme = DField.DB4E
 
-        # If we're in the "install phase", test to see if password free sudo
-        # access is enabled
-        if not self.bs_mgr.is_initialized():
+        # Determine if Db4E has been successfully installed
+        if self.db4e_installed():
+            self.nav_pane.db4e_installed(flag=True)
+
+        # Successful install hasn't happened
+        else:
+            self.nav_pane.db4e_installed(flag=False)
+            # Execute the sudo test; a pre-requisite for a successful install
             sudo_test = SudoTest()
             return_code = sudo_test.run_test()
             if return_code != 0:
                 self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
-                self._sudo_failed = True
-                self.nav_pane.set_sudo_failed_flag(True)
+                self.sudo_failed(True)
+                self.nav_pane.sudo_failed(True)
             else:
-                self.nav_pane.set_sudo_failed_flag(False)
+                self.nav_pane.sudo_failed(False)
 
     ### Message handling happens here...#31b8e6;
 
@@ -155,7 +198,7 @@ class Db4EClient(App):
         )
 
         # Show the failed pre-requisite screen
-        if self._sudo_failed:
+        if self.sudo_failed():
             self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
 
         # The Db4E database is within the deployment directory that's only
@@ -179,6 +222,12 @@ class Db4EClient(App):
         else:
             self.pane_mgr.set_pane(name=pane, data=data)
 
+    # The installer sends this message
+    async def on_install_result(self, message: InstallResult) -> None:
+        self._config[DField.INSTALL_SUCCESSFUL] = message.install_successful
+        self.nav_pane.db4e_installed(flag=message.install_successful)
+        self.save_config()
+
     # Handle requests to refresh the NavPane
     @work(exclusive=True)
     async def on_refresh_nav_pane(self, message: RefreshNavPane) -> None:
@@ -188,8 +237,25 @@ class Db4EClient(App):
     def on_update_top_bar(self, message: UpdateTopBar) -> None:
         self.topbar.set_state(title=message.title, sub_title=message.sub_title)
 
+    # Save the config to file
+    def save_config(self):
+        config_dir = os.path.join(Path.home(), DDir.DOT_DB4E)
+        config_file = os.path.join(config_dir, DFile.CONFIG)
+
+        if not os.path.exists(config_dir):
+            os.mkdir(config_dir)  # Create the config dir
+
+        with open(config_file, "wb") as f:
+            tomli_w.dump(self._config, f)  # Create the config file
+
+    # Has the sudo test passed or failed
+    def sudo_failed(self, flag=None) -> bool:
+        if flag is not None:
+            self._sudo_failed = flag
+        return self._sudo_failed
+
     # Catchall
-    def _handle_exception(self, error: Exception) -> None:
+    def UNUSED_handle_exception(self, error: Exception) -> None:
         self.bell()
         self.exit(message=Traceback(show_locals=True, width=None, locals_max_length=5))
 

@@ -220,7 +220,6 @@ class BaseDb:
         If ``sql_db`` becomes initialized, this method will also trigger
         ``initialize()`` so the subclass can perform table setup.
         """
-        self.sql_db.check_initialized()
         if self.sql_db.is_initialized():
             self.initialize()
         else:

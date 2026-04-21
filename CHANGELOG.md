@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleaed]
 
+### Added
+- Db4E client config file with an "installation successful" flag
+
 ### Changed
 - **Architectural Shift**
   - The *Db4E* service will now run as root.
@@ -18,11 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - *Initial Setup* screen 
     - `BootstrapMgr`
     - `SQLDb`
+  - Removed the bootstrap file that contained the install directory
+
 
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.
 - Ensure that the *Bootstrap Manager* config attribute was properly initialized.
 - Fixed `TUILogPane` formatting
+
 
 ---
 
