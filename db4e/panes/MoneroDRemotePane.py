@@ -110,7 +110,8 @@ class MoneroDRemotePane(Container):
         :return: None
         :rtype: None
         """
-        self.add_class(DField.EDIT)
+        if monerod.instance():
+            self.add_class(DField.EDIT)
         self.monerod = monerod
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
