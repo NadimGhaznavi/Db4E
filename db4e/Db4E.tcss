@@ -446,6 +446,12 @@ Button {
 .new #view_log_button {
     display: none; }
 
+/* Edit Screen */
+/* ----------- */
+
+.edit #new_button {
+    display: none; }
+
 
 /* Element is stopped */
 /* ------------------ */

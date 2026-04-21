@@ -46,6 +46,7 @@ class DField:
     DISABLED: Final[str] = "disabled"
     DONATIONS: Final[str] = "donations"
     DONATION_WALLET: Final[str] = "donation_wallet"
+    EDIT: Final[str] = "edit"
     ELEMENT: Final[str] = "element"
     ELEMENT_TYPE: Final[str] = "element_type"
     ENABLE: Final[str] = "enable"

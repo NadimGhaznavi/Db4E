@@ -110,6 +110,7 @@ class MoneroDRemotePane(Container):
         :return: None
         :rtype: None
         """
+        self.add_class(DField.EDIT)
         self.monerod = monerod
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
@@ -156,6 +157,7 @@ class MoneroDRemotePane(Container):
         :return: None
         :rtype: None
         """
+
         button_id = event.button.id
 
         self.monerod.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
@@ -186,4 +188,5 @@ class MoneroDRemotePane(Container):
             DField.ELEMENT: self.monerod,
         }
 
+        self.remove_class(DField.EDIT)
         self.app.post_message(Db4EMsg(self, form_data=form_data))
