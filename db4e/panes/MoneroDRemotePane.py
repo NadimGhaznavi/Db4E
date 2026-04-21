@@ -131,8 +131,6 @@ class MoneroDRemotePane(Container):
             INTRO = (
                 f"Configure the settings for the "
                 f"[cyan]{monerod.instance()} {DLabel.MONEROD_REMOTE}[/] deployment. "
-                f"[b]NOTE[/]: Clicking the [cyan]enable/disable[/] button will not "
-                f"start/stop the software on the remote instance."
             )
             self.remove_class(DField.NEW)
             self.add_class(DField.UPDATE)
