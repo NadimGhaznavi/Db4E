@@ -134,9 +134,6 @@ class InstallMgr(Container):
                 self.app.post_message(InstallResult(self, result=False))
                 return log_line_data
 
-            # Initialize the BootstrapMgr and the DB backends
-            self.bs_mgr.initialize()
-            self.sql_db.initialize(db_dir=self.bs_mgr.get_dir(DDir.DB))
             # The deployment and ops databases get initialized as part
             # of the initial install. Force an initializing of the mining
             # DB.
