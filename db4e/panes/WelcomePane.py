@@ -76,7 +76,7 @@ class WelcomePane(Container):
         highlights.add_row(
             "🧙",
             "[#31b8e6]Terminal Analytics[/]",
-            "[#31b8e6]Plotext-based terminal analytics directly in the TUI.[/]",
+            "[#31b8e6]Textual plot analytics directly in the TUI.[/]",
         )
         highlights.add_row(
             "📚",
