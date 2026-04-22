@@ -200,6 +200,24 @@ class APIMgr:
             self.log.info(f"Received delete deployment request: {elem}")
             self.depl_mgr.delete_deployment(elem)
 
+        # Disable deployment
+        @self.app.post("/disable")
+        async def disable_deployment(request: Request):
+            """
+            Process an disable deployment request.
+            """
+            self.log.debug(f"Received request: {request}")
+            payload = await request.json()
+            elem_rec = payload.get(DSync.ELEMENT)
+            table_name = payload.get(DSync.TABLE_NAME)
+            if table_name not in ELEM_TABLE_LIST:
+                raise HTTPException(status_code=400, detail="Invalid deployment type")
+            depl_obj = self.factory(table_name=table_name, elem_rec=elem_rec)
+            self.log.info(
+                f"Received disable deployment request: {table_name}/{elem_rec}"
+            )
+            self.depl_mgr.disable_deployment(elem=depl_obj, elem_type=table_name)
+
         # Enable deployment
         @self.app.post("/enable")
         async def enable_deployment(request: Request):

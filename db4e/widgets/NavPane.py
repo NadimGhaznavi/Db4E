@@ -24,7 +24,7 @@ from db4e.constants.DLabel import DLabel
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DModule import DModule
 from db4e.constants.DPane import DPane
-from db4e.constants.DStatus import STATE_ICON
+from db4e.constants.DStatus import DStatus, STATE_ICON
 
 # Icon dictionary keys
 CORE = "CORE"
@@ -429,6 +429,8 @@ class NavPane(Container):
         self.monerod_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.depl_db.get_monerod_remotes():
             state = self.health_client.get_status(monerod)
+            if not state:
+                state = DStatus.UNKNOWN
             self.monerod_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
             )
@@ -452,6 +454,8 @@ class NavPane(Container):
         self.chain.remove_children()
         for int_p2pool in self.depl_db.get_p2pool_internals():
             state = self.health_client.get_status(int_p2pool)
+            if not state:
+                state = DStatus.UNKNOWN
             instance = int_p2pool.instance()
             self.chain.add_leaf(f"{STATE_ICON[state]} {instance}", data=instance)
 

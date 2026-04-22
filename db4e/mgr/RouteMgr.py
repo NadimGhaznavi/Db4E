@@ -286,6 +286,14 @@ class RouteMgr:
             self.sync_client.enable_deployment,
             DPane.TUI_LOG,
         )
+        # Stop a started deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.STOP,
+            DElem.P2POOL_INTERNAL,
+            self.sync_client.disable_deployment,
+            DPane.TUI_LOG,
+        )
         # Blocks found screen
         self.register(
             DModule.OPS_MGR,
@@ -425,6 +433,8 @@ class RouteMgr:
         elif callback == self.sync_client.update_deployment:
             result = await callback(payload)
         elif callback == self.sync_client.delete_deployment:
+            result = await callback(payload)
+        elif callback == self.sync_client.disable_deployment:
             result = await callback(payload)
         elif callback == self.sync_client.enable_deployment:
             result = await callback(payload)

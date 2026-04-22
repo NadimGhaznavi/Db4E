@@ -195,9 +195,9 @@ class ChainPane(Container):
         elif button_id == DButtonF.STOP:
             form_data = {
                 DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
+                DField.TO_MODULE: DModule.SYNC_CLIENT,
                 DField.TO_METHOD: DMethod.STOP,
-                DField.INSTANCE: self.p2pool.instance(),
+                DField.ELEMENT: self.p2pool,
             }
 
         elif button_id == DButtonF.VIEW_LOG:

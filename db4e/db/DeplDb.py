@@ -78,6 +78,12 @@ class DeplDb(BaseDb):
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(f"DELETE FROM {table} WHERE id=?", (elem.id(),))
 
+    def disable_deployment(self, elem):
+        table = CLASS_TO_TABLE_MAP[type(elem)]
+        self.sql_db.execute_query(
+            f"UPDATE {table} SET enabled=0 WHERE id=?", [elem.id()]
+        )
+
     def enable_deployment(self, elem):
         table = CLASS_TO_TABLE_MAP[type(elem)]
         self.sql_db.execute_query(

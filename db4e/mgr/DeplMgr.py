@@ -555,14 +555,24 @@ class DeplMgr:
             message="Deleted deployment",
         )
 
+    def disable_deployment(self, elem, elem_type):
+        self.depl_db.disable_deployment(elem)
+        self.ops_db.add_tui_log_line(
+            tracked_type=elem_type,
+            tracked_instance=elem.instance(),
+            status=DStatus.COMPLETE,
+            operation=DField.STOPPED,
+            message="Stopped deployment",
+        )
+
     def enable_deployment(self, elem, elem_type):
         self.depl_db.enable_deployment(elem)
         self.ops_db.add_tui_log_line(
             tracked_type=elem_type,
             tracked_instance=elem.instance(),
             status=DStatus.COMPLETE,
-            operation=DField.ENABLE,
-            message="Enabled deployment",
+            operation=DField.STARTED,
+            message="Started deployment",
         )
 
     def update_db4e_deployment(self, new_db4e: Db4E):

@@ -14,6 +14,13 @@ from db4e.db.BaseDb import CLASS_TO_TABLE_MAP
 from db4e.constants.DSQL import DCol
 from db4e.constants.DStatus import DStatus
 
+STATUS_PRIORITY = {
+    DStatus.UNKNOWN: 0,
+    DStatus.GOOD: 1,
+    DStatus.WARN: 2,
+    DStatus.ERROR: 3,
+}
+
 
 class HealthClient:
 
@@ -41,14 +48,18 @@ class HealthClient:
 
         msgs_rows = self.health_db.get_msgs(instance=instance, elem_type=elem_type)
 
-        status = DStatus.UNKNOWN
+        worst = DStatus.UNKNOWN
 
         for rec in msgs_rows:
-            if rec[DCol.STATUS] == DStatus.ERROR:
-                return DStatus.ERROR
-            elif rec[DCol.STATUS] == DStatus.WARN:
-                status = DStatus.WARN
-            elif rec[DCol.STATUS] == DStatus.GOOD:
-                status = DStatus.GOOD
+            rec_status = rec[DCol.STATUS]
 
-        return status
+            if rec_status not in STATUS_PRIORITY:
+                raise ValueError(f"Unrecognized status: {rec_status}")
+
+            if STATUS_PRIORITY[rec_status] > STATUS_PRIORITY[worst]:
+                worst = rec_status
+
+                if worst == DStatus.ERROR:
+                    break  # fast exit
+
+        return worst

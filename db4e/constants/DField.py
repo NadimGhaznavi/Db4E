@@ -167,6 +167,7 @@ class DField:
     SOFTWARE_SYSTEM: Final[str] = "software_system"
     STARTED: Final[str] = "started"
     STATUS: Final[str] = "status"
+    STOPPED: Final[str] = "stopped"
     SYSTEMD_COLORS: Final[str] = "SYSTEMD_COLORS"
     SYSTEMD_PAGER: Final[str] = "SYSTEMD_PAGER"
     TASK: Final[str] = "task"

@@ -156,6 +156,24 @@ class SyncClient:
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
+    async def disable_deployment(self, depl_request):
+        """
+        Send a "disable deployment" request to the sync server.
+        """
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
+
+        payload = {
+            DSync.ELEMENT: depl_obj.to_dict(),
+            DSync.TABLE_NAME: depl_table,
+        }
+        url = f"{self.server_url}/disable"
+
+        return await self._send_request(
+            depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
+        )
+
     async def enable_deployment(self, depl_request):
         """
         Send a "enable deployment" request to the sync server.
