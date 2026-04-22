@@ -53,6 +53,11 @@ class NavHandler:
         instance = request.get(DField.INSTANCE)
         depl_obj = self.depl_db.get_deployment(elem_type=elem_type, instance=instance)
 
+        if not depl_obj:
+            raise RuntimeError(
+                f"Unable to locate object in database: {elem_type}/{instance}"
+            )
+
         # Get the health messages
         health_msgs = self.health_client.get_msgs(
             instance=instance, elem_type=elem_type

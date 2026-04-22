@@ -144,7 +144,7 @@ class NavPane(Container):
             elif leaf_data == DLabel.DB4E:
                 form_data = {
                     DField.ELEMENT_TYPE: DElem.DB4E,
-                    DField.INSTANCE: DElem.DB4E,
+                    DField.INSTANCE: DLabel.DB4E,
                     DField.TO_MODULE: DModule.NAV_HANDLER,
                     DField.TO_METHOD: DMethod.GET_DEPL,
                 }
