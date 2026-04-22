@@ -201,9 +201,6 @@ class InstallMgr(Container):
             # Run the installer (with sudo)
             db4e = self._run_sudo_installer(db4e=db4e)
 
-            # Return the updated Db4E deployment object with embded results
-            log_lines = self._return_tui_log()
-
             # Give the Db4E service a couple of seconds to startup
             time.sleep(2)
 
@@ -220,6 +217,9 @@ class InstallMgr(Container):
 
             # Successful install
             self.app.post_message(InstallResult(self, result=True))
+
+            # Return the updated Db4E deployment object with embded results
+            log_lines = self._return_tui_log()
 
             return log_lines
 
@@ -741,15 +741,6 @@ class InstallMgr(Container):
                     stats_mod=stats_mod,
                     stdin_path=stdin_path,
                     config_file=config_file,
-                )
-
-                # Create a TUI log message
-                self.ops_db.add_tui_log_line(
-                    tracked_type=DElem.P2POOL_INTERNAL,
-                    tracked_instance=f"{chain_label} Sidechain",
-                    operation=DField.NEW,
-                    status=DStatus.COMPLETE,
-                    message="New Deployment",
                 )
 
                 # Create a logrotate config file for the P2Pool log

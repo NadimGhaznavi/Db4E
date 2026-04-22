@@ -390,7 +390,7 @@ class DeplMgr:
         # Create a console log message
         self.ops_db.add_tui_log_line(
             tracked_type=DElem.P2POOL_INTERNAL,
-            tracked_instance=p2pool.instance(),
+            tracked_instance=f"{p2pool.instance()} Sidechain",
             status=DStatus.COMPLETE,
             operation=DField.NEW,
             message="New deployment",

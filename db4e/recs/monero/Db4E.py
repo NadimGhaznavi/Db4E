@@ -15,6 +15,7 @@ from db4e.constants.DSQL import DCol
 from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField
 from db4e.constants.DDef import DDef
+from db4e.constants.DLabel import DLabel
 
 
 class Db4E(LocalMonero):
@@ -36,13 +37,12 @@ class Db4E(LocalMonero):
         self._db4e_group = None
         self._db4e_user = None
         self._install_dir = None
+        self._instance = DLabel.DB4E
         self._primary_server = DField.DISABLE
         self._primary_remote = DField.DISABLE
         self._user_wallet = ""
         self._vendor_dir = DDef.DB4E_INSTALL_DIR
         self._instance_map = {}
-        # There is only one Db4E deployment
-        self.instance(DElem.DB4E)
         # Set the effective user and group IDs
         self.set_effective_identity()
         # Set the install directory
