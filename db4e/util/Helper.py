@@ -135,7 +135,7 @@ def gen_results_table(results: list[HealthMsg]):
         if status == DStatus.GOOD:
             table.add_row(f"{icon} [bold]{category}[/]", f"{message}")
         elif status == DStatus.WARN:
-            table.add_row(f"{icon}  [yellow]{category}[/]", f"[yellow]{message}[/]")
+            table.add_row(f"{icon} [b yellow]{category}[/]", f"[yellow]{message}[/]")
         elif status == DStatus.ERROR:
             table.add_row(
                 f"{icon} [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
