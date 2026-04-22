@@ -100,6 +100,7 @@ class RouteMgr:
             self.sync_client.update_deployment,
             DPane.TUI_LOG,
         )
+
         ## MoneroD deployment
         # Display the new form
         self.register(
@@ -284,6 +285,14 @@ class RouteMgr:
             DElem.P2POOL_INTERNAL,
             self.sync_client.enable_deployment,
             DPane.TUI_LOG,
+        )
+        # Blocks found screen
+        self.register(
+            DModule.OPS_MGR,
+            DMethod.BLOCKS_FOUND,
+            DElem.P2POOL_INTERNAL,
+            self.nav_handler.get_deployment,
+            DPane.CHAIN_BLOCKS_FOUND,
         )
 
         ## XMRig deployment

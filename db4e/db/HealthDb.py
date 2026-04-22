@@ -79,7 +79,6 @@ class HealthDb(BaseDb):
             );
             """
         )
-
         # Add an updated_ts column to the table (for syncing)
         self.add_updated_ts_column(DTable.HEALTH_STATE)
 

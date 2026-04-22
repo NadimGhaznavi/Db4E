@@ -56,7 +56,7 @@ SYNC_SCHEDULE = {
     DTable.SHARE_POSITION: 60,
     DTable.XMR_PAYMENT: 60,
     # Health State table
-    DTable.HEALTH_STATE: 10,
+    DTable.HEALTH_STATE: 5,
 }
 
 
@@ -273,13 +273,10 @@ class SyncClient:
             for table, interval in SYNC_SCHEDULE.items():
                 last_sync = last_sync_times[table]
                 if start_time - last_sync >= interval:
-                    # print(f"[SyncClient] Checking {table} - last sync: {last_sync}")
                     try:
                         since_ts = self.sql_db.get_last_sync(table)
                         await self.sync_table(table, since_ts=since_ts)
                     except RuntimeError:
-                        # We get this when the app is run for the first time. The initial
-                        # install hasn't been completed and the DB is not initialized
                         pass
                     last_sync_times[table] = start_time
 

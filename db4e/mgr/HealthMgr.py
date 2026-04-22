@@ -33,6 +33,7 @@ from db4e.constants.DElem import DElem
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DHealth import DCategory
 from db4e.constants.DField import DField
+from db4e.constants.DLabel import DLabel
 
 
 class HealthMgr:
@@ -61,7 +62,7 @@ class HealthMgr:
         # Check that the deployment directory exists
         if os.path.isdir(db4e.vendor_dir()):
             health_msg = HealthMsg(
-                instance=DElem.DB4E,
+                instance=DLabel.DB4E,
                 elem_type=DElem.DB4E,
                 category=DCategory.VENDOR_DIR,
                 status=DStatus.GOOD,

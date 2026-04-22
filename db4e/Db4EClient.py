@@ -183,6 +183,9 @@ class Db4EClient(App):
             else:
                 self.nav_pane.sudo_failed(False)
 
+        # Start the sync process
+        await self.sync_client.start()
+
     ### Message handling happens here...#31b8e6;
 
     # Exit the app
