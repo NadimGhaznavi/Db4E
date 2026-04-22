@@ -304,7 +304,6 @@ class SyncClient:
                 resp.raise_for_status()
                 payload = resp.json()
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
-            print(f"[SyncClient] Failed to sync {table_name}: {e}")
             return {}
         rows = payload.get("rows", [])
         for row in rows:
