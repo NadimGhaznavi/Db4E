@@ -201,8 +201,8 @@ class HealthMgr:
         else:
             monerod = self.get_upstream(
                 upstream_type=DElem.MONEROD,
-                remote=db4e.primary_remote(),
-                id=db4e.primary_server(),
+                remote=p2pool.parent_remote(),
+                id=p2pool.parent(),
             )
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
