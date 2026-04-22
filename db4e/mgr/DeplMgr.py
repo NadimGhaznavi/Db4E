@@ -575,7 +575,7 @@ class DeplMgr:
         update_flag = False
         update_p2pool_flag = False
         # The current record, we'll update this and write it back in
-        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DElem.DB4E)
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DLabel.DB4E)
 
         # Updating user wallet
         if db4e.user_wallet() != new_db4e.user_wallet():

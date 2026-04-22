@@ -135,6 +135,7 @@ class Db4EPane(Container):
         self.query_one(f"#{DForm.INSTALL_DIR_LABEL}", Label).update(db4e.install_dir())
         self.query_one(f"#{DForm.VENDOR_DIR_LABEL}", Label).update(db4e.vendor_dir())
         self.query_one(f"#{DForm.USER_WALLET_INPUT}", Input).value = db4e.user_wallet()
+
         # print(f"Health msgs: {db4e.pop_msgs()}")
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(db4e.pop_msgs())

@@ -15,6 +15,7 @@ from db4e.util.Db4ELogger import Db4ELogger
 
 # Health DB
 from db4e.db.HealthDb import HealthDb
+from db4e.db.DeplDb import DeplDb
 from db4e.util.Helper import HealthMsg, is_port_open
 
 # Deployment elements
@@ -41,8 +42,9 @@ class HealthMgr:
     Health manager that periodically checks the health of deployed components.
     """
 
-    def __init__(self, health_db: HealthDb, log_file=None):
+    def __init__(self, health_db: HealthDb, depl_db: DeplDb, log_file=None):
         self.health_db = health_db
+        self.depl_db = depl_db
         self.log = Db4ELogger(db4e_module=DModule.HEALTH_MGR, log_file=log_file)
 
     def check(self, elem):
@@ -75,6 +77,33 @@ class HealthMgr:
                 category=DCategory.VENDOR_DIR,
                 status=DStatus.ERROR,
                 message=f"Directory {db4e.vendor_dir()} not found",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Check if a primary server has been set
+        if db4e.primary_server() == DField.DISABLE:
+            health_msg = HealthMsg(
+                instance=DLabel.DB4E,
+                elem_type=DElem.DB4E,
+                category=DCategory.PRIMARY_SERVER,
+                status=DStatus.WARN,
+                message="Primary server is unset",
+            )
+        else:
+            if db4e.primary_remote():
+                monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD_REMOTE, id=db4e.primary_server()
+                )
+            else:
+                monerod = self.depl_db.get_deployment_by_id(
+                    elem_type=DElem.MONEROD, id=db4e.primary_server()
+                )
+            health_msg = HealthMsg(
+                instance=DLabel.DB4E,
+                elem_type=DElem.DB4E,
+                category=DCategory.PRIMARY_SERVER,
+                status=DStatus.GOOD,
+                message=f"Primary server set: {monerod.instance()}",
             )
         self.health_db.upsert_one(health_msg)
 

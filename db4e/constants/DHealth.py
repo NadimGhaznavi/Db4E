@@ -15,6 +15,7 @@ from db4e.constants.DLabel import DLabel
 
 class DCategory:
     ENABLED = DField.ENABLED
+    PRIMARY_SERVER = DField.PRIMARY_SERVER
     RPC_BIND_PORT = DField.RPC_BIND_PORT
     STRATUM_PORT = DField.STRATUM_PORT
     UPSTREAM = DField.UPSTREAM
@@ -24,6 +25,7 @@ class DCategory:
 
 CATEGORY_LABEL_MAP = {
     DField.ENABLED: DLabel.ENABLED,
+    DField.PRIMARY_SERVER: DLabel.PRIMARY_SERVER,
     DField.RPC_BIND_PORT: DLabel.RPC_BIND_PORT,
     DField.STRATUM_PORT: DLabel.STRATUM_PORT,
     DField.UPSTREAM: DLabel.UPSTREAM,

@@ -111,7 +111,9 @@ class Db4eServer:
             log_file=fq_log_file,
         )
         # Health manager
-        self.health_mgr = HealthMgr(health_db=self.health_db, log_file=fq_log_file)
+        self.health_mgr = HealthMgr(
+            health_db=self.health_db, depl_db=self.depl_db, log_file=fq_log_file
+        )
 
         #  systemd wrapper
         self.systemd = Db4ESystemD(ops_db=self.ops_db)
