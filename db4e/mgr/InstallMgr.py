@@ -14,6 +14,7 @@ import subprocess
 import stat
 import traceback
 from pathlib import Path
+import time
 
 from textual.containers import Container
 
@@ -22,6 +23,7 @@ from db4e.util.Helper import result_row
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.ops.TUILogLine import TUILogLine
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
+from db4e.sync.SyncClient import SyncClient
 from db4e.db.SQLDb import SQLDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.DeplDb import DeplDb
@@ -44,7 +46,7 @@ class InstallMgr(Container):
     Installer and bootstrap orchestrator for Db4E deployments.
     """
 
-    def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb):
+    def __init__(self, bs_mgr: BootstrapMgr, sql_db: SQLDb, sync_client: SyncClient):
         """
         Initialize the installer manager and its DB backends.
 
@@ -54,12 +56,11 @@ class InstallMgr(Container):
         super().__init__()
         self.bs_mgr = bs_mgr
         self.sql_db = sql_db
+        self.sync_client = sync_client
         self.ops_db = OpsDb(sql_db=self.sql_db)
-        self.depl_db = DeplDb(sql_db=self.sql_db)
-        self.col_name = DDef.DEPL_COLLECTION
         self.tmp_dir = None
 
-    def initial_setup(self, form_data: dict) -> dict:
+    async def initial_setup(self, form_data: dict) -> dict:
         """
         Run the initial setup workflow and return log lines.
 
@@ -73,7 +74,6 @@ class InstallMgr(Container):
             abort_install = False
 
             # Clear the console log if the DB has been initialized
-            self.depl_db.clear_all()
             self.ops_db.clear_tui_log()
 
             # Temporary location to store TUI log line data since the
@@ -136,8 +136,6 @@ class InstallMgr(Container):
             # Add the log_line_data to the newly initialized ops DB.
             self.ops_db.add_tui_log_line_data(log_line_data=log_line_data)
 
-            # Insert the db4e object into the database
-            db4e = self.depl_db.insert_one(db4e)
             # Create a TUI log message
             self.ops_db.add_tui_log_line(
                 tracked_instance=DLabel.DB4E,
@@ -159,8 +157,7 @@ class InstallMgr(Container):
                     details=f"{DDef.DB4E_INSTALL_DIR}/{aDir}",
                 )
 
-            # We have everything we need to finish the install. Update the record.
-            self.depl_db.update_one(db4e)
+            # We have everything we need to finish the install...
 
             # Create the Db4E vendor directories
             db4e = self._create_db4e_dirs(db4e=db4e)
@@ -199,13 +196,27 @@ class InstallMgr(Container):
             db4e = self._copy_xmrig_file(db4e=db4e)
 
             # Deploy internal P2Pool instances to gather metrics
-            db4e = self._deploy_internal_p2pools(db4e=db4e)
+            db4e, p2pools_list = self._deploy_internal_p2pools(db4e=db4e)
 
             # Run the installer (with sudo)
             db4e = self._run_sudo_installer(db4e=db4e)
 
             # Return the updated Db4E deployment object with embded results
             log_lines = self._return_tui_log()
+
+            # Give the Db4E service a couple of seconds to startup
+            time.sleep(2)
+
+            # Add the db4e deployment
+            await self.sync_client.add_deployment(
+                {DField.ELEMENT: db4e, DField.ELEMENT_TYPE: DElem.DB4E}
+            )
+
+            # Add the internal p2pool deployments
+            for p2pool in p2pools_list:
+                await self.sync_client.add_deployment(
+                    {DField.ELEMENT: p2pool, DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL}
+                )
 
             # Successful install
             self.app.post_message(InstallResult(self, result=True))
@@ -678,7 +689,7 @@ class InstallMgr(Container):
         return db4e
 
     # Deploy metrics gathering P2Pool instances
-    def _deploy_internal_p2pools(self, db4e: Db4E):
+    def _deploy_internal_p2pools(self, db4e: Db4E) -> list:
         """
         Deploy internal P2Pool instances for metrics gathering.
 
@@ -688,6 +699,7 @@ class InstallMgr(Container):
         :rtype: Db4E
         """
         try:
+            p2pools_list = []
             for chain_label in [
                 DLabel.MAIN_CHAIN,
                 DLabel.MINI_CHAIN,
@@ -730,9 +742,6 @@ class InstallMgr(Container):
                     stdin_path=stdin_path,
                     config_file=config_file,
                 )
-
-                # Add the new deployment record
-                self.depl_db.insert_one(p2pool)
 
                 # Create a TUI log message
                 self.ops_db.add_tui_log_line(
@@ -778,7 +787,10 @@ class InstallMgr(Container):
                         details=sub_dir,
                     )
 
-            return db4e
+                # Add the new deployment record
+                p2pools_list.append(p2pool)
+
+            return db4e, p2pools_list
 
         except Exception as e:
             print(f"ERROR: {e}")

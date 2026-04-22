@@ -14,6 +14,7 @@ from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
+from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 from db4e.recs.monero.XMRig import XMRig
 
 from db4e.constants.DStatus import DStatus
@@ -59,7 +60,7 @@ class FormChecker:
             return self.check_monerod_fields(depl_obj)
         elif depl_class == MoneroDRemote:
             return self.check_monerod_remote_fields(depl_obj)
-        elif depl_class == P2Pool:
+        elif depl_class == P2Pool or depl_class == P2PoolInternal:
             return self.check_p2pool_fields(depl_obj)
         elif depl_class == P2PoolRemote:
             return self.check_p2pool_remote_fields(depl_obj)

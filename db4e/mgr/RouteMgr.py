@@ -410,20 +410,19 @@ class RouteMgr:
             )
 
         callback, pane = handler
-        # await add_deployment
+        # The functions below are async
         if callback == self.sync_client.add_deployment:
             result = await callback(payload)
-        # await update_deployment
         elif callback == self.sync_client.update_deployment:
             result = await callback(payload)
-        # await delete_deployment
         elif callback == self.sync_client.delete_deployment:
             result = await callback(payload)
-        # await enable_deployemnt
         elif callback == self.sync_client.enable_deployment:
             result = await callback(payload)
+        elif callback == self.install_mgr.initial_setup:
+            result = await callback(payload)
 
-        # Fallback (a synchronous method, no `await`).
+        # Everything else is synchronous (no await)
         else:
             result = callback(payload)
         return result, pane

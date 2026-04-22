@@ -97,9 +97,6 @@ class Db4EClient(App):
         self.mining_db = MiningDb(sql_db=self.sql_db)
         self.health_db = HealthDb(sql_db=self.sql_db)
         self.health_client = HealthClient(health_db=self.health_db)
-        install_mgr = InstallMgr(bs_mgr=self.bs_mgr, sql_db=self.sql_db)
-        self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
-        self.nav_pane = NavPane(depl_db=self.depl_db, health_client=self.health_client)
         self.sync_client = SyncClient(
             sql_db=self.sql_db,
             ops_db=self.ops_db,
@@ -107,6 +104,11 @@ class Db4EClient(App):
             bs_mgr=self.bs_mgr,
             server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
         )
+        install_mgr = InstallMgr(
+            bs_mgr=self.bs_mgr, sql_db=self.sql_db, sync_client=self.sync_client
+        )
+        self.pane_mgr = PaneMgr(catalogue=PaneCatalogue())
+        self.nav_pane = NavPane(depl_db=self.depl_db, health_client=self.health_client)
         self.route_mgr = RouteMgr(
             depl_db=self.depl_db,
             ops_db=self.ops_db,

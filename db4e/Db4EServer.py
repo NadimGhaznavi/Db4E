@@ -102,6 +102,7 @@ class Db4eServer:
             depl_db=self.depl_db,
             ops_db=self.ops_db,
             sql_db=self.sql_db,
+            log_file=log_file,
         )
 
         # Health DB module

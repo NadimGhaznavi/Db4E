@@ -10,7 +10,6 @@ import os, sqlite3
 from pathlib import Path
 
 from db4e.util.Db4ELogger import Db4ELogger
-from db4e.mgr.BootstrapMgr import BootstrapMgr
 
 
 from db4e.constants.DFile import DFile

@@ -15,7 +15,7 @@ from typing import overload
 import subprocess
 
 from db4e.mgr.BootstrapMgr import BootstrapMgr
-
+from db4e.util.Db4ELogger import Db4ELogger
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb
 
@@ -70,7 +70,12 @@ class DeplMgr:
     def update_p2pool_deployment(self, p2pool: P2PoolInternal) -> P2PoolInternal: ...
 
     def __init__(
-        self, bs_mgr: BootstrapMgr, depl_db: DeplDb, ops_db: OpsDb, sql_db=None
+        self,
+        bs_mgr: BootstrapMgr,
+        depl_db: DeplDb,
+        ops_db: OpsDb,
+        sql_db=None,
+        log_file=None,
     ):
         """
         Initialize the deployment manager.
@@ -88,6 +93,8 @@ class DeplMgr:
         self.depl_db = depl_db
         self.ops_db = ops_db
         self.sql_db = sql_db
+        if log_file:
+            self.log = Db4ELogger(db4e_module=DModule.DEPLOYMENT_MGR, log_file=log_file)
 
     def add_deployment(self, elem):
         """
@@ -99,9 +106,12 @@ class DeplMgr:
         :rtype: object
         """
         elem_class = type(elem)
+        # Add the core Db4E deployment
+        if elem_class == Db4E:
+            return self.add_db4e_deployment(elem)
 
         # Add a remote Monero daemon deployment
-        if elem_class == MoneroD:
+        elif elem_class == MoneroD:
             return self.add_monerod_deployment(elem)
 
         # Add a remote Monero daemon deployment
@@ -116,6 +126,10 @@ class DeplMgr:
         elif elem_class == P2PoolRemote:
             return self.add_remote_p2pool_deployment(elem)
 
+        # Add an Internal P2Pool deployment
+        elif elem_class == P2PoolInternal:
+            return self.add_internal_p2pool_deployment(elem)
+
         # Add a XMRig deployment
         elif elem_class == XMRig:
             return self.add_xmrig_deployment(elem)
@@ -126,7 +140,27 @@ class DeplMgr:
 
         # Catchall
         else:
+            self.log.error(f"ERROR: Unrcognized element {elem}")
             raise ValueError(f"DeplMgr:add_deployment(): No handler for {elem_class}")
+
+    def add_db4e_deployment(self, db4e: Db4E) -> Db4E:
+        """
+        Add the core Db4E deployment which includes the Db4E service.
+
+        :param db4e: Db4E deployment object.
+        :type db4e: Db4E
+        :return: The created cb4e deployment object.
+        :rtype: Db4E
+        """
+        db4e = self.depl_db.insert_one(db4e)
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.DB4E,
+            tracked_instance=db4e.instance(),
+            status=DStatus.COMPLETE,
+            operation=DField.NEW,
+            message="New deployment",
+        )
+        return db4e
 
     def add_monerod_deployment(self, monerod: MoneroD) -> MoneroD:
         """
@@ -336,6 +370,26 @@ class DeplMgr:
         # Create a console log message
         self.ops_db.add_tui_log_line(
             tracked_type=DElem.P2POOL_REMOTE,
+            tracked_instance=p2pool.instance(),
+            status=DStatus.COMPLETE,
+            operation=DField.NEW,
+            message="New deployment",
+        )
+        return p2pool
+
+    def add_internal_p2pool_deployment(self, p2pool: P2PoolInternal) -> P2PoolInternal:
+        """
+        Add an internal P2Pool deployment.
+
+        :param p2pool: Internal P2Pool deployment object.
+        :type p2pool: P2PoolInternal
+        :return: The created P2PoolInternal deployment object.
+        :rtype: P2PoolInternal
+        """
+        p2pool = self.depl_db.insert_one(p2pool)
+        # Create a console log message
+        self.ops_db.add_tui_log_line(
+            tracked_type=DElem.P2POOL_INTERNAL,
             tracked_instance=p2pool.instance(),
             status=DStatus.COMPLETE,
             operation=DField.NEW,
