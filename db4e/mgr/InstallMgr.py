@@ -15,6 +15,7 @@ import stat
 import traceback
 from pathlib import Path
 import time
+import socket
 
 from textual.containers import Container
 
@@ -777,6 +778,9 @@ class InstallMgr(Container):
                         message="Create Directory",
                         details=sub_dir,
                     )
+
+                # Add the hostname
+                p2pool.ip_addr(socket.gethostname())
 
                 # Add the new deployment record
                 p2pools_list.append(p2pool)

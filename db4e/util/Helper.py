@@ -23,7 +23,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DSQL import DCol
 from db4e.constants.DHealth import CATEGORY_LABEL_MAP
-
+from db4e.constants.DElem import DElem
 
 error_color = "#935fcf"
 PICONEROS_PER_XMR = 1_000_000_000_000  # 10^12
@@ -143,6 +143,28 @@ def gen_results_table(results: list[HealthMsg]):
         else:
             raise ValueError(f"Unrecognized status {status}")
     return table
+
+
+def get_upstream(depl_db, upstream_type: str, remote: bool, id: int):
+    if upstream_type == DElem.MONEROD:
+        if remote:
+            up_type = DElem.MONEROD_REMOTE
+            upstream = depl_db.get_deployment_by_id(elem_type=up_type, id=id)
+        else:
+            up_type = DElem.MONEROD
+            upstream = depl_db.get_deployment_by_id(elem_type=up_type, id=id)
+    elif upstream_type == DElem.P2POOL:
+        if remote:
+            up_type = DElem.P2POOL_REMOTE
+            upstream = depl_db.get_deployment_by_id(elem_type=up_type, id=id)
+        else:
+            up_type = DElem.P2POOL
+            upstream = depl_db.get_deployment_by_id(elem_type=up_type, id=id)
+    if not upstream:
+        raise RuntimeError(
+            f"Unable to locate upstream deployment of type {up_type} with database ID {id}"
+        )
+    return upstream
 
 
 def is_port_open(host, port):

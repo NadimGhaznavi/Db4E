@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Passed to the Nav Pane so it knows what to display
 - Added a health check for the core Db4E service to see if a primary server has been defined
 - The deployment name to the *Internal P2Pool* health check message
+- New `helper:get_upstream()` helper function
 
 ### Changed
 - **Architectural Shift**
@@ -34,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.
 - Fixed `TUILogPane` formatting bug
+
+### Removed
+- Removed upstream monero field from the *Chain Pane* as that info is in the health messages
 
 ---
 

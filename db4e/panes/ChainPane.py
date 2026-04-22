@@ -68,15 +68,11 @@ class ChainPane(Container):
                         Label("", id=DForm.LOG_LEVEL_LABEL, classes=DForm.STATIC),
                     ),
                     Horizontal(
-                        Label(DLabel.UPSTREAM_MONERO, classes=DForm.FORM_LABEL),
-                        Label("", id=DForm.PARENT_LABEL, classes=DForm.STATIC),
-                    ),
-                    Horizontal(
                         Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL),
                         Label("", id=DForm.CONFIG_FILE_LABEL, classes=DForm.STATIC),
                     ),
                     id=DForm.FORM_BOX,
-                    classes=DForm.FORM_8,
+                    classes=DForm.FORM_7,
                 ),
                 Vertical(
                     Label(id=DForm.HEALTH_LABEL),
@@ -149,13 +145,6 @@ class ChainPane(Container):
         self.query_one(f"#{DForm.LOG_LEVEL_LABEL}", Label).update(
             str(p2pool.log_level())
         )
-        if p2pool.monerod:
-            self.query_one(f"#{DForm.PARENT_LABEL}", Label).update(p2pool.parent())
-        else:
-            self.query_one(f"#{DForm.PARENT_LABEL}", Label).update(
-                "Primary server not set"
-            )
-
         # Health messages
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(p2pool.pop_msgs())

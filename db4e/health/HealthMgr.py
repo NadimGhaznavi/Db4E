@@ -16,7 +16,7 @@ from db4e.util.Db4ELogger import Db4ELogger
 # Health DB
 from db4e.db.HealthDb import HealthDb
 from db4e.db.DeplDb import DeplDb
-from db4e.util.Helper import HealthMsg, is_port_open
+from db4e.util.Helper import HealthMsg, is_port_open, get_upstream
 
 # Deployment elements
 from db4e.recs.monero.Db4E import Db4E
@@ -90,7 +90,8 @@ class HealthMgr:
                 message="Primary server is unset",
             )
         else:
-            monerod = self.get_upstream(
+            monerod = get_upstream(
+                depl_db=self.depl_db,
                 upstream_type=DElem.MONEROD,
                 remote=db4e.primary_remote(),
                 id=db4e.primary_server(),
@@ -158,7 +159,7 @@ class HealthMgr:
                 elem_type=DElem.P2POOL_INTERNAL,
                 category=DCategory.ENABLED,
                 status=DStatus.GOOD,
-                message=f"Instance is enabled",
+                message=f"Instance is running",
             )
         else:
             health_msg = HealthMsg(
@@ -166,7 +167,7 @@ class HealthMgr:
                 elem_type=DElem.P2POOL_INTERNAL,
                 category=DCategory.ENABLED,
                 status=DStatus.ERROR,
-                message=f"Instance is disabled",
+                message=f"Instance is stopped",
             )
         self.health_db.upsert_one(health_msg)
 
@@ -199,7 +200,8 @@ class HealthMgr:
                 message=f"Upstream Monero is undefined",
             )
         else:
-            monerod = self.get_upstream(
+            monerod = get_upstream(
+                depl_db=self.depl_db,
                 upstream_type=DElem.MONEROD,
                 remote=p2pool.parent_remote(),
                 id=p2pool.parent(),
@@ -235,24 +237,3 @@ class HealthMgr:
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
-
-    def get_upstream(self, upstream_type: str, remote: bool, id: int):
-        if upstream_type == DElem.MONEROD:
-            if remote:
-                up_type = DElem.MONEROD_REMOTE
-                upstream = self.depl_db.get_deployment_by_id(elem_type=up_type, id=id)
-            else:
-                up_type = DElem.MONEROD
-                upstream = self.depl_db.get_deployment_by_id(elem_type=up_type, id=id)
-        elif upstream_type == DElem.P2POOL:
-            if remote:
-                up_type = DElem.P2POOL_REMOTE
-                upstream = self.depl_db.get_deployment_by_id(elem_type=up_type, id=id)
-            else:
-                up_type = DElem.P2POOL
-                upstream = self.depl_db.get_deployment_by_id(elem_type=up_type, id=id)
-        if not upstream:
-            raise RuntimeError(
-                f"Unable to locate upstream deployment of type {up_type} with database ID {id}"
-            )
-        return upstream
