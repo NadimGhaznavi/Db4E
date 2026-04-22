@@ -15,7 +15,7 @@ from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
 
-from db4e.client.HealthClient import HealthClient
+from db4e.health.HealthClient import HealthClient
 
 from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem

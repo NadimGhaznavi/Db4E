@@ -10,7 +10,7 @@ from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.PaneMgr import PaneMgr
 from db4e.sync.SyncClient import SyncClient
 from db4e.util.NavHandler import NavHandler
-from db4e.client.HealthClient import HealthClient
+from db4e.health.HealthClient import HealthClient
 
 from db4e.db.DeplDb import DeplDb
 from db4e.db.OpsDb import OpsDb

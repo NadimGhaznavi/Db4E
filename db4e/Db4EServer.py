@@ -28,7 +28,7 @@ except Exception:
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
 from db4e.mgr.APIMgr import APIMgr
-from db4e.mgr.HealthMgr import HealthMgr
+from db4e.health.HealthMgr import HealthMgr
 
 from db4e.sync.SyncServer import init_sync_server
 

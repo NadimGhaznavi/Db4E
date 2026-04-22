@@ -47,7 +47,7 @@ from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.OpsETL import OpsETL
 from db4e.db.HealthDb import HealthDb
-from db4e.client.HealthClient import HealthClient
+from db4e.health.HealthClient import HealthClient
 from db4e.util.PaneCatalogue import PaneCatalogue
 from db4e.util.SudoTest import SudoTest
 

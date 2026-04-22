@@ -13,7 +13,7 @@ from textual.widgets import Tree
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, ScrollableContainer
 
-from db4e.client.HealthClient import HealthClient
+from db4e.health.HealthClient import HealthClient
 from db4e.db.DeplDb import DeplDb
 
 from db4e.messages.Db4EMsg import Db4EMsg

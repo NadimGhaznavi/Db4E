@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `Db4EClient` `load_config()`, `save_config()`, `db4e_installed()` methods
 - Added `Db4EClient:sudo_failed()` method
   - Passed to the Nav Pane so it knows what to display
+- Added a health check for the core Db4E service to see if a primary server has been defined
+- The deployment name to the *Internal P2Pool* health check message
 
 ### Changed
 - **Architectural Shift**
@@ -27,10 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `BootstrapMgr`
     - `SQLDb`
   - Removed the bootstrap file that contained the install directory
+- Moved the `HealthMgr` and `HealthClient` into a new `health` folder
 
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.
-- Fixed `TUILogPane` formatting
+- Fixed `TUILogPane` formatting bug
 
 ---
 

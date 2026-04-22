@@ -15,7 +15,6 @@ Description=Database 4 Everything Service
 After=network.target
 
 [Service]
-# User=[[DB4E_USER]]
 WorkingDirectory=[[DB4E_DIR]]
 ExecStart=[[DB4E_DIR]]/bin/db4e-server
 Restart=always

@@ -17,8 +17,6 @@ Wants=network.target
 Requires=monerod@%i.socket
 
 [Service]
-User=[[DB4E_USER]]
-Group=[[DB4E_GROUP]]
 StandardInput=socket
 Sockets=monerod@%i.socket
 WorkingDirectory=[[MONEROD_DIR]]

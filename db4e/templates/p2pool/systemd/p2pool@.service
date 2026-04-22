@@ -26,9 +26,6 @@ StandardError=journal
 ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
 TimeoutStopSec=60
 
-User=[[DB4E_USER]]
-Group=[[DB4E_GROUP]]
-
 WorkingDirectory=[[P2POOL_DIR]]
 
 [Install]
