@@ -84,7 +84,6 @@ class ChainPane(Container):
                         Button(label=DButtonL.BLOCKS_FOUND, id=DButtonF.BLOCKS_FOUND),
                         Button(label=DButtonL.HASHRATE, id=DButtonF.HASHRATE),
                         Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
-                        Button(label=DButtonL.RESTART, id=DButtonF.RESTART),
                         Button(label=DButtonL.START, id=DButtonF.START),
                         Button(label=DButtonL.STOP, id=DButtonF.STOP),
                         classes=DForm.BUTTON_ROW,
@@ -174,14 +173,6 @@ class ChainPane(Container):
                 DField.TO_METHOD: DMethod.HASHRATES,
                 DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
                 DField.ELEMENT: self.p2pool,
-            }
-
-        elif button_id == DButtonF.RESTART:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.TO_MODULE: DModule.DEPLOYMENT_CLIENT,
-                DField.TO_METHOD: DMethod.RESTART,
-                DField.INSTANCE: self.p2pool.instance(),
             }
 
         elif button_id == DButtonF.START:
