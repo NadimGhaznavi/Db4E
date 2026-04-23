@@ -11,7 +11,6 @@ import math
 
 from textual.containers import Container, Vertical, ScrollableContainer, Horizontal
 from textual.widgets import Label, Select
-from textual_plotext import PlotextPlot
 from textual.reactive import reactive
 
 from db4e.recs.monero.P2Pool import P2Pool
@@ -25,7 +24,6 @@ class ChainBlocksFoundPane(Container):
     """
     Textual pane for displaying blocks-found history for a P2Pool chain.
     """
-
 
     days = reactive([])
     blocks_found = reactive([])
