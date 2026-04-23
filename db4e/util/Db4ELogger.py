@@ -13,7 +13,6 @@ import os, sys
 import logging
 from datetime import datetime, timezone
 import traceback
-from pymongo import MongoClient
 import time
 
 from db4e.constants.DField import DField
