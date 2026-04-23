@@ -25,11 +25,14 @@ from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.util.Db4ELogger import Db4ELogger
 from db4e.util.FormChecker import FormChecker
 
+from db4e.recs.monero.P2Pool import P2Pool
+
 from db4e.constants.DSQL import DTable, DCol
 from db4e.constants.DSync import DSync
 from db4e.constants.DField import DField
 from db4e.constants.DStatus import DStatus
-from db4e.constants.DDir import DDir
+from db4e.constants.DLabel import DLabel
+from db4e.constants.DElem import DElem
 
 
 SYNC_SCHEDULE = {
@@ -122,6 +125,23 @@ class SyncClient:
         # Check that the form data is complete
         if not self.fc.valid(depl_obj):
             return self.ops_db.get_tui_log()
+
+        # Special case: Don't allow p2pool instances called Main, Mini or Nano
+        # These are reserved for the internal p2pool instances
+        if type(depl_obj) == P2Pool and depl_obj.instance() in [
+            DLabel.MAIN_CHAIN,
+            DLabel.MINI_CHAIN,
+            DLabel.NANO_CHAIN,
+        ]:
+            self.ops_db.add_tui_log_line(
+                tracked_instance=depl_obj.instance(),
+                tracked_type=DElem.P2POOL,
+                operation=DField.NEW,
+                status=DStatus.ERROR,
+                message="Invalid Name",
+                details="Main, Mini, and Nano are reserved names",
+            )
+            return
 
         payload = {
             DSync.TABLE_NAME: depl_table,

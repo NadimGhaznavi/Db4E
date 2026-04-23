@@ -323,6 +323,9 @@ class MoneroDPane(Container):
         """
         button_id = event.button.id
 
+        self.remove_class(DStatus.IS_RUNNING)
+        self.remove_class(DStatus.IS_STOPPED)
+
         self.monerod.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
         self.monerod.in_peers(self.query_one(f"#{DForm.IN_PEERS_INPUT}", Input).value)
         self.monerod.out_peers(self.query_one(f"#{DForm.OUT_PEERS_INPUT}", Input).value)

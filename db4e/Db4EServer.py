@@ -361,20 +361,24 @@ class Db4eServer:
             sd = self.systemd
             if type(elem) == MoneroD:
                 instance = elem.instance()
+                key = f"f{instance}:{DElem.MONEROD}"
                 sd.service_name("monerod@" + instance)
             elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
                 instance = elem.instance()
+                key = f"{instance}:{DElem.P2POOL}"
                 sd.service_name("p2pool@" + instance)
             elif type(elem) == XMRig:
                 instance = elem.instance()
+                key = f"{instance}:{DElem}:{DElem.XMRIG}"
                 sd.service_name("xmrig@" + instance)
             else:
                 raise ValueError(f"Unknown deployment type: {elem}")
 
             # It's up - clear the "stopping" and clear the "starting" too
             if sd.running():
-                self.stopping.discard(instance)
-                self.starting.discard(instance)
+
+                self.stopping.discard(key)
+                self.starting.discard(key)
                 return
 
             # It's already in the process of starting, do nothing
@@ -382,7 +386,7 @@ class Db4eServer:
                 return
 
             # Not active and not starting, start it up
-            self.starting.add(instance)
+            self.starting.add(key)
             sd.start()
         except Exception as e:
             self.log.critical(f"ERROR: {e}")
@@ -398,12 +402,15 @@ class Db4eServer:
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
+            key = f"f{instance}:{DElem.MONEROD}"
             sd.service_name("monerod@" + instance)
         elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
             instance = elem.instance()
+            key = f"{instance}:{DElem.P2POOL}"
             sd.service_name("p2pool@" + instance)
         elif type(elem) == XMRig:
             instance = elem.instance()
+            key = f"{instance}:{DElem}:{DElem.XMRIG}"
             sd.service_name("xmrig@" + instance)
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
