@@ -12,8 +12,6 @@ Everything P2Pool
 """
 
 from datetime import datetime, timezone
-from decimal import Decimal
-from bson.decimal128 import Decimal128
 import asyncio
 import aiofiles
 import os
