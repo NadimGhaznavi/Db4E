@@ -1,7 +1,7 @@
 #!/bin/bash 
 #
 
-SRC=/opt/qa/Db4E/db4e/
+SRC=/opt/qa/db4e/db4e/
 DEST=/home/dan/db4e_venv/lib/python3.11/site-packages/db4e/
 
 mkdir -p $DEST
