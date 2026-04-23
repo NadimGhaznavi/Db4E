@@ -223,6 +223,9 @@ class InstallMgr(Container):
                     message="Timeout",
                     details=f"Failed to the Db4E service on port {DDef.API_PORT}, check your firewall",
                 )
+                # Return the results
+                log_lines = self._return_tui_log()
+                return log_lines
 
             # Add the db4e deployment
             await self.sync_client.add_deployment(

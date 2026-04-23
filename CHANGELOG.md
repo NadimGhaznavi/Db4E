@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a health check for the core Db4E service to see if a primary server has been defined
 - The deployment name to the *Internal P2Pool* health check message
 - New `helper:get_upstream()` helper function
+- Add a *ping* function to the `APIMgr` so the installer can check that the service has started up before trying to add the *Db4E* and *Internal P2Pool* instances
 
 ### Changed
 - **Architectural Shift**
