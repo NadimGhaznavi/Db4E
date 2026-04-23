@@ -170,6 +170,7 @@ class HealthMgr:
                 message="Directory Missing",
                 details=f"{monerod.blockchain_dir()}",
             )
+        self.health_db.upsert_one(health_msg)
 
     def check_monerod_remote(self, monerod: MoneroDRemote):
         ip_addr = monerod.ip_addr()
