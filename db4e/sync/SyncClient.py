@@ -217,7 +217,7 @@ class SyncClient:
         max_updated_ts = self.sql_db.get_max_updated_ts(table_name)
         self.sql_db.update_last_sync(table_name, max_updated_ts)
 
-    async def ping(self, depl_request):
+    async def ping(self):
         url = f"{self.server_url}/ping"
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
