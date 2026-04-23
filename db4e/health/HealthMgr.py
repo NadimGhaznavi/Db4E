@@ -151,8 +151,8 @@ class HealthMgr:
         self.health_db.upsert_one(health_msg)
 
         # Check that the blockchain directory is there
-        blockchain = monerod.blockchain_dir()
-        if os.path.exists(blockchain):
+        blockchain_dir = monerod.blockchain_dir()
+        if os.path.exists(blockchain_dir):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
                 elem_type=DElem.MONEROD,
