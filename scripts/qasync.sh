@@ -8,4 +8,4 @@ mkdir -p "$DEST"
 rsync -avr --delete \
   --exclude='__pycache__/' \
   --exclude='*.pyc' \
-  "$SRC" "$DEST"Yeah
+  "$SRC" "$DEST"
