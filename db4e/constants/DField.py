@@ -106,6 +106,7 @@ class DField:
     NEW_FILE: Final[str] = "new_file"
     NUM_THREADS: Final[str] = "num_threads"
     OBJECT_ID: Final[str] = "_id"
+    OK: Final[str] = "ok"
     OP: Final[str] = "op"
     OPERATION: Final[str] = "operation"
     OPS_COL: Final[str] = "ops"

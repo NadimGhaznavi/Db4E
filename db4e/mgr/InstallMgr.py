@@ -14,8 +14,8 @@ import subprocess
 import stat
 import traceback
 from pathlib import Path
-import time
 import socket
+import asyncio
 
 from textual.containers import Container
 
@@ -203,17 +203,14 @@ class InstallMgr(Container):
             db4e = self._run_sudo_installer(db4e=db4e)
 
             # Confirm that the Db4E service is up
-            max_tries = 20
-            count = 1
+            max_tries = 30
             ping_successful = False
-            while count < max_tries:
+
+            for count in range(1, max_tries + 1):
                 if await self.sync_client.ping():
-                    count = max_tries
                     ping_successful = True
-                else:
-                    time.sleep(1)
-                    print(f"Waiting for the Db4E service, count: {count}")
-                count += 1
+                    break
+                await asyncio.sleep(1)
 
             if not ping_successful:
                 self.ops_db.add_tui_log_line(
@@ -222,11 +219,12 @@ class InstallMgr(Container):
                     operation=DField.NEW,
                     status=DStatus.ERROR,
                     message="Timeout",
-                    details=f"Failed to the Db4E service on port {DDef.API_PORT}, check your firewall",
+                    details=(
+                        f"Failed to reach the Db4E service on port "
+                        f"{DDef.API_PORT}, check your firewall"
+                    ),
                 )
-                # Return the results
-                log_lines = self._return_tui_log()
-                return log_lines
+                return self._return_tui_log()
 
             # Add the db4e deployment
             await self.sync_client.add_deployment(

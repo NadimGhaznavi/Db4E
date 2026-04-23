@@ -36,6 +36,7 @@ from db4e.constants.DElem import DElem
 from db4e.constants.DDir import DDir
 from db4e.constants.DSQL import DTable, ELEM_TABLE_LIST
 from db4e.constants.DSync import DSync
+from db4e.constants.DField import DField
 
 
 class APIMgr:
@@ -236,15 +237,14 @@ class APIMgr:
             )
             self.depl_mgr.enable_deployment(elem=depl_obj, elem_type=table_name)
 
-        # Ping/Pong to test connectivity
+        # Ping to test connectivity
         @self.app.post("/ping")
         async def ping(request: Request):
             """
-            Ping/Pong connectivity test.
+            Ping connectivity test.
             """
             self.log.debug(f"Received request: {request}")
-            await request.json()
-            # Do nothing
+            return {DField.STATUS: DField.OK}
 
         # Update deployment request
         @self.app.post("/update/{table_name}")
