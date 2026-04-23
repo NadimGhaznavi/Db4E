@@ -13,7 +13,7 @@ from typing import Final
 class DDef:
     ANY_IP: Final[str] = "0.0.0.0"
     API_DIR: Final[str] = "api"
-    API_PORT: Final[int] = 8888
+    API_PORT: Final[int] = 38383
     APP_TITLE: Final[str] = "Db4E"
     BACKUP_DIR: Final[str] = "backups"
     BACKUP_SCRIPT: Final[str] = "db4e-backup.sh"
