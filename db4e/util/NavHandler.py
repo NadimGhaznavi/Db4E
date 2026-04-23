@@ -68,7 +68,7 @@ class NavHandler:
 
         # Get the status information so the pane can determine button visibility
         if elem_type == DElem.MONEROD:
-            self.depl_obj.status(self.health_client.get_status(depl_obj))
+            depl_obj.status(self.health_client.get_status(depl_obj))
 
         # This instance map is used to configure the "primary server" radio
         # button
