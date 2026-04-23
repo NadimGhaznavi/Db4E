@@ -158,8 +158,7 @@ class HealthMgr:
                 elem_type=DElem.MONEROD,
                 category=DCategory.BLOCKCHAIN_DIR,
                 status=DStatus.GOOD,
-                message="Found Directory",
-                details=f"{monerod.blockchain_dir()}",
+                message=f"Found Directory: {monerod.blockchain_dir()}",
             )
         else:
             health_msg = HealthMsg(
@@ -167,8 +166,7 @@ class HealthMgr:
                 elem_type=DElem.MONEROD,
                 category=DCategory.BLOCKCHAIN_DIR,
                 status=DStatus.ERROR,
-                message="Directory Missing",
-                details=f"{monerod.blockchain_dir()}",
+                message=f"Directory Missing: {monerod.blockchain_dir()}",
             )
         self.health_db.upsert_one(health_msg)
 
