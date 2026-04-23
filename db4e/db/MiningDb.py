@@ -129,7 +129,7 @@ class MiningDb(BaseDb):
             ON CONFLICT ({", ".join(constraint_cols)}) DO UPDATE SET {update_clause}
         """
         values = tuple(data[col] for col in columns)
-        object_id = self.sql_db.execute_insert_one(sql=sql, values=values)
+        object_id = self.sql_db.execute_query(sql=sql, params=values)
         mining_object.id(object_id)
         return mining_object
 

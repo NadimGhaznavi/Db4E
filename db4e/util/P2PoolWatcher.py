@@ -187,7 +187,7 @@ class P2PoolWatcher:
             match = re.search(pattern, log_line)
             if match:
                 timestamp = match.group("timestamp")
-                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
                 # Create a new blocks_found_event in the DB
                 self.mining_db.add_block_found(chain=self.chain())
         except Exception as e:
@@ -297,7 +297,7 @@ class P2PoolWatcher:
         :rtype: None
         """
         try:
-            pattern = r"Side chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<units>[KMGT]?H/s)"
+            pattern = r"Side chain hashrate\s*=\s*(?P<hashrate>[\d.]+)\s*(?P<units>[kMGT]?H/s)"
             match = re.search(pattern, log_line)
 
             if match:
