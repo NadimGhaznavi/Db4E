@@ -188,9 +188,9 @@ class MoneroDPane(Container):
                     Horizontal(
                         Button(label=DButtonL.NEW, id=DButtonF.NEW),
                         Button(label=DButtonL.UPDATE, id=DButtonF.UPDATE),
-                        Button(label=DButtonL.START, id=DButtonF.ENABLE),
+                        Button(label=DButtonL.START, id=DButtonF.START),
                         Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
-                        Button(label=DButtonL.STOP, id=DButtonF.DISABLE),
+                        Button(label=DButtonL.STOP, id=DButtonF.STOP),
                         Button(label=DButtonL.DELETE, id=DButtonF.DELETE),
                         classes=DForm.BUTTON_ROW,
                     )
@@ -362,8 +362,8 @@ class MoneroDPane(Container):
         button_map = {
             DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButtonF.ENABLE: (DModule.SYNC_CLIENT, DMethod.ENABLE_DEPLOYMENT),
-            DButtonF.DISABLE: (DModule.SYNC_CLIENT, DMethod.DISABLE_DEPLOYMENT),
+            DButtonF.START: (DModule.SYNC_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.STOP: (DModule.SYNC_CLIENT, DMethod.DISABLE_DEPLOYMENT),
             DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
             DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
         }
