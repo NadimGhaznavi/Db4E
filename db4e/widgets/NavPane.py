@@ -420,7 +420,7 @@ class NavPane(Container):
         self.monerod_tree.remove_children()
         self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.depl_db.get_monerods():
-            state = monerod.status()
+            state = self.health_client.get_status(monerod)
             self.monerod_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
             )
@@ -438,7 +438,7 @@ class NavPane(Container):
         self.p2pool_tree.remove_children()
         self.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for p2pool in self.depl_db.get_p2pools():
-            state = p2pool.status()
+            state = self.health_client.get_status(p2pool)
             self.p2pool_tree.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance()
             )
@@ -462,7 +462,7 @@ class NavPane(Container):
         self.xmrig_tree.remove_children()
         self.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for xmrig in self.depl_db.get_xmrigs():
-            state = xmrig.status()
+            state = self.health_client.get_status(xmrig)
             self.xmrig_tree.add_leaf(
                 f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance()
             )
@@ -472,7 +472,7 @@ class NavPane(Container):
             remote_xmrig.timestamp(
                 self.depl_db.get_remote_xmrig_timestamp(remote_xmrig)
             )
-            state = remote_xmrig.status()
+            state = self.health_client.get_status(xmrig)
             self.xmrig_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {remote_xmrig.instance()}",
                 data=remote_xmrig.instance(),
