@@ -202,8 +202,27 @@ class InstallMgr(Container):
             # Run the installer (with sudo)
             db4e = self._run_sudo_installer(db4e=db4e)
 
-            # Give the Db4E service a couple of seconds to startup
-            time.sleep(2)
+            # Confirm that the Db4E service is up
+            max_tries = 20
+            ping_successful = False
+            while max_tries:
+                max_tries -= 1
+                if self.sync_client.ping():
+                    max_tries = 0
+                    ping_successful = True
+                else:
+                    time.sleep(1)
+                    print(f"Waiting for the Db4E service")
+
+            if not ping_successful:
+                self.ops_db.add_tui_log_line(
+                    tracked_instance=DLabel.DB4E,
+                    tracked_type=DElem.DB4E,
+                    operation=DField.NEW,
+                    status=DStatus.ERROR,
+                    message="Timeout",
+                    details=f"Failed to the Db4E service on port {DDef.API_PORT}, check your firewall",
+                )
 
             # Add the db4e deployment
             await self.sync_client.add_deployment(

@@ -236,6 +236,16 @@ class APIMgr:
             )
             self.depl_mgr.enable_deployment(elem=depl_obj, elem_type=table_name)
 
+        # Ping/Pong to test connectivity
+        @self.app.post("/ping")
+        async def ping(request: Request):
+            """
+            Ping/Pong connectivity test.
+            """
+            self.log.debug(f"Received request: {request}")
+            await request.json()
+            # Do nothing
+
         # Update deployment request
         @self.app.post("/update/{table_name}")
         async def update_deployment(table_name: str, request: Request):

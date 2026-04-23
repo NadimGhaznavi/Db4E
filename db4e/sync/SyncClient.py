@@ -217,6 +217,17 @@ class SyncClient:
         max_updated_ts = self.sql_db.get_max_updated_ts(table_name)
         self.sql_db.update_last_sync(table_name, max_updated_ts)
 
+    async def ping(self, depl_request):
+        url = f"{self.server_url}/ping"
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(url, json={DSync.PING: True})
+                resp.raise_for_status()
+                return True
+
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            return False
+
     async def _send_request(self, depl_table, depl_obj, url, payload):
         """
         Send a JSON request to the sync server and refresh local tables.
