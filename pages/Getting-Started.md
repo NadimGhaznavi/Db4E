@@ -31,10 +31,10 @@ sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
 
 ### 📦 Why they're needed
 
-* `gnupg`, `curl` — for installing MongoDB
 * `libhwloc15` — required by XMRig
 * `python3.11-venv`, `pip` — for Python virtual environment and installing Db4E
 * `libzmq5` — required by P2Pool
+* `libsystemd-dev` - required by Db4E to manage *systemd* services using *DBUS*
 
 ---
 
