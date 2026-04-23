@@ -204,15 +204,16 @@ class InstallMgr(Container):
 
             # Confirm that the Db4E service is up
             max_tries = 20
+            count = 0
             ping_successful = False
-            while max_tries:
-                max_tries -= 1
+            while count != max_tries:
+                count += 1
                 if self.sync_client.ping():
                     max_tries = 0
                     ping_successful = True
                 else:
                     time.sleep(1)
-                    print(f"Waiting for the Db4E service")
+                    print(f"Waiting for the Db4E service, count: {count}")
 
             if not ping_successful:
                 self.ops_db.add_tui_log_line(
