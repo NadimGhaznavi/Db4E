@@ -1,0 +1,14 @@
+#!/bin/bash
+
+MON_DIR=/opt/prod/Db4E/monerod/Islands/blockchain
+
+if [ ! -d $MON_DIR ]; then
+  echo "ERROR: Missing local MoneroD deployment: $MON_DIR"
+  exit 1
+fi
+
+sudo rm -rf $MON_DIR
+sudo mkdir $MON_DIR
+ln -s /opt/prod/monero-blockchain/lmdb $MON_DIR/lmdb
+
+
