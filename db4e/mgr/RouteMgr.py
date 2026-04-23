@@ -126,20 +126,36 @@ class RouteMgr:
             self.nav_handler.get_deployment,
             DPane.MONEROD,
         )
-        # Update deployment
-        self.register(
-            DModule.SYNC_CLIENT,
-            DMethod.UPDATE_DEPLOYMENT,
-            DElem.MONEROD,
-            self.sync_client.update_deployment,
-            DPane.TUI_LOG,
-        )
         # Delete deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.DELETE_DEPLOYMENT,
             DElem.MONEROD,
             self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+        # Disable/Stop deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.DISABLE_DEPLOYMENT,
+            DElem.MONEROD,
+            self.sync_client.disable_deployment,
+            DPane.TUI_LOG,
+        )
+        # Enable/Start deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.ENABLE_DEPLOYMENT,
+            DElem.MONEROD,
+            self.sync_client.enable_deployment,
+            DPane.TUI_LOG,
+        )
+        # Update deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.MONEROD,
+            self.sync_client.update_deployment,
             DPane.TUI_LOG,
         )
 
