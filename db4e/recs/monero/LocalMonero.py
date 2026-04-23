@@ -27,6 +27,7 @@ class LocalMonero(BaseMonero):
         """
         super().__init__()
         self._enabled = False
+        self._status = None
         if rec is not None:
             self.from_rec(rec)
 
@@ -50,6 +51,14 @@ class LocalMonero(BaseMonero):
         """
         super().from_rec(rec)
         self._enabled = rec[DCol.ENABLED]
+
+    def status(self, status_state=None):
+        """
+        Get/Set status
+        """
+        if status_state is not None:
+            self._status = status_state
+        return self._status
 
     def to_dict(self):
         """

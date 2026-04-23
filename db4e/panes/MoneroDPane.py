@@ -18,7 +18,7 @@ from db4e.constants.DElem import DElem
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DLabel import DLabel
-from db4e.constants.DJob import DJob
+from db4e.constants.DStatus import DStatus
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
 
@@ -219,6 +219,14 @@ class MoneroDPane(Container):
         :rtype: None
         """
         self.monerod = monerod
+
+        if monerod.status() == DStatus.GOOD:
+            self.add_class(DStatus.IS_RUNNING)
+            self.remove_class(DStatus.IS_STOPPED)
+        else:
+            self.add_class(DStatus.IS_STOPPED)
+            self.remove_class(DStatus.IS_RUNNING)
+
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = monerod.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(monerod.instance())
 

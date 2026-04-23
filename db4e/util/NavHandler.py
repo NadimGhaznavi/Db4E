@@ -66,10 +66,12 @@ class NavHandler:
         # print(f"Health msgs: {health_msgs}")
         depl_obj.set_msgs(health_msgs)
 
-        # The instance map is used to construct the radio button, which is used
-        # to configure an upstream dependency.
+        # Get the status information so the pane can determine button visibility
+        if elem_type == DElem.MONEROD:
+            self.depl_obj.status(self.health_client.get_status(depl_obj))
 
-        # This instance map is used to configure the "primary server" radio button
+        # This instance map is used to configure the "primary server" radio
+        # button
         if elem_type == DElem.DB4E:
             local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
             remote = self.depl_db.get_deployment_ids_and_instances(
