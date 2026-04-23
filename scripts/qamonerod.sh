@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MON_DIR=/opt/prod/Db4E/monerod/Islands/blockchain
+MON_DIR=/opt/Db4E/monerod/Islands/blockchain
 
 if [ ! -d $MON_DIR ]; then
   echo "ERROR: Missing local MoneroD deployment: $MON_DIR"
