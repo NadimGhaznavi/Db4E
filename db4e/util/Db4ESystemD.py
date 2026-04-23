@@ -11,12 +11,15 @@ db4e/Modules/Db4ESystemd.py
 # Import supporting modules
 import time
 from pystemd.systemd1 import Manager, Unit
+import traceback
 
 from db4e.db.OpsDb import OpsDb
+from db4e.util.Db4ELogger import Db4ELogger
 
 from db4e.constants.DSystemD import DSystemD
 from db4e.constants.DElem import DElem
 from db4e.constants.DLabel import DLabel
+from db4e.constants.DModule import DModule
 
 
 # How long to wait until timing out
@@ -28,7 +31,7 @@ class Db4ESystemD:
     Helper for controlling and querying systemd services.
     """
 
-    def __init__(self, ops_db: OpsDb, service_name=None):
+    def __init__(self, ops_db: OpsDb, service_name=None, log_file=None):
         """
         Initialize the systemd helper.
 
@@ -46,6 +49,8 @@ class Db4ESystemD:
             self._unit = Unit(self._service_name.encode(), _autoload=True)
         else:
             self._service_name = None
+        if log_file:
+            self.log = Db4ELogger(db4e_module=DModule.DB4E_SYSTEMD, log_file=log_file)
 
         self._mgr = Manager()
         self._mgr.load()
@@ -161,7 +166,11 @@ class Db4ESystemD:
         :return: systemctl return code.
         :rtype: int
         """
-        self._unit.Unit.Start(DSystemD.REPLACE.encode())
+        try:
+            self._unit.Unit.Start(DSystemD.REPLACE.encode())
+        except Exception as e:
+            self.log.critical(f"ERROR: {e}")
+            self.log.critical(f"STACKTRACE: {traceback.format_exc()}")
 
     def stop(self):
         """
@@ -170,4 +179,8 @@ class Db4ESystemD:
         :return: systemctl return code.
         :rtype: int
         """
-        self._unit.Unit.Stop(DSystemD.REPLACE.encode())
+        try:
+            self._unit.Unit.Stop(DSystemD.REPLACE.encode())
+        except Exception as e:
+            self.log.critical(f"ERROR: {e}")
+            self.log.critical(f"STACKTRACE: {traceback.format_exc()}")

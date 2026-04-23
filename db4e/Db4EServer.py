@@ -116,7 +116,7 @@ class Db4eServer:
         )
 
         #  systemd wrapper
-        self.systemd = Db4ESystemD(ops_db=self.ops_db)
+        self.systemd = Db4ESystemD(ops_db=self.ops_db, log_file=fq_log_file)
 
         # Mining DB object
         self.mining_db = MiningDb(
@@ -417,8 +417,8 @@ class Db4eServer:
 
         # It's down - clear the "stopping" and clear the "starting" too
         if not sd.running():
-            self.stopping.discard(instance)
-            self.starting.discard(instance)
+            self.stopping.discard(key)
+            self.starting.discard(key)
             return
 
         # It's already in the process of stopping, do nothing
@@ -426,7 +426,7 @@ class Db4eServer:
             return
 
         # Active and not already stopping -> issue stop
-        self.stopping.add(instance)
+        self.stopping.add(key)
         sd.stop()
 
     def restart(self, elem):
