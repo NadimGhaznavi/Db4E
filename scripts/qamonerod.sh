@@ -9,6 +9,6 @@ fi
 
 sudo rm -rf $MON_DIR
 sudo mkdir $MON_DIR
-ln -s /opt/prod/monero-blockchain/lmdb $MON_DIR/lmdb
+sudo ln -s /opt/prod/monero-blockchain/lmdb $MON_DIR/lmdb
 
 
