@@ -39,7 +39,7 @@ class ChainBlocksFoundPane(Container):
         yield Vertical(
             ScrollableContainer(
                 Label("", id=DForm.INTRO, classes=DForm.INTRO),
-                Vertical(PlotextPlot(), classes=DForm.PANE_BOX),
+                Vertical(Label("PLOT PLACEHOLDER"), classes=DForm.PANE_BOX),
             ),
             classes=DForm.PANE_BOX,
         )
