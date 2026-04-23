@@ -108,10 +108,6 @@ class ChainBlocksFoundPane(Container):
         self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
 
         data = p2pool.blocks_found()
-        plt = self.query_one(PlotextPlot).plt
-        plt.xlabel(DLabel.DAYS)
-        plt.ylabel(DLabel.BLOCKS_FOUND)
-        plt.clear_data()
         print(f"ChainBlocksFoundPane:set_data(): data: {data}")
         if type(data) == dict:
             self.days = data[DField.DAYS]
@@ -119,8 +115,6 @@ class ChainBlocksFoundPane(Container):
             self.days, self.blocks_found = self.reduce_data(
                 self.days, self.blocks_found
             )
-            plt.bar(self.days, self.blocks_found, color="blue")
-            plt.title("Blocks Found")
 
     def watch_days(self, old, new):
         """
@@ -133,7 +127,4 @@ class ChainBlocksFoundPane(Container):
         :return: None
         :rtype: None
         """
-        plt = self.query_one(PlotextPlot).plt
-
-        plt.bar(self.days, self.blocks_found, color="blue")
-        plt.title("Blocks Found")
+        pass
