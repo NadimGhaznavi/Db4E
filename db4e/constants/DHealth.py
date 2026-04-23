@@ -14,6 +14,7 @@ from db4e.constants.DLabel import DLabel
 
 
 class DCategory:
+    BLOCKCHAIN_DIR = DField.BLOCKCHAIN_DIR
     ENABLED = DField.ENABLED
     PRIMARY_SERVER = DField.PRIMARY_SERVER
     RPC_BIND_PORT = DField.RPC_BIND_PORT
@@ -24,6 +25,7 @@ class DCategory:
 
 
 CATEGORY_LABEL_MAP = {
+    DField.BLOCKCHAIN_DIR: DLabel.BLOCKCHAIN_DIR,
     DField.ENABLED: DLabel.ENABLED,
     DField.PRIMARY_SERVER: DLabel.PRIMARY_SERVER,
     DField.RPC_BIND_PORT: DLabel.RPC_BIND_PORT,

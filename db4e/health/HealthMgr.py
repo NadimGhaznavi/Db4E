@@ -53,6 +53,8 @@ class HealthMgr:
         """
         if type(elem) == Db4E:
             self.check_db4e(elem)
+        elif type(elem) == MoneroD:
+            self.check_monerod(elem)
         elif type(elem) == MoneroDRemote:
             self.check_monerod_remote(elem)
         elif type(elem) == P2PoolRemote:
@@ -104,6 +106,70 @@ class HealthMgr:
                 message=f"Primary server set: {monerod.instance()}",
             )
         self.health_db.upsert_one(health_msg)
+
+    def check_monerod(self, monerod: MoneroD):
+        ip_addr = monerod.ip_addr()
+
+        # Is the RPC Port open
+        port = monerod.rpc_bind_port()
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.RPC_BIND_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.RPC_BIND_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Is ZMQ PUB port open
+        port = monerod.zmq_pub_port()
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.ZMQ_PUB_PORT,
+                status=DStatus.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Check that the blockchain directory is there
+        blockchain = monerod.blockchain_dir()
+        if os.path.exists(blockchain):
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.BLOCKCHAIN_DIR,
+                status=DStatus.GOOD,
+                message="Found Directory",
+                details=f"{monerod.blockchain_dir()}",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=monerod.instance(),
+                elem_type=DElem.MONEROD,
+                category=DCategory.BLOCKCHAIN_DIR,
+                status=DStatus.ERROR,
+                message="Directory Missing",
+                details=f"{monerod.blockchain_dir()}",
+            )
 
     def check_monerod_remote(self, monerod: MoneroDRemote):
         ip_addr = monerod.ip_addr()
