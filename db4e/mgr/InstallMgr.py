@@ -207,7 +207,7 @@ class InstallMgr(Container):
             count = 1
             ping_successful = False
             while count < max_tries:
-                if self.sync_client.ping():
+                if await self.sync_client.ping():
                     count = max_tries
                     ping_successful = True
                 else:
