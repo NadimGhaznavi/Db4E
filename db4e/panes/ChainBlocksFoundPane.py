@@ -51,9 +51,7 @@ class ChainBlocksFoundPane(Container):
         :return: None
         :rtype: None
         """
-        plt = self.query_one(PlotextPlot).plt
-        plt.bar(self.days, self.blocks_found, color="blue")
-        plt.title("Blocks Found")
+        pass
 
     def reduce_data(self, days, blocks_found, max_bars=100):
         """
