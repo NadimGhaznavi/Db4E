@@ -1,6 +1,9 @@
 #!/bin/bash
 #
 
+DB4E_SRC=/opt/dev/db4e
+DB4E_DEST=/home/sally/db4e
+
 echo -n "Stopping db4e service: "
 sudo systemctl stop db4e > /dev/null 2>&1
 echo "DONE"
@@ -21,10 +24,10 @@ sudo rm $SYSTEMD/xmrig@.service 2> /dev/null
 sudo systemctl daemon-reload
 echo "DONE"
 
-echo -n "Deleting install dir (and backups): "
-sudo rm -rf /opt/Db4E*
+echo -n "Deleting vendor dir (and backups): "
+sudo rm -rf /home/sally/vendor*
 echo "DONE"
 
-echo -n "Deleting ~/.db4e: "
-rm -f /home/dan/.db4e
+echo -n "Deleting the ~/.db4e bootstrap file: "
+rm -f /home/sally/.db4e
 echo "DONE"

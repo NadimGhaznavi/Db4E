@@ -1,8 +1,8 @@
 #!/bin/bash 
 #
 
-SRC=/opt/qa/Db4E/db4e/
-DEST=/home/dan/db4e_venv/lib/python3.11/site-packages/db4e/
+SRC=/opt/dev/Db4E/db4e/
+DEST=/opt/dev/Db4E/db4e_venv/lib/python3.11/site-packages/db4e/
 
 mkdir -p $DEST
 rsync -avr --delete "$SRC" "$DEST" | grep -v __pycache__
