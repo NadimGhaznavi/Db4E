@@ -35,6 +35,9 @@ sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
 * `python3.11-venv`, `pip` — for Python virtual environment and installing Db4E
 * `libzmq5` — required by P2Pool
 * `libsystemd-dev` - required by Db4E to manage *systemd* services using *DBUS*
+* `pgk-config` - required for the `libsystemd` integration
+* `build-essential` - required for the `libsystemd` integration
+* `python3-dev` - required for the `libsystemd` integration
 
 ---
 
