@@ -369,7 +369,7 @@ class Db4eServer:
                 sd.service_name("p2pool@" + instance)
             elif type(elem) == XMRig:
                 instance = elem.instance()
-                key = f"{instance}:{DElem}:{DElem.XMRIG}"
+                key = f"{instance}:{DElem.XMRIG}"
                 sd.service_name("xmrig@" + instance)
             else:
                 raise ValueError(f"Unknown deployment type: {elem}")
@@ -382,7 +382,7 @@ class Db4eServer:
                 return
 
             # It's already in the process of starting, do nothing
-            if instance in self.starting:
+            if key in self.starting:
                 return
 
             # Not active and not starting, start it up
@@ -410,7 +410,7 @@ class Db4eServer:
             sd.service_name("p2pool@" + instance)
         elif type(elem) == XMRig:
             instance = elem.instance()
-            key = f"{instance}:{DElem}:{DElem.XMRIG}"
+            key = f"{instance}:{DElem.XMRIG}"
             sd.service_name("xmrig@" + instance)
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
@@ -422,7 +422,7 @@ class Db4eServer:
             return
 
         # It's already in the process of stopping, do nothing
-        if instance in self.stopping:
+        if key in self.stopping:
             return
 
         # Active and not already stopping -> issue stop
