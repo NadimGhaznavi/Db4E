@@ -225,7 +225,7 @@ class SyncClient:
             DSync.TABLE_NAME: depl_table,
         }
         url = f"{self.server_url}/get_log"
-        resp = await self._send_request
+        resp = await self._send_request()
         print(resp)
 
     def _merge_row(self, table_name, row):
