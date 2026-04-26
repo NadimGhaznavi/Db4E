@@ -49,6 +49,7 @@ class LogViewPane(Container):
                     compact=True,
                     id=DForm.NUM_LINES,
                     allow_blank=False,
+                    classes=DForm.BOX,
                 ),
                 Button(label=DButtonL.REFRESH, id=DButtonF.REFRESH),
                 classes=DForm.BUTTON_ROW,
