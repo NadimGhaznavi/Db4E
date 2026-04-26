@@ -159,44 +159,24 @@ class ChainPane(Container):
         """
         button_id = event.button.id
 
-        if button_id == DButtonF.BLOCKS_FOUND:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.BLOCKS_FOUND,
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.ELEMENT: self.p2pool,
-            }
+        button_map = {
+            DButtonF.BLOCKS_FOUND: {DModule.OPS_MGR, DMethod.BLOCKS_FOUND},
+            DButtonF.VIEW_LOG: {DModule.SYNC_CLIENT, DMethod.GET_LOG},
+            DButtonF.HASHRATE: {DModule.OPS_MGR, DMethod.HASHRATES},
+            DButtonF.START: {DModule.SYNC_CLIENT, DMethod.START},
+            DButtonF.STOP: {DModule.SYNC_CLIENT, DMethod.STOP},
+        }
 
-        if button_id == DButtonF.HASHRATE:
-            form_data = {
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.HASHRATES,
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.ELEMENT: self.p2pool,
-            }
+        if button_id not in button_map:
+            raise ValueError(f"No handler for button {button_id}")
 
-        elif button_id == DButtonF.START:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.TO_MODULE: DModule.SYNC_CLIENT,
-                DField.TO_METHOD: DMethod.START,
-                DField.ELEMENT: self.p2pool,
-            }
+        module, method = button_map[button_id]
 
-        elif button_id == DButtonF.STOP:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.TO_MODULE: DModule.SYNC_CLIENT,
-                DField.TO_METHOD: DMethod.STOP,
-                DField.ELEMENT: self.p2pool,
-            }
-
-        elif button_id == DButtonF.VIEW_LOG:
-            form_data = {
-                DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
-                DField.TO_MODULE: DModule.OPS_MGR,
-                DField.TO_METHOD: DMethod.LOG_VIEWER,
-                DField.INSTANCE: self.p2pool.instance(),
-            }
+        form_data = {
+            DField.TO_MODULE: module,
+            DField.TO_METHOD: method,
+            DField.ELEMENT_TYPE: DElem.P2POOL_INTERNAL,
+            DField.ELEMENT: self.p2pool,
+        }
 
         self.app.post_message(Db4EMsg(self, form_data=form_data))
