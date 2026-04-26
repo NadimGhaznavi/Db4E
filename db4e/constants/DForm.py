@@ -12,6 +12,7 @@ from typing import Final
 
 class DForm:
     BLOCKCHAIN_DIR_LABEL: Final[str] = "blockchain_dir_label"
+    BOX: Final[str] = "box"
     BUTTON_ROW: Final[str] = "button_row"
     CHAIN_RADIO_SET: Final[str] = "chain_radio_set"
     CONFIG_FILE_LABEL: Final[str] = "config_file_label"
@@ -59,6 +60,7 @@ class DForm:
     LOGROTATE_CONFIG_LABEL: Final[str] = "logrotate_config_label"
     MAX_LOG_FILES_INPUT: Final[str] = "max_log_files_input"
     MAX_LOG_SIZE_INPUT: Final[str] = "max_log_size_input"
+    NUM_LINES: Final[str] = "num_lines"
     NUM_THREADS_INPUT: Final[str] = "num_threads_input"
     OUT_PEERS_INPUT: Final[str] = "out_peers_input"
     OUT_PEERS_LABEL: Final[str] = "out_peers_label"

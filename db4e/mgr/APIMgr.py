@@ -2,7 +2,7 @@
 #
 #    Database 4 Everything
 #    Author: Nadim-Daniel Ghaznavi
-#    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2026 Nadim-Daniel Ghaznavi
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    Website: https://db4e.osoyalce.com/
 #    License: GPL 3.0
@@ -244,7 +244,6 @@ class APIMgr:
             Get some log file lines.
             """
             self.log.debug(f"Received request: {request}")
-            return
 
         # Ping to test connectivity
         @self.app.post("/ping")

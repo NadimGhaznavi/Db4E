@@ -168,6 +168,12 @@ Tree {
     border-subtitle-style: bold;
 }
 
+.box {
+    color: #31b8e6;
+    border-subtitle-color: #64e631;
+    border-subtitle-style: bold;
+}
+
 /* A central informational box */
 .info_msg {
     padding: 0 2;
