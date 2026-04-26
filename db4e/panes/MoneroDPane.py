@@ -46,7 +46,7 @@ class MoneroDPane(Container):
                         Input(
                             compact=True,
                             id=DForm.INSTANCE_INPUT,
-                            restrict=f"[a-zA-Z0-9_\-]*",
+                            restrict=f"[a-zA-Z0-9_-]*",
                             classes=DForm.INPUT_30,
                         ),
                         Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC),
@@ -136,7 +136,7 @@ class MoneroDPane(Container):
                         Label(DLabel.PRIORITY_NODE_1, classes=DForm.FORM_LABEL),
                         Input(
                             id=DForm.PRIORITY_NODE_1_INPUT,
-                            restrict=f"[a-zA-Z0-9_\-]*",
+                            restrict=f"[a-zA-Z0-9_-]*",
                             compact=True,
                             classes=DForm.INPUT_30,
                         ),
@@ -145,7 +145,7 @@ class MoneroDPane(Container):
                         Label(DLabel.PRIORITY_PORT_1, classes=DForm.FORM_LABEL),
                         Input(
                             id=DForm.PRIORITY_PORT_1_INPUT,
-                            restrict=f"[a-zA-Z0-9_\-]*",
+                            restrict=f"[a-zA-Z0-9_-]*",
                             compact=True,
                             classes=DForm.INPUT_30,
                         ),
