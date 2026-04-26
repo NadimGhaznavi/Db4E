@@ -218,7 +218,7 @@ class SyncClient:
         """
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
-        depl_table = CLASS_TO_TABLE_MAP[type_str]
+        depl_table = CLASS_STR_TO_TABLE_MAP[type_str]
 
         payload = {
             DSync.ELEMENT: depl_obj.to_dict(),
