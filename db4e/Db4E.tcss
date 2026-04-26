@@ -169,6 +169,7 @@ Tree {
 }
 
 .box {
+    border: round #2aa5ce;
     color: #31b8e6;
     border-subtitle-color: #64e631;
     border-subtitle-style: bold;
