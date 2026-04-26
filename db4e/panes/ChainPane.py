@@ -160,11 +160,11 @@ class ChainPane(Container):
         button_id = event.button.id
 
         button_map = {
-            DButtonF.BLOCKS_FOUND: {DModule.OPS_MGR, DMethod.BLOCKS_FOUND},
-            DButtonF.VIEW_LOG: {DModule.SYNC_CLIENT, DMethod.GET_LOG},
-            DButtonF.HASHRATE: {DModule.OPS_MGR, DMethod.HASHRATES},
-            DButtonF.START: {DModule.SYNC_CLIENT, DMethod.START},
-            DButtonF.STOP: {DModule.SYNC_CLIENT, DMethod.STOP},
+            DButtonF.BLOCKS_FOUND: (DModule.OPS_MGR, DMethod.BLOCKS_FOUND),
+            DButtonF.VIEW_LOG: (DModule.SYNC_CLIENT, DMethod.GET_LOG),
+            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
+            DButtonF.START: (DModule.SYNC_CLIENT, DMethod.START),
+            DButtonF.STOP: (DModule.SYNC_CLIENT, DMethod.STOP),
         }
 
         if button_id not in button_map:
