@@ -212,6 +212,22 @@ class SyncClient:
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
+    async def get_log(self, depl_request):
+        """
+        Send a "get log" request to the sync server
+        """
+        depl_obj = depl_request.get(DField.ELEMENT)
+        type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        depl_table = CLASS_TO_TABLE_MAP[type_str]
+
+        payload = {
+            DSync.ELEMENT: depl_obj.to_dict(),
+            DSync.TABLE_NAME: depl_table,
+        }
+        url = f"{self.server_url}/get_log"
+        resp = await self._send_request
+        print(resp)
+
     def _merge_row(self, table_name, row):
         """
         Insert or update a single row in the local DB.

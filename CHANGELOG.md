@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `SQLDb`
   - Removed the bootstrap file that contained the install directory
 - Moved the `HealthMgr` and `HealthClient` into a new `health` folder
+- `ChainPane`: Refactored button press handling code
 
 ### Fixed
 - Made the wording in the *Initial Setup* screen consistent.

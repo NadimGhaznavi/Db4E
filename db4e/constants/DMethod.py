@@ -18,6 +18,7 @@ class DMethod:
     DELETE_DEPLOYMENT: Final[str] = "del_deployment"
     ENABLE_DEPLOYMENT: Final[str] = "enable_deployment"
     DISABLE_DEPLOYMENT: Final[str] = "disable_deployment"
+    GET_LOG: Final[str] = "get_log"
     GET_NEW: Final[str] = "get_new"
     GET_DEPL: Final[str] = "get_deployment"
     GET_PAYMENTS: Final[str] = "get_payments"

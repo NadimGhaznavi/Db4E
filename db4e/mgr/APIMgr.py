@@ -237,6 +237,15 @@ class APIMgr:
             )
             self.depl_mgr.enable_deployment(elem=depl_obj, elem_type=table_name)
 
+        # Get a log file lines
+        @self.app.post("/get_log")
+        async def get_log(request: Request):
+            """
+            Get some log file lines.
+            """
+            self.log.debug(f"Received request: {request}")
+            return
+
         # Ping to test connectivity
         @self.app.post("/ping")
         async def ping(request: Request):

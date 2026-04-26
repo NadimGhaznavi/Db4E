@@ -1,4 +1,4 @@
-# db4e/Panes/LogViewPane.py
+# db4e/Panes/Db4EPane.py
 #
 #    Database 4 Everything
 #    Author: Nadim-Daniel Ghaznavi
@@ -6,116 +6,29 @@
 #    GitHub: https://github.com/NadimGhaznavi/db4e
 #    License: GPL 3.0
 
+from rich.text import Text
 
-import os
-import asyncio
 from textual.reactive import reactive
-from textual.widgets import Static, Label, Log
-from textual.containers import Container, ScrollableContainer, Vertical, Horizontal
+from textual.widgets import RichLog
+from textual.containers import (
+    Container,
+    Vertical,
+)
 
-from db4e.messages.RefreshNavPane import RefreshNavPane
 from db4e.constants.DForm import DForm
-from db4e.constants.DDef import DDef
 
 
 class LogViewPane(Container):
-    """Textual pane for LogViewPane."""
-
 
     log_lines = reactive([], always_update=True)
-    max_lines = DDef.MAX_LOG_LINES
 
     def compose(self):
         """Compose the pane layout.
-        
+
         :return: Yielded child widgets for this pane.
         :rtype: ComposeResult
         """
-
         yield Vertical(
-            Label("", id=f"{DForm.HEADER}", classes=DForm.FORM_1),
-            ScrollableContainer(
-                Log(highlight=True, auto_scroll=True, classes=DForm.PANE_BOX)
-            ),
+            RichLog(highlight=False, markup=True, id=DForm.LOG_WIDGET),
             classes=DForm.PANE_BOX,
         )
-
-    def preload(self, path):
-        """Load recent log lines from a file.
-        
-        :param path: Log file path.
-        :type path: str
-        :return: List of log lines.
-        :rtype: list[str]
-        """
-        if os.path.exists(path):
-            with open(path, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                buffer = bytearray()
-                pointer = f.tell()
-                lines_found = 0
-                while pointer > 0 and lines_found <= DDef.MAX_LOG_LINES:
-                    block_size = min(1024, pointer)
-                    pointer -= block_size
-                    f.seek(pointer)
-                    buffer[:0] = f.read(block_size)
-                    lines_found = buffer.count(b"\n")
-                return buffer.decode(errors="ignore").splitlines()[
-                    -DDef.MAX_LOG_LINES :
-                ]
-        else:
-            return ["No log file found"]
-
-    def set_data(self, elem):
-        """Set the data for the pane.
-        
-        :param elem: Deployment object.
-        :type elem: object
-        :return: None
-        :rtype: None
-        """
-        old_lines = self.preload(elem.log_file())
-        log_widget = self.query_one(Log)
-        log_widget.clear()
-        log_widget.write_lines(old_lines)
-
-        self.query_one(f"#{DForm.HEADER}", Label).update(
-            f"[b]Log File:[/] {elem.log_file()}"
-        )
-        if os.path.exists(elem.log_file()):
-            initial_size = os.path.getsize(elem.log_file())
-        else:
-            initial_size = 0
-        self.run_worker(
-            self.watch_log(elem.log_file(), last_size=initial_size), exclusive=True
-        )
-
-    async def watch_log(self, path, last_size: int = 0):
-        """Tail a log file and stream new lines.
-        
-        :param path: Log file path.
-        :type path: str
-        :param last_size: Previous file size in bytes.
-        :type last_size: int
-        :return: None
-        :rtype: None
-        """
-        try:
-            while True:
-                if os.path.exists(path):
-                    log_widget = self.query_one(Log)
-                    current_size = os.path.getsize(path)
-                    if current_size < last_size:
-                        # Log was rotated/truncated
-                        last_size = 0
-                        log_widget.clear()
-                    if current_size > last_size:
-                        with open(path, "r") as f:
-                            f.seek(last_size)
-                            lines = [line.rstrip("\n") for line in f]
-                            if lines:
-                                log_widget.write_lines(lines)
-                        last_size = current_size
-                await asyncio.sleep(0.5)
-        except asyncio.CancelledError:
-            return

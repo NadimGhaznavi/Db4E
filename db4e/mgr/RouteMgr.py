@@ -68,6 +68,7 @@ class RouteMgr:
         """
         Register all UI routes and handlers.
         """
+        # ----- Db4E -----
         # Db4e core - Proceed/abort initial install
         self.register(
             DModule.INSTALL_MGR,
@@ -101,7 +102,7 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        ## MoneroD deployment
+        # ----- MoneroD deployment -----
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
@@ -159,7 +160,7 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        ## Remote MoneroD deployment
+        # ----- Remote MoneroD deployment -----
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
@@ -201,7 +202,7 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        ## P2Pool deployment
+        # ----- P2Pool deployment -----
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
@@ -243,7 +244,7 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        ## Remote P2Pool deployment
+        # ----- Remote P2Pool deployment -----
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
@@ -285,14 +286,30 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        ## Internal P2Pool deployment
-        # View "Chain Pane"
+        # ----- Internal P2Pool deployment -----
+        # View "Chain Pane": Main, Mini, or Nano
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
             DElem.P2POOL_INTERNAL,
             self.nav_handler.get_deployment,
             DPane.CHAIN,
+        )
+        # Blocks found screen
+        self.register(
+            DModule.OPS_MGR,
+            DMethod.BLOCKS_FOUND,
+            DElem.P2POOL_INTERNAL,
+            self.nav_handler.get_deployment,
+            DPane.CHAIN_BLOCKS_FOUND,
+        )
+        # Get the log file
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.GET_LOG,
+            DElem.P2POOL_INTERNAL,
+            self.sync_client.get_log,
+            DPane.LOG_VIEW,
         )
         # Start a stopped deployment
         self.register(
@@ -310,16 +327,8 @@ class RouteMgr:
             self.sync_client.disable_deployment,
             DPane.TUI_LOG,
         )
-        # Blocks found screen
-        self.register(
-            DModule.OPS_MGR,
-            DMethod.BLOCKS_FOUND,
-            DElem.P2POOL_INTERNAL,
-            self.nav_handler.get_deployment,
-            DPane.CHAIN_BLOCKS_FOUND,
-        )
 
-        ## XMRig deployment
+        # ----- XMRig deployment -----
         # Display the new deployment form
         self.register(
             DModule.NAV_HANDLER,
@@ -446,15 +455,17 @@ class RouteMgr:
         # The functions below are async
         if callback == self.sync_client.add_deployment:
             result = await callback(payload)
-        elif callback == self.sync_client.update_deployment:
-            result = await callback(payload)
         elif callback == self.sync_client.delete_deployment:
             result = await callback(payload)
         elif callback == self.sync_client.disable_deployment:
             result = await callback(payload)
         elif callback == self.sync_client.enable_deployment:
             result = await callback(payload)
+        elif callback == self.sync_client.get_log:
+            result = await callback(payload)
         elif callback == self.install_mgr.initial_setup:
+            result = await callback(payload)
+        elif callback == self.sync_client.update_deployment:
             result = await callback(payload)
 
         # Everything else is synchronous (no await)
