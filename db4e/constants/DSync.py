@@ -14,5 +14,6 @@ from typing import Final
 class DSync:
     ELEMENT: Final[str] = "element"
     ELEM_TYPE: Final[str] = "elem_type"
+    LOG_LINES: Final[str] = "log_lines"
     PING: Final[str] = "ping"
     TABLE_NAME: Final[str] = "table_name"
