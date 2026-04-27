@@ -17,6 +17,7 @@ import traceback
 
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
+from db4e.mgr.LogMgr import LogMgr
 
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
@@ -57,6 +58,7 @@ class APIMgr:
         """
         self.bs_mgr = bs_mgr
         self.depl_mgr = depl_mgr
+        self.log_mgr = LogMgr()
         self.app = FastAPI(title=DLabel.DB4E_LONG)
         self._register_routes()
 
@@ -244,6 +246,18 @@ class APIMgr:
             Get some log file lines.
             """
             self.log.debug(f"Received request: {request}")
+            payload = await request.json()
+            elem_rec = payload.get(DSync.ELEMENT)
+            elem_type = payload.get(DSync.ELEM_TYPE)
+            elem = self.factory(table_name=elem_type, elem_rec=elem_rec)
+            if DSync.LOG_LINES in payload:
+                num_lines = payload.get(DSync.LOG_LINES)
+            else:
+                num_lines = DField.LINES_100
+            log_lines = self.log_mgr.get_log_lines(
+                log_file=elem.log_file(), num_lines=num_lines
+            )
+            return {DField.LOG_LINES: log_lines}
 
         # Ping to test connectivity
         @self.app.post("/ping")

@@ -84,6 +84,7 @@ class DField:
     LOCAL_SOFTWARE_SYSTEM: Final[str] = "local_software_system"
     LOG_FILE: Final[str] = "log_file"
     LOG_LEVEL: Final[str] = "log_level"
+    LOG_LINES: Final[str] = "log_lines"
     LOG_NAME: Final[str] = "log_name"
     LOG_RETENTION_DAYS: Final[str] = "log_retention_days"
     LOG_VIEWER: Final[str] = "log_viewer"

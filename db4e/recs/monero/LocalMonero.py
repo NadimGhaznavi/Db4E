@@ -28,6 +28,7 @@ class LocalMonero(BaseMonero):
         super().__init__()
         self._enabled = False
         self._status = None
+        self._log_lines = []
         if rec is not None:
             self.from_rec(rec)
 
@@ -51,6 +52,14 @@ class LocalMonero(BaseMonero):
         """
         super().from_rec(rec)
         self._enabled = rec[DCol.ENABLED]
+
+    def log_lines(self, lines=None):
+        """
+        Get/Set status
+        """
+        if lines is not None:
+            self._log_lines = lines
+        return self._log_lines
 
     def status(self, status_state=None):
         """

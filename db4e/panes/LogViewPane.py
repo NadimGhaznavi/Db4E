@@ -31,8 +31,6 @@ NUM_LINES = [
 
 class LogViewPane(Container):
 
-    log_lines = reactive([], always_update=True)
-
     def compose(self):
         """Compose the pane layout.
 
@@ -56,3 +54,15 @@ class LogViewPane(Container):
             ),
             classes=DForm.PANE_BOX,
         )
+
+    def set_data(self, log_lines: list):
+        """Set the data for the pane.
+
+        :param log_lines: Log line list.
+        :type log_lines: list
+        :return: None
+        :rtype: None
+        """
+        log = self.query_one(f"#{DForm.LOG_WIDGET}", RichLog)
+        for line in log_lines:
+            log.write(line)
