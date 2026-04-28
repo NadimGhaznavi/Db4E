@@ -13,7 +13,7 @@ import os
 class LogMgr:
 
     def get_log_lines(self, log_file, num_lines):
-        num_lines = int(num_lines)
+        number_of_lines = int(num_lines)
         if not os.path.exists(log_file):
             return []
 
@@ -22,10 +22,10 @@ class LogMgr:
             buffer = bytearray()
             pointer = f.tell()
             lines_found = 0
-            while pointer > 0 and lines_found <= num_lines:
+            while pointer > 0 and lines_found <= number_of_lines:
                 block_size = min(1024, pointer)
                 pointer -= block_size
                 f.seek(pointer)
                 buffer[:0] = f.read(block_size)
                 lines_found = buffer.count(b"\n")
-            return buffer.decode(errors="ignore").splitlines()[-num_lines:]
+            return buffer.decode(errors="ignore").splitlines()[-number_of_lines:]
