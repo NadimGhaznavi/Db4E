@@ -54,13 +54,14 @@ class RouteMgr:
         self._panes = {}
         self.install_mgr = install_mgr
         self.depl_db = depl_db
+        self.sync_client = sync_client
         self.nav_handler = NavHandler(
             depl_db=self.depl_db,
             health_client=health_client,
+            sync_client=sync_client,
         )
         self.ops_db = ops_db
         self.pane_mgr = pane_mgr
-        self.sync_client = sync_client
         self._route_handlers = []
         self.load_routes()
 
@@ -105,10 +106,10 @@ class RouteMgr:
         # ----- MoneroD deployment -----
         # Display the new form
         self.register(
-            DModule.SYNC_CLIENT,
+            DModule.NAV_HANDLER,
             DMethod.GET_LOG,
             DElem.MONEROD,
-            self.sync_client.get_log,
+            self.nav_handler.get_log,
             DPane.LOG_VIEW,
         )
         # Display the new form

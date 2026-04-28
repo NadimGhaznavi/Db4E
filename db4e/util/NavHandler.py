@@ -17,6 +17,7 @@ from db4e.recs.monero.XMRig import XMRig
 
 from db4e.health.HealthClient import HealthClient
 from db4e.util.Helper import get_upstream
+from db4e.sync.SyncClient import SyncClient
 
 from db4e.constants.DField import DField
 from db4e.constants.DElem import DElem
@@ -29,7 +30,9 @@ class NavHandler:
     records.
     """
 
-    def __init__(self, depl_db: DeplDb, health_client: HealthClient):
+    def __init__(
+        self, depl_db: DeplDb, health_client: HealthClient, sync_client=SyncClient
+    ):
         """
         Initialize the navigation handler.
 
@@ -40,6 +43,7 @@ class NavHandler:
         """
         self.depl_db = depl_db
         self.health_client = health_client
+        self.sync_client = sync_client
 
     def get_deployment(self, request):
         """
@@ -96,6 +100,15 @@ class NavHandler:
             depl_obj.instance_map({**local, **remote})
 
         return depl_obj
+
+    def get_log(self, request):
+        elem_type = request.get(DField.ELEMENT_TYPE)
+        elem = request.get(DField.ELEMENT)
+        log_lines = self.sync_client(
+            {DField.ELEMENT: elem, DField.ELEMENT_TYPE: elem_type}
+        )
+        elem.log_lines(log_lines)
+        return elem
 
     def get_new(self, request):
         """

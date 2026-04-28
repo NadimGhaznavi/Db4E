@@ -366,7 +366,7 @@ class MoneroDPane(Container):
             DButtonF.START: (DModule.SYNC_CLIENT, DMethod.ENABLE_DEPLOYMENT),
             DButtonF.STOP: (DModule.SYNC_CLIENT, DMethod.DISABLE_DEPLOYMENT),
             DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButtonF.VIEW_LOG: (DModule.SYNC_CLIENT, DMethod.GET_LOG),
+            DButtonF.VIEW_LOG: (DModule.NAV_HANDLER, DMethod.GET_LOG),
         }
 
         if button_id not in button_map:
