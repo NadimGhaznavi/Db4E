@@ -75,10 +75,10 @@ class DField:
     LABEL: Final[str] = "label"
     LABELS: Final[str] = "labels"
     LEVEL: Final[str] = "level"
-    LINES_100: Final[int] = "100_lines"
-    LINES_250: Final[int] = "250_lines"
-    LINES_500: Final[int] = "500_lines"
-    LINES_1000: Final[int] = "1000_lines"
+    LINES_100: Final[int] = 100
+    LINES_250: Final[int] = 250
+    LINES_500: Final[int] = 500
+    LINES_1000: Final[int] = 1000
     LOCAL: Final[str] = "local"
     LOCAL_TIMESTAMP: Final[str] = "local_timestamp"
     LOCAL_SOFTWARE_SYSTEM: Final[str] = "local_software_system"
