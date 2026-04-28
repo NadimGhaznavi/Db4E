@@ -33,6 +33,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DStatus import DStatus
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DElem import DElem
+from db4e.constants.DSync import DSync
 
 
 SYNC_SCHEDULE = {
@@ -225,7 +226,7 @@ class SyncClient:
             DSync.TABLE_NAME: depl_table,
         }
         url = f"{self.server_url}/get_log"
-        return await self._send_request(
+        return await self._send_log_request(
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
@@ -264,6 +265,37 @@ class SyncClient:
 
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             return False
+
+    async def _send_log_rquest(self, depl_table, depl_obj, url, payload):
+        """
+        Send a JSON request to the sync server and refresh local tables.
+
+        :param depl_table: Deployment table name.
+        :type depl_table: str
+        :param depl_obj: Deployment object being updated.
+        :type depl_obj: object
+        :param url: Target URL for the request.
+        :type url: str
+        :param payload: Request JSON payload.
+        :type payload: dict
+        :return: Log lines
+        :rturn: list
+        """
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                return resp[DSync.LOG_LINES]
+
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            elem_type = CLASS_TO_TABLE_MAP[type(depl_obj)]
+            self.ops_db.add_tui_log_line(
+                tracked_instance=depl_obj.instance(),
+                tracked_type=elem_type,
+                status=DStatus.ERROR,
+                operation=DField.NEW,
+                message=str(e),
+            )
 
     async def _send_request(self, depl_table, depl_obj, url, payload):
         """
