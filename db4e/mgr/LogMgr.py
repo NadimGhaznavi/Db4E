@@ -13,6 +13,7 @@ import os
 class LogMgr:
 
     def get_log_lines(self, log_file, num_lines):
+        num_lines = int(num_lines)
         if not os.path.exists(log_file):
             return []
 
