@@ -255,7 +255,7 @@ class APIMgr:
             else:
                 num_lines = DField.LINES_100
             log_lines = self.log_mgr.get_log_lines(
-                log_file=elem.log_file(), num_lines=num_lines
+                log_file=elem.log_file(), num_lines=int(num_lines)
             )
             return {DField.LOG_LINES: log_lines}
 
