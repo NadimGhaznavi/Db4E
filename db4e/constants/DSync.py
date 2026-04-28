@@ -9,7 +9,7 @@
 
 from typing import Final
 
-from constants.DField import DField
+from db4e.constants.DField import DField
 
 
 # Elements
