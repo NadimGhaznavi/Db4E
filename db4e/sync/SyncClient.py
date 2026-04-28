@@ -225,11 +225,12 @@ class SyncClient:
             DSync.ELEM_TYPE: type_str,
         }
         url = f"{self.server_url}/get_log"
-        return await self._send_log_request(
+        data = await self._send_log_request(
             depl_obj=depl_obj,
             url=url,
             payload=payload,
         )
+        return data[DSync.LOG_LINES]
 
     def _merge_row(self, table_name, row):
         """
@@ -286,7 +287,7 @@ class SyncClient:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(url, json=payload)
                 resp.raise_for_status()
-                return resp[DSync.LOG_LINES]
+                return resp.json()
 
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             elem_type = CLASS_TO_TABLE_MAP[type(depl_obj)]
