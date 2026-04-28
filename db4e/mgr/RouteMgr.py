@@ -109,7 +109,7 @@ class RouteMgr:
             DMethod.GET_LOG,
             DElem.MONEROD,
             self.sync_client.get_log,
-            DPane.MONEROD,
+            DPane.LOG_VIEW,
         )
         # Display the new form
         self.register(
