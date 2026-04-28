@@ -226,7 +226,7 @@ class SyncClient:
             DSync.TABLE_NAME: depl_table,
         }
         url = f"{self.server_url}/get_log"
-        return await self._send_log_request(
+        return await self._send_request(
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
