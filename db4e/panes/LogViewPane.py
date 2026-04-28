@@ -39,7 +39,7 @@ class LogViewPane(Container):
         """
         yield Vertical(
             RichLog(
-                highlight=False, markup=True, id=DForm.LOG_WIDGET, classes=DForm.BOX
+                highlight=True, markup=True, id=DForm.LOG_WIDGET, classes=DForm.BOX
             ),
             Horizontal(
                 Select(
