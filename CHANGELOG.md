@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleaed]
+## [0.48.6] 2026-04-28 @ 08:19 - Ongoing Refactoring
 
 ### Added
 - **Db4E Installation Flag**
@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The deployment name to the *Internal P2Pool* health check message
 - New `helper:get_upstream()` helper function
 - Add a *ping* function to the `APIMgr` so the installer can check that the service has started up before trying to add the *Db4E* and *Internal P2Pool* instances
+- Added a *Log View* feature and implemented it for the local *Internal P2Pool* and *MoneroD* deployments.
+  - The button on the deployment view pane now has a *View Log* button, pressing it causes
+  - the TUI to send a request to the *Db4E Service*, which retrives the last 100 lines of the specified deployment log file and returns it to the *Db4E Client*
+  - The log is displayed in a `LogViewPane` which also has a *Refresh* button and a drop-down menu that allows the user to refresh the log file and choose the number of lines to retrieve; 100, 250, 500, or 1000.
 
 ### Changed
 - **Architectural Shift**
