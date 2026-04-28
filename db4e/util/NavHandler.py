@@ -101,7 +101,7 @@ class NavHandler:
 
         return depl_obj
 
-    def get_log(self, request):
+    async def get_log(self, request):
         elem_type = request.get(DField.ELEMENT_TYPE)
         elem = request.get(DField.ELEMENT)
         log_lines = self.sync_client.get_log(
