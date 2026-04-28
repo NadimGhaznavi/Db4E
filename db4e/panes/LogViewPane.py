@@ -17,7 +17,7 @@ from textual.containers import (
 )
 
 from db4e.messages.Db4EMsg import Db4EMsg
-from db4e.db.BaseDb import CLASS_STR_TO_TABLE_MAP
+from db4e.db.BaseDb import CLASS_TO_TABLE_MAP
 
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
@@ -71,7 +71,7 @@ class LogViewPane(Container):
         :rtype: None
         """
         elem_type = type(self.elem)
-        elem_type = CLASS_STR_TO_TABLE_MAP[elem_type.lower()]
+        elem_type = CLASS_TO_TABLE_MAP[elem_type]
         num_lines = self.query_one(f"#{DForm.NUM_LINES}", Select).value
         form_data = {
             DField.TO_MODULE: DModule.NAV_HANDLER,
