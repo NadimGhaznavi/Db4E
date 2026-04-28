@@ -461,7 +461,7 @@ class RouteMgr:
             )
 
         callback, pane = handler
-        # The functions below are async
+        # The functions below are async and must be "awaited"
         if callback == self.sync_client.add_deployment:
             result = await callback(payload)
         elif callback == self.sync_client.delete_deployment:
@@ -470,7 +470,7 @@ class RouteMgr:
             result = await callback(payload)
         elif callback == self.sync_client.enable_deployment:
             result = await callback(payload)
-        elif callback == self.sync_client.get_log:
+        elif callback == self.nav_handler.get_log:
             result = await callback(payload)
         elif callback == self.install_mgr.initial_setup:
             result = await callback(payload)
