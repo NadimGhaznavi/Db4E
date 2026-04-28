@@ -220,8 +220,6 @@ class MoneroDPane(Container):
         """
         self.monerod = monerod
 
-        print(monerod.status())
-
         if monerod.status() == DStatus.GOOD:
             self.add_class(DStatus.IS_RUNNING)
             self.remove_class(DStatus.IS_STOPPED)
