@@ -226,7 +226,7 @@ class SyncClient:
             DSync.TABLE_NAME: depl_table,
         }
         url = f"{self.server_url}/get_log"
-        return await self._send_request(
+        return await self._send_log_request(
             depl_table=depl_table, depl_obj=depl_obj, url=url, payload=payload
         )
 
@@ -266,7 +266,7 @@ class SyncClient:
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             return False
 
-    async def _send_log_rquest(self, depl_table, depl_obj, url, payload):
+    async def _send_log_request(self, depl_table, depl_obj, url, payload):
         """
         Send a JSON request to the sync server and refresh local tables.
 
