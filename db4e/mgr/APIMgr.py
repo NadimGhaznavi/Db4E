@@ -251,11 +251,12 @@ class APIMgr:
             elem_type = payload.get(DSync.ELEM_TYPE)
             elem = self.factory(table_name=elem_type, elem_rec=elem_rec)
             if DSync.LOG_LINES in payload:
-                num_lines = payload.get(DSync.LOG_LINES)
+                num_lines = int(payload.get(DSync.LOG_LINES))
             else:
                 num_lines = DField.LINES_100
+
             log_lines = self.log_mgr.get_log_lines(
-                log_file=elem.log_file(), num_lines=int(num_lines)
+                log_file=elem.log_file(), num_lines=num_lines
             )
             return {DField.LOG_LINES: log_lines}
 
