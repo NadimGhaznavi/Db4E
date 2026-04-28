@@ -105,7 +105,7 @@ class RouteMgr:
         # ----- MoneroD deployment -----
         # Display the new form
         self.register(
-            DModule.NAV_HANDLER,
+            DModule.SYNC_CLIENT,
             DMethod.GET_LOG,
             DElem.MONEROD,
             self.sync_client.get_log,
