@@ -9,11 +9,13 @@
 
 from typing import Final
 
+from constants.DField import DField
+
 
 # Elements
 class DSync:
     ELEMENT: Final[str] = "element"
     ELEM_TYPE: Final[str] = "elem_type"
-    LOG_LINES: Final[str] = "log_lines"
+    LOG_LINES = DField.LOG_LINES
     PING: Final[str] = "ping"
     TABLE_NAME: Final[str] = "table_name"

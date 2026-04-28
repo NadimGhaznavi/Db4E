@@ -104,8 +104,16 @@ class NavHandler:
     async def get_log(self, request):
         elem_type = request.get(DField.ELEMENT_TYPE)
         elem = request.get(DField.ELEMENT)
+        if DField.LOG_LINES in request:
+            num_lines = int(request.get(DField.LOG_LINES))
+        else:
+            num_lines = DField.LINES_100
         log_lines = await self.sync_client.get_log(
-            {DField.ELEMENT: elem, DField.ELEMENT_TYPE: elem_type}
+            {
+                DField.ELEMENT: elem,
+                DField.ELEMENT_TYPE: elem_type,
+                DField.LOG_LINES: num_lines,
+            }
         )
         elem.log_lines(log_lines)
         return elem

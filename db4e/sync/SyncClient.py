@@ -219,10 +219,12 @@ class SyncClient:
         """
         depl_obj = depl_request.get(DField.ELEMENT)
         type_str = depl_request.get(DField.ELEMENT_TYPE).lower()
+        log_lines = depl_request.get(DField.LOG_LINES)
 
         payload = {
             DSync.ELEMENT: depl_obj.to_dict(),
             DSync.ELEM_TYPE: type_str,
+            DSync.LOG_LINES: log_lines,
         }
         url = f"{self.server_url}/get_log"
         data = await self._send_log_request(

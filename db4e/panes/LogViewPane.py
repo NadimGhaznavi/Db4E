@@ -16,10 +16,14 @@ from textual.containers import (
     Horizontal,
 )
 
+from db4e.messages.Db4EMsg import Db4EMsg
+
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DField import DField
 from db4e.constants.DForm import DForm
 from db4e.constants.DButton import DButtonF, DButtonL
+from db4e.constants.DModule import DModule
+from db4e.constants.DMethod import DMethod
 
 NUM_LINES = [
     (DLabel.LINES_100, DField.LINES_100),
@@ -56,6 +60,25 @@ class LogViewPane(Container):
             ),
             classes=DForm.PANE_BOX,
         )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button pressed events.
+
+        :param event: Event payload.
+        :type event: Button.Pressed
+        :return: None
+        :rtype: None
+        """
+        elem_type = type(self.elem).lower()
+        num_lines = self.query_one(f"#{DForm.NUM_LINES}", Select).value
+        form_data = {
+            DField.TO_MODULE: DModule.NAV_HANDLER,
+            DField.TO_METHOD: DMethod.GET_LOG,
+            DField.ELEMENT: self.elem,
+            DField.ELEMENT_TYPE: elem_type,
+            DField.LOG_LINES: num_lines,
+        }
+        self.app.post_message(Db4EMsg(self, form_data=form_data))
 
     def set_data(self, elem):
         """Set the data for the pane.
