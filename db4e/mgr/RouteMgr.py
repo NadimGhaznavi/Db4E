@@ -106,6 +106,14 @@ class RouteMgr:
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
+            DMethod.GET_LOG,
+            DElem.MONEROD,
+            self.sync_client.get_log,
+            DPane.MONEROD,
+        )
+        # Display the new form
+        self.register(
+            DModule.NAV_HANDLER,
             DMethod.GET_NEW,
             DElem.MONEROD,
             self.nav_handler.get_new,
