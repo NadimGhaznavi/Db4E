@@ -295,8 +295,8 @@ class RouteMgr:
             DPane.TUI_LOG,
         )
 
-        # ----- Internal P2Pool deployment -----
-        # View "Chain Pane": Main, Mini, or Nano
+        # ----- Internal P2Pool deployment: Main, Mini, Nano -----
+        # View deployed instance
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_DEPL,
@@ -314,10 +314,10 @@ class RouteMgr:
         )
         # Get the log file
         self.register(
-            DModule.SYNC_CLIENT,
+            DModule.NAV_HANDLER,
             DMethod.GET_LOG,
             DElem.P2POOL_INTERNAL,
-            self.sync_client.get_log,
+            self.nav_handler.get_log,
             DPane.LOG_VIEW,
         )
         # Start a stopped deployment
