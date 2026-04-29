@@ -189,7 +189,7 @@ class FormChecker:
         valid_flag = True
         for label, method in required_fields:
             value = method()
-            if value is None:
+            if value is None or str(value).strip() == "":
                 self.ops_db.add_tui_log_line(
                     tracked_instance=obj.instance(),
                     tracked_type=TABLE_TO_CLASS_STR_MAP[CLASS_TO_TABLE_MAP[type(obj)]],
