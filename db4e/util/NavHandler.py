@@ -20,6 +20,7 @@ from db4e.util.Helper import get_upstream
 from db4e.sync.SyncClient import SyncClient
 
 from db4e.constants.DField import DField
+from db4e.constants.DLabel import DLabel
 from db4e.constants.DElem import DElem
 from db4e.constants.DSQL import DTable
 
@@ -137,7 +138,9 @@ class NavHandler:
 
         elif elem_type == DElem.P2POOL:
             p2pool = P2Pool()
-            db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
+            db4e = self.depl_db.get_deployment(
+                elem_type=DElem.DB4E, instance=DLabel.DB4E
+            )
             p2pool.user_wallet(db4e.user_wallet())
             local = self.depl_db.get_deployment_ids_and_instances(DTable.MONEROD)
             remote = self.depl_db.get_deployment_ids_and_instances(

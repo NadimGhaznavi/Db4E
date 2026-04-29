@@ -26,5 +26,5 @@ sudo rm -rf /opt/Db4E*
 echo "DONE"
 
 echo -n "Deleting ~/.db4e: "
-rm -rf /home/dan/.db4e
+rm -rf "~/.db4e
 echo "DONE"

@@ -22,7 +22,7 @@ from db4e.constants.DField import DField
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DElem import DElem
 
-
+from db4e.db.BaseDb import CLASS_TO_TABLE_MAP, TABLE_TO_CLASS_STR_MAP
 class FormChecker:
     """
     Validate deployment form data and log errors.
@@ -192,7 +192,7 @@ class FormChecker:
             if value is None:
                 self.ops_db.add_tui_log_line(
                     tracked_instance=obj.instance(),
-                    tracked_type=obj.elem_type().lower(),
+                    tracked_type=TABLE_TO_CLASS_STR_MAP[CLASS_TO_TABLE_MAP[type(obj)]],
                     status=DStatus.ERROR,
                     operation=DField.NEW,
                     message=f"Missing required field",
