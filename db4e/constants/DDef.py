@@ -24,12 +24,13 @@ class DDef:
     CONF_SUFFIX: Final[str] = ".conf"
     CSS_PATH: Final[str] = "Db4E.tcss"
     DB_DIR: Final[str] = "db"
-    DB_NAME: Final[str] = "db4e"
+    DB_NAME: Final[str] = "db4e"7
     DB_PORT: Final[int] = 27017
     DB_RETRY_TIMEOUT: Final[int] = 3000
     DB_SERVER: Final[str] = "localhost"
     DB4E_CREATE_INSTALL_DIR_SCRIPT: Final[str] = "db4e-create-install-dir.sh"
     DB4E_DIR: Final[str] = "db4e"
+    DB4E_GROUP: Final[str] = "root"
     DB4E_INITIAL_SETUP_SCRIPT: Final[str] = "db4e-initial-setup.sh"
     DB4E_INSTALL_DIR: Final[str] = "/opt/Db4E"
     DB4E_INSTALL_SERVICE: Final[str] = "db4e-install-service.sh"
