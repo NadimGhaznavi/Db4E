@@ -71,8 +71,6 @@ class NavPane(Container):
         self.depls.guide_depth = 3
         self.depls.root.expand()
 
-        self.refresh_nav_pane()
-
     def compose(self) -> ComposeResult:
         yield Vertical(
             ScrollableContainer(
