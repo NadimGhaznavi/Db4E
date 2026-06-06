@@ -127,6 +127,8 @@ class XMRigPane(Container):
         :rtype: None
         """
         # print(f"XMRig:set_data(): {xmrig}")
+        if xmrig.instance():
+            self.add_class(DField.EDIT)
         self.xmrig = xmrig
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = xmrig.instance()
         self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(xmrig.instance())
@@ -138,15 +140,12 @@ class XMRigPane(Container):
             xmrig.logrotate_config()
         )
 
-        self.instance_map = xmrig.instance_map()
-        print(f"XMRigPane:set_data(): instance_map: {self.instance_map}")
-        instance_list = []
-        for instance in self.instance_map.keys():
-            instance_list.append(instance)
-        self.radio_button_list = instance_list
 
         # Configure button visibility
         if xmrig.instance():
+            self.instance_map = xmrig.instance_map()
+            self.radio_button_list = list(self.instance_map.keys())
+            
             # This is an update operation
             INTRO = (
                 f"Configure the settings for the "
@@ -199,8 +198,8 @@ class XMRigPane(Container):
         # Map button to action
         button_map = {
             DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButtonF.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButtonF.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.DISABLE: (DModule.SYNC_CLIENT, DMethod.STOP),
+            DButtonF.ENABLE: (DModule.SYNC_CLIENT, DMethod.START),
             DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
             DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),

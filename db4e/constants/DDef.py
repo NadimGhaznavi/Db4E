@@ -30,6 +30,7 @@ class DDef:
     DB_SERVER: Final[str] = "localhost"
     DB4E_CREATE_INSTALL_DIR_SCRIPT: Final[str] = "db4e-create-install-dir.sh"
     DB4E_DIR: Final[str] = "db4e"
+    DB4E_GROUP: Final[str] = "root"
     DB4E_INITIAL_SETUP_SCRIPT: Final[str] = "db4e-initial-setup.sh"
     DB4E_INSTALL_DIR: Final[str] = "/opt/Db4E"
     DB4E_INSTALL_SERVICE: Final[str] = "db4e-install-service.sh"

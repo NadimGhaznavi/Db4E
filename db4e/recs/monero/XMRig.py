@@ -285,7 +285,7 @@ class XMRig(LocalMonero):
         self.config_file(fq_config)
 
     # Generate the XMRig logrotate configuration
-    def gen_logrotate_config(self, tmpl_file: str, db4e_group: str):
+    def gen_logrotate_config(self, tmpl_file: str):
         """
         Generate an XMRig logrotate configuration file.
 
@@ -309,7 +309,7 @@ class XMRig(LocalMonero):
             DPlaceholder.INSTANCE: self.instance(),
             DPlaceholder.MAX_LOG_FILES: self.max_log_files(),
             DPlaceholder.MAX_LOG_SIZE: self.max_log_size(),
-            DPlaceholder.DB4E_GROUP: db4e_group,
+            DPlaceholder.DB4E_GROUP: DDef.DB4E_GROUP,
         }
         with open(tmpl_file, "r") as f:
             config_contents = f.read()

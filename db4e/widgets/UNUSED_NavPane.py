@@ -26,8 +26,6 @@ from db4e.constants.DModule import DModule
 from db4e.constants.DPane import DPane
 from db4e.constants.DStatus import DStatus, STATE_ICON
 
-from db4e.widgets.NavPaneState import NavPaneState
-
 # Icon dictionary keys
 CORE = "CORE"
 CHAIN = "CHAIN"
@@ -63,13 +61,20 @@ class NavPane(Container):
         super().__init__()
         self.depl_db = depl_db
         self.health_client = health_client
-
-        self.state = NavPaneState()
+        self._db4e_installed = False
 
         # Deployments tree
         self.depls = Tree(f"{ICON[DEPL]} {DLabel.DEPLOYMENTS}")
         self.depls.guide_depth = 3
         self.depls.root.expand()
+
+        # Initialize the Nav Pane's data structures
+        self._depls_branches_added = False
+        self._initial_branches_added = False
+        self.depls_branch_state = {DElem.MONEROD: {}, DElem.P2POOL: {}, DElem.XMRIG: {}}
+
+        self._sudo_failed = False
+        self.refresh_nav_pane()
 
     def compose(self) -> ComposeResult:
         yield Vertical(
@@ -83,16 +88,21 @@ class NavPane(Container):
 
     def db4e_installed(self, flag=None) -> bool:
         if flag is not None:
-            self.state.db4e_installed = flag
-        return self.state.db4e_installed
-
-    def sudo_failed(self, flag=None) -> bool:
-        if flag is not None:
-            self.state.sudo_failed = flag
-        return self.state.sudo_failed
+            self._db4e_installed = flag
+        return self._db4e_installed
 
     async def on_mount(self) -> None:
         self.set_interval(2, self.refresh_nav_pane)
+
+    def depls_branches_added(self, flag=None):
+        if flag is not None:
+            self._depls_branches_added = flag
+        return self._depls_branches_added
+
+    def initial_branches_added(self, flag=None):
+        if flag is not None:
+            self._initial_branches_added = flag
+        return self._initial_branches_added
 
     @work(exclusive=True)
     async def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
@@ -100,6 +110,9 @@ class NavPane(Container):
         if not event.node.children and event.node.parent:
             leaf_data = event.node.data
             parent_data = event.node.parent.data
+            # print(
+            #    f"NavPane:on_tree_node_selected(): leaf_data ({leaf_data}), parent_data ({parent_data})"
+            # )
 
             # Initial Setup
             if leaf_data == DLabel.INITIAL_SETUP:
@@ -236,19 +249,25 @@ class NavPane(Container):
             elif event.node.parent.parent:
                 grandparent_data = event.node.parent.parent.data
 
+                print(
+                    f"NavPane:on_tree_node_selected(): %s/%s/%s"
+                    % (grandparent_data, parent_data, leaf_data)
+                )
+
                 ## Local deployment logfiles
                 # Monero
                 if grandparent_data == DLabel.MONEROD_SHORT:
                     monerod = self.depl_db.get_deployment(
                         elem_type=DElem.MONEROD, instance=parent_data
                     )
-                    if leaf_data == DLabel.LOG_FILE:
+                    if leaf_data == DLabel.LOG_FILE:  # Log file nav item
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
                             DField.TO_MODULE: DModule.NAV_HANDLER,
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: monerod,
                         }
+                    # View edit deployment
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.MONEROD,
@@ -262,6 +281,7 @@ class NavPane(Container):
                     monerod = self.depl_db.get_deployment(
                         elem_type=DElem.MONEROD_REMOTE, instance=parent_data
                     )
+                    # View/edit deployment
                     form_data = {
                         DField.ELEMENT_TYPE: DElem.MONEROD_REMOTE,
                         DField.TO_MODULE: DModule.NAV_HANDLER,
@@ -269,11 +289,12 @@ class NavPane(Container):
                         DField.INSTANCE: monerod,
                     }
 
-                # Existing P2Pool deployment
+                # Exiting P2Pool deployment
                 elif grandparent_data == DLabel.P2POOL_SHORT:
                     p2pool = self.depl_db.get_deployment(
                         elem_type=DElem.P2POOL, instance=parent_data
                     )
+                    # View log file
                     if leaf_data == DLabel.LOG_FILE:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
@@ -281,6 +302,7 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: p2pool,
                         }
+                    # View/edit deployment
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.P2POOL,
@@ -289,8 +311,9 @@ class NavPane(Container):
                             DField.INSTANCE: p2pool,
                         }
 
-                # Existing remote P2Pool deployment
+                # Exiting remote P2Pool deployment
                 elif grandparent_data == DLabel.P2POOL_REMOTE_SHORT:
+
                     p2pool = self.depl_db.get_deployment(
                         elem_type=DElem.P2POOL_REMOTE, instance=parent_data
                     )
@@ -311,6 +334,7 @@ class NavPane(Container):
                             DField.TO_METHOD: DMethod.LOG_VIEWER,
                             DField.INSTANCE: parent_data,
                         }
+
                     else:
                         form_data = {
                             DField.ELEMENT_TYPE: DElem.XMRIG,
@@ -320,148 +344,155 @@ class NavPane(Container):
                         }
 
                 # Existing remote XMRig deployment
-                elif grandparent_data == DLabel.XMRIG_REMOTE_SHORT:
-                    # print(f"NavPane:on_tree_node_selected(): {XMRIG_REMOTE_SHORT}/{leaf_item.label}")
+                elif grandparent_data == DLabel.XMRIG_SHORT:
+                    # print(f"NavPane:on_tree_node_selected(): {XMRIG_SHORT}/{leaf_item.label}")
                     form_data = {
-                        DField.ELEMENT_TYPE: DElem.XMRIG_REMOTE,
+                        DField.ELEMENT_TYPE: DElem.XMRIG,
                         DField.TO_MODULE: DModule.OPS_MGR,
                         DField.TO_METHOD: DMethod.GET_DEPL,
                         DField.INSTANCE: leaf_data,
                     }
-
             # print(f"Posting message with form_data: {form_data}")
             self.post_message(Db4EMsg(self, form_data=form_data))
 
     def refresh_nav_pane(self) -> None:
 
-        # db4e hasn't been installed yet
-        if not self.state.db4e_installed:
-            if not self.state.initial_branches_added:
-                self.state.initial_branches_added = True
+        # Db4E hasn't been installed yet
+        if not self.db4e_installed():
+            self.depls.root.add_leaf(
+                f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
+            )
 
-                # Sudo test failed — show Donations only
-                if self.state.sudo_failed:
+            if not self.initial_branches_added():
+                self.initial_branches_added(True)
+
+                # The sudo test passed, we are ready to install
+                if self.sudo_failed():
+
+                    # Show the "donations" nave pane item
                     self.depls.root.add_leaf(
                         f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
                     )
+
                     return
 
-                # Show the "initial install" and "donations" nav pane items
+                # Show the "initial install" nav pane item
                 self.depls.root.add_leaf(
                     f"{ICON[SETUP]} {DLabel.INITIAL_SETUP}",
                     data=DLabel.INITIAL_SETUP,
                 )
+                # Show the "donaations" nave pane item
                 self.depls.root.add_leaf(
                     f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
                 )
+                return
             return
 
-        if self.state.initial_branches_added:
+        if self.initial_branches_added():
             self.depls.root.remove_children()
-            self.state.initial_branches_added = False
+            self.initial_branches_added(False)
 
-        if not self.state.depls_branches_added:
+        if not self.depls_branches_added():
             self.depls.root.add_leaf(f"{ICON[CORE]} {DLabel.DB4E}", data=DLabel.DB4E)
-            self.state.monerod_tree = self.depls.root.add(
+            self.monerod_tree = self.depls.root.add(
                 f"{ICON[MON]} {DLabel.MONEROD_SHORT}",
                 data=DLabel.MONEROD_SHORT,
                 expand=True,
             )
-            self.state.monerod_remote_tree = self.depls.root.add(
+            self.monerod_remote_tree = self.depls.root.add(
                 f"{ICON[MON]} {DLabel.MONEROD_REMOTE_SHORT}",
                 data=DLabel.MONEROD_REMOTE_SHORT,
                 expand=True,
             )
-            self.state.p2pool_tree = self.depls.root.add(
+            self.p2pool_tree = self.depls.root.add(
                 f"{ICON[P2P]} {DLabel.P2POOL_SHORT}",
                 data=DLabel.P2POOL_SHORT,
                 expand=True,
             )
-            self.state.p2pool_remote_tree = self.depls.root.add(
+            self.p2pool_remote_tree = self.depls.root.add(
                 f"{ICON[P2P]} {DLabel.P2POOL_REMOTE_SHORT}",
                 data=DLabel.P2POOL_REMOTE_SHORT,
                 expand=True,
             )
-            self.state.xmrig_tree = self.depls.root.add(
+            self.xmrig_tree = self.depls.root.add(
                 f"{ICON[XMR]} {DLabel.XMRIG_SHORT}",
                 data=DLabel.XMRIG_SHORT,
                 expand=True,
             )
-            self.state.xmrig_remote_tree = self.depls.root.add(
+            self.xmrig_remote_tree = self.depls.root.add(
                 f"{ICON[XMR]} {DLabel.XMRIG_REMOTE_SHORT}",
                 data=DLabel.XMRIG_REMOTE_SHORT,
                 expand=True,
             )
-            self.state.chain = self.depls.root.add(
+            self.chain = self.depls.root.add(
                 f"{ICON[CHAIN]} {DLabel.CHAIN_STATS}",
                 data=DLabel.CHAIN_STATS,
                 expand=True,
             )
 
-        self.state.monerod_tree.remove_children()
-        self.state.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.monerod_tree.remove_children()
+        self.monerod_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.depl_db.get_monerods():
             state = self.health_client.get_status(monerod)
-            self.state.monerod_tree.add_leaf(
+            self.monerod_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
             )
 
-        self.state.monerod_remote_tree.remove_children()
-        self.state.monerod_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.monerod_remote_tree.remove_children()
+        self.monerod_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for monerod in self.depl_db.get_monerod_remotes():
             state = self.health_client.get_status(monerod)
             if not state:
                 state = DStatus.UNKNOWN
-            self.state.monerod_remote_tree.add_leaf(
+            self.monerod_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {monerod.instance()}", data=monerod.instance()
             )
 
-        self.state.p2pool_tree.remove_children()
-        self.state.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.p2pool_tree.remove_children()
+        self.p2pool_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for p2pool in self.depl_db.get_p2pools():
             state = self.health_client.get_status(p2pool)
-            self.state.p2pool_tree.add_leaf(
+            self.p2pool_tree.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance()
             )
 
-        self.state.p2pool_remote_tree.remove_children()
-        self.state.p2pool_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.p2pool_remote_tree.remove_children()
+        self.p2pool_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for p2pool in self.depl_db.get_p2pool_remotes():
             state = self.health_client.get_status(p2pool)
-            self.state.p2pool_remote_tree.add_leaf(
+            self.p2pool_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {p2pool.instance()}", data=p2pool.instance()
             )
 
-        self.state.chain.remove_children()
+        self.chain.remove_children()
         for int_p2pool in self.depl_db.get_p2pool_internals():
             state = self.health_client.get_status(int_p2pool)
             if not state:
                 state = DStatus.UNKNOWN
             instance = int_p2pool.instance()
-            self.state.chain.add_leaf(f"{STATE_ICON[state]} {instance}", data=instance)
+            self.chain.add_leaf(f"{STATE_ICON[state]} {instance}", data=instance)
 
-        self.state.xmrig_tree.remove_children()
-        self.state.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.xmrig_tree.remove_children()
+        self.xmrig_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
         for xmrig in self.depl_db.get_xmrigs():
             state = self.health_client.get_status(xmrig)
-            self.state.xmrig_tree.add_leaf(
+            self.xmrig_tree.add_leaf(
                 f"{STATE_ICON[state]} {xmrig.instance()}", data=xmrig.instance()
             )
 
-        self.state.xmrig_remote_tree.remove_children()
-        self.state.xmrig_remote_tree.add_leaf(f"{ICON[NEW]} {DLabel.NEW}", data=DLabel.NEW)
+        self.xmrig_remote_tree.remove_children()
         for remote_xmrig in self.depl_db.get_xmrig_remotes():
             remote_xmrig.timestamp(
                 self.depl_db.get_remote_xmrig_timestamp(remote_xmrig)
             )
-            state = self.health_client.get_status(remote_xmrig)
-            self.state.xmrig_remote_tree.add_leaf(
+            state = self.health_client.get_status(xmrig)
+            self.xmrig_remote_tree.add_leaf(
                 f"{STATE_ICON[state]} {remote_xmrig.instance()}",
                 data=remote_xmrig.instance(),
             )
 
-        if not self.state.depls_branches_added:
-            self.state.depls_branches_added = True
+        if not self.depls_branches_added():
+            self.depls_branches_added(True)
 
             # Add Console Log item
             self.depls.root.add_leaf(
@@ -472,3 +503,8 @@ class NavPane(Container):
             self.depls.root.add_leaf(
                 f"{ICON[GIFT]} {DLabel.DONATIONS}", data=DLabel.DONATIONS
             )
+
+    def sudo_failed(self, flag=None) -> bool:
+        if flag is not None:
+            self._sudo_failed = flag
+        return self._sudo_failed

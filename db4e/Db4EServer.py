@@ -91,6 +91,7 @@ class Db4eServer:
 
         # Operations DB module
         self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
+        
         # Clean up current_uptime records (where the stop_time is NULL)
         self.ops_db.check_current_recs()
 
@@ -112,7 +113,7 @@ class Db4eServer:
         )
         # Health manager
         self.health_mgr = HealthMgr(
-            health_db=self.health_db, depl_db=self.depl_db, log_file=fq_log_file
+            health_db=self.health_db, depl_db=self.depl_db, ops_db=self.ops_db, log_file=fq_log_file
         )
 
         #  systemd wrapper

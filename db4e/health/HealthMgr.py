@@ -13,6 +13,12 @@ import socket
 # Logging DB
 from db4e.util.Db4ELogger import Db4ELogger
 
+# SystemD access
+from db4e.util.Db4ESystemD import Db4ESystemD
+
+# Ops DB - Service status
+from db4e.db.OpsDb import OpsDb
+
 # Health DB
 from db4e.db.HealthDb import HealthDb
 from db4e.db.DeplDb import DeplDb
@@ -42,9 +48,11 @@ class HealthMgr:
     Health manager that periodically checks the health of deployed components.
     """
 
-    def __init__(self, health_db: HealthDb, depl_db: DeplDb, log_file=None):
+    def __init__(self, health_db: HealthDb, depl_db: DeplDb, ops_db: OpsDb, log_file=None):
         self.health_db = health_db
         self.depl_db = depl_db
+        self.ops_db = ops_db
+        self.systemd = Db4ESystemD(ops_db=ops_db)
         self.log = Db4ELogger(db4e_module=DModule.HEALTH_MGR, log_file=log_file)
 
     def check(self, elem):
@@ -61,6 +69,8 @@ class HealthMgr:
             self.check_p2pool_remote(elem)
         elif type(elem) == P2PoolInternal:
             self.check_p2pool_internal(elem)
+        elif type(elem) == XMRig:
+            self.check_xmrig(elem)
 
     def check_db4e(self, db4e: Db4E):
         # Check that the deployment directory exists
@@ -302,3 +312,6 @@ class HealthMgr:
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
+
+    def check_xmrig(self, xmrig: XMRig):
+        pass
