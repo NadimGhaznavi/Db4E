@@ -338,36 +338,13 @@ class RouteMgr:
         )
 
         # ----- XMRig deployment -----
-        # Display the new deployment form
-        self.register(
-            DModule.NAV_HANDLER,
-            DMethod.GET_NEW,
-            DElem.XMRIG,
-            self.nav_handler.get_new,
-            DPane.XMRIG,
-        )
+
         # Add a new deployment
         self.register(
             DModule.SYNC_CLIENT,
             DMethod.ADD_DEPLOYMENT,
             DElem.XMRIG,
             self.sync_client.add_deployment,
-            DPane.TUI_LOG,
-        )
-        # View/edit a deployment
-        self.register(
-            DModule.NAV_HANDLER,
-            DMethod.GET_DEPL,
-            DElem.XMRIG,
-            self.nav_handler.get_deployment,
-            DPane.XMRIG,
-        )
-        # Update a deployment
-        self.register(
-            DModule.SYNC_CLIENT,
-            DMethod.UPDATE_DEPLOYMENT,
-            DElem.XMRIG,
-            self.sync_client.update_deployment,
             DPane.TUI_LOG,
         )
         # Delete a deployment
@@ -378,7 +355,47 @@ class RouteMgr:
             self.sync_client.delete_deployment,
             DPane.TUI_LOG,
         )
-        ## Remote XMRig Deployment
+        # Start a stopped deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.START,
+            DElem.XMRIG,
+            self.sync_client.enable_deployment,
+            DPane.TUI_LOG,
+        )
+        # Stop a started deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.STOP,
+            DElem.XMRIG,
+            self.sync_client.disable_deployment,
+            DPane.TUI_LOG,
+        )
+        # View/edit a deployment
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_DEPL,
+            DElem.XMRIG,
+            self.nav_handler.get_deployment,
+            DPane.XMRIG,
+        )
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_NEW,
+            DElem.XMRIG,
+            self.nav_handler.get_new,
+            DPane.XMRIG,
+        )
+        # Update a deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.UPDATE_DEPLOYMENT,
+            DElem.XMRIG,
+            self.sync_client.update_deployment,
+            DPane.TUI_LOG,
+        )
+
+        #----- Remote XMRig Deployment -----
         # View the "Remote XMRig Pane"
         self.register(
             DModule.NAV_HANDLER,

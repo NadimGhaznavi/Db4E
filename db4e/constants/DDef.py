@@ -24,7 +24,7 @@ class DDef:
     CONF_SUFFIX: Final[str] = ".conf"
     CSS_PATH: Final[str] = "Db4E.tcss"
     DB_DIR: Final[str] = "db"
-    DB_NAME: Final[str] = "db4e"7
+    DB_NAME: Final[str] = "db4e"
     DB_PORT: Final[int] = 27017
     DB_RETRY_TIMEOUT: Final[int] = 3000
     DB_SERVER: Final[str] = "localhost"
