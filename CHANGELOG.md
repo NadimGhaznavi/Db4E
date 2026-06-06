@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Release 0.48.7] - 2026-06-06 14:11
+
+
 ### Fixed
 - Fixed the bug that caused the *Initial Setup* to briefly show up on startup; removed *refresh* call in `__init__`.
 

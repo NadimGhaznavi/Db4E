@@ -42,7 +42,7 @@ class DDef:
     DB4E_SERVICE_FILE: Final[str] = "db4e.service"
     DB4E_START_SCRIPT: Final[str] = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: Final[str] = "db4e-uninstall-service.sh"
-    DB4E_VERSION: Final[str] = "0.48.6"
+    DB4E_VERSION: Final[str] = "0.48.7"
     DEPL_COLLECTION: Final[str] = "depl"
     DEV_DIR: Final[str] = "dev"
     DONATION_WALLET: Final[str] = (
@@ -116,6 +116,6 @@ class DDef:
     XMRIG_PERMISSIONS: Final[str] = "-rwsr-x---"
     XMRIG_PROCESS: Final[str] = "xmrig"
     XMRIG_SERVICE_FILE: Final[str] = "xmrig@.service"
-    XMRIG_VERSION: Final[str] = "6.24.0"
+    XMRIG_VERSION: Final[str] = "0.48.7"
     ZMQ_PUB_PORT: Final[int] = 18083
     ZMQ_RPC_PORT: Final[int] = 18082
