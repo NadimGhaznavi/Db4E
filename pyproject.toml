@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "db4e"
-version = "0.48.7"
+version = "0.48.8"
 license = "GPL-3.0-or-later"
 description = "A unified Monero (XMR) mining dashboard for deployment, operations, and real-time analytics."
 authors = ["Nadim-Daniel Ghaznavi <nghaznavi@gmail.com>"]

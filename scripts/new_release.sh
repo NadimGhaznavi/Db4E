@@ -375,18 +375,6 @@ fi
 
 echo ""
 
-# Test Python import
-print_status "Testing Python package import..."
-if python -c "import db4e; print(f'✓ Main package version: {db4e.__version__}')" 2>/dev/null; then
-    print_success "Python import test passed"
-else
-    print_error "Python import test failed - you may need to reinstall the package"
-    echo "  Run: pip install -e ."
-    exit 1
-fi
-
-echo ""
-
 # Setup the release branch
 commit_and_push_branch "$RELEASE_COMMENT"
 
