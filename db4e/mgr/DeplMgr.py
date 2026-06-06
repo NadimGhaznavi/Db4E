@@ -441,9 +441,7 @@ class DeplMgr:
 
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
-        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
-        db4e_group = db4e.db4e_group()
-        xmrig.gen_logrotate_config(tmpl_file=logrotate_tmpl, db4e_group=db4e_group)
+        xmrig.gen_logrotate_config(tmpl_file=logrotate_tmpl)
         # Add the new record
         xmrig = self.depl_db.insert_one(xmrig)
         # Create a console log message

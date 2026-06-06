@@ -2,4 +2,5 @@ logs
 __pycache__
 test_logs
 db4e_venv
+venv_db4e
 snake_lab

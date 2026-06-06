@@ -109,6 +109,7 @@ class DeplDb(BaseDb):
         object = None
         if rec:
             object = CLASS_STR_TO_CLASS_MAP[elem_type](rec)
+
         return object
 
     def get_deployments(self):

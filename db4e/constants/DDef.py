@@ -30,6 +30,7 @@ class DDef:
     DB_SERVER: Final[str] = "localhost"
     DB4E_CREATE_INSTALL_DIR_SCRIPT: Final[str] = "db4e-create-install-dir.sh"
     DB4E_DIR: Final[str] = "db4e"
+    DB4E_GROUP: Final[str] = "root"
     DB4E_INITIAL_SETUP_SCRIPT: Final[str] = "db4e-initial-setup.sh"
     DB4E_INSTALL_DIR: Final[str] = "/opt/Db4E"
     DB4E_INSTALL_SERVICE: Final[str] = "db4e-install-service.sh"
@@ -41,7 +42,7 @@ class DDef:
     DB4E_SERVICE_FILE: Final[str] = "db4e.service"
     DB4E_START_SCRIPT: Final[str] = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: Final[str] = "db4e-uninstall-service.sh"
-    DB4E_VERSION: Final[str] = "0.48.6"
+    DB4E_VERSION: Final[str] = "0.48.9"
     DEPL_COLLECTION: Final[str] = "depl"
     DEV_DIR: Final[str] = "dev"
     DONATION_WALLET: Final[str] = (
@@ -115,6 +116,6 @@ class DDef:
     XMRIG_PERMISSIONS: Final[str] = "-rwsr-x---"
     XMRIG_PROCESS: Final[str] = "xmrig"
     XMRIG_SERVICE_FILE: Final[str] = "xmrig@.service"
-    XMRIG_VERSION: Final[str] = "6.24.0"
+    XMRIG_VERSION: Final[str] = "0.48.9"
     ZMQ_PUB_PORT: Final[int] = 18083
     ZMQ_RPC_PORT: Final[int] = 18082

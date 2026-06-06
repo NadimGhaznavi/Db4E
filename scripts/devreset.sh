@@ -24,10 +24,10 @@ sudo rm $SYSTEMD/xmrig@.service 2> /dev/null
 sudo systemctl daemon-reload
 echo "DONE"
 
-echo -n "Deleting vendor dir (and backups): "
-sudo rm -rf /home/sally/vendor*
+echo -n "Deleting /opt/Db4E (and backups): "
+sudo rm -rf /opt/Db4E**
 echo "DONE"
 
 echo -n "Deleting the ~/.db4e bootstrap file: "
-rm -f /home/sally/.db4e
+rm -rf "/home/dan/.db4e"
 echo "DONE"

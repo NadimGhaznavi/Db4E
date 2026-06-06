@@ -7,11 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+## [Release 0.48.9] - 2026-06-06 14:17
+
+
+## [Release 0.48.8] - 2026-06-06 14:16
+
+
+## [Release 0.48.7] - 2026-06-06 14:11
+
+
+### Fixed
+- Fixed the bug that caused the *Initial Setup* to briefly show up on startup; removed *refresh* call in `__init__`.
+
+---
+
 ## [0.48.6] 2026-04-28 @ 08:19 - Ongoing Refactoring
 
 ### Added
 - **Db4E Installation Flag**
-  - Created a config file to store "installation successful" flag
+  - Created a config file to store the "installation successful" flag
   - Passed to the Nav Pane so it knows what to display
   - Added `Db4EClient` `load_config()`, `save_config()`, `db4e_installed()` methods
 - Added `Db4EClient:sudo_failed()` method
@@ -22,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a *ping* function to the `APIMgr` so the installer can check that the service has started up before trying to add the *Db4E* and *Internal P2Pool* instances
 - Added a *Log View* feature and implemented it for the local *Internal P2Pool* and *MoneroD* deployments.
   - The button on the deployment view pane now has a *View Log* button, pressing it causes
-  - the TUI to send a request to the *Db4E Service*, which retrives the last 100 lines of the specified deployment log file and returns it to the *Db4E Client*
-  - The log is displayed in a `LogViewPane` which also has a *Refresh* button and a drop-down menu that allows the user to refresh the log file and choose the number of lines to retrieve; 100, 250, 500, or 1000.
+  - the TUI to send a request to the *Db4E Service*, which retrieves the last 100 lines of the specified deployment log file and returns it to the *Db4E Client*
+  - The log is displayed in a `LogViewPane` which also has a *Refresh* button and a drop-down menu that allows the user to refresh the log file and choose the number of lines to retrieve: 100, 250, 500, or 1000.
 
 ### Changed
 - **Architectural Shift**
