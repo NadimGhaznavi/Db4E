@@ -1,54 +1,28 @@
-"""
-db4e/Modules/Helper.py
-
-    Database 4 Everything
-    Author: Nadim-Daniel Ghaznavi
-    Copyright: (c) 2024-2025 Nadim-Daniel Ghaznavi
-    GitHub: https://github.com/NadimGhaznavi/db4e
-    License: GPL 3.0
-
-Helper functions that are used in multiple modules
-"""
+# db4e/Modules/Helper.py
+# 
+#    Database 4 Everything
+#    Author: Nadim-Daniel Ghaznavi
+#    Copyright: (c) 2024-2026 Nadim-Daniel Ghaznavi
+#    GitHub: https://github.com/NadimGhaznavi/db4e
+#    License: GPL 3.0
+#
+# Helper functions that are used in multiple modules
+#
 
 import os, grp, getpass, re, subprocess
 import socket
 from decimal import Decimal
-from dataclasses import dataclass
-
 from rich import box
 from rich.table import Table
 
 from db4e.constants.DStatus import DStatus, STATE_ICON
 from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
-from db4e.constants.DSQL import DCol
 from db4e.constants.DHealth import CATEGORY_LABEL_MAP
 from db4e.constants.DElem import DElem
 
 error_color = "#935fcf"
 PICONEROS_PER_XMR = 1_000_000_000_000  # 10^12
-
-
-@dataclass(slots=True, frozen=True)
-class HealthMsg:
-    category: DField
-    instance: str
-    elem_type: str
-    message: str
-    status: DField
-
-    def to_dict(self):
-        return {
-            DCol.CATEGORY: self.category,
-            DCol.INSTANCE: self.instance,
-            DCol.ELEMENT_TYPE: self.elem_type,
-            DCol.MESSAGE: self.message,
-            DCol.STATUS: self.status,
-        }
-
-    def __repr__(self):
-        return f"<HealthMsg [{self.elem_type}:{self.instance}][{self.category}][{self.status.upper()}]: {self.message}>"
-
 
 def get_component_value(data, field_name):
     """
