@@ -26,6 +26,7 @@ class DDir:
     DEV: Final[str] = "dev_dir"
     DOT_DB4E: Final[str] = ".db4e"
     INSTALL: Final[str] = DField.INSTALL_DIR
+    LMDB: Final[str] = "lmdb"
     LOG: Final[str] = "log_dir"
     LOGROTATE: Final[str] = DFile.LOGROTATE
     MONEROD: Final[str] = "monerod"

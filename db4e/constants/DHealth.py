@@ -15,6 +15,7 @@ from db4e.constants.DLabel import DLabel
 
 class DCategory:
     BLOCKCHAIN_DIR = DField.BLOCKCHAIN_DIR
+    BLOCKCHAIN_SIZE_GB = DField.BLOCKCHAIN_SIZE_GB
     ENABLED = DField.ENABLED
     PRIMARY_SERVER = DField.PRIMARY_SERVER
     RPC_BIND_PORT = DField.RPC_BIND_PORT

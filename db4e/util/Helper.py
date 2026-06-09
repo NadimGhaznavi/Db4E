@@ -21,6 +21,8 @@ from db4e.constants.DFile import DFile
 from db4e.constants.DHealth import CATEGORY_LABEL_MAP
 from db4e.constants.DElem import DElem
 
+from db4e.health.HealthMsg import HealthMsg
+
 error_color = "#935fcf"
 PICONEROS_PER_XMR = 1_000_000_000_000  # 10^12
 

@@ -75,7 +75,7 @@ class DDef:
     MONEROD_SOCKET_SERVICE: Final[str] = "monerod@.socket"
     MONEROD_STDIN_PIPE: Final[str] = "monerod.stdin"
     MONEROD_START_SCRIPT: Final[str] = "start-monerod.sh"
-    MONEROD_VERSION: Final[str] = "0.18.4.2"
+    MONEROD_VERSION: Final[str] = "0.18.5.0"
     NUM_THREADS: Final[int] = 1
     OPS_COLLECTION: Final[str] = "ops"
     P2P_DIR: Final[str] = "p2p"

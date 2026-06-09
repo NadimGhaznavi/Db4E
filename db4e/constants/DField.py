@@ -18,6 +18,7 @@ class DField:
     BARCHART: Final[str] = "barchart"
     BLOCKS_FOUND: Final[str] = "blocks_found"
     BLOCKCHAIN_DIR: Final[str] = "blockchain_dir"
+    BLOCKCHAIN_SIZE_GB: Final[str] = "blockchain_size_gb"
     CHAIN: Final[str] = "chain"
     CLIENT: Final[str] = "client"
     COLORTERM_ENVIRON: Final[str] = "COLORTERM"
