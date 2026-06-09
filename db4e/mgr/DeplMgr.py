@@ -276,7 +276,7 @@ class DeplMgr:
         :rtype: P2Pool
         """
         # Generate the configuration
-        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DLabel.DB4E)
         if not p2pool.any_ip():
             p2pool.any_ip(socket.gethostname())
 
@@ -342,7 +342,7 @@ class DeplMgr:
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
         db4e_group = db4e.db4e_group()
-        p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl, db4e_group=db4e_group)
+        p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl)
 
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
