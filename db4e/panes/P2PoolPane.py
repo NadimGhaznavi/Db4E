@@ -262,7 +262,7 @@ class P2PoolPane(Container):
             DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
             DButtonF.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
             DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+            DButtonF.VIEW_LOG: (DModule.NAV_HANDLER, DMethod.GET_LOG),
         }
 
         if button_id not in button_map:

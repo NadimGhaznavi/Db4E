@@ -104,7 +104,7 @@ class RouteMgr:
         )
 
         # ----- MoneroD deployment -----
-        # Display the new form
+        # Display the log
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_LOG,
@@ -212,6 +212,14 @@ class RouteMgr:
         )
 
         # ----- P2Pool deployment -----
+        # Display the log
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_LOG,
+            DElem.P2POOL,
+            self.nav_handler.get_log,
+            DPane.LOG_VIEW,
+        )
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
