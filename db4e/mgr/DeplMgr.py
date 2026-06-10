@@ -341,7 +341,6 @@ class DeplMgr:
         )
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-        db4e_group = db4e.db4e_group()
         p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl)
 
         # Add the new record
