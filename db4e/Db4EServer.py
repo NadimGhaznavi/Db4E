@@ -58,7 +58,6 @@ from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DModule import DModule
 
-
 POLL_INTERVAL = 5
 
 
@@ -91,7 +90,7 @@ class Db4eServer:
 
         # Operations DB module
         self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
-        
+
         # Clean up current_uptime records (where the stop_time is NULL)
         self.ops_db.check_current_recs()
 
@@ -113,7 +112,10 @@ class Db4eServer:
         )
         # Health manager
         self.health_mgr = HealthMgr(
-            health_db=self.health_db, depl_db=self.depl_db, ops_db=self.ops_db, log_file=fq_log_file
+            health_db=self.health_db,
+            depl_db=self.depl_db,
+            ops_db=self.ops_db,
+            log_file=fq_log_file,
         )
 
         #  systemd wrapper
@@ -170,7 +172,9 @@ class Db4eServer:
                     if elem.primary_server() == DField.DISABLE:
                         self.unset_int_p2pool_primary()
                     else:
-                        self.set_int_p2pool_primary(elem.primary_server())
+                        self.set_int_p2pool_primary(
+                            elem.primary_server(), elem.primary_remote()
+                        )
                         found_primary = True
                     continue
 
@@ -626,28 +630,37 @@ class Db4eServer:
         self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
-    def set_int_p2pool_primary(self, monerod_id):
+    def set_int_p2pool_primary(self, monerod_id, remote_flag):
         """
         Set the primary MoneroD for internal P2Pool instances.
 
         :param monerod_id: MoneroD deployment ID.
         :type monerod_id: int
+        :param remote_flag: Whether the primary deployment is remote.
+        :type remote_flag: bool or int
         """
+        monerod_type = DElem.MONEROD_REMOTE if remote_flag else DElem.MONEROD
         for p2pool in self.depl_db.get_p2pool_internals():
             update_required = False
-            if p2pool.parent() != monerod_id:
-                self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
+            if (
+                p2pool.parent() != monerod_id
+                or p2pool.parent_remote() != remote_flag
+            ):
+                # A new primary server is being selected
+                instance = p2pool.instance()
                 p2pool.parent(monerod_id)
+                p2pool.parent_remote(remote_flag)
                 p2pool.monerod = self.depl_db.get_deployment_by_id(
-                    DElem.MONEROD, monerod_id
+                    monerod_type, monerod_id
                 )
                 tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
+                self.log.info(f"Regenerating {instance} P2Pool config file")
                 p2pool.gen_config(tmpl_file=tmpl_file)
                 p2pool.log_file(
                     os.path.join(
                         DDef.DB4E_INSTALL_DIR,
                         self.bs_mgr.get_dir(DElem.P2POOL),
-                        p2pool.instance(),
+                        instance,
                         DDir.LOG,
                         DFile.P2POOL_LOG,
                     )

@@ -110,7 +110,7 @@ def test_update_db4e(
     server.depl_db = depl_db
     server.depl_mgr = depl_mgr
     server.ensure_running = lambda p2pool: None
-    server.set_int_p2pool_primary(mon_a.id())
+    server.set_int_p2pool_primary(mon_a.id(), 0)
 
     rows = sql_db.execute_query("SELECT * from p2pool_internal")
     assert all(row["enabled"] == 1 for row in rows)
