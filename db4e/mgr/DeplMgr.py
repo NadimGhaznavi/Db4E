@@ -603,7 +603,7 @@ class DeplMgr:
         # below.
         if (
             db4e.primary_server() != new_db4e.primary_server()
-            or db4e.primary_remote != new_db4e.primary_remote()
+            or db4e.primary_remote() != new_db4e.primary_remote()
         ):
             # The primary server is configured with two attributes:
             # 1. primary_server: The ID of the row in SQLite for the Monero or Remote Monero
@@ -1053,6 +1053,8 @@ class DeplMgr:
                 DElem.P2POOL_INTERNAL, new_p2pool.instance()
             )
             p2pool_type = DElem.P2POOL_INTERNAL
+        else:
+            raise ValueError(f"Unrecognized p2pool type: {type(new_p2pool)}")
 
         ## Field-by-field comparison
         # Enable/disable

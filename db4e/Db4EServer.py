@@ -634,6 +634,7 @@ class Db4eServer:
         :type monerod_id: int
         """
         for p2pool in self.depl_db.get_p2pool_internals():
+            update_required = False
             if p2pool.parent() != monerod_id:
                 self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
                 p2pool.parent(monerod_id)
@@ -651,9 +652,19 @@ class Db4eServer:
                         DFile.P2POOL_LOG,
                     )
                 )
+                update_required = True
+
+            # DeplMgr propagates the selected primary to the internal pools
+            # before this reconciliation loop runs.  Enabling must therefore
+            # not be conditional on the parent changing here.
+            if not p2pool.enabled():
                 p2pool.enabled(True)
+                update_required = True
+
+            if update_required:
                 self.depl_mgr.update_deployment(p2pool)
-                self.ensure_running(p2pool)
+
+            self.ensure_running(p2pool)
 
     def start(self):
         """
