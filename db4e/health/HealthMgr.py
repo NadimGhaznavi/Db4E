@@ -48,7 +48,9 @@ class HealthMgr:
     Health manager that periodically checks the health of deployed components.
     """
 
-    def __init__(self, health_db: HealthDb, depl_db: DeplDb, ops_db: OpsDb, log_file=None):
+    def __init__(
+        self, health_db: HealthDb, depl_db: DeplDb, ops_db: OpsDb, log_file=None
+    ):
         self.health_db = health_db
         self.depl_db = depl_db
         self.ops_db = ops_db
@@ -234,7 +236,7 @@ class HealthMgr:
                 elem_type=DElem.P2POOL_INTERNAL,
                 category=DCategory.ENABLED,
                 status=DStatus.GOOD,
-                message=f"Instance is running",
+                message=f"Instance is enabled",
             )
         else:
             health_msg = HealthMsg(
@@ -242,7 +244,7 @@ class HealthMgr:
                 elem_type=DElem.P2POOL_INTERNAL,
                 category=DCategory.ENABLED,
                 status=DStatus.ERROR,
-                message=f"Instance is stopped",
+                message=f"Instance is disabled",
             )
         self.health_db.upsert_one(health_msg)
 

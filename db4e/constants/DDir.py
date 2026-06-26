@@ -31,6 +31,7 @@ class DDir:
     LOGROTATE: Final[str] = DFile.LOGROTATE
     MONEROD: Final[str] = "monerod"
     P2POOL: Final[str] = "p2pool"
+    PYCACHE: Final[str] = "pycache"
     RUN: Final[str] = "run_dir"
     SRC: Final[str] = "src_dir"
     SYSTEMD: Final[str] = "systemd_dir"

@@ -641,12 +641,11 @@ class Db4eServer:
         """
         monerod_type = DElem.MONEROD_REMOTE if remote_flag else DElem.MONEROD
         for p2pool in self.depl_db.get_p2pool_internals():
+
             update_required = False
-            if (
-                p2pool.parent() != monerod_id
-                or p2pool.parent_remote() != remote_flag
-            ):
-                # A new primary server is being selected
+
+            # A new primary server is being selected
+            if p2pool.parent() != monerod_id or p2pool.parent_remote() != remote_flag:
                 instance = p2pool.instance()
                 p2pool.parent(monerod_id)
                 p2pool.parent_remote(remote_flag)
@@ -665,14 +664,15 @@ class Db4eServer:
                         DFile.P2POOL_LOG,
                     )
                 )
+                p2pool.enabled(True)
                 update_required = True
 
             # DeplMgr propagates the selected primary to the internal pools
             # before this reconciliation loop runs.  Enabling must therefore
             # not be conditional on the parent changing here.
-            if not p2pool.enabled():
-                p2pool.enabled(True)
-                update_required = True
+            # if not p2pool.enabled():
+            #    p2pool.enabled(True)
+            #    update_required = True
 
             if update_required:
                 self.depl_mgr.update_deployment(p2pool)
