@@ -151,6 +151,24 @@ class P2PoolPane(Container):
         :return: None
         :rtype: None
         """
+
+        # If the upstream monero is undefined, then the start/stop/restart
+        # buttons are hidden
+        if p2pool.parent() == DField.DISABLE:
+            self.add_class(DStatus.NO_UPSTREAM)
+            self.remove_class(DStatus.IS_STOPPED)
+            self.remove_class(DStatus.IS_RUNNING)
+
+        # Hide the start button
+        elif p2pool.is_running():
+            self.remove_class(DStatus.IS_STOPPED)
+            self.add_class(DStatus.IS_RUNNING)
+
+        # Hide the stop/restart button
+        else:
+            self.remove_class(DStatus.IS_RUNNING)
+            self.add_class(DStatus.IS_STOPPED)
+
         self.p2pool = p2pool
 
         # Populate inputs and labels

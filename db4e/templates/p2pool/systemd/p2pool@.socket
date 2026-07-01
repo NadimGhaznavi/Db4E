@@ -19,3 +19,5 @@ DirectoryMode=0755
 SocketMode=0666
 RemoveOnStop=true
 
+[Install]
+WantedBy=sockets.target

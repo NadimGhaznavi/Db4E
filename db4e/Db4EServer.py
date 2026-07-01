@@ -664,15 +664,14 @@ class Db4eServer:
                         DFile.P2POOL_LOG,
                     )
                 )
-                p2pool.enabled(True)
                 update_required = True
 
             # DeplMgr propagates the selected primary to the internal pools
             # before this reconciliation loop runs.  Enabling must therefore
             # not be conditional on the parent changing here.
-            # if not p2pool.enabled():
-            #    p2pool.enabled(True)
-            #    update_required = True
+            if not p2pool.enabled():
+                p2pool.enabled(True)
+                update_required = True
 
             if update_required:
                 self.depl_mgr.update_deployment(p2pool)
@@ -727,23 +726,6 @@ class Db4eServer:
         await watcher.monitor_log()
         self.log.info(f"Started {p2pool} watcher")
         self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
-
-    def UNUSED_update(self, elem):
-        """
-        Placeholder for update handling logic.
-
-        :param elem: Deployment object to update.
-        :type elem: object
-        """
-        self.log.info(f"Updated: {elem}")
-
-        # TODO check return value, restart if needed
-        self.depl_mgr.update_deployment(elem)
-        # Restart Monerod and P2Pool deployments if their config has been updated
-        if type(elem) == MoneroD or type(elem) == P2Pool:
-            # Create a restart job
-            pass
-            # TODO implement restart
 
     async def update_current(self):
         """
