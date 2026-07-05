@@ -106,6 +106,7 @@ class DField:
     MONERODS_REMOTE: Final[str] = "monerods_remote"
     MONERODS_MAP: Final[str] = "monerods_map"
     MONERODS_REMOTE_MAP: Final[str] = "monerods_remote_map"
+    MRE: Final[str] = "mre"
     NAME: Final[str] = "name"
     NANO_CHAIN: Final[str] = "nanosidechain"
     NEW: Final[str] = "new"

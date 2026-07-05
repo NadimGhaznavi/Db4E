@@ -12,6 +12,7 @@
 
 [Unit]
 Description=Command FIFO for the P2Pool instance %i
+PartOf=p2pool@%i.service
 
 [Socket]
 ListenFIFO=[[P2POOL_DIR]]/%i/run/p2pool.stdin

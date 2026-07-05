@@ -73,6 +73,10 @@ class SQLDb:
             if not os.path.exists(self._db_dir):
                 os.mkdir(self._db_dir)
 
+        elif db_type == DField.MRE:
+            self._db_dir = "/tmp"
+            self._db_file = "mre.db"
+
         else:
             raise RuntimeError("Missing mandatory db_type")
 

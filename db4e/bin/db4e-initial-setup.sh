@@ -107,6 +107,12 @@ chown root:root $SYSTEMD_DIR/xmrig@.service
 chmod 0644 $SYSTEMD_DIR/xmrig@.service
 echo "Installed----$SYSTEMD_DIR/xmrig@.service"
 
+# Ensure a clean environment
+# Stop the internal P2Pool sockets
+systemctl stop p2pool@Main.socket
+systemctl stop p2pool@Mini.socket
+systemctl stop p2pool@Nano.socket
+
 systemctl daemon-reload
 echo "Run Command----systemctl daemon-reload"
 systemctl enable db4e
@@ -122,3 +128,4 @@ echo "Set Permissions----$VENDOR_DIR/xmrig/bin/xmrig"
 # Set ownership of the installed files
 chown -R root:"$DB4E_GROUP" "$VENDOR_DIR"
 echo "Set Ownership----$VENDOR_DIR"
+
