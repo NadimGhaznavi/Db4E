@@ -22,6 +22,7 @@ from db4e.constants.DMethod import DMethod
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
+from db4e.constants.DStatus import DStatus as STATUS
 
 
 class P2PoolPane(Container):
@@ -155,19 +156,19 @@ class P2PoolPane(Container):
         # If the upstream monero is undefined, then the start/stop/restart
         # buttons are hidden
         if p2pool.parent() == DField.DISABLE:
-            self.add_class(DStatus.NO_UPSTREAM)
-            self.remove_class(DStatus.IS_STOPPED)
-            self.remove_class(DStatus.IS_RUNNING)
+            self.add_class(STATUS.NO_UPSTREAM)
+            self.remove_class(STATUS.IS_STOPPED)
+            self.remove_class(STATUS.IS_RUNNING)
 
         # Hide the start button
         elif p2pool.is_running():
-            self.remove_class(DStatus.IS_STOPPED)
-            self.add_class(DStatus.IS_RUNNING)
+            self.remove_class(STATUS.IS_STOPPED)
+            self.add_class(STATUS.IS_RUNNING)
 
         # Hide the stop/restart button
         else:
-            self.remove_class(DStatus.IS_RUNNING)
-            self.add_class(DStatus.IS_STOPPED)
+            self.remove_class(STATUS.IS_RUNNING)
+            self.add_class(STATUS.IS_STOPPED)
 
         self.p2pool = p2pool
 

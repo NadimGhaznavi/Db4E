@@ -51,11 +51,11 @@ from db4e.health.HealthClient import HealthClient
 from db4e.util.PaneCatalogue import PaneCatalogue
 from db4e.util.SudoTest import SudoTest
 
-from db4e.constants.DDef import DDef
-from db4e.constants.DField import DField
-from db4e.constants.DPane import DPane
-from db4e.constants.DDir import DDir
-from db4e.constants.DFile import DFile
+from db4e.constants.DDef import DDef as DEF
+from db4e.constants.DField import DField as FIELD
+from db4e.constants.DPane import DPane as PANE
+from db4e.constants.DDir import DDir as DIR
+from db4e.constants.DFile import DFile as FILE
 
 from textual.theme import Theme
 
@@ -81,8 +81,8 @@ db4e_theme = Theme(
 
 
 class Db4EClient(App):
-    TITLE = DDef.APP_TITLE
-    CSS_PATH = DDef.CSS_PATH
+    TITLE = DEF.APP_TITLE
+    CSS_PATH = DEF.CSS_PATH
     REFRESH_TIME = 2
 
     def __init__(self):
@@ -90,7 +90,7 @@ class Db4EClient(App):
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
         self.bs_mgr = BootstrapMgr()
-        self.sql_db = SQLDb(db_type=DField.CLIENT)
+        self.sql_db = SQLDb(db_type=FIELD.CLIENT)
         self.ops_db = OpsDb(sql_db=self.sql_db)
         self.ops_etl = OpsETL(ops_db=self.ops_db)
         self.depl_db = DeplDb(sql_db=self.sql_db)
@@ -102,7 +102,7 @@ class Db4EClient(App):
             ops_db=self.ops_db,
             depl_db=self.depl_db,
             bs_mgr=self.bs_mgr,
-            server_url=f"http://{DDef.ANY_IP}:{DDef.API_PORT}",
+            server_url=f"http://{DEF.ANY_IP}:{DEF.API_PORT}",
         )
         install_mgr = InstallMgr(
             bs_mgr=self.bs_mgr, sql_db=self.sql_db, sync_client=self.sync_client
@@ -127,18 +127,18 @@ class Db4EClient(App):
     def db4e_installed(self, flag=None) -> bool:
         # We received a flag, update the config and save it
         if flag is not None:
-            self._config[DField.INSTALL_SUCCESSFUL] = flag
+            self._config[FIELD.INSTALL_SUCCESSFUL] = flag
             self.save_config()
 
         # Load the config from file
         self.load_config()
 
         # We don't have a "db4e installed flag", create one and set it to false
-        if DField.INSTALL_SUCCESSFUL not in self._config:
-            self._config[DField.INSTALL_SUCCESSFUL] = False
+        if FIELD.INSTALL_SUCCESSFUL not in self._config:
+            self._config[FIELD.INSTALL_SUCCESSFUL] = False
             self.save_config()
 
-        return self._config[DField.INSTALL_SUCCESSFUL]
+        return self._config[FIELD.INSTALL_SUCCESSFUL]
 
     def compose(self):
         self.topbar = TopBar(app_version=__version__)
@@ -147,7 +147,7 @@ class Db4EClient(App):
         yield self.pane_mgr
 
     def load_config(self) -> None:
-        config_file = os.path.join(Path.home(), DDir.DOT_DB4E, DFile.CONFIG)
+        config_file = os.path.join(Path.home(), DIR.DOT_DB4E, FILE.CONFIG)
 
         # Found a config file, load it
         if os.path.exists(config_file):
@@ -163,7 +163,7 @@ class Db4EClient(App):
         self.register_theme(db4e_theme)
 
         # Set the app's theme
-        self.theme = DField.DB4E
+        self.theme = FIELD.DB4E
 
         # Determine if Db4E has been successfully installed
         if self.db4e_installed():
@@ -177,7 +177,7 @@ class Db4EClient(App):
             sudo_test = SudoTest()
             return_code = sudo_test.run_test()
             if return_code != 0:
-                self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
+                self.pane_mgr.set_pane(name=PANE.SUDO_FAILED)
                 self.sudo_failed(True)
                 self.nav_pane.sudo_failed(True)
             else:
@@ -198,14 +198,14 @@ class Db4EClient(App):
     async def on_db4emsg(self, message: Db4EMsg) -> None:
         # print(f"Db4EApp:on_db4e_msg(): form_data: {message.form_data}")
         data, pane = await self.route_mgr.dispatch(
-            message.form_data[DField.TO_MODULE],
-            message.form_data[DField.TO_METHOD],
+            message.form_data[FIELD.TO_MODULE],
+            message.form_data[FIELD.TO_METHOD],
             message.form_data,
         )
 
         # Show the failed pre-requisite screen
         if self.sudo_failed():
-            self.pane_mgr.set_pane(name=DPane.SUDO_FAILED)
+            self.pane_mgr.set_pane(name=PANE.SUDO_FAILED)
 
         # The Db4E database is within the deployment directory that's only
         # defined after a successful install. The results of the
@@ -213,10 +213,10 @@ class Db4EClient(App):
         # Pane is displayed. We intercept that call and initialize the client
         # database when the "InitialInstall" is successful.
         elif (
-            pane == DPane.TUI_LOG
+            pane == PANE.TUI_LOG
             and type(data) == list
             and len(data) > 0
-            and data[-1] == DField.INSTALL_SUCCESSFUL
+            and data[-1] == FIELD.INSTALL_SUCCESSFUL
         ):
             self.pane_mgr.set_pane(name=pane, data=data[:-1])
 
@@ -225,7 +225,7 @@ class Db4EClient(App):
 
     # The installer sends this message
     async def on_install_result(self, message: InstallResult) -> None:
-        self._config[DField.INSTALL_SUCCESSFUL] = message.install_successful
+        self._config[FIELD.INSTALL_SUCCESSFUL] = message.install_successful
         self.nav_pane.db4e_installed(flag=message.install_successful)
         self.save_config()
 
@@ -240,8 +240,8 @@ class Db4EClient(App):
 
     # Save the config to file
     def save_config(self):
-        config_dir = os.path.join(Path.home(), DDir.DOT_DB4E)
-        config_file = os.path.join(config_dir, DFile.CONFIG)
+        config_dir = os.path.join(Path.home(), DIR.DOT_DB4E)
+        config_file = os.path.join(config_dir, FILE.CONFIG)
 
         if not os.path.exists(config_dir):
             os.mkdir(config_dir)  # Create the config dir
@@ -263,8 +263,8 @@ class Db4EClient(App):
 
 def main():
     # Set environment variables for better color support
-    os.environ[DField.TERM_ENVIRON] = DDef.TERM
-    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
+    os.environ[FIELD.TERM_ENVIRON] = DEF.TERM
+    os.environ[FIELD.COLORTERM_ENVIRON] = DEF.COLORTERM
 
     app = Db4EClient()
     app.run()
