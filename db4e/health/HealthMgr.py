@@ -35,12 +35,13 @@ from db4e.recs.monero.XMRig import XMRig
 from db4e.recs.monero.XMRigRemote import XMRigRemote
 
 # Constants
-from db4e.constants.DModule import DModule
-from db4e.constants.DElem import DElem
-from db4e.constants.DStatus import DStatus
-from db4e.constants.DHealth import DCategory
-from db4e.constants.DField import DField
-from db4e.constants.DLabel import DLabel
+from db4e.constants.DModule import DModule as MODULE
+from db4e.constants.DElem import DElem as ELEM
+from db4e.constants.DStatus import DStatus as STATUS
+from db4e.constants.DHealth import DCategory as CATEGORY
+from db4e.constants.DField import DField as FIELD
+from db4e.constants.DLabel import DLabel as LABEL
+from db4e.constants.DSystemD import DSystemD as SYSTEMD
 
 
 class HealthMgr:
@@ -55,7 +56,7 @@ class HealthMgr:
         self.depl_db = depl_db
         self.ops_db = ops_db
         self.systemd = Db4ESystemD(ops_db=ops_db)
-        self.log = Db4ELogger(db4e_module=DModule.HEALTH_MGR, log_file=log_file)
+        self.log = Db4ELogger(db4e_module=MODULE.HEALTH_MGR, log_file=log_file)
 
     def check(self, elem):
         """
@@ -78,43 +79,43 @@ class HealthMgr:
         # Check that the deployment directory exists
         if os.path.isdir(db4e.vendor_dir()):
             health_msg = HealthMsg(
-                instance=DLabel.DB4E,
-                elem_type=DElem.DB4E,
-                category=DCategory.VENDOR_DIR,
-                status=DStatus.GOOD,
+                instance=LABEL.DB4E,
+                elem_type=ELEM.DB4E,
+                category=CATEGORY.VENDOR_DIR,
+                status=STATUS.GOOD,
                 message=f"Found directory {db4e.vendor_dir()}",
             )
         else:
             health_msg = HealthMsg(
-                instance=DElem.DB4E,
-                elem_type=DElem.DB4E,
-                category=DCategory.VENDOR_DIR,
-                status=DStatus.ERROR,
+                instance=ELEM.DB4E,
+                elem_type=ELEM.DB4E,
+                category=CATEGORY.VENDOR_DIR,
+                status=STATUS.ERROR,
                 message=f"Directory {db4e.vendor_dir()} not found",
             )
         self.health_db.upsert_one(health_msg)
 
         # Check if a primary server has been set
-        if db4e.primary_server() == DField.DISABLE:
+        if db4e.primary_server() == FIELD.DISABLE:
             health_msg = HealthMsg(
-                instance=DLabel.DB4E,
-                elem_type=DElem.DB4E,
-                category=DCategory.PRIMARY_SERVER,
-                status=DStatus.WARN,
+                instance=LABEL.DB4E,
+                elem_type=ELEM.DB4E,
+                category=CATEGORY.PRIMARY_SERVER,
+                status=STATUS.WARN,
                 message="Primary server is unset",
             )
         else:
             monerod = get_upstream(
                 depl_db=self.depl_db,
-                upstream_type=DElem.MONEROD,
+                upstream_type=ELEM.MONEROD,
                 remote=db4e.primary_remote(),
                 id=db4e.primary_server(),
             )
             health_msg = HealthMsg(
-                instance=DLabel.DB4E,
-                elem_type=DElem.DB4E,
-                category=DCategory.PRIMARY_SERVER,
-                status=DStatus.GOOD,
+                instance=LABEL.DB4E,
+                elem_type=ELEM.DB4E,
+                category=CATEGORY.PRIMARY_SERVER,
+                status=STATUS.GOOD,
                 message=f"Primary server set: {monerod.instance()}",
             )
         self.health_db.upsert_one(health_msg)
@@ -127,17 +128,17 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.RPC_BIND_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.RPC_BIND_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.RPC_BIND_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.RPC_BIND_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
@@ -147,17 +148,17 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.ZMQ_PUB_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.ZMQ_PUB_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.ZMQ_PUB_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.ZMQ_PUB_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
@@ -167,17 +168,17 @@ class HealthMgr:
         if os.path.exists(blockchain_dir):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.BLOCKCHAIN_DIR,
-                status=DStatus.GOOD,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.BLOCKCHAIN_DIR,
+                status=STATUS.GOOD,
                 message=f"Found Directory: {monerod.blockchain_dir()}",
             )
         else:
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD,
-                category=DCategory.BLOCKCHAIN_DIR,
-                status=DStatus.ERROR,
+                elem_type=ELEM.MONEROD,
+                category=CATEGORY.BLOCKCHAIN_DIR,
+                status=STATUS.ERROR,
                 message=f"Directory Missing: {monerod.blockchain_dir()}",
             )
         self.health_db.upsert_one(health_msg)
@@ -190,17 +191,17 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD_REMOTE,
-                category=DCategory.RPC_BIND_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.MONEROD_REMOTE,
+                category=CATEGORY.RPC_BIND_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD_REMOTE,
-                category=DCategory.RPC_BIND_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.MONEROD_REMOTE,
+                category=CATEGORY.RPC_BIND_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
@@ -210,17 +211,17 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD_REMOTE,
-                category=DCategory.ZMQ_PUB_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.MONEROD_REMOTE,
+                category=CATEGORY.ZMQ_PUB_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=monerod.instance(),
-                elem_type=DElem.MONEROD_REMOTE,
-                category=DCategory.ZMQ_PUB_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.MONEROD_REMOTE,
+                category=CATEGORY.ZMQ_PUB_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
@@ -233,17 +234,17 @@ class HealthMgr:
         if p2pool.enabled():
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.ENABLED,
-                status=DStatus.GOOD,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.ENABLED,
+                status=STATUS.GOOD,
                 message=f"Instance is enabled",
             )
         else:
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.ENABLED,
-                status=DStatus.ERROR,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.ENABLED,
+                status=STATUS.ERROR,
                 message=f"Instance is disabled",
             )
         self.health_db.upsert_one(health_msg)
@@ -252,45 +253,72 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.STRATUM_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.STRATUM_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)
 
         # Check that there the upstream monerod is defined
-        if p2pool.parent() == DField.DISABLE:
+        if p2pool.parent() == FIELD.DISABLE:
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.UPSTREAM,
-                status=DStatus.ERROR,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.UPSTREAM,
+                status=STATUS.ERROR,
                 message=f"Upstream Monero is undefined",
             )
         else:
             monerod = get_upstream(
                 depl_db=self.depl_db,
-                upstream_type=DElem.MONEROD,
+                upstream_type=ELEM.MONEROD,
                 remote=p2pool.parent_remote(),
                 id=p2pool.parent(),
             )
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_INTERNAL,
-                category=DCategory.UPSTREAM,
-                status=DStatus.GOOD,
+                elem_type=ELEM.P2POOL_INTERNAL,
+                category=CATEGORY.UPSTREAM,
+                status=STATUS.GOOD,
                 message=f"Upstream Monero is defined: {monerod.instance()}",
             )
         self.health_db.upsert_one(health_msg)
+
+        # Check if p2pool is running
+        sd = self.systemd
+        instance = p2pool.instance()
+        sd.service_name(
+            service_name="p2pool@" + instance,
+            service_type=SYSTEMD.SERVICE_SUFFIX
+        )
+        if sd.running():
+            health_msg = HealthMsg(
+                instance=instance,
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.RUNNING,
+                status=STATUS.GOOD,
+                message="Instance is running"
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=instance,
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.RUNNING,
+                status=STATUS.ERROR,
+                message="Instance is stopped"
+            )
+        self.health_db.upsert_one(health_msg)
+
+
 
     def check_p2pool_remote(self, p2pool: P2PoolRemote):
         ip_addr = p2pool.ip_addr()
@@ -300,17 +328,17 @@ class HealthMgr:
         if is_port_open(ip_addr, port):
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_REMOTE,
-                category=DCategory.STRATUM_PORT,
-                status=DStatus.GOOD,
+                elem_type=ELEM.P2POOL_REMOTE,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.GOOD,
                 message=f"Connected to [b]{ip_addr}:{port}[/]",
             )
         else:
             health_msg = HealthMsg(
                 instance=p2pool.instance(),
-                elem_type=DElem.P2POOL_REMOTE,
-                category=DCategory.STRATUM_PORT,
-                status=DStatus.ERROR,
+                elem_type=ELEM.P2POOL_REMOTE,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.ERROR,
                 message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
             )
         self.health_db.upsert_one(health_msg)

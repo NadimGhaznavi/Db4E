@@ -117,6 +117,7 @@ class DLabel:
     REMOTE: Final[str] = "Remote"
     RESULTS: Final[str] = "Results"
     RPC_BIND_PORT: Final[str] = "RPC BIND port"
+    RUNNING: Final[str] = "Is Running"
     RUNTIME_LOG: Final[str] = "Runtime Log"
     SHARES: Final[str] = "Shares"
     SHARES_FOUND: Final[str] = "Shares Found"

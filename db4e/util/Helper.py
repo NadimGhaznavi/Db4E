@@ -15,11 +15,13 @@ from decimal import Decimal
 from rich import box
 from rich.table import Table
 
-from db4e.constants.DStatus import DStatus, STATE_ICON
+from db4e.constants.DStatus import DStatus as STATUS, STATE_ICON
 from db4e.constants.DField import DField
 from db4e.constants.DFile import DFile
 from db4e.constants.DHealth import CATEGORY_LABEL_MAP
 from db4e.constants.DElem import DElem
+from db4e.constants.DSQL import DCol as COL
+from db4e.constants.DHealth import DCategory as CATEGORY
 
 from db4e.health.HealthMsg import HealthMsg
 
@@ -108,11 +110,11 @@ def gen_results_table(results: list[HealthMsg]):
         status = health_msg.status
         message = health_msg.message
         icon = STATE_ICON[status]
-        if status == DStatus.GOOD:
+        if status == STATUS.GOOD:
             table.add_row(f"{icon} [bold]{category}[/]", f"{message}")
-        elif status == DStatus.WARN:
+        elif status == STATUS.WARN:
             table.add_row(f"{icon} [b yellow]{category}[/]", f"[yellow]{message}[/]")
-        elif status == DStatus.ERROR:
+        elif status == STATUS.ERROR:
             table.add_row(
                 f"{icon} [b {error_color}]{category}[/]", f"[{error_color}]{message}[/]"
             )
@@ -160,6 +162,12 @@ def is_port_open(host, port):
     except socket.gaierror:
         return False
 
+
+def is_running(health_msgs):
+    for msg in health_msgs:
+        if msg[COL.ELEMENT_TYPE] == CATEGORY.RUNNING:
+            return msg[COL.STATUS]
+    return STATUS.UNKNOWN
 
 def minutes_to_uptime(minutes: int):
     """
@@ -232,9 +240,9 @@ def result_row(label: str, status: str, msg: str):
     :rtype: dict
     """
     assert status in {
-        DStatus.GOOD,
-        DStatus.WARN,
-        DStatus.ERROR,
+        STATUS.GOOD,
+        STATUS.WARN,
+        STATUS.ERROR,
     }, f"invalid status: {status}"
     return {label: {"status": status, "msg": msg}}
 

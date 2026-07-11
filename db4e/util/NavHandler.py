@@ -16,7 +16,7 @@ from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
 
 from db4e.health.HealthClient import HealthClient
-from db4e.util.Helper import get_upstream
+from db4e.util.Helper import get_upstream, is_running
 from db4e.sync.SyncClient import SyncClient
 
 from db4e.constants.DField import DField
@@ -92,6 +92,7 @@ class NavHandler:
                 DTable.MONEROD_REMOTE
             )
             depl_obj.instance_map({**local, **remote})
+            depl_obj.status(self.health_client.get_status(depl_obj))
 
         # This instance map is used to configure the upstream P2Pool or remote
         # P2Pool instance.
@@ -147,6 +148,7 @@ class NavHandler:
                 DTable.MONEROD_REMOTE
             )
             p2pool.instance_map({**local, **remote})
+            p2pool.is_running = is_running(p2pool.pop_msgs())
             return p2pool
 
         elif elem_type == DElem.P2POOL_REMOTE:
