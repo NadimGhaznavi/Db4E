@@ -68,6 +68,8 @@ class HealthMgr:
             self.check_monerod(elem)
         elif type(elem) == MoneroDRemote:
             self.check_monerod_remote(elem)
+        elif type(elem) == P2Pool:
+            self.check_p2pool(elem)
         elif type(elem) == P2PoolRemote:
             self.check_p2pool_remote(elem)
         elif type(elem) == P2PoolInternal:
@@ -180,6 +182,98 @@ class HealthMgr:
                 category=CATEGORY.BLOCKCHAIN_DIR,
                 status=STATUS.ERROR,
                 message=f"Directory Missing: {monerod.blockchain_dir()}",
+            )
+        self.health_db.upsert_one(health_msg)
+
+    def check_p2pool(self, p2pool: P2Pool):
+        ip_addr = p2pool.ip_addr()
+        port = p2pool.stratum_port()
+
+        # Is the instance enabled
+        if p2pool.enabled():
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.ENABLED,
+                status=STATUS.GOOD,
+                message=f"Instance is enabled",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.ENABLED,
+                status=STATUS.ERROR,
+                message=f"Instance is disabled",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Is stratum port open
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)        
+
+        # Check that there the upstream monerod is defined
+        if p2pool.parent() == FIELD.DISABLE:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.UPSTREAM,
+                status=STATUS.ERROR,
+                message=f"Upstream Monero is undefined",
+            )
+        else:
+            monerod = get_upstream(
+                depl_db=self.depl_db,
+                upstream_type=ELEM.MONEROD,
+                remote=p2pool.parent_remote(),
+                id=p2pool.parent(),
+            )
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.UPSTREAM,
+                status=STATUS.GOOD,
+                message=f"Upstream Monero is defined: {monerod.instance()}",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Check if p2pool is running
+        sd = self.systemd
+        instance = p2pool.instance()
+        sd.service_name(
+            service_name="p2pool@" + instance,
+            service_type=SYSTEMD.SERVICE_SUFFIX
+        )
+        if sd.running():
+            health_msg = HealthMsg(
+                instance=instance,
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.RUNNING,
+                status=STATUS.GOOD,
+                message="Instance is running"
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=instance,
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.RUNNING,
+                status=STATUS.ERROR,
+                message="Instance is stopped"
             )
         self.health_db.upsert_one(health_msg)
 
@@ -303,7 +397,7 @@ class HealthMgr:
         if sd.running():
             health_msg = HealthMsg(
                 instance=instance,
-                elem_type=ELEM.P2POOL,
+                elem_type=ELEM.P2POOL_INTERNAL,
                 category=CATEGORY.RUNNING,
                 status=STATUS.GOOD,
                 message="Instance is running"
@@ -311,7 +405,7 @@ class HealthMgr:
         else:
             health_msg = HealthMsg(
                 instance=instance,
-                elem_type=ELEM.P2POOL,
+                elem_type=ELEM.P2POOL_INTERNAL,
                 category=CATEGORY.RUNNING,
                 status=STATUS.ERROR,
                 message="Instance is stopped"
