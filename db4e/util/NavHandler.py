@@ -148,7 +148,8 @@ class NavHandler:
                 DTable.MONEROD_REMOTE
             )
             p2pool.instance_map({**local, **remote})
-            p2pool.is_running = is_running(p2pool.pop_msgs())
+            p2pool.p2p_port(db4e.next_p2p_port())
+            p2pool.stratum_port(db4e.next_stratum_port())
             return p2pool
 
         elif elem_type == DElem.P2POOL_REMOTE:

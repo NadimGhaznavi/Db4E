@@ -280,12 +280,19 @@ class DeplMgr:
         if not p2pool.any_ip():
             p2pool.any_ip(socket.gethostname())
 
-        stratum_port = db4e.next_stratum_port()
-        db4e.next_stratum_port(stratum_port + 1)
-        p2p_port = db4e.next_p2p_port()
-        db4e.next_p2p_port(p2p_port + 1)
-        p2pool.p2p_port(p2p_port)
-        p2pool.stratum_port(stratum_port)
+        update_db4e_flag = False
+        next_stratum_port = db4e.next_stratum_port()
+        if next_stratum_port == p2pool.stratum_port():
+            update_db4e_flag = True
+            db4e.next_stratum_port(next_stratum_port + 1)
+
+        next_p2p_port = db4e.next_p2p_port()
+        if next_p2p_port == p2pool.p2p_port():
+            update_db4e_flag = True
+            db4e.next_p2p_port(next_p2p_port + 1)
+
+        if update_db4e_flag:
+            self.depl_db.update_one(db4e)
 
         if p2pool.parent() != DField.DISABLE:
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
@@ -352,9 +359,6 @@ class DeplMgr:
 
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
-
-        # Update the next stratum and p2p port numbers that are available
-        self.depl_db.update_one(db4e)
 
         # Create a console log message
         self.ops_db.add_tui_log_line(
