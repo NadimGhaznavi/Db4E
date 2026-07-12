@@ -140,7 +140,7 @@ class DLabel:
     UPSTREAM_P2POOL: Final[str] = "Upstream P2Pool"
     USER: Final[str] = "User"
     USER_WALLET: Final[str] = "Monero user wallet"
-    VENDOR_DIR: Final[str] = "Deployment Dir"
+    VENDOR_DIR: Final[str] = "Deployment Directory"
     VENDOR_DIR_LONG: Final[str] = "Deployment Directory"
     VERSION: Final[str] = "Version"
     WEEK_1: Final[str] = "One Week"
