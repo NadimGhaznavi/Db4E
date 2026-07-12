@@ -14,6 +14,8 @@ Everything P2Pool
 from db4e.recs.monero.BaseP2Pool import BaseP2Pool
 
 from db4e.constants.DField import DField
+from db4e.constants.DStatus import DStatus as STATUS
+from db4e.constants.DHealth import DCategory as CATEGORY
 
 
 class P2Pool(BaseP2Pool):
@@ -71,6 +73,19 @@ class P2Pool(BaseP2Pool):
             self._hashrates = hashrate_data
         return self._hashrates
 
+    def is_running(self):
+        if not self.enabled():
+            return False
+
+        for health_msg in self.pop_msgs():
+            if health_msg.category == CATEGORY.STRATUM_PORT:
+                if health_msg.status == STATUS.GOOD:
+                    return True
+                else:
+                    return False
+
+        return False
+    
     # Historical share found data
     def shares_found(self, shares_found=None):
         """

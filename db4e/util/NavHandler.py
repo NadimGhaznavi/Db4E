@@ -16,7 +16,7 @@ from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.XMRig import XMRig
 
 from db4e.health.HealthClient import HealthClient
-from db4e.util.Helper import get_upstream, is_running
+from db4e.util.Helper import get_upstream
 from db4e.sync.SyncClient import SyncClient
 
 from db4e.constants.DField import DField

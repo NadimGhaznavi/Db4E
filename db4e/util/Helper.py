@@ -163,12 +163,6 @@ def is_port_open(host, port):
         return False
 
 
-def is_running(health_msgs):
-    for msg in health_msgs:
-        if msg[COL.ELEMENT_TYPE] == CATEGORY.RUNNING:
-            return msg[COL.STATUS]
-    return STATUS.UNKNOWN
-
 def minutes_to_uptime(minutes: int):
     """
     Convert minutes into a compact uptime string.

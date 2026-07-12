@@ -315,6 +315,8 @@ class DeplDb(BaseDb):
                 enabled INTEGER,
                 install_dir TEXT,
                 instance TEXT,
+                next_p2p_port INTEGER,
+                next_stratum_port INTEGER,
                 primary_server INTEGER,
                 primary_remote INTEGER,
                 user_wallet TEXT,

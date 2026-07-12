@@ -56,11 +56,11 @@ class BaseP2Pool(LocalMonero):
         self._max_log_size = DDef.MAX_LOG_SIZE
         self._log_level = DDef.LOG_LEVEL
         self._out_peers = DDef.OUT_PEERS
-        self._p2p_port = DDef.P2P_PORT
+        self._p2p_port = ""
         self._parent = DField.DISABLE
         self._parent_remote = DField.DISABLE
         self._stdin_path = ""
-        self._stratum_port = DDef.STRATUM_PORT
+        self._stratum_port = ""
         self._user_wallet = ""
         self._version = DDef.P2POOL_VERSION
         # Set the version

@@ -74,6 +74,8 @@ class DCol:
     MESSAGE: Final[str] = "message"
     MINER: Final[str] = "miner"
     MINERS: Final[str] = "miners"
+    NEXT_P2P_PORT: Final[str] = "next_p2p_port"
+    NEXT_STRATUM_PORT: Final[str] = "next_stratum_port"
     NUM_THREADS: Final[str] = "num_threads"
     OPERATION: Final[str] = "operation"
     OUT_PEERS: Final[str] = "out_peers"

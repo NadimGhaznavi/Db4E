@@ -280,6 +280,13 @@ class DeplMgr:
         if not p2pool.any_ip():
             p2pool.any_ip(socket.gethostname())
 
+        stratum_port = db4e.next_stratum_port()
+        db4e.next_stratum_port(stratum_port + 1)
+        p2p_port = db4e.next_p2p_port()
+        db4e.next_p2p_port(p2p_port + 1)
+        p2pool.p2p_port(p2p_port)
+        p2pool.stratum_port(stratum_port)
+
         if p2pool.parent() != DField.DISABLE:
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
             # Upstream monero daemon is remote
@@ -345,6 +352,9 @@ class DeplMgr:
 
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
+
+        # Update the next stratum and p2p port numbers that are available
+        self.depl_db.update_one(db4e)
 
         # Create a console log message
         self.ops_db.add_tui_log_line(

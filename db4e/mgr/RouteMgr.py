@@ -260,6 +260,22 @@ class RouteMgr:
             self.sync_client.delete_deployment,
             DPane.TUI_LOG,
         )
+        # Start a stopped deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.START,
+            DElem.P2POOL,
+            self.sync_client.enable_deployment,
+            DPane.TUI_LOG,
+        )
+        # Stop a started deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.STOP,
+            DElem.P2POOL,
+            self.sync_client.disable_deployment,
+            DPane.TUI_LOG,
+        )
 
         # ----- Remote P2Pool deployment -----
         # Display the new form

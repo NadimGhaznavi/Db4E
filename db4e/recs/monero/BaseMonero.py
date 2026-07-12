@@ -65,17 +65,6 @@ class BaseMonero(BaseElem):
             self._updated_mi = rec[DCol.UPDATED_MINUTE]
             self._updated_s = rec[DCol.UPDATED_SECOND]
 
-    def to_dict(self):
-        """
-        Return a dictionary representation of the base record.
-
-        :return: Dictionary with base Monero fields.
-        :rtype: dict
-        """
-        data = super().to_dict()
-        data.update({DCol.INSTANCE: self._instance})
-        return data
-
     def instance(self, instance=None):
         """
         Get or set the instance name.
@@ -100,3 +89,15 @@ class BaseMonero(BaseElem):
 
     def set_msgs(self, msgs: list[HealthMsg]) -> None:
         self._msgs = msgs
+
+    def to_dict(self):
+        """
+        Return a dictionary representation of the base record.
+
+        :return: Dictionary with base Monero fields.
+        :rtype: dict
+        """
+        data = super().to_dict()
+        data.update({DCol.INSTANCE: self._instance})
+        return data
+

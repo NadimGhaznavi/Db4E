@@ -14,7 +14,7 @@ from textual.reactive import reactive
 from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.P2Pool import P2Pool
-from db4e.util.Helper import gen_results_table, is_running
+from db4e.util.Helper import gen_results_table
 from db4e.constants.DElem import DElem
 from db4e.constants.DField import DField as FIELD
 from db4e.constants.DModule import DModule
@@ -161,17 +161,14 @@ class P2PoolPane(Container):
             self.remove_class(STATUS.IS_RUNNING)
 
         # Hide the start/stop button
-        running_status = is_running(p2pool.pop_msgs())
-        if running_status == STATUS.GOOD:
+        elif p2pool.is_running():
             self.remove_class(STATUS.IS_STOPPED)
-            self.add_class(STATUS.IS_RUNNING)
-        elif running_status == STATUS.ERROR:
+            self.add_class(STATUS.IS_RUNNING)            
+
+        # Hide the stop/restart button
+        else:
             self.remove_class(STATUS.IS_RUNNING)
             self.add_class(STATUS.IS_STOPPED)
-        elif running_status == STATUS.UNKNOWN:
-            self.remove_class(STATUS.IS_RUNNING)
-            self.remove_class(STATUS.IS_STOPPED)
-            self.add_class(STATUS.UNKNOWN)
 
         # Hide the new button
         if p2pool.instance():
@@ -249,9 +246,6 @@ class P2PoolPane(Container):
         # if radio_set.pressed_button:
         monerod_instance = str(radio_set.pressed_button.label)
         monerod_id, remote_flag = self.instance_map[monerod_instance]
-        print(
-            f"P2PoolPane:on_button_pressed(): monerod_id: {monerod_id}, remote_flag: {remote_flag}"
-        )
         self.p2pool.parent(monerod_id)
         self.p2pool.parent_remote(remote_flag)
 
@@ -281,8 +275,8 @@ class P2PoolPane(Container):
         # Map button to action
         button_map = {
             DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButtonF.STOP: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButtonF.START: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.STOP: (DModule.SYNC_CLIENT, DMethod.STOP),
+            DButtonF.START: (DModule.SYNC_CLIENT, DMethod.START),
             DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
             DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
