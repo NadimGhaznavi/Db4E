@@ -90,7 +90,7 @@ class DDef:
     P2POOL_SERVICE_SOCKET_FILE: Final[str] = "p2pool@.socket"
     P2POOL_START_SCRIPT: Final[str] = "start-p2pool.sh"
     P2POOL_STDIN_PIPE: Final[str] = "p2pool.stdin"
-    P2POOL_VERSION: Final[str] = "4.14"
+    P2POOL_VERSION: Final[str] = "4.17.1"
     PAYPAL_DONATIONS: Final[str] = "paypal.me/NadimG"
     PRIORITY_NODE_1: Final[str] = "p2pmd.xmrvsbeast.com"
     PRIORITY_NODE_2: Final[str] = "nodes.hashvault.pro"
