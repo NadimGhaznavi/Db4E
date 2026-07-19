@@ -42,7 +42,7 @@ class Db4E(LocalMonero):
         self._user_wallet = ""
         self._vendor_dir = DEF.DB4E_INSTALL_DIR
         self._instance_map = {}
-        self._next_p2p_port = 37891
+        self._next_p2p_port = 37892
         self._next_stratum_port = 3333
         # Set the effective user and group IDs
         self.set_effective_identity()
