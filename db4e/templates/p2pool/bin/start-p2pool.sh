@@ -69,4 +69,5 @@ $P2POOL \
 	--no-color \
 	--out-peers ${OUT_PEERS} \
 	--in-peers ${IN_PEERS} \
-	${CHAIN_OPTION}
+	${CHAIN_OPTION} \
+    <> ${STDIN}
