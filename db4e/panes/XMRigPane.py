@@ -15,12 +15,12 @@ from db4e.util.Helper import gen_results_table
 from db4e.recs.monero.XMRig import XMRig
 from db4e.messages.Db4EMsg import Db4EMsg
 from db4e.constants.DButton import DButtonF, DButtonL
-from db4e.constants.DLabel import DLabel
-from db4e.constants.DField import DField
-from db4e.constants.DMethod import DMethod
-from db4e.constants.DModule import DModule
-from db4e.constants.DElem import DElem
-from db4e.constants.DForm import DForm
+from db4e.constants.DLabel import DLabel as LABEL
+from db4e.constants.DField import DField as FIELD
+from db4e.constants.DMethod import DMethod as METHOD
+from db4e.constants.DModule import DModule as MODULE
+from db4e.constants.DElem import DElem as ELEM
+from db4e.constants.DForm import DForm as FORM
 
 
 class XMRigPane(Container):
@@ -39,45 +39,45 @@ class XMRigPane(Container):
         # Remote P2Pool daemon deployment form
         yield Vertical(
             ScrollableContainer(
-                Label("", classes=DForm.INTRO, id=DForm.INTRO),
+                Label("", classes=FORM.INTRO, id=FORM.INTRO),
                 Vertical(
                     Horizontal(
-                        Label(DLabel.INSTANCE, classes=DForm.FORM_LABEL_25),
+                        Label(LABEL.INSTANCE, classes=FORM.FORM_LABEL_25),
                         Input(
-                            id=DForm.INSTANCE_INPUT,
+                            id=FORM.INSTANCE_INPUT,
                             restrict=f"[a-zA-Z0-9_\-]*",
                             compact=True,
-                            classes=DForm.INPUT_15,
+                            classes=FORM.INPUT_15,
                         ),
-                        Label("", id=DForm.INSTANCE_LABEL, classes=DForm.STATIC),
+                        Label("", id=FORM.INSTANCE_LABEL, classes=FORM.STATIC),
                     ),
                     Horizontal(
-                        Label(DLabel.NUM_THREADS, classes=DForm.FORM_LABEL_25),
+                        Label(LABEL.NUM_THREADS, classes=FORM.FORM_LABEL_25),
                         Input(
-                            id=DForm.NUM_THREADS_INPUT,
+                            id=FORM.NUM_THREADS_INPUT,
                             restrict=f"[0-9]*",
                             compact=True,
-                            classes=DForm.INPUT_15,
+                            classes=FORM.INPUT_15,
                         ),
                     ),
                     Horizontal(
-                        Label(DLabel.CONFIG_FILE, classes=DForm.FORM_LABEL_25),
-                        Label("", id=DForm.CONFIG_LABEL, classes=DForm.STATIC),
+                        Label(LABEL.CONFIG_FILE, classes=FORM.FORM_LABEL_25),
+                        Label("", id=FORM.CONFIG_LABEL, classes=FORM.STATIC),
                     ),
                     Horizontal(
-                        Label(DLabel.LOG_ROTATE_CONFIG, classes=DForm.FORM_LABEL_25),
+                        Label(LABEL.LOG_ROTATE_CONFIG, classes=FORM.FORM_LABEL_25),
                         Label(
-                            "", id=DForm.LOGROTATE_CONFIG_LABEL, classes=DForm.STATIC
+                            "", id=FORM.LOGROTATE_CONFIG_LABEL, classes=FORM.STATIC
                         ),
                     ),
-                    classes=DForm.FORM_4,
-                    id=DForm.FORM_BOX,
+                    classes=FORM.FORM_4,
+                    id=FORM.FORM_BOX,
                 ),
-                RadioSet(id=DForm.RADIO_SET, classes=DForm.RADIO_SET),
+                RadioSet(id=FORM.RADIO_SET, classes=FORM.RADIO_SET),
                 Vertical(
-                    Label(id=DForm.HEALTH_LABEL),
-                    classes=DForm.HEALTH_BOX,
-                    id=DForm.HEALTH_BOX,
+                    Label(id=FORM.HEALTH_LABEL),
+                    classes=FORM.HEALTH_BOX,
+                    id=FORM.HEALTH_BOX,
                 ),
                 Vertical(
                     Horizontal(
@@ -89,11 +89,11 @@ class XMRigPane(Container):
                         Button(label=DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
                         Button(label=DButtonL.STOP, id=DButtonF.DISABLE),
                         Button(label=DButtonL.DELETE, id=DButtonF.DELETE),
-                        classes=DForm.BUTTON_ROW,
+                        classes=FORM.BUTTON_ROW,
                     )
                 ),
             ),
-            classes=DForm.PANE_BOX,
+            classes=FORM.PANE_BOX,
         )
 
     def get_p2pool_id(self, instance=None):
@@ -114,9 +114,9 @@ class XMRigPane(Container):
         :return: None
         :rtype: None
         """
-        self.query_one(f"#{DForm.RADIO_SET}", RadioSet).border_subtitle = DLabel.P2POOL
-        self.query_one(f"#{DForm.FORM_BOX}", Vertical).border_subtitle = DLabel.CONFIG
-        self.query_one(f"#{DForm.HEALTH_BOX}", Vertical).border_subtitle = DLabel.STATUS
+        self.query_one(f"#{FORM.RADIO_SET}", RadioSet).border_subtitle = LABEL.P2POOL
+        self.query_one(f"#{FORM.FORM_BOX}", Vertical).border_subtitle = LABEL.CONFIG
+        self.query_one(f"#{FORM.HEALTH_BOX}", Vertical).border_subtitle = LABEL.STATUS
 
     def set_data(self, xmrig: XMRig):
         """Set the data for the pane.
@@ -126,17 +126,21 @@ class XMRigPane(Container):
         :return: None
         :rtype: None
         """
-        # print(f"XMRig:set_data(): {xmrig}")
+        # If the upstream p2pool is undefined, then the start/stop/restart
+        # buttons are hidden
+        if xmrig.parent() == Field.
+
         if xmrig.instance():
-            self.add_class(DField.EDIT)
+            self.add_class(FIELD.EDIT)
+
         self.xmrig = xmrig
-        self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = xmrig.instance()
-        self.query_one(f"#{DForm.INSTANCE_LABEL}", Label).update(xmrig.instance())
-        self.query_one(f"#{DForm.NUM_THREADS_INPUT}", Input).value = str(
+        self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value = xmrig.instance()
+        self.query_one(f"#{FORM.INSTANCE_LABEL}", Label).update(xmrig.instance())
+        self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value = str(
             xmrig.num_threads()
         )
-        self.query_one(f"#{DForm.CONFIG_LABEL}", Label).update(xmrig.config_file())
-        self.query_one(f"#{DForm.LOGROTATE_CONFIG_LABEL}", Label).update(
+        self.query_one(f"#{FORM.CONFIG_LABEL}", Label).update(xmrig.config_file())
+        self.query_one(f"#{FORM.LOGROTATE_CONFIG_LABEL}", Label).update(
             xmrig.logrotate_config()
         )
 
@@ -149,28 +153,28 @@ class XMRigPane(Container):
             # This is an update operation
             INTRO = (
                 f"Configure the settings for the "
-                f"[cyan]{xmrig.instance()} {DLabel.XMRIG}[/] deployment. "
+                f"[cyan]{xmrig.instance()} {LABEL.XMRIG}[/] deployment. "
             )
-            self.remove_class(DField.NEW)
-            self.add_class(DField.UPDATE)
+            self.remove_class(FIELD.NEW)
+            self.add_class(FIELD.UPDATE)
 
             if xmrig.enabled():
-                self.remove_class(DField.DISABLED)
-                self.add_class(DField.ENABLED)
+                self.remove_class(FIELD.DISABLED)
+                self.add_class(FIELD.ENABLED)
             else:
-                self.remove_class(DField.ENABLED)
-                self.add_class(DField.DISABLED)
+                self.remove_class(FIELD.ENABLED)
+                self.add_class(FIELD.DISABLED)
         else:
             # This is a new operation
             INTRO = (
                 "Configure the settings for a new "
-                f"[bold cyan]{DLabel.XMRIG}[/] deployment."
+                f"[bold cyan]{LABEL.XMRIG}[/] deployment."
             )
-            self.remove_class(DField.UPDATE)
-            self.add_class(DField.NEW)
+            self.remove_class(FIELD.UPDATE)
+            self.add_class(FIELD.NEW)
 
-        self.query_one(f"#{DForm.INTRO}", Label).update(INTRO)
-        self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
+        self.query_one(f"#{FORM.INTRO}", Label).update(INTRO)
+        self.query_one(f"#{FORM.HEALTH_LABEL}", Label).update(
             gen_results_table(xmrig.pop_msgs())
         )
 
@@ -183,28 +187,28 @@ class XMRigPane(Container):
         :rtype: None
         """
         button_id = event.button.id
-        radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
+        radio_set = self.query_one(f"#{FORM.RADIO_SET}", RadioSet)
         if radio_set.pressed_button:
             p2pool_instance = str(radio_set.pressed_button.label)
             if p2pool_instance:
                 p2pool_id, remote_flag = self.instance_map[p2pool_instance]
                 self.xmrig.parent(p2pool_id)
                 self.xmrig.parent_remote(remote_flag)
-        self.xmrig.instance(self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value)
+        self.xmrig.instance(self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value)
         self.xmrig.num_threads(
-            self.query_one(f"#{DForm.NUM_THREADS_INPUT}", Input).value
+            self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value
         )
 
         # Map button to action
         button_map = {
-            DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButtonF.DISABLE: (DModule.SYNC_CLIENT, DMethod.STOP),
-            DButtonF.ENABLE: (DModule.SYNC_CLIENT, DMethod.START),
-            DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
-            DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
-            DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
-            DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+            DButtonF.DELETE: (MODULE.SYNC_CLIENT, METHOD.DELETE_DEPLOYMENT),
+            DButtonF.DISABLE: (MODULE.SYNC_CLIENT, METHOD.STOP),
+            DButtonF.ENABLE: (MODULE.SYNC_CLIENT, METHOD.START),
+            DButtonF.HASHRATE: (MODULE.OPS_MGR, METHOD.HASHRATES),
+            DButtonF.NEW: (MODULE.SYNC_CLIENT, METHOD.ADD_DEPLOYMENT),
+            DButtonF.SHARES_FOUND: (MODULE.OPS_MGR, METHOD.SHARES_FOUND),
+            DButtonF.UPDATE: (MODULE.SYNC_CLIENT, METHOD.UPDATE_DEPLOYMENT),
+            DButtonF.VIEW_LOG: (MODULE.OPS_MGR, METHOD.LOG_VIEWER),
         }
 
         if button_id not in button_map:
@@ -213,10 +217,10 @@ class XMRigPane(Container):
         module, method = button_map[button_id]
 
         form_data = {
-            DField.TO_MODULE: module,
-            DField.TO_METHOD: method,
-            DField.ELEMENT_TYPE: DElem.XMRIG,
-            DField.ELEMENT: self.xmrig,
+            FIELD.TO_MODULE: module,
+            FIELD.TO_METHOD: method,
+            FIELD.ELEMENT_TYPE: ELEM.XMRIG,
+            FIELD.ELEMENT: self.xmrig,
         }
 
         self.app.post_message(Db4EMsg(self, form_data=form_data))
@@ -232,7 +236,7 @@ class XMRigPane(Container):
         :return: None
         :rtype: None
         """
-        radio_set = self.query_one(f"#{DForm.RADIO_SET}", RadioSet)
+        radio_set = self.query_one(f"#{FORM.RADIO_SET}", RadioSet)
         for child in list(radio_set.children):
             child.remove()
 
@@ -246,7 +250,7 @@ class XMRigPane(Container):
             remote_flag = self.xmrig.parent_remote()
 
         for instance in self.radio_button_list:
-            radio_button = RadioButton(instance, classes=DForm.RADIO_BUTTON_TYPE)
+            radio_button = RadioButton(instance, classes=FORM.RADIO_BUTTON_TYPE)
             cur_parent_id, cur_remote_flag = self.instance_map[instance]
             if parent_id == cur_parent_id and remote_flag == cur_remote_flag:
                 radio_button.value = True
