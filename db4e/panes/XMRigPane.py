@@ -21,6 +21,7 @@ from db4e.constants.DMethod import DMethod as METHOD
 from db4e.constants.DModule import DModule as MODULE
 from db4e.constants.DElem import DElem as ELEM
 from db4e.constants.DForm import DForm as FORM
+from db4e.constants.DStatus import DStatus as STATUS
 
 
 class XMRigPane(Container):
@@ -128,12 +129,39 @@ class XMRigPane(Container):
         """
         # If the upstream p2pool is undefined, then the start/stop/restart
         # buttons are hidden
-        if xmrig.parent() == Field.
+        if xmrig.parent() == FIELD.DISABLE:
+            self.add_class(STATUS.NO_UPSTREAM)
+            self.remove_class(STATUS.IS_RUNNING)
+
+        # Hide the start/stop button
+        elif xmrig.is_running():
+            self.remove_class(STATUS.IS_STOPPED)
+            self.add_class(STATUS.IS_RUNNING)
+
+        # Hid the stop/restart button
+        else:
+            self.remove_class(STATUS.IS_RUNNING)
+            self.add_class(STATUS.IS_STOPPED)
+
+        self.xmrig = xmrig
 
         if xmrig.instance():
             self.add_class(FIELD.EDIT)
+            # This is an update operation
+            INTRO = (
+                f"Configure the settings for the "
+                f"[cyan]{xmrig.instance()} {LABEL.XMRIG}[/] deployment. "
+            )
+        else:
+            # This is a new operation
+            self.remove_class(FIELD.UPDATE)
+            self.add_class(FIELD.NEW)
+            INTRO = (
+                "Configure the settings for a new "
+                f"[bold cyan]{LABEL.XMRIG}[/] deployment."
+            )
 
-        self.xmrig = xmrig
+
         self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value = xmrig.instance()
         self.query_one(f"#{FORM.INSTANCE_LABEL}", Label).update(xmrig.instance())
         self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value = str(
@@ -145,33 +173,10 @@ class XMRigPane(Container):
         )
 
 
-        # Configure button visibility
-        if xmrig.instance():
-            self.instance_map = xmrig.instance_map()
-            self.radio_button_list = list(self.instance_map.keys())
-            
-            # This is an update operation
-            INTRO = (
-                f"Configure the settings for the "
-                f"[cyan]{xmrig.instance()} {LABEL.XMRIG}[/] deployment. "
-            )
-            self.remove_class(FIELD.NEW)
-            self.add_class(FIELD.UPDATE)
+        self.instance_map = xmrig.instance_map()
+        self.radio_button_list = list(self.instance_map.keys())
 
-            if xmrig.enabled():
-                self.remove_class(FIELD.DISABLED)
-                self.add_class(FIELD.ENABLED)
-            else:
-                self.remove_class(FIELD.ENABLED)
-                self.add_class(FIELD.DISABLED)
-        else:
-            # This is a new operation
-            INTRO = (
-                "Configure the settings for a new "
-                f"[bold cyan]{LABEL.XMRIG}[/] deployment."
-            )
-            self.remove_class(FIELD.UPDATE)
-            self.add_class(FIELD.NEW)
+
 
         self.query_one(f"#{FORM.INTRO}", Label).update(INTRO)
         self.query_one(f"#{FORM.HEALTH_LABEL}", Label).update(
