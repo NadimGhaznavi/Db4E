@@ -160,6 +160,7 @@ class NavHandler:
             local = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL)
             remote = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL_REMOTE)
             xmrig.instance_map({**local, **remote})
+            xmrig.
             return xmrig
 
         else:

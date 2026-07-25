@@ -51,6 +51,7 @@ class DLabel:
     HASHRATES: Final[str] = "Hashrates"
     HEALTH: Final[str] = "Health Checks"
     HEALTH_MSGS: Final[str] = "Health Checks"
+    HTTP_PORT: Final[str] = "HTTP Port"
     IN_PEERS: Final[str] = "Inbound max peers"
     INITIAL_SETUP: Final[str] = "Initial Setup"
     INSTALL_DIR: Final[str] = "Install Directory"

@@ -62,6 +62,15 @@ class XMRigPane(Container):
                         ),
                     ),
                     Horizontal(
+                        Label(LABEL.HTTP_PORT, classes=FORM.FORM_LABEL_25),
+                        Input(
+                            id=FORM.HTTP_PORT,
+                            restrict=f"[0-9]*",
+                            compact=True,
+                            classes=FORM.INPUT_15,
+                        ),
+                    ),
+                    Horizontal(
                         Label(LABEL.CONFIG_FILE, classes=FORM.FORM_LABEL_25),
                         Label("", id=FORM.CONFIG_LABEL, classes=FORM.STATIC),
                     ),
@@ -71,7 +80,7 @@ class XMRigPane(Container):
                             "", id=FORM.LOGROTATE_CONFIG_LABEL, classes=FORM.STATIC
                         ),
                     ),
-                    classes=FORM.FORM_4,
+                    classes=FORM.FORM_5,
                     id=FORM.FORM_BOX,
                 ),
                 RadioSet(id=FORM.RADIO_SET, classes=FORM.RADIO_SET),
@@ -161,7 +170,7 @@ class XMRigPane(Container):
                 f"[bold cyan]{LABEL.XMRIG}[/] deployment."
             )
 
-
+        self.query_one(f"#{FORM.HTTP_PORT}", Input).value = xmrig.http_port()
         self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value = xmrig.instance()
         self.query_one(f"#{FORM.INSTANCE_LABEL}", Label).update(xmrig.instance())
         self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value = str(
@@ -202,6 +211,9 @@ class XMRigPane(Container):
         self.xmrig.instance(self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value)
         self.xmrig.num_threads(
             self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value
+        )
+        self.xmrig.http_port(
+            self.query_one(f"#{FORM.HTTP_PORT}", Input).value
         )
 
         # Map button to action

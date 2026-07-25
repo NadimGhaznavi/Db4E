@@ -452,6 +452,12 @@ class DeplMgr:
             )
         )
 
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DLabel.DB4E)
+        next_http_port = db4e.next_http_port()
+        if next_http_port == xmrig.http_port():
+            db4e.next_http_port(next_http_port + 1)
+            self.depl_db.update_one(db4e)
+
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
         xmrig.gen_logrotate_config(tmpl_file=logrotate_tmpl)

@@ -44,6 +44,7 @@ class Db4E(LocalMonero):
         self._instance_map = {}
         self._next_p2p_port = 37892
         self._next_stratum_port = 3333
+        self._next_http_port = 8888
         # Set the effective user and group IDs
         self.set_effective_identity()
         # Set the install directory
@@ -71,6 +72,7 @@ class Db4E(LocalMonero):
         self._db4e_group = rec[COL.DB4E_GROUP]
         self._db4e_user = rec[COL.DB4E_USER]
         self._install_dir = rec[COL.INSTALL_DIR]
+        self._next_http_port = rec[COL.NEXT_HTTP_PORT]
         self._next_p2p_port = rec[COL.NEXT_P2P_PORT]
         self._next_stratum_port = rec[COL.NEXT_STRATUM_PORT]
         self._primary_server = rec[COL.PRIMARY_SERVER]
@@ -92,6 +94,7 @@ class Db4E(LocalMonero):
                 COL.DB4E_GROUP: self._db4e_group,
                 COL.DB4E_USER: self._db4e_user,
                 COL.INSTALL_DIR: self._install_dir,
+                COL.NEXT_HTTP_PORT: self._next_http_port,
                 COL.NEXT_P2P_PORT: self._next_p2p_port,
                 COL.NEXT_STRATUM_PORT: self._next_stratum_port,
                 COL.PRIMARY_SERVER: self._primary_server,
@@ -156,6 +159,11 @@ class Db4E(LocalMonero):
             self._install_dir = install_dir
         return self._install_dir
     
+    def next_http_port(self, port=None):
+        if port is not None:
+            self._next_http_port = port
+        return self._next_http_port
+
     def next_p2p_port(self, port=None):
         if port is not None:
             self._next_p2p_port = port
