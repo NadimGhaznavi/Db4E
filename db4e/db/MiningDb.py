@@ -105,34 +105,6 @@ class MiningDb(BaseDb):
             """
         )
 
-    def insert_constrained_one(self, mining_object):
-        """
-        Insert or update an hourly mining record using its unique constraints.
-
-        :param mining_object: Mining record instance to insert.
-        :type mining_object: object
-        :return: The same object with its ``id`` populated.
-        :rtype: object
-        """
-        data = mining_object.to_dict()
-        data = self.add_hourly_data(data)
-        table_name = CLASS_TO_TABLE_MAP[type(mining_object)]
-        constraint_cols = mining_object.constraints()
-        columns = sorted(data.keys())
-        placeholders = ", ".join(["?"] * len(columns))
-        update_clause = ", ".join(
-            [f"{col} = excluded.{col}" for col in columns if col not in constraint_cols]
-        )
-        sql = f"""
-            INSERT INTO {table_name} ({", ".join(columns)})
-            VALUES ({placeholders})
-            ON CONFLICT ({", ".join(constraint_cols)}) DO UPDATE SET {update_clause}
-        """
-        values = tuple(data[col] for col in columns)
-        object_id = self.sql_db.execute_query(sql=sql, params=values)
-        mining_object.id(object_id)
-        return mining_object
-
     ## Add functions for mining records
     def add_block_found(self, chain):
         """
@@ -208,7 +180,7 @@ class MiningDb(BaseDb):
         )
         self.insert_constrained_one(miner_hashrate)
 
-    def add_pool_hashrate(self, chain, pool, hashrate, unit):
+    def add_pool_hashrate(self, chain, pool, hashrate, units):
         """
         Store the pool hashrate.
 
@@ -222,7 +194,7 @@ class MiningDb(BaseDb):
         :type unit: str
         """
         pool_hashrate = PoolHashrate(
-            chain=chain, pool=pool, hashrate=hashrate, units=unit
+            chain=chain, pool=pool, hashrate=hashrate, units=units
         )
         self.insert_constrained_one(pool_hashrate)
 
@@ -377,6 +349,34 @@ class MiningDb(BaseDb):
         Fetch XMR payment records.
         """
         pass
+
+    def insert_constrained_one(self, mining_object):
+        """
+        Insert or update an hourly mining record using its unique constraints.
+
+        :param mining_object: Mining record instance to insert.
+        :type mining_object: object
+        :return: The same object with its ``id`` populated.
+        :rtype: object
+        """
+        data = mining_object.to_dict()
+        data = self.add_hourly_data(data)
+        table_name = CLASS_TO_TABLE_MAP[type(mining_object)]
+        constraint_cols = mining_object.constraints()
+        columns = sorted(data.keys())
+        placeholders = ", ".join(["?"] * len(columns))
+        update_clause = ", ".join(
+            [f"{col} = excluded.{col}" for col in columns if col not in constraint_cols]
+        )
+        sql = f"""
+            INSERT INTO {table_name} ({", ".join(columns)})
+            VALUES ({placeholders})
+            ON CONFLICT ({", ".join(constraint_cols)}) DO UPDATE SET {update_clause}
+        """
+        values = tuple(data[col] for col in columns)
+        object_id = self.sql_db.execute_query(sql=sql, params=values)
+        mining_object.id(object_id)
+        return mining_object
 
     def _init_db(self):
         """
