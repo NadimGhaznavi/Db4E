@@ -170,7 +170,7 @@ class XMRigPane(Container):
                 f"[bold cyan]{LABEL.XMRIG}[/] deployment."
             )
 
-        self.query_one(f"#{FORM.HTTP_PORT}", Input).value = xmrig.http_port()
+        self.query_one(f"#{FORM.HTTP_PORT}", Input).value = str(xmrig.http_port())
         self.query_one(f"#{FORM.INSTANCE_INPUT}", Input).value = xmrig.instance()
         self.query_one(f"#{FORM.INSTANCE_LABEL}", Label).update(xmrig.instance())
         self.query_one(f"#{FORM.NUM_THREADS_INPUT}", Input).value = str(
@@ -181,11 +181,8 @@ class XMRigPane(Container):
             xmrig.logrotate_config()
         )
 
-
         self.instance_map = xmrig.instance_map()
         self.radio_button_list = list(self.instance_map.keys())
-
-
 
         self.query_one(f"#{FORM.INTRO}", Label).update(INTRO)
         self.query_one(f"#{FORM.HEALTH_LABEL}", Label).update(
