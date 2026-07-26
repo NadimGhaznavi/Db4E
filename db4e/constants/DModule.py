@@ -15,6 +15,7 @@ class DModule:
     BASE_ELEM: Final[str] = "BaseElem"
     BASE_MONERO: Final[str] = "BaseMonero"
     DB4E: Final[str] = "Db4E"
+    DB4E_CLIENT: Final[str] = "Db4eClient"
     DB4E_SERVER: Final[str] = "Db4eServer"
     DB4E_SYSTEMD: Final[str] = "Db4eSystemD"
     DEPLOYMENT_DB: Final[str] = "DeplDb"

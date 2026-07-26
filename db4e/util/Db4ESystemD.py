@@ -166,6 +166,7 @@ class Db4ESystemD:
         """
         try:
             self._unit.Unit.Start(DSystemD.REPLACE.encode())
+            self.log.debug("Starting service")
         except Exception as e:
             self.log.critical(f"ERROR: {e}")
             self.log.critical(f"STACKTRACE: {traceback.format_exc()}")

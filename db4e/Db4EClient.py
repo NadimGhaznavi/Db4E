@@ -11,6 +11,7 @@ db4e/Db4EClient.py
 
 import os
 from importlib import metadata
+
 from textual.app import App
 from textual.containers import Vertical
 from textual import work
@@ -50,12 +51,14 @@ from db4e.db.HealthDb import HealthDb
 from db4e.health.HealthClient import HealthClient
 from db4e.util.PaneCatalogue import PaneCatalogue
 from db4e.util.SudoTest import SudoTest
+from db4e.util.Db4ELogger import Db4ELogger
 
 from db4e.constants.DDef import DDef as DEF
 from db4e.constants.DField import DField as FIELD
 from db4e.constants.DPane import DPane as PANE
 from db4e.constants.DDir import DDir as DIR
 from db4e.constants.DFile import DFile as FILE
+from db4e.constants.DModule import DModule as MODULE
 
 from textual.theme import Theme
 
@@ -89,6 +92,12 @@ class Db4EClient(App):
         # App Class Relationships diagram:
         # https://drive.google.com/file/d/1-a46C_5FcseLEv-8aOY-FVzGjycesr8q/view?usp=drive_link
         super().__init__()
+        home_dir = Path.home()
+        log_dir = os.path.join(home_dir, DIR.DOT_DB4E)
+        log_file = os.path.join(log_dir, FILE.CLIENT_LOG)
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        self.db4e_log = Db4ELogger(db4e_module=MODULE.DB4E_CLIENT, log_file=log_file)
         self.bs_mgr = BootstrapMgr()
         self.sql_db = SQLDb(db_type=FIELD.CLIENT)
         self.ops_db = OpsDb(sql_db=self.sql_db)
@@ -103,6 +112,7 @@ class Db4EClient(App):
             depl_db=self.depl_db,
             bs_mgr=self.bs_mgr,
             server_url=f"http://{DEF.ANY_IP}:{DEF.API_PORT}",
+            log_file=log_file,
         )
         install_mgr = InstallMgr(
             bs_mgr=self.bs_mgr, sql_db=self.sql_db, sync_client=self.sync_client
@@ -123,6 +133,7 @@ class Db4EClient(App):
         # Initialize the config data structure, it houses a "db4e
         # installed" flag.
         self._config = {}
+        self.db4e_log.debug("Db4E Client initialized")
 
     def db4e_installed(self, flag=None) -> bool:
         # We received a flag, update the config and save it

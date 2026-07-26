@@ -18,6 +18,7 @@ class DFile:
     BOOTSTRAP: Final[str] = "bootstrap"
     CHOWN: Final[str] = "chown"
     CLIENT_DB: Final[str] = "client.db"
+    CLIENT_LOG: Final[str] = "db4e_client.log"
     CONFIG: Final[str] = DField.CONFIG_FILE
     LOGROTATE: Final[str] = "logrotate"
     MONGODUMP: Final[str] = "mongodump"
