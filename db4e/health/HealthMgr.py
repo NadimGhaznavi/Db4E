@@ -438,4 +438,41 @@ class HealthMgr:
         self.health_db.upsert_one(health_msg)
 
     def check_xmrig(self, xmrig: XMRig):
-        pass
+
+        # Is the instance enabled
+        if xmrig.enabled():
+            health_msg = HealthMsg(
+                instance=xmrig.instance(),
+                elem_type=ELEM.XMRIG,
+                category=CATEGORY.ENABLED,
+                status=STATUS.GOOD,
+                message=f"Instance is enabled",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=xmrig.instance(),
+                elem_type=ELEM.XMRIG,
+                category=CATEGORY.ENABLED,
+                status=STATUS.ERROR,
+                message=f"Instance is disabled",
+            )
+        self.health_db.upsert_one(health_msg)
+
+        # Is http port open
+        if is_port_open(ip_addr, port):
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.GOOD,
+                message=f"Connected to [b]{ip_addr}:{port}[/]",
+            )
+        else:
+            health_msg = HealthMsg(
+                instance=p2pool.instance(),
+                elem_type=ELEM.P2POOL,
+                category=CATEGORY.STRATUM_PORT,
+                status=STATUS.ERROR,
+                message=f"Failed to connect to [b]{ip_addr}:{port}[/]",
+            )
+        self.health_db.upsert_one(health_msg)              
