@@ -14,6 +14,7 @@
 #
 #####################################################################
 
+set -euo pipefail
 STRATUM_BAN_TIME=120 # Seconds, default is 600
 
 # Get the deployment specific settings
@@ -23,8 +24,15 @@ if [ -z $INI_FILE ]; then
 	exit 1
 fi
 
+if [[ ! -r "$INI_FILE" ]]; then
+    echo "ERROR: Cannot read INI file: $INI_FILE" >&2
+    exit 1
+fi
+
 source $INI_FILE
 
+STDIN=${RUN_DIR}/p2pool.stdin
+P2POOL="${P2P_DIR}/bin/p2pool"
 
 if [ "$CHAIN" == 'mainchain' ]; then
 	CHAIN_OPTION=''
@@ -37,17 +45,22 @@ else
 	exit 1
 fi
 
-# The values are in the p2pool.ini file
-STDIN=${RUN_DIR}/p2pool.stdin
-P2POOL="${P2P_DIR}/bin/p2pool"
+# Remove a stale FIFO, file, or symlink.
+if [[ -e "$STDIN" || -L "$STDIN" ]]; then
+    rm -f -- "$STDIN"
+fi
+
+# Create the stdin FIFO.
+mkfifo -- "$STDIN"
+chmod 660 -- "$STDIN"
 
 $P2POOL \
 	--wallet ${WALLET} \
 	--host ${MONERO_NODE} \
 	--rpc-port ${RPC_PORT} \
 	--zmq-port ${ZMQ_PUB_PORT} \
-	--stratum ${ANY_IP}:${STRATUM_PORT} \
-	--p2p ${ANY_IP}:${P2P_PORT} \
+	--stratum 0.0.0.0:${STRATUM_PORT} \
+	--p2p 0.0.0.0:${P2P_PORT} \
 	--stratum-ban-time ${STRATUM_BAN_TIME} \
 	--loglevel ${LOG_LEVEL} \
 	--data-dir ${LOG_DIR} \
@@ -56,4 +69,5 @@ $P2POOL \
 	--no-color \
 	--out-peers ${OUT_PEERS} \
 	--in-peers ${IN_PEERS} \
-	${CHAIN_OPTION}
+	${CHAIN_OPTION} \
+    <> ${STDIN}

@@ -479,6 +479,11 @@ Button {
 .is_running #enable_button {
     display: none; }
 
+/* Element's runtime status is unknown */
+.unknown #start_button {
+    display: none; }
+.unknown #stop_button {
+    display: none; }
 
 
 /* Uptream is not defined */

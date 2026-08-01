@@ -11,6 +11,7 @@ import socket
 
 from db4e.mgr.InstallMgr import InstallMgr
 from db4e.mgr.DeplMgr import DeplMgr
+from db4e.Db4EServer import Db4eServer
 
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
@@ -102,6 +103,17 @@ def test_update_db4e(
     for row in rows:
         assert row["parent"] == mon_a.id()
         assert row["parent_remote"] == 0
+
+    # The primary update has already propagated the parent ID.  Server
+    # reconciliation must still enable each internal P2Pool instance.
+    server = Db4eServer.__new__(Db4eServer)
+    server.depl_db = depl_db
+    server.depl_mgr = depl_mgr
+    server.ensure_running = lambda p2pool: None
+    server.set_int_p2pool_primary(mon_a.id(), 0)
+
+    rows = sql_db.execute_query("SELECT * from p2pool_internal")
+    assert all(row["enabled"] == 1 for row in rows)
 
     db4e.primary_server(DField.DISABLE)
     db4e.primary_remote(DField.DISABLE)

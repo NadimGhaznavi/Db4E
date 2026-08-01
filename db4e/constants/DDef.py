@@ -42,7 +42,7 @@ class DDef:
     DB4E_SERVICE_FILE: Final[str] = "db4e.service"
     DB4E_START_SCRIPT: Final[str] = "db4e-server"
     DB4E_UNINSTALL_SCRIPT: Final[str] = "db4e-uninstall-service.sh"
-    DB4E_VERSION: Final[str] = "0.48.9"
+    DB4E_VERSION: Final[str] = "0.49.0"
     DEPL_COLLECTION: Final[str] = "depl"
     DEV_DIR: Final[str] = "dev"
     DONATION_WALLET: Final[str] = (
@@ -75,7 +75,7 @@ class DDef:
     MONEROD_SOCKET_SERVICE: Final[str] = "monerod@.socket"
     MONEROD_STDIN_PIPE: Final[str] = "monerod.stdin"
     MONEROD_START_SCRIPT: Final[str] = "start-monerod.sh"
-    MONEROD_VERSION: Final[str] = "0.18.4.2"
+    MONEROD_VERSION: Final[str] = "0.18.5.1"
     NUM_THREADS: Final[int] = 1
     OPS_COLLECTION: Final[str] = "ops"
     P2P_DIR: Final[str] = "p2p"
@@ -90,7 +90,7 @@ class DDef:
     P2POOL_SERVICE_SOCKET_FILE: Final[str] = "p2pool@.socket"
     P2POOL_START_SCRIPT: Final[str] = "start-p2pool.sh"
     P2POOL_STDIN_PIPE: Final[str] = "p2pool.stdin"
-    P2POOL_VERSION: Final[str] = "4.14"
+    P2POOL_VERSION: Final[str] = "0.49.0"
     PAYPAL_DONATIONS: Final[str] = "paypal.me/NadimG"
     PRIORITY_NODE_1: Final[str] = "p2pmd.xmrvsbeast.com"
     PRIORITY_NODE_2: Final[str] = "nodes.hashvault.pro"
@@ -116,6 +116,6 @@ class DDef:
     XMRIG_PERMISSIONS: Final[str] = "-rwsr-x---"
     XMRIG_PROCESS: Final[str] = "xmrig"
     XMRIG_SERVICE_FILE: Final[str] = "xmrig@.service"
-    XMRIG_VERSION: Final[str] = "0.48.9"
+    XMRIG_VERSION: Final[str] = "0.49.0"
     ZMQ_PUB_PORT: Final[int] = 18083
     ZMQ_RPC_PORT: Final[int] = 18082

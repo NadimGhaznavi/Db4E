@@ -18,7 +18,6 @@ import traceback
 from db4e.mgr.BootstrapMgr import BootstrapMgr
 from db4e.mgr.DeplMgr import DeplMgr
 from db4e.mgr.LogMgr import LogMgr
-
 from db4e.recs.monero.Db4E import Db4E
 from db4e.recs.monero.MoneroD import MoneroD
 from db4e.recs.monero.MoneroDRemote import MoneroDRemote
@@ -26,9 +25,6 @@ from db4e.recs.monero.P2Pool import P2Pool
 from db4e.recs.monero.P2PoolRemote import P2PoolRemote
 from db4e.recs.monero.P2PoolInternal import P2PoolInternal
 from db4e.recs.monero.XMRig import XMRig
-
-from db4e.db.SQLDb import SQLDb
-
 
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DFile import DFile

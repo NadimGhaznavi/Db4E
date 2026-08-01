@@ -104,7 +104,7 @@ class RouteMgr:
         )
 
         # ----- MoneroD deployment -----
-        # Display the new form
+        # Display the log
         self.register(
             DModule.NAV_HANDLER,
             DMethod.GET_LOG,
@@ -212,6 +212,14 @@ class RouteMgr:
         )
 
         # ----- P2Pool deployment -----
+        # Display the log
+        self.register(
+            DModule.NAV_HANDLER,
+            DMethod.GET_LOG,
+            DElem.P2POOL,
+            self.nav_handler.get_log,
+            DPane.LOG_VIEW,
+        )
         # Display the new form
         self.register(
             DModule.NAV_HANDLER,
@@ -250,6 +258,22 @@ class RouteMgr:
             DMethod.DELETE_DEPLOYMENT,
             DElem.P2POOL,
             self.sync_client.delete_deployment,
+            DPane.TUI_LOG,
+        )
+        # Start a stopped deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.START,
+            DElem.P2POOL,
+            self.sync_client.enable_deployment,
+            DPane.TUI_LOG,
+        )
+        # Stop a started deployment
+        self.register(
+            DModule.SYNC_CLIENT,
+            DMethod.STOP,
+            DElem.P2POOL,
+            self.sync_client.disable_deployment,
             DPane.TUI_LOG,
         )
 

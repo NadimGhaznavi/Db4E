@@ -21,8 +21,8 @@ Restart=always
 RestartSec=3
 KillMode=process
 Group=[[DB4E_GROUP]]
-StandardOutput=journal
-StandardError=journal
+StandardOutput=/opt/Db4E/db4e/logs/db4e.log
+StandardError=/opt/Db4E/db4e/logs/db4e.err
 TimeoutStopSec=10
 
 [Install]

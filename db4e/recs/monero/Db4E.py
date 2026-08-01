@@ -11,11 +11,10 @@
 
 import os, grp, getpass
 from db4e.recs.monero.LocalMonero import LocalMonero
-from db4e.constants.DSQL import DCol
-from db4e.constants.DElem import DElem
-from db4e.constants.DField import DField
-from db4e.constants.DDef import DDef
-from db4e.constants.DLabel import DLabel
+from db4e.constants.DSQL import DCol as COL
+from db4e.constants.DField import DField as FIELD
+from db4e.constants.DDef import DDef as DEF
+from db4e.constants.DLabel import DLabel as LABEL
 
 
 class Db4E(LocalMonero):
@@ -33,16 +32,19 @@ class Db4E(LocalMonero):
         :rtype: None
         """
         super().__init__()
-        self._donation_wallet = DDef.DONATION_WALLET
+        self._donation_wallet = DEF.DONATION_WALLET
         self._db4e_group = None
         self._db4e_user = None
         self._install_dir = None
-        self._instance = DLabel.DB4E
-        self._primary_server = DField.DISABLE
-        self._primary_remote = DField.DISABLE
+        self._instance = LABEL.DB4E
+        self._primary_server = FIELD.DISABLE
+        self._primary_remote = FIELD.DISABLE
         self._user_wallet = ""
-        self._vendor_dir = DDef.DB4E_INSTALL_DIR
+        self._vendor_dir = DEF.DB4E_INSTALL_DIR
         self._instance_map = {}
+        self._next_p2p_port = 37892
+        self._next_stratum_port = 3333
+        self._next_http_port = 8888
         # Set the effective user and group IDs
         self.set_effective_identity()
         # Set the install directory
@@ -50,7 +52,7 @@ class Db4E(LocalMonero):
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         )
         # Set the primary server to DISABLE by default
-        self.primary_server(DField.DISABLE)
+        self.primary_server(FIELD.DISABLE)
         # Enable by default
         self.enabled(True)
         if rec:
@@ -66,14 +68,17 @@ class Db4E(LocalMonero):
         :rtype: None
         """
         super().from_rec(rec)
-        self._donation_wallet = rec[DCol.DONATION_WALLET]
-        self._db4e_group = rec[DCol.DB4E_GROUP]
-        self._db4e_user = rec[DCol.DB4E_USER]
-        self._install_dir = rec[DCol.INSTALL_DIR]
-        self._primary_server = rec[DCol.PRIMARY_SERVER]
-        self._primary_remote = rec[DCol.PRIMARY_REMOTE]
-        self._user_wallet = rec[DCol.USER_WALLET]
-        self._vendor_dir = rec[DCol.VENDOR_DIR]
+        self._donation_wallet = rec[COL.DONATION_WALLET]
+        self._db4e_group = rec[COL.DB4E_GROUP]
+        self._db4e_user = rec[COL.DB4E_USER]
+        self._install_dir = rec[COL.INSTALL_DIR]
+        self._next_http_port = rec[COL.NEXT_HTTP_PORT]
+        self._next_p2p_port = rec[COL.NEXT_P2P_PORT]
+        self._next_stratum_port = rec[COL.NEXT_STRATUM_PORT]
+        self._primary_server = rec[COL.PRIMARY_SERVER]
+        self._primary_remote = rec[COL.PRIMARY_REMOTE]
+        self._user_wallet = rec[COL.USER_WALLET]
+        self._vendor_dir = rec[COL.VENDOR_DIR]
 
     def to_dict(self):
         """
@@ -85,14 +90,17 @@ class Db4E(LocalMonero):
         data = super().to_dict()
         data.update(
             {
-                DCol.DONATION_WALLET: self._donation_wallet,
-                DCol.DB4E_GROUP: self._db4e_group,
-                DCol.DB4E_USER: self._db4e_user,
-                DCol.INSTALL_DIR: self._install_dir,
-                DCol.PRIMARY_SERVER: self._primary_server,
-                DCol.PRIMARY_REMOTE: self._primary_remote,
-                DCol.USER_WALLET: self._user_wallet,
-                DCol.VENDOR_DIR: self._vendor_dir,
+                COL.DONATION_WALLET: self._donation_wallet,
+                COL.DB4E_GROUP: self._db4e_group,
+                COL.DB4E_USER: self._db4e_user,
+                COL.INSTALL_DIR: self._install_dir,
+                COL.NEXT_HTTP_PORT: self._next_http_port,
+                COL.NEXT_P2P_PORT: self._next_p2p_port,
+                COL.NEXT_STRATUM_PORT: self._next_stratum_port,
+                COL.PRIMARY_SERVER: self._primary_server,
+                COL.PRIMARY_REMOTE: self._primary_remote,
+                COL.USER_WALLET: self._user_wallet,
+                COL.VENDOR_DIR: self._vendor_dir,
             }
         )
         return data
@@ -150,6 +158,21 @@ class Db4E(LocalMonero):
         if install_dir is not None:
             self._install_dir = install_dir
         return self._install_dir
+    
+    def next_http_port(self, port=None):
+        if port is not None:
+            self._next_http_port = port
+        return self._next_http_port
+
+    def next_p2p_port(self, port=None):
+        if port is not None:
+            self._next_p2p_port = port
+        return self._next_p2p_port
+
+    def next_stratum_port(self, port=None):
+        if port is not None:
+            self._next_stratum_port = port
+        return self._next_stratum_port
 
     def primary_server(self, primary_server=None):
         """

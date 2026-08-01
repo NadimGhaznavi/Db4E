@@ -21,6 +21,7 @@ class DPlaceholder:
     DB4E_USER: Final[str] = "DB4E_USER"
     DB4E_GROUP: Final[str] = "DB4E_GROUP"
     DB4E_DIR: Final[str] = "DB4E_DIR"
+    HTTP_PORT: Final[str] = "HTTP_PORT"
     INSTALL_DIR: Final[str] = "INSTALL_DIR"
     INSTANCE: Final[str] = "INSTANCE"
     IN_PEERS: Final[str] = "IN_PEERS"

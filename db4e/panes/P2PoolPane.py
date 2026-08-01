@@ -16,12 +16,13 @@ from db4e.recs.monero.BaseP2Pool import CHAIN_TO_CHAIN_LABEL_MAP
 from db4e.recs.monero.P2Pool import P2Pool
 from db4e.util.Helper import gen_results_table
 from db4e.constants.DElem import DElem
-from db4e.constants.DField import DField
+from db4e.constants.DField import DField as FIELD
 from db4e.constants.DModule import DModule
 from db4e.constants.DMethod import DMethod
 from db4e.constants.DLabel import DLabel
 from db4e.constants.DButton import DButtonF, DButtonL
 from db4e.constants.DForm import DForm
+from db4e.constants.DStatus import DStatus as STATUS
 
 
 class P2PoolPane(Container):
@@ -117,9 +118,9 @@ class P2PoolPane(Container):
                         Button(DButtonL.NEW, id=DButtonF.NEW),
                         Button(DButtonL.TABLES, id=DButtonF.TABLES),
                         Button(DButtonL.UPDATE, id=DButtonF.UPDATE),
-                        Button(DButtonL.START, id=DButtonF.ENABLE),
+                        Button(DButtonL.START, id=DButtonF.START),
                         Button(DButtonL.VIEW_LOG, id=DButtonF.VIEW_LOG),
-                        Button(DButtonL.STOP, id=DButtonF.DISABLE),
+                        Button(DButtonL.STOP, id=DButtonF.STOP),
                         Button(DButtonL.DELETE, id=DButtonF.DELETE),
                         classes=DForm.BUTTON_ROW,
                     )
@@ -151,7 +152,33 @@ class P2PoolPane(Container):
         :return: None
         :rtype: None
         """
+
+        # If the upstream monero is undefined, then the start/stop/restart
+        # buttons are hidden
+        if p2pool.parent() == FIELD.DISABLE:
+            self.add_class(STATUS.NO_UPSTREAM)
+            self.remove_class(STATUS.IS_RUNNING)
+
+        # Hide the start/stop button
+        elif p2pool.is_running():
+            self.remove_class(STATUS.IS_STOPPED)
+            self.add_class(STATUS.IS_RUNNING)
+
+        # Hide the stop/restart button
+        else:
+            self.remove_class(STATUS.IS_RUNNING)
+            self.add_class(STATUS.IS_STOPPED)
+
         self.p2pool = p2pool
+
+        # Hide the new button
+        if p2pool.instance():
+            intro_text = f"Configure settings for the {p2pool.instance()} deployment."
+            self.add_class(FIELD.EDIT)
+        else:
+            intro_text = f"Configure settings for a new {DLabel.P2POOL} deployment."
+            self.remove_class(FIELD.UPDATE)
+            self.add_class(FIELD.NEW)
 
         # Populate inputs and labels
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = p2pool.instance()
@@ -185,23 +212,6 @@ class P2PoolPane(Container):
                 rb.value = True
             chain_radio_set.mount(rb)
 
-        # Configure buttons visibility
-        intro_text = f"Configure settings for a new {DLabel.P2POOL} deployment."
-        if p2pool.instance():
-            intro_text = f"Configure settings for the [b]{p2pool.instance()} {DLabel.P2POOL}[/] deployment."
-            self.remove_class(DField.NEW)
-            self.add_class(DField.UPDATE)
-
-            if p2pool.enabled():
-                self.remove_class(DField.DISABLED)
-                self.add_class(DField.ENABLED)
-            else:
-                self.remove_class(DField.ENABLED)
-                self.add_class(DField.DISABLED)
-        else:
-            self.remove_class(DField.UPDATE)
-            self.add_class(DField.NEW)
-
         self.query_one(f"#{DForm.INTRO}", Label).update(intro_text)
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
             gen_results_table(p2pool.pop_msgs())
@@ -223,9 +233,6 @@ class P2PoolPane(Container):
         # if radio_set.pressed_button:
         monerod_instance = str(radio_set.pressed_button.label)
         monerod_id, remote_flag = self.instance_map[monerod_instance]
-        print(
-            f"P2PoolPane:on_button_pressed(): monerod_id: {monerod_id}, remote_flag: {remote_flag}"
-        )
         self.p2pool.parent(monerod_id)
         self.p2pool.parent_remote(remote_flag)
 
@@ -255,14 +262,14 @@ class P2PoolPane(Container):
         # Map button to action
         button_map = {
             DButtonF.DELETE: (DModule.SYNC_CLIENT, DMethod.DELETE_DEPLOYMENT),
-            DButtonF.DISABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.DISABLE_DEPLOYMENT),
-            DButtonF.ENABLE: (DModule.DEPLOYMENT_CLIENT, DMethod.ENABLE_DEPLOYMENT),
+            DButtonF.STOP: (DModule.SYNC_CLIENT, DMethod.STOP),
+            DButtonF.START: (DModule.SYNC_CLIENT, DMethod.START),
             DButtonF.HASHRATE: (DModule.OPS_MGR, DMethod.HASHRATES),
             DButtonF.NEW: (DModule.SYNC_CLIENT, DMethod.ADD_DEPLOYMENT),
             DButtonF.SHARES_FOUND: (DModule.OPS_MGR, DMethod.SHARES_FOUND),
             DButtonF.TABLES: (DModule.OPS_MGR, DMethod.GET_TABLE_DATA),
             DButtonF.UPDATE: (DModule.SYNC_CLIENT, DMethod.UPDATE_DEPLOYMENT),
-            DButtonF.VIEW_LOG: (DModule.OPS_MGR, DMethod.LOG_VIEWER),
+            DButtonF.VIEW_LOG: (DModule.NAV_HANDLER, DMethod.GET_LOG),
         }
 
         if button_id not in button_map:
@@ -270,14 +277,14 @@ class P2PoolPane(Container):
 
         module, method = button_map[button_id]
         form_data = {
-            DField.TO_MODULE: module,
-            DField.TO_METHOD: method,
-            DField.ELEMENT_TYPE: DElem.P2POOL,
-            DField.ELEMENT: self.p2pool,
+            FIELD.TO_MODULE: module,
+            FIELD.TO_METHOD: method,
+            FIELD.ELEMENT_TYPE: DElem.P2POOL,
+            FIELD.ELEMENT: self.p2pool,
         }
 
         if button_id == DButtonF.VIEW_LOG:
-            form_data[DField.INSTANCE] = self.p2pool.instance()
+            form_data[FIELD.INSTANCE] = self.p2pool.instance()
 
         self.app.post_message(Db4EMsg(self, form_data=form_data))
 

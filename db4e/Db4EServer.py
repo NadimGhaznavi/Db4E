@@ -50,14 +50,14 @@ from db4e.db.MiningDb import MiningDb
 from db4e.db.OpsDb import OpsDb
 from db4e.db.HealthDb import HealthDb
 
-from db4e.constants.DDebug import DDebug
-from db4e.constants.DDef import DDef
-from db4e.constants.DDir import DDir
-from db4e.constants.DElem import DElem
-from db4e.constants.DField import DField
-from db4e.constants.DFile import DFile
-from db4e.constants.DModule import DModule
-
+from db4e.constants.DDef import DDef as DEF
+from db4e.constants.DDir import DDir as DIR
+from db4e.constants.DElem import DElem as ELEM
+from db4e.constants.DField import DField as FIELD
+from db4e.constants.DFile import DFile as FILE
+from db4e.constants.DModule import DModule as MODULE
+from db4e.constants.DSystemD import DSystemD as SYSTEMD
+from db4e.constants.DLabel import DLabel as LABEL
 
 POLL_INTERVAL = 5
 
@@ -78,20 +78,20 @@ class Db4eServer:
         self.bs_mgr = BootstrapMgr()
 
         # Setup logging
-        logs_dir = DDef.LOG_DIR
-        log_file = DDef.DB4E_LOG_FILE
+        logs_dir = DEF.LOG_DIR
+        log_file = DEF.DB4E_LOG_FILE
         fq_log_file = os.path.join(
-            DDef.DB4E_INSTALL_DIR, DElem.DB4E, logs_dir, log_file
+            DEF.DB4E_INSTALL_DIR, ELEM.DB4E, logs_dir, log_file
         )
         self.log_file = fq_log_file
-        self.log = Db4ELogger(db4e_module=DModule.DB4E_SERVER, log_file=fq_log_file)
+        self.log = Db4ELogger(db4e_module=MODULE.DB4E_SERVER, log_file=fq_log_file)
 
         # SQLite DB module
-        self.sql_db = SQLDb(db_type=DField.SERVER, log_file=fq_log_file)
+        self.sql_db = SQLDb(db_type=FIELD.SERVER, log_file=fq_log_file)
 
         # Operations DB module
         self.ops_db = OpsDb(sql_db=self.sql_db, log_file=fq_log_file)
-        
+
         # Clean up current_uptime records (where the stop_time is NULL)
         self.ops_db.check_current_recs()
 
@@ -113,7 +113,10 @@ class Db4eServer:
         )
         # Health manager
         self.health_mgr = HealthMgr(
-            health_db=self.health_db, depl_db=self.depl_db, ops_db=self.ops_db, log_file=fq_log_file
+            health_db=self.health_db,
+            depl_db=self.depl_db,
+            ops_db=self.ops_db,
+            log_file=fq_log_file,
         )
 
         #  systemd wrapper
@@ -137,13 +140,15 @@ class Db4eServer:
         self.stopping = set()
 
         # Create an Ops record to record the startup time
-        self.ops_db.add_start_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
+        self.ops_db.add_start_event(ELEM.DB4E_SERVER, ELEM.DB4E_SERVER)
 
         # Make sure the permissions on the logrotate files are correct
         self.chown_logrotate_files()
 
         # API manager
-        self.api_mgr = APIMgr(bs_mgr=self.bs_mgr, depl_mgr=self.depl_mgr)
+        self.api_mgr = APIMgr(
+            bs_mgr=self.bs_mgr, 
+            depl_mgr=self.depl_mgr)
         # Include the SyncServer routes.
         self.api_mgr.app.include_router(init_sync_server(self.sql_db))
 
@@ -154,24 +159,23 @@ class Db4eServer:
 
         while True:
 
+            db4e = self.depl_db.get_deployment(elem_type=ELEM.DB4E, instance=LABEL.DB4E)
+
+            if db4e.primary_server() == FIELD.DISABLE:
+                self.unset_int_p2pool_primary()
+            else:
+                self.set_int_p2pool_primary(
+                    db4e.primary_server(),
+                    db4e.primary_remote(),
+                )
+
             depls = self.depl_db.get_deployments()
-            # self.log.debug(f"Db4eServer:check_deployments(): {depls}")
-            found_primary = False
+
             for elem in depls:
-                # Get the deployment type
+
                 elem_type = type(elem)
 
-                # Nothing to do for these classes
-                if elem_type == P2PoolRemote:
-                    continue
-
-                # Look for primary Monero deployments
-                if elem_type == Db4E:
-                    if elem.primary_server() == DField.DISABLE:
-                        self.unset_int_p2pool_primary()
-                    else:
-                        self.set_int_p2pool_primary(elem.primary_server())
-                        found_primary = True
+                if elem_type in (Db4E, P2PoolRemote, MoneroDRemote):
                     continue
 
                 # Make sure anything that's enabled is running
@@ -190,8 +194,8 @@ class Db4eServer:
                                 )
                             )
                             self.log_watchers[elem_type, elem.instance()] = {
-                                DField.TASK: task,
-                                DField.EVENT: stop_event,
+                                FIELD.TASK: task,
+                                FIELD.EVENT: stop_event,
                             }
 
                 # Makre sure anything that's disabled is stopped
@@ -203,10 +207,10 @@ class Db4eServer:
                     # Stop the log watcher
                     if (elem_type, elem.instance()) in self.log_watchers:
                         task = self.log_watchers[elem_type, elem.instance()][
-                            DField.TASK
+                            FIELD.TASK
                         ]
                         stop_event = self.log_watchers[elem_type, elem.instance()][
-                            DField.EVENT
+                            FIELD.EVENT
                         ]
                         stop_event.set()
                         if task:
@@ -217,9 +221,6 @@ class Db4eServer:
                             pass
                         self.log_watchers.pop((elem_type, elem.instance()), None)
 
-                # There are no primary Monero deployments
-                if not found_primary:
-                    self.unset_int_p2pool_primary()
 
             # Sleep for POLL_INTERVAL before restarting the loop
             await asyncio.sleep(POLL_INTERVAL)
@@ -228,13 +229,13 @@ class Db4eServer:
         """
         Ensure logrotate files have the correct ownership.
         """
-        logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
+        logrotate_dir = self.bs_mgr.get_dir(DIR.LOGROTATE)
         # Get a list of files in the logrotate_dir
         file_list = os.listdir(logrotate_dir)
         for aFile in file_list:
             fq_file = os.path.join(logrotate_dir, aFile)
             try:
-                cmd = [DFile.SUDO, DFile.CHOWN, DDef.ROOT, fq_file]
+                cmd = [FILE.SUDO, FILE.CHOWN, DEF.ROOT, fq_file]
                 proc = subprocess.run(cmd, stderr=subprocess.PIPE, input="")
                 stderr = proc.stderr.decode("utf-8")
                 self.log.info(f"Set permissions on logrotate file: {fq_file}")
@@ -309,7 +310,7 @@ class Db4eServer:
                     p2pool.enabled(False)
                     self.ensure_stopped(p2pool)
                     self.depl_mgr.update_deployment(p2pool)
-                    p2pool.parent(DField.DISABLE)
+                    p2pool.parent(FIELD.DISABLE)
                     # TODO add TuiLogRec
                     self.disable_downstream(p2pool)
 
@@ -321,7 +322,7 @@ class Db4eServer:
                     int_p2pool.enabled(False)
                     self.ensure_stopped(int_p2pool)
                     self.depl_mgr.update_deployment(int_p2pool)
-                    int_p2pool.parent(DField.DISABLE)
+                    int_p2pool.parent(FIELD.DISABLE)
                     # TODO add TuiLogRec
 
         elif type(elem) == P2Pool or type(elem) == P2PoolRemote:
@@ -331,7 +332,7 @@ class Db4eServer:
                     xmrig.p2pool = None
                     self.ensure_stopped(xmrig)
                     xmrig.enabled(False)
-                    xmrig.parent(DField.DISABLE)
+                    xmrig.parent(FIELD.DISABLE)
                     self.depl_mgr.update_deployment(xmrig)
                     # TODO add TuiLogRec
 
@@ -357,21 +358,28 @@ class Db4eServer:
         :param elem: Deployment object to start if needed.
         :type elem: object
         """
+        self.log.debug(f"ensure_running({elem})")
         try:
             # Check if the deployment service is running, start it if it's not
             sd = self.systemd
             if type(elem) == MoneroD:
                 instance = elem.instance()
-                key = f"f{instance}:{DElem.MONEROD}"
-                sd.service_name("monerod@" + instance)
+                key = f"f{instance}:{ELEM.MONEROD}"
+                sd.service_name(
+                    service_name="monerod@" + instance, 
+                    service_type=SYSTEMD.SERVICE_SUFFIX)
             elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
                 instance = elem.instance()
-                key = f"{instance}:{DElem.P2POOL}"
-                sd.service_name("p2pool@" + instance)
+                key = f"{instance}:{ELEM.P2POOL}"
+                sd.service_name(
+                    service_name="p2pool@" + instance,
+                    service_type=SYSTEMD.SERVICE_SUFFIX)
             elif type(elem) == XMRig:
                 instance = elem.instance()
-                key = f"{instance}:{DElem.XMRIG}"
-                sd.service_name("xmrig@" + instance)
+                key = f"{instance}:{ELEM.XMRIG}"
+                sd.service_name(
+                    service_name="xmrig@" + instance,
+                    service_type=SYSTEMD.SERVICE_SUFFIX)
             else:
                 raise ValueError(f"Unknown deployment type: {elem}")
 
@@ -388,8 +396,11 @@ class Db4eServer:
 
             # Not active and not starting, start it up
             self.starting.add(key)
-            sd.start()
+            
+            self.start_service(elem)
+
         except Exception as e:
+            self.starting.discard(key)
             self.log.critical(f"ERROR: {e}")
             self.log.critical(f"STACKTRACE: {traceback.format_exc()}")
 
@@ -403,16 +414,22 @@ class Db4eServer:
         sd = self.systemd
         if type(elem) == MoneroD:
             instance = elem.instance()
-            key = f"f{instance}:{DElem.MONEROD}"
-            sd.service_name("monerod@" + instance)
+            key = f"f{instance}:{ELEM.MONEROD}"
+            sd.service_name(
+                service_name="monerod@" + instance,
+                service_type=SYSTEMD.SERVICE_SUFFIX)
         elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
             instance = elem.instance()
-            key = f"{instance}:{DElem.P2POOL}"
-            sd.service_name("p2pool@" + instance)
+            key = f"{instance}:{ELEM.P2POOL}"
+            sd.service_name(
+                service_name="p2pool@" + instance,
+                service_type=SYSTEMD.SERVICE_SUFFIX)
         elif type(elem) == XMRig:
             instance = elem.instance()
-            key = f"{instance}:{DElem.XMRIG}"
-            sd.service_name("xmrig@" + instance)
+            key = f"{instance}:{ELEM.XMRIG}"
+            sd.service_name(
+                service_name="xmrig@" + instance,
+                service_type=SYSTEMD.SERVICE_SUFFIX)
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
 
@@ -442,9 +459,13 @@ class Db4eServer:
         sd = self.systemd
         instance = elem.instance()
         if type(elem) == MoneroD:
-            sd.service_name("monerod@" + instance)
+            sd.service_name(
+                service_name="monerod@" + instance,
+                service_type=SYSTEMD.SERVICE_SUFFIX)
         elif type(elem) == P2Pool:
-            sd.service_name("p2pool@" + instance)
+            sd.service_name(
+                service_name="p2pool@" + instance,
+                service_type=SYSTEMD.SERVICE_SUFFIX)
         else:
             raise ValueError(f"Unknown deployment type: {elem}")
         sd.restart()
@@ -459,8 +480,8 @@ class Db4eServer:
             if self.last_logrotate is None or self.last_logrotate != cur_hour:
                 self.last_logrotate = cur_hour
                 try:
-                    logrotate_dir = self.bs_mgr.get_dir(DDir.LOGROTATE)
-                    cmd = [DFile.SUDO, DFile.LOGROTATE, "-v", logrotate_dir]
+                    logrotate_dir = self.bs_mgr.get_dir(DIR.LOGROTATE)
+                    cmd = [FILE.SUDO, FILE.LOGROTATE, "-v", logrotate_dir]
                     proc = subprocess.run(
                         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=""
                     )
@@ -480,7 +501,7 @@ class Db4eServer:
                         if match:
                             config_file = match.group("config")
                             # self.log.critical(f"Found config: {config_file}")
-                            if config_file == DElem.DB4E + DDef.CONF_SUFFIX:
+                            if config_file == ELEM.DB4E + DEF.CONF_SUFFIX:
                                 continue
                             else:
                                 pattern = r"(?P<elem_type>.*)-(?P<instance>.*).conf"
@@ -492,7 +513,7 @@ class Db4eServer:
                                     depls[(elem_type, instance)] = False
 
                         # Watch to see if a log was rotated
-                        pattern = rf"considering log {re.escape(DDef.DB4E_INSTALL_DIR)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
+                        pattern = rf"considering log {re.escape(DEF.DB4E_INSTALL_DIR)}/(?P<elem_type>[^/]+)(?:/(?P<instance>[^/]+))?/logs/(?P<logname>[^/]+)\.log"
                         match = re.search(pattern, line)
                         if match:
                             # self.log.critical(f"line: {line}")
@@ -504,7 +525,7 @@ class Db4eServer:
                         pattern = r"\s+log needs rotating.*"
                         match = re.search(pattern, line)
                         if match:
-                            if cur_elem_type != DElem.DB4E:
+                            if cur_elem_type != ELEM.DB4E:
                                 depls[(cur_elem_type, cur_instance)] = True
                                 self.log.info(
                                     f"{cur_elem_type}/{cur_instance} rotating log file"
@@ -598,8 +619,8 @@ class Db4eServer:
         self.running.clear()
         await self.api_mgr.shutdown()
         for elem_type, instance in self.log_watchers:
-            task = self.log_watchers[elem_type, instance][DField.TASK]
-            stop_event = self.log_watchers[elem_type, instance][DField.EVENT]
+            task = self.log_watchers[elem_type, instance][FIELD.TASK]
+            stop_event = self.log_watchers[elem_type, instance][FIELD.EVENT]
             stop_event.set()
             if task:
                 task.cancel()
@@ -608,10 +629,10 @@ class Db4eServer:
             except asyncio.CancelledError:
                 pass
             self.log_watchers.pop((elem_type, instance), None)
-            self.ops_db.add_stop_event(DElem.P2POOL_WATCHER, instance)
+            self.ops_db.add_stop_event(ELEM.P2POOL_WATCHER, instance)
 
         # Create a stop event in the ops collection
-        self.ops_db.add_stop_event(DElem.DB4E_SERVER, DElem.DB4E_SERVER)
+        self.ops_db.add_stop_event(ELEM.DB4E_SERVER, ELEM.DB4E_SERVER)
         sys.exit(0)
 
     async def shutdown_signal(self, sig):
@@ -626,34 +647,52 @@ class Db4eServer:
         self.log.info("Server stopped cleanly.")
         sys.exit(0)
 
-    def set_int_p2pool_primary(self, monerod_id):
+    def set_int_p2pool_primary(self, monerod_id, remote_flag):
         """
         Set the primary MoneroD for internal P2Pool instances.
 
         :param monerod_id: MoneroD deployment ID.
         :type monerod_id: int
+        :param remote_flag: Whether the primary deployment is remote.
+        :type remote_flag: bool or int
         """
+        monerod_type = ELEM.MONEROD_REMOTE if remote_flag else ELEM.MONEROD
         for p2pool in self.depl_db.get_p2pool_internals():
-            if p2pool.parent() != monerod_id:
-                self.log.info(f"Regenerating {p2pool.instance()} P2Pool config file")
+
+            update_required = False
+
+            # A new primary server is being selected
+            if p2pool.parent() != monerod_id or p2pool.parent_remote() != remote_flag:
+                instance = p2pool.instance()
                 p2pool.parent(monerod_id)
+                p2pool.parent_remote(remote_flag)
                 p2pool.monerod = self.depl_db.get_deployment_by_id(
-                    DElem.MONEROD, monerod_id
+                    monerod_type, monerod_id
                 )
-                tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
+                tmpl_file = self.bs_mgr.get_template(ELEM.P2POOL)
+                self.log.info(f"Regenerating {instance} P2Pool config file")
                 p2pool.gen_config(tmpl_file=tmpl_file)
                 p2pool.log_file(
                     os.path.join(
-                        DDef.DB4E_INSTALL_DIR,
-                        self.bs_mgr.get_dir(DElem.P2POOL),
-                        p2pool.instance(),
-                        DDir.LOG,
-                        DFile.P2POOL_LOG,
+                        DEF.DB4E_INSTALL_DIR,
+                        self.bs_mgr.get_dir(ELEM.P2POOL),
+                        instance,
+                        DIR.LOG,
+                        FILE.P2POOL_LOG,
                     )
                 )
-                p2pool.enabled(True)
+                update_required = True
+
+            # DeplMgr propagates the selected primary to the internal pools
+            # before this reconciliation loop runs.  Enabling must therefore
+            # not be conditional on the parent changing here.
+            #if not p2pool.enabled():
+            #    p2pool.enabled(True)
+            #    update_required = True
+
+            if update_required:
                 self.depl_mgr.update_deployment(p2pool)
-                self.ensure_running(p2pool)
+
 
     def start(self):
         """
@@ -702,24 +741,34 @@ class Db4eServer:
 
         await watcher.monitor_log()
         self.log.info(f"Started {p2pool} watcher")
-        self.ops_db.add_start_event(DElem.P2POOL_WATCHER, instance)
+        self.ops_db.add_start_event(ELEM.P2POOL_WATCHER, instance)
 
-    def UNUSED_update(self, elem):
-        """
-        Placeholder for update handling logic.
+    def start_service(self, elem):
+        instance = elem.instance()
+        sd = self.systemd
+        if type(elem) == MoneroD:
+            sd.service_name(
+                service_name=f"monerod@{instance}",
+                service_type=SYSTEMD.SERVICE_SUFFIX
+            )
+            sd.start()
 
-        :param elem: Deployment object to update.
-        :type elem: object
-        """
-        self.log.info(f"Updated: {elem}")
+        elif type(elem) == P2Pool or type(elem) == P2PoolInternal:
+            sd.service_name(
+                service_name=f"p2pool@{instance}",
+                service_type=SYSTEMD.SERVICE_SUFFIX
+            )
+            sd.start()
 
-        # TODO check return value, restart if needed
-        self.depl_mgr.update_deployment(elem)
-        # Restart Monerod and P2Pool deployments if their config has been updated
-        if type(elem) == MoneroD or type(elem) == P2Pool:
-            # Create a restart job
-            pass
-            # TODO implement restart
+        elif type(elem) == XMRig:
+            sd.service_name(
+                service_name=f"xmrig@{instance}",
+                service_type=SYSTEMD.SERVICE_SUFFIX
+            )
+            sd.start()
+            
+
+
 
     async def update_current(self):
         """
@@ -734,10 +783,10 @@ class Db4eServer:
         Clear the primary MoneroD for internal P2Pool instances.
         """
         for p2pool in self.depl_db.get_p2pool_internals():
-            if p2pool.parent() == DField.DISABLE:
+            if p2pool.parent() == FIELD.DISABLE:
                 continue
             p2pool.monerod = None
-            p2pool.parent(DField.DISABLE)
+            p2pool.parent(FIELD.DISABLE)
             p2pool.enabled(False)
             self.depl_mgr.update_deployment(p2pool)
 
@@ -747,8 +796,8 @@ def main():
     Entry point for running the Db4E server.
     """
     # Set environment variables for better color support
-    os.environ[DField.TERM_ENVIRON] = DDef.TERM
-    os.environ[DField.COLORTERM_ENVIRON] = DDef.COLORTERM
+    os.environ[FIELD.TERM_ENVIRON] = DEF.TERM
+    os.environ[FIELD.COLORTERM_ENVIRON] = DEF.COLORTERM
 
     server = Db4eServer()
     server.start()

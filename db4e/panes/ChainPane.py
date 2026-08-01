@@ -99,8 +99,10 @@ class ChainPane(Container):
         :return: None
         :rtype: None
         """
-        self.query_one("#" + DForm.FORM_BOX, Vertical).border_subtitle = DLabel.CONFIG
-        self.query_one("#" + DForm.HEALTH_BOX, Vertical).border_subtitle = DLabel.STATUS
+        self.query_one(
+            "#" + DForm.FORM_BOX, Vertical).border_subtitle = DLabel.CONFIG
+        self.query_one(
+            "#" + DForm.HEALTH_BOX, Vertical).border_subtitle = DLabel.STATUS
 
     def set_data(self, p2pool: P2PoolInternal):
         """Set the data for the pane.
