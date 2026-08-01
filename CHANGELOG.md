@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Release 0.49.0] - 2026-07-31 20:03
+
+
 - Setup per user `__pycache__` directory creation to avoid clashes between `Db4EClient` and `Db4EServer`
 
 ## [Release 0.48.9] - 2026-06-06 14:17 - Push to PROD
