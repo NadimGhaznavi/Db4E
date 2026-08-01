@@ -157,24 +157,28 @@ class P2PoolPane(Container):
         # buttons are hidden
         if p2pool.parent() == FIELD.DISABLE:
             self.add_class(STATUS.NO_UPSTREAM)
-            self.remove_class(STATUS.IS_STOPPED)
             self.remove_class(STATUS.IS_RUNNING)
 
         # Hide the start/stop button
         elif p2pool.is_running():
             self.remove_class(STATUS.IS_STOPPED)
-            self.add_class(STATUS.IS_RUNNING)            
+            self.add_class(STATUS.IS_RUNNING)
 
         # Hide the stop/restart button
         else:
             self.remove_class(STATUS.IS_RUNNING)
             self.add_class(STATUS.IS_STOPPED)
 
+        self.p2pool = p2pool
+
         # Hide the new button
         if p2pool.instance():
+            intro_text = f"Configure settings for the {p2pool.instance()} deployment."
             self.add_class(FIELD.EDIT)
-
-        self.p2pool = p2pool
+        else:
+            intro_text = f"Configure settings for a new {DLabel.P2POOL} deployment."
+            self.remove_class(FIELD.UPDATE)
+            self.add_class(FIELD.NEW)
 
         # Populate inputs and labels
         self.query_one(f"#{DForm.INSTANCE_INPUT}", Input).value = p2pool.instance()
@@ -207,23 +211,6 @@ class P2PoolPane(Container):
             if p2pool.chain() == chain:
                 rb.value = True
             chain_radio_set.mount(rb)
-
-        # Configure buttons visibility
-        intro_text = f"Configure settings for a new {DLabel.P2POOL} deployment."
-        if p2pool.instance():
-            intro_text = f"Configure settings for the [b]{p2pool.instance()} {DLabel.P2POOL}[/] deployment."
-            self.remove_class(FIELD.NEW)
-            self.add_class(FIELD.UPDATE)
-
-            if p2pool.enabled():
-                self.remove_class(FIELD.DISABLED)
-                self.add_class(FIELD.ENABLED)
-            else:
-                self.remove_class(FIELD.ENABLED)
-                self.add_class(FIELD.DISABLED)
-        else:
-            self.remove_class(FIELD.UPDATE)
-            self.add_class(FIELD.NEW)
 
         self.query_one(f"#{DForm.INTRO}", Label).update(intro_text)
         self.query_one(f"#{DForm.HEALTH_LABEL}", Label).update(
