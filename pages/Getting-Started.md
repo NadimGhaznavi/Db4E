@@ -26,7 +26,7 @@ Db4E should also run on other modern Linux distributions with minimal changes.
 Before installing Db4E, make sure the following packages are installed:
 
 ```bash
-sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
+sudo apt-get install gnupg curl libhwloc15 libsystemd-dev python3.13-venv libzmq5 pip pkg-config build-essential python3-dev
 ```
 
 ### 📦 Why they're needed
@@ -34,7 +34,7 @@ sudo apt-get install gnupg curl libhwloc15 python3.11-venv libzmq5 pip
 * `libhwloc15` — required by XMRig
 * `python3.11-venv`, `pip` — for Python virtual environment and installing Db4E
 * `libzmq5` — required by P2Pool
-* `libsystemd-dev` - required by Db4E to manage *systemd* services using *DBUS*
+* `libsystemd-dev` - required to manage *systemd*
 * `pgk-config` - required for the `libsystemd` integration
 * `build-essential` - required for the `libsystemd` integration
 * `python3-dev` - required for the `libsystemd` integration
