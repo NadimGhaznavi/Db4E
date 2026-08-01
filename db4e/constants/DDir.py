@@ -26,10 +26,12 @@ class DDir:
     DEV: Final[str] = "dev_dir"
     DOT_DB4E: Final[str] = ".db4e"
     INSTALL: Final[str] = DField.INSTALL_DIR
+    LMDB: Final[str] = "lmdb"
     LOG: Final[str] = "log_dir"
     LOGROTATE: Final[str] = DFile.LOGROTATE
     MONEROD: Final[str] = "monerod"
     P2POOL: Final[str] = "p2pool"
+    PYCACHE: Final[str] = "pycache"
     RUN: Final[str] = "run_dir"
     SRC: Final[str] = "src_dir"
     SYSTEMD: Final[str] = "systemd_dir"

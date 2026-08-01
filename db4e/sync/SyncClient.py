@@ -232,8 +232,12 @@ class SyncClient:
             url=url,
             payload=payload,
         )
+        if data is None:
+            return []
+        
         return data[DSync.LOG_LINES]
-
+        
+        
     def _merge_row(self, table_name, row):
         """
         Insert or update a single row in the local DB.

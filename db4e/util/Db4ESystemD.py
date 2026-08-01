@@ -129,9 +129,7 @@ class Db4ESystemD:
         :return: None
         :rtype: None
         """
-        self._unit.Unit.Stop(DSystemD.REPLACE.encode())
-        time.sleep(1)
-        self._unit.Unit.Start(DSystemD.REPLACE.encode())
+        self._unit.Unit.Restart(DSystemD.REPLACE.encode())
 
     def running(self):
         """
@@ -145,7 +143,7 @@ class Db4ESystemD:
             and self._unit.Unit.SubState == b"running"
         )
 
-    def service_name(self, service_name=None):
+    def service_name(self, service_name=None, service_type=None):
         """
         Get/Set the service_name.
 
@@ -155,7 +153,7 @@ class Db4ESystemD:
         :rtype: str or None
         """
         if service_name:
-            self._service_name = service_name + DSystemD.SERVICE_SUFFIX
+            self._service_name = service_name + service_type
             self._unit = Unit(self._service_name.encode(), _autoload=True)
         return self._service_name
 
@@ -168,6 +166,7 @@ class Db4ESystemD:
         """
         try:
             self._unit.Unit.Start(DSystemD.REPLACE.encode())
+            self.log.debug("Starting service")
         except Exception as e:
             self.log.critical(f"ERROR: {e}")
             self.log.critical(f"STACKTRACE: {traceback.format_exc()}")

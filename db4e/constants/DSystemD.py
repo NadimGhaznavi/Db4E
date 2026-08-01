@@ -21,6 +21,7 @@ class DSystemD:
     RAW_STDERR: Final[str] = "raw_stderr"
     REPLACE: Final[str] = "replace"
     SERVICE_SUFFIX: Final[str] = ".service"
+    SOCKET_SUFFIX: Final[str] = ".socket"
     START: Final[str] = "start"
     STATUS: Final[str] = "status"
     STOP: Final[str] = "stop"

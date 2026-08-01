@@ -93,19 +93,25 @@ echo "Installed----$SYSTEMD_DIR/monerod@.socket)"
 
 # Install the P2Pool service definition file
 mv $TMP_DIR/p2pool@.service $SYSTEMD_DIR
-mv $TMP_DIR/p2pool@.socket $SYSTEMD_DIR
+#mv $TMP_DIR/p2pool@.socket $SYSTEMD_DIR
 chown root:root $SYSTEMD_DIR/p2pool@.service
-chown root:root $SYSTEMD_DIR/p2pool@.socket
+#chown root:root $SYSTEMD_DIR/p2pool@.socket
 chmod 0644 $SYSTEMD_DIR/p2pool@.service
-chmod 0644 $SYSTEMD_DIR/p2pool@.socket
+#chmod 0644 $SYSTEMD_DIR/p2pool@.socket
 echo "Installed----$SYSTEMD_DIR/p2pool@.service"
-echo "Installed----$SYSTEMD_DIR/p2pool@.socket"
+#echo "Installed----$SYSTEMD_DIR/p2pool@.socket"
 
 # Install the XMRig service definition file
 mv $TMP_DIR/xmrig@.service $SYSTEMD_DIR
 chown root:root $SYSTEMD_DIR/xmrig@.service
 chmod 0644 $SYSTEMD_DIR/xmrig@.service
 echo "Installed----$SYSTEMD_DIR/xmrig@.service"
+
+# Ensure a clean environment
+# Stop the internal P2Pool sockets
+#systemctl stop p2pool@Main.socket
+#systemctl stop p2pool@Mini.socket
+#systemctl stop p2pool@Nano.socket
 
 systemctl daemon-reload
 echo "Run Command----systemctl daemon-reload"
@@ -122,3 +128,4 @@ echo "Set Permissions----$VENDOR_DIR/xmrig/bin/xmrig"
 # Set ownership of the installed files
 chown -R root:"$DB4E_GROUP" "$VENDOR_DIR"
 echo "Set Ownership----$VENDOR_DIR"
+

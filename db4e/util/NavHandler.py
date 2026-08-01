@@ -92,6 +92,7 @@ class NavHandler:
                 DTable.MONEROD_REMOTE
             )
             depl_obj.instance_map({**local, **remote})
+            depl_obj.status(self.health_client.get_status(depl_obj))
 
         # This instance map is used to configure the upstream P2Pool or remote
         # P2Pool instance.
@@ -147,6 +148,8 @@ class NavHandler:
                 DTable.MONEROD_REMOTE
             )
             p2pool.instance_map({**local, **remote})
+            p2pool.p2p_port(db4e.next_p2p_port())
+            p2pool.stratum_port(db4e.next_stratum_port())
             return p2pool
 
         elif elem_type == DElem.P2POOL_REMOTE:
@@ -154,9 +157,13 @@ class NavHandler:
 
         elif elem_type == DElem.XMRIG:
             xmrig = XMRig()
+            db4e = self.depl_db.get_deployment(
+                elem_type=DElem.DB4E, instance=DLabel.DB4E
+            )
             local = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL)
             remote = self.depl_db.get_deployment_ids_and_instances(DTable.P2POOL_REMOTE)
             xmrig.instance_map({**local, **remote})
+            xmrig.http_port(db4e.next_http_port())
             return xmrig
 
         else:

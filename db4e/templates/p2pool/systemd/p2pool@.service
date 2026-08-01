@@ -14,19 +14,17 @@
 Description=P2Pool instance %i
 After=network-online.target
 Wants=network-online.target
-Requires=p2pool@%i.socket
 
 [Service]
 Type=exec
-Sockets=p2pool@%i.socket
-StandardInput=socket
+ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
+WorkingDirectory=[[P2POOL_DIR]]
+
 StandardOutput=journal
 StandardError=journal
 
-ExecStart=[[P2POOL_DIR]]/bin/start-p2pool.sh [[P2POOL_DIR]]/conf/%i.ini
 TimeoutStopSec=60
 
-WorkingDirectory=[[P2POOL_DIR]]
 
 [Install]
 WantedBy=multi-user.target

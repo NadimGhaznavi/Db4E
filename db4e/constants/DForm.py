@@ -32,6 +32,7 @@ class DForm:
     FORM_FIELD: Final[str] = "form_field"
     HASHRATE_LABEL: Final[str] = "hashrate_label"
     HEALTH_LABEL: Final[str] = "health_label"
+    HTTP_PORT: Final[str] = "http_port"
     INFO_MSG: Final[str] = "info_msg"
     INTRO: Final[str] = "form_intro"
     INPUT_7: Final[str] = "form_input_7"

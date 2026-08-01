@@ -276,9 +276,23 @@ class DeplMgr:
         :rtype: P2Pool
         """
         # Generate the configuration
-        db4e = self.depl_db.get_deployment(DElem.DB4E, DElem.DB4E)
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DLabel.DB4E)
         if not p2pool.any_ip():
             p2pool.any_ip(socket.gethostname())
+
+        update_db4e_flag = False
+        next_stratum_port = db4e.next_stratum_port()
+        if next_stratum_port == p2pool.stratum_port():
+            update_db4e_flag = True
+            db4e.next_stratum_port(next_stratum_port + 1)
+
+        next_p2p_port = db4e.next_p2p_port()
+        if next_p2p_port == p2pool.p2p_port():
+            update_db4e_flag = True
+            db4e.next_p2p_port(next_p2p_port + 1)
+
+        if update_db4e_flag:
+            self.depl_db.update_one(db4e)
 
         if p2pool.parent() != DField.DISABLE:
             tmpl_file = self.bs_mgr.get_template(DElem.P2POOL)
@@ -341,8 +355,7 @@ class DeplMgr:
         )
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.P2POOL)
-        db4e_group = db4e.db4e_group()
-        p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl, db4e_group=db4e_group)
+        p2pool.gen_logrotate_config(tmpl_file=logrotate_tmpl)
 
         # Add the new record
         p2pool = self.depl_db.insert_one(p2pool)
@@ -438,6 +451,12 @@ class DeplMgr:
                 xmrig.instance() + ".log",
             )
         )
+
+        db4e = self.depl_db.get_deployment(elem_type=DElem.DB4E, instance=DLabel.DB4E)
+        next_http_port = db4e.next_http_port()
+        if next_http_port == xmrig.http_port():
+            db4e.next_http_port(next_http_port + 1)
+            self.depl_db.update_one(db4e)
 
         # Generate the logrotate configuration file
         logrotate_tmpl = self.bs_mgr.get_logrotate_template(DElem.XMRIG)
@@ -604,7 +623,7 @@ class DeplMgr:
         # below.
         if (
             db4e.primary_server() != new_db4e.primary_server()
-            or db4e.primary_remote != new_db4e.primary_remote()
+            or db4e.primary_remote() != new_db4e.primary_remote()
         ):
             # The primary server is configured with two attributes:
             # 1. primary_server: The ID of the row in SQLite for the Monero or Remote Monero
@@ -1054,6 +1073,8 @@ class DeplMgr:
                 DElem.P2POOL_INTERNAL, new_p2pool.instance()
             )
             p2pool_type = DElem.P2POOL_INTERNAL
+        else:
+            raise ValueError(f"Unrecognized p2pool type: {type(new_p2pool)}")
 
         ## Field-by-field comparison
         # Enable/disable

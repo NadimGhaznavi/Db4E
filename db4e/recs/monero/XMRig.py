@@ -63,6 +63,8 @@ class XMRig(LocalMonero):
         self._hashrates = {}
         # Current hashrate
         self._hashrate = None
+        # HTTP port
+        self._http_port = None
         # Historical share found data
         self._shares_found = None
         # The upstream P2Pool instance
@@ -85,6 +87,7 @@ class XMRig(LocalMonero):
         """
         super().from_rec(rec)
         self._config_file = rec[DCol.CONFIG_FILE]
+        self._http_port = rec[DCol.HTTP_PORT]
         self._log_file = rec[DCol.LOG_FILE]
         self._logrotate_config = rec[DCol.LOGROTATE_CONFIG]
         self._max_log_files = rec[DCol.MAX_LOG_FILES]
@@ -105,6 +108,7 @@ class XMRig(LocalMonero):
         data.update(
             {
                 DCol.CONFIG_FILE: self._config_file,
+                DCol.HTTP_PORT: self._http_port,
                 DCol.LOG_FILE: self._log_file,
                 DCol.LOGROTATE_CONFIG: self._logrotate_config,
                 DCol.MAX_LOG_FILES: self._max_log_files,
@@ -131,6 +135,11 @@ class XMRig(LocalMonero):
         if config_file is not None:
             self._config_file = config_file
         return self._config_file
+
+    def http_port(self, port=None):
+        if port is not None:
+            self._http_port = port
+        return self._http_port
 
     def log_file(self, log_file=None):
         """
@@ -267,6 +276,7 @@ class XMRig(LocalMonero):
 
         # Populate the config templace placeholders
         placeholders = {
+            DPlaceholder.HTTP_PORT: self.http_port(),
             DPlaceholder.MINER_NAME: self.instance(),
             DPlaceholder.NUM_THREADS: ",".join(["-1"] * int(self.num_threads())),
             DPlaceholder.URL: url_entry,
