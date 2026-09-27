@@ -3,6 +3,10 @@ description: Monero XMR Mining Operation
 
 remote_theme: nadimghaznavi/minimax
 
+mycount:
+    endpoint: "https://count.osoyalce.com/count"
+    site: "db4e"
+
 plugins:
   - jekyll-remote-theme
 

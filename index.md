@@ -118,3 +118,5 @@ Every contribution helps keep the project growing!
 * [Git Branching Strategy](/pages/Git-Branching-Strategy.html)
 * [Git Commit Standard](/pages/Git-Commit-Standard.html)
 * [Donations](/pages/Donations.html)
+
+
